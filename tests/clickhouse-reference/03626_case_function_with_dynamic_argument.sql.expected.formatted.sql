@@ -4,7 +4,7 @@ CREATE TABLE t0
 (
     c0 Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 (c0);
 

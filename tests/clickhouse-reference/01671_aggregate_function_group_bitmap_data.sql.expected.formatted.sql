@@ -1,4 +1,4 @@
-SET group_by_two_level_threshold = 10000;
+SET group_by_two_level_threshold = '10000';
 
 CREATE TABLE group_bitmap_data_test
 (
@@ -6,7 +6,7 @@ CREATE TABLE group_bitmap_data_test
     city_id UInt32,
     uid UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO group_bitmap_data_test SELECT
     '2019-01-01',
@@ -44,7 +44,7 @@ FROM
             uid,
             city_id
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             city_id,
             groupBitmapState(uid) AS day_before

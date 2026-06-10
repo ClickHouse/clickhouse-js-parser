@@ -1,146 +1,136 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_two_level_threshold",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_two_level_threshold": "1",
+        "max_threads": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "anyLast",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "s"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "union",
-        "queries": [
-          {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "anyLast",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "s"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "123456789"
-                },
-                "alias": "k"
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "Hello 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890"
-                },
-                "alias": "s"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "k",
+                              "value_type": "UInt64",
+                              "value": "123456789"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "s",
+                              "value_type": "String",
+                              "value": "Hello 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "234567890"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "World 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
           },
-          {
-            "kind": "select",
-            "select": [
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "having": {
+            "type": "Function",
+            "name": "greater",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "234567890"
+                "type": "Function",
+                "name": "length",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "anyLast",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "s"
+                      }
+                    ]
+                  }
+                ]
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "World 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890"
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
               }
             ]
-          }
-        ]
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "withTotals": true,
-    "having": {
-      "kind": "binaryExpr",
-      "op": ">",
-      "left": {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "anyLast",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "s"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "/* There was a bug in implementation of WITH TOTALS.\n * When there was more than one block after aggregation,\n *  nullptr is passed to IAggregateFunction::merge instead of pointer to valid Arena.\n *\n * To reproduce, we set 'group_by_two_level_threshold' to small value to enable two-level aggregation.\n * Only in two-level aggregation there are many blocks after GROUP BY.\n *\n * Also use UNION ALL in subquery to generate two blocks before GROUP BY.\n * Because two-level aggregation may be triggered only after a block is processed.\n *\n * Use large numbers as a key, because for 8, 16 bit numbers,\n *  two-level aggregation is not possible as simple aggregation method is used.\n * These numbers are happy to hash to different buckets and we thus we have two blocks after GROUP BY.\n *\n * Also we use long strings (at least 64 bytes) in aggregation state,\n *  because aggregate functions min/max/any/anyLast use Arena only for long enough strings.\n *\n * And we use function 'anyLast' for method IAggregateFunction::merge to be called for every new value.\n *\n * We use useless HAVING (that is always true), because in absense of HAVING,\n *  TOTALS are calculated in a simple way in same pass during aggregation, not in TotalsHavingTransform,\n *  and bug doesn't trigger.\n *\n * We use ORDER BY for result of the test to be deterministic.\n * max_threads = 1 for deterministic order of result in subquery and the value of 'anyLast'.\n */"
-    ]
-  }
+    }
+  },
+  "<AST Error>"
 ]

@@ -1,107 +1,147 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_array_index"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_array_index"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_array_index"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "Nested",
-          "args": [
-            {
-              "kind": "namedField",
-              "name": "key",
-              "type": {
-                "name": "String"
-              }
-            },
-            {
-              "kind": "namedField",
-              "name": "value",
-              "type": {
-                "name": "String"
-              }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_array_index"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nested",
+              "arguments": [
+                {
+                  "type": "NameTypePair",
+                  "name": "key",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "String"
+                  }
+                },
+                {
+                  "type": "NameTypePair",
+                  "name": "value",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "String"
+                  }
+                }
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n.key",
+          "name_parts": [
             "n",
             "key"
           ]
         }
       }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_array_index"
-      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "t_array_index"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_array_index"
       },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_array_index"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "name": "n"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "n.key",
+                "name_parts": [
+                  "n",
+                  "key"
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "a"
+              }
+            ]
+          }
         }
       ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n",
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "a"
-      }
     }
   }
 ]

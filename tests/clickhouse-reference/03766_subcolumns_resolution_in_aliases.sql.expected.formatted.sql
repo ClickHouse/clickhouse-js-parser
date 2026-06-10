@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -9,7 +9,7 @@ CREATE TABLE test
     ab UInt64 ALIAS a.b,
     bcd UInt64 ALIAS b.c.d
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test SELECT

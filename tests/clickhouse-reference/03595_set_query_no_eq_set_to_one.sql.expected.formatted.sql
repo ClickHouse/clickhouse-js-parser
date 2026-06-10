@@ -5,7 +5,7 @@ SELECT
     default
 FROM `system`.`settings`
 WHERE name = 'force_index_by_date'
-SETTINGS force_index_by_date = 1;
+SETTINGS force_index_by_date = true;
 
 SELECT
     name,
@@ -14,7 +14,7 @@ SELECT
     default
 FROM `system`.`settings`
 WHERE name = 'force_index_by_date'
-SETTINGS force_index_by_date = 0;
+SETTINGS force_index_by_date = '0';
 
 SELECT
     name,
@@ -23,7 +23,7 @@ SELECT
     default
 FROM `system`.`settings`
 WHERE name = 'force_index_by_date'
-SETTINGS force_index_by_date = 1;
+SETTINGS force_index_by_date = '1';
 
 SELECT
     name,
@@ -41,7 +41,7 @@ SELECT
     default
 FROM `system`.`settings`
 WHERE name = 'force_index_by_date'
-SETTINGS force_index_by_date = 1
+SETTINGS force_index_by_date = true
 FORMAT CSV;
 
 SELECT
@@ -53,8 +53,8 @@ FROM `system`.`settings`
 WHERE name IN ('force_index_by_date', 'log_queries')
 ORDER BY name ASC
 SETTINGS
-    force_index_by_date = 1,
-    log_queries = 1;
+    force_index_by_date = true,
+    log_queries = true;
 
 SELECT
     name,
@@ -65,8 +65,8 @@ FROM `system`.`settings`
 WHERE name IN ('force_index_by_date', 'log_queries')
 ORDER BY name ASC
 SETTINGS
-    force_index_by_date = 0,
-    log_queries = 1;
+    force_index_by_date = '0',
+    log_queries = true;
 
 SELECT
     name,
@@ -77,8 +77,8 @@ FROM `system`.`settings`
 WHERE name IN ('force_index_by_date', 'log_queries')
 ORDER BY name ASC
 SETTINGS
-    force_index_by_date = 1,
-    log_queries = 0;
+    force_index_by_date = true,
+    log_queries = '0';
 
 SELECT
     name,
@@ -88,11 +88,11 @@ SELECT
 FROM `system`.`settings`
 WHERE name IN ('force_index_by_date', 'log_queries')
 SETTINGS
-    force_index_by_date = 1,
-    log_queries = 1
+    force_index_by_date = true,
+    log_queries = true
 FORMAT CSV;
 
-SET force_index_by_date = 1;
+SET force_index_by_date = true;
 
 SELECT
     name,
@@ -104,9 +104,9 @@ WHERE name = 'force_index_by_date';
 
 SET force_index_by_date = DEFAULT;
 
-SET force_index_by_date = 1;
+SET force_index_by_date = '1';
 
-SET force_index_by_date = 0;
+SET force_index_by_date = '0';
 
 SET force_index_by_date = DEFAULT, log_queries = DEFAULT;
 
@@ -119,27 +119,27 @@ FROM `system`.`settings`
 WHERE name IN ('force_index_by_date', 'log_queries')
 ORDER BY name ASC;
 
-SET force_index_by_date = 1, log_queries = 0;
+SET force_index_by_date = true, log_queries = '0';
 
-SET force_index_by_date = 0, log_queries = 1;
+SET force_index_by_date = '0', log_queries = true;
 
-SET force_index_by_date = 1, log_queries = 1;
+SET force_index_by_date = true, log_queries = true;
 
 CREATE TABLE t
 (
     id UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS async_insert = 1, optimize_on_insert = 1;
+SETTINGS async_insert = true, optimize_on_insert = true;
 
-INSERT INTO t SETTINGS async_insert = 1, optimize_on_insert = 1;
+INSERT INTO t SETTINGS async_insert = true, optimize_on_insert = true;
 
-INSERT INTO t SETTINGS async_insert = 0, optimize_on_insert = 1;
+INSERT INTO t SETTINGS async_insert = '0', optimize_on_insert = true;
 
-INSERT INTO t SETTINGS async_insert = 1, optimize_on_insert = 0;
+INSERT INTO t SETTINGS async_insert = true, optimize_on_insert = '0';
 
-INSERT INTO t SETTINGS async_insert = 1, optimize_on_insert = 1;
+INSERT INTO t SETTINGS async_insert = '1', optimize_on_insert = '1';
 
 SELECT id
 FROM t

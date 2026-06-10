@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS decimal
     e ALIAS b * 2,
     f ALIAS c * 6
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DESCRIBE TABLE decimal;
 

@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 SELECT '-- negative tests';
 
@@ -24,7 +24,7 @@ SELECT
     sqidDecode(sqid);
 
 SELECT
-    sqidEncode(1::UInt8, 2::UInt16, 3::UInt32, 4::UInt64) AS sqid,
+    sqidEncode(CAST('1' AS UInt8), CAST('2' AS UInt16), CAST('3' AS UInt32), CAST('4' AS UInt64)) AS sqid,
     sqidDecode(sqid);
 
 SELECT sqidEncode(toNullable(1), toLowCardinality(2)) AS sqid;
@@ -44,7 +44,7 @@ SELECT
     sqidDecode(sqid);
 
 SELECT
-    sqidEncode(materialize(1::UInt8), materialize(2::UInt16), materialize(3::UInt32), materialize(4::UInt64)) AS sqid,
+    sqidEncode(materialize(CAST('1' AS UInt8)), materialize(CAST('2' AS UInt16)), materialize(CAST('3' AS UInt32)), materialize(CAST('4' AS UInt64))) AS sqid,
     sqidDecode(sqid);
 
 SELECT sqidEncode(toNullable(materialize(1)), toLowCardinality(materialize(2)));
@@ -57,7 +57,7 @@ CREATE TABLE tab
 (
     id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab SELECT *

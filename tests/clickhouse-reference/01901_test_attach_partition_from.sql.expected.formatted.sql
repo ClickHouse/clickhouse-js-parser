@@ -8,7 +8,7 @@ CREATE TABLE test_alter_attach_01901S
     A Int64,
     D date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY A
 PARTITION BY D;
 
@@ -23,7 +23,7 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_alter_attach_01
 ORDER BY A
 PARTITION BY D;
 
-ALTER TABLE test_alter_attach_01901D REPLACE PARTITION '2020-01-01' FROM test_alter_attach_01901S;
+ALTER TABLE test_alter_attach_01901D ATTACH PARTITION '2020-01-01' FROM test_alter_attach_01901S;
 
 SELECT count()
 FROM test_alter_attach_01901D;

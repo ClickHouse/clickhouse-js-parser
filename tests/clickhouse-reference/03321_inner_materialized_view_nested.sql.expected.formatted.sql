@@ -1,4 +1,4 @@
-SET flatten_nested = 1;
+SET flatten_nested = '1';
 
 DROP TABLE IF EXISTS t;
 
@@ -13,11 +13,11 @@ CREATE TABLE t
 ORDER BY x;
 
 CREATE MATERIALIZED VIEW mv
-ORDER BY tuple()
+ORDER BY ()
 AS
 SELECT
     x,
-    ([(y, z)])::Nested(y int, z int)
+    [(y, z)]::Nested(y int, z int)
 FROM t;
 
 INSERT INTO t;
@@ -38,7 +38,7 @@ CREATE TABLE t
 ORDER BY x;
 
 CREATE MATERIALIZED VIEW mv
-ORDER BY tuple()
+ORDER BY ()
 AS
 SELECT
     x,

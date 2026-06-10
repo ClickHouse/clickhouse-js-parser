@@ -6,13 +6,13 @@ CREATE TABLE empty
 (
     value Int8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE data
 (
     value Int8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO data SELECT *
 FROM empty;

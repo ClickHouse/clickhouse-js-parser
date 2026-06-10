@@ -1,298 +1,347 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/27115"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "fill_ex"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "fill_ex"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "eventDate",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "storeId",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "eventDate"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "storeId"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "eventDate"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "fill_ex"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "eventDate"
-        ]
+        "type": "Identifier",
+        "name": "fill_ex"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "storeId"
-        ]
-      }
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "groupArray",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "fill_ex"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "eventDate",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "storeId",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
+              "type": "Identifier",
+              "name": "eventDate"
             }
           ]
         },
-        "alias": "keys"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "alias": "c"
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "storeId"
+            },
+            {
+              "type": "Identifier",
+              "name": "eventDate"
+            }
+          ]
+        }
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "eventDate"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "fill_ex"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "eventDate"
+        },
+        {
+          "type": "Identifier",
+          "name": "storeId"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "keys",
+              "name": "groupArray",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                }
               ]
             },
-            "alias": "key"
-          }
-        ],
-        "from": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "eventDate"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "subqueryFrom",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "eventDate"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "fill_ex",
-                  "final": true
-                },
-                "where": {
-                  "kind": "naryExpr",
-                  "op": "AND",
-                  "operands": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": ">=",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "eventDate"
-                        ]
-                      },
-                      "right": {
-                        "kind": "functionCall",
-                        "name": "toDate",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "2021-07-01"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "binaryExpr",
-                      "op": "<",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "eventDate"
-                        ]
-                      },
-                      "right": {
-                        "kind": "functionCall",
-                        "name": "toDate",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "2021-07-30"
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                },
-                "orderBy": [
-                  {
-                    "kind": "orderByItem",
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "eventDate"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            },
+                            {
+                              "type": "Identifier",
+                              "alias": "key",
+                              "name": "eventDate"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "subquery": {
+                                    "type": "Subquery",
+                                    "query": {
+                                      "type": "SelectWithUnionQuery",
+                                      "selects": [
+                                        {
+                                          "type": "SelectQuery",
+                                          "select": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "eventDate"
+                                            }
+                                          ],
+                                          "from": {
+                                            "type": "TablesInSelectQuery",
+                                            "children": [
+                                              {
+                                                "type": "TablesInSelectQueryElement",
+                                                "table_expression": {
+                                                  "type": "TableExpression",
+                                                  "subquery": {
+                                                    "type": "Subquery",
+                                                    "query": {
+                                                      "type": "SelectWithUnionQuery",
+                                                      "selects": [
+                                                        {
+                                                          "type": "SelectQuery",
+                                                          "select": [
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "eventDate"
+                                                            }
+                                                          ],
+                                                          "from": {
+                                                            "type": "TablesInSelectQuery",
+                                                            "children": [
+                                                              {
+                                                                "type": "TablesInSelectQueryElement",
+                                                                "table_expression": {
+                                                                  "type": "TableExpression",
+                                                                  "database_and_table_name": {
+                                                                    "type": "TableIdentifier",
+                                                                    "name": "fill_ex"
+                                                                  },
+                                                                  "final": true
+                                                                }
+                                                              }
+                                                            ]
+                                                          },
+                                                          "where": {
+                                                            "type": "Function",
+                                                            "name": "and",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Function",
+                                                                "name": "greaterOrEquals",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "eventDate"
+                                                                  },
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "toDate",
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Literal",
+                                                                        "value_type": "String",
+                                                                        "value": "2021-07-01"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "type": "Function",
+                                                                "name": "less",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "eventDate"
+                                                                  },
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "toDate",
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Literal",
+                                                                        "value_type": "String",
+                                                                        "value": "2021-07-30"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          "order_by": [
+                                                            {
+                                                              "type": "OrderByElement",
+                                                              "expression": {
+                                                                "type": "Identifier",
+                                                                "name": "eventDate"
+                                                              },
+                                                              "direction": "ASC"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "order_by": [
+                                            {
+                                              "type": "OrderByElement",
+                                              "expression": {
+                                                "type": "Identifier",
+                                                "name": "eventDate"
+                                              },
+                                              "direction": "ASC",
+                                              "with_fill": true,
+                                              "fill_from": {
+                                                "type": "Function",
+                                                "name": "toDate",
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "2021-07-01"
+                                                  }
+                                                ]
+                                              },
+                                              "fill_to": {
+                                                "type": "Function",
+                                                "name": "toDate",
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "2021-07-30"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "eventDate"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
                       ]
-                    },
-                    "direction": "ASC"
+                    }
                   }
-                ]
-              }
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "eventDate"
-                  ]
-                },
-                "direction": "ASC",
-                "fillFrom": {
-                  "kind": "functionCall",
-                  "name": "toDate",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2021-07-01"
-                    }
-                  ]
-                },
-                "fillTo": {
-                  "kind": "functionCall",
-                  "name": "toDate",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2021-07-30"
-                    }
-                  ]
                 }
               }
             ]
           }
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "eventDate"
-              ]
-            },
-            "direction": "ASC"
-          }
-        ]
-      }
+        }
+      ]
     }
   }
 ]

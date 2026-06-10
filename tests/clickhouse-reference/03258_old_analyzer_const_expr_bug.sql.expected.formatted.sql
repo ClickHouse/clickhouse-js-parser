@@ -1,9 +1,9 @@
 WITH multiIf('-1' = '-1', 10080, '-1' = '7', 60, '-1' = '1', 5, 1440) AS interval_start, -- noqa
 
-  multiIf('-1' = '-1', CEIL(((today() - toDate('2017-06-22'))) / 7)::UInt16, '-1' = '7', 168, '-1' = '1', 288, 90) AS days_run, -- noqa:L045
+  multiIf('-1' = '-1', CEIL((today() - toDate('2017-06-22')) / 7)::UInt16, '-1' = '7', 168, '-1' = '1', 288, 90) AS days_run, -- noqa:L045
 
   block_time AS (
-    SELECT arrayJoin(arrayMap(i -> toDateTime(toStartOfInterval(now(), toIntervalMinute(interval_start)) - interval_start * 60 * i, 'UTC'), range(days_run)))
+    SELECT arrayJoin(arrayMap((i -> toDateTime(toStartOfInterval(now(), toIntervalMinute(interval_start)) - interval_start * 60 * i, 'UTC')), range(days_run)))
 ),
 
   sales AS (

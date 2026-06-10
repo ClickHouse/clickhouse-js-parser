@@ -1,138 +1,154 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "throwIf",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "binaryExpr",
-              "op": "/",
-              "left": {
-                "kind": "functionCall",
-                "name": "stddevSampStable",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "theta"
-                    ]
-                  }
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "avg",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "theta"
-                    ]
-                  }
-                ]
-              }
-            },
-            "right": {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            },
-            "alias": "key"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqTheta",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "throwIf",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "generateUUIDv4",
-                  "args": [
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
+                      "type": "Function",
+                      "name": "divide",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "stddevSampStable",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "theta"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "avg",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "theta"
+                            }
+                          ]
+                        }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.1
                     }
                   ]
                 }
               ]
-            },
-            "alias": "theta"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_totals": true,
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "key",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "theta",
+                              "name": "uniqTheta",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "generateUUIDv4",
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers_mt",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "9160000"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "key"
+                            }
+                          ],
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "max_threads": "8"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers_mt",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "9160000"
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
-            }
-          ]
-        },
-        "withTotals": true,
-        "settings": [
-          {
-            "name": "max_threads",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "8"
-            }
-          }
-        ]
-      }
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- Tags: no-fasttest",
-      "-- - no-fasttest -- compiled w/o datasketches",
-      "-- Regression for very high error in uniqTheta() due to optimization for u8 keys"
-    ]
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

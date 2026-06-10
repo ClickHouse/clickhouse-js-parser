@@ -6,7 +6,7 @@ CREATE TABLE tab
     name String,
     timestamp DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY machine_id
 PARTITION BY toYYYYMM(timestamp);
 

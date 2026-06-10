@@ -1,101 +1,122 @@
 [
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "ifNotExists": true,
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "some/path/"
+              "type": "Function",
+              "name": "concat",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "some/path/"
+                },
+                {
+                  "type": "Function",
+                  "name": "currentDatabase",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "/replicated_database_test"
+                }
+              ]
             },
             {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard_1"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "/replicated_database_test"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica_1"
             }
           ]
         },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard_1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica_1"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "max_broken_tables_ratio",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "max_broken_tables_ratio": "1"
+          }
         }
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "engine_full"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "databases"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "current_database",
-        "args": []
-      }
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "engine_full"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "databases",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "name"
+              },
+              {
+                "type": "Function",
+                "name": "current_database",
+                "arguments": []
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

@@ -1,28 +1,28 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.id,
     value.value;
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.* APPLY(toString);
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.COLUMNS(id) APPLY(toString);
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.COLUMNS(value) APPLY(toString);
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.COLUMNS('i') APPLY(toString);
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     value.COLUMNS('v') APPLY(toString);
 
 DROP TABLE IF EXISTS test_table;
@@ -32,7 +32,7 @@ CREATE TABLE test_table
     id UInt64,
     value Tuple(value_0_level_0 Tuple(value_0_level_1 String, value_1_level_1 String), value_1_level_0 String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -170,7 +170,7 @@ CREATE TABLE test_table
     id UInt64,
     value Nested(value_0_level_0 Nested(value_0_level_1 String, value_1_level_1 String), value_1_level_0 String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;

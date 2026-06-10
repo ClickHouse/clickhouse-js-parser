@@ -5,7 +5,7 @@ CREATE TABLE my_events
     start UInt32,
     `end` UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT *
 FROM VALUES('start UInt32, end UInt32', (1, 3), (1, 6), (2, 5), (3, 7));

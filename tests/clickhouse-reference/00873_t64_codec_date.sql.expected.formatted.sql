@@ -3,9 +3,9 @@ DROP TABLE IF EXISTS t64;
 CREATE TABLE t64
 (
     date16 Date,
-    t_date16 Date CODEC(T64, ZSTD),
+    t_date16 Date CODEC(T64(), ZSTD()),
     date_32 Date32,
-    t_date32 Date32 CODEC(T64, ZSTD)
+    t_date32 Date32 CODEC(T64(), ZSTD())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();

@@ -1,4 +1,4 @@
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 DROP TABLE IF EXISTS BadTable;
 
@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS BadJoin
     name LowCardinality(String)
 )
 ENGINE = MergeTree()
-ORDER BY (name);
+ORDER BY name;
 
 INSERT INTO BadJoin SELECT
     '12a34567-8901-2345-6789-012345678901',
     '12';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- TODO(@vdimir): NOT_FOUND_COLUMN_IN_BLOCK is a bug, should be fixed
 -- This tests ensures that query does not crash at least

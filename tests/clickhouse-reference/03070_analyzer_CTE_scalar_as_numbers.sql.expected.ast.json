@@ -1,73 +1,83 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/8259"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "something",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "something",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "25"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Asterisk"
+            },
+            {
+              "type": "Identifier",
+              "name": "something"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "25"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toUInt64",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "assumeNotNull",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "something"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "asterisk"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "something"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "toUInt64",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "assumeNotNull",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "something"
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     }

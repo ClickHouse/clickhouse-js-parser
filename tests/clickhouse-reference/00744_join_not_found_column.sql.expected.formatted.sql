@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TEMPORARY TABLE IF EXISTS test_00744;
 
@@ -21,7 +21,7 @@ FROM (
                     1
                 FROM test_00744
             )
-        INNER JOIN (
+        ALL INNER JOIN (
                 SELECT
                     count(),
                     1
@@ -41,7 +41,7 @@ FROM
             1
         FROM test_00744
     )
-INNER JOIN (
+ALL INNER JOIN (
         SELECT
             count(),
             1

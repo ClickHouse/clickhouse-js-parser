@@ -42,10 +42,10 @@ FROM (
                 SELECT *
                 FROM tableTrees
             ) AS trees
-            ON (common.key = trees.key)
+            ON common.key = trees.key
     )
 UNION ALL
-(SELECT
+SELECT
     common.key,
     common.value,
     NULL AS name,
@@ -59,7 +59,7 @@ INNER JOIN (
         SELECT *
         FROM tableFlowers
     ) AS flowers
-    ON (common.key = flowers.key));
+    ON common.key = flowers.key;
 
 SELECT *
 FROM (
@@ -77,10 +77,10 @@ FROM (
                 SELECT *
                 FROM tableTrees
             ) AS trees
-            ON (common.key = trees.key)
+            ON common.key = trees.key
     )
 UNION ALL
-(SELECT
+SELECT
     common.key,
     common.value,
     flowers.name,
@@ -94,4 +94,4 @@ INNER JOIN (
         SELECT *
         FROM tableFlowers
     ) AS flowers
-    ON (common.key = flowers.key));
+    ON common.key = flowers.key;

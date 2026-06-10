@@ -4,7 +4,7 @@ CREATE TABLE nums
 (
     n UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO nums;
 

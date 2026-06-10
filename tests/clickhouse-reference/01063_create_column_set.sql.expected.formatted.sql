@@ -5,13 +5,13 @@ CREATE TABLE mt
     x UInt8,
     y Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 SELECT count()
 FROM
     mt
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT 1 AS x
     ) AS js2
     USING (x)

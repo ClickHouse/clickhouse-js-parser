@@ -1,5 +1,5 @@
 -- Tags: stateful
-SET max_rows_to_read = 1000;
+SET max_rows_to_read = '1000';
 
 SELECT
     CounterID,
@@ -14,7 +14,7 @@ SELECT
 FROM test.hits
 WHERE 0 != 0
 GROUP BY CounterID
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 SELECT
     CounterID,
@@ -31,4 +31,4 @@ FROM test.hits
 WHERE 0
     AND CounterID = 1704509
 GROUP BY CounterID
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';

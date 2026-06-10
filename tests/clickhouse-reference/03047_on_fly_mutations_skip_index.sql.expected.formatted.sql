@@ -1,17 +1,17 @@
 -- Tags: no-shared-catalog, no-parallel-replicas
 -- no-shared-catalog: STOP MERGES will only stop them on the current replica, the second one will continue to merge
 -- no-parallel-replicas: the result of EXPLAIN differs with parallel replicas
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
 DROP TABLE IF EXISTS t_lightweight_mut_3;
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
 CREATE TABLE t_lightweight_mut_3
 (
     id UInt64,
     v UInt64,
-    INDEX idx v TYPE minmax GRANULARITY 1
+    INDEX idx v TYPE minmax() GRANULARITY 1
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_lightweight_mut_3', '1')
 ORDER BY id;
@@ -30,18 +30,20 @@ WHERE v > 100
 ORDER BY id ASC
 SETTINGS force_data_skipping_indices = 'idx';
 
-SELECT trim(`explain`) AS s
+SELECT trimBoth(`explain`) AS s
 FROM (
-        EXPLAIN indexes = 1
-        SELECT
-            id,
-            v
-        FROM t_lightweight_mut_3
-        WHERE v > 100
-        ORDER BY id ASC
-        SETTINGS force_data_skipping_indices = 'idx'
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT
+                    id,
+                    v
+                FROM t_lightweight_mut_3
+                WHERE v > 100
+                ORDER BY id ASC
+                SETTINGS force_data_skipping_indices = 'idx'
+            ))
     )
-WHERE like(s, 'Granules: %');
+WHERE s LIKE 'Granules: %';
 
 ALTER TABLE t_lightweight_mut_3 UPDATE v = 1000 WHERE id = 1;
 
@@ -55,20 +57,22 @@ SELECT
 FROM t_lightweight_mut_3
 WHERE v > 100
 ORDER BY id ASC
-SETTINGS apply_mutations_on_fly = 1;
+SETTINGS apply_mutations_on_fly = '1';
 
-SELECT trim(`explain`) AS s
+SELECT trimBoth(`explain`) AS s
 FROM (
-        EXPLAIN indexes = 1
-        SELECT
-            id,
-            v
-        FROM t_lightweight_mut_3
-        WHERE v > 100
-        ORDER BY id ASC
-        SETTINGS apply_mutations_on_fly = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT
+                    id,
+                    v
+                FROM t_lightweight_mut_3
+                WHERE v > 100
+                ORDER BY id ASC
+                SETTINGS apply_mutations_on_fly = '1'
+            ))
     )
-WHERE like(s, 'Granules: %');
+WHERE s LIKE 'Granules: %';
 
 SELECT
     id,
@@ -76,19 +80,21 @@ SELECT
 FROM t_lightweight_mut_3
 WHERE v > 100
 ORDER BY id ASC
-SETTINGS apply_mutations_on_fly = 0;
+SETTINGS apply_mutations_on_fly = '0';
 
-SELECT trim(`explain`) AS s
+SELECT trimBoth(`explain`) AS s
 FROM (
-        EXPLAIN indexes = 1
-        SELECT
-            id,
-            v
-        FROM t_lightweight_mut_3
-        WHERE v > 100
-        ORDER BY id ASC
-        SETTINGS apply_mutations_on_fly = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT
+                    id,
+                    v
+                FROM t_lightweight_mut_3
+                WHERE v > 100
+                ORDER BY id ASC
+                SETTINGS apply_mutations_on_fly = '0'
+            ))
     )
-WHERE like(s, 'Granules: %');
+WHERE s LIKE 'Granules: %';
 
 DROP TABLE t_lightweight_mut_3;

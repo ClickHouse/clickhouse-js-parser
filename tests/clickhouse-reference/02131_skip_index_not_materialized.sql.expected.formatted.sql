@@ -4,7 +4,7 @@ CREATE TABLE t_index_non_materialized
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_index_non_materialized;

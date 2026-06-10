@@ -18,7 +18,7 @@ INSERT INTO auto_assign_enum;
 SELECT *
 FROM auto_assign_enum;
 
-SELECT CAST(x, 'Int8')
+SELECT CAST(x AS Int8)
 FROM auto_assign_enum;
 
 SELECT *
@@ -37,7 +37,7 @@ INSERT INTO auto_assign_enum1;
 SELECT *
 FROM auto_assign_enum1;
 
-SELECT CAST(x, 'Int16')
+SELECT CAST(x AS Int16)
 FROM auto_assign_enum1;
 
 SELECT *
@@ -60,7 +60,7 @@ ORDER BY x;
 
 INSERT INTO auto_assign_enum2;
 
-SELECT CAST(x, 'Int8')
+SELECT CAST(x AS Int8)
 FROM auto_assign_enum2;
 
 CREATE TABLE auto_assign_enum3

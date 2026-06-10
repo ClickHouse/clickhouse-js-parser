@@ -8,7 +8,7 @@ CREATE TABLE t_00818
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE s_00818
 (
@@ -16,7 +16,7 @@ CREATE TABLE s_00818
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_00818;
 

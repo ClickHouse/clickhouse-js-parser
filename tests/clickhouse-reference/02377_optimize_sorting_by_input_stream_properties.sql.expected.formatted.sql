@@ -1,4 +1,4 @@
-SET optimize_sorting_by_input_stream_properties = 1;
+SET optimize_sorting_by_input_stream_properties = '1';
 
 DROP TABLE IF EXISTS optimize_sorting;
 
@@ -57,7 +57,7 @@ ORDER BY c ASC;
 -- queries with unary function in order by
 SELECT a
 FROM optimize_sorting
-ORDER BY negate(a) ASC;
+ORDER BY -a ASC;
 
 SELECT a
 FROM optimize_sorting

@@ -17,8 +17,8 @@ FROM data_01295; -- no stuck for now
 
 INSERT INTO data_01295 SELECT *
 FROM data_01295 FINAL
-SETTINGS max_threads = 2; -- stuck with multiple threads
+SETTINGS max_threads = '2'; -- stuck with multiple threads
 
-SET max_insert_threads = 2;
+SET max_insert_threads = '2';
 
 DROP TABLE data_01295;

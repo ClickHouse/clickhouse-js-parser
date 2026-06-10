@@ -7,9 +7,9 @@ CREATE TABLE t
     a Int,
     b Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 400;
+SETTINGS index_granularity = '400';
 
 INSERT INTO t SELECT
     0,
@@ -39,7 +39,7 @@ FROM numbers(100);
 SELECT sleep(1)
 FORMAT Null; -- sleep a bit to wait possible merges after insert
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 OPTIMIZE TABLE t FINAL;
 

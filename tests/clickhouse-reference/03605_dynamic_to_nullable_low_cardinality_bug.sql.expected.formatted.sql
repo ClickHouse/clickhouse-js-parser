@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1, allow_experimental_dynamic_type = 1, allow_dynamic_type_in_join_keys = 1;
+SET allow_suspicious_low_cardinality_types = '1', allow_experimental_dynamic_type = '1', allow_dynamic_type_in_join_keys = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -17,7 +17,7 @@ CREATE TABLE t1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t0 (c0);
 

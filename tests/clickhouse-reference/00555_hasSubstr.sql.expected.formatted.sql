@@ -4,19 +4,19 @@ SELECT hasSubstr([], [1]);
 
 SELECT hasSubstr([], [NULL]);
 
-SELECT hasSubstr([Null], [Null]);
+SELECT hasSubstr([NULL], [NULL]);
 
-SELECT hasSubstr([Null], [Null, 1]);
+SELECT hasSubstr([NULL], [NULL, 1]);
 
 SELECT hasSubstr([1], []);
 
-SELECT hasSubstr([1], [Null]);
+SELECT hasSubstr([1], [NULL]);
 
-SELECT hasSubstr([1, Null], [Null]);
+SELECT hasSubstr([1, NULL], [NULL]);
 
-SELECT hasSubstr([1, Null, 3, 4, Null, 5, 7], [3, 4, Null]);
+SELECT hasSubstr([1, NULL, 3, 4, NULL, 5, 7], [3, 4, NULL]);
 
-SELECT hasSubstr([1, Null], [3, 4, Null]);
+SELECT hasSubstr([1, NULL], [3, 4, NULL]);
 
 SELECT hasSubstr([1], emptyArrayUInt8());
 
@@ -26,7 +26,7 @@ SELECT hasSubstr([1, 2, 3, 4], [1, 3, 5]);
 
 SELECT hasSubstr([-128, 1., 512], [1.]);
 
-SELECT hasSubstr([-128, 1.0, 512], [.3]);
+SELECT hasSubstr([-128, 1., 512], [0.3]);
 
 SELECT hasSubstr(['a'], ['a']);
 

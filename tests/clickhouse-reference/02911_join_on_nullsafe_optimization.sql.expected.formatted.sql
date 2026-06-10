@@ -11,14 +11,14 @@ CREATE TABLE t1
     x Nullable(Int64),
     y Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t2
 (
     x Nullable(Int64),
     y Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t1;
 
@@ -29,48 +29,48 @@ CREATE TABLE t1n
     x Int64,
     y UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t2n
 (
     x Int64,
     y UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t1n;
 
 INSERT INTO t2n;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- { echoOn }
 SELECT *
 FROM
     t1
 INNER JOIN t2
+    ON t1.x <=> t2.x
+    OR t1.x IS NULL
+    AND t2.x IS NULL
+ORDER BY t1.x ASC NULLS LAST;
+
+SELECT *
+FROM
+    t1
+INNER JOIN t2
     ON (t1.x <=> t2.x
-    OR (isNull(t1.x)
-    AND isNull(t2.x)))
-ORDER BY t1.x ASC;
-
-SELECT *
-FROM
-    t1
-INNER JOIN t2
-    ON ((t1.x <=> t2.x
-    OR isNull(t1.x)
-    AND isNull(t2.x)))
+    OR t1.x IS NULL
+    AND t2.x IS NULL)
     OR t1.y <=> t2.y
-ORDER BY t1.x ASC;
+ORDER BY t1.x ASC NULLS LAST;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON (t1.x = t2.x
-    OR isNull(t1.x)
-    AND isNull(t2.x))
+    ON t1.x = t2.x
+    OR t1.x IS NULL
+    AND t2.x IS NULL
 ORDER BY t1.x ASC;
 
 SELECT *
@@ -78,101 +78,101 @@ FROM
     t1
 INNER JOIN t2
     ON t1.x <=> t2.x
-    AND (((t1.x = t1.y)
-    OR isNull(t1.x)
-    AND isNull(t1.y)))
+    AND (t1.x = t1.y
+    OR t1.x IS NULL
+    AND t1.y IS NULL)
 ORDER BY t1.x ASC;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON ((t1.x = t2.x
-    OR isNull(t1.x)
-    AND isNull(t2.x)))
+    ON (t1.x = t2.x
+    OR t1.x IS NULL
+    AND t2.x IS NULL)
     AND t1.y <=> t2.y
-ORDER BY t1.x ASC;
+ORDER BY t1.x ASC NULLS LAST;
+
+SELECT *
+FROM
+    t1
+INNER JOIN t2
+    ON t1.x <=> t2.x
+    OR t1.y <=> t2.y
+    OR t1.x IS NULL
+    AND t2.x IS NULL
+    OR t1.y IS NULL
+    AND t2.y IS NULL
+ORDER BY t1.x ASC NULLS LAST;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
     ON (t1.x <=> t2.x
-    OR t1.y <=> t2.y
-    OR (isNull(t1.x)
-    AND isNull(t2.x))
-    OR (isNull(t1.y)
-    AND isNull(t2.y)))
-ORDER BY t1.x ASC;
-
-SELECT *
-FROM
-    t1
-INNER JOIN t2
-    ON ((t1.x <=> t2.x
-    OR (isNull(t1.x)
-    AND isNull(t2.x))))
-    AND ((t1.y == t2.y
-    OR (isNull(t1.y)
-    AND isNull(t2.y))))
+    OR t1.x IS NULL
+    AND t2.x IS NULL)
+    AND (t1.y = t2.y
+    OR t1.y IS NULL
+    AND t2.y IS NULL)
     AND COALESCE(t1.x, 0) != 2
-ORDER BY t1.x ASC;
+ORDER BY t1.x ASC NULLS LAST;
 
 SELECT x = y
-    OR (isNull(x)
-    AND isNull(y))
+    OR x IS NULL
+    AND y IS NULL
 FROM t1
-ORDER BY x ASC;
+ORDER BY x ASC NULLS LAST;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON (t1.x == t2.x
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR ((isNull(t2.x))
-    AND (isNull(t1.x)))
-ORDER BY t1.x ASC;
+    ON t1.x = t2.x
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x IS NULL
+    AND t1.x IS NULL
+ORDER BY t1.x ASC NULLS LAST;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON (t1.x == t2.x
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR (t2.x <> t1.x
-    AND (isNull(t2.x))
-    AND (isNull(t1.x)))
-ORDER BY t1.x ASC;
+    ON t1.x = t2.x
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x != t1.x
+    AND t2.x IS NULL
+    AND t1.x IS NULL
+ORDER BY t1.x ASC NULLS LAST;
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON (t1.x == t2.x
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR (t2.x <> t1.x
-    AND t2.x <> t1.x)
-ORDER BY `ALL` ASC
-SETTINGS query_plan_use_new_logical_join_step = 0;
+    ON t1.x = t2.x
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x != t1.x
+    AND t2.x != t1.x
+ORDER BY `ALL` ASC NULLS LAST
+SETTINGS query_plan_use_new_logical_join_step = '0';
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
-    ON (t1.x == t2.x
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR (t2.x <> t1.x
-    AND (isNull(t2.x))
-    AND (isNull(t2.x)))
-ORDER BY t1.x ASC
+    ON t1.x = t2.x
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x != t1.x
+    AND t2.x IS NULL
+    AND t2.x IS NULL
+ORDER BY t1.x ASC NULLS LAST
 SETTINGS
-    query_plan_use_new_logical_join_step = 0,
-    use_join_disjunctions_push_down = 0;
+    query_plan_use_new_logical_join_step = '0',
+    use_join_disjunctions_push_down = '0';
 
 -- aliases defined in the join condition are valid
 SELECT
@@ -182,14 +182,14 @@ SELECT
 FROM
     t1
 FULL JOIN t2
-    ON (((((t1.x == t2.x) AS e))
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR ((isNull(t2.x))
-    AND (isNull(t1.x))) AS e2)
+    ON (t1.x = t2.x AS e)
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x IS NULL
+    AND t1.x IS NULL AS e2
 ORDER BY
-    t1.x ASC,
-    t2.x ASC;
+    t1.x ASC NULLS LAST,
+    t2.x ASC NULLS LAST;
 
 SELECT
     *,
@@ -198,24 +198,24 @@ SELECT
 FROM
     t1
 FULL JOIN t2
-    ON (((((t1.x == t2.x) AS e))
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x))))) AS e2)
+    ON (t1.x = t2.x AS e)
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL) AS e2
 ORDER BY
-    t1.x ASC,
-    t2.x ASC;
+    t1.x ASC NULLS LAST,
+    t2.x ASC NULLS LAST;
 
 -- check for non-nullable columns for which `is null` is replaced with constant
 SELECT *
 FROM
     t1n AS t1
 INNER JOIN t2n AS t2
-    ON (t1.x == t2.x
-    AND (((isNotNull(t2.x))
-    AND (isNotNull(t1.x)))))
-    OR ((isNull(t2.x))
-    AND (isNull(t1.x)))
-ORDER BY t1.x ASC;
+    ON t1.x = t2.x
+    AND (t2.x IS NOT NULL
+    AND t1.x IS NOT NULL)
+    OR t2.x IS NULL
+    AND t1.x IS NULL
+ORDER BY t1.x ASC NULLS LAST;
 
 -- { echoOff }
 SELECT '--';
@@ -223,72 +223,82 @@ SELECT '--';
 -- IS NOT NULL and constants are optimized out
 SELECT count()
 FROM (
-        EXPLAIN QUERY TREE
         SELECT *
-        FROM
-            t1
-        INNER JOIN t2
-            ON ((t1.x = t2.x)
-            AND (isNotNull(t1.x))
-            AND true
-            AND (isNotNull(t2.x)))
+        FROM viewExplain('EXPLAIN QUERY TREE', '', (
+                SELECT *
+                FROM
+                    t1
+                INNER JOIN t2
+                    ON t1.x = t2.x
+                    AND t1.x IS NOT NULL
+                    AND true
+                    AND t2.x IS NOT NULL
+            ))
     )
-WHERE like(`explain`, '%CONSTANT%')
-    OR ilike(`explain`, '%is%null%');
+WHERE `explain` LIKE '%CONSTANT%'
+    OR `explain` ILIKE '%is%null%';
 
 SELECT count()
 FROM (
-        EXPLAIN QUERY TREE
         SELECT *
-        FROM
-            t1
-        INNER JOIN t2
-            ON ((t1.x = t2.x)
-            AND true)
+        FROM viewExplain('EXPLAIN QUERY TREE', '', (
+                SELECT *
+                FROM
+                    t1
+                INNER JOIN t2
+                    ON t1.x = t2.x
+                    AND true
+            ))
     )
-WHERE like(`explain`, '%CONSTANT%')
-    OR ilike(`explain`, '%is%null%');
+WHERE `explain` LIKE '%CONSTANT%'
+    OR `explain` ILIKE '%is%null%';
 
 -- this is not optimized out
 SELECT count()
 FROM (
-        EXPLAIN QUERY TREE
         SELECT *
-        FROM
-            t1
-        INNER JOIN t2
-            ON (t1.x <=> t2.x
-            OR isNull(t1.x)
-            AND t1.y <=> t2.y
-            AND isNull(t2.x))
+        FROM viewExplain('EXPLAIN QUERY TREE', '', (
+                SELECT *
+                FROM
+                    t1
+                INNER JOIN t2
+                    ON t1.x <=> t2.x
+                    OR t1.x IS NULL
+                    AND t1.y <=> t2.y
+                    AND t2.x IS NULL
+            ))
     )
-WHERE like(`explain`, '%CONSTANT%')
-    OR ilike(`explain`, '%is%null%');
+WHERE `explain` LIKE '%CONSTANT%'
+    OR `explain` ILIKE '%is%null%';
 
 SELECT count()
 FROM (
-        EXPLAIN QUERY TREE
         SELECT *
-        FROM
-            t1
-        INNER JOIN t2
-            ON t1.x <=> t2.x
-            AND ((t1.x = t1.y
-            OR isNull(t1.x)
-            AND isNull(t1.y)))
+        FROM viewExplain('EXPLAIN QUERY TREE', '', (
+                SELECT *
+                FROM
+                    t1
+                INNER JOIN t2
+                    ON t1.x <=> t2.x
+                    AND (t1.x = t1.y
+                    OR t1.x IS NULL
+                    AND t1.y IS NULL)
+            ))
     )
-WHERE like(`explain`, '%CONSTANT%')
-    OR ilike(`explain`, '%is%null%');
+WHERE `explain` LIKE '%CONSTANT%'
+    OR `explain` ILIKE '%is%null%';
 
 SELECT count()
 FROM (
-        EXPLAIN QUERY TREE
         SELECT *
-        FROM
-            t1
-        INNER JOIN t2
-            ON t1.x = t2.x
-            AND NOT(t1.x = 1
-            OR isNull(t1.x))
+        FROM viewExplain('EXPLAIN QUERY TREE', '', (
+                SELECT *
+                FROM
+                    t1
+                INNER JOIN t2
+                    ON t1.x = t2.x
+                    AND NOT(t1.x = 1
+                    OR t1.x IS NULL)
+            ))
     )
-WHERE ilike(`explain`, '%function_name: isNull%');
+WHERE `explain` ILIKE '%function_name: isNull%';

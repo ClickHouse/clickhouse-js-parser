@@ -4,7 +4,7 @@ CREATE TABLE float
 (
     x Float64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO float;
 

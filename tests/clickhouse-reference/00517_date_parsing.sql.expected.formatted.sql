@@ -9,14 +9,14 @@ CREATE TABLE date
 (
     d Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO date;
 
 SELECT *
 FROM date;
 
-INSERT INTO date;
+INSERT INTO date FORMAT JSONEachRow;
 
 SELECT *
 FROM date
@@ -24,7 +24,7 @@ ORDER BY d ASC;
 
 DROP TABLE date;
 
-WITH toDate('2000-01-01') + rand() % (30000) AS EventDate
+WITH toDate('2000-01-01') + rand() % 30000 AS EventDate
 
 SELECT *
 FROM numbers(1000000)

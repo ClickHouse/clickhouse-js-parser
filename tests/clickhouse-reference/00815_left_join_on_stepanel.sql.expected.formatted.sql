@@ -6,13 +6,13 @@ CREATE TABLE fact_cpc_clicks
 (
     model_id UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dim_model
 (
     model_id UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO fact_cpc_clicks;
 
@@ -29,9 +29,9 @@ USE default;
 
 SELECT f.model_id
 FROM
-    {CLICKHOUSE_DATABASE:Identifier}.fact_cpc_clicks AS f
-LEFT JOIN {CLICKHOUSE_DATABASE:Identifier}.dim_model AS d
+    CLICKHOUSE_DATABASE.fact_cpc_clicks AS f
+LEFT JOIN CLICKHOUSE_DATABASE.dim_model AS d
     ON f.model_id = d.model_id
 LIMIT 10;
 
-DROP DATABASE {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE CLICKHOUSE_DATABASE;

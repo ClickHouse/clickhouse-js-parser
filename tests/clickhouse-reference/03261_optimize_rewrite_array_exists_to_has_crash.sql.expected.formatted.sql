@@ -16,4 +16,4 @@ INNER JOIN rewrite AS y
     )
 INNER JOIN rewrite AS z
     ON 1
-SETTINGS optimize_rewrite_array_exists_to_has = 1;
+SETTINGS optimize_rewrite_array_exists_to_has = '1';

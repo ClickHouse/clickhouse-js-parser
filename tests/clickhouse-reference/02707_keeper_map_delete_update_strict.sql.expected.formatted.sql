@@ -1,7 +1,7 @@
 -- Tags: no-ordinary-database, no-fasttest
 DROP TABLE IF EXISTS `02707_keepermap_delete_update`;
 
-SET keeper_map_strict_mode = 1;
+SET keeper_map_strict_mode = '1';
 
 CREATE TABLE `02707_keepermap_delete_update`
 (
@@ -9,7 +9,7 @@ CREATE TABLE `02707_keepermap_delete_update`
     value String,
     value2 UInt64
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test02707_keepermap_delete_update'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test02707_keepermap_delete_update')
 PRIMARY KEY key;
 
 INSERT INTO `02707_keepermap_delete_update`;
@@ -23,7 +23,7 @@ ORDER BY key ASC;
 
 SELECT '-----------';
 
-DELETE FROM `02707_keepermap_delete_update` WHERE like(value, 'Some%string');
+DELETE FROM `02707_keepermap_delete_update` WHERE value LIKE 'Some%string';
 
 SELECT
     *,

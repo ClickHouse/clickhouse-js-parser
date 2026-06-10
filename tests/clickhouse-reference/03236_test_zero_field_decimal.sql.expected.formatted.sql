@@ -7,7 +7,7 @@ CREATE TABLE users_03236_zero
     name String,
     num Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users_03236_zero;
 

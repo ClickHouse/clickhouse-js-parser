@@ -6,14 +6,14 @@ CREATE TABLE t1
 (
     id Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t2
 (
     id Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1;
@@ -21,21 +21,21 @@ INSERT INTO t1;
 INSERT INTO t2;
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
     ON 1 = 1;
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
     ON 1;
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
@@ -43,28 +43,28 @@ INNER JOIN t2
     AND 3 = 3;
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
     ON toNullable(1);
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
     ON toLowCardinality(1);
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
     ON toLowCardinality(toNullable(1));
 
 SELECT 70 = 10 * sum(t1.id) + sum(t2.id)
-    AND count() == 4
+    AND count() = 4
 FROM
     t1
 INNER JOIN t2
@@ -151,9 +151,9 @@ FROM
 INNER JOIN t2
     ON NULL
 ORDER BY
-    t1.id ASC,
+    t1.id ASC NULLS FIRST,
     t2.id ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT *
 FROM
@@ -161,9 +161,9 @@ FROM
 LEFT JOIN t2
     ON NULL
 ORDER BY
-    t1.id ASC,
+    t1.id ASC NULLS FIRST,
     t2.id ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT *
 FROM
@@ -171,9 +171,9 @@ FROM
 RIGHT JOIN t2
     ON NULL
 ORDER BY
-    t1.id ASC,
+    t1.id ASC NULLS FIRST,
     t2.id ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT *
 FROM
@@ -181,9 +181,9 @@ FROM
 FULL JOIN t2
     ON NULL
 ORDER BY
-    t1.id ASC,
+    t1.id ASC NULLS FIRST,
     t2.id ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 -- in this cases in old analyzer we have AMBIGUOUS_COLUMN_NAME instead of INVALID_JOIN_ON_EXPRESSION
 -- because there's some function in ON expression is not constant itself (result is constant)
@@ -243,7 +243,7 @@ FULL JOIN t2
     ON NULL
 SETTINGS join_algorithm = 'partial_merge'; -- { serverError INVALID_JOIN_ON_EXPRESSION,NOT_IMPLEMENTED }
 
-SET query_plan_use_new_logical_join_step = 1;
+SET query_plan_use_new_logical_join_step = '1';
 
 -- mixing of constant and non-constant expressions in ON is not allowed
 SELECT *
@@ -251,40 +251,32 @@ FROM
     t1
 INNER JOIN t2
     ON t1.id = t2.id
-    AND 1 == 1
-SETTINGS enable_analyzer = 0; -- { serverError AMBIGUOUS_COLUMN_NAME }
+    AND 1 = 1
+SETTINGS enable_analyzer = '0'; -- { serverError AMBIGUOUS_COLUMN_NAME }
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
     ON t1.id = t2.id
-    AND 1 == 1
-SETTINGS enable_analyzer = 1;
+    AND 1 = 1
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
     ON t1.id = t2.id
-    AND 1 == 2
-SETTINGS enable_analyzer = 0; -- { serverError AMBIGUOUS_COLUMN_NAME }
+    AND 1 = 2
+SETTINGS enable_analyzer = '0'; -- { serverError AMBIGUOUS_COLUMN_NAME }
 
 SELECT *
 FROM
     t1
 INNER JOIN t2
     ON t1.id = t2.id
-    AND 1 == 2
-SETTINGS enable_analyzer = 1;
-
-SELECT *
-FROM
-    t1
-INNER JOIN t2
-    ON t1.id = t2.id
-    AND 1 != 1
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+    AND 1 = 2
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -292,7 +284,15 @@ FROM
 INNER JOIN t2
     ON t1.id = t2.id
     AND 1 != 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+
+SELECT *
+FROM
+    t1
+INNER JOIN t2
+    ON t1.id = t2.id
+    AND 1 != 1
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -313,7 +313,7 @@ FROM
 INNER JOIN t2
     ON t1.id = t2.id
     AND 0
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
 
 SELECT *
 FROM
@@ -321,7 +321,7 @@ FROM
 INNER JOIN t2
     ON t1.id = t2.id
     AND 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -329,7 +329,7 @@ FROM
 INNER JOIN t2
     ON t1.id = t2.id
     AND 1
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
 
 SELECT *
 FROM
@@ -337,7 +337,7 @@ FROM
 INNER JOIN t2
     ON t1.id = t2.id
     AND 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- { echoOn }
 SELECT *
@@ -347,7 +347,7 @@ LEFT JOIN t2
     ON t1.id = t2.id
     AND 1 = 1
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -356,7 +356,7 @@ RIGHT JOIN t2
     ON t1.id = t2.id
     AND 1 = 1
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -367,7 +367,7 @@ FULL JOIN t2
 ORDER BY
     2 ASC,
     1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -376,7 +376,7 @@ LEFT JOIN t2
     ON t1.id = t2.id
     AND 1 = 2
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -385,7 +385,7 @@ RIGHT JOIN t2
     ON t1.id = t2.id
     AND 1 = 2
 ORDER BY 2 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -396,7 +396,7 @@ FULL JOIN t2
 ORDER BY
     2 ASC,
     1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -444,7 +444,7 @@ FROM
     (
         SELECT 1 AS a
     ) AS t1
-INNER JOIN (
+SEMI LEFT JOIN (
         SELECT ('b', 256) AS b
     ) AS t2
     ON NULL;
@@ -454,7 +454,7 @@ FROM
     (
         SELECT 1 AS a
     ) AS t1
-INNER JOIN (
+ANTI LEFT JOIN (
         SELECT ('b', 256) AS b
     ) AS t2
     ON NULL
@@ -471,8 +471,8 @@ LEFT JOIN (
     ) AS t2
     ON true
 SETTINGS
-    enable_analyzer = 1,
-    join_use_nulls = 1;
+    enable_analyzer = '1',
+    join_use_nulls = '1';
 
 SELECT
     a + 1,
@@ -490,8 +490,8 @@ LEFT JOIN (
     ) AS t2
     ON true
 SETTINGS
-    enable_analyzer = 1,
-    join_use_nulls = 1;
+    enable_analyzer = '1',
+    join_use_nulls = '1';
 
 SELECT
     a + 1,
@@ -509,8 +509,8 @@ RIGHT JOIN (
     ) AS t2
     ON true
 SETTINGS
-    enable_analyzer = 1,
-    join_use_nulls = 1;
+    enable_analyzer = '1',
+    join_use_nulls = '1';
 
 SELECT
     a + 1,
@@ -528,21 +528,21 @@ FULL JOIN (
     ) AS t2
     ON true
 SETTINGS
-    enable_analyzer = 1,
-    join_use_nulls = 1;
+    enable_analyzer = '1',
+    join_use_nulls = '1';
 
 -- query_plan_use_new_logical_join_step disabled for parallel replicas
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE empty_table
 (
     id Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM

@@ -1,11 +1,11 @@
 -- Tags: no-fasttest
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET output_format_native_write_json_as_string = 0;
+SET output_format_native_write_json_as_string = '0';
 
-SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = 0;
+SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = '0';
 
 SELECT
     '{"a" : false}'::JSON AS json,
@@ -153,81 +153,81 @@ SELECT
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : false}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : false}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : null}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : null}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : 42}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : 42}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : 42.42}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : 42.42}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [1, 2, 3]}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : [1, 2, 3]}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : {"b" : 42}}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : {"b" : 42}}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [{"b" : 42}]}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : [{"b" : 42}]}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [1, "str", [1]]}'::JSON(max_dynamic_paths=0) AS json,
+    '{"a" : [1, "str", [1]]}'::JSON(max_dynamic_paths = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : false}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : false}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : null}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : null}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : 42}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : 42}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : 42.42}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : 42.42}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [1, 2, 3]}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : [1, 2, 3]}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : {"b" : 42}}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : {"b" : 42}}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [{"b" : 42}]}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : [{"b" : 42}]}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');
 
 SELECT
-    '{"a" : [1, "str", [1]]}'::JSON(max_dynamic_types=0) AS json,
+    '{"a" : [1, "str", [1]]}'::JSON(max_dynamic_types = 0) AS json,
     JSONAllPathsWithTypes(json)
 FROM remote('127.0.0.2', 'system.one');

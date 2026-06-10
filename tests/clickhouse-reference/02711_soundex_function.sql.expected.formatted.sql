@@ -33,7 +33,7 @@ CREATE TABLE tab
 (
     col String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY col;
 
 INSERT INTO tab;

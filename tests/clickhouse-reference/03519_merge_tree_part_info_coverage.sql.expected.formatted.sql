@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE mt
 (
     names Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY names;
 
 INSERT INTO mt;
@@ -29,5 +29,5 @@ FROM (
     )
 WHERE is_covered = 0
 ORDER BY
-    tupleElement(mergeTreePartInfo(part_name), 'partition_id') ASC,
-    tupleElement(mergeTreePartInfo(part_name), 'min_block') ASC;
+    mergeTreePartInfo(part_name).partition_id ASC,
+    mergeTreePartInfo(part_name).min_block ASC;

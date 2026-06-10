@@ -4,10 +4,10 @@ CREATE TABLE ttl
 (
     d DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 TTL d + toIntervalDay(10)
-SETTINGS remove_empty_parts = 0;
+SETTINGS remove_empty_parts = '0';
 
 SYSTEM STOP MERGES ttl;
 

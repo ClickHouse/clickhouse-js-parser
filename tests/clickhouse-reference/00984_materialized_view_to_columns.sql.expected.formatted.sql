@@ -9,7 +9,7 @@ CREATE TABLE test1
     a UInt8,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE test2
@@ -17,7 +17,7 @@ CREATE TABLE test2
     c UInt8,
     d String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 CREATE MATERIALIZED VIEW mv

@@ -1,320 +1,379 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_json_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_new_json_type"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_new_json_type"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "data",
-        "type": {
-          "name": "JSON"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "version",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "version"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_new_json_type"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_json_type": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "data",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "version",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "version"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_new_json_type",
-      "final": true
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "isNotNull",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      },
+      "format": "JSONEachRow"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "data",
-            "foo2"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_new_json_type"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "isNotNull",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "data.foo2",
+                "name_parts": [
+                  "data",
+                  "foo2"
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test_new_json_type"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "{\"foo2\":\"baz\"}"
-          },
-          "alias": "_data"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "version"
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Literal",
+                "alias": "_data",
+                "value_type": "String",
+                "value": "{\"foo2\":\"baz\"}"
+              },
+              {
+                "type": "Function",
+                "alias": "_version",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "version"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "test_new_json_type"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "where": {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "id"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_new_json_type"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt32"
+                }
+              ]
             }
           },
-          "alias": "_version"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "test_new_json_type"
+          {
+            "type": "ColumnDeclaration",
+            "name": "data",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "version",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
       },
-      "where": {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "version"
+            }
           ]
         },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "allow_nullable_key": "1"
+          }
         }
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_new_json_type"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_new_json_type"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Nullable",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt32"
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_new_json_type"
+                  },
+                  "final": true
+                }
               }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "isNotNull",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "data.foo2",
+                "name_parts": [
+                  "data",
+                  "foo2"
+                ]
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "isNotNull",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "data.foo2",
+                "name_parts": [
+                  "data",
+                  "foo2"
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC",
+              "nulls_first": true
             }
           ]
         }
-      },
-      {
-        "kind": "columnDef",
-        "name": "data",
-        "type": {
-          "name": "JSON"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "version",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "version"
-          ]
-        }
       ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "allow_nullable_key",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_new_json_type",
-      "final": true
-    },
-    "prewhere": {
-      "kind": "functionCall",
-      "name": "isNotNull",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "data",
-            "foo2"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "isNotNull",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "data",
-            "foo2"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

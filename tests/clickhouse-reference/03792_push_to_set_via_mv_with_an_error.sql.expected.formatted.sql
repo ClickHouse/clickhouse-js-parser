@@ -1,4 +1,4 @@
-SET materialized_views_ignore_errors = 1;
+SET materialized_views_ignore_errors = '1';
 
 -- Catch "WriteBuffer is neither finalized nor canceled when destructor is called. No exceptions in flight are detected."
 SET send_logs_level = 'error';
@@ -12,15 +12,15 @@ CREATE TABLE tab
 (
     c0 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv
 ENGINE = Set()
 AS
-(SELECT
+SELECT
     c0,
     throwIf(1)
-FROM tab);
+FROM tab;
 
 -- Previously lead to "WriteBuffer is neither finalized nor canceled when destructor is called. No exceptions in flight are detected."
 INSERT INTO FUNCTION remote('localhost', currentDatabase(), tab) SELECT *
@@ -32,12 +32,12 @@ CREATE TABLE tab
     c0 Int,
     c1 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv
 ENGINE = Set()
 AS
-(SELECT c1
-FROM tab);
+SELECT c1
+FROM tab;
 
 ALTER TABLE tab DROP COLUMN c1;

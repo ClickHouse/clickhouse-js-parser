@@ -11,7 +11,7 @@ CREATE TABLE source_data
     partition_key UInt32 DEFAULT 1,
     PRIMARY KEY(pk)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (pk, sk);
 
 INSERT INTO source_data (pk, sk, val);
@@ -34,9 +34,9 @@ CREATE TABLE full_duplicates
     alias UInt32 ALIAS 2,
     PRIMARY KEY(pk)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (pk, toString(sk * 10))
-PARTITION BY (partition_key + 1); -- silly order key to ensure that key column is checked even when it is a part of expression. See [1] below.
+PARTITION BY partition_key + 1; -- silly order key to ensure that key column is checked even when it is a part of expression. See [1] below.
 
 -- ERROR cases
 OPTIMIZE TABLE full_duplicates DEDUPLICATE BY pk, sk, val, mat, alias; -- { serverError NO_SUCH_COLUMN_IN_TABLE } -- alias column is present
@@ -81,7 +81,7 @@ CREATE TABLE partial_duplicates
     alias UInt32 ALIAS 2,
     PRIMARY KEY(pk)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (pk, sk);
 
 INSERT INTO partial_duplicates SELECT *

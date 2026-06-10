@@ -6,7 +6,7 @@ CREATE TABLE normalize_test
     id int,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY value;
 
 SELECT

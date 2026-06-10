@@ -6,7 +6,7 @@
 SYSTEM CLEAR QUERY CACHE;
 
 -- Run SELECT with quota that current user may write only 1 entry in the query cache
-SET query_cache_max_entries = 1;
+SET query_cache_max_entries = '1';
 
 SELECT 'a'
 SETTINGS use_query_cache = true;

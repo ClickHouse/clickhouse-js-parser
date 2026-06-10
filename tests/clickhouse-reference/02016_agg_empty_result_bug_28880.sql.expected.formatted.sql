@@ -25,7 +25,7 @@ FROM (
     )
 WHERE sum = 0;
 
-SET aggregate_functions_null_for_empty = 1;
+SET aggregate_functions_null_for_empty = '1';
 
 SELECT sum
 FROM (
@@ -33,4 +33,4 @@ FROM (
         FROM `system`.one
         WHERE 0
     )
-WHERE isNull(sum);
+WHERE sum IS NULL;

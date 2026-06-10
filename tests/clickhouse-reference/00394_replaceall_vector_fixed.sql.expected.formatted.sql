@@ -4,7 +4,7 @@ CREATE TABLE replaceall
 (
     str FixedString(3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO replaceall;
 
@@ -22,7 +22,7 @@ ORDER BY str ASC;
 
 DROP TABLE replaceall;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE replaceall
 (

@@ -47,5 +47,5 @@ SELECT materialize(toDateTime64('1900-01-01 00:00:00', 0, 'UTC')) - materialize(
 SELECT
     materialize(toDateTime64('2262-04-11 23:47:16', 9, 'UTC')) - toDateTime64('1900-01-01 00:00:00', 9, 'UTC'),
     materialize(toDateTime64('1900-01-01 00:00:00', 0, 'UTC')) - materialize(toDateTime64('2262-04-11 23:47:16', 9, 'UTC'))
-SETTINGS decimal_check_overflow = 0
+SETTINGS decimal_check_overflow = '0'
 FORMAT Null;

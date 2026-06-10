@@ -18,7 +18,7 @@ FROM (
         LIMIT 10
     )
 FORMAT Pretty
-SETTINGS output_format_pretty_display_footer_column_names_min_rows = 9;
+SETTINGS output_format_pretty_display_footer_column_names_min_rows = '9';
 
 SELECT
     *,
@@ -29,7 +29,7 @@ FROM (
         LIMIT 100
     )
 FORMAT Pretty
-SETTINGS output_format_pretty_display_footer_column_names = 0;
+SETTINGS output_format_pretty_display_footer_column_names = '0';
 
 SELECT
     *,
@@ -80,7 +80,7 @@ FROM (
         LIMIT 100
     )
 FORMAT PrettyCompact
-SETTINGS output_format_pretty_display_footer_column_names = 0;
+SETTINGS output_format_pretty_display_footer_column_names = '0';
 
 SELECT
     *,
@@ -131,7 +131,7 @@ FROM (
         LIMIT 100
     )
 FORMAT PrettySpace
-SETTINGS output_format_pretty_display_footer_column_names = 0;
+SETTINGS output_format_pretty_display_footer_column_names = '0';
 
 SELECT
     *,

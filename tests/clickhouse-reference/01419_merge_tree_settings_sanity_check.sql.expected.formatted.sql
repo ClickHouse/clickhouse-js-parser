@@ -9,7 +9,7 @@ CREATE TABLE mytable_local
 ENGINE = MergeTree()
 ORDER BY (eventday, user_id)
 PARTITION BY toYYYYMM(eventday)
-SETTINGS number_of_free_entries_in_pool_to_execute_mutation = 100; -- { serverError BAD_ARGUMENTS }
+SETTINGS number_of_free_entries_in_pool_to_execute_mutation = '100'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE mytable_local
 (
@@ -20,7 +20,7 @@ CREATE TABLE mytable_local
 ENGINE = MergeTree()
 ORDER BY (eventday, user_id)
 PARTITION BY toYYYYMM(eventday)
-SETTINGS number_of_free_entries_in_pool_to_lower_max_size_of_merge = 100; -- { serverError BAD_ARGUMENTS }
+SETTINGS number_of_free_entries_in_pool_to_lower_max_size_of_merge = '100'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE mytable_local
 (
@@ -31,7 +31,7 @@ CREATE TABLE mytable_local
 ENGINE = MergeTree()
 ORDER BY (eventday, user_id)
 PARTITION BY toYYYYMM(eventday)
-SETTINGS number_of_free_entries_in_pool_to_execute_optimize_entire_partition = 100; -- { serverError BAD_ARGUMENTS }
+SETTINGS number_of_free_entries_in_pool_to_execute_optimize_entire_partition = '100'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE mytable_local
 (
@@ -43,6 +43,6 @@ ENGINE = MergeTree()
 ORDER BY (eventday, user_id)
 PARTITION BY toYYYYMM(eventday);
 
-ALTER TABLE mytable_local MODIFY SETTING number_of_free_entries_in_pool_to_execute_mutation = 100; -- { serverError BAD_ARGUMENTS }
+ALTER TABLE mytable_local MODIFY SETTING number_of_free_entries_in_pool_to_execute_mutation = '100'; -- { serverError BAD_ARGUMENTS }
 
 DROP TABLE mytable_local;

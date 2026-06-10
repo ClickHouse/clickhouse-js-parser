@@ -8,7 +8,7 @@ CREATE TABLE args
 (
     value Array(Int)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT [1, 1, 1, 1] AS value
 FROM numbers(1, 100);
 

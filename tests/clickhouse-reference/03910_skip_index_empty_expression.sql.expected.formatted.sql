@@ -3,17 +3,17 @@
 CREATE TABLE t_empty_index
 (
     c0 Int32,
-    INDEX i0 tuple() TYPE bloom_filter GRANULARITY 1
+    INDEX i0 () TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c0
-SETTINGS add_minmax_index_for_numeric_columns = 1; -- { serverError INCORRECT_QUERY }
+SETTINGS add_minmax_index_for_numeric_columns = '1'; -- { serverError INCORRECT_QUERY }
 
 CREATE TABLE t_empty_index
 (
     c0 Int32,
-    INDEX i0 tuple() TYPE minmax GRANULARITY 1
+    INDEX i0 () TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c0
-SETTINGS add_minmax_index_for_numeric_columns = 1; -- { serverError INCORRECT_QUERY }
+SETTINGS add_minmax_index_for_numeric_columns = '1'; -- { serverError INCORRECT_QUERY }

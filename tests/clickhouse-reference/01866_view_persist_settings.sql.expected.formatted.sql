@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS view_nulls_set;
 
 DROP TABLE IF EXISTS view_nulls;
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
 CREATE OR REPLACE VIEW view_no_nulls
 AS
@@ -45,9 +45,9 @@ FULL JOIN (
     ) AS t2
     USING (a)
 ORDER BY a ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 CREATE OR REPLACE VIEW view_nulls
 AS
@@ -86,7 +86,7 @@ FULL JOIN (
     ) AS t2
     USING (a)
 ORDER BY a ASC
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 SELECT *
 FROM view_no_nulls; -- { serverError INCORRECT_QUERY }

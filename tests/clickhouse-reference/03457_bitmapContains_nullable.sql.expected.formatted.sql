@@ -31,11 +31,11 @@ t AS (
 t2 AS (
     SELECT
         toString(n) AS name,
-        groupBitmapState(multiIf((age >= lo)
-        AND (age <= hi), id, NULL)) AS bit_state
+        groupBitmapState(multiIf(age >= lo
+        AND age <= hi, id, NULL)) AS bit_state
     FROM
-        men
-    CROSS JOIN t
+        men,
+        t
     GROUP BY n
 )
 
@@ -43,6 +43,6 @@ SELECT
     name,
     sumIf(sal, bitmapContains(bit_state, id))
 FROM
-    men
-CROSS JOIN t2
+    men,
+    t2
 GROUP BY name; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }

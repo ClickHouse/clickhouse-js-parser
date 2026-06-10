@@ -4,7 +4,7 @@ CREATE TABLE labels_unordered
     score Float64,
     label Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY idx
 ORDER BY idx;
 
@@ -19,7 +19,7 @@ CREATE TABLE labels_ordered
     score Float64,
     label Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY idx
 ORDER BY idx;
 

@@ -1,230 +1,277 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tmp"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: shard"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tmp"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "tmp"
-    },
-    "orReplace": true,
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "initialQueryStartTime",
-            "args": []
-          },
-          "alias": "it"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "now",
-            "args": []
-          },
-          "alias": "t"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "one"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "replace_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "tmp"
       },
-      "where": {
-        "kind": "unaryExpr",
-        "op": "NOT",
-        "expr": {
-          "kind": "functionCall",
-          "name": "ignore",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "sleep",
-              "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "it",
+                "name": "initialQueryStartTime",
+                "arguments": []
+              },
+              {
+                "type": "Function",
+                "alias": "t",
+                "name": "now",
+                "arguments": []
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.5"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "one",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "where": {
+              "type": "Function",
+              "name": "not",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ignore",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "sleep",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 0.5
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        }
+          }
+        ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "now",
-          "args": []
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "t"
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "now",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "max",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "t"
+                    }
+                  ]
+                }
               ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "initialQueryStartTime",
-          "args": []
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "it"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "initialQueryStartTime",
-          "args": []
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "it"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": ">=",
-        "left": {
-          "kind": "functionCall",
-          "name": "initialQueryStartTime",
-          "args": []
-        },
-        "right": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "functionCall",
-            "name": "now",
-            "args": []
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "it"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1..10}"
             },
             {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "initialQueryStartTime",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "max",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "it"
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "tmp"
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "initialQueryStartTime",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "min",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "it"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "greaterOrEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "initialQueryStartTime",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "minus",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "now",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "it"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "t"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1..10}"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "tmp"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_distributed_connections": "1",
+              "async_socket_for_remote": "0"
+            }
+          }
         }
-      }
-    },
-    "settings": [
-      {
-        "name": "max_distributed_connections",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "async_socket_for_remote",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tmp"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tmp"
+      }
     }
   }
 ]

@@ -5,7 +5,7 @@ CREATE TABLE ttl_where
     d Date,
     i UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 TTL d + toIntervalYear(10) WHERE i % 3 = 0,
     d + toIntervalYear(40) WHERE i % 3 = 1;
@@ -39,10 +39,10 @@ CREATE TABLE ttl_group_by
     i UInt32,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (toStartOfMonth(d), i % 10)
-TTL d + toIntervalYear(10),
-    d + toIntervalYear(40);
+TTL d + toIntervalYear(10) GROUP BY toStartOfMonth(d), i % 10 SET d = any(toStartOfMonth(d)), i = any(i % 10), v = sum(v),
+    d + toIntervalYear(40) GROUP BY toStartOfMonth(d) SET d = any(toStartOfMonth(d)), v = sum(v);
 
 INSERT INTO ttl_group_by SELECT
     toDate('2000-10-10'),

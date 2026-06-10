@@ -1,7 +1,7 @@
 -- Tags: no-debug, no-fasttest, use-vectorscan
-SET max_hyperscan_regexp_length = 1;
+SET max_hyperscan_regexp_length = '1';
 
-SET max_hyperscan_regexp_total_length = 1;
+SET max_hyperscan_regexp_total_length = '1';
 
 SELECT multiMatchAny('123', ['1']);
 

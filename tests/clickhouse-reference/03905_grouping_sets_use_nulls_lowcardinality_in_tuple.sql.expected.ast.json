@@ -1,102 +1,93 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_use_nulls",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_use_nulls": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Regression test: GROUPING SETS with group_by_use_nulls and LowCardinality nested inside Tuple",
-      "-- caused \"Block structure mismatch in Pipe stream: different types\" exception.",
-      "-- The toNullable function strips nested LowCardinality, but the output header for missing keys",
-      "-- preserved it, causing a type mismatch between grouping sets."
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_positional_arguments",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_positional_arguments": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_low_cardinality_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_low_cardinality_types": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_grouping_sets": true,
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "toLowCardinality",
-              "args": [
+              "type": "Function",
+              "alias": "a",
+              "name": "tuple",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
+                  "type": "Function",
+                  "name": "toLowCardinality",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "group_by": [
+            {
+              "type": "ExpressionList",
+              "children": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
                   "value": "1"
                 }
               ]
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "ExpressionList",
+              "children": [
+                {
+                  "type": "Function",
+                  "name": "isNullable",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "19"
+                    }
+                  ]
+                }
+              ]
             }
           ]
-        },
-        "alias": "a"
-      }
-    ],
-    "groupBy": {
-      "kind": "groupingSets",
-      "sets": [
-        [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ],
-        [
-          {
-            "kind": "functionCall",
-            "name": "isNullable",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "19"
-              }
-            ]
-          }
-        ]
+        }
       ]
     }
   }

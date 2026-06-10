@@ -1,2 +1,2 @@
 EXPLAIN SYNTAX
-SYSTEM clear schema cache for hdfs;
+SYSTEM CLEAR SCHEMA CACHE FOR HDFS;

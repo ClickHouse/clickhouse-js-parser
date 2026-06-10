@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 CREATE TABLE orders
 (
@@ -14,7 +14,7 @@ CREATE TABLE orders
     o_shippriority Int32,
     o_comment String
 )
-ORDER BY (o_orderkey);
+ORDER BY o_orderkey;
 
 INSERT INTO orders SELECT *
 FROM generateRandom()
@@ -49,14 +49,14 @@ FROM (
             o_orderpriority,
             o_orderkey
         FROM orders
-        WHERE (o_orderdate >= toDate('1993-07-01'))
-            AND (o_orderdate < (toDate('1993-07-01') + toIntervalMonth('3')))
+        WHERE o_orderdate >= toDate('1993-07-01')
+            AND o_orderdate < toDate('1993-07-01') + toIntervalMonth('3')
     )
 WHERE exists((
         SELECT l_orderkey
         FROM lineitem
-        WHERE (l_orderkey = o_orderkey)
-            AND (l_commitdate < l_receiptdate)
+        WHERE l_orderkey = o_orderkey
+            AND l_commitdate < l_receiptdate
     ))
 GROUP BY o_orderpriority
 ORDER BY o_orderpriority ASC

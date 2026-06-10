@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -18,7 +18,7 @@ FROM numbers(10, 100);
 OPTIMIZE TABLE test FINAL;
 
 -- Only set limit
-SET limit = 5;
+SET limit = '5';
 
 SELECT *
 FROM test
@@ -51,16 +51,16 @@ LIMIT 10
 OFFSET 195; -- 5 rows
 
 -- Only set offset
-SET limit = 0;
+SET limit = '0';
 
-SET offset = 195;
+SET offset = '195';
 
 SELECT *
 FROM test
 ORDER BY i ASC
 LIMIT 100; -- no result
 
-SET offset = 10;
+SET offset = '10';
 
 SELECT *
 FROM test
@@ -75,7 +75,7 @@ LIMIT 11
 OFFSET 100; -- 1 rows
 
 -- offset and limit together
-SET limit = 10;
+SET limit = '10';
 
 SELECT *
 FROM test

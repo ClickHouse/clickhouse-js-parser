@@ -37,12 +37,12 @@ FROM (
 
 SELECT if(x = 0, 'fail', 'ok')
 FROM (
-        SELECT CAST(NULL, 'Nullable(UInt8)') AS x
+        SELECT CAST(NULL AS Nullable(UInt8)) AS x
     );
 
 SELECT if(x = 0, 'fail', 'ok')
 FROM (
-        SELECT materialize(CAST(NULL, 'Nullable(UInt8)')) AS x
+        SELECT materialize(CAST(NULL AS Nullable(UInt8))) AS x
     );
 
 SELECT if(x = 0, 'ok', 'fail')
@@ -73,7 +73,7 @@ SELECT
     if(x = 1, 'fail', 'ok'),
     if(x >= 0, 'fail', 'ok')
 FROM (
-        SELECT CAST(NULL, 'Nullable(UInt8)') AS x
+        SELECT CAST(NULL AS Nullable(UInt8)) AS x
     );
 
 SELECT
@@ -84,7 +84,7 @@ SELECT
     if(x = 1, 'fail', 'ok'),
     if(x >= 0, 'fail', 'ok')
 FROM (
-        SELECT materialize(CAST(NULL, 'Nullable(UInt8)')) AS x
+        SELECT materialize(CAST(NULL AS Nullable(UInt8))) AS x
     );
 
 SELECT
@@ -109,7 +109,7 @@ FROM (
         SELECT materialize(if(1 = 0, toNullable(toUInt8(0)), NULL)) AS x
     );
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     b_num,
@@ -140,7 +140,7 @@ CREATE TABLE test_nullable_float_issue7347
 )
 ENGINE = MergeTree()
 PRIMARY KEY ne
-ORDER BY (ne);
+ORDER BY ne;
 
 INSERT INTO test_nullable_float_issue7347;
 
@@ -150,7 +150,7 @@ SELECT
     IF(test = 0, 1, 0)
 FROM test_nullable_float_issue7347;
 
-WITH materialize(CAST(NULL, 'Nullable(Float64)')) AS test
+WITH materialize(CAST(NULL AS Nullable(Float64))) AS test
 
 SELECT
     test,

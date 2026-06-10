@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS test_23634;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 CREATE TABLE test_23634
 (
@@ -10,7 +10,7 @@ CREATE TABLE test_23634
 )
 ENGINE = MergeTree()
 ORDER BY (id, s)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO test_23634;
 
@@ -31,7 +31,7 @@ WHERE id != ''
     AND s != ''
     AND s1 != '';
 
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
 SELECT *
 FROM test_23634
@@ -75,7 +75,7 @@ ORDER BY
 
 SELECT *
 FROM test_23634
-WHERE (id, s, s1) = (null::Nullable(String), null::Nullable(String), null::Nullable(String))
+WHERE (id, s, s1) = (NULL::Nullable(String), NULL::Nullable(String), NULL::Nullable(String))
 ORDER BY
     id ASC,
     s1 ASC,

@@ -63,20 +63,20 @@ SELECT
     nan >= toInt64(0);
 
 SELECT
-    nan = toFloat32(0.0),
-    nan != toFloat32(0.0),
-    nan < toFloat32(0.0),
-    nan > toFloat32(0.0),
-    nan <= toFloat32(0.0),
-    nan >= toFloat32(0.0);
+    nan = toFloat32(0.),
+    nan != toFloat32(0.),
+    nan < toFloat32(0.),
+    nan > toFloat32(0.),
+    nan <= toFloat32(0.),
+    nan >= toFloat32(0.);
 
 SELECT
-    nan = toFloat64(0.0),
-    nan != toFloat64(0.0),
-    nan < toFloat64(0.0),
-    nan > toFloat64(0.0),
-    nan <= toFloat64(0.0),
-    nan >= toFloat64(0.0);
+    nan = toFloat64(0.),
+    nan != toFloat64(0.),
+    nan < toFloat64(0.),
+    nan > toFloat64(0.),
+    nan <= toFloat64(0.),
+    nan >= toFloat64(0.);
 
 SELECT
     -nan = toUInt8(0),
@@ -143,20 +143,20 @@ SELECT
     -nan >= toInt64(0);
 
 SELECT
-    -nan = toFloat32(0.0),
-    -nan != toFloat32(0.0),
-    -nan < toFloat32(0.0),
-    -nan > toFloat32(0.0),
-    -nan <= toFloat32(0.0),
-    -nan >= toFloat32(0.0);
+    -nan = toFloat32(0.),
+    -nan != toFloat32(0.),
+    -nan < toFloat32(0.),
+    -nan > toFloat32(0.),
+    -nan <= toFloat32(0.),
+    -nan >= toFloat32(0.);
 
 SELECT
-    -nan = toFloat64(0.0),
-    -nan != toFloat64(0.0),
-    -nan < toFloat64(0.0),
-    -nan > toFloat64(0.0),
-    -nan <= toFloat64(0.0),
-    -nan >= toFloat64(0.0);
+    -nan = toFloat64(0.),
+    -nan != toFloat64(0.),
+    -nan < toFloat64(0.),
+    -nan > toFloat64(0.),
+    -nan <= toFloat64(0.),
+    -nan >= toFloat64(0.);
 
 --SELECT 1 % nan, nan % 1, pow(x, 1), pow(1, x); -- TODO
 SELECT
@@ -199,12 +199,12 @@ SELECT
     min(x),
     max(x)
 FROM (
-        SELECT arrayJoin([toFloat32(0.0), nan, toFloat32(1.0), toFloat32(-1.0)]) AS x
+        SELECT arrayJoin([toFloat32(0.), nan, toFloat32(1.), toFloat32(-1.)]) AS x
     );
 
 SELECT
     min(x),
     max(x)
 FROM (
-        SELECT arrayJoin([toFloat64(0.0), -nan, toFloat64(1.0), toFloat64(-1.0)]) AS x
+        SELECT arrayJoin([toFloat64(0.), -nan, toFloat64(1.), toFloat64(-1.)]) AS x
     );

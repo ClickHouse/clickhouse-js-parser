@@ -1,5 +1,5 @@
 -- { echoOn }
-SET compile_aggregate_expressions = 0;
+SET compile_aggregate_expressions = '0';
 
 WITH arrayJoin([1, 2, 3, nan, 4, 5]) AS data,
 
@@ -38,44 +38,44 @@ SELECT
 SELECT max(number)
 FROM numbers(100)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 10;
+    max_threads = '1',
+    max_block_size = '10';
 
-SELECT max(negate(number))
+SELECT max(-number)
 FROM numbers(100);
 
 SELECT min(number)
 FROM numbers(100)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 10;
+    max_threads = '1',
+    max_block_size = '10';
 
-SELECT min(negate(number))
+SELECT min(-number)
 FROM numbers(100);
 
-SELECT minIf(number, rand() % 2 == 3)
+SELECT minIf(number, rand() % 2 = 3)
 FROM numbers(10)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 5;
+    max_threads = '1',
+    max_block_size = '5';
 
-SELECT maxIf(number, rand() % 2 == 3)
+SELECT maxIf(number, rand() % 2 = 3)
 FROM numbers(10)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 5;
+    max_threads = '1',
+    max_block_size = '5';
 
-SELECT minIf(number::Float64, rand() % 2 == 3)
+SELECT minIf(number::Float64, rand() % 2 = 3)
 FROM numbers(10)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 5;
+    max_threads = '1',
+    max_block_size = '5';
 
-SELECT maxIf(number::Float64, rand() % 2 == 3)
+SELECT maxIf(number::Float64, rand() % 2 = 3)
 FROM numbers(10)
 SETTINGS
-    max_threads = 1,
-    max_block_size = 5;
+    max_threads = '1',
+    max_block_size = '5';
 
 SELECT minIf(number::String, number < 10) AS number
 FROM numbers(10, 1000);
@@ -99,26 +99,26 @@ FROM numbers(10, 1000);
 SELECT min(n::Nullable(String))
 FROM (
         SELECT if(number < 15
-            AND number % 2 == 1, number * 2, NULL) AS n
+            AND number % 2 = 1, number * 2, NULL) AS n
         FROM numbers(10, 20)
     );
 
 SELECT max(n::Nullable(String))
 FROM (
         SELECT if(number < 15
-            AND number % 2 == 1, number * 2, NULL) AS n
+            AND number % 2 = 1, number * 2, NULL) AS n
         FROM numbers(10, 20)
     );
 
 SELECT max(number)
 FROM (
-        SELECT if(number % 2 == 1, NULL, negate(number::Int8)) AS number
+        SELECT if(number % 2 = 1, NULL, -number::Int8) AS number
         FROM numbers(128)
     );
 
 SELECT min(number)
 FROM (
-        SELECT if(number % 2 == 1, NULL, negate(number::Int8)) AS number
+        SELECT if(number % 2 = 1, NULL, -number::Int8) AS number
         FROM numbers(128)
     );
 
@@ -128,8 +128,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMax(number, now())
 FROM (
@@ -137,8 +137,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMax(number, 1)
 FROM (
@@ -146,8 +146,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMax(number, 1)
 FROM (
@@ -155,8 +155,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMax(number::String, 1)
 FROM (
@@ -164,8 +164,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMax(number::String, 1)
 FROM (
@@ -173,8 +173,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMax(number, now() + number)
 FROM (
@@ -182,8 +182,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMax(number, now() + number)
 FROM (
@@ -191,8 +191,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMaxIf(number, now() + number, number % 10 < 20)
 FROM (
@@ -200,8 +200,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMaxIf(number, now() + number, number % 10 < 20)
 FROM (
@@ -209,8 +209,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMaxIf(number, now() + number, number % 10 > 20)
 FROM (
@@ -218,8 +218,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMaxIf(number, now() + number, number % 10 > 20)
 FROM (
@@ -227,8 +227,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMax(number, number::Float64)
 FROM numbers(2029);
@@ -239,13 +239,13 @@ FROM numbers(2029);
 SELECT argMaxIf(number, number::Float64, number > 2030)
 FROM numbers(2032);
 
-SELECT argMax(number, negate(number::Float64))
+SELECT argMax(number, -number::Float64)
 FROM numbers(2029);
 
-SELECT argMaxIf(number, negate(number::Float64), number > 2030)
+SELECT argMaxIf(number, -number::Float64, number > 2030)
 FROM numbers(2029);
 
-SELECT argMaxIf(number, negate(number::Float64), number > 2030)
+SELECT argMaxIf(number, -number::Float64, number > 2030)
 FROM numbers(2032);
 
 SELECT argMin(number, now())
@@ -254,8 +254,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMin(number, now())
 FROM (
@@ -263,8 +263,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMin(number, 1)
 FROM (
@@ -272,8 +272,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMin(number, 1)
 FROM (
@@ -281,8 +281,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMin(number::String, 1)
 FROM (
@@ -290,8 +290,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMin(number::String, 1)
 FROM (
@@ -299,8 +299,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMin(number, now() + number)
 FROM (
@@ -308,8 +308,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMin(number, now() + number)
 FROM (
@@ -317,8 +317,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMinIf(number, now() + number, number % 10 < 20)
 FROM (
@@ -326,8 +326,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMinIf(number, now() + number, number % 10 < 20)
 FROM (
@@ -335,8 +335,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMinIf(number, now() + number, number % 10 > 20)
 FROM (
@@ -344,8 +344,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 100;
+    max_threads = '1',
+    max_block_size = '100';
 
 SELECT argMinIf(number, now() + number, number % 10 > 20)
 FROM (
@@ -353,8 +353,8 @@ FROM (
         FROM numbers(10, 10000)
     )
 SETTINGS
-    max_threads = 1,
-    max_block_size = 20000;
+    max_threads = '1',
+    max_block_size = '20000';
 
 SELECT argMin(number, number::Float64)
 FROM numbers(2029);
@@ -365,20 +365,20 @@ FROM numbers(2029);
 SELECT argMinIf(number, number::Float64, number > 2030)
 FROM numbers(2032);
 
-SELECT argMin(number, negate(number::Float64))
+SELECT argMin(number, -number::Float64)
 FROM numbers(2029);
 
-SELECT argMinIf(number, negate(number::Float64), number > 2030)
+SELECT argMinIf(number, -number::Float64, number > 2030)
 FROM numbers(2029);
 
-SELECT argMinIf(number, negate(number::Float64), number > 2030)
+SELECT argMinIf(number, -number::Float64, number > 2030)
 FROM numbers(2032);
 
 SELECT
     argMax((n, n), n) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
@@ -386,7 +386,7 @@ SELECT
     argMaxIf((n, n), n, n < 5) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
@@ -394,7 +394,7 @@ SELECT
     argMaxIf((n, n), n, n > 5) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
@@ -402,7 +402,7 @@ SELECT
     argMin((n, n), n) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
@@ -410,7 +410,7 @@ SELECT
     argMinIf((n, n), n, n < 5) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
@@ -418,30 +418,30 @@ SELECT
     argMinIf((n, n), n, n > 5) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 3 == 0, NULL, number) AS n
+        SELECT if(number % 3 = 0, NULL, number) AS n
         FROM numbers(10)
     );
 
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
-SELECT minIf(number, rand() % 2 == 3)
+SELECT minIf(number, rand() % 2 = 3)
 FROM numbers(10);
 
-SELECT maxIf(number, rand() % 2 == 3)
+SELECT maxIf(number, rand() % 2 = 3)
 FROM numbers(10);
 
-SELECT minIf(number::Float64, rand() % 2 == 3)
+SELECT minIf(number::Float64, rand() % 2 = 3)
 FROM numbers(10);
 
-SELECT maxIf(number::Float64, rand() % 2 == 3)
+SELECT maxIf(number::Float64, rand() % 2 = 3)
 FROM numbers(10);
 
 SELECT max(number::Nullable(Decimal64(3)))
 FROM numbers(11)
-SETTINGS max_block_size = 10;
+SETTINGS max_block_size = '10';
 
-SELECT min(negate(number::Nullable(Decimal64(3))))
+SELECT min(-number::Nullable(Decimal64(3)))
 FROM numbers(11)
-SETTINGS max_block_size = 10;
+SETTINGS max_block_size = '10';

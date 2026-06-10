@@ -26,7 +26,7 @@ CREATE TABLE toModifiedJulianDay_test
 (
     d String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO toModifiedJulianDay_test;
 
@@ -39,4 +39,4 @@ CREATE TABLE toModifiedJulianDay_test
 (
     d FixedString(10)
 )
-ENGINE = Memory;
+ENGINE = Memory();

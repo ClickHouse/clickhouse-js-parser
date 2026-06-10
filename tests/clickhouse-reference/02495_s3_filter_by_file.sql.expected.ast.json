@@ -1,344 +1,400 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_s3_filter_02495"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-parallel, no-fasttest"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_s3_filter_02495"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "S3",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s3_conn"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "filename"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "test_02495_{_partition_id}"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "format"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "Parquet"
-            ]
-          }
-        }
-      ]
-    },
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "a"
-      ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_s3_filter_02495"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_s3_filter_02495"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "t_s3_filter_02495"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           }
         ]
       },
-      "settings": [
-        {
-          "name": "s3_truncate_on_insert",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "S3",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "s3_conn"
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "filename"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "test_02495_{_partition_id}"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "format"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "Parquet"
+                }
+              ]
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "a"
         }
-      ]
+      }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_s3_filter_02495"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "s3_truncate_on_insert": "1"
         }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "s3_truncate_on_insert": "1"
+              }
+            }
+          }
+        ]
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "num",
-        "expr": {
-          "kind": "castExpr",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "5"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "num",
+              "name": "CAST",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "splitByChar",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "_"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "_file"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UInt64"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "num"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "num"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "splitByChar",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "_"
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "_file"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "s3",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "s3_conn"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "filename"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "test_02495_*"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "format"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "Parquet"
+                          }
+                        ]
+                      }
                     ]
                   }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
+                }
               }
             ]
           },
-          "type": "UInt64",
-          "operator": true
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "num"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "num"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "s3",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s3_conn"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "filename"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "test_02495_*"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "format"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "Parquet"
+          "where": {
+            "type": "Function",
+            "name": "greaterOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "num"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              }
             ]
           }
         }
       ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": ">=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "num"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_file"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "s3",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "s3_conn"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "filename"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            },
+            {
+              "type": "Identifier",
+              "name": "_file"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "s3",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "s3_conn"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "filename"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "test_02495_1"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "format"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "Parquet"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "test_02495_1"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "format"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "Parquet"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "_file"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "test_02495_1"
+              }
             ]
           }
         }
       ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "_file"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "test_02495_1"
-      }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_s3_filter_02495"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_s3_filter_02495"
+      }
     }
   }
 ]

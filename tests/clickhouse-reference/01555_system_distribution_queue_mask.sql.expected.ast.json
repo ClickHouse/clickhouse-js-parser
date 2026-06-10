@@ -1,432 +1,498 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_compact_format_in_distributed_parts_names",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_compact_format_in_distributed_parts_names": "0"
       }
-    ],
-    "leadingComments": [
-      "-- force data path with the user/pass in it"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "prefer_localhost_replica",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- use async send even for localhost"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_01555"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01555"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01555"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Null",
-      "args": []
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_01555"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "prefer_localhost_replica": "0"
       }
-    ],
-    "engine": {
-      "name": "Distributed",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_cluster_with_incorrect_pw"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "data_01555"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM stop distributed sends dist_01555"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dist_01555"
+        "type": "Identifier",
+        "name": "dist_01555"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01555"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01555"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Null",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM flush distributed dist_01555",
-    "leadingComments": [
-      "-- since test_cluster_with_incorrect_pw contains incorrect password ignore error"
-    ],
-    "trailingComments": [
-      "-- { serverError AUTHENTICATION_FAILED }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "splitByChar",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "*"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "data_path"
-                ]
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
           }
         ]
       },
-      {
-        "kind": "functionCall",
-        "name": "replaceRegexpOne",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "data_path"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "^.*/([^/]*)/"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "\\\\1"
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "extract",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "last_exception"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "AUTHENTICATION_FAILED"
-          }
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "<",
-        "left": {
-          "kind": "functionCall",
-          "name": "dateDiff",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Distributed",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "s"
+              "type": "Identifier",
+              "name": "test_cluster_with_incorrect_pw"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "last_exception_time"
+              "type": "Function",
+              "name": "currentDatabase",
+              "arguments": []
+            },
+            {
+              "type": "Identifier",
+              "name": "data_01555"
+            },
+            {
+              "type": "Identifier",
+              "name": "key"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP DISTRIBUTED SENDS",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH DISTRIBUTED",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "splitByChar",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "*"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "data_path"
+                    }
+                  ]
+                }
               ]
             },
             {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
+              "type": "Function",
+              "name": "replaceRegexpOne",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "data_path"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "^.*/([^/]*)/"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "\\1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "extract",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "last_exception"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "AUTHENTICATION_FAILED"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "dateDiff",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "s"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "last_exception_time"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "now",
+                      "arguments": []
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "3600"
+                }
+              ]
             }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3600"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "distribution_queue"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "dist_01555"
-          }
-        }
-      ]
-    },
-    "format": "CSV"
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_01555"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_01555"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Distributed",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_shard_localhost"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "data_01555"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "splitByChar",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "*"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "distribution_queue",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "data_path"
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "dist_01555"
+                  }
                 ]
               }
             ]
           }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "replaceRegexpOne",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "data_path"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "^.*/([^/]*)/"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "\\\\1"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "distribution_queue"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "dist_01555"
-          }
         }
-      ]
-    },
-    "format": "CSV"
+      ],
+      "format": "CSV"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01555"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_01555"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Distributed",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "test_shard_localhost"
+            },
+            {
+              "type": "Function",
+              "name": "currentDatabase",
+              "arguments": []
+            },
+            {
+              "type": "Identifier",
+              "name": "data_01555"
+            },
+            {
+              "type": "Identifier",
+              "name": "key"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "splitByChar",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "*"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "data_path"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "replaceRegexpOne",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "data_path"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "^.*/([^/]*)/"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "\\1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "distribution_queue",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "dist_01555"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "format": "CSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01555"
+      }
     }
   }
 ]

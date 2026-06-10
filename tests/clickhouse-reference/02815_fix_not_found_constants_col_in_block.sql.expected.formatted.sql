@@ -6,7 +6,7 @@ CREATE TABLE t0
     c0 Float32,
     PRIMARY KEY(c0)
 )
-ENGINE = AggregatingMergeTree;
+ENGINE = AggregatingMergeTree();
 
 INSERT INTO t0;
 

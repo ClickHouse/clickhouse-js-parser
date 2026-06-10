@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
 SELECT
     k,
@@ -16,12 +16,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     ) AS js2
     USING (k)
 ORDER BY k ASC;
@@ -38,12 +39,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             nullIf(number, 8) AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     ) AS js2
     USING (k)
 ORDER BY k ASC;
@@ -60,12 +62,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             nullIf(number, 8) AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     ) AS js2
     USING (k)
 ORDER BY k ASC;
@@ -80,7 +83,7 @@ FROM
     ) AS js1
 RIGHT JOIN (
         SELECT
-            nullIf(number, if(number % 2 == 0, number, 0)) AS k,
+            nullIf(number, if(number % 2 = 0, number, 0)) AS k,
             number AS b
         FROM numbers(10)
     ) AS js2

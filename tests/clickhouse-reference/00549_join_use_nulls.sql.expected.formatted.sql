@@ -1,4 +1,4 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE IF EXISTS null_00549;
 
@@ -8,7 +8,7 @@ CREATE TABLE null_00549
     a String,
     b Nullable(String)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO null_00549 SELECT
     k,
@@ -22,12 +22,13 @@ FROM
         FROM `system`.numbers
         LIMIT 2
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 1, 2
+        LIMIT 2
+        OFFSET 1
     ) AS js2
     USING (k)
 ORDER BY k ASC;

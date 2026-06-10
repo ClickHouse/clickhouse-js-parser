@@ -3,7 +3,7 @@ CREATE TABLE merge_kek_1
     x UInt32,
     y UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE TABLE merge_kek_2
@@ -11,7 +11,7 @@ CREATE TABLE merge_kek_2
     x UInt32,
     y UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO merge_kek_1 SELECT
@@ -22,7 +22,7 @@ FROM numbers(100);
 INSERT INTO merge_kek_2 SELECT
     number + 500,
     number + 500
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT
     sum(x),
@@ -34,4 +34,4 @@ WHERE x > 200
         SELECT 500 + number * 2
         FROM numbers(100)
     )
-SETTINGS max_threads = 2;
+SETTINGS max_threads = '2';

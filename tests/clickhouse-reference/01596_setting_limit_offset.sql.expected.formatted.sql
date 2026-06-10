@@ -16,7 +16,7 @@ FROM numbers(10, 100);
 OPTIMIZE TABLE test FINAL;
 
 -- Only set limit
-SET limit = 5;
+SET limit = '5';
 
 SELECT *
 FROM test
@@ -56,16 +56,16 @@ LIMIT 2 * 2
 OFFSET 192;
 
 -- Only set offset
-SET limit = 0;
+SET limit = '0';
 
-SET offset = 195;
+SET offset = '195';
 
 SELECT *
 FROM test
 ORDER BY i ASC
 LIMIT 100; -- no result
 
-SET offset = 10;
+SET offset = '10';
 
 SELECT *
 FROM test
@@ -92,7 +92,7 @@ LIMIT 4 * 5
 OFFSET 10 * 10;
 
 -- offset and limit together
-SET limit = 10;
+SET limit = '10';
 
 SELECT *
 FROM test

@@ -4,7 +4,7 @@ CREATE TABLE test_in
 (
     a LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_in;

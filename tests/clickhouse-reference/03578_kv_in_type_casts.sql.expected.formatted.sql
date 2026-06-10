@@ -11,28 +11,28 @@ PRIMARY KEY key;
 
 INSERT INTO `03578_rocksdb` SELECT
     number,
-    concat('val-', number)
+    'val-' || number
 FROM numbers(100);
 
 SELECT '-- RocksDB: set safe to cast';
 
 SELECT *
 FROM `03578_rocksdb`
-WHERE key IN (0::UInt8, 1::UInt8)
+WHERE key IN (CAST('0' AS UInt8), CAST('1' AS UInt8))
 ORDER BY
     1 ASC,
     2 ASC;
 
 SELECT *
 FROM `03578_rocksdb`
-WHERE key IN (0::UInt32, 1::UInt32)
+WHERE key IN (CAST('0' AS UInt32), CAST('1' AS UInt32))
 ORDER BY
     1 ASC,
     2 ASC;
 
 SELECT *
 FROM `03578_rocksdb`
-WHERE key IN (0::UInt32, 1000000::UInt32)
+WHERE key IN (CAST('0' AS UInt32), CAST('1000000' AS UInt32))
 ORDER BY
     1 ASC,
     2 ASC;
@@ -47,9 +47,9 @@ ORDER BY
 SELECT *
 FROM `03578_rocksdb`
 WHERE key IN (
-        SELECT 0::UInt8
+        SELECT CAST('0' AS UInt8)
         UNION ALL
-        SELECT 1::UInt8
+        SELECT CAST('1' AS UInt8)
     )
 ORDER BY
     1 ASC,
@@ -58,9 +58,9 @@ ORDER BY
 SELECT *
 FROM `03578_rocksdb`
 WHERE key IN (
-        SELECT 0::UInt32
+        SELECT CAST('0' AS UInt32)
         UNION ALL
-        SELECT 1::UInt32
+        SELECT CAST('1' AS UInt32)
     )
 ORDER BY
     1 ASC,
@@ -69,9 +69,9 @@ ORDER BY
 SELECT *
 FROM `03578_rocksdb`
 WHERE key IN (
-        SELECT 0::UInt32
+        SELECT CAST('0' AS UInt32)
         UNION ALL
-        SELECT 1000000::UInt32
+        SELECT CAST('1000000' AS UInt32)
     )
 ORDER BY
     1 ASC,
@@ -94,7 +94,7 @@ SELECT read_rows
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '%FROM 03578_rocksdb%')
+    AND query LIKE '%FROM 03578_rocksdb%'
     AND is_initial_query
 ORDER BY event_time_microseconds ASC;
 
@@ -116,7 +116,7 @@ INSERT INTO `03578_rocksdb_nullable` SELECT
 
 INSERT INTO `03578_rocksdb_nullable` SELECT
     number,
-    concat('val-', number)
+    'val-' || number
 FROM numbers(99);
 
 SELECT *
@@ -132,7 +132,7 @@ WHERE key IN (NULL, 1)
 ORDER BY
     1 ASC,
     2 ASC
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT *
 FROM `03578_rocksdb_nullable`
@@ -155,13 +155,13 @@ WHERE key IN (
 ORDER BY
     1 ASC,
     2 ASC
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT read_rows
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '%FROM 03578_rocksdb_nullable%')
+    AND query LIKE '%FROM 03578_rocksdb_nullable%'
     AND is_initial_query
 ORDER BY event_time_microseconds ASC;
 
@@ -174,31 +174,31 @@ CREATE TABLE IF NOT EXISTS `03578_keepermap`
     key UInt16,
     val String
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test_03578_type_cast'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test_03578_type_cast')
 PRIMARY KEY key;
 
 INSERT INTO `03578_keepermap` SELECT
     number,
-    concat('val-', number)
+    'val-' || number
 FROM numbers(100);
 
 SELECT *
 FROM `03578_keepermap`
-WHERE key IN (0::UInt8, 1::UInt8)
+WHERE key IN (CAST('0' AS UInt8), CAST('1' AS UInt8))
 ORDER BY
     1 ASC,
     2 ASC;
 
 SELECT *
 FROM `03578_keepermap`
-WHERE key IN (0::UInt32, 1::UInt32)
+WHERE key IN (CAST('0' AS UInt32), CAST('1' AS UInt32))
 ORDER BY
     1 ASC,
     2 ASC;
 
 SELECT *
 FROM `03578_keepermap`
-WHERE key IN (0::UInt32, 1000000::UInt32)
+WHERE key IN (CAST('0' AS UInt32), CAST('1000000' AS UInt32))
 ORDER BY
     1 ASC,
     2 ASC;
@@ -213,9 +213,9 @@ ORDER BY
 SELECT *
 FROM `03578_keepermap`
 WHERE key IN (
-        SELECT 0::UInt8
+        SELECT CAST('0' AS UInt8)
         UNION ALL
-        SELECT 1::UInt8
+        SELECT CAST('1' AS UInt8)
     )
 ORDER BY
     1 ASC,
@@ -224,9 +224,9 @@ ORDER BY
 SELECT *
 FROM `03578_keepermap`
 WHERE key IN (
-        SELECT 0::UInt32
+        SELECT CAST('0' AS UInt32)
         UNION ALL
-        SELECT 1::UInt32
+        SELECT CAST('1' AS UInt32)
     )
 ORDER BY
     1 ASC,
@@ -235,9 +235,9 @@ ORDER BY
 SELECT *
 FROM `03578_keepermap`
 WHERE key IN (
-        SELECT 0::UInt32
+        SELECT CAST('0' AS UInt32)
         UNION ALL
-        SELECT 1000000::UInt32
+        SELECT CAST('1000000' AS UInt32)
     )
 ORDER BY
     1 ASC,
@@ -258,7 +258,7 @@ SELECT read_rows
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '%FROM 03578_keepermap%')
+    AND query LIKE '%FROM 03578_keepermap%'
     AND is_initial_query
 ORDER BY event_time_microseconds ASC;
 
@@ -271,7 +271,7 @@ CREATE TABLE IF NOT EXISTS `03578_keepermap_nullable`
     key Nullable(UInt16),
     val String
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test_03578_type_cast_null'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test_03578_type_cast_null')
 PRIMARY KEY key;
 
 INSERT INTO `03578_keepermap_nullable` SELECT
@@ -280,7 +280,7 @@ INSERT INTO `03578_keepermap_nullable` SELECT
 
 INSERT INTO `03578_keepermap_nullable` SELECT
     number,
-    concat('val-', number)
+    'val-' || number
 FROM numbers(99);
 
 SELECT *
@@ -296,7 +296,7 @@ WHERE key IN (NULL, 1)
 ORDER BY
     1 ASC,
     2 ASC
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT *
 FROM `03578_keepermap_nullable`
@@ -319,13 +319,13 @@ WHERE key IN (
 ORDER BY
     1 ASC,
     2 ASC
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT read_rows
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '%FROM 03578_keepermap_nullable%')
+    AND query LIKE '%FROM 03578_keepermap_nullable%'
     AND is_initial_query
 ORDER BY event_time_microseconds ASC;
 

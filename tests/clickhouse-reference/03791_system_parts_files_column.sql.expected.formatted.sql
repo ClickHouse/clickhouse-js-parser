@@ -4,7 +4,7 @@ CREATE TABLE test_parts_files
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO test_parts_files;

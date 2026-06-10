@@ -9,7 +9,7 @@ CREATE TABLE test_bm
 )
 ENGINE = MergeTree()
 ORDER BY (dim, id)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE test_bm_join
 (
@@ -18,7 +18,7 @@ CREATE TABLE test_bm_join
 )
 ENGINE = MergeTree()
 ORDER BY (dim, id)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_bm;
 
@@ -40,7 +40,7 @@ RIGHT JOIN (
                 WHERE dim > 2
                 GROUP BY dim
             ) AS A
-        RIGHT JOIN (
+        ALL RIGHT JOIN (
                 SELECT
                     dim,
                     groupBitmapState(toUInt64(id)) AS ids2

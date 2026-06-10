@@ -4,13 +4,13 @@ DROP TABLE IF EXISTS raw_to_attributes_mv;
 
 DROP TABLE IF EXISTS attributes;
 
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
 CREATE TABLE rawtable
 (
     Attributes Map(String, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE attributes
@@ -18,7 +18,7 @@ CREATE TABLE attributes
     AttributeKeys Array(String),
     AttributeValues Array(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY tuple();
 
 CREATE MATERIALIZED VIEW raw_to_attributes_mv

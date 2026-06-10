@@ -6,7 +6,7 @@ FROM numbers(1, 100);
 SELECT minMap([1], [toInt32(number) - 50])
 FROM numbers(1, 100);
 
-SELECT minMap([cast(1, 'Decimal(10, 2)')], [cast(toInt32(number) - 50, 'Decimal(10, 2)')])
+SELECT minMap([CAST(1 AS Decimal(10, 2))], [CAST(toInt32(number) - 50 AS Decimal(10, 2))])
 FROM numbers(1, 100);
 
 SELECT
@@ -17,7 +17,7 @@ FROM numbers(1, 100);
 SELECT maxMap([1], [toInt32(number) - 50])
 FROM numbers(1, 100);
 
-SELECT maxMap([cast(1, 'Decimal(10, 2)')], [cast(toInt32(number) - 50, 'Decimal(10, 2)')])
+SELECT maxMap([CAST(1 AS Decimal(10, 2))], [CAST(toInt32(number) - 50 AS Decimal(10, 2))])
 FROM numbers(1, 100);
 
 -- check different types for minMap

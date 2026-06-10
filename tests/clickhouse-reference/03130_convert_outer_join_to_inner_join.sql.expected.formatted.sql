@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -9,9 +9,9 @@ CREATE TABLE test_table_1
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 16; # We have number of granules in the `EXPLAIN` output in reference file
+SETTINGS index_granularity = '16'; # We have number of granules in the `EXPLAIN` output in reference file
 
 DROP TABLE IF EXISTS test_table_2;
 
@@ -20,15 +20,15 @@ CREATE TABLE test_table_2
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 16;
+SETTINGS index_granularity = '16';
 
 INSERT INTO test_table_1;
 
 INSERT INTO test_table_2;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT *
 FROM
     test_table_1 AS lhs
@@ -37,7 +37,7 @@ LEFT JOIN test_table_2 AS rhs
 WHERE rhs.id != 0
 SETTINGS
     query_plan_join_swap_table = 'false',
-    enable_join_runtime_filters = 0;
+    enable_join_runtime_filters = '0';
 
 SELECT '--';
 
@@ -48,7 +48,7 @@ LEFT JOIN test_table_2 AS rhs
     ON lhs.id = rhs.id
 WHERE rhs.id != 0;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT *
 FROM
     test_table_1 AS lhs
@@ -57,7 +57,7 @@ RIGHT JOIN test_table_2 AS rhs
 WHERE lhs.id != 0
 SETTINGS
     query_plan_join_swap_table = 'false',
-    enable_join_runtime_filters = 0;
+    enable_join_runtime_filters = '0';
 
 SELECT *
 FROM
@@ -66,7 +66,7 @@ RIGHT JOIN test_table_2 AS rhs
     ON lhs.id = rhs.id
 WHERE lhs.id != 0;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT *
 FROM
     test_table_1 AS lhs
@@ -76,7 +76,7 @@ WHERE lhs.id != 0
     AND rhs.id != 0
 SETTINGS
     query_plan_join_swap_table = 'false',
-    enable_join_runtime_filters = 0;
+    enable_join_runtime_filters = '0';
 
 SELECT *
 FROM

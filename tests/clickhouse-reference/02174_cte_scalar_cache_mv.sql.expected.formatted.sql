@@ -4,7 +4,7 @@ CREATE TABLE t1
     i Int64,
     j Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 SELECT
     number,
@@ -19,7 +19,7 @@ CREATE TABLE t2
     m Int64,
     n Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv1
 TO t2
@@ -37,7 +37,7 @@ SELECT
 FROM t1
 LIMIT 5;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 -- FIRST INSERT
 INSERT INTO t1 WITH (
@@ -51,11 +51,11 @@ SELECT
 FROM `system`.numbers
 LIMIT 100
 SETTINGS
-    min_insert_block_size_rows = 5,
-    max_insert_block_size = 5,
-    min_insert_block_size_rows_for_materialized_views = 5,
-    max_block_size = 5,
-    max_threads = 1;
+    min_insert_block_size_rows = '5',
+    max_insert_block_size = '5',
+    min_insert_block_size_rows_for_materialized_views = '5',
+    max_block_size = '5',
+    max_threads = '1';
 
 SELECT
     k,
@@ -94,13 +94,13 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '-- FIRST INSERT\nINSERT INTO t1\n%')
+    AND query LIKE '-- FIRST INSERT\nINSERT INTO t1\n%'
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(10);
 
 TRUNCATE TABLE t2;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE mv1;
 
@@ -108,7 +108,7 @@ CREATE TABLE t3
 (
     z Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv2
 TO t3
@@ -122,8 +122,8 @@ SELECT
                 FROM (
                         SELECT *
                         FROM
-                            `system`.one AS _a
-                        CROSS JOIN t1 AS _b
+                            `system`.one AS _a,
+                            t1 AS _b
                     )
             )
     ) AS z
@@ -135,11 +135,11 @@ INSERT INTO t1 SELECT
     number AS j
 FROM numbers(100)
 SETTINGS
-    min_insert_block_size_rows = 5,
-    max_insert_block_size = 5,
-    min_insert_block_size_rows_for_materialized_views = 5,
-    max_block_size = 5,
-    max_threads = 1;
+    min_insert_block_size_rows = '5',
+    max_insert_block_size = '5',
+    min_insert_block_size_rows_for_materialized_views = '5',
+    max_block_size = '5',
+    max_threads = '1';
 
 SELECT *
 FROM t3
@@ -153,7 +153,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '-- SECOND INSERT\nINSERT INTO t1%')
+    AND query LIKE '-- SECOND INSERT\nINSERT INTO t1%'
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(10);
 
@@ -165,7 +165,7 @@ CREATE TABLE t4
 (
     z Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv3
 TO t4
@@ -179,8 +179,8 @@ SELECT
                 FROM (
                         SELECT *
                         FROM
-                            `system`.one AS _a
-                        CROSS JOIN t2 AS _b
+                            `system`.one AS _a,
+                            t2 AS _b
                     )
             )
     ) AS z
@@ -192,11 +192,11 @@ INSERT INTO t1 SELECT
     number AS j
 FROM numbers(100)
 SETTINGS
-    min_insert_block_size_rows = 5,
-    max_insert_block_size = 5,
-    min_insert_block_size_rows_for_materialized_views = 5,
-    max_block_size = 5,
-    max_threads = 1;
+    min_insert_block_size_rows = '5',
+    max_insert_block_size = '5',
+    min_insert_block_size_rows_for_materialized_views = '5',
+    max_block_size = '5',
+    max_threads = '1';
 
 SELECT *
 FROM t4
@@ -210,7 +210,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '-- THIRD INSERT\nINSERT INTO t1%')
+    AND query LIKE '-- THIRD INSERT\nINSERT INTO t1%'
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(10);
 

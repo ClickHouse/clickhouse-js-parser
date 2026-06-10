@@ -4,9 +4,9 @@ CREATE TABLE users_02534
 (
     id Int16,
     name String,
-    INDEX bf_idx name TYPE minmax
+    INDEX bf_idx name TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 SHOW CREATE TABLE users_02534;
@@ -18,7 +18,7 @@ CREATE TABLE users_02534
     id Int16,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
-ALTER TABLE users_02534 ADD INDEX bf_idx name TYPE minmax;
+ALTER TABLE users_02534 ADD INDEX bf_idx name TYPE minmax() GRANULARITY 1;

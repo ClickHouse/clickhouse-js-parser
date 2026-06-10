@@ -20,15 +20,15 @@ FROM numbers(100);
 INSERT INTO t2 SELECT number * number
 FROM numbers(100);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 -- { echoOn }
 SELECT count(t1.c1)
 FROM t1
 WHERE t1.c2 = 10
-    AND EXISTS((
+    AND exists((
         SELECT *
         FROM t2
         WHERE t1.c1 = t2.c1
@@ -45,7 +45,7 @@ WHERE t1.c2 = 10
 SELECT count(t1.c1)
 FROM t1
 WHERE t1.c2 = 10
-    AND NOT EXISTS((
+    AND NOT exists((
         SELECT *
         FROM t2
         WHERE t1.c1 = t2.c1

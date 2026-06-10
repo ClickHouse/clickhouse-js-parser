@@ -4,11 +4,11 @@ CREATE TABLE t
 (
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 -- some magic to satisfy conditions to run optimizations in MergeTreeRangeReader
-INSERT INTO t SELECT if(number < 20, 0, 1)
+INSERT INTO t SELECT number < 20 ? 0 : 1
 FROM numbers(50);
 
 ALTER TABLE t ADD COLUMN s String DEFAULT 'foo';

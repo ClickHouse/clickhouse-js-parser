@@ -7,7 +7,7 @@ CREATE TABLE dst_sparse
     id Int64,
     budget Tuple(currencyCode String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9, serialization_info_version = 'basic' AS
 SELECT
@@ -20,9 +20,9 @@ INSERT INTO dst_sparse;
 OPTIMIZE TABLE dst_sparse FINAL;
 
 CREATE TABLE mytable_sparse
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0, serialization_info_version = 'basic' AS
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1., serialization_info_version = 'basic' AS
 SELECT
     id,
     budget
@@ -45,7 +45,7 @@ WHERE database = currentDatabase()
 ORDER BY table ASC;
 
 CREATE TABLE mytable_sparse
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9, serialization_info_version = 'basic' AS
 SELECT

@@ -1,10 +1,10 @@
 -- Tags: no-parallel
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 -- system.parts has server default, timezone cannot be randomized
 SET session_timezone = '';
 
-SET allow_suspicious_ttl_expressions = 1;
+SET allow_suspicious_ttl_expressions = '1';
 
 DROP TABLE IF EXISTS ttl;
 
@@ -13,10 +13,10 @@ CREATE TABLE ttl
     d Date,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY toDayOfMonth(d)
-SETTINGS max_number_of_merges_with_ttl_in_pool = 0, materialize_ttl_recalculate_only = true;
+SETTINGS max_number_of_merges_with_ttl_in_pool = '0', materialize_ttl_recalculate_only = true;
 
 INSERT INTO ttl;
 
@@ -48,13 +48,13 @@ CREATE TABLE ttl
     i Int,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS max_number_of_merges_with_ttl_in_pool = 0, materialize_ttl_recalculate_only = true;
+SETTINGS max_number_of_merges_with_ttl_in_pool = '0', materialize_ttl_recalculate_only = true;
 
 INSERT INTO ttl;
 
-ALTER TABLE ttl MODIFY TTL if(i % 2 = 0, toDate('2000-01-01'), toDate('2100-01-01'));
+ALTER TABLE ttl MODIFY TTL i % 2 = 0 ? toDate('2000-01-01') : toDate('2100-01-01');
 
 SELECT *
 FROM ttl
@@ -70,7 +70,7 @@ WHERE database = currentDatabase()
 
 ALTER TABLE ttl MODIFY TTL toDate('2000-01-01');
 
-ALTER TABLE ttl MODIFY COLUMN s String TTL if(i % 2 = 0, today() - 10, toDate('2100-01-01'));
+ALTER TABLE ttl MODIFY COLUMN s String TTL i % 2 = 0 ? today() - 10 : toDate('2100-01-01');
 
 ALTER TABLE ttl MODIFY COLUMN s String TTL toDate('2000-01-01');
 
@@ -80,13 +80,13 @@ CREATE TABLE ttl
     i Int,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS max_number_of_merges_with_ttl_in_pool = 0, materialize_ttl_recalculate_only = true;
+SETTINGS max_number_of_merges_with_ttl_in_pool = '0', materialize_ttl_recalculate_only = true;
 
 INSERT INTO ttl;
 
-ALTER TABLE ttl MODIFY TTL if(i % 3 = 0, toDate('2000-01-01'), toDate('2100-01-01'));
+ALTER TABLE ttl MODIFY TTL i % 3 = 0 ? toDate('2000-01-01') : toDate('2100-01-01');
 
 SELECT
     i,
@@ -102,13 +102,13 @@ CREATE TABLE ttl
     s String,
     t String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS max_number_of_merges_with_ttl_in_pool = 0, materialize_ttl_recalculate_only = true;
+SETTINGS max_number_of_merges_with_ttl_in_pool = '0', materialize_ttl_recalculate_only = true;
 
 INSERT INTO ttl;
 
-ALTER TABLE ttl MODIFY COLUMN s String TTL if(i % 3 = 0, today() - 10, toDate('2100-01-01')), MODIFY COLUMN t String TTL if(i % 3 = 1, today() - 10, toDate('2100-01-01'));
+ALTER TABLE ttl MODIFY COLUMN s String TTL i % 3 = 0 ? today() - 10 : toDate('2100-01-01'), MODIFY COLUMN t String TTL i % 3 = 1 ? today() - 10 : toDate('2100-01-01');
 
 SELECT
     i,
@@ -130,8 +130,8 @@ CREATE TABLE ttl
     i Int,
     s String TTL toDate('2000-01-02')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS max_number_of_merges_with_ttl_in_pool = 0, materialize_ttl_recalculate_only = true;
+SETTINGS max_number_of_merges_with_ttl_in_pool = '0', materialize_ttl_recalculate_only = true;
 
 ALTER TABLE ttl MODIFY COLUMN s String TTL toDate('2000-01-02');

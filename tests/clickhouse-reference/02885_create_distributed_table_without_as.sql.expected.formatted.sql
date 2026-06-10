@@ -8,7 +8,7 @@ CREATE TABLE local_tbl
     key UInt32,
     value UInt32 DEFAULT 42
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE dist_tbl
@@ -16,7 +16,7 @@ ENGINE = Distributed('test_shard_localhost', currentDatabase(), 'local_tbl', ran
 
 SHOW CREATE TABLE dist_tbl;
 
-INSERT INTO dist_tbl (key) SETTINGS distributed_foreground_insert = 1;
+INSERT INTO dist_tbl (key) SETTINGS distributed_foreground_insert = '1';
 
 SELECT *
 FROM local_tbl;

@@ -10,7 +10,7 @@ CREATE TABLE `01766_db`.complex_key_simple_attributes_source_table
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01766_db`.complex_key_simple_attributes_source_table;
 
@@ -73,7 +73,7 @@ CREATE TABLE `01766_db`.complex_key_complex_attributes_source_table
     value_first String,
     value_second Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01766_db`.complex_key_complex_attributes_source_table;
 

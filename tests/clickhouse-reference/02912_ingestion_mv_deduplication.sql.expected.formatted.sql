@@ -12,19 +12,19 @@ SELECT '-- Original issue with max_insert_delayed_streams_for_parallel_write <= 
     - 2nd insert gets both blocks inserted in mv table
 
 */
-SET deduplicate_blocks_in_dependent_materialized_views = 0, max_insert_delayed_streams_for_parallel_write = 0;
+SET deduplicate_blocks_in_dependent_materialized_views = '0', max_insert_delayed_streams_for_parallel_write = '0';
 
 CREATE TABLE landing
 (
     time DateTime,
     number Int64
 )
-ENGINE = ReplicatedReplacingMergeTree(concat('/clickhouse/', currentDatabase(), '/landing/{shard}/'), '{replica}')
+ENGINE = ReplicatedReplacingMergeTree('/clickhouse/' || currentDatabase() || '/landing/{shard}/', '{replica}')
 ORDER BY time
 PARTITION BY toYYYYMMDD(time);
 
 CREATE MATERIALIZED VIEW mv
-ENGINE = ReplicatedSummingMergeTree(concat('/clickhouse/', currentDatabase(), '/mv/{shard}/'), '{replica}')
+ENGINE = ReplicatedSummingMergeTree('/clickhouse/' || currentDatabase() || '/mv/{shard}/', '{replica}')
 ORDER BY hour
 PARTITION BY toYYYYMMDD(hour)
 AS
@@ -46,9 +46,9 @@ SELECT *
 FROM mv FINAL
 ORDER BY hour ASC;
 
-DROP TABLE IF EXISTS landing;
+DROP TABLE IF EXISTS landing SYNC;
 
-DROP TABLE IF EXISTS mv;
+DROP TABLE IF EXISTS mv SYNC;
 
 /*
 
@@ -65,7 +65,7 @@ DROP TABLE IF EXISTS mv;
 
     Now it is fixed.
 */
-SET deduplicate_blocks_in_dependent_materialized_views = 0, max_insert_delayed_streams_for_parallel_write = 1000;
+SET deduplicate_blocks_in_dependent_materialized_views = '0', max_insert_delayed_streams_for_parallel_write = '1000';
 
 /*
 
@@ -78,7 +78,7 @@ SET deduplicate_blocks_in_dependent_materialized_views = 0, max_insert_delayed_s
     - 2nd insert gets first block 20220901 deduplicated for landing and both rows are inserted for mv tables
 
 */
-SET deduplicate_blocks_in_dependent_materialized_views = 1, max_insert_delayed_streams_for_parallel_write = 1000;
+SET deduplicate_blocks_in_dependent_materialized_views = '1', max_insert_delayed_streams_for_parallel_write = '1000';
 
 CREATE TABLE landing
 (
@@ -88,7 +88,7 @@ CREATE TABLE landing
     pk3 LowCardinality(String),
     pk4 String
 )
-ENGINE = ReplicatedReplacingMergeTree(concat('/clickhouse/', currentDatabase(), '/landing/{shard}/'), '{replica}')
+ENGINE = ReplicatedReplacingMergeTree('/clickhouse/' || currentDatabase() || '/landing/{shard}/', '{replica}')
 ORDER BY (pk1, pk2, pk3, pk4);
 
 CREATE TABLE ds
@@ -99,7 +99,7 @@ CREATE TABLE ds
     pk4 LowCardinality(String),
     occurences AggregateFunction(count)
 )
-ENGINE = ReplicatedAggregatingMergeTree(concat('/clickhouse/', currentDatabase(), '/ds/{shard}/'), '{replica}')
+ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/' || currentDatabase() || '/ds/{shard}/', '{replica}')
 ORDER BY (pk1, pk2, pk3, pk4);
 
 CREATE MATERIALIZED VIEW mv
@@ -156,4 +156,4 @@ ORDER BY
     pk4 ASC,
     pk3 ASC;
 
-DROP TABLE IF EXISTS ds;
+DROP TABLE IF EXISTS ds SYNC;

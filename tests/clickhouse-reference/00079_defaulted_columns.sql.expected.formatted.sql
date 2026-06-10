@@ -4,7 +4,7 @@ CREATE TABLE defaulted
 (
     col1 DEFAULT 0
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DESCRIBE TABLE defaulted;
 
@@ -17,7 +17,7 @@ CREATE TABLE defaulted
     col3 MATERIALIZED col1 + 2,
     col4 ALIAS col1 + 3
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaulted (col1);
 
@@ -37,9 +37,9 @@ CREATE TABLE defaulted
         FROM `system`.one
     )
 )
-ENGINE = Memory; --{serverError THERE_IS_NO_DEFAULT_VALUE}
+ENGINE = Memory(); --{serverError THERE_IS_NO_DEFAULT_VALUE}
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE defaulted
 (

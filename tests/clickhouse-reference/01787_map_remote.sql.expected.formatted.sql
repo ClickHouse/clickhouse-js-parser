@@ -13,7 +13,7 @@ CREATE TABLE bug_repro_local
 (
     attributes Map(LowCardinality(String), String)
 )
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT map('', '');
 
 SELECT if(1, attributes, map())

@@ -8,14 +8,14 @@ CREATE TABLE HASH_TEST_INSERT
 (
     STR_VAL String
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW HASH_MV
 (
     HASH_VAL UInt64,
     STR_VAL LowCardinality(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY HASH_VAL
 AS
 SELECT

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT concat(materialize(toLowCardinality('b')), 'a')
 FROM remote('127.0.0.{1,2}', `system`, one)
@@ -14,13 +14,13 @@ CREATE TABLE test__fuzz_21
 (
     x Decimal(18, 10)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO test__fuzz_21;
 
 WITH (
-        SELECT CAST(toFixedString(toFixedString(materialize(toFixedString('111111111111111111111111111111111111111', 39)), 39), 39), 'UInt128')
+        SELECT CAST(toFixedString(toFixedString(materialize(toFixedString('111111111111111111111111111111111111111', 39)), 39), 39) AS UInt128)
     ) AS v
 
 SELECT

@@ -16,8 +16,8 @@ SELECT
     total_rows,
     total_bytes
 FROM `system`.tables
-WHERE (name = 'join_test')
-    AND (database = currentDatabase());
+WHERE name = 'join_test'
+    AND database = currentDatabase();
 
 -- Check that table size is less than 100K
 SELECT
@@ -38,8 +38,8 @@ SELECT
     total_rows,
     total_bytes
 FROM `system`.tables
-WHERE (name = 'join_test')
-    AND (database = currentDatabase());
+WHERE name = 'join_test'
+    AND database = currentDatabase();
 
 -- Check that table size is less than 2x after inserting one row
 SELECT
@@ -60,13 +60,13 @@ FROM numbers(10000);
 SELECT
     engine_full,
     total_rows,
-    total_bytes == (
+    total_bytes = (
         SELECT total_bytes
         FROM one_row_table_size
     )
 FROM `system`.tables
-WHERE (name = 'join_test')
-    AND (database = currentDatabase());
+WHERE name = 'join_test'
+    AND database = currentDatabase();
 
 -- For RIGHT join we save all rows from the right table
 CREATE TABLE join_test_right
@@ -81,12 +81,12 @@ INSERT INTO join_test_right (key, value) SELECT
     number
 FROM numbers(1);
 
-SELECT count() == 3
+SELECT count() = 3
 FROM
     (
         SELECT 1 AS key
     ) AS t1
-RIGHT JOIN join_test_right
+ANY RIGHT JOIN join_test_right
     ON t1.key = join_test_right.key;
 
 INSERT INTO join_test_right (key, value) SELECT
@@ -94,18 +94,18 @@ INSERT INTO join_test_right (key, value) SELECT
     number
 FROM numbers(7);
 
-SELECT count() == 10
+SELECT count() = 10
 FROM
     (
         SELECT 1 AS key
     ) AS t1
-RIGHT JOIN join_test_right
+ANY RIGHT JOIN join_test_right
     ON t1.key = join_test_right.key;
 
-SELECT count() == 10
+SELECT count() = 10
 FROM
     (
         SELECT 2 AS key
     ) AS t1
-RIGHT JOIN join_test_right
+ANY RIGHT JOIN join_test_right
     ON t1.key = join_test_right.key;

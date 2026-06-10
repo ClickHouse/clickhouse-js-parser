@@ -1,186 +1,167 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "1G"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_before_external_group_by": "1G"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_ratio_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_ratio_before_external_group_by": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "any",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "u"
-              ]
-            }
-          ]
-        },
-        "alias": "u"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "us"
-              ]
-            }
-          ]
-        },
-        "alias": "us"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "domain",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "URL"
-                  ]
-                }
-              ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniq",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "UserID"
-                  ]
-                }
-              ]
-            },
-            "alias": "u"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqState",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "UserID"
-                  ]
-                }
-              ]
-            },
-            "alias": "us"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "database": "test",
-          "table": "hits"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "alias": "u",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "us",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "us"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "domain",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "URL"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniq",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "UserID"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "us",
+                              "name": "uniqState",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "UserID"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "u"
+              },
+              "direction": "DESC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
+          }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "u"
-          ]
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
     }
   }
 ]

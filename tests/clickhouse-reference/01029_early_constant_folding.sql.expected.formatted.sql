@@ -10,16 +10,16 @@ WHERE 1 IN (0, 1, 2);
 EXPLAIN SYNTAX
 SELECT 1
 WHERE 1 IN (0, 2)
-    AND 2 = (((
+    AND 2 = ((
         SELECT 2
-    ) AS subquery));
+    ) AS subquery);
 
 -- no constant folding
 EXPLAIN SYNTAX
 SELECT 1
-WHERE 1 IN (((
+WHERE 1 IN ((
         SELECT arrayJoin([1, 2, 3])
-    ) AS subquery));
+    ) AS subquery);
 
 EXPLAIN SYNTAX
 SELECT 1

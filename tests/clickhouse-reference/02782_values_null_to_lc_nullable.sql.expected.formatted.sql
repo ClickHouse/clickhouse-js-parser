@@ -1,2 +1,2 @@
 SELECT *
-FROM values('s LowCardinality(Nullable(String))', (NULL));
+FROM values('s LowCardinality(Nullable(String))', NULL);

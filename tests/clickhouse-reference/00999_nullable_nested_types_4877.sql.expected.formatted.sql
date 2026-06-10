@@ -7,7 +7,7 @@ CREATE TABLE l
     a String,
     b Tuple(String, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE r
@@ -15,14 +15,14 @@ CREATE TABLE r
     a String,
     c Tuple(String, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO l (a, b);
 
 INSERT INTO r (a, c);
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
 SELECT *
 FROM
@@ -45,7 +45,7 @@ RIGHT JOIN r
     USING (a)
 ORDER BY a ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT a
 FROM
@@ -63,7 +63,7 @@ CREATE TABLE l
     a String,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE r
@@ -71,7 +71,7 @@ CREATE TABLE r
     a String,
     c Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO l (a, b);

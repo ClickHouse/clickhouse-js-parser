@@ -1,1 +1,1 @@
-SELECT concat(tuple(), tuple());
+SELECT () || ();

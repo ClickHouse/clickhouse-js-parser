@@ -1,5 +1,5 @@
 -- Tags: no-parallel, no-fasttest, no-flaky-check, no-asan
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
 -- { echoOn }
 SELECT number
@@ -9,7 +9,8 @@ FROM (
         LIMIT 10000000
     )
 ORDER BY number * 1234567890123456789 ASC
-LIMIT 9999990, 10
+LIMIT 10
+OFFSET 9999990
 SETTINGS
     max_memory_usage = '300Mi',
     max_bytes_before_external_sort = '70M';
@@ -21,7 +22,8 @@ FROM (
         LIMIT 10000000
     )
 ORDER BY number * 1234567890123456789 ASC
-LIMIT 9999990, 10
+LIMIT 10
+OFFSET 9999990
 SETTINGS
     max_memory_usage = '300Mi',
     max_bytes_before_external_sort = '10M';
@@ -32,11 +34,12 @@ FROM (
         FROM numbers(2097152)
     )
 ORDER BY number * 1234567890123456789 ASC
-LIMIT 2097142, 10
+LIMIT 10
+OFFSET 2097142
 SETTINGS
     max_memory_usage = '300Mi',
     max_bytes_before_external_sort = '32M',
-    max_block_size = 1048576;
+    max_block_size = '1048576';
 
 -- This query is heavy, let's do it only once
 SYSTEM FLUSH LOGS query_log;
@@ -47,7 +50,7 @@ WHERE type != 'QueryStart'
     AND current_database = currentDatabase()
     AND `Settings`['max_bytes_before_external_sort'] = '70000000';
 
-SELECT if(((ProfileEvents['ExternalSortWritePart'] AS x)) > 10, 10, x)
+SELECT if((ProfileEvents['ExternalSortWritePart'] AS x) > 10, 10, x)
 FROM `system`.query_log
 WHERE type != 'QueryStart'
     AND current_database = currentDatabase()

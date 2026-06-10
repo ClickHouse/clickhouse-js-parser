@@ -8,7 +8,7 @@ CREATE TABLE ip_bloom
     INDEX x4 ip4 TYPE bloom_filter(0.1) GRANULARITY 3,
     INDEX x6 ip6 TYPE bloom_filter(0.1) GRANULARITY 3
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO ip_bloom;

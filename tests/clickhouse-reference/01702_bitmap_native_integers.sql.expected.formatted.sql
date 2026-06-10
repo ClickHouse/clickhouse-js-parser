@@ -7,7 +7,7 @@ CREATE TABLE t
     i32 Int32,
     i64 Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 

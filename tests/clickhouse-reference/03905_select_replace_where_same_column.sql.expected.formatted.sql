@@ -9,7 +9,7 @@ CREATE TABLE t_replace_where
     name_asset_group_id UInt64,
     date Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_replace_where;
 

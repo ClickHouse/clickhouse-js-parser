@@ -1,12 +1,12 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/11068
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE vt
 (
     datetime_value DateTime,
     value Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE VIEW computed_datum_hours
 AS

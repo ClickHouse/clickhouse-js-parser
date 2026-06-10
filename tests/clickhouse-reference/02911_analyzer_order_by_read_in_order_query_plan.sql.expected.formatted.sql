@@ -1,4 +1,4 @@
-SET optimize_read_in_order = 1, query_plan_read_in_order = 1, enable_analyzer = 1;
+SET optimize_read_in_order = '1', query_plan_read_in_order = '1', enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -17,8 +17,8 @@ CREATE TABLE tab
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
-ORDER BY (((a + b)) * c, sin(a / b));
+ENGINE = MergeTree()
+ORDER BY ((a + b) * c, sin(a / b));
 
 INSERT INTO tab SELECT
     number,
@@ -31,306 +31,346 @@ FROM numbers(5);
 -- Exact match, single key
 SELECT *
 FROM tab
-ORDER BY ((a + b)) * c ASC;
+ORDER BY (a + b) * c ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY ((a + b)) * c ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY (a + b) * c ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM tab
-ORDER BY ((a + b)) * c DESC;
+ORDER BY (a + b) * c DESC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY ((a + b)) * c DESC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY (a + b) * c DESC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- Exact match, full key
 SELECT *
 FROM tab
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM tab
 ORDER BY
-    ((a + b)) * c DESC,
-    sin(a / b) DESC;
+    (a + b) * c DESC,
+    sin(a / b) DESC NULLS FIRST;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            sin(a / b) DESC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    sin(a / b) DESC NULLS FIRST
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- Exact match, mixed direction
 SELECT *
 FROM tab
 ORDER BY
-    ((a + b)) * c DESC,
+    (a + b) * c DESC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            sin(a / b) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM tab
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) DESC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) DESC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) DESC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- Wrong order, full sort
 SELECT *
 FROM tab
 ORDER BY
     sin(a / b) ASC,
-    ((a + b)) * c ASC;
+    (a + b) * c ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            sin(a / b) ASC,
-            ((a + b)) * c ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    sin(a / b) ASC,
+                    (a + b) * c ASC
+            ))
     )
-WHERE ilike(`explain`, '%sort description%');
+WHERE `explain` ILIKE '%sort description%';
 
 -- Fixed point
 SELECT *
 FROM tab
-WHERE ((a + b)) * c = 8
+WHERE (a + b) * c = 8
 ORDER BY sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        WHERE ((a + b)) * c = 8
-        ORDER BY sin(a / b) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                WHERE (a + b) * c = 8
+                ORDER BY sin(a / b) ASC
+            ))
     )
-WHERE ilike(`explain`, '%sort description%');
+WHERE `explain` ILIKE '%sort description%';
 
 SELECT *
 FROM tab
 WHERE d + 1 = 2
 ORDER BY
-    ((d + 1)) * 4 ASC,
-    ((a + b)) * c ASC;
+    (d + 1) * 4 ASC,
+    (a + b) * c ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        WHERE d + 1 = 2
-        ORDER BY
-            ((d + 1)) * 4 ASC,
-            ((a + b)) * c ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                WHERE d + 1 = 2
+                ORDER BY
+                    (d + 1) * 4 ASC,
+                    (a + b) * c ASC
+            ))
     )
-WHERE ilike(`explain`, '%sort description%');
+WHERE `explain` ILIKE '%sort description%';
 
 SELECT *
 FROM tab
 WHERE d + 1 = 3
-    AND (a + b) = 4
+    AND a + b = 4
     AND c = 2
 ORDER BY
-    ((d + 1)) * 4 ASC,
+    (d + 1) * 4 ASC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        WHERE d + 1 = 3
-            AND (a + b) = 4
-            AND c = 2
-        ORDER BY
-            ((d + 1)) * 4 ASC,
-            sin(a / b) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                WHERE d + 1 = 3
+                    AND a + b = 4
+                    AND c = 2
+                ORDER BY
+                    (d + 1) * 4 ASC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE ilike(`explain`, '%sort description%');
+WHERE `explain` ILIKE '%sort description%';
 
 -- Wrong order with fixed point
 SELECT *
 FROM tab
-WHERE ((a + b)) * c = 8
+WHERE (a + b) * c = 8
 ORDER BY sin(b / a) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        WHERE ((a + b)) * c = 8
-        ORDER BY sin(b / a) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                WHERE (a + b) * c = 8
+                ORDER BY sin(b / a) ASC
+            ))
     )
-WHERE ilike(`explain`, '%sort description%');
+WHERE `explain` ILIKE '%sort description%';
 
 -- Monotonicity
 SELECT *
 FROM tab
-ORDER BY intDiv(((a + b)) * c, 2) ASC;
+ORDER BY intDiv((a + b) * c, 2) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY intDiv(((a + b)) * c, 2) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY intDiv((a + b) * c, 2) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM tab
 ORDER BY
-    intDiv(((a + b)) * c, 2) ASC,
+    intDiv((a + b) * c, 2) ASC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            intDiv(((a + b)) * c, 2) ASC,
-            sin(a / b) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    intDiv((a + b) * c, 2) ASC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c, intDiv(sin(a / b), 2);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c ASC,
-            intDiv(sin(a / b), 2) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c ASC,
+                    intDiv(sin(a / b), 2) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c desc , intDiv(sin(a / b), 2);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            intDiv(sin(a / b), 2) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    intDiv(sin(a / b), 2) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c, intDiv(sin(a / b), 2) desc;
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c ASC,
-            intDiv(sin(a / b), 2) DESC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c ASC,
+                    intDiv(sin(a / b), 2) DESC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c desc, intDiv(sin(a / b), 2) desc;
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            intDiv(sin(a / b), 2) DESC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    intDiv(sin(a / b), 2) DESC NULLS FIRST
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c desc, intDiv(sin(a / b), -2);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            intDiv(sin(a / b), -2) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    intDiv(sin(a / b), -2) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c desc, intDiv(intDiv(sin(a / b), -2), -3);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c DESC,
-            intDiv(intDiv(sin(a / b), -2), -3) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c DESC,
+                    intDiv(intDiv(sin(a / b), -2), -3) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab order by (a + b) * c, intDiv(intDiv(sin(a / b), -2), -3);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab
-        ORDER BY
-            ((a + b)) * c ASC,
-            intDiv(intDiv(sin(a / b), -2), -3) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab
+                ORDER BY
+                    (a + b) * c ASC,
+                    intDiv(intDiv(sin(a / b), -2), -3) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- Aliases
 SELECT *
@@ -344,17 +384,19 @@ ORDER BY x * c ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
-                SELECT
-                    *,
-                    a + b AS x
-                FROM tab
-            )
-        ORDER BY x * c ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM (
+                        SELECT
+                            *,
+                            a + b AS x
+                        FROM tab
+                    )
+                ORDER BY x * c ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM (
@@ -370,20 +412,22 @@ ORDER BY
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
-                SELECT
-                    *,
-                    a + b AS x,
-                    a / b AS y
-                FROM tab
-            )
-        ORDER BY
-            x * c ASC,
-            sin(y) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM (
+                        SELECT
+                            *,
+                            a + b AS x,
+                            a / b AS y
+                        FROM tab
+                    )
+                ORDER BY
+                    x * c ASC,
+                    sin(y) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM (
@@ -403,24 +447,26 @@ ORDER BY
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
-                SELECT
-                    *,
-                    a / b AS y
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
                 FROM (
                         SELECT
                             *,
-                            a + b AS x
-                        FROM tab
+                            a / b AS y
+                        FROM (
+                                SELECT
+                                    *,
+                                    a + b AS x
+                                FROM tab
+                            )
                     )
-            )
-        ORDER BY
-            x * c ASC,
-            sin(y) ASC
+                ORDER BY
+                    x * c ASC,
+                    sin(y) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- { echoOff }
 CREATE TABLE tab2
@@ -429,7 +475,7 @@ CREATE TABLE tab2
     y UInt32,
     z UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (x, y);
 
 INSERT INTO tab2 SELECT
@@ -447,14 +493,16 @@ ORDER BY
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab2
-        ORDER BY
-            toTimeZone(toTimezone(x, 'UTC'), 'CET') ASC,
-            intDiv(intDiv(y, -2), -3) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab2
+                ORDER BY
+                    toTimeZone(toTimezone(x, 'UTC'), 'CET') ASC,
+                    intDiv(intDiv(y, -2), -3) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 SELECT *
 FROM tab2
@@ -464,25 +512,29 @@ ORDER BY
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab2
-        ORDER BY
-            toStartOfDay(x) ASC,
-            intDiv(intDiv(y, -2), -3) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab2
+                ORDER BY
+                    toStartOfDay(x) ASC,
+                    intDiv(intDiv(y, -2), -3) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- select * from tab2 where toTimezone(x, 'CET') = '2020-02-03 01:00:00' order by intDiv(intDiv(y, -2), -3);
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM tab2
-        WHERE toTimezone(x, 'CET') = '2020-02-03 01:00:00'
-        ORDER BY intDiv(intDiv(y, -2), -3) ASC
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM tab2
+                WHERE toTimezone(x, 'CET') = '2020-02-03 01:00:00'
+                ORDER BY intDiv(intDiv(y, -2), -3) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%');
+WHERE `explain` LIKE '%sort description%';
 
 -- { echoOff }
 CREATE TABLE tab3
@@ -492,8 +544,8 @@ CREATE TABLE tab3
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
-ORDER BY (((a + b)) * c, sin(a / b));
+ENGINE = MergeTree()
+ORDER BY ((a + b) * c, sin(a / b));
 
 INSERT INTO tab3 SELECT
     number,
@@ -509,7 +561,7 @@ CREATE TABLE tab4
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY sin(a / b);
 
 INSERT INTO tab4 SELECT
@@ -526,8 +578,8 @@ CREATE TABLE tab5
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
-ORDER BY ((a + b)) * c;
+ENGINE = MergeTree()
+ORDER BY (a + b) * c;
 
 INSERT INTO tab5 SELECT
     number,
@@ -547,62 +599,66 @@ FROM (
         FROM tab3
     )
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                UNION ALL
-                SELECT *
-                FROM tab3
-            )
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) ASC
+                FROM (
+                        SELECT *
+                        FROM tab
+                        UNION ALL
+                        SELECT *
+                        FROM tab3
+                    )
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%';
 
 SELECT *
 FROM (
         SELECT *
         FROM tab
-        WHERE ((a + b)) * c = 8
+        WHERE (a + b) * c = 8
         UNION ALL
         SELECT *
         FROM tab3
-        WHERE ((a + b)) * c = 18
+        WHERE (a + b) * c = 18
     )
 ORDER BY sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                WHERE ((a + b)) * c = 8
-                UNION ALL
-                SELECT *
-                FROM tab3
-                WHERE ((a + b)) * c = 18
-            )
-        ORDER BY sin(a / b) ASC
+                FROM (
+                        SELECT *
+                        FROM tab
+                        WHERE (a + b) * c = 8
+                        UNION ALL
+                        SELECT *
+                        FROM tab3
+                        WHERE (a + b) * c = 18
+                    )
+                ORDER BY sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%';
 
 SELECT *
 FROM (
         SELECT *
         FROM tab
-        WHERE ((a + b)) * c = 8
+        WHERE (a + b) * c = 8
         UNION ALL
         SELECT *
         FROM tab4
@@ -611,20 +667,22 @@ ORDER BY sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                WHERE ((a + b)) * c = 8
-                UNION ALL
-                SELECT *
-                FROM tab4
-            )
-        ORDER BY sin(a / b) ASC
+                FROM (
+                        SELECT *
+                        FROM tab
+                        WHERE (a + b) * c = 8
+                        UNION ALL
+                        SELECT *
+                        FROM tab4
+                    )
+                ORDER BY sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%';
 
 SELECT *
 FROM (
@@ -634,23 +692,25 @@ FROM (
         SELECT *
         FROM tab5
     )
-ORDER BY ((a + b)) * c ASC;
+ORDER BY (a + b) * c ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                UNION ALL
-                SELECT *
-                FROM tab5
-            )
-        ORDER BY ((a + b)) * c ASC
+                FROM (
+                        SELECT *
+                        FROM tab
+                        UNION ALL
+                        SELECT *
+                        FROM tab5
+                    )
+                ORDER BY (a + b) * c ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%';
 
 SELECT *
 FROM (
@@ -661,26 +721,28 @@ FROM (
         FROM tab5
     )
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) ASC;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                UNION ALL
-                SELECT *
-                FROM tab5
-            )
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) ASC
+                FROM (
+                        SELECT *
+                        FROM tab
+                        UNION ALL
+                        SELECT *
+                        FROM tab5
+                    )
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) ASC
+            ))
     )
-WHERE like(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%';
 
 -- Union with limit
 SELECT *
@@ -692,29 +754,31 @@ FROM (
         FROM tab5
     )
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) ASC
 LIMIT 3;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                UNION ALL
-                SELECT *
-                FROM tab5
-            )
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) ASC
-        LIMIT 3
+                FROM (
+                        SELECT *
+                        FROM tab
+                        UNION ALL
+                        SELECT *
+                        FROM tab5
+                    )
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) ASC
+                LIMIT 3
+            ))
     )
-WHERE ilike(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%')
-    OR like(`explain`, '%Limit%');
+WHERE `explain` ILIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%'
+    OR `explain` LIKE '%Limit%';
 
 -- In this example, we read-in-order from tab up to ((a + b) * c, sin(a / b)) and from tab5 up to ((a + b) * c).
 -- In case of tab5, there would be two finish sorting transforms: ((a + b) * c) -> ((a + b) * c, sin(a / b)) -> ((a + b) * c, sin(a / b), d).
@@ -732,31 +796,33 @@ FROM (
         FROM tab4
     )
 ORDER BY
-    ((a + b)) * c ASC,
+    (a + b) * c ASC,
     sin(a / b) ASC,
     d ASC
 LIMIT 3;
 
 SELECT *
 FROM (
-        EXPLAIN PLAN actions = 1
         SELECT *
-        FROM (
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
                 SELECT *
-                FROM tab
-                UNION ALL
-                SELECT *
-                FROM tab5
-                UNION ALL
-                SELECT *
-                FROM tab4
-            )
-        ORDER BY
-            ((a + b)) * c ASC,
-            sin(a / b) ASC,
-            d ASC
-        LIMIT 3
+                FROM (
+                        SELECT *
+                        FROM tab
+                        UNION ALL
+                        SELECT *
+                        FROM tab5
+                        UNION ALL
+                        SELECT *
+                        FROM tab4
+                    )
+                ORDER BY
+                    (a + b) * c ASC,
+                    sin(a / b) ASC,
+                    d ASC
+                LIMIT 3
+            ))
     )
-WHERE ilike(`explain`, '%sort description%')
-    OR like(`explain`, '%ReadType%')
-    OR like(`explain`, '%Limit%');
+WHERE `explain` ILIKE '%sort description%'
+    OR `explain` LIKE '%ReadType%'
+    OR `explain` LIKE '%Limit%';

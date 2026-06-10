@@ -5,7 +5,7 @@ CREATE TABLE coords
     x Float32,
     y Float32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO coords;
 

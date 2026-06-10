@@ -5,7 +5,7 @@ CREATE TABLE test
     id UInt32,
     t Tuple(a UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t.a;
 
 INSERT INTO test SELECT
@@ -23,7 +23,7 @@ CREATE TABLE test
     id UInt32,
     json JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY json.a::Int64;
 
 INSERT INTO test SELECT

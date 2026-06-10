@@ -1,12 +1,12 @@
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET convert_query_to_cnf = 0;
+SET convert_query_to_cnf = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_deprecated_error_prone_window_functions = 1;
+SET allow_deprecated_error_prone_window_functions = '1';
 
 -- https://github.com/ClickHouse/ClickHouse/issues/3885
 -- https://github.com/ClickHouse/ClickHouse/issues/5485
@@ -18,10 +18,10 @@ SELECT
     i
 FROM (
         SELECT
-            t.1 AS k,
-            t.2 AS v,
+            (t).1 AS k,
+            (t).2 AS v,
             runningDifference(v) AS d,
-            runningDifference(cityHash64(t.1)) AS i
+            runningDifference(cityHash64((t).1)) AS i
         FROM (
                 SELECT arrayJoin([('a', 1), ('a', 2), ('a', 3), ('b', 11), ('b', 13), ('b', 15)]) AS t
             )
@@ -35,10 +35,10 @@ SELECT
     i
 FROM (
         SELECT
-            t.1 AS k,
-            t.2 AS v,
+            (t).1 AS k,
+            (t).2 AS v,
             runningDifference(v) AS d,
-            runningDifference(cityHash64(t.1)) AS i
+            runningDifference(cityHash64((t).1)) AS i
         FROM (
                 SELECT arrayJoin([('a', 1), ('a', 2), ('a', 3), ('b', 11), ('b', 13), ('b', 15)]) AS t
             )
@@ -64,7 +64,11 @@ FROM (
                     dummy + 2 AS co2,
                     dummy + 3 AS co3
             )
-        GROUP BY cube(co, co2, co3)
+        GROUP BY
+            co,
+            co2,
+            co3
+        WITH CUBE
     )
 WHERE co != 0
     AND co2 != 2;
@@ -86,7 +90,11 @@ FROM (
                     dummy + 2 AS co2,
                     dummy + 3 AS co3
             )
-        GROUP BY cube(co, co2, co3)
+        GROUP BY
+            co,
+            co2,
+            co3
+        WITH CUBE
     )
 WHERE co != 0
     AND co2 != 2;
@@ -99,7 +107,7 @@ FROM
         SELECT name
         FROM `system`.`settings`
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT name
         FROM `system`.`settings`
     )
@@ -112,7 +120,7 @@ FROM
         SELECT name
         FROM `system`.`settings`
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT name
         FROM `system`.`settings`
     )
@@ -188,7 +196,7 @@ FROM (
             (
                 SELECT 2 AS ccc
             )
-        INNER JOIN (
+        ANY INNER JOIN (
                 SELECT 2 AS ccc
             )
             USING (ccc)
@@ -204,7 +212,7 @@ FROM (
             (
                 SELECT 2 AS ccc
             )
-        INNER JOIN (
+        ANY INNER JOIN (
                 SELECT 2 AS ccc
             )
             USING (ccc)
@@ -224,7 +232,7 @@ CREATE TABLE A
     id String,
     id_b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (ts, id)
 PARTITION BY toStartOfHour(ts);
 
@@ -234,7 +242,7 @@ CREATE TABLE B
     id String,
     id_c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (ts, id)
 PARTITION BY toStartOfHour(ts);
 
@@ -254,7 +262,7 @@ FROM
             id_b
         FROM A
     ) AS a
-LEFT JOIN B AS b
+ALL LEFT JOIN B AS b
     ON b.id = a.id_b
 WHERE a.ts <= toDateTime('1970-01-01 03:00:00');
 
@@ -274,7 +282,7 @@ FROM
             id_b
         FROM A
     ) AS a
-LEFT JOIN B AS b
+ALL LEFT JOIN B AS b
     ON `--b.id` = `--a.id_b`
 WHERE `--a.ts` <= toDateTime('1970-01-01 03:00:00');
 
@@ -307,7 +315,7 @@ FROM (
         FROM test
         ORDER BY B ASC
     )
-WHERE A == 1;
+WHERE A = 1;
 
 SELECT
     B,
@@ -323,7 +331,7 @@ FROM (
                 ORDER BY B ASC
             )
     )
-WHERE A == 1;
+WHERE A = 1;
 
 EXPLAIN SYNTAX
 SELECT *
@@ -331,14 +339,14 @@ FROM (
         SELECT *
         FROM `system`.one
     )
-WHERE arrayMap(x -> x + 1, [dummy]) = [1];
+WHERE arrayMap((x -> x + 1), [dummy]) = [1];
 
 SELECT *
 FROM (
         SELECT *
         FROM `system`.one
     )
-WHERE arrayMap(x -> x + 1, [dummy]) = [1];
+WHERE arrayMap((x -> x + 1), [dummy]) = [1];
 
 EXPLAIN SYNTAX
 SELECT *
@@ -354,7 +362,7 @@ INNER JOIN (
             3 AS value_1
     )
     USING (id)
-WHERE arrayMap(x -> x + value + value_1, [1]) = [6];
+WHERE arrayMap((x -> x + value + value_1), [1]) = [6];
 
 SELECT *
 FROM
@@ -369,7 +377,7 @@ INNER JOIN (
             3 AS value_1
     )
     USING (id)
-WHERE arrayMap(x -> x + value + value_1, [1]) = [6];
+WHERE arrayMap((x -> x + value + value_1), [1]) = [6];
 
 -- check order is preserved
 EXPLAIN SYNTAX
@@ -384,6 +392,6 @@ SELECT
     count() AS cnt
 FROM remote('127.{1,2}', `system`.`settings`)
 GROUP BY name
-HAVING (max(value) > '9')
-    AND (min(changed) = 0)
+HAVING max(value) > '9'
+    AND min(changed) = 0
 FORMAT Null;

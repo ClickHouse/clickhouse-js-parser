@@ -8,7 +8,7 @@ CREATE TABLE tbl
     d Int64,
     e UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tbl SELECT
@@ -20,7 +20,7 @@ INSERT INTO tbl SELECT
 FROM `system`.numbers
 LIMIT 10;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 -- Change the types of columns by adding a temporary column and updating and dropping.
 -- Alters should be executed in sequential order.

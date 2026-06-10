@@ -10,7 +10,7 @@ CREATE TABLE x1
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/x', 'r1')
 ORDER BY i
-SETTINGS index_granularity = 999999999, index_granularity_bytes = 99999999999, use_const_adaptive_granularity = 0, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '999999999', index_granularity_bytes = '99999999999', use_const_adaptive_granularity = '0', min_bytes_for_wide_part = '0';
 
 CREATE TABLE x2
 (
@@ -18,13 +18,11 @@ CREATE TABLE x2
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/x', 'r2')
 ORDER BY i
-SETTINGS index_granularity = 999999999, index_granularity_bytes = 99999999999, use_const_adaptive_granularity = 0, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '999999999', index_granularity_bytes = '99999999999', use_const_adaptive_granularity = '0', min_bytes_for_wide_part = '0';
 
-ALTER TABLE x1 ADD PROJECTION p1 (SELECT i
-ORDER BY i ASC) WITH SETTINGS(index_granularity = 2, index_granularity_bytes = 999999999);
+ALTER TABLE x1 ADD PROJECTION p1 (SELECT i ORDER BY i) WITH SETTINGS(index_granularity = '2', index_granularity_bytes = '999999999');
 
-ALTER TABLE x1 ADD PROJECTION p2 (SELECT i
-ORDER BY i ASC) WITH SETTINGS(index_granularity = 9999999999, index_granularity_bytes = 4096);
+ALTER TABLE x1 ADD PROJECTION p2 (SELECT i ORDER BY i) WITH SETTINGS(index_granularity = '9999999999', index_granularity_bytes = '4096');
 
 INSERT INTO x1 SELECT number
 FROM numbers(1000);

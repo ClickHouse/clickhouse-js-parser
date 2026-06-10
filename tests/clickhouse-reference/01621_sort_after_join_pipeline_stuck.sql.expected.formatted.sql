@@ -1,4 +1,4 @@
-SET enable_positional_arguments = 0;
+SET enable_positional_arguments = '0';
 
 SELECT k
 FROM
@@ -12,14 +12,15 @@ FROM
         FROM `system`.numbers
         LIMIT 1048577
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             1.000100016593933,
             nullIf(number, NULL) AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 2, 255
+        LIMIT 255
+        OFFSET 2
     ) AS js2
     USING (k)
-ORDER BY 257 ASC
+ORDER BY 257 ASC NULLS LAST
 FORMAT Null;

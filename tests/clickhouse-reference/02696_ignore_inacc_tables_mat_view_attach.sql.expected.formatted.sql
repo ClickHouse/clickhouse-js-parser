@@ -5,7 +5,7 @@ CREATE TABLE test_table
     n Int32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
 PARTITION BY n;
 
@@ -14,7 +14,7 @@ CREATE TABLE mview_backend
     n Int32,
     n2 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
 PARTITION BY n;
 

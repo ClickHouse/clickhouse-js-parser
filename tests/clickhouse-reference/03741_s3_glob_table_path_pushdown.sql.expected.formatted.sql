@@ -1,6 +1,6 @@
 -- Tags: no-fasttest
 -- Tag no-fasttest: Depends on S3
-SET s3_truncate_on_insert = 1, s3_list_object_keys_size = 100;
+SET s3_truncate_on_insert = '1', s3_list_object_keys_size = '100';
 
 DROP TABLE IF EXISTS `03741_data`, `03741_filter`;
 
@@ -26,7 +26,7 @@ CREATE TABLE `03741_filter`
 (
     path String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT 'test/03741_data/file1.parquet'
 UNION ALL
@@ -84,7 +84,7 @@ FROM `03741_data`
 WHERE _path IN (
         SELECT *
         FROM `03741_filter`
-        WHERE like(path, '%nested%')
+        WHERE path LIKE '%nested%'
     );
 
 SELECT count()
@@ -92,7 +92,7 @@ FROM `03741_data`
 WHERE _path NOT IN (
         SELECT *
         FROM `03741_filter`
-        WHERE like(path, '%nested%')
+        WHERE path LIKE '%nested%'
     );
 
 SELECT count()
@@ -125,25 +125,25 @@ WHERE _path = 'test/03741_data/file1.parquet'
 
 SELECT count()
 FROM `03741_data`
-WHERE ((_path = 'test/03741_data/file1.parquet'
+WHERE (_path = 'test/03741_data/file1.parquet'
     OR _path IN (
         SELECT 'test/03741_data/nested/file4.parquet'
-    )))
+    ))
     AND number < 3;
 
 SELECT count()
 FROM `03741_data`
-WHERE (_path = 'test/03741_data/file1.parquet'
-    AND number = 2)
-    OR (_path = 'test/03741_data/nested/file4.parquet'
-    AND number = 4);
+WHERE _path = 'test/03741_data/file1.parquet'
+    AND number = 2
+    OR _path = 'test/03741_data/nested/file4.parquet'
+    AND number = 4;
 
 SELECT count()
 FROM `03741_data`
-WHERE ((_path = 'test/03741_data/file1.parquet'
-    OR number = 2))
-    AND ((_path = 'test/03741_data/file2.parquet'
-    OR number <= 1));
+WHERE (_path = 'test/03741_data/file1.parquet'
+    OR number = 2)
+    AND (_path = 'test/03741_data/file2.parquet'
+    OR number <= 1);
 
 SELECT count()
 FROM `03741_data`
@@ -152,17 +152,17 @@ WHERE substr(_path, 1, 23) = 'test/03741_data/nested/';
 SELECT count()
 FROM `03741_data`
 WHERE _path = 'test/03741_data/file2.parquet'
-SETTINGS s3_path_filter_limit = 0;
+SETTINGS s3_path_filter_limit = '0';
 
 SELECT count()
 FROM `03741_data`
 WHERE _path IN ('test/03741_data/file1.parquet', 'test/03741_data/file2.parquet')
-SETTINGS s3_path_filter_limit = 1;
+SETTINGS s3_path_filter_limit = '1';
 
 SELECT count()
 FROM `03741_data`
 WHERE _path IN ('test/03741_data/file1.parquet', 'test/03741_data/file2.parquet')
-SETTINGS s3_path_filter_limit = 2;
+SETTINGS s3_path_filter_limit = '2';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -171,7 +171,7 @@ SELECT
     ProfileEvents['EngineFileLikeReadFiles']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(log_comment, '%03741_s3_glob_table_path_pushdown%')
+    AND log_comment LIKE '%03741_s3_glob_table_path_pushdown%'
     AND query_kind = 'Select'
     AND type = 'QueryFinish'
 ORDER BY event_time_microseconds ASC;

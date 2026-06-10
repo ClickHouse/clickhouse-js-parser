@@ -40,9 +40,9 @@ FROM (
             ref_0.c_h16pd AS c_y2_2009,
             ref_0.c_j3 AS c_q9e4c4y15
         FROM remote('127.0.0.1', currentDatabase(), test_if_type_mismatch) AS ref_0
-        WHERE (CAST((ref_0.c_u37 > ref_0.c_d9n_3) AS Nullable(Bool)))
+        WHERE CAST(ref_0.c_u37 > ref_0.c_d9n_3 AS Nullable(Bool))
     ) AS subq_0
-WHERE (CAST((negate(multiIf((CAST((subq_0.c_j59 = subq_0.c_pfnd1iaw) AS Nullable(Bool))), 0, subq_0.c_pfnd1iaw)) = multiIf((CAST((round(subq_0.c_or3kcz) < subq_0.c_j59) AS Nullable(Bool))), subq_0.c_j59, subq_0.c_pfnd1iaw)) AS Nullable(Bool)));
+WHERE CAST(negate(multiIf(CAST(subq_0.c_j59 = subq_0.c_pfnd1iaw AS Nullable(Bool)), 0, subq_0.c_pfnd1iaw)) = multiIf(CAST(round(subq_0.c_or3kcz) < subq_0.c_j59 AS Nullable(Bool)), subq_0.c_j59, subq_0.c_pfnd1iaw) AS Nullable(Bool));
 
 -- Test case 4: Verify the actual value computation works correctly
 SELECT

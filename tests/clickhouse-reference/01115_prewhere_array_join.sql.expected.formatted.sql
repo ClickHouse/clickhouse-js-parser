@@ -5,7 +5,7 @@ CREATE TABLE `prewhere`
     light UInt8,
     heavy String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `prewhere` SELECT

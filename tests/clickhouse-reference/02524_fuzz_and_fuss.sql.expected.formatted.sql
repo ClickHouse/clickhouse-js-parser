@@ -6,6 +6,6 @@ FROM (
         SELECT
             toDateTime64('0.0000001023', [1025, 256], '102.5', NULL),
             [NULL],
-            [CAST('a', 'FixedString(1)'), CAST('', 'FixedString(1)')] AS val,
+            [CAST('a' AS FixedString(1)), CAST('' AS FixedString(1))] AS val,
             [1024, 100] AS cnt
     );

@@ -58,15 +58,15 @@ CREATE TABLE hits_indexed_by_time
     EventDate Date,
     EventTime DateTime('Asia/Dubai')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (EventDate, EventTime)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO hits_indexed_by_time SELECT
     EventDate,
     EventTime
 FROM test.hits
-SETTINGS max_block_size = 65000;
+SETTINGS max_block_size = '65000';
 
 SELECT count()
 FROM hits_indexed_by_time

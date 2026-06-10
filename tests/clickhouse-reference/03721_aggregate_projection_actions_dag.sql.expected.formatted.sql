@@ -3,7 +3,7 @@ CREATE TABLE test
     key UInt64,
     value Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO test SELECT
@@ -11,13 +11,13 @@ INSERT INTO test SELECT
     number AS value
 FROM numbers(100);
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
-EXPLAIN PLAN
+EXPLAIN
 WITH view_1 AS (
     SELECT
         key,

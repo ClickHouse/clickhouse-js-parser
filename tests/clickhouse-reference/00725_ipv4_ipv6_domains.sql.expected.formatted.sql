@@ -5,7 +5,7 @@ CREATE TABLE ipv4_test
 (
     ipv4_ IPv4
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- ipv4_ column shoud have type 'IPv4'
 SHOW CREATE TABLE ipv4_test;
@@ -50,7 +50,7 @@ CREATE TABLE ipv6_test
 (
     ipv6_ IPv6
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- ipv6_ column shoud have type 'IPv6'
 SHOW CREATE TABLE ipv6_test;
@@ -187,5 +187,5 @@ SELECT toIPv6('127.0.0.1');
 
 SELECT cutIPv6(IPv6StringToNum('127.0.0.1'), 0, 0);
 
-SELECT toIPv6(concat('127.0.0.', toString(number)))
+SELECT toIPv6('127.0.0.' || toString(number))
 FROM numbers(13);

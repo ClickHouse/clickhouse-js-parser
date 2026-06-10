@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 CREATE TABLE users1
 (
@@ -12,7 +12,7 @@ CREATE TABLE users1
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users1 SELECT
     number AS uid,
@@ -26,7 +26,7 @@ CREATE TABLE users2
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users2 SELECT
     number AS uid,
@@ -34,7 +34,7 @@ INSERT INTO users2 SELECT
     30 AS age
 FROM numbers(1000);
 
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT count()
 FROM
     (
@@ -43,11 +43,11 @@ FROM
             *
         FROM users1
     ) AS u1
-LEFT JOIN users2 AS u2
+ANY LEFT JOIN users2 AS u2
     ON u1.uid = u2.uid
 WHERE 1 / u2.age > 1;
 
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT count()
 FROM
     (
@@ -56,6 +56,6 @@ FROM
             *
         FROM users1
     ) AS u1
-LEFT JOIN users2 AS u2
+ANY LEFT JOIN users2 AS u2
     ON u1.uid = u2.uid
 WHERE u2.age > 1;

@@ -7,7 +7,7 @@ CREATE TABLE midpoint_jit
     xf Float64,
     yf Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO midpoint_jit SELECT
     number,
@@ -19,64 +19,64 @@ FROM numbers(1000000);
 SELECT sum(midpoint(midpoint(xi, yi), midpoint(yi, xi))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 0,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '0',
+    min_count_to_compile_expression = '0',
     log_comment = 'midpoint_jit_int_0';
 
 SELECT sum(midpoint(midpoint(xi, yi), midpoint(yi, xi))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 1,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '1',
+    min_count_to_compile_expression = '0',
     log_comment = 'midpoint_jit_int_1';
 
 SELECT sum(midpoint(midpoint(xf, yf), midpoint(yf, xf))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 0,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '0',
+    min_count_to_compile_expression = '0',
     log_comment = 'midpoint_jit_float_0';
 
 SELECT sum(midpoint(midpoint(xf, yf), midpoint(yf, xf))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 1,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '1',
+    min_count_to_compile_expression = '0',
     log_comment = 'midpoint_jit_float_1';
 
 TRUNCATE TABLE midpoint_jit;
 
 INSERT INTO midpoint_jit SELECT
-    negate((number)),
-    negate((number + 1)),
-    negate((toFloat64(number) + 0.25)),
-    negate((toFloat64(number) + 0.75))
+    -number,
+    -(number + 1),
+    -(toFloat64(number) + 0.25),
+    -(toFloat64(number) + 0.75)
 FROM numbers(1000000);
 
 SELECT sum(midpoint(midpoint(xi, yi), midpoint(yi, xi))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 0,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '0',
+    min_count_to_compile_expression = '0',
     log_comment = 'neg_midpoint_jit_int_0';
 
 SELECT sum(midpoint(midpoint(xi, yi), midpoint(yi, xi))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 1,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '1',
+    min_count_to_compile_expression = '0',
     log_comment = 'neg_midpoint_jit_int_1';
 
 SELECT sum(midpoint(midpoint(xf, yf), midpoint(yf, xf))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 0,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '0',
+    min_count_to_compile_expression = '0',
     log_comment = 'neg_midpoint_jit_float_0';
 
 SELECT sum(midpoint(midpoint(xf, yf), midpoint(yf, xf))) AS s
 FROM midpoint_jit
 SETTINGS
-    compile_expressions = 1,
-    min_count_to_compile_expression = 0,
+    compile_expressions = '1',
+    min_count_to_compile_expression = '0',
     log_comment = 'neg_midpoint_jit_float_1';

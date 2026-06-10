@@ -5,7 +5,7 @@
 -- test is just to ensure that the result is different (and to document the
 -- outcome).
 SELECT uniqCombined(number)
-FROM numbers(1e7);
+FROM numbers(10000000.);
 
 SELECT uniqCombined64(number)
-FROM numbers(1e7);
+FROM numbers(10000000.);

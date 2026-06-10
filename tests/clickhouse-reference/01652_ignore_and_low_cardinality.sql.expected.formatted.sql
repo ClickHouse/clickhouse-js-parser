@@ -1,10 +1,10 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE lc_null_int8_defnull
 (
     val LowCardinality(Nullable(Int8)) DEFAULT NULL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT

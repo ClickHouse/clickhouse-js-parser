@@ -1,191 +1,186 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_index__fuzz_41"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/52019"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "set_index__fuzz_41"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_index__fuzz_41"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "set_index__fuzz_41"
       },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "Nullable",
-          "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "DateTime64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "b_set",
+            "expression": {
+              "type": "Identifier",
+              "name": "b"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "set",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            "granularity": 1
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "set_index__fuzz_41"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "a"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "DateTime64",
-                "args": [
+              "type": "Identifier",
+              "name": "b"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "set_index__fuzz_41"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "value": "3"
+                    "type": "Identifier",
+                    "name": "b"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "256"
                   }
                 ]
               }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "b_set",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        },
-        "indexType": {
-          "name": "set",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "granularity": 1
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "set_index__fuzz_41"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "set_index__fuzz_41"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "and",
-      "args": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "b"
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "256"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "force_data_skipping_indices": "b_set",
+              "optimize_move_to_prewhere": "0",
+              "max_parallel_replicas": "2",
+              "parallel_replicas_for_non_replicated_merge_tree": "1",
+              "enable_parallel_replicas": "2"
+            }
           }
         }
       ]
-    },
-    "settings": [
-      {
-        "name": "force_data_skipping_indices",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "b_set"
-        }
-      },
-      {
-        "name": "optimize_move_to_prewhere",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_FEW_ARGUMENTS_FOR_FUNCTION }"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_index__fuzz_41"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "set_index__fuzz_41"
+      }
     }
   }
 ]

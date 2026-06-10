@@ -1,6 +1,6 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 DROP TABLE IF EXISTS tab1;
 
@@ -11,7 +11,7 @@ CREATE TABLE tab1
     a1 Int32,
     b1 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a1;
 
 CREATE TABLE tab2
@@ -19,7 +19,7 @@ CREATE TABLE tab2
     a2 Int32,
     b2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a2;
 
 INSERT INTO tab1;
@@ -31,7 +31,7 @@ INSERT INTO tab2;
 SELECT a1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -41,7 +41,7 @@ LEFT JOIN (
 SELECT a1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             a2,
             b2
@@ -55,7 +55,7 @@ SELECT
     b1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -69,7 +69,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 AS z
@@ -85,7 +85,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 + 1 AS z

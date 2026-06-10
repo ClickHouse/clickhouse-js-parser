@@ -8,7 +8,7 @@ CREATE TABLE test
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test SELECT number

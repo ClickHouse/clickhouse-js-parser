@@ -1,5 +1,5 @@
 -- Tags: stateful
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT count() AS c
 FROM test.hits
@@ -7,7 +7,7 @@ WHERE CounterID = 1704509
 WITH TOTALS
 SETTINGS
     totals_mode = 'before_having',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT count() AS c
@@ -16,7 +16,7 @@ WHERE CounterID = 1704509
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_inclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT count() AS c
@@ -25,7 +25,7 @@ WHERE CounterID = 1704509
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_exclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT count() AS c
@@ -34,7 +34,7 @@ WHERE CounterID = 1704509
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_auto',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -46,7 +46,7 @@ GROUP BY k
 WITH TOTALS
 SETTINGS
     totals_mode = 'before_having',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -58,7 +58,7 @@ GROUP BY k
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_inclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -70,7 +70,7 @@ GROUP BY k
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_exclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -82,7 +82,7 @@ GROUP BY k
 WITH TOTALS
 SETTINGS
     totals_mode = 'after_having_auto',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -95,7 +95,7 @@ WITH TOTALS
 ORDER BY k ASC
 SETTINGS
     totals_mode = 'before_having',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -108,7 +108,7 @@ WITH TOTALS
 ORDER BY k ASC
 SETTINGS
     totals_mode = 'after_having_inclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -121,7 +121,7 @@ WITH TOTALS
 ORDER BY k ASC
 SETTINGS
     totals_mode = 'after_having_exclusive',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';
 
 SELECT
@@ -134,5 +134,5 @@ WITH TOTALS
 ORDER BY k ASC
 SETTINGS
     totals_mode = 'after_having_auto',
-    max_rows_to_group_by = 100000,
+    max_rows_to_group_by = '100000',
     group_by_overflow_mode = 'any';

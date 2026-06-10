@@ -1,121 +1,125 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "none"
-        }
-      },
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_ddl_output_mode": "none",
+        "enable_analyzer": true
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-replicated-database",
-      "-- ^ due to the usage of ON CLUSTER queries"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "tables": [
-      {
-        "kind": "tableRef",
-        "table": "source"
-      },
-      {
-        "kind": "tableRef",
-        "table": "mview"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "if_exists": true,
+      "database_and_tables": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "TableIdentifier",
+            "name": "source"
+          },
+          {
+            "type": "TableIdentifier",
+            "name": "mview"
+          }
+        ]
       }
-    ],
-    "ifExists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "timestamp",
-        "type": {
-          "name": "DateTime"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
       },
-      {
-        "kind": "columnDef",
-        "name": "card_id",
-        "type": {
-          "name": "UInt64"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "card_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "_id",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_id"
-          ]
-        }
-      }
-    ],
-    "ttl": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "toDateTime",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "timestamp"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "toIntervalDay",
-                "args": [
+              "type": "Identifier",
+              "name": "timestamp"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "_id"
+        },
+        "ttl_table": {
+          "type": "ExpressionList",
+          "children": [
+            {
+              "type": "TTLElement",
+              "mode": "DELETE",
+              "ttl": {
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "7"
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "timestamp"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalDay",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "7"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
@@ -123,268 +127,313 @@
           ]
         }
       }
-    ]
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mview"
-    },
-    "onCluster": "test_shard_localhost",
-    "engine": {
-      "name": "SummingMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "day"
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "mview"
       },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "card_id"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "timestamp"
-                ]
-              }
-            ]
-          },
-          "alias": "day"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "card_id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "count",
-            "args": [
-              {
-                "kind": "asterisk"
-              }
-            ]
-          },
-          "alias": "card_view"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source"
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "tupleLiteral",
-            "elements": [
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "day"
+                "type": "Function",
+                "alias": "day",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "timestamp"
+                  }
                 ]
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "card_id"
-                ]
-              }
-            ],
-            "source": "(day, card_id)"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mview"
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mview"
-    },
-    "onCluster": "test_shard_localhost",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "day",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "card_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "card_view",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "day"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "card_id"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "timestamp"
-                ]
-              }
-            ]
-          },
-          "alias": "day"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "card_id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "count",
-            "args": [
-              {
-                "kind": "asterisk"
-              }
-            ]
-          },
-          "alias": "card_view"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source"
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day"
-                ]
+                "type": "Identifier",
+                "name": "card_id"
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "card_id"
+                "type": "Function",
+                "alias": "card_view",
+                "name": "count",
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
                 ]
               }
             ],
-            "source": "(day, card_id)"
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "card_id"
+                  }
+                ]
+              }
+            ]
           }
         ]
-      }
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
           {
-            "name": "ttl_only_drop_parts",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "SummingMergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "card_id"
+                  }
+                ]
+              }
             }
           }
         ]
       }
-    ],
-    "onCluster": "test_shard_localhost"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "tables": [
-      {
-        "kind": "tableRef",
-        "table": "mview"
-      },
-      {
-        "kind": "tableRef",
-        "table": "source"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "mview"
       }
-    ],
-    "ifExists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "mview"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "day",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "card_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "card_view",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "day",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "timestamp"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "card_id"
+              },
+              {
+                "type": "Function",
+                "alias": "card_view",
+                "name": "count",
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "card_id"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "SummingMergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "card_id"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "ttl_only_drop_parts": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "if_exists": true,
+      "database_and_tables": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "TableIdentifier",
+            "name": "mview"
+          },
+          {
+            "type": "TableIdentifier",
+            "name": "source"
+          }
+        ]
+      }
+    }
   }
 ]

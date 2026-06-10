@@ -8,14 +8,14 @@ CREATE TABLE `01504_test`
     key String,
     value UInt32
 )
-ENGINE = EmbeddedRocksDB; -- { serverError BAD_ARGUMENTS }
+ENGINE = EmbeddedRocksDB(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE `01504_test`
 (
     key String,
     value UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key2; -- { serverError UNKNOWN_IDENTIFIER }
 
 CREATE TABLE `01504_test`
@@ -23,7 +23,7 @@ CREATE TABLE `01504_test`
     key String,
     value UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (key, value);
 
 CREATE TABLE `01504_test`
@@ -31,7 +31,7 @@ CREATE TABLE `01504_test`
     key Tuple(String, UInt32),
     value UInt64
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key;
 
 CREATE TABLE `01504_test`
@@ -39,7 +39,7 @@ CREATE TABLE `01504_test`
     key String,
     value UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key;
 
 INSERT INTO `01504_test` SELECT
@@ -47,7 +47,7 @@ INSERT INTO `01504_test` SELECT
     number
 FROM numbers(10000);
 
-SELECT COUNT(1) == 1
+SELECT COUNT(1) = 1
 FROM `01504_test`;
 
 INSERT INTO `01504_test` SELECT
@@ -55,18 +55,18 @@ INSERT INTO `01504_test` SELECT
     number
 FROM numbers(10000);
 
-SELECT COUNT(1) == 10000
+SELECT COUNT(1) = 10000
 FROM `01504_test`;
 
-SELECT uniqExact(key) == 32
+SELECT uniqExact(key) = 32
 FROM (
         SELECT *
         FROM `01504_test`
         LIMIT 32
-        SETTINGS max_block_size = 1
+        SETTINGS max_block_size = '1'
     );
 
-SELECT SUM(value) == 1 + 99 + 900
+SELECT SUM(value) = 1 + 99 + 900
 FROM `01504_test`
 WHERE key IN ('1_1', '99_1', '900_1');
 
@@ -79,11 +79,11 @@ CREATE TABLE `01504_test`
     dummy Tuple(UInt32, Float64),
     bm AggregateFunction(groupBitmap, UInt64)
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY k;
 
 CREATE TABLE `01504_test_memory` AS `01504_test`
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `01504_test` SELECT
     number % 77 AS k,
@@ -114,16 +114,16 @@ FROM
             groupBitmapMerge(bm) AS b,
             SUM(k) AS c,
             SUM(value) AS d,
-            SUM(dummy.1) AS e
+            SUM((dummy).1) AS e
         FROM `01504_test`
     ) AS A
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             0 AS a,
             groupBitmapMerge(bm) AS b,
             SUM(k) AS c,
             SUM(value) AS d,
-            SUM(dummy.1) AS e
+            SUM((dummy).1) AS e
         FROM `01504_test_memory`
     ) AS B
     USING (a)
@@ -135,9 +135,9 @@ FROM `system`.numbers
 LIMIT 1
 OFFSET 4;
 
-SET max_rows_to_read = 2;
+SET max_rows_to_read = '2';
 
-SELECT dummy == (1,1.2)
+SELECT dummy = (1, 1.2)
 FROM `01504_test`
 WHERE k IN (1, 3)
     OR k IN (1)
@@ -145,14 +145,14 @@ WHERE k IN (1, 3)
     OR k IN ([1])
     OR k IN ([1, 3]);
 
-SELECT k == 4
+SELECT k = 4
 FROM `01504_test`
 WHERE k = 4
     OR k IN ([4])
     OR k IN (4, 10000001, 10000002)
     AND value > 0;
 
-SELECT k == 4
+SELECT k = 4
 FROM `01504_test`
 WHERE k IN (
         SELECT toUInt32(number)
@@ -177,5 +177,5 @@ WHERE k = 0
 
 TRUNCATE TABLE `01504_test`;
 
-SELECT 0 == COUNT(1)
+SELECT 0 = COUNT(1)
 FROM `01504_test`;

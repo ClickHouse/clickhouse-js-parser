@@ -14,10 +14,10 @@ CREATE TABLE temp
     order_id Nullable(UUID),
     identity LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (field1, event_at, field2, field5, id)
 PARTITION BY toYYYYMM(event_at)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO temp (id, field1, field2, field3, field4, field5, field6, field7, field8, event_at, order_id, identity);
 

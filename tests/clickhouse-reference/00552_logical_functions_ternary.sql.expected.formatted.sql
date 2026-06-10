@@ -19,12 +19,12 @@ FROM (
             nullIf(toUInt8(number / 27 % 3), 2) AS x4
         FROM numbers(81)
     )
-WHERE ((xor1 != xor2
-    OR (isNull(xor1)) != (isNull(xor2))))
-    OR ((or1 != or2
-    OR (isNull(or1)) != (isNull(or2))
-    OR ((and1 != and2
-    OR (isNull(and1)) != (isNull(and2))))));
+WHERE (xor1 != xor2
+    OR (xor1 IS NULL) != (xor2 IS NULL))
+    OR (or1 != or2
+    OR (or1 IS NULL) != (or2 IS NULL)
+    OR (and1 != and2
+    OR (and1 IS NULL) != (and2 IS NULL)));
 
 -- Test ternary logic over multiple batches of columns (currently batch spans over 10 columns)
 SELECT
@@ -34,15 +34,15 @@ SELECT
     or(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) AS or1,
     or(x1, or(or(or(x2, x3), or(x4, x5)), or(or(x6, x7), or(x8, or(x9, or(x10, x11)))))) AS or2,
     and(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) AS and1,
-    and(x1, and(((x2
-    AND x3))
-    AND ((x4
-    AND x5)), ((x6
-    AND x7))
-    AND ((x8
-    AND ((x9
-    AND ((x10
-    AND x11)))))))) AS and2
+    and(x1, and((x2
+    AND x3)
+    AND (x4
+    AND x5), (x6
+    AND x7)
+    AND (x8
+    AND (x9
+    AND (x10
+    AND x11))))) AS and2
 FROM (
         SELECT
             nullIf(toUInt8(number % 3), 2) AS x1,
@@ -58,9 +58,9 @@ FROM (
             nullIf(toUInt8(number / 59049 % 3), 2) AS x11
         FROM numbers(177147)
     )
-WHERE ((xor1 != xor2
-    OR (isNull(xor1)) != (isNull(xor2))))
-    OR ((or1 != or2
-    OR (isNull(or1)) != (isNull(or2))
-    OR ((and1 != and2
-    OR (isNull(and1)) != (isNull(and2))))));
+WHERE (xor1 != xor2
+    OR (xor1 IS NULL) != (xor2 IS NULL))
+    OR (or1 != or2
+    OR (or1 IS NULL) != (or2 IS NULL)
+    OR (and1 != and2
+    OR (and1 IS NULL) != (and2 IS NULL)));

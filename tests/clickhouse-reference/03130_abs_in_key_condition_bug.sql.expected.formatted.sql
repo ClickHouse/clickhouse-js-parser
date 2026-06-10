@@ -7,7 +7,7 @@ CREATE TABLE t
 )
 ENGINE = MergeTree()
 ORDER BY (id, ts)
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO t;
 

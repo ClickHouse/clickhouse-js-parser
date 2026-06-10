@@ -5,7 +5,7 @@ CREATE TABLE array_union
     date Date,
     arr Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY date
 PARTITION BY date;
 
@@ -17,7 +17,7 @@ INSERT INTO array_union;
 
 INSERT INTO array_union;
 
-SELECT arraySort(arrayUnion(arr, [1,2]))
+SELECT arraySort(arrayUnion(arr, [1, 2]))
 FROM array_union
 ORDER BY arr ASC;
 
@@ -31,11 +31,11 @@ SELECT arraySort(arrayUnion([], arr))
 FROM array_union
 ORDER BY arr ASC;
 
-SELECT arraySort(arrayUnion([1,2], arr))
+SELECT arraySort(arrayUnion([1, 2], arr))
 FROM array_union
 ORDER BY arr ASC;
 
-SELECT arraySort(arrayUnion([1,2], [1,2,3,4]))
+SELECT arraySort(arrayUnion([1, 2], [1, 2, 3, 4]))
 FROM array_union
 ORDER BY arr ASC;
 
@@ -86,9 +86,9 @@ CREATE TABLE test_array_union
     id Int8,
     properties Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_array_union;
 

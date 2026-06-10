@@ -12,13 +12,13 @@ SELECT makeDate32(-1980, 10);
 
 SELECT makeDate32(1980, -10);
 
-SELECT makeDate32(1980.0, 9);
+SELECT makeDate32(1980., 9);
 
-SELECT makeDate32(-1980.0, 9);
+SELECT makeDate32(-1980., 9);
 
-SELECT makeDate32(CAST(1980.1 AS Decimal(20,5)), 9);
+SELECT makeDate32(CAST(1980.1 AS Decimal(20, 5)), 9);
 
-SELECT makeDate32(CAST('-1980.1' AS Decimal(20,5)), 9);
+SELECT makeDate32(CAST('-1980.1' AS Decimal(20, 5)), 9);
 
 SELECT makeDate32(CAST(1980.1 AS Float32), 9);
 

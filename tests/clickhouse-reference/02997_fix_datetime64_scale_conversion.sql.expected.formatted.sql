@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS test_0
 (
     a DateTime64(0)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_0;
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS test_2
 (
     a DateTime64(2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_2;
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS test_3
 (
     a DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_3;
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS test_6
 (
     a DateTime64(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_6;
@@ -224,7 +224,7 @@ CREATE TABLE IF NOT EXISTS test_9
 (
     a DateTime64(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_9;

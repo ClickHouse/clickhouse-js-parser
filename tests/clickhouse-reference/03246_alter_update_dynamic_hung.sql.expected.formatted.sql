@@ -1,4 +1,4 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -11,7 +11,7 @@ ORDER BY tuple();
 
 INSERT INTO t0 (c0);
 
-ALTER TABLE t0 UPDATE c0 = EXISTS((
+ALTER TABLE t0 UPDATE c0 = exists((
     SELECT 1
     FROM
         t1

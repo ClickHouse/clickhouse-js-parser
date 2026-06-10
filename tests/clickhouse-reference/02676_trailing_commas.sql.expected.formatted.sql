@@ -21,8 +21,8 @@ FROM (
         SELECT 1 AS n
     );
 
-SELECT (1, 'foo')::Tuple(a Int, b String,);
+SELECT CAST('(1, ''foo'')' AS Tuple(a Int, b String));
 
-SELECT (1, 'foo')::Tuple(Int, String,);
+SELECT CAST('(1, ''foo'')' AS Tuple(Int, String));
 
-SELECT (1, (2,'foo'))::Tuple(Int, Tuple(Int, String,),);
+SELECT CAST('(1, (2,''foo''))' AS Tuple(Int, Tuple(Int, String)));

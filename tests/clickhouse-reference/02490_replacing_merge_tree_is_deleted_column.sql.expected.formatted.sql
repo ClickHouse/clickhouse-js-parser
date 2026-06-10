@@ -1,6 +1,6 @@
 -- Tags: zookeeper
 -- Settings allow_deprecated_syntax_for_merge_tree prevent to enable the is_deleted column
-SET allow_deprecated_syntax_for_merge_tree = 0;
+SET allow_deprecated_syntax_for_merge_tree = '0';
 
 -- Test the bahaviour without the is_deleted column
 DROP TABLE IF EXISTS test;
@@ -12,8 +12,8 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplacingMergeTree(version)
-ORDER BY (uid)
-SETTINGS allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO test (*);
 
@@ -34,8 +34,8 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplacingMergeTree(version)
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 CREATE TABLE test
 (
@@ -44,8 +44,8 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplacingMergeTree(version, is_deleted)
-ORDER BY (uid)
-SETTINGS allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO test (*);
 
@@ -67,8 +67,8 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplacingMergeTree(version, is_deleted)
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 OPTIMIZE TABLE test FINAL;
 
@@ -90,7 +90,7 @@ CREATE TABLE testCleanupR1
 )
 ENGINE = ReplicatedReplacingMergeTree('/clickhouse/{database}/tables/test_cleanup/', 'r1', version, is_deleted)
 ORDER BY uid
-SETTINGS allow_experimental_replacing_merge_with_cleanup = 1;
+SETTINGS allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testCleanupR1 (*);
 
@@ -117,7 +117,7 @@ CREATE TABLE testSettingsR1
 )
 ENGINE = ReplicatedReplacingMergeTree('/clickhouse/{database}/tables/test_setting/', 'r1', version, is_deleted)
 ORDER BY col1
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testSettingsR1 (*);
 
@@ -141,7 +141,7 @@ CREATE TABLE test
     is_deleted String
 )
 ENGINE = ReplacingMergeTree(version, is_deleted)
-ORDER BY (uid); -- { serverError BAD_TYPE_OF_FIELD }
+ORDER BY uid; -- { serverError BAD_TYPE_OF_FIELD }
 
 CREATE TABLE test
 (
@@ -150,7 +150,7 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplacingMergeTree(version, is_deleted)
-ORDER BY (uid);
+ORDER BY uid;
 
 SELECT
     'no cleanup 1',
@@ -173,7 +173,7 @@ CREATE TABLE test
     is_deleted UInt8
 )
 ENGINE = ReplicatedReplacingMergeTree('/clickhouse/{database}/tables/no_cleanup/', 'r1', version, is_deleted)
-ORDER BY (uid);
+ORDER BY uid;
 
 SELECT
     'no cleanup 3',
@@ -194,8 +194,8 @@ CREATE TABLE testMT
     is_deleted UInt8
 )
 ENGINE = MergeTree()
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testMT (*);
 
@@ -214,8 +214,8 @@ CREATE TABLE testSummingMT
     is_deleted UInt8
 )
 ENGINE = SummingMergeTree()
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testSummingMT (*);
 
@@ -234,8 +234,8 @@ CREATE TABLE testAggregatingMT
     is_deleted UInt8
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testAggregatingMT (*);
 
@@ -255,8 +255,8 @@ CREATE TABLE testCollapsingMT
     sign Int8
 )
 ENGINE = CollapsingMergeTree(sign)
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testCollapsingMT (*);
 
@@ -276,8 +276,8 @@ CREATE TABLE testVersionedCMT
     sign Int8
 )
 ENGINE = VersionedCollapsingMergeTree(sign, version)
-ORDER BY (uid)
-SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = 1;
+ORDER BY uid
+SETTINGS clean_deleted_rows = 'Always', allow_experimental_replacing_merge_with_cleanup = '1';
 
 INSERT INTO testVersionedCMT (*);
 

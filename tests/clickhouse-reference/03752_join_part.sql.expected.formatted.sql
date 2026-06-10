@@ -15,8 +15,8 @@ INNER JOIN t0 AS tx
 WHERE tx._part_offset = 1
     AND randomFixedString(5) = tx._part
 SETTINGS
-    query_plan_use_logical_join_step = 0,
-    use_join_disjunctions_push_down = 1,
-    enable_analyzer = 1;
+    query_plan_use_logical_join_step = '0',
+    use_join_disjunctions_push_down = '1',
+    enable_analyzer = '1';
 
 DROP TABLE t0;

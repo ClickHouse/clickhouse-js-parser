@@ -1,713 +1,948 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_grouping_sets_predicate"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_grouping_sets_predicate"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "day_",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "type_1",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "day_"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_grouping_sets_predicate"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "2023-01-05"
-              }
-            ]
-          },
-          "alias": "day_"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "hello, world"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "test_grouping_sets_predicate"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_grouping_sets_predicate"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+            "type": "ColumnDeclaration",
+            "name": "day_",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "type_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "day_"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_grouping_sets_predicate"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "day_",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2023-01-05"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "hello, world"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_use_nulls",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_use_nulls": true
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "day_"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "type_1"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "day_"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "asterisk"
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "asterisk"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "asterisk"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "day_"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "type_1"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "groupBy": {
-      "kind": "groupingSets",
-      "sets": [
-        [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "type_1"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "day_"
             ]
           },
-          {
-            "kind": "functionCall",
-            "name": "COUNT",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "asterisk"
-              }
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
+                "type": "Identifier",
+                "name": "day_"
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
               }
             ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "t2"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "qualifiedAsterisk",
-            "parts": [
-              "t1"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_grouping_sets_predicate",
-          "alias": "t1"
-        },
-        "groupBy": {
-          "kind": "groupingSets",
-          "sets": [
-            [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "type_1"
-                ]
-              }
-            ],
-            [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "day_"
-                ]
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
               }
             ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      },
-      "alias": "t2"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "day_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2023-01-05"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "day_"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Asterisk"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_analyzer": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_analyzer": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_grouping_sets": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Asterisk"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "ExpressionList",
+              "children": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "type_1"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_analyzer": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "day_"
+                            },
+                            {
+                              "type": "Function",
+                              "name": "COUNT",
+                              "arguments": [
+                                {
+                                  "type": "Asterisk"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "t2"
+              }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "t2",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_grouping_sets": true,
+                          "select": [
+                            {
+                              "type": "QualifiedAsterisk",
+                              "qualifier": {
+                                "type": "Identifier",
+                                "name": "t1"
+                              }
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "alias": "t1",
+                                    "name": "test_grouping_sets_predicate"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "type_1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "ExpressionList",
+                              "children": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "day_"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "day_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2023-01-05"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

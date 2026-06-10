@@ -1,8 +1,9 @@
-import type { Statement, ASTNodeKind, ASTNodeKindMap } from './ast';
+import type { Statement, ASTNodeLookupMap } from './ast';
 
 /**
- * Recursively finds all AST nodes of the given `kind` in one or more parsed
- * statements.
+ * Recursively finds all AST nodes of the given node `type` in one or more
+ * parsed statements. (TRANSITION kind→type rewrite: old-shape statement nodes
+ * are still matched by their `kind` value.)
  *
  * @example
  * ```ts
@@ -10,21 +11,18 @@ import type { Statement, ASTNodeKind, ASTNodeKindMap } from './ast';
  *
  * const ast = parse('SELECT * FROM t WHERE id = {id:UInt64}');
  *
- * findNodes(ast, 'queryParam');
- * // [{ kind: 'queryParam', name: 'id', type: 'UInt64' }]
+ * findNodes(ast, 'QueryParameter');
+ * // [{ type: 'QueryParameter', name: 'id', param_type: 'UInt64' }]
  *
- * findNodes(ast, 'columnRef');
- * // [{ kind: 'columnRef', parts: ['id'] }]
- *
- * findNodes(ast, 'tableRef');
- * // [{ kind: 'tableRef', table: 't' }]
+ * findNodes(ast, 'Identifier');
+ * // [{ type: 'Identifier', name: 'id' }]
  * ```
  */
-export function findNodes<K extends ASTNodeKind>(
+export function findNodes<K extends keyof ASTNodeLookupMap>(
   statements: Statement[],
   kind: K,
-): ASTNodeKindMap[K][] {
-  const results: ASTNodeKindMap[K][] = [];
+): ASTNodeLookupMap[K][] {
+  const results: ASTNodeLookupMap[K][] = [];
   const seen = new Set<unknown>();
 
   function walk(node: unknown): void {
@@ -43,8 +41,11 @@ export function findNodes<K extends ASTNodeKind>(
     }
 
     const obj = node as Record<string, unknown>;
-    if (obj.kind === kind) {
-      results.push(obj as ASTNodeKindMap[K]);
+    // New-shape nodes match on `type`; old-shape nodes match on `kind`.
+    // (The `type` check must come first: native Function nodes carry a data
+    // field also named `kind`, e.g. TABLE_ENGINE.)
+    if (typeof obj.type === 'string' ? obj.type === kind : obj.kind === kind) {
+      results.push(obj as ASTNodeLookupMap[K]);
     }
 
     for (const [key, value] of Object.entries(obj)) {

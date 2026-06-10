@@ -5,7 +5,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS test_lookup_table;
 
@@ -14,7 +14,7 @@ CREATE TABLE test_lookup_table
     id UInt64,
     lookup_key UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_table;
 

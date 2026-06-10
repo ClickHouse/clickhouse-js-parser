@@ -5,9 +5,9 @@ CREATE TABLE t
     id String,
     value UInt16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, toStartOfDay(timestamp))
-TTL timestamp + toIntervalDay(1);
+TTL timestamp + toIntervalDay(1) GROUP BY id, toStartOfDay(timestamp) SET timestamp = max(timestamp) + toIntervalYear(100), id = argMax(id, timestamp), value = max(value);
 
 SYSTEM STOP MERGES t;
 
@@ -39,9 +39,9 @@ REPLACE TABLE t
     id String,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, toStartOfDay(timestamp))
-TTL timestamp + toIntervalDay(1);
+TTL timestamp + toIntervalDay(1) GROUP BY id, toStartOfDay(timestamp) SET timestamp = max(timestamp) + toIntervalYear(100), id = max(value);
 
 INSERT INTO t;
 

@@ -1,17 +1,17 @@
 -- Tags: stateful, long
-SET use_uncompressed_cache = 0;
+SET use_uncompressed_cache = '0';
 
-SET enable_parallel_replicas = 0, automatic_parallel_replicas_mode = 2, parallel_replicas_local_plan = 1, parallel_replicas_index_analysis_only_on_coordinator = 1, parallel_replicas_for_non_replicated_merge_tree = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'parallel_replicas';
+SET enable_parallel_replicas = '0', automatic_parallel_replicas_mode = '2', parallel_replicas_local_plan = '1', parallel_replicas_index_analysis_only_on_coordinator = '1', parallel_replicas_for_non_replicated_merge_tree = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'parallel_replicas';
 
 -- Reading of aggregation states from disk will affect `ReadCompressedBytes`
-SET max_bytes_before_external_group_by = 0, max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0', max_bytes_ratio_before_external_group_by = '0';
 
 -- Override randomized max_threads to avoid timeout on slow builds (ASan)
-SET max_threads = 0;
+SET max_threads = '0';
 
 SELECT COUNT(*)
 FROM test.hits
-WHERE AdvEngineID <> 0
+WHERE AdvEngineID != 0
 FORMAT Null
 SETTINGS log_comment = 'query_1';
 
@@ -21,7 +21,7 @@ SELECT
     MobilePhoneModel,
     COUNTDistinct(UserID) AS u
 FROM test.hits
-WHERE MobilePhoneModel <> ''
+WHERE MobilePhoneModel != ''
 GROUP BY MobilePhoneModel
 ORDER BY u DESC
 LIMIT 10
@@ -32,7 +32,7 @@ SELECT
     SearchPhrase,
     COUNT(*) AS c
 FROM test.hits
-WHERE SearchPhrase <> ''
+WHERE SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -51,7 +51,7 @@ SETTINGS log_comment = 'query_15';
 
 SELECT COUNT(*)
 FROM test.hits
-WHERE like(URL, '%google%')
+WHERE URL LIKE '%google%'
 FORMAT Null
 SETTINGS log_comment = 'query_20';
 
@@ -60,8 +60,8 @@ SELECT
     MIN(URL),
     COUNT(*) AS c
 FROM test.hits
-WHERE like(URL, '%google%')
-    AND SearchPhrase <> ''
+WHERE URL LIKE '%google%'
+    AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -75,9 +75,9 @@ SELECT
     COUNT(*) AS c,
     COUNTDistinct(UserID)
 FROM test.hits
-WHERE like(Title, '%Google%')
-    AND notLike(URL, '%.google.%')
-    AND SearchPhrase <> ''
+WHERE Title LIKE '%Google%'
+    AND URL NOT LIKE '%.google.%'
+    AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -86,7 +86,7 @@ SETTINGS log_comment = 'query_22';
 
 SELECT *
 FROM test.hits
-WHERE like(URL, '%google%')
+WHERE URL LIKE '%google%'
 ORDER BY EventTime ASC
 LIMIT 10
 FORMAT Null
@@ -98,7 +98,7 @@ SELECT
     COUNT(*) AS c,
     MIN(Referer)
 FROM test.hits
-WHERE Referer <> ''
+WHERE Referer != ''
 GROUP BY k
 HAVING COUNT(*) > 100000
 ORDER BY l DESC
@@ -120,16 +120,16 @@ FORMAT Null
 SETTINGS log_comment = 'query_34';
 
 -- For some reason, with smaller block sizes `ReadCompressedBytes` shows twice the size of `CounterID` column for query_43
-SET max_block_size = 65409;
+SET max_block_size = '65409';
 
 -- Just checking that statistics are collected with read in order
 SELECT CounterID
 FROM test.hits
 ORDER BY CounterID DESC
 FORMAT Null
-SETTINGS optimize_read_in_order = 1, query_plan_read_in_order = 1, log_comment = 'query_43';
+SETTINGS optimize_read_in_order = '1', query_plan_read_in_order = '1', log_comment = 'query_43';
 
-SET enable_parallel_replicas = 0, automatic_parallel_replicas_mode = 0;
+SET enable_parallel_replicas = '0', automatic_parallel_replicas_mode = '0';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -141,11 +141,11 @@ FROM (
             ProfileEvents['ReadCompressedBytes'] AS compressed_bytes,
             ProfileEvents['RuntimeDataflowStatisticsInputBytes'] AS statistics_input_bytes
         FROM `system`.query_log
-        WHERE (event_date >= yesterday())
-            AND (event_time >= NOW() - toIntervalMinute(15))
-            AND (current_database = currentDatabase())
-            AND (like(log_comment, 'query_%'))
-            AND (type = 'QueryFinish')
+        WHERE event_date >= yesterday()
+            AND event_time >= NOW() - toIntervalMinute(15)
+            AND current_database = currentDatabase()
+            AND log_comment LIKE 'query_%'
+            AND type = 'QueryFinish'
         ORDER BY event_time_microseconds ASC
     )
 WHERE greatest(compressed_bytes, statistics_input_bytes) / least(compressed_bytes, statistics_input_bytes) > 2;

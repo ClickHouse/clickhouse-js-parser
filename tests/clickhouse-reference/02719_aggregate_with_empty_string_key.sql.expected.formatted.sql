@@ -16,6 +16,6 @@ SELECT
     max(i)
 FROM test
 GROUP BY str
-ORDER BY str ASC;
+ORDER BY str ASC NULLS FIRST;
 
 DROP TABLE test;

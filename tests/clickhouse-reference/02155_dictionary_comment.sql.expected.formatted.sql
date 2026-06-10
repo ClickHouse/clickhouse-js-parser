@@ -5,7 +5,7 @@ CREATE TABLE `02155_test_table`
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02155_test_table`;
 
@@ -24,8 +24,8 @@ SELECT
     name,
     comment
 FROM `system`.dictionaries
-WHERE name == '02155_test_dictionary'
-    AND database == currentDatabase();
+WHERE name = '02155_test_dictionary'
+    AND database = currentDatabase();
 
 ALTER TABLE `02155_test_dictionary` COMMENT COLUMN value 'value_column'; --{serverError NOT_IMPLEMENTED}
 
@@ -35,8 +35,8 @@ SELECT
     name,
     comment
 FROM `system`.tables
-WHERE name == '02155_test_dictionary'
-    AND database == currentDatabase();
+WHERE name = '02155_test_dictionary'
+    AND database = currentDatabase();
 
 SELECT *
 FROM `02155_test_dictionary`;
@@ -63,8 +63,8 @@ SELECT
     name,
     comment
 FROM `system`.tables
-WHERE name == '02155_test_dictionary_view'
-    AND database == currentDatabase();
+WHERE name = '02155_test_dictionary_view'
+    AND database = currentDatabase();
 
 DROP TABLE `02155_test_dictionary_view`;
 

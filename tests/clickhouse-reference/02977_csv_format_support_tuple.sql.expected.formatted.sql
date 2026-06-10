@@ -4,16 +4,16 @@ SET input_format_csv_deserialize_separate_columns_into_tuple = false;
 
 SET input_format_csv_try_infer_strings_from_quoted_tuples = false;
 
-INSERT INTO FUNCTION file(concat(currentDatabase(), '02977_1.csv')) SELECT
+INSERT INTO FUNCTION file(currentDatabase() || '02977_1.csv') SELECT
     '20240305',
     1,
     ['s', 'd'],
     map('a', 2),
     tuple('222', 33, map('abc', 5))
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
-DESCRIBE TABLE file(concat(currentDatabase(), '02977_1.csv'));
+DESCRIBE TABLE file(currentDatabase() || '02977_1.csv');
 
 SELECT *
-FROM file(concat(currentDatabase(), '02977_1.csv'))
-SETTINGS max_threads = 1;
+FROM file(currentDatabase() || '02977_1.csv')
+SETTINGS max_threads = '1';

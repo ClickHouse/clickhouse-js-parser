@@ -7,7 +7,7 @@ CREATE TABLE t1
 (
     b Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1;
@@ -16,14 +16,14 @@ CREATE TABLE t2
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO t2;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET analyzer_compatibility_join_using_top_level_identifier = 1;
+SET analyzer_compatibility_join_using_top_level_identifier = '1';
 
 SELECT
     * APPLY(x -> x + 1),

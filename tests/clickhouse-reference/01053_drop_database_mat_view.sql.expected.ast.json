@@ -1,221 +1,246 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "send_logs_level",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "fatal"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "send_logs_level": "fatal"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_database_ordinary": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Ordinary",
+          "kind": "DATABASE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
       "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_database_ordinary",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "engine": {
-      "name": "Ordinary"
-    },
-    "leadingComments": [
-      "-- Creation of a database with Ordinary engine emits a warning."
-    ],
-    "trailingComments": [
-      "-- Different inner table name with Atomic"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "my_table"
       },
-      "table": "my_table"
-    },
-    "engine": {
-      "name": "MergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "day"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "day"
+            },
+            {
+              "type": "Identifier",
+              "name": "day"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
           ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "day"
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
         }
-      ]
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "today",
-            "args": []
-          },
-          "alias": "day"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "mystring"
-          },
-          "alias": "str"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "listing",
-      "objectType": "TABLES",
-      "from": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
       },
-      "table": "my_materialized_view"
-    },
-    "engine": {
-      "name": "MergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "day"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "day"
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "day",
+                "name": "today",
+                "arguments": []
+              },
+              {
+                "type": "Literal",
+                "alias": "str",
+                "value_type": "String",
+                "value": "mystring"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowTables",
       "from": {
-        "kind": "tableRef",
-        "database": {
-          "kind": "queryParam",
-          "name": "CLICKHOUSE_DATABASE",
-          "type": "Identifier"
-        },
-        "table": "my_table"
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
       "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "table": "my_materialized_view"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
       "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "my_materialized_view"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "my_table",
+                      "database": "CLICKHOUSE_DATABASE"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "day"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "8192"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "my_materialized_view",
+                    "database": "CLICKHOUSE_DATABASE"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       }
     }
   }

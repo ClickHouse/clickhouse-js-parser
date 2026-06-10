@@ -4,12 +4,12 @@ CREATE TABLE mt
     ts DateTime,
     val Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (uid, ts)
 PARTITION BY toDate(ts);
 
 CREATE TABLE buf AS mt
-ENGINE = Buffer({CLICKHOUSE_DATABASE:Identifier}, mt, 2, 10, 60, 10000, 100000, 1000000, 10000000);
+ENGINE = Buffer(CLICKHOUSE_DATABASE, mt, 2, 10, 60, 10000, 100000, 1000000, 10000000);
 
 INSERT INTO buf;
 

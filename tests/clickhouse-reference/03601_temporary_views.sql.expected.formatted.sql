@@ -3,7 +3,7 @@ CREATE TEMPORARY TABLE t_src
     id UInt32,
     val String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_src;
 
@@ -19,9 +19,9 @@ SELECT *
 FROM tview_basic
 ORDER BY id ASC;
 
-EXISTS VIEW tview_basic;
+EXISTS TEMPORARY VIEW tview_basic;
 
-SHOW TEMPORARY VIEW tview_basic;
+SHOW CREATE TEMPORARY VIEW tview_basic;
 
 CREATE TEMPORARY VIEW IF NOT EXISTS tview_basic
 AS
@@ -31,11 +31,11 @@ CREATE TEMPORARY VIEW default.tview_db
 AS
 SELECT 1; -- { serverError BAD_DATABASE_FOR_TEMPORARY_TABLE }
 
-CREATE TEMPORARY VIEW tview_cluster ON CLUSTER `'test'`
+CREATE TEMPORARY VIEW tview_cluster ON CLUSTER test
 AS
 SELECT 1; -- { serverError INCORRECT_QUERY }
 
-CREATE TEMPORARY TABLE tsrc_cluster ON CLUSTER `'test'` AS
+CREATE TEMPORARY TABLE tsrc_cluster ON CLUSTER test AS
 SELECT 1; -- { serverError INCORRECT_QUERY }
 
 DROP TEMPORARY VIEW IF EXISTS tview_basic;

@@ -1,6 +1,6 @@
 -- Tags: no-random-merge-tree-settings
 -- add_minmax_index_for_numeric_columns=0: Different sizes
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 DROP TABLE IF EXISTS test_02381;
 
@@ -9,9 +9,9 @@ CREATE TABLE test_02381
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic', auto_statistics_types = '', add_minmax_index_for_numeric_columns = 0;
+SETTINGS compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic', auto_statistics_types = '', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_02381 SELECT
     number,
@@ -26,9 +26,9 @@ CREATE TABLE test_02381_compress
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS compress_marks = true, compress_primary_key = true, marks_compression_codec = 'ZSTD(3)', primary_key_compression_codec = 'ZSTD(3)', marks_compress_block_size = 65536, primary_key_compress_block_size = 65536, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic', auto_statistics_types = '', add_minmax_index_for_numeric_columns = 0;
+SETTINGS compress_marks = true, compress_primary_key = true, marks_compression_codec = 'ZSTD(3)', primary_key_compression_codec = 'ZSTD(3)', marks_compress_block_size = '65536', primary_key_compress_block_size = '65536', ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic', auto_statistics_types = '', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_02381_compress SELECT
     number,
@@ -49,11 +49,11 @@ SELECT
     sum(`rows`),
     sum(bytes_on_disk) AS sum_bytes,
     sum(marks_bytes) AS sum_marks_bytes,
-    (sum_bytes - sum_marks_bytes) AS exclude_marks
+    sum_bytes - sum_marks_bytes AS exclude_marks
 FROM `system`.parts_columns
 WHERE active
     AND database = currentDatabase()
-    AND like(table, 'test_02381%')
+    AND table LIKE 'test_02381%'
 GROUP BY table
 ORDER BY table ASC;
 
@@ -83,7 +83,7 @@ CREATE TABLE test_02381_compact
     a UInt64,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 SETTINGS auto_statistics_types = '';
 

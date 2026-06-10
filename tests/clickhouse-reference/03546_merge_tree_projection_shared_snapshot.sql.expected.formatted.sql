@@ -5,15 +5,11 @@ CREATE TABLE test
 (
     a Int32,
     b Int32,
-    PROJECTION p (    SELECT
-        a,
-        b,
-        _part_offset
-    ORDER BY b ASC)
+    PROJECTION p (SELECT a, b, _part_offset ORDER BY b)
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS index_granularity_bytes = 10485760, index_granularity = 8192;
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS index_granularity_bytes = '10485760', index_granularity = '8192';
 
 INSERT INTO test;
 
@@ -23,7 +19,7 @@ FROM
 INNER JOIN mergeTreeProjection(currentDatabase(), test, p) AS r
     USING (a)
 SETTINGS
-    enable_analyzer = 1,
-    enable_shared_storage_snapshot_in_query = 1;
+    enable_analyzer = '1',
+    enable_shared_storage_snapshot_in_query = '1';
 
 DROP TABLE test;

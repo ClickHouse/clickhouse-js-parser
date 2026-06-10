@@ -5,7 +5,7 @@ CREATE TABLE lower_test
     a Int32,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY b;
 

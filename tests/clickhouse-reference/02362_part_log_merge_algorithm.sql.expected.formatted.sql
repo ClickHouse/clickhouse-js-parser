@@ -4,7 +4,7 @@ CREATE TABLE data_horizontal
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS old_parts_lifetime = 600, vertical_merge_algorithm_min_rows_to_activate = 100000000;
+SETTINGS old_parts_lifetime = '600', vertical_merge_algorithm_min_rows_to_activate = '100000000';
 
 INSERT INTO data_horizontal;
 
@@ -31,7 +31,7 @@ CREATE TABLE data_vertical
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity_bytes = 0, enable_mixed_granularity_parts = 0, min_bytes_for_wide_part = 0, vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, old_parts_lifetime = 600;
+SETTINGS index_granularity_bytes = '0', enable_mixed_granularity_parts = '0', min_bytes_for_wide_part = '0', vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', old_parts_lifetime = '600';
 
 INSERT INTO data_vertical;
 

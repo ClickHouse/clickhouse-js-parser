@@ -10,7 +10,7 @@ SELECT NULL + NULL;
 
 DROP TABLE IF EXISTS test1_00395;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test1_00395
 (
@@ -52,7 +52,7 @@ CREATE TABLE test1_00395
     col8 Array(Nullable(String)),
     d Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test1_00395
 (
@@ -66,7 +66,7 @@ CREATE TABLE test1_00395
     col8 Array(Nullable(String)),
     d Date
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE test1_00395
 (
@@ -80,7 +80,7 @@ CREATE TABLE test1_00395
     col8 Array(Nullable(String)),
     d Date
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE test1_00395
 (
@@ -94,13 +94,13 @@ CREATE TABLE test1_00395
     col8 Array(Nullable(String)),
     d Date
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE test1_00395
 (
     col1 Array(Nullable(UInt64))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test1_00395 (col1);
 
@@ -113,7 +113,7 @@ CREATE TABLE test1_00395
     col1 Nullable(UInt64),
     col2 UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS test2;
 
@@ -122,7 +122,7 @@ CREATE TABLE test2
     col1 UInt64,
     col2 Nullable(UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -144,7 +144,7 @@ CREATE TABLE test1_00395
     col1 Nullable(UInt64),
     col2 Nullable(UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -229,23 +229,23 @@ FROM (
             assumeNotNull(col1) AS res
         FROM test1_00395
     )
-WHERE isNotNull(col1)
+WHERE col1 IS NOT NULL
 ORDER BY res ASC;
 
 SELECT col1
 FROM test1_00395
-WHERE isNotNull(col1)
+WHERE col1 IS NOT NULL
 ORDER BY col1 ASC;
 
 SELECT col1
 FROM test1_00395
-WHERE isNull(col1);
+WHERE col1 IS NULL;
 
 CREATE TABLE test1_00395
 (
     col1 Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395;
 
@@ -299,11 +299,11 @@ CREATE TABLE test1_00395
     col2 Nullable(UInt16),
     col3 Nullable(Float32)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2, col3);
 
-SELECT multiIf(col1 == 1, col2, col2 == 2, col3, col3 == 3, col1, 42)
+SELECT multiIf(col1 = 1, col2, col2 = 2, col3, col3 = 3, col1, 42)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
@@ -314,7 +314,7 @@ CREATE TABLE test1_00395
     then2 Nullable(UInt16),
     then3 Nullable(Float32)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (cond1, then1, cond2, then2, then3);
 
@@ -323,72 +323,72 @@ FROM test1_00395;
 
 SELECT [NULL];
 
-SELECT [NULL,NULL,NULL];
+SELECT [NULL, NULL, NULL];
 
-SELECT [NULL,2,3];
+SELECT [NULL, 2, 3];
 
-SELECT [1,NULL,3];
+SELECT [1, NULL, 3];
 
-SELECT [1,2,NULL];
+SELECT [1, 2, NULL];
 
-SELECT [NULL,'b','c'];
+SELECT [NULL, 'b', 'c'];
 
-SELECT ['a',NULL,'c'];
+SELECT ['a', NULL, 'c'];
 
-SELECT ['a','b',NULL];
+SELECT ['a', 'b', NULL];
 
-SELECT [1,NULL,2,3][1];
+SELECT arrayElement([1, NULL, 2, 3], 1);
 
-SELECT [1,NULL,2,3][2];
+SELECT arrayElement([1, NULL, 2, 3], 2);
 
-SELECT [1,NULL,2,3][3];
+SELECT arrayElement([1, NULL, 2, 3], 3);
 
-SELECT [1,NULL,2,3][4];
+SELECT arrayElement([1, NULL, 2, 3], 4);
 
-SELECT ['a',NULL,'c','d'][1];
+SELECT arrayElement(['a', NULL, 'c', 'd'], 1);
 
-SELECT ['a',NULL,'c','d'][2];
+SELECT arrayElement(['a', NULL, 'c', 'd'], 2);
 
-SELECT ['a',NULL,'c','d'][3];
+SELECT arrayElement(['a', NULL, 'c', 'd'], 3);
 
-SELECT ['a',NULL,'c','d'][4];
+SELECT arrayElement(['a', NULL, 'c', 'd'], 4);
 
 CREATE TABLE test1_00395
 (
     col1 UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
-SELECT [1,NULL,2,3][col1]
+SELECT arrayElement([1, NULL, 2, 3], col1)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
 (
     col1 Array(Nullable(UInt64))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
-SELECT col1[1]
+SELECT arrayElement(col1, 1)
 FROM test1_00395;
 
-SELECT col1[2]
+SELECT arrayElement(col1, 2)
 FROM test1_00395;
 
-SELECT col1[3]
+SELECT arrayElement(col1, 3)
 FROM test1_00395;
 
-SELECT col1[4]
+SELECT arrayElement(col1, 4)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
 (
     col1 Array(Nullable(String))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
@@ -397,11 +397,11 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(UInt64)),
     col2 UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
-SELECT col1[col2]
+SELECT arrayElement(col1, col2)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
@@ -409,36 +409,36 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(String)),
     col2 UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
-SELECT has([1,NULL,2,3], 1);
+SELECT has([1, NULL, 2, 3], 1);
 
-SELECT has([1,NULL,2,3], NULL);
+SELECT has([1, NULL, 2, 3], NULL);
 
-SELECT has([1,NULL,2,3], 2);
+SELECT has([1, NULL, 2, 3], 2);
 
-SELECT has([1,NULL,2,3], 3);
+SELECT has([1, NULL, 2, 3], 3);
 
-SELECT has([1,NULL,2,3], 4);
+SELECT has([1, NULL, 2, 3], 4);
 
-SELECT has(['a',NULL,'def','ghij'], 'a');
+SELECT has(['a', NULL, 'def', 'ghij'], 'a');
 
-SELECT has(['a',NULL,'def','ghij'], NULL);
+SELECT has(['a', NULL, 'def', 'ghij'], NULL);
 
-SELECT has(['a',NULL,'def','ghij'], 'def');
+SELECT has(['a', NULL, 'def', 'ghij'], 'def');
 
-SELECT has(['a',NULL,'def','ghij'], 'ghij');
+SELECT has(['a', NULL, 'def', 'ghij'], 'ghij');
 
-SELECT has([1,NULL,2,3], col1)
+SELECT has([1, NULL, 2, 3], col1)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
 (
     col1 Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
@@ -446,18 +446,18 @@ CREATE TABLE test1_00395
 (
     col1 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
-SELECT has(['a',NULL,'def','ghij'], col1)
+SELECT has(['a', NULL, 'def', 'ghij'], col1)
 FROM test1_00395;
 
 CREATE TABLE test1_00395
 (
     col1 Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1);
 
@@ -501,7 +501,7 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(UInt64)),
     col2 Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -510,7 +510,7 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(String)),
     col2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -519,7 +519,7 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(String)),
     col2 Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -529,7 +529,7 @@ CREATE TABLE test1_00395
     col2 Nullable(UInt8),
     col3 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2, col3);
 
@@ -551,7 +551,7 @@ CREATE TABLE test1_00395
     col2 Nullable(UInt8),
     col3 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2, col3);
 
@@ -560,7 +560,7 @@ CREATE TABLE test1_00395
     col1 Nullable(String),
     col2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -576,7 +576,7 @@ CREATE TABLE test1_00395
     col1 Nullable(UInt8),
     col2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 
@@ -586,7 +586,7 @@ CREATE TABLE test1_00395
     col2 UInt64,
     col3 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2, col3);
 
@@ -597,7 +597,7 @@ CREATE TABLE test1_00395
     col3 Nullable(UInt64),
     col4 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2, col3, col4);
 
@@ -621,7 +621,7 @@ CREATE TABLE test1_00395
     col1 Array(Nullable(UInt8)),
     col2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test1_00395 (col1, col2);
 

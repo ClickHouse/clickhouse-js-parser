@@ -7,7 +7,7 @@ SELECT toString(dummy + 1) AS dummy
 FROM remote('127.{1,1}', 'system.one')
 GROUP BY dummy;
 
-SELECT toString(((toInt8(dummy) + 2)) * ((toInt8(dummy) + 2))) AS dummy
+SELECT toString((toInt8(dummy) + 2) * (toInt8(dummy) + 2)) AS dummy
 FROM remote('127.{1,1}', `system`.one)
 GROUP BY dummy;
 

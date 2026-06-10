@@ -1,21 +1,21 @@
-SELECT like('abcdef', '%abc%def%');
+SELECT 'abcdef' LIKE '%abc%def%';
 
-SELECT like('abctdef', '%abc%def%');
+SELECT 'abctdef' LIKE '%abc%def%';
 
-SELECT like('abc\ndef', '%abc%def%');
+SELECT 'abc\ndef' LIKE '%abc%def%';
 
-SELECT like('abc\ntdef', '%abc%def%');
+SELECT 'abc\ntdef' LIKE '%abc%def%';
 
-SELECT like('abct\ndef', '%abc%def%');
+SELECT 'abct\ndef' LIKE '%abc%def%';
 
-SELECT like('abc\n\ndef', '%abc%def%');
+SELECT 'abc\n\ndef' LIKE '%abc%def%';
 
-SELECT like('abc\n\ntdef', '%abc%def%');
+SELECT 'abc\n\ntdef' LIKE '%abc%def%';
 
-SELECT like('abc\nt\ndef', '%abc%def%');
+SELECT 'abc\nt\ndef' LIKE '%abc%def%';
 
-SELECT like('abct\n\ndef', '%abc%def%');
+SELECT 'abct\n\ndef' LIKE '%abc%def%';
 
-SELECT like('ab\ndef', '%abc%def%');
+SELECT 'ab\ndef' LIKE '%abc%def%';
 
-SELECT like('abc\nef', '%abc%def%');
+SELECT 'abc\nef' LIKE '%abc%def%';

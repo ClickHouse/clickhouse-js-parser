@@ -1,152 +1,197 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "1000"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "database": "system",
-          "table": "numbers"
-        },
-        "limit": {
-          "count": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "tupleLiteral",
-        "elements": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          }
-        ],
-        "source": "(number, number * 2)"
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
+              "type": "Identifier",
+              "name": "number"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "numbers",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10000"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           },
           "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiply",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
                 ]
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1000"
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "multiply",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "2"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "numbers",
+                                "database": "system"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "modulo",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "1000"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        ]
+                      },
+                      "limit": {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    }
+                  ]
+                }
               }
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
+            ]
           },
           "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "2"
           }
         }
-      }
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
+      ]
     }
   }
 ]

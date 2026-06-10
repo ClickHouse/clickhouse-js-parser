@@ -1,35 +1,35 @@
 SELECT count(1)
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3;
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3;
 
 SELECT count(*)
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3;
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3;
 
 SELECT count()
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3;
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3;
 
 SELECT
     count(n1.number),
     count(n2.number),
     count(n3.number)
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3;
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3;
 
 SELECT *
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3
 ORDER BY
     n1.number ASC,
     n2.number ASC,
@@ -40,9 +40,9 @@ SELECT
     n2.number,
     n3.number
 FROM
-    numbers(2) AS n1
-CROSS JOIN numbers(3) AS n2
-CROSS JOIN numbers(4) AS n3
+    numbers(2) AS n1,
+    numbers(3) AS n2,
+    numbers(4) AS n3
 ORDER BY
     n1.number ASC,
     n2.number ASC,

@@ -6,7 +6,7 @@ CREATE TABLE bm
     amount float,
     business_dttm DateTime
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO bm;
 

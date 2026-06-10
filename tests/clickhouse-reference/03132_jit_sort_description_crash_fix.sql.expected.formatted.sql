@@ -1,8 +1,8 @@
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
-SET compile_sort_description = 1;
+SET compile_sort_description = '1';
 
-SET min_count_to_compile_sort_description = 0;
+SET min_count_to_compile_sort_description = '0';
 
 DROP TABLE IF EXISTS test1_00395;
 
@@ -35,7 +35,7 @@ FROM test1_00395
 WHERE toNullable(27)
 GROUP BY col1
 ORDER BY
-    multiIf(27, 1, multiIf(materialize(1), toLowCardinality(2), 3, 1, 4), NULL, 4) ASC,
+    multiIf(27, 1, multiIf(materialize(1), toLowCardinality(2), 3, 1, 4), NULL, 4) ASC NULLS LAST,
     col1 DESC;
 
 SELECT '--';
@@ -47,7 +47,7 @@ FROM test1_00395
 GROUP BY col1
 WITH CUBE
 WITH TOTALS
-ORDER BY multiIf(27, 1, multiIf(materialize(1), toLowCardinality(2), 3, 1, 4), NULL, 4) ASC;
+ORDER BY multiIf(27, 1, multiIf(materialize(1), toLowCardinality(2), 3, 1, 4), NULL, 4) ASC NULLS LAST;
 
 SELECT col1
 FROM test1_00395

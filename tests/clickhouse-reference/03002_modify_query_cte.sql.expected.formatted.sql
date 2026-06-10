@@ -3,7 +3,7 @@ CREATE TABLE table_03002
     ts DateTime,
     event_type String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (event_type, ts);
 
 CREATE MATERIALIZED VIEW mv_03002

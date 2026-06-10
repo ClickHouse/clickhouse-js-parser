@@ -9,7 +9,7 @@ CREATE TABLE test_zkinsert
     path String,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- test recursive create and big transaction
 INSERT INTO test_zkinsert (name, path, value);
@@ -17,7 +17,7 @@ INSERT INTO test_zkinsert (name, path, value);
 -- insert same value, suppose to have no side effects
 INSERT INTO `system`.zookeeper (name, path, value) SELECT
     name,
-    concat('/', currentDatabase(), path),
+    '/' || currentDatabase() || path,
     value
 FROM test_zkinsert;
 
@@ -32,7 +32,7 @@ FROM (
             path ASC,
             name ASC
     )
-WHERE like(path, concat('/', currentDatabase(), '/1-insert-test%'));
+WHERE path LIKE '/' || currentDatabase() || '/1-insert-test%';
 
 SELECT '-------------------------';
 
@@ -58,7 +58,7 @@ FROM (
             path ASC,
             name ASC
     )
-WHERE like(path, concat('/', currentDatabase(), '/2-insert-test%'));
+WHERE path LIKE '/' || currentDatabase() || '/2-insert-test%';
 
 -- test exceptions
 INSERT INTO `system`.zookeeper (name, value); -- { serverError BAD_ARGUMENTS }
@@ -87,12 +87,12 @@ CREATE TABLE test_zkinsert
     value String,
     zookeeperName String DEFAULT 'zookeeper2'
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- insert same value, suppose to have no side effects
 INSERT INTO `system`.zookeeper (name, path, value, zookeeperName) SELECT
     name,
-    concat('/', currentDatabase(), path),
+    '/' || currentDatabase() || path,
     value,
     zookeeperName
 FROM test_zkinsert;
@@ -109,7 +109,7 @@ FROM (
             path ASC,
             name ASC
     )
-WHERE like(path, concat('/', currentDatabase(), '/1-insert-test%'));
+WHERE path LIKE '/' || currentDatabase() || '/1-insert-test%';
 
 SELECT *
 FROM (
@@ -123,4 +123,4 @@ FROM (
             path ASC,
             name ASC
     )
-WHERE like(path, concat('/', currentDatabase(), '/2-insert-test%'));
+WHERE path LIKE '/' || currentDatabase() || '/2-insert-test%';

@@ -13,7 +13,7 @@ CREATE TABLE test_local
 (
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name AS
 SELECT 'x';
 

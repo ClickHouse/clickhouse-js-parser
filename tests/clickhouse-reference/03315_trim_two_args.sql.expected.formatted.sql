@@ -93,7 +93,7 @@ CREATE TABLE tab
 (
     col FixedString(3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab;
 

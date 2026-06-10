@@ -5,7 +5,7 @@ CREATE TABLE upyachka
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Merge table has virtual column `_table`
 DESCRIBE TABLE merge(currentDatabase(), 'upyachka');

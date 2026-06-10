@@ -5,11 +5,11 @@ CREATE TABLE nullt
     c1 Nullable(UInt32),
     c2 Nullable(String)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO nullt;
 
-SELECT c2 = ('abc')
+SELECT c2 = 'abc'
 FROM nullt;
 
 SELECT c2 IN ('abc')

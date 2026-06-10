@@ -1,14 +1,14 @@
 DROP TABLE IF EXISTS t_lwu_replace;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE t_lwu_replace
 (
     c0 Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO t_lwu_replace (c0);
 
@@ -26,4 +26,4 @@ CREATE TABLE t_lwu_replace
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_lwu_replace', '1')
 ORDER BY tuple()
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';

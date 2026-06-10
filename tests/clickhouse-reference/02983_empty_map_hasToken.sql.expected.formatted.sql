@@ -5,9 +5,9 @@ CREATE TABLE test
     id String,
     h Map(String, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (t, id)
-SETTINGS index_granularity = 4096;
+SETTINGS index_granularity = '4096';
 
 INSERT INTO test;
 
@@ -17,7 +17,7 @@ INSERT INTO test SELECT
     'xxx',
     number,
     map('content-type', 'x')
-FROM numbers(1e2);
+FROM numbers(100.);
 
 OPTIMIZE TABLE test FINAL;
 

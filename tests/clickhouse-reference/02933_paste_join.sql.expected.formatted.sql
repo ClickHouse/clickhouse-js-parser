@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS test
 (
     number UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT number
 FROM numbers(6);
@@ -41,7 +41,7 @@ FROM
 PASTE JOIN (
         SELECT 2
     )
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
@@ -50,7 +50,7 @@ FROM
         FROM numbers(11)
     ) AS t1
 PASTE JOIN test AS t2
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SELECT *
 FROM
@@ -63,14 +63,14 @@ PASTE JOIN (
         FROM test
         LIMIT 2
     ) AS t2
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 CREATE TABLE t1
 (
     a UInt64,
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 SELECT
     number,
@@ -142,7 +142,7 @@ CREATE TABLE t2
     a UInt64,
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2 SELECT
     number,
@@ -179,7 +179,7 @@ PASTE JOIN (
         SELECT *
         FROM t2
     ) AS t2
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SELECT toTypeName(a)
 FROM
@@ -191,9 +191,9 @@ PASTE JOIN (
         SELECT number AS a
         FROM numbers(10)
     ) AS t2
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
-SET max_threads = 2;
+SET max_threads = '2';
 
 SELECT *
 FROM
@@ -206,7 +206,7 @@ PASTE JOIN (
         FROM numbers(10)
         ORDER BY a DESC
     ) AS t2
-SETTINGS max_block_size = 10;
+SETTINGS max_block_size = '10';
 
 TRUNCATE TABLE test;
 
@@ -221,7 +221,7 @@ PASTE JOIN (
         FROM numbers(6)
         ORDER BY number ASC
     )
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
@@ -243,7 +243,7 @@ PASTE JOIN (
                 FROM test
             )
     )
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
@@ -270,7 +270,7 @@ PASTE JOIN (
                 FROM test
             )
     )
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
@@ -283,7 +283,7 @@ PASTE JOIN (
 PASTE JOIN (
         SELECT 3 AS c
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -296,15 +296,15 @@ PASTE JOIN (
 PASTE JOIN (
         SELECT 3 AS a
     )
-SETTINGS enable_analyzer = 1; -- { serverError AMBIGUOUS_COLUMN_NAME }
+SETTINGS enable_analyzer = '1'; -- { serverError AMBIGUOUS_COLUMN_NAME }
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test1
 (
     a Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test1 SELECT *
@@ -314,7 +314,7 @@ CREATE TABLE test2
 (
     a Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test2 SELECT *

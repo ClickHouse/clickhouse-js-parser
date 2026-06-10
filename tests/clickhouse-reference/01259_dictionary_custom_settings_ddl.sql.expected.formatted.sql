@@ -26,7 +26,7 @@ PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_for_dict' PASSWORD '' DB currentDatabase()))
 LIFETIME(MIN 1 MAX 10)
 LAYOUT(FLAT())
-SETTINGS(max_result_bytes = 1);
+SETTINGS(max_result_bytes = '1');
 
 SELECT dictGetUInt64('ordinary_db.dict1', 'second_column', toUInt64(100500)); -- { serverError TOO_MANY_ROWS_OR_BYTES }
 

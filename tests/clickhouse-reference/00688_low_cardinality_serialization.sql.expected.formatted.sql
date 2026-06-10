@@ -4,7 +4,7 @@ SELECT
     lowCardinalityIndices(dict),
     lowCardinalityKeys(dict)
 FROM (
-        SELECT concat('123_', toLowCardinality(v)) AS dict
+        SELECT '123_' || toLowCardinality(v) AS dict
         FROM (
                 SELECT arrayJoin(['a', 'bb', '', 'a', 'ccc', 'a', 'bb', '', 'dddd']) AS v
             )
@@ -16,9 +16,9 @@ SELECT
     lowCardinalityIndices(dict),
     lowCardinalityKeys(dict)
 FROM (
-        SELECT concat('123_', toLowCardinality(v)) AS dict
+        SELECT '123_' || toLowCardinality(v) AS dict
         FROM (
-                SELECT arrayJoin(['a', Null, 'bb', '', 'a', Null, 'ccc', 'a', 'bb', '', 'dddd']) AS v
+                SELECT arrayJoin(['a', NULL, 'bb', '', 'a', NULL, 'ccc', 'a', 'bb', '', 'dddd']) AS v
             )
     );
 
@@ -30,17 +30,17 @@ CREATE TABLE lc_small_dict
 (
     str LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY str
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE lc_big_dict
 (
     str LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY str
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO lc_small_dict SELECT toString(number % 1000)
 FROM `system`.numbers

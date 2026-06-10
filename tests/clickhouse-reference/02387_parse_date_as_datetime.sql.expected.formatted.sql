@@ -4,9 +4,9 @@ CREATE TEMPORARY TABLE test
     d DateTime
 );
 
-INSERT INTO test;
+INSERT INTO test FORMAT JSONEachRow;
 
-INSERT INTO test;
+INSERT INTO test FORMAT JSONEachRow;
 
 SELECT *
 FROM test

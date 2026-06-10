@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS topXtest
 (
     A Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO topXtest SELECT number
 FROM numbers(100);

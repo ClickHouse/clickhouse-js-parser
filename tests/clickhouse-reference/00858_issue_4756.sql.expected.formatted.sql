@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET distributed_product_mode = 'local';
 
@@ -14,14 +14,14 @@ CREATE TABLE shard1
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY cityHash64(id);
 
 CREATE TABLE shard2
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY cityHash64(id);
 
 CREATE TABLE distr1 AS shard1
@@ -34,7 +34,7 @@ INSERT INTO shard1 (id);
 
 INSERT INTO shard2 (id);
 
-SELECT DISTINCT (distr1.id)
+SELECT DISTINCT distr1.id
 FROM distr1
 WHERE distr1.id IN (
         SELECT distr1.id
@@ -45,7 +45,7 @@ WHERE distr1.id IN (
         WHERE distr1.id > 0
     );
 
-SELECT DISTINCT (d0.id)
+SELECT DISTINCT d0.id
 FROM distr1 AS d0
 WHERE d0.id IN (
         SELECT d1.id
@@ -56,7 +56,7 @@ WHERE d0.id IN (
         WHERE d1.id > 0
     );
 
-SELECT DISTINCT (distr1.id)
+SELECT DISTINCT distr1.id
 FROM distr1
 WHERE distr1.id IN (
         SELECT distr1.id

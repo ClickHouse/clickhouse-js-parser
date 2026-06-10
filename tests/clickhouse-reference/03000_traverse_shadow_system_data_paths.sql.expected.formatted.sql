@@ -12,10 +12,10 @@ SETTINGS storage_policy = 's3_cache';
 
 INSERT INTO `03000_traverse_shadow_system_data_path_table`;
 
-ALTER TABLE `03000_traverse_shadow_system_data_path_table` FREEZE;
+ALTER TABLE `03000_traverse_shadow_system_data_path_table` FREEZE WITH NAME '03000_traverse_shadow_system_data_path_table_backup';
 
 SELECT count() > 0
 FROM `system`.remote_data_paths
 WHERE disk_name = 's3_cache'
-    AND like(local_path, '%shadow/03000_traverse_shadow_system_data_path_table_backup%')
-SETTINGS traverse_shadow_remote_data_paths = 1;
+    AND local_path LIKE '%shadow/03000_traverse_shadow_system_data_path_table_backup%'
+SETTINGS traverse_shadow_remote_data_paths = '1';

@@ -7,7 +7,7 @@ CREATE TABLE t1
     a UInt64,
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 SELECT
     number % 2,
@@ -18,12 +18,12 @@ CREATE TABLE t2
 (
     a UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2 SELECT number % 2
 FROM numbers(10);
 
-SET min_joined_block_size_rows = 0, min_joined_block_size_bytes = 0;
+SET min_joined_block_size_rows = '0', min_joined_block_size_bytes = '0';
 
 -- block size is always multiple of 5 because we have 5 rows for each key in right table
 -- we do not split rows corresponding to the same key
@@ -43,7 +43,7 @@ FROM (
     )
 GROUP BY b
 ORDER BY b ASC
-SETTINGS max_joined_block_size_rows = 5;
+SETTINGS max_joined_block_size_rows = '5';
 
 SELECT '--';
 
@@ -61,6 +61,6 @@ FROM (
     )
 GROUP BY b
 ORDER BY b ASC
-SETTINGS max_joined_block_size_rows = 10;
+SETTINGS max_joined_block_size_rows = '10';
 
 SET join_algorithm = 'parallel_hash';

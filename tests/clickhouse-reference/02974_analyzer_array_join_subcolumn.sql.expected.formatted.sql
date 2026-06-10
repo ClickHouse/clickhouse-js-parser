@@ -7,7 +7,7 @@ CREATE TABLE t2
     id Int32,
     pe Map(String, Tuple(a UInt64, b UInt64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t2;
@@ -17,7 +17,7 @@ CREATE TABLE t3
     id Int32,
     c Tuple(v String, pe Map(String, Tuple(a UInt64, b UInt64)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t3;
@@ -31,7 +31,7 @@ FROM
         FROM t2
     )
 ARRAY JOIN pe
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     p,
@@ -42,7 +42,7 @@ FROM
         FROM t2
     )
 ARRAY JOIN pe AS p
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     pe,
@@ -67,7 +67,7 @@ FROM
         FROM t3
     )
 ARRAY JOIN c.pe
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     p,
@@ -78,7 +78,7 @@ FROM
         FROM t3
     )
 ARRAY JOIN c.pe AS p
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     c.pe,
@@ -86,7 +86,7 @@ SELECT
 FROM
     t3
 ARRAY JOIN c.pe
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     p,

@@ -6,15 +6,15 @@ DROP TABLE IF EXISTS distributed_table2;
 
 SET optimize_skip_unused_shards = true;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 CREATE TABLE local_table
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE distributed_table AS local_table

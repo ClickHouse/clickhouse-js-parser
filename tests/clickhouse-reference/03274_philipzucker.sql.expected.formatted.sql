@@ -1,5 +1,5 @@
 -- https://www.philipzucker.com/sql_graph_csp/
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH RECURSIVE digits AS (
     SELECT 0 AS digit
@@ -19,42 +19,42 @@ SELECT
     r.digit AS R,
     y.digit AS Y
 FROM
-    digits AS s
-CROSS JOIN digits AS e
-CROSS JOIN digits AS n
-CROSS JOIN digits AS d
-CROSS JOIN digits AS m
-CROSS JOIN digits AS o
-CROSS JOIN digits AS r
-CROSS JOIN digits AS y
-WHERE s.digit <> e.digit
-    AND s.digit <> n.digit
-    AND s.digit <> d.digit
-    AND s.digit <> m.digit
-    AND s.digit <> o.digit
-    AND s.digit <> r.digit
-    AND s.digit <> y.digit
-    AND e.digit <> n.digit
-    AND e.digit <> d.digit
-    AND e.digit <> m.digit
-    AND e.digit <> o.digit
-    AND e.digit <> r.digit
-    AND e.digit <> y.digit
-    AND n.digit <> d.digit
-    AND n.digit <> m.digit
-    AND n.digit <> o.digit
-    AND n.digit <> r.digit
-    AND n.digit <> y.digit
-    AND d.digit <> m.digit
-    AND d.digit <> o.digit
-    AND d.digit <> r.digit
-    AND d.digit <> y.digit
-    AND m.digit <> o.digit
-    AND m.digit <> r.digit
-    AND m.digit <> y.digit
-    AND o.digit <> r.digit
-    AND o.digit <> y.digit
-    AND r.digit <> y.digit
-    AND s.digit <> 0
-    AND m.digit <> 0
-    AND (1000 * s.digit + 100 * e.digit + 10 * n.digit + d.digit) + ((1000 * m.digit + 100 * o.digit + 10 * r.digit + e.digit)) = (10000 * m.digit + 1000 * o.digit + 100 * n.digit + 10 * e.digit + y.digit);
+    digits AS s,
+    digits AS e,
+    digits AS n,
+    digits AS d,
+    digits AS m,
+    digits AS o,
+    digits AS r,
+    digits AS y
+WHERE s.digit != e.digit
+    AND s.digit != n.digit
+    AND s.digit != d.digit
+    AND s.digit != m.digit
+    AND s.digit != o.digit
+    AND s.digit != r.digit
+    AND s.digit != y.digit
+    AND e.digit != n.digit
+    AND e.digit != d.digit
+    AND e.digit != m.digit
+    AND e.digit != o.digit
+    AND e.digit != r.digit
+    AND e.digit != y.digit
+    AND n.digit != d.digit
+    AND n.digit != m.digit
+    AND n.digit != o.digit
+    AND n.digit != r.digit
+    AND n.digit != y.digit
+    AND d.digit != m.digit
+    AND d.digit != o.digit
+    AND d.digit != r.digit
+    AND d.digit != y.digit
+    AND m.digit != o.digit
+    AND m.digit != r.digit
+    AND m.digit != y.digit
+    AND o.digit != r.digit
+    AND o.digit != y.digit
+    AND r.digit != y.digit
+    AND s.digit != 0
+    AND m.digit != 0
+    AND 1000 * s.digit + 100 * e.digit + 10 * n.digit + d.digit + (1000 * m.digit + 100 * o.digit + 10 * r.digit + e.digit) = 10000 * m.digit + 1000 * o.digit + 100 * n.digit + 10 * e.digit + y.digit;

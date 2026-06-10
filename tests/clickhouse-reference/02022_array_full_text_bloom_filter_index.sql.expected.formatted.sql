@@ -12,7 +12,7 @@ CREATE TABLE bf_tokenbf_array_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE bf_ngram_array_test
 (
@@ -24,7 +24,7 @@ CREATE TABLE bf_ngram_array_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bf_tokenbf_array_test;
 

@@ -5,7 +5,7 @@ CREATE TABLE ttl_with_default
     d DateTime,
     a Int DEFAULT 777 TTL d + toIntervalSecond(5)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d;
 
 INSERT INTO ttl_with_default;

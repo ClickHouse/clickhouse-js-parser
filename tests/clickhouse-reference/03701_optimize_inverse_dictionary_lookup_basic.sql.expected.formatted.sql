@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database, no-parallel-replicas
 -- no-parallel, no-parallel-replicas: Dictionary is not created in parallel replicas.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_inverse_dictionary_lookup = 1;
+SET optimize_inverse_dictionary_lookup = '1';
 
-SET optimize_or_like_chain = 0;
+SET optimize_or_like_chain = '0';
 
 DROP DICTIONARY IF EXISTS colors;
 
@@ -16,7 +16,7 @@ CREATE TABLE ref_colors
     name String,
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO ref_colors;
@@ -29,7 +29,7 @@ CREATE DICTIONARY colors
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_colors'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 DROP TABLE IF EXISTS t;
@@ -39,12 +39,12 @@ CREATE TABLE t
     color_id UInt64,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY color_id;
 
 INSERT INTO t;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -63,7 +63,7 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -82,7 +82,7 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -101,7 +101,7 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -120,7 +120,7 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -139,12 +139,12 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
-WHERE like(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) LIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
@@ -153,17 +153,17 @@ SELECT
     color_id,
     payload
 FROM t
-WHERE like(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) LIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
-WHERE ilike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) ILIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
@@ -172,12 +172,12 @@ SELECT
     color_id,
     payload
 FROM t
-WHERE ilike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) ILIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT color_id
 FROM t
 WHERE equals(dictGetString('colors', 'name', color_id), 'red')
@@ -188,7 +188,7 @@ FROM t
 WHERE equals(dictGetString('colors', 'name', color_id), 'red')
 ORDER BY color_id ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -207,12 +207,12 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
-WHERE notLike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) NOT LIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
@@ -221,17 +221,17 @@ SELECT
     color_id,
     payload
 FROM t
-WHERE notLike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) NOT LIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
-WHERE notILike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) NOT ILIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
@@ -240,21 +240,12 @@ SELECT
     color_id,
     payload
 FROM t
-WHERE notILike(dictGetString('colors', 'name', color_id), 'r%')
+WHERE dictGetString('colors', 'name', color_id) NOT ILIKE 'r%'
 ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
-SELECT
-    color_id,
-    payload
-FROM t
-WHERE match(dictGetString('colors', 'name', color_id), '^r')
-ORDER BY
-    color_id ASC,
-    payload ASC;
-
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -264,7 +255,16 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+SELECT
+    color_id,
+    payload
+FROM t
+WHERE match(dictGetString('colors', 'name', color_id), '^r')
+ORDER BY
+    color_id ASC,
+    payload ASC;
+
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -283,13 +283,13 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
-WHERE (dictGetString('colors', 'name', color_id) = 'red'
-    AND dictGetUInt64('colors', 'n', color_id) < 10)
+WHERE dictGetString('colors', 'name', color_id) = 'red'
+    AND dictGetUInt64('colors', 'n', color_id) < 10
     OR dictGetString('colors', 'name', color_id) = 'green'
 ORDER BY
     color_id ASC,
@@ -299,14 +299,14 @@ SELECT
     color_id,
     payload
 FROM t
-WHERE (dictGetString('colors', 'name', color_id) = 'red'
-    AND dictGetUInt64('colors', 'n', color_id) < 10)
+WHERE dictGetString('colors', 'name', color_id) = 'red'
+    AND dictGetUInt64('colors', 'n', color_id) < 10
     OR dictGetString('colors', 'name', color_id) = 'green'
 ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -325,7 +325,7 @@ ORDER BY
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT color_id
 FROM t
 PREWHERE dictGetString('colors', 'name', color_id) = 'red'
@@ -336,26 +336,26 @@ FROM t
 PREWHERE dictGetString('colors', 'name', color_id) = 'red'
 ORDER BY color_id ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     row_number() OVER (PARTITION BY 1 ORDER BY color_id ASC) AS rn
 FROM t
+QUALIFY dictGetString('colors', 'name', color_id) = 'red'
 ORDER BY
     color_id ASC,
-    rn ASC
-QUALIFY dictGetString('colors', 'name', color_id) = 'red';
+    rn ASC;
 
 SELECT
     color_id,
     row_number() OVER (PARTITION BY 1 ORDER BY color_id ASC) AS rn
 FROM t
+QUALIFY dictGetString('colors', 'name', color_id) = 'red'
 ORDER BY
     color_id ASC,
-    rn ASC
-QUALIFY dictGetString('colors', 'name', color_id) = 'red';
+    rn ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT color_id
 FROM t
 WHERE dictGetString('colors', 'name', color_id) = 'nonexistent_color'
@@ -366,7 +366,7 @@ FROM t
 WHERE dictGetString('colors', 'name', color_id) = 'nonexistent_color'
 ORDER BY color_id ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     count() AS c
@@ -387,7 +387,7 @@ ORDER BY
     color_id ASC,
     c ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     t1.color_id,
     t1.payload,
@@ -416,7 +416,7 @@ ORDER BY
     t1.payload ASC,
     payload2 ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     t1.color_id,
     t1.payload,
@@ -445,7 +445,7 @@ ORDER BY
     t1.payload ASC,
     payload2 ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload,
@@ -466,27 +466,27 @@ ORDER BY
     payload ASC,
     tag ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT countIf(dictGetString('colors', 'name', color_id) = 'red') AS cnt
 FROM t;
 
 SELECT countIf(dictGetString('colors', 'name', color_id) = 'red') AS cnt
 FROM t;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT sumIf(color_id, dictGetString('colors', 'name', color_id) = 'red') AS sum_id_match
 FROM t;
 
 SELECT sumIf(color_id, dictGetString('colors', 'name', color_id) = 'red') AS sum_id_match
 FROM t;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
 FROM t
 ORDER BY
-    (dictGetString('colors', 'name', color_id) = 'red') DESC,
+    dictGetString('colors', 'name', color_id) = 'red' DESC,
     color_id ASC,
     payload ASC;
 
@@ -495,30 +495,30 @@ SELECT
     payload
 FROM t
 ORDER BY
-    (dictGetString('colors', 'name', color_id) = 'red') DESC,
+    dictGetString('colors', 'name', color_id) = 'red' DESC,
     color_id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
-    (dictGetString('colors', 'name', color_id) = 'red') AS is_red,
+    dictGetString('colors', 'name', color_id) = 'red' AS is_red,
     count() AS c
 FROM t
-GROUP BY (dictGetString('colors', 'name', color_id) = 'red')
+GROUP BY dictGetString('colors', 'name', color_id) = 'red'
 ORDER BY
     is_red ASC,
     c ASC;
 
 SELECT
-    (dictGetString('colors', 'name', color_id) = 'red') AS is_red,
+    dictGetString('colors', 'name', color_id) = 'red' AS is_red,
     count() AS c
 FROM t
-GROUP BY (dictGetString('colors', 'name', color_id) = 'red')
+GROUP BY dictGetString('colors', 'name', color_id) = 'red'
 ORDER BY
     is_red ASC,
     c ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload
@@ -526,7 +526,7 @@ FROM t
 ORDER BY
     color_id ASC,
     payload ASC
-LIMIT 1 BY (dictGetString('colors', 'name', color_id) = 'red');
+LIMIT 1 BY dictGetString('colors', 'name', color_id) = 'red';
 
 SELECT
     color_id,
@@ -535,12 +535,12 @@ FROM t
 ORDER BY
     color_id ASC,
     payload ASC
-LIMIT 1 BY (dictGetString('colors', 'name', color_id) = 'red');
+LIMIT 1 BY dictGetString('colors', 'name', color_id) = 'red';
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
-    row_number() OVER (PARTITION BY (dictGetString('colors', 'name', color_id) = 'red') ORDER BY color_id ASC) AS rn
+    row_number() OVER (PARTITION BY dictGetString('colors', 'name', color_id) = 'red' ORDER BY color_id ASC) AS rn
 FROM t
 ORDER BY
     color_id ASC,
@@ -548,13 +548,13 @@ ORDER BY
 
 SELECT
     color_id,
-    row_number() OVER (PARTITION BY (dictGetString('colors', 'name', color_id) = 'red') ORDER BY color_id ASC) AS rn
+    row_number() OVER (PARTITION BY dictGetString('colors', 'name', color_id) = 'red' ORDER BY color_id ASC) AS rn
 FROM t
 ORDER BY
     color_id ASC,
     rn ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT color_id
 FROM t
 WHERE dictGetString('colors', 'name', color_id) = payload
@@ -570,9 +570,9 @@ CREATE DICTIONARY dict
 (
     c0 UInt128
 )
-PRIMARY KEY (c0)
+PRIMARY KEY c0
 SOURCE(null())
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SELECT
@@ -587,7 +587,7 @@ CREATE TABLE t__fuzz_0
     color_id UInt64,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY color_id;
 
 CREATE DICTIONARY colors
@@ -597,13 +597,13 @@ CREATE DICTIONARY colors
 )
 PRIMARY KEY color_id
 SOURCE(clickhouse(TABLE 't__fuzz_0'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT equals(materialize(9), CAST('red' AS Nullable(String)) = dictGetString('colors', 'payload', color_id))
 FROM t__fuzz_0;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP DICTIONARY IF EXISTS dictionary_all;
 
@@ -616,7 +616,7 @@ CREATE TABLE tab__fuzz_24
     id LowCardinality(UInt16),
     payload LowCardinality(Nullable(Int8))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab__fuzz_24;
@@ -641,7 +641,7 @@ CREATE TABLE ref_table_all
     ip4 String,
     ip6 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE DICTIONARY dictionary_all
@@ -679,5 +679,5 @@ SELECT DISTINCT
 FROM tab__fuzz_24
 PREWHERE equals(9223372036854775806, payload)
 WHERE isNotDistinctFrom(id, isNotDistinctFrom(9223372036854775806, equals(1, isNotNull(9223372036854775806))))
-ORDER BY payload DESC
-QUALIFY and(NULL, equals(1, isZeroOrNull(1)));
+QUALIFY and(NULL, equals(1, isZeroOrNull(1)))
+ORDER BY payload DESC;

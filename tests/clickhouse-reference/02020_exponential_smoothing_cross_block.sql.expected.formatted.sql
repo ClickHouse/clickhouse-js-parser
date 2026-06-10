@@ -2,7 +2,7 @@ SELECT countIf(1)
 FROM (
         SELECT
             NULL,
-            exponentialTimeDecayedSum(100000002004087730000.)(value, time) OVER (ROWS BETWEEN 255 FOLLOWING AND UNBOUNDED PRECEDING),
+            exponentialTimeDecayedSum(100000002004087730000.)(value, time) OVER (ROWS BETWEEN 255 FOLLOWING AND UNBOUNDED FOLLOWING),
             number = -2147483649,
             exponentialTimeDecayedSum(-1)(value, time) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND 65537 PRECEDING),
             number AS value,

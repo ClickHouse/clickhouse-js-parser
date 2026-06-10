@@ -5,7 +5,7 @@ CREATE TABLE nested
 (
     n Nested(x UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO nested;
 

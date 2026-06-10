@@ -14,7 +14,7 @@ CREATE TABLE midpoint_test
     d32 Decimal32(3),
     d64 Decimal64(3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO midpoint_test;
 
@@ -52,7 +52,7 @@ FROM midpoint_test;
 
 -- 3 args (float)
 SELECT
-    midpoint(f32, f64, 42.0) AS result,
+    midpoint(f32, f64, 42.) AS result,
     toTypeName(result) AS type
 FROM midpoint_test;
 
@@ -197,7 +197,7 @@ CREATE TABLE midpoint_nullable_test
     b Nullable(Int32),
     c Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO midpoint_nullable_test;
 
@@ -339,7 +339,7 @@ CREATE TABLE midpoint_nullable3_test
     b Nullable(Int32),
     c Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO midpoint_nullable3_test;
 
@@ -391,7 +391,7 @@ SELECT
 -- ===============================================================
 -- Overflow / boundary tests
 -- ===============================================================
-SET compile_expressions = 0;
+SET compile_expressions = '0';
 
 SELECT
     midpoint(toInt64('-9223372036854775808'), toInt64('9223372036854775807')) AS result,

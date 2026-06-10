@@ -7,7 +7,7 @@ CREATE TABLE test_rlp
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 5, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '5', index_granularity_bytes = '10Mi';
 
 INSERT INTO test_rlp SELECT
     number,
@@ -21,19 +21,19 @@ SELECT
     a,
     c
 FROM test_rlp
-WHERE c % 2 == 0
+WHERE c % 2 = 0
     AND b < 5;
 
-DROP POLICY IF EXISTS test_rlp_policy ON test_rlp;
+DROP ROW POLICY IF EXISTS test_rlp_policy ON test_rlp;
 
-CREATE ROW POLICY test_rlp_policy ON test_rlp USING c % 2 == 0 TO default;
+CREATE ROW POLICY test_rlp_policy ON test_rlp USING c % 2 = 0 TO default;
 
 SELECT
     a,
     c
 FROM test_rlp
 WHERE b < 5
-SETTINGS optimize_move_to_prewhere = 0;
+SETTINGS optimize_move_to_prewhere = '0';
 
 SELECT
     a,
@@ -42,6 +42,6 @@ FROM test_rlp
 PREWHERE b < 5;
 
 -- { echoOff }
-DROP POLICY test_rlp_policy ON test_rlp;
+DROP ROW POLICY test_rlp_policy ON test_rlp;
 
 DROP TABLE test_rlp;

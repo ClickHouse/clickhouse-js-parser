@@ -5,11 +5,11 @@ CREATE TABLE `03014_async_with_dedup_part_log`
 ENGINE = ReplicatedMergeTree('/clickhouse/table/{database}/03014_async_with_dedup_part_log', 'r1')
 ORDER BY tuple();
 
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET wait_for_async_insert = 1;
+SET wait_for_async_insert = '1';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
 SELECT '-- Inserted part --';
 

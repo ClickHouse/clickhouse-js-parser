@@ -1,6 +1,6 @@
-SET compile_expressions = 1;
+SET compile_expressions = '1';
 
-SET min_count_to_compile_expression = 0;
+SET min_count_to_compile_expression = '0';
 
 SELECT
     nan AS value,
@@ -10,7 +10,7 @@ SELECT
     materialize(value) = materialize(value);
 
 SELECT
-    cast(nan, 'Float32') AS value,
+    CAST(nan AS Float32) AS value,
     value = value,
     value = materialize(value),
     materialize(value) = value,
@@ -18,7 +18,7 @@ SELECT
 
 SELECT
     nan AS lhs,
-    cast(nan, 'Float32') AS rhs,
+    CAST(nan AS Float32) AS rhs,
     lhs = rhs,
     lhs = materialize(rhs),
     materialize(lhs) = rhs,
@@ -33,7 +33,7 @@ CREATE TABLE test_table
     id UInt32,
     value UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -43,8 +43,8 @@ FROM (
         SELECT stddevSamp(id) AS value
         FROM test_table
     ) AS subquery
-WHERE ((value = value)
-    AND (NOT value = value));
+WHERE value = value
+    AND NOT value = value;
 
 DROP TABLE test_table;
 
@@ -56,7 +56,7 @@ SELECT
     materialize(value) != materialize(value);
 
 SELECT
-    cast(nan, 'Float32') AS value,
+    CAST(nan AS Float32) AS value,
     value != value,
     value != materialize(value),
     materialize(value) != value,
@@ -64,7 +64,7 @@ SELECT
 
 SELECT
     nan AS lhs,
-    cast(nan, 'Float32') AS rhs,
+    CAST(nan AS Float32) AS rhs,
     lhs != rhs,
     lhs != materialize(rhs),
     materialize(lhs) != rhs,
@@ -76,25 +76,25 @@ CREATE TABLE test_table
     value_1 UInt32,
     value_2 Float32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
 
 SELECT value
 FROM (
-        SELECT (corr(value_1, value_1)) AS value
+        SELECT corr(value_1, value_1) OVER test_window AS value
         FROM test_table
         WINDOW test_window AS (PARTITION BY value_2 ORDER BY id ASC)
     ) AS subquery
-WHERE NOT NOT value <> value;
+WHERE NOT NOT value != value;
 
 CREATE TABLE test_table
 (
     id Float32,
     value Float32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -106,7 +106,7 @@ FROM
         FROM test_table
         GROUP BY value
     ) AS subquery
-LEFT JOIN test_table
-    ON (subquery.corr_value = test_table.id)
-WHERE (test_table.id >= test_table.id)
-    AND (NOT test_table.id >= test_table.id);
+ANTI LEFT JOIN test_table
+    ON subquery.corr_value = test_table.id
+WHERE test_table.id >= test_table.id
+    AND NOT test_table.id >= test_table.id;

@@ -5,7 +5,7 @@ CREATE TABLE t1
     id UInt64,
     external_id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 DROP TABLE IF EXISTS t2;
@@ -15,7 +15,7 @@ CREATE TABLE t2
     id UInt64,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t1;
@@ -30,7 +30,7 @@ CREATE DICTIONARY d2
     name String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(table t2))
+SOURCE(clickhouse(TABLE t2))
 LIFETIME(MIN 600 MAX 900)
 LAYOUT(HASHED());
 

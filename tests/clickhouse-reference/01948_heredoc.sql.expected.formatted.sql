@@ -18,10 +18,6 @@ SELECT 'ТЕСТ';
 
 SELECT '该类型的引擎';
 
-SELECT '
-value1
-value2
-value3
-';
+SELECT '\nvalue1\nvalue2\nvalue3\n';
 
 SELECT '''\\xc3\\x28''';

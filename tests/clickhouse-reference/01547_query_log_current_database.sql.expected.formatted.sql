@@ -8,32 +8,32 @@
 -- There is still event_date/event_time filter for better performance
 -- (even though this is not relevant for runs on CI)
 --
-SET log_query_threads = 1;
+SET log_query_threads = '1';
 
 SET log_queries_min_type = 'QUERY_FINISH';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT '01547_query_log_current_database'
 FROM `system`.one
 FORMAT Null;
 
-SET log_queries = 0;
+SET log_queries = '0';
 
-SET log_query_threads = 0;
+SET log_query_threads = '0';
 
-SYSTEM flush logs query_log, query_thread_log;
+SYSTEM FLUSH LOGS query_log, query_thread_log;
 
 SELECT count()
 FROM `system`.query_log
-WHERE like(query, 'select ''01547_query_log_current_database%')
+WHERE query LIKE 'select ''01547_query_log_current_database%'
     AND current_database = currentDatabase()
     AND event_date >= yesterday();
 
 -- at least two threads for processing
 -- (but one just waits for another, sigh)
-SELECT count() == 2
+SELECT count() = 2
 FROM `system`.query_thread_log
-WHERE like(query, 'select ''01547\\_query\\_log\\_current\\_database%')
+WHERE query LIKE 'select ''01547\\_query\\_log\\_current\\_database%'
     AND current_database = currentDatabase()
     AND event_date >= yesterday();

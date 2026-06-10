@@ -1,324 +1,96 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_introspection_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_introspection_functions": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-tsan, no-asan, no-ubsan, no-msan, no-debug, no-parallel, no-fasttest"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "memory_profiler_step",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "memory_profiler_step": "1000000"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "memory_profiler_sample_probability",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "memory_profiler_sample_probability": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_queries": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "ignore",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "groupArray",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "ignore",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "groupArray",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "test memory profiler"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "test memory profiler"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10000000"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "01092_memory_profiler"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS trace_log, query_log"
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "symbol",
-        "expr": {
-          "kind": "functionCall",
-          "name": "addressToSymbol",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "trace"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "trace_log",
-      "alias": "t"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "trace_type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "Memory"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_id"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": ">=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "event_date"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "yesterday",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
                       {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%test memory profiler%"
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10000000"
                       }
                     ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "has",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "used_table_functions"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "numbers"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "log_comment"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "01092_memory_profiler"
-                    }
                   }
-                ]
-              },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
-                  },
-                  "direction": "DESC"
-                }
-              ],
-              "limit": {
-                "count": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
                 }
               }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "log_comment": "01092_memory_profiler"
             }
           }
         }
@@ -326,436 +98,765 @@
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "symbol",
-        "expr": {
-          "kind": "functionCall",
-          "name": "addressToSymbol",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "trace_log"
+        },
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
+              "type": "Function",
+              "alias": "symbol",
+              "name": "addressToSymbol",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "trace"
+                  "type": "Function",
+                  "name": "arrayJoin",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "trace"
+                    }
                   ]
                 }
               ]
             }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "trace_log",
-      "alias": "t"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "trace_type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "MemoryPeak"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_id"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t",
+                    "name": "trace_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
+                    "type": "Identifier",
+                    "name": "event_date"
                   },
                   {
-                    "kind": "binaryExpr",
-                    "op": ">=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "event_date"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "yesterday",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%test memory profiler%"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "has",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "used_table_functions"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "numbers"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "log_comment"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "01092_memory_profiler"
-                    }
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
                   }
                 ]
               },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "trace_type"
                   },
-                  "direction": "DESC"
-                }
-              ],
-              "limit": {
-                "count": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Memory"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_id"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "event_date"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "yesterday",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%test memory profiler%"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "has",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "used_table_functions"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "numbers"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "log_comment"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "01092_memory_profiler"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "event_time"
+                              },
+                              "direction": "DESC"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
-            }
+            ]
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "symbol",
-        "expr": {
-          "kind": "functionCall",
-          "name": "addressToSymbol",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
+              "type": "Function",
+              "alias": "symbol",
+              "name": "addressToSymbol",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "trace"
+                  "type": "Function",
+                  "name": "arrayJoin",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "trace"
+                    }
                   ]
                 }
               ]
             }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "trace_log",
-      "alias": "t"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "trace_type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "MemorySample"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_id"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t",
+                    "name": "trace_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
+                    "type": "Identifier",
+                    "name": "event_date"
                   },
                   {
-                    "kind": "binaryExpr",
-                    "op": ">=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "event_date"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "yesterday",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%test memory profiler%"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "has",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "used_table_functions"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "numbers"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "log_comment"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "01092_memory_profiler"
-                    }
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
                   }
                 ]
               },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "trace_type"
                   },
-                  "direction": "DESC"
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "MemoryPeak"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_id"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "event_date"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "yesterday",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%test memory profiler%"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "has",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "used_table_functions"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "numbers"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "log_comment"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "01092_memory_profiler"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "event_time"
+                              },
+                              "direction": "DESC"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "symbol",
+              "name": "addressToSymbol",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayJoin",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "trace"
+                    }
+                  ]
                 }
-              ],
-              "limit": {
-                "count": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t",
+                    "name": "trace_log",
+                    "database": "system"
+                  }
                 }
               }
-            }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "trace_type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "MemorySample"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_id"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "event_date"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "yesterday",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%test memory profiler%"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "has",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "used_table_functions"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "numbers"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "log_comment"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "01092_memory_profiler"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "event_time"
+                              },
+                              "direction": "DESC"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
           }
         }
       ]

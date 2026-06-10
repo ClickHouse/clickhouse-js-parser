@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `02845_prewhere`;
 
-SET move_all_conditions_to_prewhere = 1;
+SET move_all_conditions_to_prewhere = '1';
 
 CREATE TABLE `02845_prewhere`
 (
@@ -8,7 +8,7 @@ CREATE TABLE `02845_prewhere`
     c String,
     q String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `02845_prewhere` SELECT
@@ -24,4 +24,4 @@ FROM (
         WHERE e = '5'
             OR q = '6'
     )
-WHERE (q = '6');
+WHERE q = '6';

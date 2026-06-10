@@ -1,6 +1,6 @@
 -- Tags: zookeeper, no-shared-merge-tree
 -- no-shared-merge-tree: boring test, nothing new
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS replicated_with_sampling;
 
@@ -27,7 +27,7 @@ CREATE TABLE replacing
     x UInt32,
     s String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY x
 PARTITION BY d;
 
@@ -105,7 +105,7 @@ CREATE TABLE with_settings
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00509/with_settings', 'r1')
 ORDER BY x
-SETTINGS replicated_can_become_leader = 0;
+SETTINGS replicated_can_become_leader = '0';
 
 SELECT sleep(1); -- If replicated_can_become_leader were true, this replica would become the leader after 1 second.
 

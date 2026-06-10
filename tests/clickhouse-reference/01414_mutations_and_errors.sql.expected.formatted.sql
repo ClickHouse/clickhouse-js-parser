@@ -22,13 +22,13 @@ INSERT INTO mutation_table SELECT
     'Hello'
 FROM numbers(100);
 
-SELECT DISTINCT (value)
+SELECT DISTINCT value
 FROM mutation_table
 ORDER BY value ASC;
 
-ALTER TABLE mutation_table MODIFY COLUMN value UInt64 SETTINGS mutations_sync = 2; --{serverError UNFINISHED}
+ALTER TABLE mutation_table MODIFY COLUMN value UInt64 SETTINGS mutations_sync = '2'; --{serverError UNFINISHED}
 
 KILL MUTATION WHERE table = 'mutation_table'
-AND database = currentDatabase();
+AND database = currentDatabase() ASYNC;
 
-ALTER TABLE mutation_table MODIFY COLUMN value String SETTINGS mutations_sync = 2;
+ALTER TABLE mutation_table MODIFY COLUMN value String SETTINGS mutations_sync = '2';

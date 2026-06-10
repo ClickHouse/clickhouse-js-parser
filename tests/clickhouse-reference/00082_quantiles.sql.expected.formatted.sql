@@ -1,9 +1,9 @@
 -- Tags: stateful
 -- The test uses quite a bit of memory. A low max_bytes_before_external_group_by value will lead to high disk usage
 -- which in CI leads to timeouts
-SET max_bytes_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
 SELECT
     CounterID AS k,

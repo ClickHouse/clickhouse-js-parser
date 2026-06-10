@@ -102,7 +102,7 @@ CREATE TABLE test_distance
 (
     Title String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_distance;
 

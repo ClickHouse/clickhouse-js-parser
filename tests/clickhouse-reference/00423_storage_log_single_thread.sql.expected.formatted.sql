@@ -4,7 +4,7 @@ CREATE TABLE log
 (
     s String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 SELECT *
 FROM log

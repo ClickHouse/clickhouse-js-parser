@@ -10,9 +10,9 @@ CREATE TABLE recompression_table
 ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY key
-TTL dt + toIntervalMonth(1),
-    dt + toIntervalYear(1)
-SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0;
+TTL dt + toIntervalMonth(1) RECOMPRESS CODEC(ZSTD(17)),
+    dt + toIntervalYear(1) RECOMPRESS CODEC(LZ4HC(10))
+SETTINGS min_rows_for_wide_part = '0', min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0';
 
 SHOW CREATE TABLE recompression_table;
 
@@ -50,7 +50,7 @@ ORDER BY name ASC;
 
 OPTIMIZE TABLE recompression_table FINAL;
 
-ALTER TABLE recompression_table MODIFY TTL dt + toIntervalDay(1) SETTINGS mutations_sync = 2;
+ALTER TABLE recompression_table MODIFY TTL dt + toIntervalDay(1) RECOMPRESS CODEC(ZSTD(12)) SETTINGS mutations_sync = '2';
 
 SELECT
     substring(name, 1, length(name) - 4),
@@ -81,9 +81,9 @@ CREATE TABLE recompression_table_compact
 ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY key
-TTL dt + toIntervalMonth(1),
-    dt + toIntervalYear(1)
-SETTINGS min_rows_for_wide_part = 10000, min_bytes_for_full_part_storage = 0;
+TTL dt + toIntervalMonth(1) RECOMPRESS CODEC(ZSTD(17)),
+    dt + toIntervalYear(1) RECOMPRESS CODEC(LZ4HC(10))
+SETTINGS min_rows_for_wide_part = '10000', min_bytes_for_full_part_storage = '0';
 
 SYSTEM STOP TTL MERGES recompression_table_compact;
 
@@ -114,7 +114,7 @@ WHERE table = 'recompression_table_compact'
     AND database = currentDatabase()
 ORDER BY name ASC;
 
-ALTER TABLE recompression_table_compact MODIFY TTL dt + toIntervalMonth(1) SETTINGS mutations_sync = 2; -- mutation affect all columns, so codec changes
+ALTER TABLE recompression_table_compact MODIFY TTL dt + toIntervalMonth(1) RECOMPRESS CODEC(ZSTD(12)) SETTINGS mutations_sync = '2'; -- mutation affect all columns, so codec changes
 
 -- merge level and mutation in part name is not important
 SELECT

@@ -17,12 +17,12 @@ INSERT INTO table_with_pk_clear SELECT
     toString(number * number)
 FROM numbers(1000);
 
-ALTER TABLE table_with_pk_clear DROP COLUMN key1 IN PARTITION tuple(); --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
+ALTER TABLE table_with_pk_clear CLEAR COLUMN key1 IN PARTITION tuple(); --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
 
 SELECT countDistinct(key1)
 FROM table_with_pk_clear;
 
-ALTER TABLE table_with_pk_clear DROP COLUMN key2 IN PARTITION tuple(); --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
+ALTER TABLE table_with_pk_clear CLEAR COLUMN key2 IN PARTITION tuple(); --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
 
 SELECT countDistinct(key2)
 FROM table_with_pk_clear;

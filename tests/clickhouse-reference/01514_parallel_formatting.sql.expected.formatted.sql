@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS tsv;
 
-SET output_format_parallel_formatting = 1;
+SET output_format_parallel_formatting = '1';
 
-SET max_read_buffer_size = 1048576;
+SET max_read_buffer_size = '1048576';
 
-SET max_block_size = 65505;
+SET max_block_size = '65505';
 
 CREATE TABLE tsv
 (

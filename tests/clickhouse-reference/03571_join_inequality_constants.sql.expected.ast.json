@@ -1,215 +1,277 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "toLowCardinality",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
-                },
-                "alias": "id"
-              }
-            ]
-          },
-          "alias": "a"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "toLowCardinality",
-                  "args": [
-                    {
-                      "kind": "functionCall",
-                      "name": "toUInt128",
-                      "args": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "a",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
                         {
-                          "kind": "functionCall",
-                          "name": "materialize",
-                          "args": [
+                          "type": "SelectQuery",
+                          "select": [
                             {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "0"
+                              "type": "Function",
+                              "alias": "id",
+                              "name": "toLowCardinality",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
                             }
                           ]
                         }
                       ]
                     }
-                  ]
-                },
-                "alias": "id"
-              }
-            ]
-          },
-          "alias": "b"
-        },
-        "constraint": {
-          "kind": "using",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "a",
-        "alias": "t"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "b",
-              "id"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "t",
-              "id"
-            ]
-          }
-        }
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+                  }
+                }
+              },
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "toLowCardinality",
-                  "args": [
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "using": [
                     {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "0"
+                      "type": "Identifier",
+                      "name": "id"
                     }
                   ]
                 },
-                "alias": "a"
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "b",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "id",
+                              "name": "toLowCardinality",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "toUInt128",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "materialize",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "less",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "b.id",
+                        "name_parts": [
+                          "b",
+                          "id"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t.id",
+                        "name_parts": [
+                          "t",
+                          "id"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t",
+                    "name": "a"
+                  }
+                }
               }
-            ]
-          },
-          "alias": "a"
-        },
-        "kind": "joinExpr",
-        "joinType": "FULL",
-        "right": {
-          "kind": "tableRef",
-          "table": "a",
-          "alias": "b"
-        },
-        "constraint": {
-          "kind": "using",
-          "columns": [
-            "a"
-          ]
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "a",
-        "alias": "c"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "b",
-              "a"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "c",
-              "a"
             ]
           }
         }
-      }
-    },
-    "settings": [
-      {
-        "name": "join_use_nulls",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "a",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "a",
+                              "name": "toLowCardinality",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "0"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "FULL",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "a"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "b",
+                    "name": "a"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "greater",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "b.a",
+                        "name_parts": [
+                          "b",
+                          "a"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "c.a",
+                        "name_parts": [
+                          "c",
+                          "a"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "c",
+                    "name": "a"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "join_use_nulls": true
+            }
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 ]

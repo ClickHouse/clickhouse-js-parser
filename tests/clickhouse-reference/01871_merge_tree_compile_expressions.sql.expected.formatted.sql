@@ -10,21 +10,21 @@ SET compile_expressions = true;
 -- CREATE TABLE will use global profile with default min_count_to_compile_expression=3
 -- so retry 3 times
 CREATE TABLE data_01875_1
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number
 PARTITION BY bitShiftRight(number, 8) + 1 AS
 SELECT *
 FROM numbers(16384);
 
 CREATE TABLE data_01875_2
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number
 PARTITION BY bitShiftRight(number, 8) + 1 AS
 SELECT *
 FROM numbers(16384);
 
 CREATE TABLE data_01875_3
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number
 PARTITION BY bitShiftRight(number, 8) + 1 AS
 SELECT *

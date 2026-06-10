@@ -2,9 +2,9 @@
 -- no-s3 because read FileOpen metric
 DROP TABLE IF EXISTS nested;
 
-SET flatten_nested = 0;
+SET flatten_nested = '0';
 
-SET use_uncompressed_cache = 0;
+SET use_uncompressed_cache = '0';
 
 SET local_filesystem_read_method = 'pread';
 
@@ -14,9 +14,9 @@ CREATE TABLE nested
     col2 Nested(a UInt32, n Nested(s String, b UInt32)),
     col3 Nested(n1 Nested(a UInt32, b UInt32), n2 Nested(s String, t String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO nested;
 
@@ -59,8 +59,8 @@ SYSTEM FLUSH LOGS query_log;
 
 SELECT ProfileEvents['FileOpen'] - ProfileEvents['CreatedReadBufferDirectIOFailed']
 FROM `system`.query_log
-WHERE (type = 'QueryFinish')
-    AND (like(lower(query), lower('SELECT col1.a FROM %nested%')))
+WHERE type = 'QueryFinish'
+    AND lower(query) LIKE lower('SELECT col1.a FROM %nested%')
     AND event_date >= yesterday()
     AND current_database = currentDatabase();
 
@@ -70,8 +70,8 @@ FORMAT Null;
 
 SELECT ProfileEvents['FileOpen'] - ProfileEvents['CreatedReadBufferDirectIOFailed']
 FROM `system`.query_log
-WHERE (type = 'QueryFinish')
-    AND (like(lower(query), lower('SELECT col3.n2.s FROM %nested%')))
+WHERE type = 'QueryFinish'
+    AND lower(query) LIKE lower('SELECT col3.n2.s FROM %nested%')
     AND event_date >= yesterday()
     AND current_database = currentDatabase();
 
@@ -82,25 +82,25 @@ CREATE TABLE nested
     id UInt32,
     col1 Nested(a UInt32, n Nested(s String, b UInt32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO nested SELECT
     number,
-    arrayMap(x -> (x, arrayMap(y -> (toString(y * x), y + x), range(number % 17))), range(number % 19))
+    arrayMap((x -> (x, arrayMap((y -> (toString(y * x), y + x)), range(number % 17)))), range(number % 19))
 FROM numbers(100000);
 
 SELECT
     id % 10,
     sum(length(col1)),
-    sumArray(arrayMap(x -> length(x), col1.n.b))
+    sumArray(arrayMap((x -> length(x)), col1.n.b))
 FROM nested
 GROUP BY id % 10;
 
 SELECT
     arraySum(col1.a),
-    arrayMap(x -> x * x * 2, col1.a)
+    arrayMap((x -> x * x * 2), col1.a)
 FROM nested
 ORDER BY id ASC
 LIMIT 5;

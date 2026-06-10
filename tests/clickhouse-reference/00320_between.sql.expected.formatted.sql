@@ -1,1 +1,2 @@
-SELECT and(greaterOrEquals(2, 1 + 1), lessOrEquals(2, 3 - 1));
+SELECT 2 >= 1 + 1
+    AND 2 <= 3 - 1;

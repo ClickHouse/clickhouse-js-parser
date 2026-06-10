@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS summing_merge_tree_aggregate_function;
 DROP TABLE IF EXISTS summing_merge_tree_null;
 
 ---- partition merge
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE summing_merge_tree_aggregate_function
 (
@@ -155,7 +155,7 @@ ENGINE = SummingMergeTree(d, k, 8192);
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
-    avgState(0.0);
+    avgState(0.);
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
@@ -195,7 +195,7 @@ INSERT INTO summing_merge_tree_aggregate_function SELECT
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
-    avgState(1.0);
+    avgState(1.);
 
 SELECT
     k,
@@ -214,7 +214,7 @@ ENGINE = SummingMergeTree(d, k, 8192);
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
-    quantileState(0.1)(0.0);
+    quantileState(0.1)(0.);
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
@@ -254,7 +254,7 @@ INSERT INTO summing_merge_tree_aggregate_function SELECT
 
 INSERT INTO summing_merge_tree_aggregate_function SELECT
     1,
-    quantileState(0.1)(1.0);
+    quantileState(0.1)(1.);
 
 SELECT
     k,
@@ -270,7 +270,7 @@ CREATE TABLE summing_merge_tree_null
     c UInt64,
     u UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW summing_merge_tree_aggregate_function
 (

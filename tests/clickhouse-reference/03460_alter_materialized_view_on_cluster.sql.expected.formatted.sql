@@ -10,13 +10,13 @@ CREATE TABLE source
     card_id UInt64,
     _id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY _id
 PARTITION BY toYYYYMM(timestamp)
 TTL toDateTime(timestamp + toIntervalDay(7));
 
 CREATE MATERIALIZED VIEW mview ON CLUSTER test_shard_localhost
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY (day, card_id)
 AS
 SELECT
@@ -34,7 +34,7 @@ CREATE MATERIALIZED VIEW mview ON CLUSTER test_shard_localhost
     card_id UInt64,
     card_view Int64
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY (day, card_id)
 AS
 SELECT
@@ -44,6 +44,6 @@ SELECT
 FROM source
 GROUP BY (day, card_id);
 
-ALTER TABLE source ON CLUSTER test_shard_localhost MODIFY SETTING ttl_only_drop_parts = 1;
+ALTER TABLE source ON CLUSTER test_shard_localhost MODIFY SETTING ttl_only_drop_parts = '1';
 
 DROP TABLE IF EXISTS mview, source;

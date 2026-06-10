@@ -4,7 +4,7 @@ CREATE TABLE test
 (
     qbit QBit(Float64, 3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test SELECT [1., 2., 3.]

@@ -5,7 +5,7 @@ CREATE TABLE table1
     str1 String,
     str2 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1;
 

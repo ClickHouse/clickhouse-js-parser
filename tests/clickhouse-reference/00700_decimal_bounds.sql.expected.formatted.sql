@@ -4,19 +4,19 @@ CREATE TABLE IF NOT EXISTS decimal
 (
     x DECIMAL(10, -2)
 )
-ENGINE = Memory; -- { serverError ARGUMENT_OUT_OF_BOUND }
+ENGINE = Memory(); -- { serverError ARGUMENT_OUT_OF_BOUND }
 
 CREATE TABLE IF NOT EXISTS decimal
 (
     x DECIMAL(10, 15)
 )
-ENGINE = Memory; -- { serverError ARGUMENT_OUT_OF_BOUND }
+ENGINE = Memory(); -- { serverError ARGUMENT_OUT_OF_BOUND }
 
 CREATE TABLE IF NOT EXISTS decimal
 (
     x DECIMAL(0, 0)
 )
-ENGINE = Memory; -- { serverError ARGUMENT_OUT_OF_BOUND }
+ENGINE = Memory(); -- { serverError ARGUMENT_OUT_OF_BOUND }
 
 CREATE TABLE IF NOT EXISTS decimal
 (
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS decimal
     i deciMAL(38, 18),
     j DECIMAL(1, 0)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a); -- { error ARGUMENT_OUT_OF_BOUND }
 

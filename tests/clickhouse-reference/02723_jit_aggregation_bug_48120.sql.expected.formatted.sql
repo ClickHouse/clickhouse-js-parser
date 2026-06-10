@@ -6,15 +6,15 @@ CREATE TABLE dummy
     num1 Int32,
     num2 Enum8('foo' = 0, 'bar' = 1, 'tar' = 2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY num1 AS
 SELECT
     5,
     'bar';
 
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
 -- { echoOn }
 SYSTEM CLEAR COMPILED EXPRESSION CACHE;

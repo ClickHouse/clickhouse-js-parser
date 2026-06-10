@@ -23,7 +23,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN t2
+ANY LEFT JOIN t2
     USING (k);
 
 SELECT
@@ -35,7 +35,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN t2
+ANY LEFT JOIN t2
     USING (k);
 
 SELECT
@@ -48,7 +48,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN t2
+ANY LEFT JOIN t2
     USING (k);
 
 SELECT
@@ -65,7 +65,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN t2
+ANY LEFT JOIN t2
     USING (k);
 
 SELECT
@@ -82,7 +82,7 @@ FROM
         WITH TOTALS
         ORDER BY number ASC
     ) AS t1
-LEFT JOIN t2 AS t2
+ANY LEFT JOIN t2 AS t2
     USING (k);
 
 DROP TABLE t2;

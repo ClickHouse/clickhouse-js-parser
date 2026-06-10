@@ -1,5 +1,5 @@
 -- Tests maps with "unusual" key types (Float32, Nothing, LowCardinality(String))
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS tab;
 
@@ -9,14 +9,14 @@ CREATE TABLE tab
 (
     m1 Map(String, AggregateFunction(sum, UInt32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY m1; -- { serverError DATA_TYPE_CANNOT_BE_USED_IN_KEY }
 
 CREATE TABLE tab
 (
     m3 Map(Nothing, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 -- INSERT INTO tab VALUES (map('', 'd')); -- { serverError NOT_IMPLEMENTED } -- The client can't serialize the data and fails. The query
@@ -28,7 +28,7 @@ CREATE TABLE tab
     m1 Map(Float32, String),
     m2 Map(LowCardinality(String), String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (m1, m2);
 
 INSERT INTO tab;
@@ -49,9 +49,9 @@ CREATE TABLE tab
     m1 Map(Float32, String),
     m2 Map(LowCardinality(String), String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab;
 
-ALTER TABLE tab UPDATE m1 = map(3.0, 'aaa') WHERE m1 = map(2.0, 'aa');
+ALTER TABLE tab UPDATE m1 = map(3., 'aaa') WHERE m1 = map(2., 'aa');

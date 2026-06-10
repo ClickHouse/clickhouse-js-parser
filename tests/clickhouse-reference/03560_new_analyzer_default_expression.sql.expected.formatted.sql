@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE default
 (
@@ -44,7 +44,7 @@ CREATE TABLE compound_id
 )
 ENGINE = Memory();
 
-SET insert_null_as_default = 1;
+SET insert_null_as_default = '1';
 
 INSERT INTO default SELECT NULL
 FROM `system`.one;

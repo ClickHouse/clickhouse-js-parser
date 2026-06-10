@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_multiple_array_join;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_multiple_array_join
     person Nested(name String, surname String),
     properties Nested(key String, value String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_multiple_array_join;

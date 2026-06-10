@@ -6,7 +6,7 @@ CREATE TABLE t1
     f3 Map(String, String),
     f4 Map(Int32, Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     1 AS f1,
     map(number % 2, number % 10) AS f2,
@@ -14,7 +14,7 @@ SELECT
     f2 AS f4
 FROM numbers(1000111);
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 -- { echoOn }
 SELECT

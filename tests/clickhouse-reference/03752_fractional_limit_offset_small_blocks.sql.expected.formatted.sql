@@ -1,4 +1,4 @@
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 SELECT number
 FROM numbers(20)
@@ -15,7 +15,7 @@ FROM numbers(10)
 ORDER BY number ASC
 LIMIT 0.1;
 
-SET max_block_size = 3;
+SET max_block_size = '3';
 
 SELECT number
 FROM numbers(20)

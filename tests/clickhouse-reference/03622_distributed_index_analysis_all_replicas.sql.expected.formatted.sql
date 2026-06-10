@@ -11,29 +11,29 @@ CREATE TABLE test_10m
 ENGINE = MergeTree()
 ORDER BY key
 PARTITION BY key % 200
-SETTINGS distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = '0';
 
-SYSTEM stop merges test_10m;
+SYSTEM STOP MERGES test_10m;
 
 INSERT INTO test_10m SELECT
     number,
     number * 100
-FROM numbers(1e6)
+FROM numbers(1000000.)
 SETTINGS
-    max_partitions_per_insert_block = 200,
-    max_block_size = 1e6;
+    max_partitions_per_insert_block = '200',
+    max_block_size = 1000000.;
 
-SET allow_experimental_parallel_reading_from_replicas = 0;
+SET allow_experimental_parallel_reading_from_replicas = '0';
 
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
-SET parallel_replicas_index_analysis_only_on_coordinator = 1;
+SET parallel_replicas_index_analysis_only_on_coordinator = '1';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
-SET distributed_index_analysis = 1;
+SET distributed_index_analysis = '1';
 
-SET max_parallel_replicas = 100;
+SET max_parallel_replicas = '100';
 
 SET cluster_for_parallel_replicas = 'parallel_replicas';
 
@@ -49,7 +49,7 @@ FROM test_10m
 WHERE key = 1;
 
 -- { echoOff }
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     normalizeQuery(query) AS q,
@@ -64,6 +64,6 @@ WHERE current_database = currentDatabase()
     AND query_kind = 'Select'
     AND is_initial_query
     AND `Settings`['distributed_index_analysis'] = '1'
-    AND endsWith(log_comment, concat('-', currentDatabase()))
+    AND endsWith(log_comment, '-' || currentDatabase())
 ORDER BY event_time_microseconds ASC
 FORMAT Vertical;

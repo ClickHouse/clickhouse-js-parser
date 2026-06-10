@@ -7,8 +7,10 @@
  * Run via: npm run diff:ast -- <reference> [options]   (see --help)
  */
 
-import { computeAst, parseCli, run } from './diff-lib.js';
+import { computeAst, normalizeAstJson, parseCli, run } from './diff-lib.js';
 
 const opts = parseCli(process.argv, 'diff:ast', 'parsed AST vs. expected AST');
 
-run(opts, '.expected.ast.json', (sql) => computeAst(sql));
+// Normalize both sides by sorting object keys so reorderings of properties within an
+// AST object aren't reported as diffs.
+run(opts, '.expected.ast.json', (sql, expected) => computeAst(sql, expected), normalizeAstJson);

@@ -1,74 +1,86 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "repeat",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "0.0001048576"
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "binaryExpr",
-                "op": "*",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "255"
-                },
-                "parenthesized": true
-              },
-              "parenthesized": true
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65535"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "0.0001048576"
+                },
+                {
+                  "type": "Function",
+                  "name": "multiply",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "multiply",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "multiply",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "255"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "65535"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
-    },
-    "leadingComments": [
-      "-- repeat() with this length and this number of rows will allocation huge enough region (MSB set),",
-      "-- which will cause roundUpToPowerOfTwoOrZero() returns 0 for such allocation (before the fix),",
-      "-- and later repeat() will try to use this memory and will got SIGSEGV."
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_LARGE_STRING_SIZE }"
-    ]
+    }
   }
 ]

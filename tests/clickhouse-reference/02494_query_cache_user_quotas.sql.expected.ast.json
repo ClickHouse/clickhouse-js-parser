@@ -1,274 +1,337 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CACHE",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: Messes with internal cache",
-      "-- Tests per-user quotas of the query cache. Settings 'query_cache_max_size_in_bytes' and 'query_cache_max_entries' are actually supposed to",
-      "-- be used in a settings profile, together with a readonly constraint. For simplicity, test both settings stand-alone in a stateless test",
-      "-- instead of an integration test - the relevant logic will still be covered by that."
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_size_in_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Run SELECT with quota that current user may use only 1 byte in the query cache"
-      },
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Expect no entries in the query cache"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CACHE"
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_size_in_bytes",
-        "value": {
-          "kind": "columnRef",
-          "parts": [
-            "DEFAULT"
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_cache_max_size_in_bytes": "1"
       }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Run SELECT again but w/o quota"
-      },
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Expect one entry in the query cache"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "---"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Run SELECT which writes its result in the query cache"
-      },
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Run SELECT with quota that current user may use only 1 byte in the query cache"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_entries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Expect no entries in the query cache"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Run another SELECT with quota that current user may write only 1 entry in the query cache"
-      },
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "default_settings": [
+        "query_cache_max_size_in_bytes"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Run SELECT again but w/o quota"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_entries",
-        "value": {
-          "kind": "columnRef",
-          "parts": [
-            "DEFAULT"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Expect one entry in the query cache"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "---"
+            }
           ]
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Run another SELECT w/o quota"
-      },
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Expect two entries in the query cache"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Run SELECT which writes its result in the query cache"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
           }
-        ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_cache_max_entries": "1"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Run another SELECT with quota that current user may write only 1 entry in the query cache"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "default_settings": [
+        "query_cache_max_entries"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Run another SELECT w/o quota"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Expect two entries in the query cache"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

@@ -1,68 +1,75 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_execution_time",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "timeout_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "break"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_execution_time": "1",
+        "timeout_overflow_mode": "break"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: distributed"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2,3}"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "numbers"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2,3}"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.numbers",
+                        "name_parts": [
+                          "system",
+                          "numbers"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            ]
+          }
         }
-      ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null"
+      ],
+      "format": "Null"
+    }
   }
 ]

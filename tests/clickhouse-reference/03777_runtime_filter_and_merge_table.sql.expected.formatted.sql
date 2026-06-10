@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS foo;
 
@@ -13,7 +13,7 @@ CREATE TABLE foo
     Id Int32,
     Val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id
 PARTITION BY Val;
 
@@ -22,7 +22,7 @@ CREATE TABLE foo1
     Id Int32,
     Val Decimal32(9)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id
 PARTITION BY Val;
 
@@ -45,21 +45,23 @@ CREATE TABLE t2
     Val Int64,
     X UInt256
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
 SELECT `explain`
 FROM (
-        EXPLAIN
-        SELECT count()
-        FROM
-            foo_merge
-        INNER JOIN t2
-            USING (Val)
-        SETTINGS
-            enable_join_runtime_filters = 1,
-            parallel_replicas_local_plan = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT count()
+                FROM
+                    foo_merge
+                INNER JOIN t2
+                    USING (Val)
+                SETTINGS
+                    enable_join_runtime_filters = '1',
+                    parallel_replicas_local_plan = '1'
+            ))
     );
 
 SELECT count()
@@ -67,11 +69,11 @@ FROM
     foo_merge
 INNER JOIN t2
     USING (Val)
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 SELECT count()
 FROM
     foo_merge
 INNER JOIN t2
     USING (Val)
-SETTINGS enable_join_runtime_filters = 1;
+SETTINGS enable_join_runtime_filters = '1';

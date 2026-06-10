@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS testJoinTable;
 
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 CREATE TABLE testJoinTable
 (
@@ -10,7 +10,7 @@ CREATE TABLE testJoinTable
     data String
 )
 ENGINE = Join(`ANY`, `INNER`, number)
-SETTINGS any_join_distinct_right_table_keys = 1;
+SETTINGS any_join_distinct_right_table_keys = '1';
 
 INSERT INTO testJoinTable;
 
@@ -42,7 +42,7 @@ FROM
         SELECT *
         FROM numbers(10)
     ) AS js1
-INNER JOIN testJoinTable
+ANY INNER JOIN testJoinTable
     USING (number)
 ORDER BY number ASC;
 
@@ -71,7 +71,7 @@ CREATE TABLE master
     name String
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS any_join_distinct_right_table_keys = 1;
+SETTINGS any_join_distinct_right_table_keys = '1';
 
 INSERT INTO master;
 
@@ -83,7 +83,7 @@ SELECT
     m.name
 FROM
     transaction AS tx
-LEFT JOIN master AS m
+ANY LEFT JOIN master AS m
     ON m.id = tx.master_id
 ORDER BY tx.id ASC;
 
@@ -110,19 +110,19 @@ CREATE TABLE some_join
     value String
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS any_join_distinct_right_table_keys = 1;
+SETTINGS any_join_distinct_right_table_keys = '1';
 
 SELECT *
 FROM
     tbl AS t
-LEFT JOIN some_join
+ANY LEFT JOIN some_join
     USING (id)
 ORDER BY id ASC;
 
 SELECT *
 FROM
     tbl AS t
-LEFT JOIN some_join AS d
+ANY LEFT JOIN some_join AS d
     USING (id)
 ORDER BY id ASC;
 

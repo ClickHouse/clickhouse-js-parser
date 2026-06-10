@@ -6,7 +6,7 @@ CREATE TABLE bad_date_time
     count UInt16
 )
 ENGINE = MergeTree()
-ORDER BY (time);
+ORDER BY time;
 
 INSERT INTO bad_date_time;
 

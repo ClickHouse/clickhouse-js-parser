@@ -9,7 +9,7 @@ CREATE TABLE foo
     Id Int32,
     Val Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id;
 
 INSERT INTO foo;

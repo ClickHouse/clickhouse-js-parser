@@ -14,7 +14,7 @@ ALTER TABLE broken_partition DROP PARTITION ID '20210325_0_13241_6_12747'; --{se
 
 DROP TABLE IF EXISTS old_partition_key;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE old_partition_key
 (

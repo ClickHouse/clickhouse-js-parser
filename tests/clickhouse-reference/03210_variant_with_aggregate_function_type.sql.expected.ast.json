@@ -1,551 +1,626 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_variant_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_variant_type": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "Name",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Value",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "source"
+        "type": "Identifier",
+        "name": "source"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "Name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        }
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "arrayLiteral",
-                "elements": [
+                "type": "Function",
+                "alias": "Name",
+                "name": "arrayElement",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "fail"
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "fail"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "success"
+                      }
+                    ]
                   },
                   {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "success"
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "plus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "1"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
                   }
-                ],
-                "source": "['fail', 'success']"
+                ]
               },
               {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
+                "type": "Identifier",
+                "alias": "Value",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
                       ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_agg_variant"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_agg_variant"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "Name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Variant",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "AggregateFunction",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "uniqExact"
                     },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    },
-                    "parenthesized": true
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  "parenthesized": true
+                    {
+                      "type": "DataType",
+                      "name": "Int64"
+                    }
+                  ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
+                {
+                  "type": "DataType",
+                  "name": "AggregateFunction",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "avg"
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "Int64"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "Name"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_agg_variant"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "Name"
+              },
+              {
+                "type": "Identifier",
+                "alias": "Value",
+                "name": "t"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Identifier",
+                                "name": "Name"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "t",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "array",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "CAST",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "uniqExactState",
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "Value"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "String",
+                                            "value": "Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "CAST",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "avgState",
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "Value"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "String",
+                                            "value": "Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "source"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "group_by": [
+                              {
+                                "type": "Identifier",
+                                "name": "Name"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "Name"
+            },
+            {
+              "type": "Function",
+              "alias": "Value",
+              "name": "uniqExactMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Value.AggregateFunction(uniqExact, Int64)",
+                  "name_parts": [
+                    "Value",
+                    "AggregateFunction(uniqExact, Int64)"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_agg_variant"
+                  }
                 }
               }
             ]
           },
-          "alias": "Name"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "alias": "Value"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "Name",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Value",
-        "type": {
-          "name": "Variant",
-          "args": [
+          "group_by": [
             {
-              "kind": "type",
-              "type": {
-                "name": "AggregateFunction",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "uniqExact"
-                    }
-                  },
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "Int64"
-                    }
-                  }
-                ]
-              }
-            },
+              "type": "Identifier",
+              "name": "Name"
+            }
+          ],
+          "order_by": [
             {
-              "kind": "type",
-              "type": {
-                "name": "AggregateFunction",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "avg"
-                    }
-                  },
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "Int64"
-                    }
-                  }
-                ]
-              }
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Name"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_agg_variant"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
-          },
-          "alias": "Value"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "Name"
-              ]
+              "type": "Identifier",
+              "name": "Name"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "castExpr",
-                        "expr": {
-                          "kind": "functionCall",
-                          "name": "uniqExactState",
-                          "args": [
-                            {
-                              "kind": "columnRef",
-                              "parts": [
-                                "Value"
-                              ]
-                            }
-                          ]
-                        },
-                        "type": "Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))",
-                        "operator": true
-                      },
-                      {
-                        "kind": "castExpr",
-                        "expr": {
-                          "kind": "functionCall",
-                          "name": "avgState",
-                          "args": [
-                            {
-                              "kind": "columnRef",
-                              "parts": [
-                                "Value"
-                              ]
-                            }
-                          ]
-                        },
-                        "type": "Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))",
-                        "operator": true
-                      }
-                    ],
-                    "source": "[\n            uniqExactState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64)), \n            avgState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))\n        ]"
-                  }
-                ]
-              },
-              "alias": "t"
+              "type": "Function",
+              "alias": "Value",
+              "name": "avgMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Value.AggregateFunction(avg, Int64)",
+                  "name_parts": [
+                    "Value",
+                    "AggregateFunction(avg, Int64)"
+                  ]
+                }
+              ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "source"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "Name"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_agg_variant"
+                  }
+                }
               }
             ]
-          }
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "Name"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Name"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "Name"
+            },
+            {
+              "type": "Function",
+              "alias": "ValueUniq",
+              "name": "uniqExactMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Value.AggregateFunction(uniqExact, Int64)",
+                  "name_parts": [
+                    "Value",
+                    "AggregateFunction(uniqExact, Int64)"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "ValueAvg",
+              "name": "avgMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Value.AggregateFunction(avg, Int64)",
+                  "name_parts": [
+                    "Value",
+                    "AggregateFunction(avg, Int64)"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_agg_variant"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "Name"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Name"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_agg_variant"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Name"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqExactMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Value",
-                "AggregateFunction(uniqExact, Int64)"
-              ]
-            }
-          ]
-        },
-        "alias": "Value"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Name"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "avgMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Value",
-                "AggregateFunction(avg, Int64)"
-              ]
-            }
-          ]
-        },
-        "alias": "Value"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Name"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqExactMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Value",
-                "AggregateFunction(uniqExact, Int64)"
-              ]
-            }
-          ]
-        },
-        "alias": "ValueUniq"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "avgMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Value",
-                "AggregateFunction(avg, Int64)"
-              ]
-            }
-          ]
-        },
-        "alias": "ValueAvg"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_agg_variant"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
     }
   }
 ]

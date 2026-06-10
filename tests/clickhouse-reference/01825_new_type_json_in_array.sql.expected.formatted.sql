@@ -1,13 +1,13 @@
 -- Tags: no-fasttest
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_suspicious_types_in_order_by = 1;
+SET allow_suspicious_types_in_order_by = '1';
 
-SET allow_suspicious_types_in_group_by = 1;
+SET allow_suspicious_types_in_group_by = '1';
 
-SET output_format_native_write_json_as_string = 0;
+SET output_format_native_write_json_as_string = '0';
 
 DROP TABLE IF EXISTS t_json_array;
 
@@ -16,10 +16,10 @@ CREATE TABLE t_json_array
     id UInt32,
     arr Array(JSON)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
-INSERT INTO t_json_array;
+INSERT INTO t_json_array FORMAT JSONEachRow;
 
 SELECT
     id,
@@ -43,23 +43,23 @@ ORDER BY path ASC;
 
 TRUNCATE TABLE t_json_array;
 
-INSERT INTO t_json_array;
+INSERT INTO t_json_array FORMAT JSONEachRow;
 
 SELECT
     id,
-    arr.`k1[]`.k2,
-    arr.`k1[]`.k3,
-    arr.`k1[]`.k4,
+    arr.k1.:`Array(JSON)`.k2,
+    arr.k1.:`Array(JSON)`.k3,
+    arr.k1.:`Array(JSON)`.k4,
     arr.k5.k6
 FROM t_json_array
 ORDER BY id ASC;
 
-SELECT arrayJoin(arrayJoin(arr.`k1[]`)) AS k1
+SELECT arrayJoin(arrayJoin(arr.k1.:`Array(JSON)`)) AS k1
 FROM t_json_array
 ORDER BY toString(k1) ASC
 FORMAT JSONEachRow;
 
-SELECT DISTINCT arrayJoin(JSONAllPathsWithTypes(arrayJoin(arrayJoin(arr.`k1[]`)))) AS path
+SELECT DISTINCT arrayJoin(JSONAllPathsWithTypes(arrayJoin(arrayJoin(arr.k1.:`Array(JSON)`)))) AS path
 FROM t_json_array
 ORDER BY path ASC;
 

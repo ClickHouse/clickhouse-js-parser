@@ -1,14 +1,14 @@
 -- Tags: shard, no-fasttest
-SET max_rows_to_group_by = 100000;
+SET max_rows_to_group_by = '100000';
 
-SET max_block_size = 100001;
+SET max_block_size = '100001';
 
 SET group_by_overflow_mode = 'any';
 
 -- Settings 'max_rows_to_group_by', 'max_bytes_before_external_group_by' and 'max_bytes_ratio_before_external_group_by' are mutually exclusive.
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
-SET max_bytes_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0';
 
 DROP TABLE IF EXISTS numbers500k;
 
@@ -16,7 +16,7 @@ CREATE TABLE numbers500k
 (
     number UInt32
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO numbers500k SELECT number
 FROM `system`.numbers

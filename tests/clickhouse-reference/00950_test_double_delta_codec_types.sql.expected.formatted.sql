@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS tab;
 -- Codec DoubleDelta must not be used on FixedString columns
 CREATE TABLE tab
 (
-    c0 FixedString(9) CODEC(DoubleDelta)
+    c0 FixedString(9) CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
@@ -18,7 +18,7 @@ ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
-    c0 LowCardinality(FixedString(9)) CODEC(DoubleDelta)
+    c0 LowCardinality(FixedString(9)) CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
@@ -31,11 +31,11 @@ ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 -- Combination DoubleDelta & Time is okay
-SET enable_time_time64_type = 1;
+SET enable_time_time64_type = '1';
 
 CREATE TABLE tab
 (
-    c0 Time CODEC(DoubleDelta)
+    c0 Time CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -46,7 +46,7 @@ DROP TABLE tab;
 
 CREATE TABLE tab
 (
-    c0 Nullable(Time) CODEC(DoubleDelta)
+    c0 Nullable(Time) CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -58,7 +58,7 @@ INSERT INTO tab (c0);
 -- LowCardinality(Nullable(Time)) is rejected
 CREATE TABLE tab
 (
-    c0 LowCardinality(Nullable(Time)) CODEC(DoubleDelta)
+    c0 LowCardinality(Nullable(Time)) CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
@@ -86,4 +86,4 @@ TO tab
 )
 EMPTY
 AS
-(SELECT 'a' AS c0); -- { serverError BAD_ARGUMENTS }
+SELECT 'a' AS c0; -- { serverError BAD_ARGUMENTS }

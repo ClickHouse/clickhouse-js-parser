@@ -5,7 +5,7 @@ CREATE TABLE lc_perm
     val UInt32,
     str LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val;
 
 INSERT INTO lc_perm;

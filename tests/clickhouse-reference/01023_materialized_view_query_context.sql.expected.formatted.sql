@@ -12,7 +12,7 @@
 --    2024.02.22 19:33:36.280936 [ 108818 ] {0e1586f5-8ae0-4065-81b7-1e7d43b85d82} <Error> DDLWorker(test_devov0ke): Query /* ddl_entry=query-0000000009 */ CREATE MATERIALIZED VIEW test_devov0ke.mv UUID 'bf3a2bfe-1446-4a02-b760-bae514488c5a' TO test_devov0ke.output (`key` UInt64, `val` UInt64) AS SELECT key, dictGetUInt64('dict_in_01023.dict', 'val', key) AS val FROM test_devov0ke.dist_out wasn't finished successfully: Code: 36. DB::Exception: Dictionary (`dict_in_01023.dict`) not found. (BAD_ARGUMENTS), Stack trace (when copying this message, always include the lines below):
 -- Create dictionary, since dictGet*() uses DB::Context in executeImpl()
 -- (To cover scope of the Context in PushingToViews chain)
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 DROP TABLE IF EXISTS mv;
 

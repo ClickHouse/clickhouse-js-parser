@@ -8,7 +8,7 @@ CREATE TABLE test
     c2 String,
     c3 String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (c1, c3);
 
 INSERT INTO test (c1, c2, c3);

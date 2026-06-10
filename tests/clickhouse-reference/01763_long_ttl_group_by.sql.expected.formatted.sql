@@ -12,7 +12,7 @@ CREATE TABLE test_ttl_group_by01763
 ENGINE = MergeTree()
 ORDER BY (key, toStartOfInterval(ts, toIntervalMinute(3)), ts)
 PARTITION BY toYYYYMM(ts)
-TTL ts + toIntervalMinute(5);
+TTL ts + toIntervalMinute(5) GROUP BY key, toStartOfInterval(ts, toIntervalMinute(3)) SET value = sum(value), min_value = min(min_value), max_value = max(max_value), ts = min(toStartOfInterval(ts, toIntervalMinute(3)));
 
 INSERT INTO test_ttl_group_by01763 (key, ts, value) SELECT
     number % 5 AS key,

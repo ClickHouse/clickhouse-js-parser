@@ -1,4 +1,4 @@
-SET flatten_nested = 0;
+SET flatten_nested = '0';
 
 DROP TABLE IF EXISTS nested_table;
 
@@ -12,11 +12,11 @@ ORDER BY id;
 
 SHOW CREATE TABLE nested_table;
 
-SET flatten_nested = 1;
+SET flatten_nested = '1';
 
 ALTER TABLE nested_table ADD COLUMN second Nested(c Int8, d String) AFTER id;
 
-ALTER TABLE nested_table ADD COLUMN third Nested(e Int8, f String);
+ALTER TABLE nested_table ADD COLUMN third Nested(e Int8, f String) FIRST;
 
 ALTER TABLE nested_table ADD COLUMN fourth Nested(g Int8, h String);
 

@@ -21,7 +21,7 @@ SELECT
     number % 6553,
     number % 655355,
     number % 65535
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 CREATE DICTIONARY dict_sharded
 (

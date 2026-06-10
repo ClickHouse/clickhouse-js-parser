@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS bar;
 
 DROP TABLE IF EXISTS view_foo_bar;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE foo
 (
@@ -12,7 +12,7 @@ CREATE TABLE foo
     id Int64,
     n String
 )
-ENGINE = ReplacingMergeTree(ddate, (id), 8192);
+ENGINE = ReplacingMergeTree(ddate, id, 8192);
 
 CREATE TABLE bar
 (
@@ -21,12 +21,12 @@ CREATE TABLE bar
     n String,
     foo_id Int64
 )
-ENGINE = ReplacingMergeTree(ddate, (id), 8192);
+ENGINE = ReplacingMergeTree(ddate, id, 8192);
 
 INSERT INTO bar (id, n, foo_id);
 
 CREATE MATERIALIZED VIEW view_foo_bar
-ENGINE = ReplacingMergeTree(ddate, (bar_id), 8192)
+ENGINE = ReplacingMergeTree(ddate, bar_id, 8192)
 AS
 SELECT
     ddate,
@@ -43,7 +43,7 @@ FROM
             foo_id
         FROM bar
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             id AS foo_id,
             n AS foo_n

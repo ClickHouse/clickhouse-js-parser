@@ -7,7 +7,7 @@ CREATE TABLE `02185_range_dictionary_source_table`
     `end` Nullable(UInt64),
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02185_range_dictionary_source_table`;
 
@@ -25,9 +25,9 @@ CREATE DICTIONARY `02185_range_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02185_range_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 RANGE(MIN start MAX `end`)
-LAYOUT(RANGE_HASHED(convert_null_range_bound_to_open 1));
+LAYOUT(RANGE_HASHED(CONVERT_NULL_RANGE_BOUND_TO_OPEN 1));
 
 SELECT *
 FROM `02185_range_dictionary`;
@@ -55,8 +55,8 @@ CREATE DICTIONARY `02185_range_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02185_range_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 RANGE(MIN start MAX `end`)
-LAYOUT(RANGE_HASHED(convert_null_range_bound_to_open 0));
+LAYOUT(RANGE_HASHED(CONVERT_NULL_RANGE_BOUND_TO_OPEN 0));
 
 DROP TABLE `02185_range_dictionary_source_table`;

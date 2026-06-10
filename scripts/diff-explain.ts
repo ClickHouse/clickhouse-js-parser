@@ -15,6 +15,10 @@
 
 import { computeExplain, parseCli, run } from './diff-lib.js';
 
-const opts = parseCli(process.argv, 'diff:explain', 'formatExplain() output vs. expected explain output');
+const opts = parseCli(
+  process.argv,
+  'diff:explain',
+  'formatExplain() output vs. expected explain output',
+);
 
 run(opts, '.expected.explain.txt', computeExplain);

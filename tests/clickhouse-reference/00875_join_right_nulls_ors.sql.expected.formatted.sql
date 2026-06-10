@@ -8,14 +8,14 @@ CREATE TABLE t
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE nt
 (
     x Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE ntxy
@@ -23,7 +23,7 @@ CREATE TABLE ntxy
     x Nullable(String),
     y Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t (x);
@@ -32,7 +32,7 @@ INSERT INTO nt (x);
 
 INSERT INTO ntxy (x, y);
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     'n rj n',
@@ -51,7 +51,7 @@ SELECT
     t2.x
 FROM
     nt AS t1
-RIGHT JOIN ntxy AS t2
+ANY RIGHT JOIN ntxy AS t2
     ON t1.x = t2.x
     OR t1.x = t2.y
 ORDER BY t1.x ASC;
@@ -106,7 +106,7 @@ SELECT
     t2.x
 FROM
     ntxy AS t1
-RIGHT JOIN t AS t2
+ANY RIGHT JOIN t AS t2
     ON t1.x = t2.x
     OR t1.y = t2.x
 ORDER BY t1.x ASC;

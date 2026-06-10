@@ -1,31 +1,31 @@
-SELECT like(materialize('Hello'), '');
+SELECT materialize('Hello') LIKE '';
 
-SELECT like(materialize('Hello'), '%');
+SELECT materialize('Hello') LIKE '%';
 
-SELECT like(materialize('Hello'), '%%');
+SELECT materialize('Hello') LIKE '%%';
 
-SELECT like(materialize('Hello'), '%%%');
+SELECT materialize('Hello') LIKE '%%%';
 
-SELECT like(materialize('Hello'), '%_%');
+SELECT materialize('Hello') LIKE '%_%';
 
-SELECT like(materialize('Hello'), '_');
+SELECT materialize('Hello') LIKE '_';
 
-SELECT like(materialize('Hello'), '_%');
+SELECT materialize('Hello') LIKE '_%';
 
-SELECT like(materialize('Hello'), '%_');
+SELECT materialize('Hello') LIKE '%_';
 
-SELECT like('Hello', '');
+SELECT 'Hello' LIKE '';
 
-SELECT like('Hello', '%');
+SELECT 'Hello' LIKE '%';
 
-SELECT like('Hello', '%%');
+SELECT 'Hello' LIKE '%%';
 
-SELECT like('Hello', '%%%');
+SELECT 'Hello' LIKE '%%%';
 
-SELECT like('Hello', '%_%');
+SELECT 'Hello' LIKE '%_%';
 
-SELECT like('Hello', '_');
+SELECT 'Hello' LIKE '_';
 
-SELECT like('Hello', '_%');
+SELECT 'Hello' LIKE '_%';
 
-SELECT like('Hello', '%_');
+SELECT 'Hello' LIKE '%_';

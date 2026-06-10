@@ -1,14 +1,14 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     1 AS a,
     a;
 
 SELECT
-    (c + 1) AS d,
-    (a + 1) AS b,
+    c + 1 AS d,
+    a + 1 AS b,
     1 AS a,
-    (b + 1) AS c,
+    b + 1 AS c,
     d;
 
 WITH 1 AS a
@@ -33,7 +33,7 @@ SELECT
 
 SELECT
     x,
-    1 + ((2 + ((3 AS x))));
+    1 + (2 + (3 AS x));
 
 SELECT
     a AS b,
@@ -46,7 +46,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -77,12 +77,12 @@ SELECT
 FROM test_table;
 
 SELECT
-    (id + b) AS id,
+    id + b AS id,
     id AS b
 FROM test_table; -- { serverError CYCLIC_ALIASES, UNKNOWN_IDENTIFIER }
 
 SELECT
-    (1 + b + 1 + id) AS id,
+    1 + b + 1 + id AS id,
     b AS c,
     id AS b
 FROM test_table; -- { serverError CYCLIC_ALIASES, UNKNOWN_IDENTIFIER }
@@ -90,10 +90,10 @@ FROM test_table; -- { serverError CYCLIC_ALIASES, UNKNOWN_IDENTIFIER }
 SELECT id AS id
 FROM test_table;
 
-SELECT (id + 1) AS id
+SELECT id + 1 AS id
 FROM test_table;
 
-SELECT (id + 1 + 1 + 1 + id) AS id
+SELECT id + 1 + 1 + 1 + id AS id
 FROM test_table;
 
 WITH id AS value
@@ -101,9 +101,9 @@ WITH id AS value
 SELECT value
 FROM test_table;
 
-SET prefer_column_name_to_alias = 1;
+SET prefer_column_name_to_alias = '1';
 
-SET prefer_column_name_to_alias = 0;
+SET prefer_column_name_to_alias = '0';
 
 DROP TABLE test_table;
 

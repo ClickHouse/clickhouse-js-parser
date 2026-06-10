@@ -4,7 +4,7 @@ CREATE TABLE dict
     key UInt64,
     value String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key;
 
 INSERT INTO dict SELECT
@@ -16,16 +16,16 @@ FROM numbers(121);
 SELECT count()
 FROM dict
 SETTINGS
-    optimize_trivial_approximate_count_query = 0,
-    max_rows_to_read = 1; -- { serverError TOO_MANY_ROWS }
+    optimize_trivial_approximate_count_query = '0',
+    max_rows_to_read = '1'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM dict
 SETTINGS
-    optimize_trivial_approximate_count_query = 1,
-    max_rows_to_read = 1;
+    optimize_trivial_approximate_count_query = '1',
+    max_rows_to_read = '1';
 
-SET optimize_trivial_approximate_count_query = 1;
+SET optimize_trivial_approximate_count_query = '1';
 
 -- needs more data to see total_bytes or just detach and attach the table
 DETACH TABLE dict SYNC;

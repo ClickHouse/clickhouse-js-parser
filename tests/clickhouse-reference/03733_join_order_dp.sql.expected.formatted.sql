@@ -1,12 +1,12 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
-SET query_plan_optimize_join_order_limit = 10;
+SET query_plan_optimize_join_order_limit = '10';
 
-SET use_statistics = 1;
+SET use_statistics = '1';
 
 SET query_plan_join_swap_table = 'auto';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 -- R1: Small dimension table (Demo size: 10)
 CREATE TABLE R1
@@ -62,15 +62,15 @@ INSERT INTO R4 (D_ID, D_LookupCode);
 
 INSERT INTO R2 (B_ID, R1_A_ID, B_Data) SELECT
     number AS B_ID,
-    (number % 10) + 1 AS R1_A_ID, -- Links to R1.A_ID 1-10
+    number % 10 + 1 AS R1_A_ID, -- Links to R1.A_ID 1-10
     number / 100
 FROM numbers(1000);
 
 INSERT INTO R3 (C_ID, R1_A_ID, R4_D_ID, C_Value) SELECT
     number AS C_ID,
-    (number % 10) + 1 AS R1_A_ID, -- Links to R1.A_ID 1-10
-    (number % 10) + 101 AS R4_D_ID, -- Links to R4.D_ID 101-110
-    (number * 10) AS C_Value
+    number % 10 + 1 AS R1_A_ID, -- Links to R1.A_ID 1-10
+    number % 10 + 101 AS R4_D_ID, -- Links to R4.D_ID 101-110
+    number * 10 AS C_Value
 FROM numbers(1000);
 
 EXPLAIN
@@ -80,10 +80,10 @@ SELECT
     T3.C_Value,
     T4.D_LookupCode
 FROM
-    R1 AS T1
-CROSS JOIN R2 AS T2
-CROSS JOIN R3 AS T3
-CROSS JOIN R4 AS T4
+    R1 AS T1,
+    R2 AS T2,
+    R3 AS T3,
+    R4 AS T4
 WHERE T1.A_ID = T2.R1_A_ID
     AND T1.A_ID = T3.R1_A_ID
     AND T3.R4_D_ID = T4.D_ID
@@ -91,14 +91,14 @@ WHERE T1.A_ID = T2.R1_A_ID
     AND T4.D_LookupCode = 'Lookup S'
 SETTINGS
     query_plan_optimize_join_order_algorithm = 'greedy',
-    enable_parallel_replicas = 0;
+    enable_parallel_replicas = '0';
 
 SELECT sum(sipHash64(T1.A_Description, T2.B_Data, T3.C_Value, T4.D_LookupCode))
 FROM
-    R1 AS T1
-CROSS JOIN R2 AS T2
-CROSS JOIN R3 AS T3
-CROSS JOIN R4 AS T4
+    R1 AS T1,
+    R2 AS T2,
+    R3 AS T3,
+    R4 AS T4
 WHERE T1.A_ID = T2.R1_A_ID
     AND T1.A_ID = T3.R1_A_ID
     AND T3.R4_D_ID = T4.D_ID
@@ -113,10 +113,10 @@ SELECT
     T3.C_Value,
     T4.D_LookupCode
 FROM
-    R1 AS T1
-CROSS JOIN R2 AS T2
-CROSS JOIN R3 AS T3
-CROSS JOIN R4 AS T4
+    R1 AS T1,
+    R2 AS T2,
+    R3 AS T3,
+    R4 AS T4
 WHERE T1.A_ID = T2.R1_A_ID
     AND T1.A_ID = T3.R1_A_ID
     AND T3.R4_D_ID = T4.D_ID
@@ -124,14 +124,14 @@ WHERE T1.A_ID = T2.R1_A_ID
     AND T4.D_LookupCode = 'Lookup S'
 SETTINGS
     query_plan_optimize_join_order_algorithm = 'dpsize',
-    enable_parallel_replicas = 0;
+    enable_parallel_replicas = '0';
 
 SELECT sum(sipHash64(T1.A_Description, T2.B_Data, T3.C_Value, T4.D_LookupCode))
 FROM
-    R1 AS T1
-CROSS JOIN R2 AS T2
-CROSS JOIN R3 AS T3
-CROSS JOIN R4 AS T4
+    R1 AS T1,
+    R2 AS T2,
+    R3 AS T3,
+    R4 AS T4
 WHERE T1.A_ID = T2.R1_A_ID
     AND T1.A_ID = T3.R1_A_ID
     AND T3.R4_D_ID = T4.D_ID
@@ -150,7 +150,7 @@ LEFT JOIN (
     ON t0.c0 = t1.c0
 SETTINGS
     query_plan_optimize_join_order_algorithm = 'dpsize',
-    enable_parallel_replicas = 0; --{serverError EXPERIMENTAL_FEATURE_ERROR}
+    enable_parallel_replicas = '0'; --{serverError EXPERIMENTAL_FEATURE_ERROR}
 
 SELECT 1
 FROM
@@ -163,4 +163,4 @@ LEFT JOIN (
     ON t0.c0 = t1.c0
 SETTINGS
     query_plan_optimize_join_order_algorithm = 'dpsize,greedy',
-    enable_parallel_replicas = 0;
+    enable_parallel_replicas = '0';

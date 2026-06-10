@@ -2,11 +2,11 @@ DROP TABLE IF EXISTS alter_bug;
 
 CREATE TABLE alter_bug
 (
-    epoch UInt64 CODEC(Delta, LZ4),
+    epoch UInt64 CODEC(Delta(), LZ4()),
     _time_dec Float64
 )
-ENGINE = MergeTree
-ORDER BY (epoch);
+ENGINE = MergeTree()
+ORDER BY epoch;
 
 SELECT
     name,
@@ -16,7 +16,7 @@ FROM `system`.`columns`
 WHERE table = 'alter_bug'
     AND database = currentDatabase();
 
-ALTER TABLE alter_bug MODIFY COLUMN epoch DEFAULT toUInt64(_time_dec) CODEC(Delta, LZ4);
+ALTER TABLE alter_bug MODIFY COLUMN epoch DEFAULT toUInt64(_time_dec) CODEC(Delta(), LZ4());
 
 SELECT
     name,

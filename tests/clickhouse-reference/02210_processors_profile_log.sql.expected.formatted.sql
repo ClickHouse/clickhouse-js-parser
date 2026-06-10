@@ -4,7 +4,7 @@ SELECT sleep(1);
 SELECT sleep(1)
 SETTINGS
     log_processors_profiles = true,
-    log_queries = 1,
+    log_queries = '1',
     log_queries_min_type = 'QUERY_FINISH';
 
 SYSTEM FLUSH LOGS query_log, processors_profile_log;
@@ -24,14 +24,14 @@ SELECT
     -- We use two different timers to measure time: CLOCK_MONOTONIC for sleep and CLOCK_MONOTONIC_COARSE for profiling
     -- that's why we cannot compare directly with 1,000,000 microseconds - let's compare with 900,000 microseconds.
     name = 'ExpressionTransform',
-    if(elapsed_us >= 0.9e6, 1, elapsed_us),
+    elapsed_us >= 900000. ? 1 : elapsed_us,
     -- SourceFromSingleChunk, that feed data to ExpressionTransform,
     -- will feed first block and then wait in PortFull.
     name = 'SourceFromSingleChunk',
-    if(output_wait_elapsed_us >= 0.9e6, 1, output_wait_elapsed_us),
+    output_wait_elapsed_us >= 900000. ? 1 : output_wait_elapsed_us,
     -- LazyOutputFormatLazyOutputFormat is the output
     -- so it cannot starts to execute before sleep(1) will be executed.
-    if(input_wait_elapsed_us >= 1e6, 1, input_wait_elapsed_us)
+    input_wait_elapsed_us >= 1000000. ? 1 : input_wait_elapsed_us
 ) AS elapsed,
     input_rows,
     input_bytes,

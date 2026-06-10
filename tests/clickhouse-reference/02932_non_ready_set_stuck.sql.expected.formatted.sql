@@ -4,7 +4,7 @@ CREATE TABLE tab
     price_sold Nullable(Float32),
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY item_id;
 
 SELECT *

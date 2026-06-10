@@ -7,10 +7,10 @@ CREATE TABLE ttl
     d Date,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY toDayOfMonth(d)
-SETTINGS remove_empty_parts = 0;
+SETTINGS remove_empty_parts = '0';
 
 ALTER TABLE ttl MODIFY TTL d + toIntervalDay(1);
 
@@ -39,10 +39,10 @@ CREATE TABLE ttl
     d Date,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDayOfMonth(d)
-SETTINGS remove_empty_parts = 0;
+SETTINGS remove_empty_parts = '0';
 
 ALTER TABLE ttl MODIFY COLUMN a Int TTL d + toIntervalDay(1);
 

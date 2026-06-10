@@ -1,7 +1,7 @@
 -- Test for a bug where nested indexHint with non-UInt8 constant caused a logical error
 -- "ColumnUInt8 is expected as a Set index condition result"
 -- The issue was that constant columns of non-UInt8 type weren't being wrapped with __bitWrapperFunc
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -11,9 +11,9 @@ CREATE TABLE tab
     v Nullable(UInt256),
     INDEX i v TYPE set(100) GRANULARITY 2
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO tab SELECT
     number,

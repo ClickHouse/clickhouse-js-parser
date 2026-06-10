@@ -6,7 +6,7 @@ CREATE TABLE visits
     GoalsID Array(UInt32),
     Sign Int8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE goal
 (
@@ -16,10 +16,10 @@ CREATE TABLE goal
     Visits AggregateFunction(sumIf, Int8, UInt8),
     GoalReaches AggregateFunction(sum, Int8)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY (CounterID, StartDate, GoalID)
 PARTITION BY toStartOfMonth(StartDate)
-SETTINGS index_granularity = 256, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '256', index_granularity_bytes = '10Mi';
 
 CREATE MATERIALIZED VIEW goal_view
 TO goal

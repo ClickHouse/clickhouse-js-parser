@@ -7,15 +7,15 @@ DROP TABLE IF EXISTS strings;
 CREATE TABLE ints
 (
     a TINYINT,
-    b TINYINT(8),
+    b TINYINT,
     c SMALLINT,
-    d SMALLINT(16),
+    d SMALLINT,
     e INT,
-    f INT(32),
+    f INT,
     g BIGINT,
-    h BIGINT(64)
+    h BIGINT
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ints;
 
@@ -39,7 +39,7 @@ CREATE TABLE floats
     e DOUBLE(12),
     f DOUBLE(4, 18)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO floats;
 
@@ -57,7 +57,7 @@ CREATE TABLE strings
     a VARCHAR,
     b VARCHAR(11)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO strings;
 

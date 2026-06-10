@@ -1,146 +1,183 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_hardware_error"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: zookeeper, no-parallel, no-shared-merge-tree",
-      "-- no-shared-merge-tree: This failure injection is only RMT specific"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_hardware_error"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "KeyID",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{shard}/{database}/t_async_insert_dedup"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "{replica}"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "KeyID"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_hardware_error"
-      }
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "if_exists": true,
+      "sync": true
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM enable failpoint replicated_merge_tree_commit_zk_fail_after_op",
-    "leadingComments": [
-      "-- Data is written to ZK but the connection fails right after and we can't recover it"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM enable failpoint replicated_merge_tree_commit_zk_fail_when_recovering_from_hw_fault"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_hardware_error"
-      }
-    },
-    "trailingComments": [
-      "-- {serverError UNKNOWN_STATUS_OF_INSERT}"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM disable failpoint replicated_commit_zk_fail_after_op"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM disable failpoint replicated_merge_tree_commit_zk_fail_when_recovering_from_hw_fault"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_hardware_error"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arraySort",
-        "args": [
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "groupArray",
-            "args": [
+            "type": "ColumnDeclaration",
+            "name": "KeyID",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{shard}/{database}/t_async_insert_dedup"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "{replica}"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "KeyID"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "ENABLE FAILPOINT",
+      "fail_point_name": "replicated_merge_tree_commit_zk_fail_after_op"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "ENABLE FAILPOINT",
+      "fail_point_name": "replicated_merge_tree_commit_zk_fail_when_recovering_from_hw_fault"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "DISABLE FAILPOINT",
+      "fail_point_name": "replicated_commit_zk_fail_after_op"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "DISABLE FAILPOINT",
+      "fail_point_name": "replicated_merge_tree_commit_zk_fail_when_recovering_from_hw_fault"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arraySort",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "groupArray",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "KeyID"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "KeyID"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_hardware_error"
+                  }
+                }
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_hardware_error"
-    },
-    "leadingComments": [
-      "-- All 3 commits have been written correctly. The unknown status is ok (since it failed after the operation)"
-    ]
+        }
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_hardware_error"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_hardware_error"
+      },
+      "sync": true
     }
   }
 ]

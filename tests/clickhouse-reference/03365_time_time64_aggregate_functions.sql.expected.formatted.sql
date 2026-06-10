@@ -1,11 +1,11 @@
-SET enable_time_time64_type = 1;
+SET enable_time_time64_type = '1';
 
 CREATE TABLE dt
 (
     time Time,
     event_id UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dt;
 

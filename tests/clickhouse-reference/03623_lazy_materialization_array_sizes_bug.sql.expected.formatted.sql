@@ -1,6 +1,6 @@
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
 DROP TABLE IF EXISTS test;
 
@@ -10,9 +10,9 @@ CREATE TABLE test
     y UInt64,
     a Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS min_rows_for_wide_part = 1, min_bytes_for_wide_part = 1;
+SETTINGS min_rows_for_wide_part = '1', min_bytes_for_wide_part = '1';
 
 INSERT INTO test SELECT
     number,

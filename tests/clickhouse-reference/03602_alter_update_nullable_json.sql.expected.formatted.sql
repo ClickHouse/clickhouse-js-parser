@@ -1,6 +1,6 @@
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
-SET max_block_size = 1000;
+SET max_block_size = '1000';
 
 DROP TABLE IF EXISTS test;
 
@@ -9,7 +9,7 @@ CREATE TABLE test
     id UInt32,
     json Nullable(JSON(max_dynamic_paths = 1))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 SETTINGS min_bytes_for_wide_part = '200G';
 
@@ -33,6 +33,6 @@ CREATE TABLE test
     id UInt32,
     json Nullable(JSON(max_dynamic_paths = 1))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 1, min_rows_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '1', min_rows_for_wide_part = '1';

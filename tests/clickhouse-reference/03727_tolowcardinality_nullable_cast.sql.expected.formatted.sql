@@ -10,8 +10,8 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-PARTITION BY (toLowCardinality(c0))
-SETTINGS allow_nullable_key = 1;
+PARTITION BY toLowCardinality(c0)
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t0 (c0);
 
@@ -28,7 +28,7 @@ CREATE TABLE test_tolowcardinality_nullable
 ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY toLowCardinality(str)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO test_tolowcardinality_nullable;
 
@@ -39,7 +39,7 @@ WHERE toLowCardinality(str) = 'a'
 ORDER BY id ASC;
 
 -- Mutation that also uses the partition key
-ALTER TABLE test_tolowcardinality_nullable DELETE WHERE id = 1 SETTINGS mutations_sync = 2;
+ALTER TABLE test_tolowcardinality_nullable DELETE WHERE id = 1 SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM test_tolowcardinality_nullable

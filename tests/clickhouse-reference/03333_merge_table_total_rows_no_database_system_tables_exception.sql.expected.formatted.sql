@@ -8,7 +8,7 @@ CREATE TABLE test_03333.t
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS merge;
 

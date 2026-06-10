@@ -1,962 +1,1111 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_compatible"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Test that Variant throws exceptions on type mismatches like Dynamic does.",
-      "-- This fixes issue https://github.com/ClickHouse/ClickHouse/issues/95839 where incompatible types caused LOGICAL_ERROR.",
-      "-- Old behavior: returned NULL, causing logical errors in some cases.",
-      "-- New behavior: throws proper exceptions on incompatible types."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_incompatible"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_array"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_variant_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_variant_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_types_in_order_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_compatible"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Variant",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_variant_compatible"
+        "type": "Identifier",
+        "name": "test_variant_compatible"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_incompatible"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_array"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_variant_type": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "v"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        "alias": "result"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_variant_types": "1"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_compatible"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toTypeName",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_types_in_order_by": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_compatible"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "v"
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Variant",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
             }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_compatible"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v"
-        ]
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "*",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "v"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        },
-        "alias": "mult"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "v"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        "alias": "sub"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_compatible"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "even"
-            }
-          ]
-        },
-        "alias": "x"
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "+",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
       }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_compatible"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "v"
+            },
+            {
+              "type": "Function",
+              "alias": "result",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_compatible"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayRemove",
-        "args": [
-          {
-            "kind": "arrayLiteral",
-            "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toTypeName",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "plus",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "v"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_compatible"
                   }
-                ],
-                "source": "[1, 2]"
-              },
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4"
-                  }
-                ],
-                "source": "[3, 4]"
+                }
               }
-            ],
-            "source": "[[1, 2], [3, 4]]"
+            ]
           },
-          {
-            "kind": "arrayLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "hello"
-                  }
-                ],
-                "source": "['hello']"
-              }
-            ],
-            "source": "[['hello']]"
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayRemove",
-        "args": [
-          {
-            "kind": "arrayLiteral",
-            "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "v"
+            },
+            {
+              "type": "Function",
+              "alias": "mult",
+              "name": "multiply",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "sub",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "functionCall",
-                        "name": "isNotDistinctFrom",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "16"
-                          },
-                          {
-                            "kind": "functionCall",
-                            "name": "isNotDistinctFrom",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "16"
-                              },
-                              {
-                                "kind": "functionCall",
-                                "name": "assumeNotNull",
-                                "args": [
-                                  {
-                                    "kind": "functionCall",
-                                    "name": "isNotNull",
-                                    "args": [
-                                      {
-                                        "kind": "functionCall",
-                                        "name": "materialize",
-                                        "args": [
-                                          {
-                                            "kind": "literal",
-                                            "type": "UInt64",
-                                            "value": "8"
-                                          }
-                                        ]
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ],
-                    "source": "[isNotDistinctFrom(16, isNotDistinctFrom(16, assumeNotNull(isNotNull(materialize(8)))))]"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_compatible"
                   }
-                ],
-                "source": "[[isNotDistinctFrom(16, isNotDistinctFrom(16, assumeNotNull(isNotNull(materialize(8)))))]]"
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v"
               },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "x",
+              "name": "if",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "modulo",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "even"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
                       {
-                        "kind": "functionCall",
-                        "name": "materialize",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "toUInt128",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "8"
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "equals",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "2"
-                          },
-                          {
-                            "kind": "functionCall",
-                            "name": "isNull",
-                            "args": [
-                              {
-                                "kind": "functionCall",
-                                "name": "isZeroOrNull",
-                                "args": [
-                                  {
-                                    "kind": "asterisk"
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ],
-                    "source": "[materialize(toUInt128(8)), equals(2, isNull(isZeroOrNull(*)))]"
-                  },
-                  {
-                    "kind": "asterisk"
-                  }
-                ],
-                "source": "[[materialize(toUInt128(8)), equals(2, isNull(isZeroOrNull(*)))], *]"
-              },
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "isNotDistinctFrom",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "isNull",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "assumeNotNull",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "16"
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "isNotDistinctFrom",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "isZeroOrNull",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "NULL",
-                                "value": "NULL"
-                              }
-                            ]
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "16"
-                          }
-                        ]
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
                       }
                     ]
-                  },
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [],
-                    "source": "[]"
-                  },
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "functionCall",
-                        "name": "arrayMap",
-                        "args": [
-                          {
-                            "kind": "lambdaExpr",
-                            "params": [
-                              "x"
-                            ],
-                            "body": {
-                              "kind": "functionCall",
-                              "name": "materialize",
-                              "args": [
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayRemove",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Array",
+                  "value": [
+                    {
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "UInt64",
+                          "value": "1"
+                        },
+                        {
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "UInt64",
+                          "value": "3"
+                        },
+                        {
+                          "value_type": "UInt64",
+                          "value": "4"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "Array",
+                  "value": [
+                    {
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "String",
+                          "value": "hello"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayRemove",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "array",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "array",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "isNotDistinctFrom",
+                              "arguments": [
                                 {
-                                  "kind": "literal",
-                                  "type": "UInt64",
-                                  "value": "0"
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16"
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "isNotDistinctFrom",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "16"
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "assumeNotNull",
+                                      "arguments": [
+                                        {
+                                          "type": "Function",
+                                          "name": "isNotNull",
+                                          "arguments": [
+                                            {
+                                              "type": "Function",
+                                              "name": "materialize",
+                                              "arguments": [
+                                                {
+                                                  "type": "Literal",
+                                                  "value_type": "UInt64",
+                                                  "value": "8"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
-                          },
-                          {
-                            "kind": "arrayLiteral",
-                            "elements": [
-                              {
-                                "kind": "literal",
-                                "type": "NULL",
-                                "value": "NULL"
-                              }
-                            ],
-                            "source": "[NULL]"
-                          }
-                        ]
-                      }
-                    ],
-                    "source": "[arrayMap(x -> materialize(0), [NULL])]"
-                  }
-                ],
-                "source": "[isNotDistinctFrom(isNull(assumeNotNull(16)), isNotDistinctFrom(isZeroOrNull(NULL), 16)), [], [arrayMap(x -> materialize(0), [NULL])]]"
-              },
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "isZeroOrNull",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "8"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "functionCall",
-                        "name": "isZeroOrNull",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "8"
-                          }
-                        ]
-                      }
-                    ],
-                    "source": "[isZeroOrNull(8)]"
-                  }
-                ],
-                "source": "[isZeroOrNull(8), [isZeroOrNull(8)]]"
-              }
-            ],
-            "source": "[[[isNotDistinctFrom(16, isNotDistinctFrom(16, assumeNotNull(isNotNull(materialize(8)))))]], [[materialize(toUInt128(8)), equals(2, isNull(isZeroOrNull(*)))], *], [isNotDistinctFrom(isNull(assumeNotNull(16)), isNotDistinctFrom(isZeroOrNull(NULL), 16)), [], [arrayMap(x -> materialize(0), [NULL])]], [isZeroOrNull(8), [isZeroOrNull(8)]]]"
-          },
-          {
-            "kind": "arrayLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayRemove",
-                    "args": [
-                      {
-                        "kind": "arrayLiteral",
-                        "elements": [
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "hello"
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "world"
-                          }
-                        ],
-                        "source": "['hello', 'world']"
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "concat",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "a"
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          },
-                          {
-                            "kind": "functionCall",
-                            "name": "equals",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "16"
-                              },
-                              {
-                                "kind": "functionCall",
-                                "name": "isNullable",
-                                "args": [
-                                  {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "8"
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "isNotDistinctFrom",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "16"
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "isNotDistinctFrom",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "isZeroOrNull",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "8"
-                              }
-                            ]
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "16"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "source": "[arrayRemove(['hello', 'world'], concat('a', 1, equals(16, isNullable(8)))), isNotDistinctFrom(16, isNotDistinctFrom(isZeroOrNull(8), 16))]"
-              }
-            ],
-            "source": "[[arrayRemove(['hello', 'world'], concat('a', 1, equals(16, isNullable(8)))), isNotDistinctFrom(16, isNotDistinctFrom(isZeroOrNull(8), 16))]]"
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_incompatible"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Variant",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "array",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "materialize",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "toUInt128",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "8"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "equals",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "isNull",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "isZeroOrNull",
+                                      "arguments": [
+                                        {
+                                          "type": "Asterisk"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Asterisk"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "isNotDistinctFrom",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "isNull",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "assumeNotNull",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "16"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "isNotDistinctFrom",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "isZeroOrNull",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "Null",
+                                      "value": null
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "array",
+                          "is_operator": true,
+                          "arguments": []
+                        },
+                        {
+                          "type": "Function",
+                          "name": "array",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "arrayMap",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "lambda",
+                                  "is_operator": true,
+                                  "is_lambda_function": true,
+                                  "kind": "LAMBDA_FUNCTION",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "tuple",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "x"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "materialize",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "Array",
+                                  "value": [
+                                    {
+                                      "value_type": "Null",
+                                      "value": null
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "isZeroOrNull",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "8"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "array",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "isZeroOrNull",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "8"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "array",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "arrayRemove",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "String",
+                                  "value": "hello"
+                                },
+                                {
+                                  "value_type": "String",
+                                  "value": "world"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "concat",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "a"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "equals",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "16"
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "isNullable",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "8"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "isNotDistinctFrom",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "16"
+                            },
+                            {
+                              "type": "Function",
+                              "name": "isNotDistinctFrom",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "isZeroOrNull",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "8"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
+      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test_variant_incompatible"
+        "type": "Identifier",
+        "name": "test_variant_incompatible"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Variant",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "+",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_incompatible"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_incompatible"
+      },
+      "format": "Values"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_incompatible"
-    },
-    "trailingComments": [
-      "-- {serverError NO_COMMON_TYPE}"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_variant_array"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Variant",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_incompatible"
+                  }
+                }
               }
-            },
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "Array",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_incompatible"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_array"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Variant",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Array",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "String"
                     }
-                  }
-                ]
-              }
+                  ]
+                }
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_variant_array"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayRemove",
-        "args": [
-          {
-            "kind": "arrayLiteral",
-            "elements": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "42"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              }
-            ],
-            "source": "[42, v]"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_variant_array"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_variant_array"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayRemove",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "array",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "42"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "v"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "100"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_variant_array"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

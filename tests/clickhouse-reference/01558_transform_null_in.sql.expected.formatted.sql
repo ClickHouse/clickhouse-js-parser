@@ -1,4 +1,4 @@
-SET transform_null_in = 1;
+SET transform_null_in = '1';
 
 DROP TABLE IF EXISTS null_in_1;
 
@@ -7,7 +7,7 @@ CREATE TABLE null_in_1
     u UInt32,
     n Nullable(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO null_in_1;
 
@@ -40,7 +40,7 @@ CREATE TABLE null_in_1
     a Nullable(UInt32),
     b Nullable(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO null_in_1;
 

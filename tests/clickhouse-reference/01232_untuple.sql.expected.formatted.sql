@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_named_columns_in_function_tuple = 1;
+SET enable_named_columns_in_function_tuple = '1';
 
-SELECT untuple(tuple(* EXCEPT (b)))
+SELECT untuple((* EXCEPT (b),))
 FROM (
         SELECT
             1 AS a,
@@ -12,7 +12,7 @@ FROM (
 
 SELECT
     'hello',
-    untuple(tuple(* EXCEPT (b))),
+    untuple((* EXCEPT (b),)),
     'world'
 FROM (
         SELECT
@@ -47,14 +47,14 @@ CREATE TABLE kv
     v4 int,
     v5 int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO kv;
 
 SELECT
     key,
-    untuple(argMax(tuple(* EXCEPT (key)), v1))
+    untuple(argMax((* EXCEPT (key),), v1))
 FROM kv
 GROUP BY key
 ORDER BY key ASC

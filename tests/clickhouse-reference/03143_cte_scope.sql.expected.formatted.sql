@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/56287
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tmp_a;
 
@@ -12,7 +12,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_a
     d1 Int32,
     d2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tmp_a;
@@ -25,7 +25,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_b
     k2 Int32,
     d0 Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tmp_b;

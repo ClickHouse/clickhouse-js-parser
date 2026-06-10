@@ -7,7 +7,7 @@ CREATE TABLE src_table
     time DateTime('UTC') DEFAULT fromUnixTimestamp(sipTimestamp),
     sipTimestamp UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY time;
 
 INSERT INTO src_table (sipTimestamp);

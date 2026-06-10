@@ -20,49 +20,27 @@ CREATE TABLE projection_test
     completed_bytes Nullable(UInt64),
     fixed_bytes Nullable(UInt64),
     force_bytes Nullable(UInt64),
-    PROJECTION p (    SELECT
-        toStartOfMinute(datetime) AS dt_m,
-        countIf(first_time = 0) / count(),
-        avg((kbytes * 8) / duration),
-        count(),
-        sum(block_count) / sum(duration),
-        avg(block_count / duration),
-        sum(buffer_time) / sum(duration),
-        avg(buffer_time / duration),
-        sum(valid_bytes) / sum(total_bytes),
-        sum(completed_bytes) / sum(total_bytes),
-        sum(fixed_bytes) / sum(total_bytes),
-        sum(force_bytes) / sum(total_bytes),
-        sum(valid_bytes) / sum(total_bytes),
-        sum(retry_count) / sum(duration),
-        avg(retry_count / duration),
-        countIf(block_count > 0) / count(),
-        countIf(first_time = 0) / count(),
-        uniqHLL12(x_id),
-        uniqHLL12(y_id)
-    GROUP BY
-        dt_m,
-        domain)
+    PROJECTION p (SELECT toStartOfMinute(datetime) AS dt_m, countIf(first_time = 0) / count(), avg(kbytes * 8 / duration), count(), sum(block_count) / sum(duration), avg(block_count / duration), sum(buffer_time) / sum(duration), avg(buffer_time / duration), sum(valid_bytes) / sum(total_bytes), sum(completed_bytes) / sum(total_bytes), sum(fixed_bytes) / sum(total_bytes), sum(force_bytes) / sum(total_bytes), sum(valid_bytes) / sum(total_bytes), sum(retry_count) / sum(duration), avg(retry_count / duration), countIf(block_count > 0) / count(), countIf(first_time = 0) / count(), uniqHLL12(x_id), uniqHLL12(y_id) GROUP BY dt_m, domain)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toStartOfTenMinutes(datetime)
 PARTITION BY toDate(datetime)
-SETTINGS index_granularity_bytes = 10000000, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity_bytes = '10000000', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO projection_test WITH rowNumberInAllBlocks() AS id
 
 SELECT
     1,
-    toDateTime('2020-10-24 00:00:00') + (id / 20),
+    toDateTime('2020-10-24 00:00:00') + id / 20,
     toString(id % 100),
     *
 FROM generateRandom('x_id String, y_id String, block_count Int64, retry_count Int64, duration Int64, kbytes Int64, buffer_time Int64, first_time Int64, total_bytes Nullable(UInt64), valid_bytes Nullable(UInt64), completed_bytes Nullable(UInt64), fixed_bytes Nullable(UInt64), force_bytes Nullable(UInt64)', 10, 10, 1)
 LIMIT 1000
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
-SET optimize_use_projections = 1, force_optimize_projection = 1;
+SET optimize_use_projections = '1', force_optimize_projection = '1';
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 SELECT *
 FROM projection_test; -- { serverError PROJECTION_NOT_USED }
@@ -83,7 +61,7 @@ ORDER BY dt_m ASC; -- { serverError PROJECTION_NOT_USED }
 SELECT
     toStartOfMinute(datetime) AS dt_m,
     countIf(first_time = 0) / count(),
-    avg((kbytes * 8) / duration)
+    avg(kbytes * 8 / duration)
 FROM projection_test
 WHERE domain = '1'
 GROUP BY dt_m
@@ -93,29 +71,29 @@ ORDER BY dt_m ASC;
 SELECT
     toStartOfMinute(datetime) AS dt_m,
     countIf(first_time = 0) / count(),
-    avg((kbytes * 8) / duration)
+    avg(kbytes * 8 / duration)
 FROM projection_test
 PREWHERE domain_alias = 3
 WHERE domain = '1'
 GROUP BY dt_m
 ORDER BY dt_m ASC;
 
-drop row policy if exists filter on projection_test;
+DROP ROW POLICY IF EXISTS filter ON projection_test;
 
-CREATE ROW POLICY filter ON projection_test USING (domain = 'non_existing_domain') TO ALL;
+CREATE ROW POLICY filter ON projection_test USING domain = 'non_existing_domain' TO ALL;
 
 -- prewhere with alias with row policy (non existing)
 SELECT
     toStartOfMinute(datetime) AS dt_m,
     countIf(first_time = 0) / count(),
-    avg((kbytes * 8) / duration)
+    avg(kbytes * 8 / duration)
 FROM projection_test
 PREWHERE domain_alias = 1
 WHERE domain = '1'
 GROUP BY dt_m
 ORDER BY dt_m ASC;
 
-drop row policy filter on projection_test;
+DROP ROW POLICY filter ON projection_test;
 
 -- TODO There is a bug in row policy filter (not related to projections, crash in master)
 -- drop row policy if exists filter on projection_test;
@@ -173,7 +151,7 @@ GROUP BY dt_h
 ORDER BY dt_h ASC;
 
 -- found by fuzzer
-SET enable_positional_arguments = 0, force_optimize_projection = 0;
+SET enable_positional_arguments = '0', force_optimize_projection = '0';
 
 SELECT
     2,
@@ -183,23 +161,23 @@ PREWHERE domain_alias = 1.
 WHERE domain = NULL
 GROUP BY -9223372036854775808
 ORDER BY
-    countIf(first_time = 0) / count(-2147483649) DESC,
-    1048576 DESC;
+    countIf(first_time = 0) / count(-2147483649) DESC NULLS LAST,
+    1048576 DESC NULLS LAST;
 
 DROP TABLE IF EXISTS projection_without_key;
 
 CREATE TABLE projection_without_key
 (
     key UInt32,
-    PROJECTION x (    SELECT max(key))
+    PROJECTION x (SELECT max(key))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO projection_without_key SELECT number
 FROM numbers(1000);
 
-SET force_optimize_projection = 1, optimize_use_projections = 1;
+SET force_optimize_projection = '1', optimize_use_projections = '1';
 
 SELECT max(key)
 FROM projection_without_key;

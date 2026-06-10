@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `0003566aaatable`
     `0003566aaabar` UInt16,
     `0003566aaabaz` UInt128
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM `system`.completions

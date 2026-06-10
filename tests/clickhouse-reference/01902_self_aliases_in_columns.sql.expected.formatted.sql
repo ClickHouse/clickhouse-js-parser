@@ -3,7 +3,7 @@ CREATE TABLE a
     number UInt64,
     x MATERIALIZED x
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number; --{ serverError CYCLIC_ALIASES}
 
 CREATE TABLE foo

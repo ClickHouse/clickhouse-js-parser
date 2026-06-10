@@ -1,7 +1,7 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/59604
 SELECT
     leftPad(toFixedString('abc', 3), 0),
-    leftPad('abc', CAST('0', 'Int32'));
+    leftPad('abc', CAST('0' AS Int32));
 
 SELECT
     leftPad(toFixedString('abc343243424324', 15), 1) AS a,
@@ -9,7 +9,7 @@ SELECT
 
 SELECT
     rightPad(toFixedString('abc', 3), 0),
-    rightPad('abc', CAST('0', 'Int32'));
+    rightPad('abc', CAST('0' AS Int32));
 
 SELECT
     rightPad(toFixedString('abc343243424324', 15), 1) AS a,

@@ -11,8 +11,8 @@ WITH TOTALS
 ORDER BY k ASC
 FORMAT Vertical;
 
-SET extremes = 1;
+SET extremes = '1';
 
-SET output_format_pretty_max_rows = 5;
+SET output_format_pretty_max_rows = '5';
 
-SET output_format_pretty_max_rows = 4;
+SET output_format_pretty_max_rows = '4';

@@ -17,4 +17,4 @@ DROP WORKLOAD IF EXISTS production;
 
 DROP WORKLOAD development;
 
-DROP WORKLOAD all;
+DROP WORKLOAD `all`;

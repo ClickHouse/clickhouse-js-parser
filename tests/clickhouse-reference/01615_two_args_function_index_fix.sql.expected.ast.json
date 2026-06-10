@@ -1,192 +1,205 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_date_time"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_date_time"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "time",
-        "type": {
-          "name": "Datetime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'Asia/Istanbul'"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "count",
-        "type": {
-          "name": "UInt16"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "bad_date_time"
+        "type": "Identifier",
+        "name": "bad_date_time"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_date_time"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "time",
+            "data_type": {
+              "type": "DataType",
+              "name": "Datetime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Asia/Istanbul"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "count",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt16"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "time"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toDate",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_date_time"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "time"
+              "type": "Function",
+              "alias": "dt",
+              "name": "toDate",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "time"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
               ]
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "UTC"
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toDateTime",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "UTC"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toDateTime",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "UTC"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "count"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "dt"
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bad_date_time"
+                  }
+                }
               }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "count"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "bad_date_time"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toDate",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "time"
             ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2020-12-19"
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "dt"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "UTC"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2020-12-19"
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "dt"
+            }
           ]
         }
       ]
-    },
-    "leadingComments": [
-      "-- primary key analysis was wrong in previous versions and did not take the timezone argument into account, so empty result was given."
-    ]
+    }
   }
 ]

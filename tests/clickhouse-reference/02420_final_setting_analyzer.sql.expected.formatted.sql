@@ -1,5 +1,5 @@
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SYSTEM STOP MERGES tbl;
 
@@ -17,7 +17,7 @@ INSERT INTO replacing_mt;
 SELECT count()
 FROM replacing_mt;
 
-SET final = 1;
+SET final = '1';
 
 -- JOIN test cases
 CREATE TABLE IF NOT EXISTS lhs
@@ -38,7 +38,7 @@ INSERT INTO lhs;
 
 INSERT INTO rhs;
 
-SET final = 0;
+SET final = '0';
 
 -- expected output is 4 because select_final == 0
 SELECT count()
@@ -72,7 +72,7 @@ AS
 SELECT *
 FROM mv_regular_mt_table;
 
-SET final = 1;
+SET final = '1';
 
 SELECT count()
 FROM nv_regular_mt_table;
@@ -173,7 +173,7 @@ ORDER BY
     val_left ASC,
     val_middle ASC,
     val_right ASC
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 -- extra: same with subquery
 SELECT
@@ -259,8 +259,8 @@ ORDER BY
 
 SELECT sum(number)
 FROM numbers(10)
-SETTINGS final = 1;
+SETTINGS final = '1';
 
 SELECT sum(number)
 FROM remote('127.0.0.{1,2}', numbers(10))
-SETTINGS final = 1;
+SETTINGS final = '1';

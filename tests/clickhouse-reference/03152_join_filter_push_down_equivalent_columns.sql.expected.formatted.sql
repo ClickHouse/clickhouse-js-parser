@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET query_plan_join_swap_table = false;
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 DROP TABLE IF EXISTS users;
 
@@ -12,7 +12,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (uid, name);
 
 INSERT INTO users;
@@ -29,7 +29,7 @@ CREATE TABLE users2
     name String,
     age2 Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (uid, name);
 
 INSERT INTO users2;
@@ -39,7 +39,7 @@ INSERT INTO users2;
 INSERT INTO users2;
 
 -- { echoOn }
-EXPLAIN header = 1, indexes = 1
+EXPLAIN header = '1', indexes = '1'
 SELECT name
 FROM
     users
@@ -49,7 +49,7 @@ WHERE users.name = 'Alice';
 
 SELECT '--';
 
-EXPLAIN header = 1, indexes = 1
+EXPLAIN header = '1', indexes = '1'
 SELECT name
 FROM
     users
@@ -57,7 +57,7 @@ LEFT JOIN users2
     USING (name)
 WHERE users.name = 'Alice';
 
-EXPLAIN header = 1, indexes = 1
+EXPLAIN header = '1', indexes = '1'
 SELECT name
 FROM
     users

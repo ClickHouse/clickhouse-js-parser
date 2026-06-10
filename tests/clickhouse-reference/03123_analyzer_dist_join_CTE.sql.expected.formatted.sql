@@ -1,7 +1,7 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/22923
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 CREATE TABLE t0
 (

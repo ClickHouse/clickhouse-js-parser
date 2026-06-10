@@ -7,14 +7,14 @@ CREATE TABLE default_join1
     a Int64,
     b Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE default_join2
 (
     a Int64,
     b Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO default_join1;
 

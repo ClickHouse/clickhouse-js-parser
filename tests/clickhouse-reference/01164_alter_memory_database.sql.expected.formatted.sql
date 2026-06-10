@@ -3,7 +3,7 @@
 DROP DATABASE IF EXISTS test_1164_memory;
 
 CREATE DATABASE test_1164_memory
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test_1164_memory.r1
 (
@@ -21,9 +21,9 @@ ORDER BY n;
 
 ALTER TABLE test_1164_memory.r1 ADD COLUMN m int;
 
-SYSTEM sync replica test_1164_memory.r1;
+SYSTEM SYNC REPLICA test_1164_memory.r1;
 
-SYSTEM sync replica test_1164_memory.r2;
+SYSTEM SYNC REPLICA test_1164_memory.r2;
 
 SHOW CREATE TABLE test_1164_memory.r1;
 

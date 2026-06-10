@@ -11,7 +11,7 @@ LIMIT 50000;
 
 SELECT count(*)
 FROM report_metrics_v2
-WHERE (intDiv(a, 50) = 200)
-    AND (intDiv(a, 50000) = 0);
+WHERE intDiv(a, 50) = 200
+    AND intDiv(a, 50000) = 0;
 
 DROP TABLE report_metrics_v2;

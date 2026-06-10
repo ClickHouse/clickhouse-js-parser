@@ -1,314 +1,156 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Test that text index direct read optimization works correctly with nullable needles."
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        },
-        "indexType": {
-          "name": "text",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "splitByNonAlpha"
-              }
-            }
-          ]
-        },
-        "granularity": 1
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasAnyTokens",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toNullable",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "hello"
-            }
-          ]
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- When hasAnyTokens has a nullable needle, the result type is Nullable(UInt8).",
-      "-- The text index direct read optimization should correctly handle this by wrapping the result with toNullable."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "prewhere": {
-      "kind": "functionCall",
-      "name": "hasAnyTokens",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toNullable",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "hello"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "unaryExpr",
-      "op": "NOT",
-      "expr": {
-        "kind": "functionCall",
-        "name": "hasAnyTokens",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "val"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           },
           {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "FOO"
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "val"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
           }
         ]
-      }
-    },
-    "leadingComments": [
-      "-- Test with not() which also returns Nullable(UInt8) when its argument is nullable"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "prewhere": {
-      "kind": "unaryExpr",
-      "op": "NOT",
-      "expr": {
-        "kind": "functionCall",
-        "name": "hasAnyTokens",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "val"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "FOO"
-              }
-            ]
-          }
-        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "prewhere": {
-      "kind": "functionCall",
-      "name": "and",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "key"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "functionCall",
+          "where": {
+            "type": "Function",
             "name": "hasAnyTokens",
-            "args": [
+            "arguments": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "val"
-                ]
+                "type": "Identifier",
+                "name": "val"
               },
               {
-                "kind": "functionCall",
+                "type": "Function",
                 "name": "toNullable",
-                "args": [
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "FOO"
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "hello"
                   }
                 ]
               }
@@ -316,17 +158,270 @@
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Test in a more complex expression (similar to the fuzzer query that caused the failure)"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "hasAnyTokens",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "val"
+              },
+              {
+                "type": "Function",
+                "name": "toNullable",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "hello"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "not",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasAnyTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "val"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toNullable",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "FOO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "not",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasAnyTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "val"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toNullable",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "FOO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "and",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "hasAnyTokens",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "val"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toNullable",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "FOO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
     }
   }
 ]

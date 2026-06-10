@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS regression_for_in_operator_view;
 
 DROP TABLE IF EXISTS regression_for_in_operator;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE regression_for_in_operator
 (
@@ -13,7 +13,7 @@ CREATE TABLE regression_for_in_operator
 ENGINE = MergeTree(d, d, 8192);
 
 CREATE MATERIALIZED VIEW regression_for_in_operator_view
-ENGINE = AggregatingMergeTree(d, (d,g), 8192)
+ENGINE = AggregatingMergeTree(d, (d, g), 8192)
 AS
 SELECT
     d,
@@ -43,7 +43,7 @@ SELECT count()
 FROM regression_for_in_operator_view
 WHERE g IN ('5', '6');
 
-SET optimize_min_equality_disjunction_chain_length = 1;
+SET optimize_min_equality_disjunction_chain_length = '1';
 
 SELECT count()
 FROM regression_for_in_operator_view
@@ -54,16 +54,16 @@ SELECT count()
 FROM regression_for_in_operator_view
 WHERE g = '5'
     OR g = '6'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT count()
 FROM regression_for_in_operator_view
 WHERE g = '5'
     OR g = '6'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
-SET optimize_min_equality_disjunction_chain_length = 3;
+SET optimize_min_equality_disjunction_chain_length = '3';
 
 DROP TABLE regression_for_in_operator_view;
 

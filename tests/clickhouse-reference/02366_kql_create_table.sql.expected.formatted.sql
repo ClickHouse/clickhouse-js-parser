@@ -8,7 +8,7 @@ CREATE TABLE Customers
     Education String,
     Age Nullable(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO Customers;
 
@@ -30,7 +30,7 @@ CREATE TABLE kql_table2
     LastName String,
     Age Nullable(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM kql_table2

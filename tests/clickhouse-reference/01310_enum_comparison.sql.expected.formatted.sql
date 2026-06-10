@@ -17,4 +17,4 @@ SELECT count()
 FROM enum
 WHERE x = 'xyz';
 
-SET validate_enum_literals_in_operators = 1;
+SET validate_enum_literals_in_operators = '1';

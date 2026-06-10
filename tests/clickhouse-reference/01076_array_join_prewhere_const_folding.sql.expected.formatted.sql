@@ -1,4 +1,4 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT 1
 LIMIT 0;

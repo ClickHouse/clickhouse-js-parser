@@ -120,7 +120,7 @@ CREATE TABLE electric_vehicle_state
     cabin_temperature Nullable(Float32),
     speed_kmh Nullable(Float32)
 )
-ENGINE = CoalescingMergeTree
+ENGINE = CoalescingMergeTree()
 ORDER BY vin;
 
 -- ① Initial battery and firmware readings

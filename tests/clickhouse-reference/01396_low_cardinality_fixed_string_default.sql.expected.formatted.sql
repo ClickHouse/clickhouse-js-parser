@@ -9,7 +9,7 @@ ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id;
 
-INSERT INTO test;
+INSERT INTO test FORMAT CSV;
 
 OPTIMIZE TABLE test;
 

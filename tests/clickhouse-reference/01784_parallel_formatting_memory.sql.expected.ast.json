@@ -1,60 +1,72 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "1G"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "1G"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "range",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "65535"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "one"
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "range",
-            "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "range",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "65535"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "65536"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "one",
+                    "database": "system"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Function",
+                      "alias": "number",
+                      "name": "range",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "65536"
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             ]
-          },
-          "alias": "number"
+          }
         }
       ]
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+    }
   }
 ]

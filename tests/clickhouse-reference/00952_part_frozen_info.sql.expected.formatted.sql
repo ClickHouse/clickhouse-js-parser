@@ -4,8 +4,8 @@ CREATE TABLE part_info
 (
     t DateTime
 )
-ENGINE = MergeTree
-ORDER BY (t)
+ENGINE = MergeTree()
+ORDER BY t
 PARTITION BY toDate(t);
 
 INSERT INTO part_info;

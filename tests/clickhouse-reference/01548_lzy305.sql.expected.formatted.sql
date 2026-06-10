@@ -64,10 +64,10 @@ CREATE TABLE fct_rt_dc_shop_sku_vender_day
     rt_fresh_dc_shops LowCardinality(Nullable(String)),
     stat_day_num String DEFAULT formatDateTime(stat_day, '%F')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (stat_day, out_shop_id)
 PARTITION BY toYYYYMM(stat_day)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 SELECT
     stat_year,

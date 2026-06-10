@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS test;
 
 DROP TABLE IF EXISTS test_view;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test
 (
@@ -18,7 +18,7 @@ AS
 SELECT *
 FROM test;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 -- Optimize predicate expression with view
 EXPLAIN SYNTAX

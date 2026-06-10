@@ -7,12 +7,12 @@ SELECT
     [NULL]
 FROM (
         SELECT
-            [multiIf((number % 1023) = -inf, toString(number), NULL)],
+            [multiIf(number % 1023 = -inf, toString(number), NULL)],
             NULL,
             '-1',
-            multiIf((number % NULL) = NULL, toString(number), ''),
+            multiIf(number % NULL = NULL, toString(number), ''),
             [NULL, NULL],
-            multiIf((number % NULL) = 65536, toString(number), '') AS s
+            multiIf(number % NULL = 65536, toString(number), '') AS s
         FROM `system`.numbers
     )
 LIMIT 1024

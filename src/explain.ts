@@ -1,67 +1,70 @@
 import {
-  AlterStatement,
-  AlterCommand,
-  AlterPartitionExpr,
-  AuthenticationData,
-  BinaryExpr,
-  CodecItem,
-  DataType,
-  DataTypeArg,
+  ArrayJoinNode,
+  SampleRatioNode,
+  ExpressionListNode,
+  TableIdentifierNode,
+  RefreshStrategyNode,
+  ASTNode,
+  QueryParameterNode,
+  DropQueryNode,
+  InsertQueryNode,
+  UseQueryNode,
+  ExplainQueryNode,
+  ExecuteAsQueryNode,
+  OptimizeQueryNode,
+  DescribeQueryNode,
+  CheckQueryNode,
+  AttachQueryNode,
+  RenameNode,
+  KillQueryQueryNode,
+  DeleteQueryNode,
+  UpdateQueryNode,
+  AssignmentNode,
+  UserNameWithHostNode,
+  DetachQueryNode,
+  TruncateQueryNode,
+  UndropQueryNode,
+  SelectQueryNode,
+  SelectWithUnionQueryNode,
+  SelectIntersectExceptQueryNode,
+  TableExpressionNode,
+  TableJoinNode,
+  TablesInSelectQueryNode,
+  WithItem,
+  ColumnsTransformerListNode,
   Identifier,
-  IndexType,
-  Literal,
-  ShowStatement,
-  CTE,
-  ColumnDef,
-  ColumnTransformer,
-  CreateTableStatement,
-  CreateViewStatement,
-  CreateMaterializedViewStatement,
-  CreateDatabaseStatement,
-  CreateFunctionStatement,
-  CreateIndexStatement,
-  CreateDictionaryStatement,
-  CreateWorkloadStatement,
-  ExplainStatement,
+  LiteralNode,
+  LiteralElement,
+  IdentifierNode,
+  PartitionNode,
+  PartitionIdNode,
+  AccessQueryNode,
+  FunctionNode,
+  OrderByElementNode,
+  CreateQueryNode,
+  CreateFunctionQueryNode,
+  CreateIndexQueryNode,
+  AlterQueryNode,
+  AlterCommandNode,
+  SystemQueryNode,
+  ShowFamilyQueryNode,
+  BackupQueryNode,
+  ParallelWithQueryNode,
+  DropIndexQueryNode,
   Expression,
-  FromExpr,
-  InsertStatement,
-  ParallelWithStatement,
-  JoinConstraint,
-  OrderByItem,
-  SampleClause,
-  SelectStatement,
-  SettingItem,
   Statement,
   StatementsSchema,
-  SubqueryFrom,
-  TableFunctionRef,
-  TableRef,
-  WindowSpec,
+  StorageNode,
+  WindowDefinitionNode,
+  ColumnsNode,
+  ColumnDeclarationNode,
+  ProjectionNode,
+  TTLElementNode,
+  DictionaryAttributeDeclarationNode,
 } from './ast';
-import { isCreateTableStatement } from './guards';
 
-const OP_TO_FUNCTION: Record<string, string> = {
-  AND: 'and',
-  OR: 'or',
-  '>': 'greater',
-  '<': 'less',
-  '>=': 'greaterOrEquals',
-  '<=': 'lessOrEquals',
-  '=': 'equals',
-  '==': 'equals',
-  '!=': 'notEquals',
-  '<>': 'notEquals',
-  '+': 'plus',
-  '-': 'minus',
-  '*': 'multiply',
-  '/': 'divide',
-  '%': 'modulo',
-  DIV: 'intDiv',
-  MOD: 'modulo',
-  '<=>': 'isNotDistinctFrom',
-  'IS DISTINCT FROM': 'isDistinctFrom',
-  'IS NOT DISTINCT FROM': 'isNotDistinctFrom',
+type CreateLikeNode = CreateQueryNode & {
+  attach?: boolean;
 };
 
 type ExplainNode = { label: string; children: ExplainNode[] };
@@ -72,8 +75,29 @@ function n(label: string, children: ExplainNode[] = []): ExplainNode {
 
 // Canonical string rendering for an Identifier (plain name or query-param).
 function id(x: Identifier): string {
-  return typeof x === 'string' ? x : `{${x.name}:${x.type}}`;
+  return typeof x === 'string' ? x : `{${x.name}:${x.param_type}}`;
 }
+
+// `Identifier <name>` leaf — the ubiquitous EXPLAIN child for a bare name.
+function identifier(name: string): ExplainNode {
+  return n(`Identifier ${name}`);
+}
+
+// `ExpressionList` wrapping the explain projection of each expression. An empty
+// input yields a childless `ExpressionList`, matching ClickHouse.
+function exprList(exprs: Expression[]): ExplainNode {
+  return n('ExpressionList', exprs.map(exprNode));
+}
+
+// `Function <name>` with its argument `ExpressionList` child (empty when there
+// are no arguments) — ClickHouse always emits the list for parenthesized forms.
+function functionNode(name: string, args: Expression[]): ExplainNode {
+  return n(`Function ${name}`, [exprList(args)]);
+}
+
+// Childless `Set` node — every SETTINGS clause collapses to this in EXPLAIN
+// output. Shared since it is immutable and render() only reads it.
+const SET: ExplainNode = { label: 'Set', children: [] };
 
 function render(node: ExplainNode, depth = 0): string {
   const indent = ' '.repeat(depth);
@@ -83,117 +107,6 @@ function render(node: ExplainNode, depth = 0): string {
     lines.push(render(child, depth + 1));
   }
   return lines.join('\n');
-}
-
-function normalizeTypeName(type: string): string {
-  // Normalize type name for ClickHouse EXPLAIN output:
-  // - Collapse whitespace to single space
-  // - Strip spaces adjacent to ( and ) outside quoted strings
-  // - Add ", " after commas outside quoted strings
-  // - Add " = " around bare = outside quoted strings (e.g. Dynamic(max_types=0))
-  // - Escape backslashes as \\ and single quotes as \' throughout
-  // Process character-by-character to avoid modifying content inside single-quoted strings.
-  let result = '';
-  let inString = false;
-  const s = type.replace(/\s+/g, ' ').trim();
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (inString) {
-      if (ch === '\\') {
-        // Double each backslash so the label output shows it correctly
-        result += '\\\\';
-      } else if (ch === "'") {
-        result += "\\'";
-        inString = false;
-      } else {
-        result += ch;
-      }
-    } else {
-      if (ch === "'") {
-        result += "\\'";
-        inString = true;
-      } else if (ch === '(' || ch === ')') {
-        result = result.trimEnd();
-        // Strip trailing comma before closing paren (e.g. Tuple(a Int, b String,) → Tuple(a Int, b String))
-        if (ch === ')' && result.endsWith(',')) result = result.slice(0, -1).trimEnd();
-        result += ch;
-        if (i + 1 < s.length && s[i + 1] === ' ') i++;
-      } else if (ch === ',') {
-        result = result.trimEnd();
-        result += ', ';
-        if (i + 1 < s.length && s[i + 1] === ' ') i++;
-      } else if (ch === '=' && result.length > 0 && /[\w']/.test(result[result.length - 1])) {
-        result = result.trimEnd() + ' = ';
-        if (i + 1 < s.length && s[i + 1] === ' ') i++;
-      } else if (ch === '\\') {
-        result += '\\\\';
-      } else {
-        result += ch;
-      }
-    }
-  }
-  // Empty Tuple() → Tuple (ClickHouse displays empty tuple type without parens)
-  return quoteJsonPaths(result).replace(/\bTuple\(\)/g, 'Tuple');
-}
-
-// In JSON type specs, unquoted dotted paths followed by a type name need backtick quoting.
-// E.g.: JSON(a.b.c.d Bool) → JSON(`a.b.c.d` Bool)
-// Paths after SKIP or REGEXP keywords are NOT quoted.
-// Already-backtick-quoted paths are left untouched.
-function quoteJsonPaths(s: string): string {
-  // Find each JSON(...) section with balanced parens and quote dotted paths inside.
-  let result = '';
-  let i = 0;
-  while (i < s.length) {
-    const idx = s.indexOf('JSON(', i);
-    if (idx === -1) {
-      result += s.slice(i);
-      break;
-    }
-    result += s.slice(i, idx + 5); // include 'JSON('
-    i = idx + 5;
-    // Find the matching closing paren (balanced)
-    let depth = 1;
-    const start = i;
-    while (i < s.length && depth > 0) {
-      if (s[i] === '(') depth++;
-      else if (s[i] === ')') depth--;
-      i++;
-    }
-    const inner = s.slice(start, i - 1);
-    result += quoteJsonInner(inner) + ')';
-  }
-  return result;
-}
-
-function quoteJsonInner(inner: string): string {
-  // Split by top-level commas, process each param, then rejoin with ', '.
-  const parts: string[] = [];
-  let depth = 0;
-  let start = 0;
-  for (let i = 0; i < inner.length; i++) {
-    const ch = inner[i];
-    if (ch === '(' || ch === '[') depth++;
-    else if (ch === ')' || ch === ']') depth--;
-    else if (ch === ',' && depth === 0) {
-      parts.push(inner.slice(start, i).trim());
-      start = i + 1;
-    }
-  }
-  parts.push(inner.slice(start).trim());
-
-  const processed = parts.map((part) => {
-    // Don't touch SKIP/REGEXP params or settings (word = value)
-    if (/^SKIP\s|^REGEXP\s|^\w+ *=/.test(part)) return part;
-    // Match an unquoted path (possibly dotted) followed by a space and the type
-    const m = part.match(/^([a-zA-Z_%][a-zA-Z0-9_%.]*)(\s+.+)$/);
-    if (m && m[1].includes('.')) {
-      return '`' + m[1] + '`' + m[2];
-    }
-    return part;
-  });
-
-  return processed.join(', ');
 }
 
 function normalizeFloat(value: string): string {
@@ -207,46 +120,40 @@ function normalizeFloat(value: string): string {
   return f.toString().replace('e+', 'e');
 }
 
-function normalizeUInt(value: string): string {
-  if (value.startsWith('0x') || value.startsWith('0X')) {
-    // Use BigInt to avoid precision loss for large 64-bit hex values
-    return BigInt(value).toString();
-  }
-  if (value.startsWith('0b') || value.startsWith('0B')) {
-    return BigInt(value).toString();
-  }
-  return value;
-}
-
-function columnTransformerNode(t: ColumnTransformer): ExplainNode {
-  if (t.kind === 'apply') return n('ColumnsApplyTransformer');
-  if (t.kind === 'except') {
-    // String-pattern EXCEPT has no children; column-list EXCEPT has Identifier children
-    if (t.pattern) return n('ColumnsExceptTransformer');
-    return n(
-      'ColumnsExceptTransformer',
-      t.columns.map((c) => n(`Identifier ${c}`)),
-    );
-  }
-  // replace
+function transformerListNode(
+  list: ColumnsTransformerListNode | ColumnsTransformerListNode['children'],
+): ExplainNode {
+  // Accept either the `ColumnsTransformerList` node (qualified matchers) or
+  // a flat transformer array (plain matchers / asterisks). The explain output
+  // always wraps them in a synthetic `ColumnsTransformerList` node.
+  const items = Array.isArray(list) ? list : list.children;
   return n(
-    'ColumnsReplaceTransformer',
-    t.items.map((item) => n('ColumnsReplaceTransformer::Replacement', [exprNode(item.expr)])),
+    'ColumnsTransformerList',
+    items.map((t) => {
+      if (t.type === 'ColumnsApplyTransformer') return n('ColumnsApplyTransformer');
+      if (t.type === 'ColumnsExceptTransformer') {
+        // String-pattern EXCEPT has no children; column-list EXCEPT has Identifier children
+        if (t.pattern !== undefined) return n('ColumnsExceptTransformer');
+        return n('ColumnsExceptTransformer', (t.columns ?? []).map(exprNode));
+      }
+      // replace
+      return n(
+        'ColumnsReplaceTransformer',
+        t.replacements.map((item) =>
+          n('ColumnsReplaceTransformer::Replacement', [exprNode(item.expression)]),
+        ),
+      );
+    }),
   );
 }
 
-function transformerListNode(transformers: ColumnTransformer[]): ExplainNode {
-  return n('ColumnsTransformerList', transformers.map(columnTransformerNode));
-}
-
+// Escape a decoded string value for ClickHouse's quoted explain-label form.
+// \a (0x07), \v (0x0B), and \e (0x1B) control characters pass through raw,
+// matching ClickHouse EXPLAIN output.
 function escapeStringValue(value: string): string {
-  // The grammar stores strings in pre-escaped form:
-  // - \b, \f, \n, \r, \t, \0, \\ are stored as their two-char sequences (backslash + letter)
-  //   and should be output as-is (no additional escaping).
-  // - \' is stored as a plain single quote and must be re-escaped as \'.
-  // - Actual control characters (literal tab, newline, etc.) must be escaped.
   return (
     value
+      .replace(/\\/g, '\\\\') // backslash → \\
       .replace(/'/g, "\\'") // escape single quotes: ' → \'
       // eslint-disable-next-line no-control-regex
       .replace(/\x08/g, '\\b') // actual backspace → \b
@@ -258,802 +165,336 @@ function escapeStringValue(value: string): string {
   ); // actual null byte → \0
 }
 
-function literalLabel(expr: Expression & { kind: 'literal' }): string {
-  if (expr.type === 'String') return `Literal '${escapeStringValue(expr.value)}'`;
-  if (expr.type === 'NULL') return 'Literal NULL';
-  if (expr.type === 'Bool') return `Literal Bool_${expr.value}`;
-  if (expr.type === 'Float64') return `Literal Float64_${normalizeFloat(expr.value)}`;
-  if (expr.type === 'Int64') {
-    // ClickHouse represents -0 as UInt64_0
-    if (expr.value === '0') return 'Literal UInt64_0';
-    return `Literal Int64_${expr.value}`;
-  }
-  return `Literal UInt64_${normalizeUInt(expr.value)}`;
-}
-
-// Inline representation of an expression used inside Array/Tuple literals.
-// Returns null if the expression cannot be represented inline (meaning the containing
-// array should use the Function form instead of the Literal Array_ form).
-function inlineExpr(expr: Expression): string | null {
-  // Parenthesized elements force Function form for the containing array/tuple
-  if ((expr as Record<string, unknown>).parenthesized) return null;
-  switch (expr.kind) {
-    case 'literal':
-      if (expr.type === 'String') return `'${escapeStringValue(expr.value)}'`;
-      if (expr.type === 'NULL') return 'NULL';
-      if (expr.type === 'Bool') return `Bool_${expr.value}`;
-      if (expr.type === 'Float64') return `Float64_${normalizeFloat(expr.value)}`;
-      if (expr.type === 'Int64') return expr.value === '0' ? 'UInt64_0' : `Int64_${expr.value}`;
-      return `UInt64_${normalizeUInt(expr.value)}`;
-    case 'arrayLiteral': {
-      // Empty arrays use Function array form, not literal
-      if (expr.elements.length === 0) return null;
-      const inlines = expr.elements.map(inlineExpr);
-      if (inlines.some((i) => i === null)) return null;
-      return `Array_[${inlines.join(', ')}]`;
+// Type-prefixed dump of a literal (or an Array_/Tuple_ element) for explain
+// labels, e.g. `UInt64_1`, `Array_[UInt64_1, 'a']`. Mirrors ClickHouse's
+// Literal::appendColumnName. `_nonfinite` re-spells `inf`/`-0`, which the native
+// JSON `value` collapses to `null`/`0`.
+function literalDump(lit: LiteralElement): string {
+  switch (lit.value_type) {
+    case 'String':
+      return `'${escapeStringValue(String(lit.value))}'`;
+    case 'Null':
+      return 'NULL';
+    case 'Bool':
+      return `Bool_${lit.value ? '1' : '0'}`;
+    case 'Float64': {
+      const spelled =
+        lit.value === null
+          ? (lit._nonfinite ?? 'nan')
+          : lit._nonfinite === '-0'
+            ? '-0'
+            : String(lit.value);
+      return `Float64_${normalizeFloat(spelled)}`;
     }
+    case 'Int64':
+      return `Int64_${String(lit.value)}`;
+    case 'UInt64':
+      // `value` is already the canonical decimal-digit string.
+      return `UInt64_${String(lit.value)}`;
+    case 'Array':
+      return `Array_[${(Array.isArray(lit.value) ? lit.value : []).map(literalDump).join(', ')}]`;
+    case 'Tuple':
+      return `Tuple_(${(Array.isArray(lit.value) ? lit.value : []).map(literalDump).join(', ')})`;
     default:
-      // column refs, function calls, tuples, etc. are not inline-able
-      return null;
+      return String(lit.value);
   }
 }
 
-// Inline a tuple literal recursively: only literals and nested tuples-of-literals are inlineable.
-// Arrays inside tuples are NOT inlined here — use inlineInValue for IN context.
-function inlineTupleLiteral(expr: Expression): string | null {
-  if ((expr as Record<string, unknown>).parenthesized) return null;
-  if (expr.kind === 'literal') return inlineExpr(expr);
-  if (expr.kind === 'tupleLiteral') {
-    const inlines = expr.elements.map(inlineTupleLiteral);
-    if (inlines.some((i) => i === null)) return null;
-    return `Tuple_(${inlines.join(', ')})`;
-  }
-  return null;
+function literalLabel(expr: LiteralNode): string {
+  return `Literal ${literalDump(expr)}`;
 }
 
-// Like inlineExpr but also handles tuple elements recursively — used for IN values
-// where tuples can appear as `Tuple_(...)` inside an outer `Literal Tuple_`.
-// Arrays inside tuples are NOT inlined (ClickHouse renders them as Function tuple).
-function inlineInValue(expr: Expression): string | null {
-  // Arrays as IN values are not inlined when they appear inside tuples
-  if (expr.kind === 'arrayLiteral') return null;
-  const inline = inlineExpr(expr);
-  if (inline !== null) return inline;
-  if (expr.kind === 'tupleLiteral') {
-    const inlines = expr.elements.map(inlineInValue);
-    if (inlines.some((i) => i === null)) return null;
-    return `Tuple_(${inlines.join(', ')})`;
-  }
-  return null;
+// Alias suffix for a node label: ` (alias x)` when an inline alias is present.
+function aliasSuffix(expr: { alias?: string }): string {
+  return expr.alias !== undefined ? ` (alias ${expr.alias})` : '';
 }
 
-// Build WindowDefinition node from a parsed WindowSpec.
+// Build WindowDefinition node from a WindowDefinitionNode.
 // Children: optional ExpressionList(PARTITION BY), optional ExpressionList(ORDER BY with OrderByElements),
-// then frame bound expressions (only for non-UNBOUNDED, non-CURRENT_ROW bounds).
-function windowDefinitionNode(spec: WindowSpec): ExplainNode {
+// then frame bound offset expressions (only for Offset bounds).
+function windowDefinitionNode(spec: WindowDefinitionNode): ExplainNode {
   const children: ExplainNode[] = [];
-  if (spec.partitionBy && spec.partitionBy.length > 0) {
-    children.push(n('ExpressionList', spec.partitionBy.map(exprNode)));
+  if (spec.partition_by && spec.partition_by.length > 0) {
+    children.push(exprList(spec.partition_by));
   }
-  if (spec.orderBy && spec.orderBy.length > 0) {
-    children.push(n('ExpressionList', spec.orderBy.map(orderByNode)));
+  if (spec.order_by && spec.order_by.length > 0) {
+    children.push(n('ExpressionList', spec.order_by.map(orderByNode)));
   }
-  if (spec.frame) {
-    const { start, end } = spec.frame;
-    if (start.kind === 'preceding' || start.kind === 'following') {
-      children.push(exprNode(start.expr));
-    }
-    if (end && (end.kind === 'preceding' || end.kind === 'following')) {
-      children.push(exprNode(end.expr));
-    }
+  if (spec.frame_begin?.type === 'Offset') {
+    children.push(exprNode(spec.frame_begin.offset));
+  }
+  if (spec.frame_end?.type === 'Offset') {
+    children.push(exprNode(spec.frame_end.offset));
   }
   return n('WindowDefinition', children);
 }
 
-// Build a synthetic subquery node for ANY/ALL rewriting:
-// SELECT aggFunc(*) FROM (subquery) [with duplicated children]
-function syntheticAggSubquery(aggFunc: string, subqueryStmt: Statement): ExplainNode {
-  const aggNode = n(`Function ${aggFunc}`, [n('ExpressionList', [n('Asterisk')])]);
-  const fromNode = n('TablesInSelectQuery', [
-    n('TablesInSelectQueryElement', [
-      n('TableExpression', [n('Subquery', [stmtNode(subqueryStmt)])]),
-    ]),
-  ]);
-  // ClickHouse duplicates the select+from children in the synthetic query
-  const selectQuery = n('SelectQuery', [
-    n('ExpressionList', [aggNode]),
-    fromNode,
-    n('ExpressionList', [n(`Function ${aggFunc}`, [n('ExpressionList', [n('Asterisk')])])]),
-    n('TablesInSelectQuery', [
-      n('TablesInSelectQueryElement', [
-        n('TableExpression', [n('Subquery', [stmtNode(subqueryStmt)])]),
-      ]),
-    ]),
-  ]);
-  return n('Subquery', [n('SelectWithUnionQuery', [n('ExpressionList', [selectQuery])])]);
-}
-
-// Rewrite x op ANY/ALL (subquery) to ClickHouse canonical form
-function rewriteAnyAll(expr: BinaryExpr): ExplainNode | null {
-  if (expr.right.kind !== 'functionCall') return null;
-  const fname = expr.right.name.toLowerCase();
-  if (fname !== 'any' && fname !== 'all') return null;
-  if (expr.right.args.length !== 1 || expr.right.args[0].kind !== 'subqueryExpr') return null;
-
-  const subqueryStmt = expr.right.args[0].query;
-  const leftNode = exprNode(expr.left);
-  const op = expr.op;
-  const isAny = fname === 'any';
-
-  // == ANY → in, != ALL → notIn
-  if ((op === '==' || op === '=') && isAny) {
-    return n('Function in', [
-      n('ExpressionList', [leftNode, n('Subquery', [stmtNode(subqueryStmt)])]),
-    ]);
-  }
-  if ((op === '!=' || op === '<>') && !isAny) {
-    return n('Function notIn', [
-      n('ExpressionList', [leftNode, n('Subquery', [stmtNode(subqueryStmt)])]),
-    ]);
-  }
-
-  // == ALL → in with singleValueOrNull, != ANY → notIn with singleValueOrNull
-  if ((op === '==' || op === '=') && !isAny) {
-    return n('Function in', [
-      n('ExpressionList', [leftNode, syntheticAggSubquery('singleValueOrNull', subqueryStmt)]),
-    ]);
-  }
-  if ((op === '!=' || op === '<>') && isAny) {
-    return n('Function notIn', [
-      n('ExpressionList', [leftNode, syntheticAggSubquery('singleValueOrNull', subqueryStmt)]),
-    ]);
-  }
-
-  // Comparison ops: determine aggregate function and ClickHouse comparison function
-  const compFunc = OP_TO_FUNCTION[op];
-  if (!compFunc) return null;
-
-  // ANY: < <= use max, > >= use min
-  // ALL: < <= use min, > >= use max
-  let aggFunc: string;
-  if (isAny) {
-    aggFunc = op === '<' || op === '<=' ? 'max' : 'min';
-  } else {
-    aggFunc = op === '<' || op === '<=' ? 'min' : 'max';
-  }
-
-  return n(`Function ${compFunc}`, [
-    n('ExpressionList', [leftNode, syntheticAggSubquery(aggFunc, subqueryStmt)]),
-  ]);
-}
-
 function exprNode(expr: Expression): ExplainNode {
-  switch (expr.kind) {
-    case 'literal':
-      return n(literalLabel(expr));
-    case 'columnRef': {
-      // Format each column ref part for ClickHouse EXPLAIN output:
-      // - ^name (JSON object subcolumn): ^`name`
-      // - name[] (JSON array subcolumn): name.:`Array(JSON)`  (expands into two dot-separated parts)
-      // - other parts: unchanged
-      const formattedParts: string[] = [];
-      for (const rawPart of expr.parts) {
-        const part = id(rawPart);
-        if (part.startsWith('^')) {
-          formattedParts.push(`^\`${part.slice(1)}\``);
-        } else if (part.endsWith('[]')) {
-          formattedParts.push(part.slice(0, -2));
-          formattedParts.push(':`Array(JSON)`');
-        } else {
-          formattedParts.push(part);
-        }
-      }
-      return n(`Identifier ${formattedParts.join('.')}`);
-    }
-    case 'asterisk': {
-      const transformers = expr.transformers;
-      if (transformers && transformers.length > 0) {
-        return n('Asterisk', [transformerListNode(transformers)]);
+  switch (expr.type) {
+    case 'Literal':
+      return n(literalLabel(expr) + aliasSuffix(expr));
+    case 'Identifier':
+      return n(`Identifier ${expr.name}` + aliasSuffix(expr));
+    case 'Asterisk': {
+      // (Includes tuple expansion `expr.*` — the base expression is not rendered.)
+      if (expr.transformers !== undefined) {
+        return n('Asterisk', [transformerListNode(expr.transformers)]);
       }
       return n('Asterisk');
     }
-    case 'qualifiedAsterisk': {
-      const qChildren: ExplainNode[] = [n(`Identifier ${expr.parts.map(id).join('.')}`)];
-      if (expr.transformers && expr.transformers.length > 0) {
+    case 'QualifiedAsterisk': {
+      const qChildren: ExplainNode[] = [exprNode(expr.qualifier)];
+      if (expr.transformers !== undefined) {
         qChildren.push(transformerListNode(expr.transformers));
       }
       return n('QualifiedAsterisk', qChildren);
     }
-    case 'tupleExpansion': {
-      const teChildren: ExplainNode[] = [];
-      if (expr.transformers && expr.transformers.length > 0) {
-        teChildren.push(transformerListNode(expr.transformers));
-      }
-      return teChildren.length > 0 ? n('Asterisk', teChildren) : n('Asterisk');
+    case 'QueryParameter':
+      return n(`QueryParameter ${expr.name}:${expr.param_type}` + aliasSuffix(expr));
+    case 'Subquery':
+      return n('Subquery' + aliasSuffix(expr), [stmtNode(expr.query)]);
+    case 'ColumnsRegexpMatcher': {
+      const tList = expr.transformers !== undefined ? [transformerListNode(expr.transformers)] : [];
+      return n('ColumnsRegexpMatcher', tList);
     }
-
-    case 'queryParam':
-      return n(`QueryParameter ${expr.name}:${expr.type}`);
-    case 'alias': {
-      // Outer alias overrides any inner aliases — only show the outermost alias
-      let innerExpr = expr.expr;
-      while (innerExpr.kind === 'alias') {
-        innerExpr = innerExpr.expr;
-      }
-      const inner = exprNode(innerExpr);
-      return { label: `${inner.label} (alias ${expr.alias})`, children: inner.children };
+    case 'ColumnsListMatcher': {
+      const tList = expr.transformers !== undefined ? [transformerListNode(expr.transformers)] : [];
+      return n('ColumnsListMatcher', [exprList(expr.columns), ...tList]);
     }
-    case 'arrayLiteral': {
-      if (expr.elements.length === 0) {
-        return n('Function array', [n('ExpressionList')]);
-      }
-      const inlines = expr.elements.map(inlineExpr);
-      if (inlines.some((i) => i === null)) {
-        return n('Function array', [n('ExpressionList', expr.elements.map(exprNode))]);
-      }
-      return n(`Literal Array_[${inlines.join(', ')}]`);
+    case 'QualifiedColumnsRegexpMatcher': {
+      const children: ExplainNode[] = [exprNode(expr.qualifier)];
+      if (expr.transformers !== undefined) children.push(transformerListNode(expr.transformers));
+      return n('QualifiedColumnsRegexpMatcher', children);
     }
-    case 'tupleLiteral': {
-      const inline = inlineTupleLiteral(expr);
-      if (inline !== null) return n(`Literal ${inline}`);
-      return n('Function tuple', [n('ExpressionList', expr.elements.map(exprNode))]);
+    case 'QualifiedColumnsListMatcher': {
+      const children: ExplainNode[] = [exprNode(expr.qualifier), exprList(expr.columns)];
+      if (expr.transformers !== undefined) children.push(transformerListNode(expr.transformers));
+      return n('QualifiedColumnsListMatcher', children);
     }
-    case 'functionCall': {
-      // Normalize known function aliases to their canonical names as ClickHouse does
-      const FUNC_ALIASES: Record<string, string> = {
-        cast: 'CAST',
-        datediff: 'dateDiff',
-        ltrim: 'trimLeft',
-        rtrim: 'trimRight',
-        trim: 'trimBoth',
-        exists: 'exists',
-        grouping: 'grouping',
-        substring: 'substring',
-        extract: 'extract',
-        position: 'position',
-      };
-      const funcName = FUNC_ALIASES[expr.name.toLowerCase()] ?? expr.name;
-      // not(tuple(a,b,c)) — NOT applied directly to a tuple literal: expand the tuple
-      if (funcName === 'not' && expr.args.length === 1 && expr.args[0].kind === 'tupleLiteral') {
-        const tupleArg = expr.args[0];
-        const tupleNode = n('Function tuple', [
-          n('ExpressionList', tupleArg.elements.map(exprNode)),
-        ]);
-        return n('Function not', [n('ExpressionList', [tupleNode])]);
-      }
-      // COLUMNS('regex') renders as ColumnsRegexpMatcher; COLUMNS(id, ...) as ColumnsListMatcher
-      if (funcName.toUpperCase() === 'COLUMNS') {
-        const isRegex =
-          expr.args.length === 1 &&
-          expr.args[0].kind === 'literal' &&
-          expr.args[0].type === 'String';
-        if (isRegex) return n('ColumnsRegexpMatcher');
-        return n('ColumnsListMatcher', [n('ExpressionList', expr.args.map(exprNode))]);
-      }
+    case 'Settings':
+    case 'DictionarySettings':
+      return SET;
+    case 'SelectWithUnionQuery':
+      // Bare SELECT used in expression position (e.g. view(SELECT ...))
+      return stmtNode(expr);
+    case 'Function': {
+      // view(subquery) / view(SELECT ...) render the inner query directly, with
+      // no Subquery wrapper.
+      const arg0 = expr.arguments[0];
       if (
-        funcName.toLowerCase() === 'view' &&
-        expr.args.length === 1 &&
-        expr.args[0].kind === 'subqueryExpr'
+        expr.name.toLowerCase() === 'view' &&
+        expr.arguments.length === 1 &&
+        (arg0.type === 'Subquery' || arg0.type === 'SelectWithUnionQuery')
       ) {
-        return n(`Function ${funcName}`, [n('ExpressionList', [stmtNode(expr.args[0].query)])]);
+        const inner = arg0.type === 'Subquery' ? arg0.query : arg0;
+        return n(`Function ${expr.name}` + aliasSuffix(expr), [
+          n('ExpressionList', [stmtNode(inner)]),
+        ]);
       }
-      const funcChildren: ExplainNode[] = [];
-      const argNodes = expr.args.map(exprNode);
-      if (expr.funcSettings) argNodes.push(n('Set'));
-      funcChildren.push(n('ExpressionList', argNodes));
-      if (expr.params) {
-        funcChildren.push(n('ExpressionList', expr.params.map(exprNode)));
+      const funcChildren: ExplainNode[] = [exprList(expr.arguments)];
+      if (expr.parameters) {
+        funcChildren.push(exprList(expr.parameters));
       }
       // Window function: add WindowDefinition node for inline OVER (spec) clause
-      if (expr.window) {
-        funcChildren.push(windowDefinitionNode(expr.window));
+      if (expr.window_definition) {
+        funcChildren.push(windowDefinitionNode(expr.window_definition));
       }
-      return n(`Function ${funcName}`, funcChildren);
-    }
-    case 'castExpr': {
-      // For :: operator casts, pure literal expressions (no function calls or identifiers)
-      // are shown as string literals. Source text is used to preserve original formatting.
-      function isPureLiteral(e: Expression): boolean {
-        if (e.kind === 'literal') return e.type !== 'NULL' && e.type !== 'Bool';
-        if (e.kind === 'arrayLiteral') return e.elements.every(isPureLiteral);
-        if (e.kind === 'tupleLiteral') return e.elements.every(isPureLiteral);
-        return false;
-      }
-      function castElemStr(e: Expression): string {
-        if (e.kind === 'literal') {
-          if (e.type === 'String') return `'${escapeStringValue(e.value)}'`;
-          return e.value;
-        }
-        if (e.kind === 'arrayLiteral') {
-          if (e.source !== undefined) return e.source;
-          return `[${e.elements.map(castElemStr).join(', ')}]`;
-        }
-        // tuple
-        if (e.kind === 'tupleLiteral') {
-          if (e.source !== undefined) return e.source;
-          return `(${e.elements.map(castElemStr).join(', ')})`;
-        }
-        return '';
-      }
-      function castOperandString(e: Expression): string | null {
-        if (!isPureLiteral(e)) return null;
-        if (e.kind === 'literal') {
-          if (e.type === 'String') return escapeStringValue(e.value);
-          return e.value;
-        }
-        if (e.kind === 'arrayLiteral') {
-          // Escape single quotes and newlines in source text for the Literal label
-          const src = e.source !== undefined ? escapeStringValue(e.source) : null;
-          return src ?? `[${e.elements.map(castElemStr).join(', ')}]`;
-        }
-        if (e.kind === 'tupleLiteral') {
-          const src = e.source !== undefined ? escapeStringValue(e.source) : null;
-          return src ?? `(${e.elements.map(castElemStr).join(', ')})`;
-        }
-        return null;
-      }
-      let innerNode: ExplainNode;
-      if (expr.operator) {
-        const str = castOperandString(expr.expr);
-        innerNode = str !== null ? n(`Literal '${str}'`) : exprNode(expr.expr);
-      } else {
-        innerNode = exprNode(expr.expr);
-      }
-      return n('Function CAST', [
-        n('ExpressionList', [innerNode, n(`Literal '${normalizeTypeName(expr.type)}'`)]),
-      ]);
-    }
-    case 'lambdaExpr': {
-      const paramNodes = expr.params.map((p) => n(`Identifier ${p}`));
-      // If the lambda body has an alias, ClickHouse moves the alias to the lambda node itself
-      let body = expr.body;
-      let lambdaAlias = '';
-      while (body.kind === 'alias') {
-        lambdaAlias = body.alias;
-        body = body.expr;
-      }
-      const label = lambdaAlias ? `Function lambda (alias ${lambdaAlias})` : 'Function lambda';
-      return n(label, [
-        n('ExpressionList', [
-          n('Function tuple', [n('ExpressionList', paramNodes)]),
-          exprNode(body),
-        ]),
-      ]);
-    }
-    case 'unaryExpr':
-      return n('Function not', [n('ExpressionList', [exprNode(expr.expr)])]);
-    case 'binaryExpr': {
-      // ANY/ALL operator rewriting: x op ANY/ALL (subquery)
-      const anyAllResult = rewriteAnyAll(expr);
-      if (anyAllResult) return anyAllResult;
-      const funcName = OP_TO_FUNCTION[expr.op] ?? expr.op;
-      return n(`Function ${funcName}`, [
-        n('ExpressionList', [exprNode(expr.left), exprNode(expr.right)]),
-      ]);
-    }
-    case 'naryExpr': {
-      const funcName = OP_TO_FUNCTION[expr.op] ?? expr.op;
-      return n(`Function ${funcName}`, [n('ExpressionList', expr.operands.map(exprNode))]);
-    }
-    case 'subqueryExpr':
-      // EXPLAIN inside a subquery expression renders as viewExplain
-      if (expr.query.kind === 'explain') {
-        const veNode = viewExplainSubqueryNode(expr.query);
-        return n('Subquery', [veNode]);
-      }
-      return n('Subquery', [stmtNode(expr.query)]);
-    case 'inExpr': {
-      const funcName = expr.global
-        ? expr.negated
-          ? 'globalNotIn'
-          : 'globalIn'
-        : expr.negated
-          ? 'notIn'
-          : 'in';
-      let valuesNode: ExplainNode;
-      if (Array.isArray(expr.values)) {
-        if (expr.values.length === 1) {
-          const single = expr.values[0];
-          // Single tuple value in IN: wrap in Function tuple if inlineable,
-          // otherwise render directly (e.g. parenthesized elements)
-          if (single.kind === 'tupleLiteral') {
-            const inlineResult = inlineInValue(single);
-            if (inlineResult !== null) {
-              valuesNode = n('Function tuple', [
-                n('ExpressionList', [n(`Literal ${inlineResult}`)]),
-              ]);
-            } else {
-              valuesNode = exprNode(single);
-            }
-          } else {
-            valuesNode = exprNode(single);
-          }
-        } else {
-          const inlines = expr.values.map(inlineInValue);
-          if (inlines.some((i) => i === null)) {
-            // Complex elements: use Function tuple form
-            valuesNode = n('Function tuple', [n('ExpressionList', expr.values.map(exprNode))]);
-          } else {
-            const inline = `(${inlines.join(', ')})`;
-            valuesNode = n(`Literal Tuple_${inline}`);
-          }
-        }
-      } else {
-        valuesNode = n('Subquery', [stmtNode(expr.values.query)]);
-      }
-      return n(`Function ${funcName}`, [n('ExpressionList', [exprNode(expr.expr), valuesNode])]);
-    }
-    case 'columnsExpr': {
-      const isRegex =
-        expr.args.length === 1 && expr.args[0].kind === 'literal' && expr.args[0].type === 'String';
-      const tList =
-        expr.transformers && expr.transformers.length > 0
-          ? [transformerListNode(expr.transformers)]
-          : [];
-      if (expr.qualifier) {
-        const qualNode = n(`Identifier ${expr.qualifier}`);
-        if (isRegex) return n('QualifiedColumnsRegexpMatcher', [qualNode, ...tList]);
-        return n('QualifiedColumnsListMatcher', [
-          qualNode,
-          n('ExpressionList', expr.args.map(exprNode)),
-          ...tList,
-        ]);
-      }
-      if (isRegex) {
-        return n('ColumnsRegexpMatcher', tList);
-      }
-      // Column list matcher: ExpressionList of columns, then optional transformer list
-      return n('ColumnsListMatcher', [n('ExpressionList', expr.args.map(exprNode)), ...tList]);
-    }
-    case 'jsonSubcolumn': {
-      // JSON subcolumn .:Type access — render as identifier with type annotation
-      // ClickHouse always backtick-quotes the type in EXPLAIN output
-      const typeStr = `\`${expr.type}\``;
-      const inner = exprNode(expr.expr);
-      const pathSuffix = expr.path && expr.path.length > 0 ? '.' + expr.path.join('.') : '';
-      const label = inner.label + `.:${typeStr}${pathSuffix}`;
-      return { label, children: inner.children };
+      return n(`Function ${expr.name}` + aliasSuffix(expr), funcChildren);
     }
   }
 }
 
-// Convert a SampleRatioValue to a SampleRatio label for EXPLAIN output.
-// Integers ≥ 1 with no decimal point use integer display (e.g. SampleRatio 100).
-// All other values (floats, fractions) use fraction display (e.g. SampleRatio 1 / 10).
-function sampleRatioLabel(
-  sample: SampleClause['ratio'] | NonNullable<SampleClause['offset']>,
-): string {
-  if ('den' in sample && sample.den !== undefined) {
-    // Fraction form: convert each part to integer
-    return `SampleRatio ${Math.round(parseFloat(sample.num))} / ${Math.round(parseFloat(sample.den))}`;
+// Convert a SampleRatio to a SampleRatio label for EXPLAIN output.
+// Integers ≥ 1 with denominator 1 use integer display (e.g. SampleRatio 100).
+// All other values use fraction display (e.g. SampleRatio 1 / 10).
+function sampleRatioLabel(sample: SampleRatioNode): string {
+  if (sample.denominator !== '1') {
+    return `SampleRatio ${sample.numerator} / ${sample.denominator}`;
   }
-  const numText = sample.num;
-  // Pure integer (no decimal, no exponent notation)
-  if (/^[0-9]+$/.test(numText)) {
-    return `SampleRatio ${numText}`;
-  }
-  // Float/scientific — convert to fraction
-  const lower = numText.toLowerCase();
-  if (lower.includes('e-')) {
-    const [mantissaStr, expStr] = lower.split('e-');
-    const num = Math.round(parseFloat(mantissaStr));
-    const den = Math.round(Math.pow(10, parseInt(expStr, 10)));
-    return `SampleRatio ${num} / ${den}`;
-  }
-  if (lower.includes('.')) {
-    const dotIdx = lower.indexOf('.');
-    const afterDot = lower.substring(dotIdx + 1).replace(/e.*$/, '');
-    const decimalPlaces = afterDot.length;
-    const digits = lower.replace('.', '').replace(/e.*$/, '');
-    const num = parseInt(digits, 10);
-    const den = Math.round(Math.pow(10, decimalPlaces));
-    return `SampleRatio ${num} / ${den}`;
-  }
-  // Positive exponent (e.g. 1e1 = 10): integer display
-  return `SampleRatio ${Math.round(parseFloat(numText))}`;
+  return `SampleRatio ${sample.numerator}`;
 }
 
-function tableExpressionNode(ref: TableRef): ExplainNode {
-  const qualified = ref.database ? `${id(ref.database)}.${id(ref.table)}` : id(ref.table);
-  const label = ref.alias
-    ? `TableIdentifier ${qualified} (alias ${ref.alias})`
-    : `TableIdentifier ${qualified}`;
-  const children: ExplainNode[] = [n(label)];
-  if (ref.sample) {
-    children.push(n(sampleRatioLabel(ref.sample.ratio)));
-    if (ref.sample.offset) children.push(n(sampleRatioLabel(ref.sample.offset)));
+// Project a TableExpression node into explain children.
+function tableExpressionExplainNode(te: TableExpressionNode): ExplainNode {
+  const children: ExplainNode[] = [];
+  if (te.database_and_table_name !== undefined) {
+    const ti = te.database_and_table_name;
+    const qualified = ti.database !== undefined ? `${id(ti.database)}.${id(ti.name)}` : id(ti.name);
+    const label =
+      ti.alias !== undefined
+        ? `TableIdentifier ${qualified} (alias ${ti.alias})`
+        : `TableIdentifier ${qualified}`;
+    children.push(n(label));
+  } else if (te.table_function !== undefined) {
+    children.push(exprNode(te.table_function));
+  } else if (te.subquery !== undefined) {
+    children.push(exprNode(te.subquery));
+  }
+  if (te.column_aliases !== undefined) {
+    children.push(exprList((te.column_aliases.children ?? []) as Expression[]));
+  }
+  if (te.sample_size !== undefined) {
+    children.push(n(sampleRatioLabel(te.sample_size)));
+    if (te.sample_offset !== undefined) children.push(n(sampleRatioLabel(te.sample_offset)));
   }
   return n('TableExpression', children);
 }
 
-function subqueryTableExprNode(from: SubqueryFrom): ExplainNode {
-  const aliasStr = from.alias ? ` (alias ${from.alias})` : '';
-  // When an EXPLAIN statement is used as a subquery FROM, ClickHouse represents it as
-  // Function viewExplain rather than ExplainQuery ast.
-  if (from.query.kind === 'explain') {
-    return viewExplainNode(from.query, aliasStr);
+function tableJoinExplainNode(j: TableJoinNode): ExplainNode {
+  if (j.on !== undefined) return n('TableJoin', [exprNode(j.on)]);
+  if (j.using !== undefined) {
+    return n('TableJoin', [exprList(j.using)]);
   }
-  const label = from.alias ? `Subquery (alias ${from.alias})` : 'Subquery';
-  const children: ExplainNode[] = [n(label, [stmtNode(from.query)])];
-  if (from.columnAliases && from.columnAliases.length > 0) {
-    children.push(
-      n(
-        'ExpressionList',
-        from.columnAliases.map((col) => n(`Identifier ${col}`)),
-      ),
-    );
-  }
-  if (from.sample) {
-    children.push(n(sampleRatioLabel(from.sample.ratio)));
-    if (from.sample.offset) children.push(n(sampleRatioLabel(from.sample.offset)));
-  }
-  return n('TableExpression', children);
+  return n('TableJoin');
 }
 
-function tableFunctionExprNode(from: TableFunctionRef): ExplainNode {
-  const aliasStr = from.alias ? ` (alias ${from.alias})` : '';
-  let funcNode: ExplainNode;
-  // view(subquery) renders the subquery directly without Subquery wrapper
-  if (
-    from.name.toLowerCase() === 'view' &&
-    from.args.length === 1 &&
-    from.args[0].kind === 'subqueryExpr'
-  ) {
-    funcNode = n(`Function ${from.name}${aliasStr}`, [
-      n('ExpressionList', [stmtNode(from.args[0].query)]),
-    ]);
-  } else {
-    const argsNodes = from.args.map(exprNode);
-    if (from.settings && from.settings.length > 0) argsNodes.push(n('Set'));
-    funcNode = n(`Function ${from.name}${aliasStr}`, [n('ExpressionList', argsNodes)]);
-  }
-  const children: ExplainNode[] = [funcNode];
-  if (from.sample) {
-    children.push(n(sampleRatioLabel(from.sample.ratio)));
-    if (from.sample.offset) children.push(n(sampleRatioLabel(from.sample.offset)));
-  }
-  return n('TableExpression', children);
+function arrayJoinExplainNode(aj: ArrayJoinNode): ExplainNode {
+  return n('ArrayJoin', [exprList(aj.expressions)]);
 }
 
-function fromAtomExplainNode(from: TableRef | SubqueryFrom | TableFunctionRef): ExplainNode {
-  if (from.kind === 'subqueryFrom') return subqueryTableExprNode(from);
-  if (from.kind === 'tableFunctionRef') return tableFunctionExprNode(from);
-  return tableExpressionNode(from);
-}
+// Project the FROM clause.
+// When rendering the WITH subtree that ClickHouse propagated into a later
+// UNION member (a trailing WITH copy), the parser emits each joined element's
+// `TableJoin` child before its `TableExpression`. This module-level flag scopes
+// that reversal to such subtrees (see selectQueryNode's trailing-WITH block).
+let reverseTrailingJoins = false;
 
-function joinConstraintNode(constraint: JoinConstraint): ExplainNode {
-  if (constraint.kind === 'on') return n('TableJoin', [exprNode(constraint.expr)]);
-  return n('TableJoin', [
-    n(
-      'ExpressionList',
-      constraint.columns.map((col) => {
-        if (col === '*') return n('Asterisk');
-        if (typeof col === 'object' && col.name && col.alias) {
-          return n(`Identifier ${col.name} (alias ${col.alias})`);
-        }
-        return n(`Identifier ${col}`);
-      }),
-    ),
-  ]);
-}
-
-type JoinElement =
-  | { tag: 'base'; from: TableRef | SubqueryFrom | TableFunctionRef }
-  | { tag: 'join'; from: TableRef | SubqueryFrom | TableFunctionRef; constraint?: JoinConstraint }
-  | { tag: 'arrayJoin'; expressions: Expression[] };
-
-function flattenFromExpr(from: FromExpr): JoinElement[] {
-  if (
-    from.kind === 'tableRef' ||
-    from.kind === 'subqueryFrom' ||
-    from.kind === 'tableFunctionRef'
-  ) {
-    return [{ tag: 'base', from }];
-  }
-  if (from.kind === 'joinExpr') {
-    return [
-      ...flattenFromExpr(from.left),
-      { tag: 'join', from: from.right, constraint: from.constraint },
-    ];
-  }
-  // arrayJoin
-  return [...flattenFromExpr(from.left), { tag: 'arrayJoin', expressions: from.expressions }];
-}
-
-// ClickHouse renders CTEs distributed to sibling UNION branches with their
-// inner TableJoin/TableExpression order swapped. Mark every nested SELECT in
-// the distributed CTE copies so fromExprNode reverses the pair.
-function markStmtForReverseJoins(s: Statement): Statement {
-  if (s.kind === 'select') {
-    const withCopy = s.with ? markCTEsForReverseJoins(s.with) : undefined;
-    return {
-      ...s,
-      reverseJoins: true,
-      ...(withCopy ? { with: withCopy } : {}),
-    } as Statement;
-  }
-  if (s.kind === 'union') {
-    return { ...s, queries: s.queries.map(markStmtForReverseJoins) } as Statement;
-  }
-  if (s.kind === 'intersect') {
-    return {
-      ...s,
-      left: markStmtForReverseJoins(s.left as Statement),
-      right: markStmtForReverseJoins(s.right as Statement),
-    } as Statement;
-  }
-  return s;
-}
-
-function markCTEsForReverseJoins(ctes: CTE[]): CTE[] {
-  return ctes.map((c) =>
-    c.kind === 'cteSubquery'
-      ? ({ ...c, query: markStmtForReverseJoins(c.query as Statement) } as CTE)
-      : c,
-  );
-}
-
-function fromExprNode(from: FromExpr, reverseJoins = false): ExplainNode {
-  const elements = flattenFromExpr(from);
+function tablesExplainNode(tables: TablesInSelectQueryNode): ExplainNode {
   return n(
     'TablesInSelectQuery',
-    elements.map((elem) => {
-      if (elem.tag === 'base') {
-        return n('TablesInSelectQueryElement', [fromAtomExplainNode(elem.from)]);
+    tables.children.map((el) => {
+      if (el.array_join !== undefined) {
+        return n('TablesInSelectQueryElement', [arrayJoinExplainNode(el.array_join)]);
       }
-      if (elem.tag === 'join') {
-        const tableNode = fromAtomExplainNode(elem.from);
-        const joinNode = elem.constraint ? joinConstraintNode(elem.constraint) : n('TableJoin');
+      const teNode = tableExpressionExplainNode(el.table_expression!);
+      if (el.table_join !== undefined) {
+        const joinNode = tableJoinExplainNode(el.table_join);
         return n(
           'TablesInSelectQueryElement',
-          reverseJoins ? [joinNode, tableNode] : [tableNode, joinNode],
+          reverseTrailingJoins ? [joinNode, teNode] : [teNode, joinNode],
         );
       }
-      // arrayJoin
-      return n('TablesInSelectQueryElement', [
-        n('ArrayJoin', [n('ExpressionList', elem.expressions.map(exprNode))]),
-      ]);
+      return n('TablesInSelectQueryElement', [teNode]);
     }),
   );
 }
 
-function orderByNode(item: OrderByItem): ExplainNode {
-  const children = [exprNode(item.expr)];
-  if (item.collate !== undefined) {
-    children.push(n(`Literal '${item.collate}'`));
+function orderByNode(item: OrderByElementNode): ExplainNode {
+  const children = [exprNode(item.expression)];
+  if (item.collation !== undefined) {
+    children.push(exprNode(item.collation));
   }
-  if (item.fillFrom !== undefined) children.push(exprNode(item.fillFrom));
-  if (item.fillTo !== undefined) children.push(exprNode(item.fillTo));
-  if (item.fillStep !== undefined) children.push(exprNode(item.fillStep));
-  if (item.fillStaleness !== undefined) children.push(exprNode(item.fillStaleness));
+  if (item.fill_from !== undefined) children.push(exprNode(item.fill_from));
+  if (item.fill_to !== undefined) children.push(exprNode(item.fill_to));
+  if (item.fill_step !== undefined) children.push(exprNode(item.fill_step));
+  if (item.fill_staleness !== undefined) children.push(exprNode(item.fill_staleness));
   return n('OrderByElement', children);
 }
 
-function cteNode(cte: CTE): ExplainNode {
-  if (cte.kind === 'cteExpr') {
-    // Anonymous WITH expression (e.g. `WITH 1 SELECT 1`) renders as just the expression.
-    if (cte.name === undefined) return exprNode(cte.expr);
-    return exprNode({ kind: 'alias', expr: cte.expr, alias: cte.name });
+// Project a WITH item (named subquery or aliased expression).
+function withItemNode(w: WithItem): ExplainNode {
+  if (w.type === 'WithElement') {
+    return n('WithElement', [n('Subquery', [stmtNode(w.subquery.query)])]);
   }
-  if (cte.kind === 'cteTuple') {
-    return n('Function tuple', [n('ExpressionList', cte.elements.map(exprNode))]);
-  }
-  return n('WithElement', [n('Subquery', [stmtNode(cte.query)])]);
+  return exprNode(w);
 }
 
-// Build the inner SelectQuery node for a single SELECT statement
-function selectQueryNode(stmt: SelectStatement): ExplainNode {
-  const children: ExplainNode[] = [];
-
-  // CTEs from WITH clause: original CTEs go before select columns,
-  // distributed CTEs (copied from first SELECT in UNION) go after
-  const cteNodes =
-    stmt.with && stmt.with.length > 0 ? n('ExpressionList', stmt.with.map(cteNode)) : null;
-  const isDistributedWith = !!(stmt as Record<string, unknown>).distributedWith;
-
-  if (cteNodes && !isDistributedWith) {
-    children.push(cteNodes);
+// Build the inner SelectQuery node for a single SELECT
+function selectQueryNode(stmt: SelectQueryNode): ExplainNode {
+  // Synthetic `op ANY/ALL (subquery)` lowering: ClickHouse emits the
+  // projection + tables twice in this SelectQuery's child vector.
+  if (stmt._agg_repeat === true && stmt.from !== undefined) {
+    const projection = (): ExplainNode => exprList(stmt.select);
+    const tables = (): ExplainNode => tablesExplainNode(stmt.from!);
+    return n('SelectQuery', [projection(), tables(), projection(), tables()]);
   }
 
-  children.push(n('ExpressionList', stmt.select.map(exprNode)));
+  const children: ExplainNode[] = [];
 
-  const reverseJoins = !!(stmt as Record<string, unknown>).reverseJoins;
-  if (stmt.from) children.push(fromExprNode(stmt.from, reverseJoins));
+  // CTEs from WITH clause go before the select columns, except when the WITH
+  // was written before an enclosing INSERT (`_with_trailing`), in which case
+  // ClickHouse appends the WITH ExpressionList after the select body.
+  if (stmt.with && stmt.with.length > 0 && stmt._with_trailing !== true) {
+    children.push(n('ExpressionList', stmt.with.map(withItemNode)));
+  }
+
+  children.push(exprList(stmt.select));
+
+  if (stmt.from) children.push(tablesExplainNode(stmt.from));
   if (stmt.prewhere) children.push(exprNode(stmt.prewhere));
   if (stmt.where) children.push(exprNode(stmt.where));
-  if (stmt.groupBy) {
-    if (stmt.groupBy.kind === 'groupingSets') {
+  if (stmt.group_by) {
+    if (stmt.group_by_with_grouping_sets) {
       children.push(
         n(
           'ExpressionList',
-          stmt.groupBy.sets.map((set) => n('ExpressionList', set.map(exprNode))),
+          stmt.group_by.map((set) =>
+            exprList(((set as ExpressionListNode).children ?? []) as Expression[]),
+          ),
         ),
       );
-    } else if (stmt.groupBy.kind === 'expressions') {
-      // Unwrap ROLLUP/CUBE function calls — their args are used directly as group-by items
-      const flatGroupBy = stmt.groupBy.items.flatMap((item) => {
-        if (
-          item.kind === 'functionCall' &&
-          (item.name.toUpperCase() === 'ROLLUP' || item.name.toUpperCase() === 'CUBE')
-        ) {
-          return item.args;
-        }
-        return [item];
-      });
-      children.push(n('ExpressionList', flatGroupBy.map(exprNode)));
+    } else {
+      children.push(exprList(stmt.group_by as Expression[]));
     }
   }
   if (stmt.having) children.push(exprNode(stmt.having));
   // WINDOW clause comes before ORDER BY in ClickHouse's explain output
-  if (stmt.windows && stmt.windows.length > 0) {
+  if (stmt.window && stmt.window.length > 0) {
     children.push(
       n(
         'ExpressionList',
-        stmt.windows.map(() => n('WindowListElement')),
+        stmt.window.map(() => n('WindowListElement')),
       ),
     );
   }
   if (stmt.qualify) children.push(exprNode(stmt.qualify));
   let settingsPushed = false;
-  if (stmt.orderBy && stmt.orderBy.length > 0) {
-    children.push(n('ExpressionList', stmt.orderBy.map(orderByNode)));
-    // INTERPOLATE clause (attached to the last WITH FILL item)
-    const interpItem = stmt.orderBy.find((item) => item.interpolate !== undefined);
-    if (interpItem && interpItem.interpolate !== undefined) {
-      // SETTINGS comes before INTERPOLATE in ClickHouse's explain output
-      if (stmt.settings && stmt.settings.length > 0) {
-        children.push(n('Set'));
-        settingsPushed = true;
-      }
-      const interpNodes = interpItem.interpolate.map((it) => {
-        // When no explicit expr, ClickHouse still shows the column identifier as a child
-        const children: ExplainNode[] = it.expr ? [exprNode(it.expr)] : [n(`Identifier ${it.col}`)];
-        return n(`InterpolateElement (column ${it.col})`, children);
-      });
-      children.push(n('ExpressionList', interpNodes));
-    }
+  if (stmt.order_by && stmt.order_by.length > 0) {
+    children.push(n('ExpressionList', stmt.order_by.map(orderByNode)));
   }
-  // LIMIT BY: optional offset, then count, then by-expressions
-  if (stmt.limitBy) {
-    if (stmt.limitBy.offset) children.push(exprNode(stmt.limitBy.offset));
-    children.push(exprNode(stmt.limitBy.count));
-    children.push(n('ExpressionList', stmt.limitBy.by.map(exprNode)));
-  }
-  if (stmt.limit) {
-    if (stmt.limit.commaSyntax) {
-      children.push(exprNode(stmt.limit.count));
-      if (stmt.offset) children.push(exprNode(stmt.offset));
-    } else {
-      if (stmt.offset) children.push(exprNode(stmt.offset));
-      children.push(exprNode(stmt.limit.count));
+  // INTERPOLATE clause
+  if (stmt.interpolate !== undefined) {
+    // SETTINGS comes before INTERPOLATE in ClickHouse's explain output
+    if (stmt.settings) {
+      children.push(SET);
+      settingsPushed = true;
     }
-  } else if (stmt.offset) {
+    const interpNodes = stmt.interpolate.map((it) => {
+      return n(`InterpolateElement (column ${it.column})`, [exprNode(it.expr)]);
+    });
+    children.push(n('ExpressionList', interpNodes));
+  }
+  // LIMIT BY: optional offset, then count, then by-expressions.
+  if (stmt.limit_by !== undefined) {
+    if (stmt.limit_by.offset !== undefined) children.push(exprNode(stmt.limit_by.offset));
+    children.push(exprNode(stmt.limit_by.length));
+    children.push(exprList(stmt.limit_by.by));
+  }
+  if (stmt.limit !== undefined) {
+    if (stmt.offset !== undefined) children.push(exprNode(stmt.offset));
+    children.push(exprNode(stmt.limit));
+  } else if (stmt.offset !== undefined) {
     children.push(exprNode(stmt.offset));
   }
-  // DISTINCT ON adds a flag (Literal UInt64_1) and the ON columns after ORDER BY/LIMIT
-  if (stmt.distinct && stmt.distinct.kind === 'distinctOn' && stmt.distinct.on.length > 0) {
-    children.push(n('Literal UInt64_1'));
-    children.push(n('ExpressionList', stmt.distinct.on.map(exprNode)));
-  }
-  if (!settingsPushed && stmt.settings && stmt.settings.length > 0) {
-    children.push(n('Set'));
+  if (!settingsPushed && stmt.settings) {
+    children.push(SET);
   }
 
-  // Distributed CTEs go after all other children
-  if (cteNodes && isDistributedWith) {
-    children.push(cteNodes);
+  // A WITH written before an enclosing INSERT, or propagated into a later UNION
+  // member, is emitted after the select body. Within this propagated copy
+  // ClickHouse also flips each joined element's TableJoin/TableExpression order.
+  if (stmt.with && stmt.with.length > 0 && stmt._with_trailing === true) {
+    const prev = reverseTrailingJoins;
+    reverseTrailingJoins = true;
+    children.push(n('ExpressionList', stmt.with.map(withItemNode)));
+    reverseTrailingJoins = prev;
   }
 
   // CTE column aliases: WITH t (a, b) AS (...) → ExpressionList with Identifiers
   if (stmt.with) {
-    for (const cte of stmt.with) {
-      if (cte.kind === 'cteSubquery' && cte.columnAliases && cte.columnAliases.length > 0) {
-        children.push(
-          n(
-            'ExpressionList',
-            cte.columnAliases.map((a) => n(`Identifier ${a}`)),
-          ),
-        );
+    for (const w of stmt.with) {
+      if (w.type === 'WithElement' && w.aliases !== undefined) {
+        children.push(exprList((w.aliases.children ?? []) as Expression[]));
       }
     }
   }
@@ -1061,1483 +502,800 @@ function selectQueryNode(stmt: SelectStatement): ExplainNode {
   return n('SelectQuery', children);
 }
 
-// Build the Explain EXPLAIN node for an EXPLAIN statement (used when EXPLAIN is at top level).
-// Label is `Explain EXPLAIN [<TYPE>]` where TYPE is omitted for default-PLAN explains.
-// Children, in order: optional Set node (when explain-level settings are present), the
-// inner query node, optional Identifier <format> node (when a FORMAT clause is present).
-function explainStmtNode(stmt: ExplainStatement): ExplainNode {
-  // PLAN is the implicit default and never appears in the label, even when the user
-  // wrote `EXPLAIN PLAN ...` explicitly.
-  const typeStr = stmt.explainType && stmt.explainType !== 'PLAN' ? ` ${stmt.explainType}` : '';
-  const label = `Explain EXPLAIN${typeStr}`;
+// ════════════════════════════════════════════════════════════════════════════
+// Native CREATE explain rendering — builds the EXPLAIN AST tree directly from
+// ClickHouse's reference fields on `CreateQueryNode`.
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Convert a native data-type node to its EXPLAIN node tree. */
+function typeNodeToExplain(node: ASTNode): ExplainNode {
+  const t = (node as { type: string }).type;
+  if (t === 'EnumDataType') return n(`EnumDataType ${(node as { name: string }).name}`);
+  if (t === 'TupleDataType') {
+    const tp = node as { name: string; arguments?: ASTNode[] };
+    return n(`TupleDataType ${tp.name}`, [
+      n('ExpressionList', (tp.arguments ?? []).map(typeArgToExplain)),
+    ]);
+  }
+  if (t === 'NameTypePair') {
+    const np = node as { name: string; data_type: ASTNode };
+    return n(`NameTypePair ${np.name}`, [typeNodeToExplain(np.data_type)]);
+  }
+  const dt = node as { name: string; arguments?: ASTNode[] };
+  if (dt.arguments === undefined) return n(`DataType ${dt.name}`);
+  return n(`DataType ${dt.name}`, [n('ExpressionList', dt.arguments.map(typeArgToExplain))]);
+}
+
+function typeArgToExplain(node: ASTNode): ExplainNode {
+  const t = (node as { type: string }).type;
+  if (t === 'DataType' || t === 'EnumDataType' || t === 'TupleDataType' || t === 'NameTypePair') {
+    return typeNodeToExplain(node);
+  }
+  if (t === 'ObjectTypeArgument') return jsonArgToExplain(node);
+  return exprNode(node as Expression);
+}
+
+function jsonArgToExplain(node: ASTNode): ExplainNode {
+  const ota = node as {
+    path_with_type?: { name?: string; data_type?: ASTNode };
+    skip_path?: ASTNode;
+    skip_path_regexp?: ASTNode;
+    parameter?: ASTNode;
+  };
+  if (ota.path_with_type) {
+    const otp = ota.path_with_type;
+    return n('ASTObjectTypeArgument', [
+      n(
+        `ObjectTypedPath ${otp.name ?? ''}`,
+        otp.data_type ? [typeNodeToExplain(otp.data_type)] : [],
+      ),
+    ]);
+  }
+  if (ota.skip_path) return n('ASTObjectTypeArgument', [exprNode(ota.skip_path as Expression)]);
+  if (ota.skip_path_regexp)
+    return n('ASTObjectTypeArgument', [exprNode(ota.skip_path_regexp as Expression)]);
+  if (ota.parameter) return n('ASTObjectTypeArgument', [exprNode(ota.parameter as Expression)]);
+  return n('ASTObjectTypeArgument');
+}
+
+/** Native `CODEC(...)` / `STATISTICS(...)` function node → explain. */
+function codecExplainNative(fnNode: FunctionNode): ExplainNode {
+  const children = (fnNode.arguments as FunctionNode[]).map((c) =>
+    c._no_parens === true ? n(`Function ${c.name}`) : functionNode(c.name, c.arguments),
+  );
+  return n(`Function ${fnNode.name}`, [n('ExpressionList', children)]);
+}
+
+/** Native index `TYPE name(args)` function node → explain (always ExpressionList). */
+function indexTypeExplainNative(it: FunctionNode): ExplainNode {
+  return functionNode(it.name, it.arguments);
+}
+
+/** Native ColumnDeclaration → explain node. */
+function columnDeclExplainNative(col: ColumnDeclarationNode): ExplainNode {
   const children: ExplainNode[] = [];
-  // Explain-level settings (e.g. `EXPLAIN PIPELINE graph=1 ...`) become a leading Set child.
-  if (stmt.settings && stmt.settings.length > 0) {
-    children.push(n('Set'));
-  }
-  if (stmt.query) children.push(stmtNode(stmt.query));
-  // FORMAT clause renders as `Identifier <name>` after the query.
-  if (stmt.format) {
-    children.push(n(`Identifier ${stmt.format}`));
-  }
-  // SETTINGS after the FORMAT clause add a trailing Set child.
-  if (stmt.postFormatSettings && stmt.postFormatSettings.length > 0) {
-    children.push(n('Set'));
-  }
-  return n(label, children);
-}
-
-// Format the EXPLAIN type as the first literal argument to viewExplain.
-// PLAN and no-type both map to 'EXPLAIN'; other types map to 'EXPLAIN <TYPE>'.
-function explainViewTypeLabel(explainType?: string): string {
-  if (!explainType || explainType === 'PLAN') return 'EXPLAIN';
-  return `EXPLAIN ${explainType}`;
-}
-
-// Format a setting item value as a plain string (for use inside viewExplain Literal)
-function formatExplainSettingValue(value: Expression): string {
-  if (value.kind === 'literal') {
-    if (value.type === 'UInt64') return normalizeUInt(value.value);
-    if (value.type === 'Int64') return value.value;
-    if (value.type === 'Float64') return normalizeFloat(value.value);
-    if (value.type === 'String') return `'${value.value}'`;
-    return value.value;
-  }
-  return '';
-}
-
-// Format EXPLAIN settings as the second literal argument to viewExplain (e.g. 'actions = 1')
-function explainViewSettingsLabel(settings?: SettingItem[]): string {
-  if (!settings || settings.length === 0) return '';
-  return settings.map((s) => `${s.name} = ${formatExplainSettingValue(s.value)}`).join(', ');
-}
-
-// Build viewExplain SelectWithUnionQuery for an EXPLAIN inside a subquery expression.
-function viewExplainSubqueryNode(stmt: ExplainStatement): ExplainNode {
-  const typeLabel = explainViewTypeLabel(stmt.explainType);
-  const settingsLabel = explainViewSettingsLabel(stmt.settings);
-  const innerQuery = stmt.query;
-  const exprListChildren: ExplainNode[] = [
-    n(`Literal '${typeLabel}'`),
-    n(`Literal '${settingsLabel}'`),
-  ];
-  if (innerQuery) {
-    exprListChildren.push(n('Subquery', [stmtNode(innerQuery)]));
-  }
-  const funcNode = n('Function viewExplain', [n('ExpressionList', exprListChildren)]);
-  const innerSelectQuery = n('SelectQuery', [
-    n('ExpressionList', [n('Asterisk')]),
-    n('TablesInSelectQuery', [n('TablesInSelectQueryElement', [n('TableExpression', [funcNode])])]),
-  ]);
-  return n('SelectWithUnionQuery', [n('ExpressionList', [innerSelectQuery])]);
-}
-
-// Build a Function viewExplain node for an EXPLAIN inside a FROM subquery.
-// ClickHouse wraps viewExplain in a synthetic SELECT * FROM viewExplain(...) subquery.
-function viewExplainNode(stmt: ExplainStatement, aliasStr: string): ExplainNode {
-  const typeLabel = explainViewTypeLabel(stmt.explainType);
-  const settingsLabel = explainViewSettingsLabel(stmt.settings);
-  const innerQuery = stmt.query;
-  const exprListChildren: ExplainNode[] = [
-    n(`Literal '${typeLabel}'`),
-    n(`Literal '${settingsLabel}'`),
-  ];
-  if (innerQuery) {
-    exprListChildren.push(n('Subquery', [stmtNode(innerQuery)]));
-  }
-  const funcNode = n('Function viewExplain', [n('ExpressionList', exprListChildren)]);
-  const innerSelectQuery = n('SelectQuery', [
-    n('ExpressionList', [n('Asterisk')]),
-    n('TablesInSelectQuery', [n('TablesInSelectQueryElement', [n('TableExpression', [funcNode])])]),
-  ]);
-  return n('TableExpression', [
-    n(`Subquery${aliasStr}`, [
-      n('SelectWithUnionQuery', [n('ExpressionList', [innerSelectQuery])]),
-    ]),
-  ]);
-}
-
-// ── CREATE TABLE explain helpers ──────────────────────────────────────────────
-
-// Convert a structured DataType to an EXPLAIN node tree
-function dataTypeToExplainNode(dt: DataType): ExplainNode {
-  const baseName = dt.name;
-
-  // Enum types with parsed values
-  if (
-    /^Enum(?:8|16)?$/i.test(baseName) &&
-    dt.args &&
-    dt.args.length === 1 &&
-    dt.args[0].kind === 'enumValues'
-  ) {
-    const enumVals = dt.args[0].values;
-    // If ALL values have explicit assignments, use EnumDataType (no children)
-    const allExplicit = enumVals.every(
-      (v) => v.value !== undefined && v.value !== null && v.name !== null,
-    );
-    if (allExplicit) {
-      return n(`EnumDataType ${baseName}`);
-    }
-    // Otherwise show DataType with ExpressionList children
-    const children = enumVals.map((v) => {
-      if (v.name === null) return n('Literal NULL');
-      if (v.value !== undefined && v.value !== null) {
-        const numVal = v.value;
-        const numLabel = numVal.startsWith('-') ? `Int64_${numVal}` : `UInt64_${numVal}`;
-        return n('Function equals', [
-          n('ExpressionList', [
-            n(`Literal '${escapeStringValue(v.name)}'`),
-            n(`Literal ${numLabel}`),
-          ]),
-        ]);
-      }
-      return n(`Literal '${escapeStringValue(v.name)}'`);
-    });
-    return n(`DataType ${baseName}`, [n('ExpressionList', children)]);
-  }
-  // Enum without args: EnumDataType
-  if (/^Enum(?:8|16)?$/i.test(baseName)) {
-    return n(`EnumDataType ${baseName}`);
-  }
-
-  // MySQL integer types strip their display width: TINYINT(8) → DataType TINYINT
-  const intTypePattern =
-    /^(TINYINT|SMALLINT|INT|INTEGER|BIGINT|MEDIUMINT)(\s+(SIGNED|UNSIGNED))?$/i;
-  if (intTypePattern.test(baseName) && dt.args) {
-    return n(`DataType ${baseName}`);
-  }
-
-  // No args
-  if (!dt.args) {
-    return n(`DataType ${baseName}`);
-  }
-  // Empty args: show ExpressionList child (DateTime(), Variant(), Tuple(), etc.)
-  if (dt.args.length === 0) {
-    return n(`DataType ${baseName}`, [n('ExpressionList')]);
-  }
-
-  // Tuple type uses TupleDataType; named fields are stripped (only types shown)
-  if (/^Tuple$/i.test(baseName)) {
-    if (dt.args.length === 0) {
-      return n(`DataType ${baseName}`, [n('ExpressionList')]);
-    }
-    const children = dt.args.map((arg) => {
-      if (arg.kind === 'namedField') return dataTypeToExplainNode(arg.type);
-      if (arg.kind === 'type') return dataTypeToExplainNode(arg.type);
-      return dataTypeArgToExplainNode(arg, baseName, 0);
-    });
-    return n(`TupleDataType ${baseName}`, [n('ExpressionList', children)]);
-  }
-
-  // Nested type: children are NameTypePair
-  if (/^Nested$/i.test(baseName)) {
-    const children = dt.args.map((arg) => {
-      if (arg.kind === 'namedField') {
-        return n(`NameTypePair ${arg.name}`, [dataTypeToExplainNode(arg.type)]);
-      }
-      if (arg.kind === 'type') return dataTypeToExplainNode(arg.type);
-      return dataTypeArgToExplainNode(arg, baseName, 0);
-    });
-    return n(`DataType ${baseName}`, [n('ExpressionList', children)]);
-  }
-
-  // JSON type: args are wrapped in ASTObjectTypeArgument / ObjectTypedPath
-  if (/^JSON$/i.test(baseName)) {
-    const children = dt.args.map((arg) => jsonTypeArgToExplainNode(arg));
-    return n(`DataType ${baseName}`, [n('ExpressionList', children)]);
-  }
-
-  // Generic parameterized type (Array, Nullable, Map, AggregateFunction, etc.)
-  const children = dt.args.map((arg, idx) => dataTypeArgToExplainNode(arg, baseName, idx));
-  return n(`DataType ${baseName}`, [n('ExpressionList', children)]);
-}
-
-// Convert a single DataTypeArg to an EXPLAIN node
-function dataTypeArgToExplainNode(
-  arg: DataTypeArg,
-  parentName: string,
-  index: number,
-): ExplainNode {
-  switch (arg.kind) {
-    case 'type':
-      // AggregateFunction: first arg is a function name (Identifier)
-      if (/^(?:Aggregate|SimpleAggregate)Function$/i.test(parentName) && index === 0) {
-        // Render the function name as Identifier, including params if present
-        const t = arg.type;
-        if (t.args && t.args.length > 0) {
-          // e.g. quantile(0.5) → Function quantile(...)
-          const argNodes = t.args.map((a, i) => dataTypeArgToExplainNode(a, t.name, i));
-          return n(`Function ${t.name}`, [n('ExpressionList', argNodes)]);
-        }
-        return n(`Identifier ${t.name}`);
-      }
-      return dataTypeToExplainNode(arg.type);
-    case 'namedField':
-      return n(`ColumnDeclaration ${arg.name}`, [dataTypeToExplainNode(arg.type)]);
-    case 'literal': {
-      const v = arg.value;
-      if (/^\d+$/.test(v)) return n(`Literal UInt64_${v}`);
-      if (/^-?\d+$/.test(v)) return n(`Literal Int64_${v}`);
-      if (/^-?\d*\.\d+$/.test(v) || /^\d+\.\d*$/.test(v))
-        return n(`Literal Float64_${normalizeFloat(v)}`);
-      if (v.startsWith("'")) return n(`Literal ${v}`);
-      // Setting-like: "max_types = 3" → not currently output as literal in CH
-      return n(`Literal ${v}`);
-    }
-    case 'enumValues':
-      return n(`EnumDataType ${parentName}`);
-    case 'setting':
-      return n('Function equals', [
-        n('ExpressionList', [n(`Identifier ${arg.name}`), exprNode(arg.value)]),
-      ]);
-  }
-}
-
-// Convert a JSON type argument to an ASTObjectTypeArgument explain node
-function jsonTypeArgToExplainNode(arg: DataTypeArg): ExplainNode {
-  switch (arg.kind) {
-    case 'namedField':
-      // JSON(a String) → ASTObjectTypeArgument / ObjectTypedPath a / DataType String
-      return n('ASTObjectTypeArgument', [
-        n(`ObjectTypedPath ${arg.name}`, [dataTypeToExplainNode(arg.type)]),
-      ]);
-    case 'setting':
-      // JSON(max_dynamic_paths=2) → ASTObjectTypeArgument / Function equals(...)
-      return n('ASTObjectTypeArgument', [
-        n('Function equals', [
-          n('ExpressionList', [n(`Identifier ${arg.name}`), exprNode(arg.value)]),
-        ]),
-      ]);
-    case 'literal': {
-      // SKIP REGEXP 'pattern' → ASTObjectTypeArgument / Literal 'pattern'
-      const skipRegexpMatch = arg.value.match(/^SKIP REGEXP\s+(.+)$/);
-      if (skipRegexpMatch) {
-        return n('ASTObjectTypeArgument', [n(`Literal ${skipRegexpMatch[1]}`)]);
-      }
-      // SKIP path → ASTObjectTypeArgument / Identifier path (strip backticks from each segment)
-      const skipMatch = arg.value.match(/^SKIP\s+(.+)$/);
-      if (skipMatch) {
-        const path = skipMatch[1].replace(/`([^`]*)`/g, '$1');
-        return n('ASTObjectTypeArgument', [n(`Identifier ${path}`)]);
-      }
-      return n('ASTObjectTypeArgument', [n(`Literal ${arg.value}`)]);
-    }
-    case 'type':
-      return n('ASTObjectTypeArgument', [dataTypeToExplainNode(arg.type)]);
-    case 'enumValues':
-      return n('ASTObjectTypeArgument');
-  }
-}
-
-// Convert structured CodecItem[] to EXPLAIN nodes
-function codecToExplainNodes(items: CodecItem[]): ExplainNode {
-  const children = items.map((item) => {
-    if (item.args !== undefined && item.args.length > 0) {
-      return n(`Function ${item.name}`, [n('ExpressionList', item.args.map(exprNode))]);
-    }
-    if (item.args !== undefined) {
-      return n(`Function ${item.name}`, [n('ExpressionList')]);
-    }
-    return n(`Function ${item.name}`);
-  });
-  return n('Function CODEC', [n('ExpressionList', children)]);
-}
-
-// Convert structured IndexType to EXPLAIN node
-function indexTypeToExplainNode(it: IndexType): ExplainNode {
-  if (it.args !== undefined && it.args.length > 0) {
-    return n(`Function ${it.name}`, [n('ExpressionList', it.args.map(exprNode))]);
-  }
-  if (it.args !== undefined) {
-    return n(`Function ${it.name}`, [n('ExpressionList')]);
-  }
-  return n(`Function ${it.name}`, [n('ExpressionList')]);
-}
-
-// Build ColumnDeclaration explain node
-function columnDeclNode(col: ColumnDef): ExplainNode {
-  const children: ExplainNode[] = [];
-
-  // DataType (if specified)
-  if (col.type) {
-    children.push(dataTypeToExplainNode(col.type));
-  }
-
-  // Collation
-  if (col.collate) {
-    children.push(n('Collation'));
-  }
-
-  // EPHEMERAL without default value: show defaultValueOfTypeName placeholder
-  if (col.defaultKind === 'EPHEMERAL' && !col.defaultExpr) {
+  if (col.data_type) children.push(typeNodeToExplain(col.data_type));
+  if (col.collation) children.push(n('Collation'));
+  if (col.ephemeral_default) {
     children.push(n('Function defaultValueOfTypeName'));
+  } else if (col.default_expression) {
+    children.push(exprNode(col.default_expression));
   }
-
-  // Default/Materialized/Alias/Ephemeral expression
-  if (col.defaultExpr) {
-    children.push(exprNode(col.defaultExpr));
-  }
-
-  // CODEC
-  if (col.codec) {
-    children.push(codecToExplainNodes(col.codec));
-  }
-
-  // Column SETTINGS (before STATISTICS and TTL)
-  if (col.columnSettings) {
-    children.push(n('Set'));
-  }
-
-  // STATISTICS — rendered as Function STATISTICS (not CODEC)
-  if (col.statistics) {
-    const statChildren = col.statistics.map((item) => {
-      if (item.args !== undefined && item.args.length > 0) {
-        return n(`Function ${item.name}`, [n('ExpressionList', item.args.map(exprNode))]);
-      }
-      return n(`Function ${item.name}`);
-    });
-    children.push(n('Function STATISTICS', [n('ExpressionList', statChildren)]));
-  }
-
-  // Column TTL
-  if (col.ttl) {
-    children.push(exprNode(col.ttl));
-  }
-
-  // Column comment
-  if (col.comment) {
-    children.push(n(`Literal '${col.comment.replace(/'/g, "\\'")}'`));
-  }
-
+  if (col.codec) children.push(codecExplainNative(col.codec));
+  if (col.settings) children.push(SET);
+  if (col.statistics) children.push(codecExplainNative(col.statistics));
+  if (col.ttl) children.push(exprNode(col.ttl));
+  if (col.comment) children.push(exprNode(col.comment));
   return n(`ColumnDeclaration ${col.name}`, children);
 }
 
-// Build Storage definition node
-function storageDefNode(
-  stmt: CreateTableStatement | CreateMaterializedViewStatement,
-): ExplainNode | null {
+/** Native Projection → explain node. */
+function projectionExplainNative(proj: ProjectionNode): ExplainNode {
+  if (proj.index !== undefined) {
+    const piChildren: ExplainNode[] = [exprNode(proj.index)];
+    if (proj.index_type !== undefined) piChildren.push(indexTypeExplainNative(proj.index_type));
+    return n('Projection', piChildren);
+  }
+  const q = proj.query;
+  const pqChildren: ExplainNode[] = [];
+  if (q) {
+    if (q.with && q.with.length > 0) {
+      pqChildren.push(exprList(q.with));
+    }
+    if (q.select) pqChildren.push(exprList(q.select));
+    if (q.group_by && q.group_by.length > 0) {
+      pqChildren.push(exprList(q.group_by));
+    }
+    if (q.order_by && q.order_by.length > 0) {
+      // Projection ORDER BY: a single key is a bare expression; multiple keys
+      // collapse into `Function tuple(ExpressionList)`.
+      if (q.order_by.length === 1) {
+        pqChildren.push(exprNode(q.order_by[0]));
+      } else {
+        pqChildren.push(functionNode('tuple', q.order_by));
+      }
+    }
+  }
+  const projChildren: ExplainNode[] = [n('ProjectionSelectQuery', pqChildren)];
+  if (proj.settings !== undefined) projChildren.push(SET);
+  return n('Projection', projChildren);
+}
+
+/** Native engine `Function` node → explain (no-parens engines omit ExpressionList). */
+function engineExplainNative(engine: FunctionNode): ExplainNode {
+  if (engine._no_parens === true) return n(`Function ${engine.name}`);
+  return functionNode(engine.name, engine.arguments);
+}
+
+/**
+ * Push the storage ORDER BY explain child(ren) for a native Storage node,
+ * derived from the canonical `order_by` Expression child (see
+ * docs/underscore-fields.md). The explain children mirror the native shape:
+ * a `tuple` carrying `StorageOrderByElement` items collapses to a childless
+ * `Function tuple`, an operator-paren multi-key list keeps its `ExpressionList`,
+ * a single DESC key is a `StorageOrderByElement`, and any other key (bare or a
+ * single tuple-valued key) serializes via `exprNode`.
+ */
+function pushStorageOrderBy(children: ExplainNode[], storage: StorageNode): void {
+  const structural = storage.order_by;
+  if (structural === undefined) return;
+  if (structural.type === 'StorageOrderByElement') {
+    children.push(n('StorageOrderByElement', [exprNode(structural.expression)]));
+    return;
+  }
+  if (structural.type === 'Function' && structural.name === 'tuple') {
+    const args = structural.arguments;
+    const hasSobe = args.some((a) => (a as { type?: string }).type === 'StorageOrderByElement');
+    if (hasSobe) {
+      children.push(n('Function tuple'));
+    } else if (structural.is_operator === true) {
+      children.push(n('Function tuple', [exprList(args)]));
+    } else {
+      children.push(exprNode(structural));
+    }
+    return;
+  }
+  children.push(exprNode(structural));
+}
+
+/** Native Storage node → `Storage definition` explain node (or null when empty). */
+function storageExplainNative(storage: StorageNode, columnsHavePk: boolean): ExplainNode | null {
   const children: ExplainNode[] = [];
-
-  // Engine
-  if (stmt.engine) {
-    if (stmt.engine.args !== undefined) {
-      if (stmt.engine.args.length === 0) {
-        children.push(n(`Function ${stmt.engine.name}`, [n('ExpressionList')]));
-      } else {
-        children.push(
-          n(`Function ${stmt.engine.name}`, [n('ExpressionList', stmt.engine.args.map(exprNode))]),
-        );
-      }
-    } else {
-      children.push(n(`Function ${stmt.engine.name}`));
-    }
+  if (storage.engine) children.push(engineExplainNative(storage.engine));
+  const settingsAfterOb = storage._settings_after_order_by === true;
+  if (storage.settings && !settingsAfterOb) children.push(SET);
+  if (storage.partition_by !== undefined) children.push(exprNode(storage.partition_by));
+  // In ClickHouse's storage AST the PRIMARY KEY child is placed after ORDER BY
+  // only when it comes from the column list (schema-level or column-level PK);
+  // a standalone storage `PRIMARY KEY` clause is always emitted before ORDER BY
+  // regardless of its source position.
+  const pkAfterOb = columnsHavePk;
+  if (storage.primary_key !== undefined && !pkAfterOb) children.push(exprNode(storage.primary_key));
+  pushStorageOrderBy(children, storage);
+  if (storage.primary_key !== undefined && pkAfterOb) children.push(exprNode(storage.primary_key));
+  if (storage.sample_by !== undefined) children.push(exprNode(storage.sample_by));
+  if (storage.ttl_table !== undefined) {
+    const items = storage.ttl_table.children as TTLElementNode[];
+    children.push(n('ExpressionList', items.map(nativeTTLElementExplain)));
   }
-
-  // SETTINGS before ORDER BY (when SETTINGS was specified before ORDER BY in the DDL)
-  const settingsAfterOrderBy = !!(stmt as Record<string, unknown>).settingsAfterOrderBy;
-  if (stmt.settings && !settingsAfterOrderBy) {
-    children.push(n('Set'));
-  }
-
-  // PARTITION BY
-  if (stmt.partitionBy) {
-    children.push(exprNode(stmt.partitionBy));
-  }
-
-  // PRIMARY KEY
-  const pk =
-    stmt.primaryKey || (isCreateTableStatement(stmt) ? stmt.primaryKeyInSchema : undefined);
-  const storagePkFromColumns =
-    isCreateTableStatement(stmt) &&
-    stmt.tableElements?.some((el) => el.kind === 'columnDef' && el.primaryKey);
-  // PK goes after ORDER BY when from column-level modifiers or from schema PRIMARY KEY
-  const hasSchemaPk = isCreateTableStatement(stmt) && !!stmt.primaryKeyInSchema;
-  const pkAfterOrderBy = storagePkFromColumns || hasSchemaPk;
-  // Render PK before ORDER BY (when not from column modifiers)
-  if (pk && !pkAfterOrderBy) {
-    if (pk.length === 1) {
-      children.push(exprNode(pk[0]));
-    } else {
-      children.push(n('Function tuple', [n('ExpressionList', pk.map(exprNode))]));
-    }
-  }
-
-  // ORDER BY
-  if (stmt.orderBy) {
-    const hasDesc = stmt.orderBy.some((o) => o.dir === 'DESC');
-    const isParenthesized = !!(stmt.orderBy as unknown as { _parenthesized?: boolean })
-      ._parenthesized;
-    if (hasDesc && isParenthesized) {
-      // Parenthesized ORDER BY with any DESC → Function tuple (no children)
-      children.push(n('Function tuple'));
-    } else if (stmt.orderBy.length === 1) {
-      const item = stmt.orderBy[0];
-      if (item.dir === 'DESC') {
-        children.push(n('StorageOrderByElement', [exprNode(item.expr)]));
-      } else {
-        children.push(exprNode(item.expr));
-      }
-    } else if (hasDesc) {
-      // Non-parenthesized multi-item with DESC → Function tuple (no children)
-      children.push(n('Function tuple'));
-    } else {
-      children.push(
-        n('Function tuple', [
-          n(
-            'ExpressionList',
-            stmt.orderBy.map((o) => exprNode(o.expr)),
-          ),
-        ]),
-      );
-    }
-  }
-
-  // PK after ORDER BY (from column modifiers or explicit PRIMARY KEY after ORDER BY)
-  if (pk && pkAfterOrderBy) {
-    if (storagePkFromColumns) {
-      children.push(n('Function tuple', [n('ExpressionList', pk.map(exprNode))]));
-    } else if (pk.length === 1) {
-      children.push(exprNode(pk[0]));
-    } else {
-      children.push(n('Function tuple', [n('ExpressionList', pk.map(exprNode))]));
-    }
-  }
-
-  // SAMPLE BY
-  if (stmt.sampleBy) {
-    children.push(exprNode(stmt.sampleBy));
-  }
-
-  // TTL
-  if (stmt.ttl) {
-    const ttlElements = stmt.ttl.map((item) => {
-      const ttlChildren = [exprNode(item.expr)];
-      if (item.where) ttlChildren.push(exprNode(item.where));
-      return n('TTLElement', ttlChildren);
-    });
-    children.push(n('ExpressionList', ttlElements));
-  }
-
-  // SETTINGS after ORDER BY (when SETTINGS was specified after ORDER BY in the DDL)
-  if (stmt.settings && settingsAfterOrderBy) {
-    children.push(n('Set'));
-  }
-
+  if (storage.settings && settingsAfterOb) children.push(SET);
   if (children.length === 0) return null;
   return n('Storage definition', children);
 }
 
-// Build CreateIndexQuery explain node
-// Format: CreateIndexQuery  tablename (children 3)
-//   Identifier indexName
-//   Index (children 1-2)
-//     expr
-//     [Function typeName ...]
-//   Identifier tableName
-function createIndexQueryNode(stmt: CreateIndexStatement): ExplainNode {
-  // Note: double space between CreateIndexQuery and table name (ClickHouse quirk)
-  const label = `CreateIndexQuery  ${id(stmt.table.table)}`;
-
-  const children: ExplainNode[] = [];
-
-  // Index name
-  children.push(n(`Identifier ${stmt.indexName}`));
-
-  // Index node
-  const indexChildren: ExplainNode[] = [];
-  if (stmt.indexExpr) {
-    // For multi-column indexes, ClickHouse EXPLAIN shows Function tuple with empty ExpressionList
-    if (stmt.indexExpr.kind === 'functionCall' && stmt.indexExpr.name === 'tuple') {
-      indexChildren.push(n('Function tuple', [n('ExpressionList')]));
-    } else {
-      indexChildren.push(exprNode(stmt.indexExpr));
-    }
-  }
-  if (stmt.indexType) {
-    indexChildren.push(indexTypeToExplainNode(stmt.indexType));
-  }
-  children.push(n('Index', indexChildren));
-
-  // Table name
-  children.push(n(`Identifier ${id(stmt.table.table)}`));
-
-  return n(label, children);
+/** True when the column list owns the primary key. */
+function columnsOwnPk(node: CreateLikeNode): boolean {
+  const cl = node.columns_list as
+    | (ColumnsNode & { primary_key_from_columns?: Expression })
+    | undefined;
+  return !!cl && (cl.primary_key !== undefined || cl.primary_key_from_columns !== undefined);
 }
 
-// Build CreateQuery explain node for DICTIONARY
-function createDictionaryQueryNode(stmt: CreateDictionaryStatement): ExplainNode {
-  const children: ExplainNode[] = [];
-
-  // Label
-  let label = stmt.attach ? 'AttachQuery' : 'CreateQuery';
-  if (stmt.table.database) {
-    label += ` ${id(stmt.table.database)} ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.database)}`));
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
-  } else {
-    label += ` ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
+/** Native `Columns` block → `Columns definition` explain node (or null when empty). */
+function columnsDefExplainNative(cols: ColumnsNode): ExplainNode | null {
+  const cl = cols as ColumnsNode & { primary_key_from_columns?: Expression };
+  const colsDefChildren: ExplainNode[] = [];
+  if (cols.columns && cols.columns.length > 0) {
+    colsDefChildren.push(n('ExpressionList', cols.columns.map(columnDeclExplainNative)));
   }
-
-  // Dictionary attributes
-  if (stmt.dictAttrs && stmt.dictAttrs.length > 0) {
-    const attrNodes = stmt.dictAttrs.map((attr) => {
-      const attrChildren: ExplainNode[] = [dataTypeToExplainNode(attr.type)];
-      if (attr.defaultValue) attrChildren.push(exprNode(attr.defaultValue));
-      if (attr.expression) attrChildren.push(exprNode(attr.expression));
-      return n(`DictionaryAttributeDeclaration ${attr.name}`, attrChildren);
-    });
-    children.push(n('ExpressionList', attrNodes));
+  if (cols.constraints && cols.constraints.length > 0) {
+    colsDefChildren.push(
+      n(
+        'ExpressionList',
+        cols.constraints.map((c) => n('Constraint', [exprNode(c.expression)])),
+      ),
+    );
   }
-
-  // Dictionary definition
-  if (stmt.dictDef) {
-    const defChildren: ExplainNode[] = [];
-    const dd = stmt.dictDef;
-
-    // PRIMARY KEY — flatten tuple to flat list
-    if (dd.primaryKey) {
-      const pkExprs: Expression[] = [];
-      for (const pk of dd.primaryKey) {
-        if (pk.kind === 'tupleLiteral') {
-          pkExprs.push(...pk.elements);
-        } else {
-          pkExprs.push(pk);
-        }
-      }
-      defChildren.push(n('ExpressionList', pkExprs.map(exprNode)));
-    }
-
-    // SOURCE
-    if (dd.source) {
-      const pairNodes = dd.source.pairs.map((p) => {
-        if (Array.isArray(p.value)) {
-          // Structure pairs: render type as Identifier (simple) or Function (parameterized)
-          const structPairs = p.value.map((sp: { name: string; type: DataType }) => {
-            const dt = sp.type;
-            if (dt.args && dt.args.length > 0) {
-              const argNodes = dt.args.map((a, i) => dataTypeArgToExplainNode(a, dt.name, i));
-              return n('pair', [n(`Function ${dt.name}`, [n('ExpressionList', argNodes)])]);
-            }
-            return n('pair', [n(`Identifier ${dt.name}`)]);
-          });
-          return n('pair', [n('ExpressionList', structPairs)]);
-        }
-        return n('pair', [exprNode(p.value)]);
-      });
-      // Double space before source name (ClickHouse quirk)
-      defChildren.push(
-        n(`FunctionWithKeyValueArguments  ${dd.source.name}`, [n('ExpressionList', pairNodes)]),
-      );
-    }
-
-    // LIFETIME
-    if (dd.lifetime) {
-      defChildren.push(n('Dictionary lifetime'));
-    }
-
-    // LAYOUT
-    if (dd.layout) {
-      const layoutPairs = dd.layout.pairs.map((p) => n('pair', [exprNode(p.value)]));
-      defChildren.push(n('Dictionary layout', [n('ExpressionList', layoutPairs)]));
-    }
-
-    // RANGE — no children in EXPLAIN
-    if (dd.range) {
-      defChildren.push(n('Dictionary range'));
-    }
-
-    // SETTINGS
-    if (dd.settings) {
-      defChildren.push(n('Dictionary settings'));
-    }
-
-    children.push(n('Dictionary definition', defChildren));
-  }
-
-  // Dictionary comment
-  if (stmt.dictDef?.comment) {
-    children.push(n(`Literal '${stmt.dictDef.comment.replace(/'/g, "\\'")}'`));
-  }
-
-  return n(label, children);
-}
-
-function createWorkloadQueryNode(stmt: CreateWorkloadStatement): ExplainNode {
-  const children: ExplainNode[] = [n(`Identifier ${stmt.name}`)];
-  if (stmt.parentWorkload) {
-    children.push(n(`Identifier ${stmt.parentWorkload}`));
-  }
-  return n(`CreateWorkloadQuery ${stmt.name}`, children);
-}
-
-function createFunctionQueryNode(stmt: CreateFunctionStatement): ExplainNode {
-  const children: ExplainNode[] = [n(`Identifier ${stmt.name}`)];
-  children.push(exprNode(stmt.functionExpr));
-  return n(`CreateFunctionQuery ${stmt.name}`, children);
-}
-
-function createDatabaseQueryNode(stmt: CreateDatabaseStatement): ExplainNode {
-  const children: ExplainNode[] = [n(`Identifier ${stmt.name}`)];
-  // Build storage definition if we have engine, ORDER BY, or settings
-  const storageChildren: ExplainNode[] = [];
-  if (stmt.engine) {
-    if (stmt.engine.args !== undefined) {
-      if (stmt.engine.args.length === 0) {
-        storageChildren.push(n(`Function ${stmt.engine.name}`, [n('ExpressionList')]));
-      } else {
-        storageChildren.push(
-          n(`Function ${stmt.engine.name}`, [n('ExpressionList', stmt.engine.args.map(exprNode))]),
-        );
-      }
-    } else {
-      storageChildren.push(n(`Function ${stmt.engine.name}`));
-    }
-  }
-  if (stmt.orderBy) {
-    if (stmt.orderBy.length === 1 && !stmt.orderBy[0].dir) {
-      storageChildren.push(exprNode(stmt.orderBy[0].expr));
-    }
-  }
-  if (stmt.settings) {
-    storageChildren.push(n('Set'));
-  }
-  if (storageChildren.length > 0) {
-    children.push(n('Storage definition', storageChildren));
-  }
-  // Note: trailing space after dbname (ClickHouse quirk)
-  return n(`CreateQuery ${stmt.name} `, children);
-}
-
-function createViewQueryNode(stmt: CreateViewStatement): ExplainNode {
-  const children: ExplainNode[] = [];
-  let label = stmt.attach ? 'AttachQuery' : 'CreateQuery';
-  if (stmt.table.database) {
-    label += ` ${id(stmt.table.database)} ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.database)}`));
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
-  } else {
-    label += ` ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
-  }
-  if (stmt.tableElements && stmt.tableElements.length > 0) {
-    const columns = stmt.tableElements.filter((el) => el.kind === 'columnDef');
-    // If all columns are bare names (no type), render as ExpressionList of Identifiers (view column aliases)
-    const allBareNames = columns.every((c) => !c.type);
-    if (allBareNames && columns.length > 0) {
-      children.push(
-        n(
-          'ExpressionList',
-          columns.map((c) => n(`Identifier ${c.name}`)),
+  if (cols.indices && cols.indices.length > 0) {
+    colsDefChildren.push(
+      n(
+        'ExpressionList',
+        cols.indices.map((idx) =>
+          n('Index', [exprNode(idx.expression!), indexTypeExplainNative(idx.index_type!)]),
         ),
-      );
-    } else if (columns.length > 0) {
-      children.push(n('Columns definition', [n('ExpressionList', columns.map(columnDeclNode))]));
-    }
+      ),
+    );
   }
-  if (stmt.asQuery) children.push(stmtNode(stmt.asQuery));
+  if (cols.projections && cols.projections.length > 0) {
+    colsDefChildren.push(n('ExpressionList', cols.projections.map(projectionExplainNative)));
+  }
+  // Schema/column PRIMARY KEY as a direct child of `Columns definition`.
+  if (cl.primary_key_from_columns !== undefined) {
+    colsDefChildren.push(exprNode(cl.primary_key_from_columns));
+  } else if (cols.primary_key !== undefined) {
+    colsDefChildren.push(exprNode(cols.primary_key));
+  }
+  if (colsDefChildren.length === 0) return null;
+  return n('Columns definition', colsDefChildren);
+}
+
+/** Render `[db] table` identifier children + label suffix for a CREATE node. */
+function createLabelAndIdents(
+  node: CreateLikeNode,
+  base: string,
+): { label: string; idents: ExplainNode[] } {
+  const idents: ExplainNode[] = [];
+  let label = node.attach ? 'AttachQuery' : base;
+  if (node.database !== undefined) {
+    idents.push(identifier(id(node.database.name)));
+  }
+  if (node.table !== undefined) {
+    idents.push(identifier(id(node.table.name)));
+  }
+  const dbPart = node.database !== undefined ? ` ${id(node.database.name)}` : '';
+  const tblPart = node.table !== undefined ? ` ${id(node.table.name)}` : '';
+  label += dbPart + tblPart;
+  return { label, idents };
+}
+
+/** True when an AttachQuery carries a full CREATE schema (vs bare ATTACH). */
+function isSchemaFormAttachExplain(node: AttachQueryNode): boolean {
+  const nn = node as unknown as CreateLikeNode;
+  return (
+    nn.columns_list !== undefined ||
+    nn.storage !== undefined ||
+    nn.select !== undefined ||
+    nn.as_table !== undefined ||
+    nn.as_table_function !== undefined ||
+    nn.dictionary !== undefined ||
+    nn.dictionary_attributes !== undefined ||
+    nn.targets !== undefined ||
+    nn.aliases !== undefined ||
+    nn.comment !== undefined ||
+    nn.is_materialized_view === true ||
+    nn.is_ordinary_view === true ||
+    nn.attach_as_replicated !== undefined ||
+    nn.attach_from_path !== undefined
+  );
+}
+
+/** Main entry: native CreateQuery / schema-form AttachQuery → explain node. */
+function createQueryExplainNode(node: CreateLikeNode): ExplainNode {
+  if (node.is_dictionary) return createDictionaryExplainNative(node);
+  if (node.is_materialized_view) return createMaterializedViewExplainNative(node);
+  if (node.is_ordinary_view) return createViewExplainNative(node);
+  if (node.table === undefined && node.database !== undefined) {
+    return createDatabaseExplainNative(node);
+  }
+  return createTableExplainNative(node);
+}
+
+function createTableExplainNative(node: CreateLikeNode): ExplainNode {
+  const { label, idents } = createLabelAndIdents(node, 'CreateQuery');
+  const children: ExplainNode[] = [...idents];
+  if (node.columns_list !== undefined) {
+    const cd = columnsDefExplainNative(node.columns_list);
+    if (cd) children.push(cd);
+  }
+  if (node.storage !== undefined) {
+    const sd = storageExplainNative(node.storage, columnsOwnPk(node));
+    if (sd) children.push(sd);
+  }
+  if (node.select !== undefined) children.push(stmtNode(node.select));
+  if (node.as_table_function !== undefined) {
+    children.push(functionNode(node.as_table_function.name, node.as_table_function.arguments));
+  }
+  if (node.comment !== undefined) children.push(exprNode(node.comment));
+  if (node.settings !== undefined) children.push(SET);
+  if (node.format !== undefined) children.push(identifier(node.format));
   return n(label, children);
 }
 
-function createMaterializedViewQueryNode(stmt: CreateMaterializedViewStatement): ExplainNode {
-  const children: ExplainNode[] = [];
-  let label = stmt.attach ? 'AttachQuery' : 'CreateQuery';
-  if (stmt.table.database) {
-    label += ` ${id(stmt.table.database)} ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.database)}`));
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
-  } else {
-    label += ` ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
+function createDatabaseExplainNative(node: CreateLikeNode): ExplainNode {
+  const children: ExplainNode[] = [identifier(id(node.database!.name))];
+  if (node.storage !== undefined) {
+    const sd = storageExplainNative(node.storage, false);
+    if (sd) children.push(sd);
   }
-  if (stmt.tableElements && stmt.tableElements.length > 0) {
-    const colsDefChildren: ExplainNode[] = [];
-    const columns = stmt.tableElements.filter((el) => el.kind === 'columnDef').map(columnDeclNode);
-    if (columns.length > 0) colsDefChildren.push(n('ExpressionList', columns));
-    const indexes = stmt.tableElements
-      .filter((el) => el.kind === 'indexDef')
-      .map((el) => {
-        const idxChildren: ExplainNode[] = [exprNode(el.expr)];
-        idxChildren.push(indexTypeToExplainNode(el.indexType));
-        return n('Index', idxChildren);
-      });
-    if (indexes.length > 0) colsDefChildren.push(n('ExpressionList', indexes));
-    // Projections in MV
-    const projections: ExplainNode[] = [];
-    for (const el of stmt.tableElements) {
-      if (el.kind === 'projectionDef') {
-        const projChildren: ExplainNode[] = [];
-        if (el.query) {
-          const pqChildren: ExplainNode[] = [];
-          if (el.query.select) pqChildren.push(n('ExpressionList', el.query.select.map(exprNode)));
-          if (el.query.groupBy && el.query.groupBy.kind === 'expressions') {
-            pqChildren.push(n('ExpressionList', el.query.groupBy.items.map(exprNode)));
-          }
-          if (el.query.orderBy && el.query.orderBy.length > 0) {
-            if (el.query.orderBy.length === 1) pqChildren.push(exprNode(el.query.orderBy[0].expr));
-            else
-              pqChildren.push(
-                n('Function tuple', [
-                  n(
-                    'ExpressionList',
-                    el.query.orderBy.map((o) => exprNode(o.expr)),
-                  ),
-                ]),
-              );
-          }
-          projChildren.push(n('ProjectionSelectQuery', pqChildren));
-        }
-        projections.push(n('Projection', projChildren));
-      }
-    }
-    if (projections.length > 0) colsDefChildren.push(n('ExpressionList', projections));
-    // Schema-level PRIMARY KEY in MV
-    const mvPkInSchema = (stmt as Record<string, unknown>).primaryKeyInSchema as
-      | Expression[]
-      | undefined;
-    if (mvPkInSchema) {
-      if (mvPkInSchema.length === 1) {
-        colsDefChildren.push(exprNode(mvPkInSchema[0]));
-      } else if (mvPkInSchema.length > 1) {
-        colsDefChildren.push(
-          n('Function tuple', [n('ExpressionList', mvPkInSchema.map(exprNode))]),
-        );
-      }
-    }
-    // Column-level PRIMARY KEY in MV
-    const mvColPks = stmt.tableElements
-      ?.filter((el): el is ColumnDef => el.kind === 'columnDef' && !!el.primaryKey)
-      .map((el) => n(`Identifier ${el.name}`));
-    if (mvColPks && mvColPks.length > 0 && !mvPkInSchema) {
-      colsDefChildren.push(n('Function tuple', [n('ExpressionList', mvColPks)]));
-    }
-    if (colsDefChildren.length > 0) {
-      children.push(n('Columns definition', colsDefChildren));
-    }
+  // Query-level `CREATE DATABASE ... SETTINGS` (no storage node): a bare `Set`.
+  if (node.settings !== undefined) children.push(SET);
+  // A trailing FORMAT clause becomes an `Identifier <format>` child.
+  if (node.format !== undefined) children.push(identifier(node.format));
+  // Note: trailing space after dbname (ClickHouse quirk).
+  return n(`CreateQuery ${id(node.database!.name)} `, children);
+}
+
+function createViewExplainNative(node: CreateLikeNode): ExplainNode {
+  const { label, idents } = createLabelAndIdents(node, 'CreateQuery');
+  const children: ExplainNode[] = [...idents];
+  if (node.aliases !== undefined && node.aliases.length > 0) {
+    children.push(
+      n(
+        'ExpressionList',
+        node.aliases.map((a) => identifier(id(a.name))),
+      ),
+    );
+  } else if (node.columns_list !== undefined) {
+    const cd = columnsDefExplainNative(node.columns_list);
+    if (cd) children.push(cd);
   }
-  // Refresh strategy
-  if ((stmt as Record<string, unknown>).refresh) {
-    children.push(n('Refresh strategy definition', [n('TimeInterval')]));
+  if (node.select !== undefined) children.push(stmtNode(node.select));
+  return n(label, children);
+}
+
+// `Refresh strategy definition` explain node: one child per present clause —
+// TimeInterval (period/offset/spread), ExpressionList (DEPENDS ON), Set
+// (SETTINGS). APPEND / schedule_kind add no child.
+function refreshStrategyExplainNode(r: RefreshStrategyNode): ExplainNode {
+  const rc: ExplainNode[] = [];
+  if (r.period !== undefined) rc.push(n('TimeInterval'));
+  if (r.offset !== undefined) rc.push(n('TimeInterval'));
+  if (r.spread !== undefined) rc.push(n('TimeInterval'));
+  if (r.dependencies !== undefined) {
+    rc.push(n('ExpressionList', (r.dependencies.children ?? []).map(statementChildNode)));
   }
-  if (stmt.asQuery) children.push(stmtNode(stmt.asQuery));
-  // ViewTargets
-  if (stmt.toTable) {
-    children.push(n('ViewTargets'));
-  } else if (
-    stmt.engine ||
-    stmt.orderBy ||
-    stmt.primaryKey ||
-    (stmt as Record<string, unknown>).primaryKeyInSchema ||
-    stmt.tableElements?.some((el) => el.kind === 'columnDef' && el.primaryKey)
-  ) {
-    // When MV has PK but no ORDER BY, replicate PK as ORDER BY in ViewTargets storage
-    const colPkExprs = stmt.tableElements
-      ?.filter((el): el is ColumnDef => el.kind === 'columnDef' && !!el.primaryKey)
-      .map((el) => ({ kind: 'columnRef' as const, parts: [el.name] }));
-    const mvPk = (stmt.primaryKey ||
-      (stmt as Record<string, unknown>).primaryKeyInSchema ||
-      (colPkExprs && colPkExprs.length > 0 ? colPkExprs : undefined)) as Expression[] | undefined;
-    let innerStorage: ExplainNode | null;
-    const isColPk = colPkExprs && colPkExprs.length > 0;
-    if (mvPk && !stmt.orderBy) {
-      // PK used as implicit ORDER BY — suppress normal PK rendering in storage
-      const stmtNoPk = { ...stmt, primaryKey: undefined } as typeof stmt;
-      innerStorage = storageDefNode(stmtNoPk);
-      if (innerStorage) {
-        if (isColPk) {
-          // Column-modifier PK: always tuple-wrapped
-          innerStorage.children.push(
-            n('Function tuple', [n('ExpressionList', mvPk.map(exprNode))]),
-          );
-        } else {
-          // Schema PK: bare expression for single, tuple for multiple
-          if (mvPk.length === 1) {
-            innerStorage.children.push(exprNode(mvPk[0]));
-          } else {
-            innerStorage.children.push(
-              n('Function tuple', [n('ExpressionList', mvPk.map(exprNode))]),
-            );
-          }
-        }
-      }
-    } else {
-      innerStorage = storageDefNode(stmt);
-    }
-    if (innerStorage) {
-      children.push(n('ViewTargets', [innerStorage]));
+  if (r.settings !== undefined) rc.push(SET);
+  return n('Refresh strategy definition', rc);
+}
+
+function createMaterializedViewExplainNative(node: CreateLikeNode): ExplainNode {
+  const { label, idents } = createLabelAndIdents(node, 'CreateQuery');
+  const children: ExplainNode[] = [...idents];
+  if (node.columns_list !== undefined) {
+    const cd = columnsDefExplainNative(node.columns_list);
+    if (cd) children.push(cd);
+  }
+  if (node.refresh !== undefined) {
+    children.push(refreshStrategyExplainNode(node.refresh as RefreshStrategyNode));
+  }
+  if (node.select !== undefined) children.push(stmtNode(node.select));
+  // ViewTargets (TO target / inner engine).
+  const targets = node.targets?.targets;
+  if (targets !== undefined && targets.length > 0) {
+    const innerTarget = targets.find((t) => t.inner_engine !== undefined);
+    if (innerTarget?.inner_engine !== undefined) {
+      const sd = storageExplainNative(innerTarget.inner_engine, false);
+      children.push(n('ViewTargets', sd ? [sd] : []));
     } else {
       children.push(n('ViewTargets'));
     }
   }
-  // FORMAT clause
-  if ((stmt as Record<string, unknown>).format) {
-    children.push(n(`Identifier ${(stmt as Record<string, unknown>).format}`));
-  }
+  if (node.format !== undefined) children.push(identifier(node.format));
   return n(label, children);
 }
 
-// Build the full CreateQuery explain node for CREATE TABLE
-function createTableQueryNode(stmt: CreateTableStatement): ExplainNode {
-  const children: ExplainNode[] = [];
+function dictAttrExplainNative(attr: DictionaryAttributeDeclarationNode): ExplainNode {
+  const attrChildren: ExplainNode[] = [typeNodeToExplain(attr.data_type as ASTNode)];
+  if (attr.default_value) attrChildren.push(exprNode(attr.default_value));
+  if (attr.expression) attrChildren.push(exprNode(attr.expression));
+  return n(`DictionaryAttributeDeclaration ${attr.name}`, attrChildren);
+}
 
-  let label = stmt.attach ? 'AttachQuery' : 'CreateQuery';
-  if (stmt.table.database) {
-    label += ` ${id(stmt.table.database)} ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.database)}`));
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
-  } else {
-    label += ` ${id(stmt.table.table)}`;
-    children.push(n(`Identifier ${id(stmt.table.table)}`));
+function createDictionaryExplainNative(node: CreateLikeNode): ExplainNode {
+  const { label, idents } = createLabelAndIdents(node, 'CreateQuery');
+  const children: ExplainNode[] = [...idents];
+  if (node.dictionary_attributes && node.dictionary_attributes.length > 0) {
+    children.push(n('ExpressionList', node.dictionary_attributes.map(dictAttrExplainNative)));
   }
-
-  // Columns definition
-  if (stmt.tableElements && stmt.tableElements.length > 0) {
-    const colsDefChildren: ExplainNode[] = [];
-
-    // Separate columns, constraints, indexes, and projections
-    const columns: ExplainNode[] = [];
-    const constraints: ExplainNode[] = [];
-    const indexes: ExplainNode[] = [];
-    const projections: ExplainNode[] = [];
-
-    for (const el of stmt.tableElements) {
-      switch (el.kind) {
-        case 'columnDef':
-          columns.push(columnDeclNode(el));
-          break;
-        case 'constraintDef':
-          constraints.push(n('Constraint', [exprNode(el.expr)]));
-          break;
-        case 'indexDef': {
-          const idxChildren: ExplainNode[] = [exprNode(el.expr)];
-          idxChildren.push(indexTypeToExplainNode(el.indexType));
-          indexes.push(n('Index', idxChildren));
-          break;
+  const dict = node.dictionary;
+  if (dict !== undefined) {
+    const defChildren: ExplainNode[] = [];
+    if (dict.primary_key !== undefined) {
+      defChildren.push(exprList(dict.primary_key));
+    }
+    if (dict.source !== undefined) {
+      const pairNodes = dict.source.elements.map((p) => {
+        if ((p.value as { type?: string }).type === 'ExpressionList') {
+          const structPairs = ((p.value as { children?: ASTNode[] }).children ?? []).map((sp) => {
+            const v = (sp as { value: ASTNode }).value;
+            return n('pair', [exprNode(v as Expression)]);
+          });
+          return n('pair', [n('ExpressionList', structPairs)]);
         }
-        case 'projectionDef': {
-          // PROJECTION ... INDEX col TYPE name format
-          if (el.indexExpr) {
-            const piChildren: ExplainNode[] = [exprNode(el.indexExpr)];
-            if (el.indexType) piChildren.push(indexTypeToExplainNode(el.indexType));
-            projections.push(n('Projection', piChildren));
-            break;
-          }
-          const projChildren: ExplainNode[] = [];
-          const projQuery = el.query!;
-          const pqChildren: ExplainNode[] = [];
-          // WITH CTEs as aliased expressions (separate ExpressionList)
-          if (projQuery.with && projQuery.with.length > 0) {
-            const cteItems = projQuery.with
-              .filter((cte): cte is typeof cte & { kind: 'cteExpr' } => cte.kind === 'cteExpr')
-              .map((cte) =>
-                cte.name === undefined
-                  ? exprNode(cte.expr)
-                  : exprNode({ kind: 'alias', expr: cte.expr, alias: cte.name }),
-              );
-            if (cteItems.length > 0) {
-              pqChildren.push(n('ExpressionList', cteItems));
-            }
-          }
-          // SELECT list
-          if (projQuery.select) {
-            pqChildren.push(n('ExpressionList', projQuery.select.map(exprNode)));
-          }
-          // GROUP BY in projection (comes before ORDER BY)
-          if (projQuery.groupBy && projQuery.groupBy.kind === 'expressions') {
-            pqChildren.push(n('ExpressionList', projQuery.groupBy.items.map(exprNode)));
-          }
-          // ORDER BY in projection
-          if (projQuery.orderBy && projQuery.orderBy.length > 0) {
-            if (projQuery.orderBy.length === 1) {
-              pqChildren.push(exprNode(projQuery.orderBy[0].expr));
-            } else {
-              pqChildren.push(
-                n('Function tuple', [
-                  n(
-                    'ExpressionList',
-                    projQuery.orderBy.map((o) => exprNode(o.expr)),
-                  ),
-                ]),
-              );
-            }
-          }
-          projChildren.push(n('ProjectionSelectQuery', pqChildren));
-          // Projection SETTINGS
-          if ((el as Record<string, unknown>).projectionSettings) {
-            projChildren.push(n('Set'));
-          }
-          projections.push(n('Projection', projChildren));
-          break;
-        }
-      }
+        return n('pair', [exprNode(p.value as Expression)]);
+      });
+      // Double space before source name (ClickHouse quirk).
+      defChildren.push(
+        n(`FunctionWithKeyValueArguments  ${dict.source.name}`, [n('ExpressionList', pairNodes)]),
+      );
     }
-
-    // Columns are always first ExpressionList
-    if (columns.length > 0) {
-      colsDefChildren.push(n('ExpressionList', columns));
+    if (dict.lifetime !== undefined) defChildren.push(n('Dictionary lifetime'));
+    if (dict.layout !== undefined) {
+      const layoutPairs = (dict.layout.parameters ?? []).map((p) =>
+        n('pair', [exprNode(p.value as Expression)]),
+      );
+      defChildren.push(n('Dictionary layout', [n('ExpressionList', layoutPairs)]));
     }
-
-    // Constraints, indexes, and projections go into separate ExpressionLists
-    if (constraints.length > 0) {
-      colsDefChildren.push(n('ExpressionList', constraints));
-    }
-    if (indexes.length > 0) {
-      colsDefChildren.push(n('ExpressionList', indexes));
-    }
-    if (projections.length > 0) {
-      colsDefChildren.push(n('ExpressionList', projections));
-    }
-
-    // Primary key in schema is a direct child of Columns definition
-    // This includes both explicit PRIMARY KEY(...) elements and column-level PRIMARY KEY modifiers
-    const pkFromColumns = stmt.tableElements?.some(
-      (el) => el.kind === 'columnDef' && el.primaryKey,
-    );
-    const pkInColsDef =
-      stmt.primaryKeyInSchema || (stmt.primaryKey && pkFromColumns ? stmt.primaryKey : undefined);
-    if (pkInColsDef) {
-      if (pkInColsDef.length === 1 && !pkFromColumns) {
-        colsDefChildren.push(exprNode(pkInColsDef[0]));
-      } else {
-        colsDefChildren.push(n('Function tuple', [n('ExpressionList', pkInColsDef.map(exprNode))]));
-      }
-    }
-
-    children.push(n('Columns definition', colsDefChildren));
+    if (dict.range !== undefined) defChildren.push(n('Dictionary range'));
+    if (dict.settings !== undefined) defChildren.push(n('Dictionary settings'));
+    children.push(n('Dictionary definition', defChildren));
   }
-
-  // Storage definition
-  const storageDef = storageDefNode(stmt);
-  if (storageDef) {
-    children.push(storageDef);
-  }
-
-  // AS SELECT query
-  if (stmt.asQuery) {
-    children.push(stmtNode(stmt.asQuery));
-  }
-
-  // AS table_function()
-  if (stmt.asTableFunction) {
-    const tf = stmt.asTableFunction;
-    if (tf.args.length === 0) {
-      children.push(n(`Function ${tf.name}`, [n('ExpressionList')]));
-    } else {
-      children.push(n(`Function ${tf.name}`, [n('ExpressionList', tf.args.map(exprNode))]));
-    }
-  }
-
-  // Table COMMENT
-  if (stmt.comment) {
-    children.push(n(`Literal '${stmt.comment.replace(/'/g, "\\'")}'`));
-  }
-
-  // Query-level SETTINGS (second SETTINGS clause)
-  if ((stmt as Record<string, unknown>).querySettings) {
-    children.push(n('Set'));
-  }
-
-  // FORMAT clause
-  if ((stmt as Record<string, unknown>).format) {
-    children.push(n(`Identifier ${(stmt as Record<string, unknown>).format}`));
-  }
-
+  if (node.comment !== undefined) children.push(exprNode(node.comment));
   return n(label, children);
 }
 
-function parallelWithQueryNode(stmt: ParallelWithStatement): ExplainNode {
-  const first = stmt.queries[0];
-  let kindPrefix: string;
-  let firstTable: string;
-  if (first?.kind === 'insert') {
-    kindPrefix = 'InsertQuery_';
-    firstTable = '';
-  } else if (first?.kind === 'drop') {
-    kindPrefix = 'DropQuery_';
-    firstTable = first.table ? id(first.table.table) : '';
-  } else if (first?.kind === 'truncate') {
-    kindPrefix = 'TruncateQuery_';
-    firstTable = first.table
-      ? id(first.table.table)
-      : first.database !== undefined
-        ? id(first.database)
-        : '';
-  } else if (first?.kind === 'optimize') {
-    kindPrefix = 'OptimizeQuery_';
-    let suffix = id(first.table.table);
-    if (first.final) suffix += '_final';
-    if (first.cleanup) suffix += '_cleanup';
-    if (first.deduplicate) suffix += '_deduplicate';
-    firstTable = suffix;
-  } else if (first?.kind === 'alter') {
-    kindPrefix = 'AlterQuery_';
-    firstTable = first.table ? id(first.table.table) : '';
-  } else {
-    kindPrefix = 'CreateQuery';
-    firstTable = first?.kind === 'createTable' ? id(first.table.table) : '';
-  }
-  const label = `ParallelWithQuery ${stmt.queries.length} ${kindPrefix}_${firstTable}`;
-  const children = stmt.queries.map((q) => stmtNode(q as Statement));
-  return n(label, children);
-}
+// Build CreateIndexQuery explain node
+// Format: CreateIndexQuery <database> tablename (children 3-4)
+//   Identifier indexName
+//   Index (children 1-2)
+//     expr
+//     [Function typeName ...]
+//   [Identifier database]
+//   Identifier tableName
+// The label carries the database in a fixed slot; when the table is
+// unqualified the slot is empty, leaving the historical double space.
+function createIndexQueryNode(stmt: CreateIndexQueryNode): ExplainNode {
+  const label = `CreateIndexQuery ${stmt.database ? id(stmt.database.name) : ''} ${id(stmt.table.name)}`;
 
-// Check if a query statement (or any of its children in a union) has settings
-function hasSelectSettings(query?: Statement): boolean {
-  if (!query) return false;
-  if (query.kind === 'select') return !!(query.settings && query.settings.length > 0);
-  if (query.kind === 'union') return query.queries.some((q) => hasSelectSettings(q));
-  return false;
-}
-
-function insertQueryNode(stmt: InsertStatement): ExplainNode {
   const children: ExplainNode[] = [];
+  children.push(identifier(stmt.index_name.name));
 
-  // FROM INFILE 'path' [COMPRESSION 'name'] precedes the target identifier
-  if (stmt.fromInfile) {
-    children.push(exprNode(stmt.fromInfile.path));
-    if (stmt.fromInfile.compression) {
-      children.push(exprNode(stmt.fromInfile.compression));
-    }
-  }
-
-  // First child: table identifier or function
-  if (stmt.target.kind === 'table') {
-    const t = stmt.target.table;
-    if (t.database) {
-      children.push(n(`Identifier ${id(t.database)}`));
-      children.push(n(`Identifier ${id(t.table)}`));
+  const decl = stmt.index_declaration;
+  const indexChildren: ExplainNode[] = [];
+  const indexExpr = decl.expression;
+  if (indexExpr !== undefined) {
+    // For multi-column indexes, ClickHouse EXPLAIN shows Function tuple with empty ExpressionList
+    if (indexExpr.type === 'Function' && indexExpr.name === 'tuple') {
+      indexChildren.push(functionNode('tuple', []));
     } else {
-      children.push(n(`Identifier ${id(t.table)}`));
+      indexChildren.push(exprNode(indexExpr));
     }
-  } else {
-    const func = stmt.target.func;
-    const argsNodes = func.args.map(exprNode);
-    children.push(n(`Function ${func.name}`, [n('ExpressionList', argsNodes)]));
   }
-
-  // PARTITION BY expression
-  if (stmt.partitionBy) {
-    children.push(exprNode(stmt.partitionBy));
+  if (decl.index_type !== undefined) {
+    indexChildren.push(functionNode(decl.index_type.name, decl.index_type.arguments));
   }
+  children.push(n('Index', indexChildren));
 
-  // Column list
-  if (stmt.columns && stmt.columns.length > 0) {
-    children.push(
-      n(
-        'ExpressionList',
-        stmt.columns.map((c) => exprNode(c)),
-      ),
+  if (stmt.database !== undefined) children.push(identifier(id(stmt.database.name)));
+  children.push(identifier(id(stmt.table.name)));
+
+  return n(label, children);
+}
+
+function createFunctionQueryNode(stmt: CreateFunctionQueryNode): ExplainNode {
+  const children: ExplainNode[] = [identifier(stmt.function_name.name)];
+  children.push(exprNode(stmt.function_core));
+  return n(`CreateFunctionQuery ${stmt.function_name.name}`, children);
+}
+
+// Name slot for a drop-family statement in a ParallelWithQuery label.
+function dropFamilyLabelName(stmt: DropFamilyNode): string {
+  if (stmt.table !== undefined) return stmt.table.name;
+  if (stmt.database !== undefined) return stmt.database.name;
+  return '';
+}
+
+function parallelWithQueryNode(queries: Statement[]): ExplainNode {
+  const firstAny = queries[0];
+  const firstType = (firstAny as { type?: string } | undefined)?.type;
+  if (
+    firstType === 'DropQuery' ||
+    firstType === 'DetachQuery' ||
+    firstType === 'TruncateQuery' ||
+    firstType === 'DropFunctionQuery' ||
+    firstType === 'InsertQuery' ||
+    firstType === 'OptimizeQuery' ||
+    firstType === 'DeleteQuery' ||
+    firstType === 'UpdateQuery'
+  ) {
+    let firstTable = '';
+    if (firstType === 'OptimizeQuery') {
+      const opt = firstAny as OptimizeQueryNode;
+      firstTable = opt.table?.name ?? '';
+      if (opt.final) firstTable += '_final';
+      if (opt.cleanup) firstTable += '_cleanup';
+      if (opt.deduplicate) firstTable += '_deduplicate';
+    } else if (firstType === 'DeleteQuery') {
+      firstTable = (firstAny as DeleteQueryNode).table?.name ?? '';
+    } else if (firstType === 'UpdateQuery') {
+      firstTable = (firstAny as UpdateQueryNode).table?.name ?? '';
+    } else if (firstType !== 'DropFunctionQuery' && firstType !== 'InsertQuery') {
+      firstTable = dropFamilyLabelName(firstAny as DropFamilyNode);
+    }
+    const label = `ParallelWithQuery ${queries.length} ${firstType}__${firstTable}`;
+    return n(label, queries.map(stmtNode));
+  }
+  if (firstType === 'CreateQuery') {
+    const cq = firstAny as CreateLikeNode;
+    const firstTable = cq.table !== undefined ? id(cq.table.name) : '';
+    return n(
+      `ParallelWithQuery ${queries.length} CreateQuery_${firstTable}`,
+      queries.map(stmtNode),
     );
   }
-
-  // SELECT query — INSERT-level WITH is attached to the inner SELECT as distributed
-  if (stmt.selectQuery) {
-    let sq = stmt.selectQuery as Statement;
-    if (stmt.with && stmt.with.length > 0) {
-      const withItems = stmt.with;
-      // Attach WITH to the leftmost SELECT with distributedWith: true
-      function attachInsertWith(s: Statement): Statement {
-        if (s.kind === 'select' && !s.with) {
-          return { ...s, with: withItems, distributedWith: true } as Statement;
-        }
-        if (s.kind === 'union') {
-          const [first, ...rest] = s.queries;
-          return { ...s, queries: [attachInsertWith(first), ...rest] } as Statement;
-        }
-        if (s.kind === 'intersect') {
-          return { ...s, left: attachInsertWith(s.left as Statement) } as Statement;
-        }
-        return s;
-      }
-      sq = attachInsertWith(sq);
-    }
-    children.push(stmtNode(sq));
+  if (firstType === 'AlterQuery') {
+    const src = firstAny as AlterQueryNode & { table?: IdentifierNode };
+    const firstTable = id(src.table ? src.table.name : '');
+    return n(`ParallelWithQuery ${queries.length} AlterQuery_${firstTable}`, queries.map(stmtNode));
   }
-
-  // Settings: InsertQuery gets a Set child if any settings exist (insert-level or select-level)
-  const hasInsertSettings = stmt.insertSettings && stmt.insertSettings.length > 0;
-  const hasQuerySettings = stmt.querySettings && stmt.querySettings.length > 0;
-  // Check if the inner SELECT query has settings
-  const selectHasSettings = hasSelectSettings(stmt.selectQuery);
-  if (hasInsertSettings || hasQuerySettings || selectHasSettings) {
-    children.push(n('Set'));
-  }
-
-  return n('InsertQuery  ', children);
+  // Fallback for an unrecognized first query type (the grammar only emits
+  // ClickHouse-native AST types into PARALLEL WITH).
+  const label = `ParallelWithQuery ${queries.length}`;
+  return n(label, queries.map(stmtNode));
 }
 
 // ── ALTER TABLE explain helpers ──────────────────────────────────────────────
 
-// Build a Partition or Partition_ID node from an AlterPartitionExpr
-// For main partition commands (DROP/ATTACH/REPLACE/MOVE/FETCH/FREEZE PARTITION),
-// ALL and tuple(...) both produce Partition_ID (empty).
-// For IN PARTITION sub-clauses (CLEAR/MATERIALIZE), expressions produce normal Partition nodes.
-function partitionNode(part: AlterPartitionExpr): ExplainNode {
-  if (part.partitionKind === 'all') {
-    return n('Partition_ID ');
+// Native `Partition` / `Partition_ID` operand (as ClickHouse's EXPLAIN AST
+// exposes it). Main partition commands (DROP/ATTACH/REPLACE/MOVE/FETCH/FREEZE)
+// render `ALL`/`tuple(...)` as an empty `Partition_ID`, while IN PARTITION
+// sub-clauses (CLEAR/MATERIALIZE) render an expression as a `Partition`.
+function nativePartitionExplain(p: PartitionNode | PartitionIdNode): ExplainNode {
+  if (p.type === 'Partition_ID') {
+    if (p.all || p.id === undefined) return n('Partition_ID ');
+    if (p.id.type === 'QueryParameter') return n('Partition_ID', [exprNode(p.id)]);
+    const text = escapeStringValue(p.id.type === 'Literal' ? String(p.id.value) : '');
+    return n(`Partition_ID Literal_'${text}'`, [n(`Literal '${text}'`)]);
   }
-  if (part.partitionKind === 'id') {
-    if (part.id.kind === 'queryParam') {
-      return n('Partition_ID', [exprNode(part.id)]);
-    }
-    const lit = part.id as Literal;
-    const label = `Partition_ID Literal_'${escapeStringValue(lit.value)}'`;
-    return n(label, [n(`Literal '${escapeStringValue(lit.value)}'`)]);
-  }
-  return n('Partition', [exprNode(part.expr)]);
+  return n('Partition', [exprNode(p.value)]);
 }
 
-// Build an AlterCommand explain node
-function alterCommandNode(cmd: AlterCommand): ExplainNode {
+/**
+ * A native alter-command partition operand, narrowed to the wrapped
+ * `Partition` / `Partition_ID` nodes (the `PART 'name'` string-Literal form is
+ * handled separately by callers).
+ */
+function partitionOperand(
+  p: PartitionNode | PartitionIdNode | LiteralNode | undefined,
+): PartitionNode | PartitionIdNode | undefined {
+  return p !== undefined && p.type !== 'Literal' ? p : undefined;
+}
+
+// `Literal 'text'` leaf for a raw string-literal operand (e.g. a COMMENT value).
+function stringLiteralNode(lit: LiteralNode): ExplainNode {
+  return n(`Literal '${escapeStringValue(String(lit.value))}'`);
+}
+
+// Build an AlterCommand explain node from a native AlterCommand node.
+function alterCommandNode(nc: AlterCommandNode): ExplainNode {
   const children: ExplainNode[] = [];
-  const type = cmd.commandType;
+  const pushPartition = (): void => {
+    const p = partitionOperand(nc.partition);
+    if (p) children.push(nativePartitionExplain(p));
+  };
 
-  switch (type) {
+  switch (nc.command_type) {
     case 'ADD_COLUMN':
-      if (cmd.column) children.push(columnDeclNode(cmd.column));
-      if (cmd.afterColumn) children.push(n(`Identifier ${cmd.afterColumn}`));
+      if (nc.column_declaration) children.push(columnDeclExplainNative(nc.column_declaration));
+      if (nc.column) children.push(exprNode(nc.column));
       break;
-
     case 'DROP_COLUMN':
-      if (cmd.columnName) children.push(n(`Identifier ${cmd.columnName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
+      if (nc.column) children.push(exprNode(nc.column));
+      pushPartition();
       break;
-
-    case 'MODIFY_COLUMN': {
-      if (cmd.column) children.push(columnDeclNode(cmd.column));
-      const colSettingOp = (cmd as Record<string, unknown>).columnSettingOp as
-        | { op: string; names?: string[]; settings?: unknown[] }
-        | undefined;
-      if (colSettingOp) {
-        if (colSettingOp.op === 'RESET_SETTING' && colSettingOp.names) {
-          children.push(
-            n(
-              'ExpressionList',
-              colSettingOp.names.map((name: string) => n(`Identifier ${name}`)),
-            ),
-          );
-        } else {
-          children.push(n('Set'));
-        }
-      }
-      if (cmd.afterColumn) children.push(n(`Identifier ${cmd.afterColumn}`));
+    case 'MODIFY_COLUMN':
+      if (nc.column_declaration) children.push(columnDeclExplainNative(nc.column_declaration));
+      if (nc.settings_resets) children.push(exprList(nc.settings_resets.children));
+      else if (nc.settings_changes) children.push(SET);
+      if (nc.column) children.push(exprNode(nc.column));
       break;
-    }
-
     case 'RENAME_COLUMN':
-      if (cmd.oldName) children.push(n(`Identifier ${cmd.oldName}`));
-      if (cmd.newName) children.push(n(`Identifier ${cmd.newName}`));
+      if (nc.column) children.push(exprNode(nc.column));
+      if (nc.rename_to) children.push(exprNode(nc.rename_to));
       break;
-
     case 'COMMENT_COLUMN':
-      if (cmd.columnName) children.push(n(`Identifier ${cmd.columnName}`));
-      if (cmd.comment) children.push(n(`Literal '${escapeStringValue(cmd.comment.value)}'`));
+      if (nc.column) children.push(exprNode(nc.column));
+      if (nc.comment) children.push(stringLiteralNode(nc.comment));
       break;
-
     case 'MATERIALIZE_COLUMN':
-      if (cmd.columnName) children.push(n(`Identifier ${cmd.columnName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
+      if (nc.column) children.push(exprNode(nc.column));
+      pushPartition();
       break;
-
-    case 'ADD_INDEX':
-      if (cmd.index) {
+    case 'ADD_INDEX': {
+      if (nc.index_declaration) {
+        const idx = nc.index_declaration;
         const idxChildren: ExplainNode[] = [];
-        if (cmd.index.expr) {
-          idxChildren.push(exprNode(cmd.index.expr));
-        }
-        if (cmd.index.indexType) {
-          idxChildren.push(indexTypeToExplainNode(cmd.index.indexType));
-        }
+        if (idx.expression) idxChildren.push(exprNode(idx.expression));
+        if (idx.index_type) idxChildren.push(indexTypeExplainNative(idx.index_type));
         children.push(n('Index', idxChildren));
       }
-      if (cmd.afterIndex) children.push(n(`Identifier ${cmd.afterIndex}`));
+      if (nc.index) children.push(exprNode(nc.index));
       break;
-
+    }
     case 'DROP_INDEX':
-      if (cmd.indexName) children.push(n(`Identifier ${cmd.indexName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
-      break;
-
     case 'MATERIALIZE_INDEX':
-      if (cmd.indexName) children.push(n(`Identifier ${cmd.indexName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
+      if (nc.index) children.push(exprNode(nc.index));
+      pushPartition();
       break;
-
     case 'ADD_PROJECTION':
-      if (cmd.projection) {
-        const projChildren: ExplainNode[] = [];
-        if (cmd.projection.indexExpr) {
-          // INDEX variant: PROJECTION name INDEX expr TYPE type
-          projChildren.push(exprNode(cmd.projection.indexExpr));
-          if (cmd.projection.indexType) {
-            projChildren.push(indexTypeToExplainNode(cmd.projection.indexType));
-          }
-        } else if (cmd.projection.query) {
-          const pqChildren: ExplainNode[] = [];
-          if (cmd.projection.query.select)
-            pqChildren.push(n('ExpressionList', cmd.projection.query.select.map(exprNode)));
-          if (cmd.projection.query.groupBy && cmd.projection.query.groupBy.kind === 'expressions') {
-            pqChildren.push(n('ExpressionList', cmd.projection.query.groupBy.items.map(exprNode)));
-          }
-          if (cmd.projection.query.orderBy && cmd.projection.query.orderBy.length > 0) {
-            if (cmd.projection.query.orderBy.length === 1)
-              pqChildren.push(exprNode(cmd.projection.query.orderBy[0].expr));
-            else
-              pqChildren.push(
-                n('Function tuple', [
-                  n(
-                    'ExpressionList',
-                    cmd.projection.query.orderBy.map((o) => exprNode(o.expr)),
-                  ),
-                ]),
-              );
-          }
-          projChildren.push(n('ProjectionSelectQuery', pqChildren));
-        }
-        if (cmd.projection.projectionSettings && cmd.projection.projectionSettings.length > 0) {
-          projChildren.push(n('Set'));
-        }
-        children.push(n('Projection', projChildren));
-      }
+      if (nc.projection_declaration)
+        children.push(projectionExplainNative(nc.projection_declaration));
       break;
-
     case 'DROP_PROJECTION':
-      if (cmd.projectionName) children.push(n(`Identifier ${cmd.projectionName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
-      break;
-
     case 'MATERIALIZE_PROJECTION':
-      if (cmd.projectionName) children.push(n(`Identifier ${cmd.projectionName}`));
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
+      if (nc.projection) children.push(exprNode(nc.projection));
+      pushPartition();
       break;
-
     case 'ADD_CONSTRAINT':
-      if (cmd.constraint) {
-        children.push(n('Constraint', [exprNode(cmd.constraint.expr)]));
-      }
+      if (nc.constraint_declaration)
+        children.push(n('Constraint', [exprNode(nc.constraint_declaration.expression)]));
       break;
-
     case 'DROP_CONSTRAINT':
-      if (cmd.constraintName) children.push(n(`Identifier ${cmd.constraintName}`));
+      if (nc.constraint) children.push(exprNode(nc.constraint));
       break;
-
     case 'ADD_STATISTICS':
     case 'MODIFY_STATISTICS': {
+      const sd = nc.statistics_declaration;
       const statChildren: ExplainNode[] = [];
-      if (cmd.statColumns && cmd.statColumns.length > 0) {
+      if (sd?.columns && sd.columns.children.length > 0)
+        statChildren.push(exprList(sd.columns.children));
+      if (sd?.types && sd.types.children.length > 0)
         statChildren.push(
           n(
             'ExpressionList',
-            cmd.statColumns.map((c) => n(`Identifier ${c}`)),
+            sd.types.children.map((x) =>
+              x.type === 'Function' ? indexTypeExplainNative(x) : exprNode(x),
+            ),
           ),
         );
-      }
-      if (cmd.statTypes && cmd.statTypes.length > 0) {
-        statChildren.push(
-          n(
-            'ExpressionList',
-            cmd.statTypes.map((t) => indexTypeToExplainNode(t)),
-          ),
-        );
-      }
       children.push(n('Stat', statChildren));
       break;
     }
-
     case 'DROP_STATISTICS':
-      if (cmd.statColumns && cmd.statColumns.length > 0) {
-        children.push(
-          n('Stat', [
-            n(
-              'ExpressionList',
-              cmd.statColumns.map((c) => n(`Identifier ${c}`)),
-            ),
-          ]),
-        );
-      }
+    case 'MATERIALIZE_STATISTICS': {
+      const cols = nc.statistics_declaration?.columns;
+      if (cols && cols.children.length > 0) children.push(n('Stat', [exprList(cols.children)]));
       break;
-    case 'MATERIALIZE_STATISTICS':
-      if (cmd.statColumns && cmd.statColumns.length > 0) {
-        children.push(
-          n('Stat', [
-            n(
-              'ExpressionList',
-              cmd.statColumns.map((c: string) => n(`Identifier ${c}`)),
-            ),
-          ]),
-        );
-      }
-      break;
-
+    }
     case 'UPDATE':
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
-      if (cmd.where) children.push(exprNode(cmd.where));
-      if (cmd.assignments && cmd.assignments.length > 0) {
-        const assignNodes = cmd.assignments.map((a) =>
-          n(`Assignment ${a.column}`, [exprNode(a.expr)]),
+      pushPartition();
+      if (nc.predicate) children.push(exprNode(nc.predicate));
+      if (nc.assignments) {
+        const assigns = nc.assignments.map((a) =>
+          n(`Assignment ${a.column}`, [exprNode(a.expression)]),
         );
-        children.push(n('ExpressionList', assignNodes));
+        children.push(n('ExpressionList', assigns));
       }
       break;
-
     case 'DELETE':
-      if (cmd.where) children.push(exprNode(cmd.where));
+      if (nc.predicate) children.push(exprNode(nc.predicate));
       break;
-
     case 'DROP_PARTITION':
     case 'ATTACH_PARTITION':
     case 'DROP_DETACHED_PARTITION':
-      if (cmd.partName) {
-        // DETACH/DROP PART 'name' → direct Literal child (query-param parts are query-param queries)
-        if (cmd.partName.kind === 'literal') {
-          children.push(n(`Literal '${escapeStringValue(cmd.partName.value)}'`));
-        } else {
-          children.push(exprNode(cmd.partName));
-        }
-      } else if (cmd.partition) {
-        children.push(partitionNode(cmd.partition));
-      }
+      // `part` marks the `DROP/DETACH PART 'name'` form, where `partition` holds
+      // the name literal directly rather than a wrapped Partition node.
+      if (nc.part && nc.partition?.type === 'Literal') children.push(exprNode(nc.partition));
+      else pushPartition();
       break;
     case 'REPLACE_PARTITION':
     case 'MOVE_PARTITION':
     case 'FETCH_PARTITION':
     case 'FREEZE_PARTITION':
-      if (cmd.partition) {
-        children.push(partitionNode(cmd.partition));
-      }
+      pushPartition();
       break;
-
     case 'FREEZE_ALL':
-      // No children
       break;
-
     case 'MODIFY_TTL':
-      if (cmd.ttl) {
-        const ttlElements = cmd.ttl.map((item) => {
-          const ttlChildren = [exprNode(item.expr)];
-          if (item.where) ttlChildren.push(exprNode(item.where));
-          return n('TTLElement', ttlChildren);
-        });
-        children.push(n('ExpressionList', ttlElements));
-      }
+      if (nc.ttl) children.push(n('ExpressionList', nc.ttl.children.map(nativeTTLElementExplain)));
       break;
-
     case 'REMOVE_TTL':
     case 'REMOVE_SAMPLE_BY':
-      // No children
-      break;
-
     case 'MATERIALIZE_TTL':
-      // No children (partition is handled at statement level)
       break;
-
     case 'MODIFY_ORDER_BY':
+      if (nc.order_by) children.push(exprNode(nc.order_by));
+      break;
     case 'MODIFY_SAMPLE_BY':
-      if (cmd.expr) children.push(exprNode(cmd.expr));
+      if (nc.sample_by) children.push(exprNode(nc.sample_by));
       break;
-
     case 'MODIFY_SETTING':
-      children.push(n('Set'));
+      children.push(SET);
       break;
-
     case 'RESET_SETTING':
-      if (cmd.settingNames && cmd.settingNames.length > 0) {
-        children.push(
-          n(
-            'ExpressionList',
-            cmd.settingNames.map((name) => n(`Identifier ${name}`)),
-          ),
-        );
-      }
+      if (nc.settings_resets) children.push(exprList(nc.settings_resets.children));
       break;
-
     case 'MODIFY_QUERY':
-      if (cmd.query) children.push(stmtNode(cmd.query));
+      if (nc.select) children.push(stmtNode(nc.select));
       break;
-
     case 'MODIFY_COMMENT':
-      if (cmd.comment) children.push(n(`Literal '${escapeStringValue(cmd.comment.value)}'`));
+      if (nc.comment) children.push(stringLiteralNode(nc.comment));
       break;
-
     case 'APPLY_DELETED_MASK':
     case 'APPLY_PATCHES':
     case 'REWRITE_PARTS':
-      if (cmd.partition) children.push(partitionNode(cmd.partition));
+      pushPartition();
       break;
   }
 
-  return n(`AlterCommand ${type}`, children);
+  return n(`AlterCommand ${nc.command_type}`, children);
 }
 
-// Build AlterQuery explain node
-function alterQueryNode(stmt: AlterStatement): ExplainNode {
-  const t = stmt.table;
-  const label = t.database
-    ? `AlterQuery ${id(t.database)} ${id(t.table)}`
-    : `AlterQuery  ${id(t.table)}`;
+// TTLElement (native) → explain node.
+function nativeTTLElementExplain(el: TTLElementNode): ExplainNode {
+  const ttlChildren = [exprNode(el.ttl)];
+  if (el.where) ttlChildren.push(exprNode(el.where));
+  return n('TTLElement', ttlChildren);
+}
 
-  const children: ExplainNode[] = [];
+// Build the AlterQuery explain node from a native AlterQuery node.
+function alterQueryNode(node: AlterQueryNode): ExplainNode {
+  const target = node.alter_object === 'DATABASE' ? node.database : node.table;
+  const label = node.database
+    ? `AlterQuery ${id(node.database.name)} ${target ? id(target.name) : ''}`
+    : `AlterQuery  ${target ? id(target.name) : ''}`;
 
-  // ExpressionList of AlterCommand nodes
-  const cmdNodes = stmt.commands.map(alterCommandNode);
-  children.push(n('ExpressionList', cmdNodes));
-
-  // Identifier(s) for table name
-  if (t.database) {
-    children.push(n(`Identifier ${id(t.database)}`));
+  const children: ExplainNode[] = [n('ExpressionList', node.commands.map(alterCommandNode))];
+  if (node.alter_object !== 'DATABASE') {
+    if (node.database) children.push(identifier(id(node.database.name)));
+    if (node.table) children.push(identifier(id(node.table.name)));
+  } else if (node.database) {
+    children.push(identifier(id(node.database.name)));
   }
-  children.push(n(`Identifier ${id(t.table)}`));
-
-  // Optional FORMAT → Identifier child (before Set)
-  if (stmt.format) {
-    children.push(n(`Identifier ${stmt.format}`));
-  }
-
-  // Optional SETTINGS → Set child
-  if (stmt.settings && stmt.settings.length > 0) {
-    children.push(n('Set'));
-  }
+  if (node.format !== undefined) children.push(identifier(node.format));
+  if (node.settings !== undefined) children.push(SET);
 
   return n(label, children);
 }
 
-// Build the explain node for a SHOW statement.
-function showQueryNode(stmt: ShowStatement): ExplainNode {
-  const s = stmt.show;
-  const formatChild = (): ExplainNode[] => (stmt.format ? [n(`Identifier ${stmt.format}`)] : []);
-  switch (s.type) {
-    case 'listing': {
+// `ShowAccessEntitiesQuery` entity_type → the plural SHOW keyword (explain label).
+const SHOW_ENTITY_PLURAL_EXPLAIN: Record<string, string> = {
+  USER: 'USERS',
+  ROLE: 'ROLES',
+  QUOTA: 'QUOTAS',
+  'SETTINGS PROFILE': 'SETTINGS PROFILES',
+  'ROW POLICY': 'ROW POLICIES',
+  'NAMED COLLECTION': 'NAMED COLLECTIONS',
+  WARNING: 'WARNINGS',
+};
+
+// Build the explain node for a SHOW statement, entirely from native fields.
+function showQueryNode(stmt: ShowFamilyQueryNode): ExplainNode {
+  const fmt = stmt.format;
+  const formatChild = (): ExplainNode[] => (fmt ? [identifier(fmt)] : []);
+  switch (stmt.type) {
+    // ClickHouse's explain text labels SHOW INDEX as `ShowColumns` too.
+    case 'ShowColumns':
+    case 'ShowIndexes':
+      return n('ShowColumns');
+    case 'ShowSetting':
+      return n('ShowSetting');
+    case 'ShowFunctions':
+      return n('ShowFunctions');
+    case 'ShowPrivilegesQuery':
+      return n('ShowPrivilegesQuery');
+    case 'ShowEngineQuery':
+      return n('ShowEngineQuery');
+    case 'ShowAccessQuery':
+      return n('ShowAccessQuery');
+    case 'ShowProcesslistQuery':
+      return n('ShowProcesslistQuery');
+    case 'ShowTables': {
+      // The flag-only sub-forms (SETTINGS / CLUSTERS / CLUSTER / MERGES) have no
+      // children; the listing forms expose from / SETTINGS / FORMAT children.
+      if (stmt.show_settings || stmt.clusters || stmt.cluster || stmt.merges) {
+        return n('ShowTables');
+      }
       const children: ExplainNode[] = [];
-      if (s.from !== undefined) children.push(n(`Identifier ${id(s.from)}`));
-      if (s.settings && s.settings.length > 0) children.push(n('Set'));
+      if (stmt.from !== undefined) children.push(identifier(stmt.from.name));
+      if (stmt.settings !== undefined) children.push(SET);
       children.push(...formatChild());
       return n('ShowTables', children);
     }
-    case 'accessEntities':
-    case 'cluster':
-      return n('ShowTables');
-    case 'columns':
-    case 'indexes':
-      return n('ShowColumns');
-    case 'setting':
-      return n('ShowSetting');
-    case 'privileges':
-      return n('ShowPrivilegesQuery');
-    case 'engines':
-      return n('ShowEngines');
-    case 'merges':
-      return n('ShowMerges');
-    case 'access':
-      return n('ShowAccessQuery');
-    case 'processlist':
-      return n('ShowProcesslist');
-    case 'functions':
-      return n('ShowFunctions');
-    case 'grants':
+    case 'ShowAccessEntitiesQuery': {
+      const plural = SHOW_ENTITY_PLURAL_EXPLAIN[stmt.entity_type ?? ''] ?? stmt.entity_type ?? '';
+      return n(`SHOW ${plural} query`);
+    }
+    case 'ShowGrantsQuery':
       return n('ShowGrantsQuery', formatChild());
-    case 'createAccess': {
-      const hasFormat = stmt.format !== undefined;
-      const isMulti = s.names.length > 1;
+    case 'ShowCreateNamedCollectionQuery':
+      return n('ShowCreateNamedCollectionQuery', formatChild());
+    case 'ShowCreateAccessEntityQuery': {
+      const hasFormat = fmt !== undefined;
+      if (stmt.entity_type === 'ROW POLICY') {
+        const label = hasFormat ? 'SHOW CREATE ROW POLICIES query' : 'SHOW CREATE ROW POLICY query';
+        return n(label, formatChild());
+      }
       const labels: Record<string, [string, string]> = {
         USER: ['SHOW CREATE USER query', 'SHOW CREATE USERS query'],
         ROLE: ['SHOW CREATE ROLE query', 'SHOW CREATE ROLES query'],
@@ -2546,686 +1304,569 @@ function showQueryNode(stmt: ShowStatement): ExplainNode {
           'SHOW CREATE SETTINGS PROFILE query',
           'SHOW CREATE SETTINGS PROFILES query',
         ],
-        'NAMED COLLECTION': ['ShowCreateNamedCollectionQuery', 'ShowCreateNamedCollectionQuery'],
       };
-      const pair = labels[s.entity];
-      const usePlural = isMulti && !hasFormat;
+      const count = stmt.current_user ? 1 : (stmt.names?.length ?? 0);
+      const pair = labels[stmt.entity_type ?? ''] ?? ['SHOW CREATE query', 'SHOW CREATE query'];
+      const usePlural = count > 1 && !hasFormat;
       return n(pair[usePlural ? 1 : 0], formatChild());
     }
-    case 'createRowPolicy': {
-      const hasFormat = stmt.format !== undefined;
-      const label = hasFormat ? 'SHOW CREATE ROW POLICIES query' : 'SHOW CREATE ROW POLICY query';
-      return n(label, formatChild());
-    }
-    case 'objectShorthand': {
-      const t = s.table;
-      const prefix = s.objectType === 'VIEW' ? 'ShowCreateViewQuery' : 'ShowCreateTableQuery';
-      const children: ExplainNode[] = [];
-      if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-      children.push(n(`Identifier ${id(t.table)}`));
-      children.push(...formatChild());
-      const label = t.database
-        ? `${prefix} ${id(t.database)} ${id(t.table)}`
-        : `${prefix}  ${id(t.table)}`;
-      return n(label, children);
-    }
-    case 'databaseShorthand': {
-      const children: ExplainNode[] = [n(`Identifier ${id(s.database)}`)];
-      children.push(...formatChild());
-      return n(`ShowCreateDatabaseQuery ${id(s.database)} `, children);
-    }
+    default:
+      return n('SHOW');
   }
 }
 
-// Build the top-level SelectWithUnionQuery node for a statement (SelectStatement or UnionStatement)
-function stmtNode(stmt: Statement): ExplainNode {
-  if (stmt.kind === 'parallelWith') return parallelWithQueryNode(stmt);
-  if (stmt.kind === 'explain') return explainStmtNode(stmt);
-  if (stmt.kind === 'transactionControl') return n('ASTTransactionControl');
-  if (stmt.kind === 'setRole') return n('SetRoleQuery');
-  if (stmt.kind === 'empty') return n('');
-  if (stmt.kind === 'set') {
-    return n('Set');
-  }
-  if (stmt.kind === 'system') {
-    // The `system` kind is produced by SYSTEM statements and by the DROP fallback
-    // for access-control objects (DROP USER, DROP ROLE, etc.) that are not yet
-    // structurally parsed.
-    //
-    // DROP fallback statements produce specific labels based on the DROP target type.
-    if (/^DROP\s/i.test(stmt.body)) {
-      const dropAliases: Record<string, string> = {
-        USER: 'DROP USER query',
-        ROLE: 'DROP ROLE query',
-        'ROW POLICY': 'DROP ROW POLICY query',
-        POLICY: 'DROP ROW POLICY query',
-        'SETTINGS PROFILE': 'DROP SETTINGS PROFILE query',
-        PROFILE: 'DROP SETTINGS PROFILE query',
-        QUOTA: 'DROP QUOTA query',
-        'NAMED COLLECTION': 'DropNamedCollectionQuery',
-        WORKLOAD: 'DropWorkloadQuery',
-        RESOURCE: 'DropResourceQuery',
-      };
-      const m = stmt.body.match(
-        /^DROP\s+(USER|ROLE|ROW\s+POLICY|POLICY|SETTINGS\s+PROFILE|PROFILE|QUOTA|NAMED\s+COLLECTION|WORKLOAD|RESOURCE)\b/i,
-      );
-      if (m) {
-        const key = m[1].toUpperCase().replace(/\s+/g, ' ');
-        return n(dropAliases[key] || 'SYSTEM query');
-      }
-      return n('SYSTEM query');
+// Build the explain node for a parsed top-level statement, dispatching on the
+// node's ClickHouse-native `type` discriminator.
+function stmtNode(anyStmt: Statement): ExplainNode {
+  // ClickHouse-native statement nodes use a string `type` discriminator
+  const nodeType = (anyStmt as { type?: string }).type;
+  if (typeof nodeType === 'string') {
+    if (nodeType === 'SelectWithUnionQuery') {
+      return queryWrapperNode(anyStmt as SelectWithUnionQueryNode);
     }
-    // SYSTEM subcommands that target a specific table or dictionary include
-    // Identifier children in the explain output.
-    if (/^SYSTEM\s/i.test(stmt.body)) {
-      // RELOAD DICTIONARY foo / RELOAD DICTIONARIES foo — ClickHouse duplicates the name
-      // Supports bare identifiers, `backtick-quoted`, and qualified db.dict.
-      const dictMatch = stmt.body.match(
-        /^SYSTEM\s+(?:RELOAD\s+DICTIONAR(?:Y|IES)|DROP\s+DICTIONARY\s+CACHE)(?!\s+ON\s+CLUSTER\b)\s+(?:`([^`]+)`|([A-Za-z_][A-Za-z0-9_]*))(?:\.(?:`([^`]+)`|([A-Za-z_][A-Za-z0-9_]*)))?\b/i,
-      );
-      if (dictMatch) {
-        const db = dictMatch[1] || dictMatch[2];
-        const tbl = dictMatch[3] || dictMatch[4];
-        if (tbl) {
-          return n('SYSTEM query', [
-            n(`Identifier ${db}`),
-            n(`Identifier ${tbl}`),
-            n(`Identifier ${db}`),
-            n(`Identifier ${tbl}`),
-          ]);
-        }
-        return n('SYSTEM query', [n(`Identifier ${db}`), n(`Identifier ${db}`)]);
-      }
-      // DISTRIBUTED commands also duplicate the table name in the explain output.
-      const distMatch = stmt.body.match(
-        /\b(?:FLUSH\s+DISTRIBUTED|STOP\s+DISTRIBUTED\s+SENDS|START\s+DISTRIBUTED\s+SENDS|LOAD\s+PRIMARY\s+KEY|UNLOAD\s+PRIMARY\s+KEY|RESTORE\s+REPLICA)(?:\s+ON\s+CLUSTER\s+[A-Za-z_0-9][A-Za-z0-9_]*)?\s+([A-Za-z_0-9][A-Za-z0-9_]*(?:\.[A-Za-z_0-9][A-Za-z0-9_]*)?)(?:\s|$|;)/i,
-      );
-      if (distMatch) {
-        const tbl = distMatch[1];
-        const hasSettings = /\bSETTINGS\b/i.test(stmt.body);
-        const parts = tbl.split('.');
-        const children: ExplainNode[] =
-          parts.length === 2
-            ? [
-                n(`Identifier ${parts[0]}`),
-                n(`Identifier ${parts[1]}`),
-                n(`Identifier ${parts[0]}`),
-                n(`Identifier ${parts[1]}`),
-              ]
-            : [n(`Identifier ${tbl}`), n(`Identifier ${tbl}`)];
-        if (hasSettings) children.push(n('Set'));
-        return n('SYSTEM query', children);
-      }
-      const tableMatch = stmt.body.match(
-        /\b(?:SYNC\s+REPLICA|SYNC\s+DATABASE\s+REPLICA|STOP\s+(?:MERGES|FETCHES|MOVES|REPLICATED\s+SENDS|REPLICATION\s+QUEUES|TTL\s+MERGES|PULLING\s+REPLICATION\s+LOG|CLEANUP)|START\s+(?:MERGES|FETCHES|MOVES|REPLICATED\s+SENDS|REPLICATION\s+QUEUES|TTL\s+MERGES|PULLING\s+REPLICATION\s+LOG|CLEANUP)|RESTART\s+REPLICA|DROP\s+REPLICA|WAIT\s+LOADING\s+PARTS|PREWARM\s+MARK\s+CACHE|PREWARM\s+PRIMARY\s+INDEX\s+CACHE|REFRESH\s+VIEW|WAIT\s+VIEW|STOP\s+VIEW|START\s+VIEW|CANCEL\s+VIEW)\s+([A-Za-z_0-9][A-Za-z0-9_]*(?:\.[A-Za-z_0-9][A-Za-z0-9_]*)?)(?:\s|$|;)/i,
-      );
-      if (tableMatch) {
-        const tbl = tableMatch[1];
-        const parts = tbl.split('.');
-        if (parts.length === 2) {
-          return n('SYSTEM query', [n(`Identifier ${parts[0]}`), n(`Identifier ${parts[1]}`)]);
-        }
-        return n('SYSTEM query', [n(`Identifier ${tbl}`)]);
-      }
-      return n('SYSTEM query');
+    if (nodeType === 'SelectIntersectExceptQuery') {
+      return n('SelectWithUnionQuery', [
+        n('ExpressionList', [intersectExceptNode(anyStmt as SelectIntersectExceptQueryNode)]),
+      ]);
     }
-    return n('SYSTEM query');
+    if (nodeType === 'Settings') return SET;
+    if (nodeType === 'DropFunctionQuery') return n('DropFunctionQuery');
+    if (nodeType === 'InsertQuery') {
+      const ins = anyStmt as InsertQueryNode;
+      // Rebuild the children list ClickHouse's `EXPLAIN AST` shows from
+      // the explicit fields: optional FROM INFILE path / compression,
+      // target (table_function OR database? + table), PARTITION BY,
+      // columns ExpressionList, inner SELECT, and the settings child.
+      const children: ExplainNode[] = [];
+      if (ins.infile !== undefined) children.push(exprNode(ins.infile));
+      if (ins.compression !== undefined) children.push(exprNode(ins.compression));
+      if (ins.table_function !== undefined) {
+        children.push(exprNode(ins.table_function));
+      } else {
+        if (ins.database !== undefined) children.push(statementChildNode(ins.database));
+        if (ins.table !== undefined) children.push(statementChildNode(ins.table));
+      }
+      if (ins.partition_by !== undefined) children.push(exprNode(ins.partition_by));
+      if (ins.columns !== undefined && ins.columns.length > 0) {
+        children.push(exprList(ins.columns));
+      }
+      if (ins.select !== undefined) children.push(statementChildNode(ins.select));
+      if (ins.settings !== undefined) children.push(SET);
+      return n('InsertQuery  ', children);
+    }
+    if (nodeType === 'CreateQuery') {
+      return createQueryExplainNode(anyStmt as CreateLikeNode);
+    }
+    if (nodeType === 'CreateFunctionQuery') {
+      return createFunctionQueryNode(anyStmt as CreateFunctionQueryNode);
+    }
+    if (nodeType === 'CreateIndexQuery') {
+      return createIndexQueryNode(anyStmt as CreateIndexQueryNode);
+    }
+    if (nodeType === 'AlterQuery') {
+      return alterQueryNode(anyStmt as AlterQueryNode);
+    }
+    if (nodeType === 'SYSTEM') {
+      const sys = anyStmt as SystemQueryNode;
+      return n('SYSTEM query', systemExplainChildren(sys));
+    }
+    if (
+      nodeType === 'SHOW' ||
+      nodeType === 'ShowTables' ||
+      nodeType === 'ShowColumns' ||
+      nodeType === 'ShowIndexes' ||
+      nodeType === 'ShowFunctions' ||
+      nodeType === 'ShowSetting' ||
+      nodeType === 'ShowEngineQuery' ||
+      nodeType === 'ShowAccessQuery' ||
+      nodeType === 'ShowAccessEntitiesQuery' ||
+      nodeType === 'ShowProcesslistQuery' ||
+      nodeType === 'ShowGrantsQuery' ||
+      nodeType === 'ShowPrivilegesQuery' ||
+      nodeType === 'ShowCreateNamedCollectionQuery' ||
+      nodeType === 'ShowCreateAccessEntityQuery'
+    ) {
+      return showQueryNode(anyStmt as ShowFamilyQueryNode);
+    }
+    if (nodeType === 'DropAccessEntityQuery') {
+      // Native access-entity DROP: the explain label is `DROP <entity> query`.
+      return n(`DROP ${(anyStmt as { entity_type: string }).entity_type} query`);
+    }
+    if (
+      nodeType === 'DropNamedCollectionQuery' ||
+      nodeType === 'DropWorkloadQuery' ||
+      nodeType === 'DropResourceQuery'
+    ) {
+      return n(nodeType);
+    }
+    if (
+      nodeType === 'CreateUserQuery' ||
+      nodeType === 'CreateRoleQuery' ||
+      nodeType === 'CreateQuotaQuery' ||
+      nodeType === 'CreateSettingsProfileQuery' ||
+      nodeType === 'CreateNamedCollectionQuery' ||
+      nodeType === 'CreateWorkloadQuery' ||
+      nodeType === 'CreateResourceQuery' ||
+      nodeType === 'CreateRowPolicyQuery' ||
+      nodeType === 'GrantQuery' ||
+      nodeType === 'RevokeQuery' ||
+      nodeType === 'SetRoleQuery'
+    ) {
+      // Access-entity queries: the label (and CREATE USER's AuthenticationData
+      // children) are derived from native fields by accessQueryExplainNode.
+      return accessQueryExplainNode(anyStmt as AccessQueryNode);
+    }
+    if (nodeType === 'BackupQuery' || nodeType === 'RestoreQuery') {
+      return backupExplainNode(anyStmt as BackupQueryNode);
+    }
+    if (nodeType === 'DropIndexQuery') {
+      const di = anyStmt as DropIndexQueryNode;
+      const children = [di.index_name, ...(di.database ? [di.database] : []), di.table];
+      // Label is "DropIndexQuery [db.]name" (unqualified uses one leading space;
+      // qualified uses db.name).
+      const tableName =
+        di.database !== undefined ? `${di.database.name}.${di.table.name}` : ` ${di.table.name}`;
+      return n(`DropIndexQuery ${tableName}`, children.map(statementChildNode));
+    }
+    if (nodeType === 'ParallelWithQuery') {
+      return parallelWithQueryNode((anyStmt as ParallelWithQueryNode).children as Statement[]);
+    }
+    if (nodeType === 'Explain') {
+      const ex = anyStmt as ExplainQueryNode;
+      // Rebuild the children list ClickHouse's explain emits from the
+      // explicit native/library fields. Order: explain-level settings,
+      // the inner query, FORMAT identifier, post-format settings.
+      const children: ExplainNode[] = [];
+      if (ex.settings !== undefined) children.push(SET);
+      if (ex.query !== undefined) children.push(statementChildNode(ex.query));
+      if (ex.format !== undefined) children.push(identifier(ex.format));
+      if (ex.output_settings !== undefined) children.push(SET);
+      return n(`Explain ${ex.kind ?? 'EXPLAIN'}`, children);
+    }
+    if (nodeType === 'UseQuery') {
+      const useStmt = anyStmt as UseQueryNode;
+      return n(`UseQuery ${useStmt.database.name}`, [statementChildNode(useStmt.database)]);
+    }
+    if (nodeType === 'TransactionControl') return n('ASTTransactionControl');
+    if (nodeType === 'ExecuteAsQuery') {
+      const ea = anyStmt as ExecuteAsQueryNode;
+      return n('ExecuteAsQuery', [
+        statementChildNode(ea.target_user as ASTNode),
+        statementChildNode(ea.subquery as ASTNode),
+      ]);
+    }
+    if (nodeType === 'OptimizeQuery') return optimizeExplainNode(anyStmt as OptimizeQueryNode);
+    if (nodeType === 'DescribeQuery') {
+      const dq = anyStmt as DescribeQueryNode;
+      // Rebuild children: TableExpression, then the optional FORMAT
+      // Identifier / Settings in source order (preserved via
+      // `_settings_before_format`).
+      const children: ExplainNode[] = [];
+      if (dq.table_expression !== undefined) {
+        children.push(statementChildNode(dq.table_expression));
+      }
+      if (dq._settings_before_format === true) {
+        if (dq.settings !== undefined) children.push(SET);
+        if (dq.format !== undefined) children.push(identifier(dq.format));
+      } else {
+        if (dq.format !== undefined) children.push(identifier(dq.format));
+        if (dq.settings !== undefined) children.push(SET);
+      }
+      return n('DescribeQuery', children);
+    }
+    if (
+      nodeType === 'ShowCreateTableQuery' ||
+      nodeType === 'ShowCreateViewQuery' ||
+      nodeType === 'ShowCreateDictionaryQuery' ||
+      nodeType === 'ShowCreateDatabaseQuery' ||
+      nodeType === 'ExistsTableQuery' ||
+      nodeType === 'ExistsViewQuery' ||
+      nodeType === 'ExistsDictionaryQuery' ||
+      nodeType === 'ExistsDatabaseQuery' ||
+      nodeType === 'CheckQuery'
+    ) {
+      return dropFamilyExplainNode(anyStmt as unknown as DropFamilyNode);
+    }
+    if (nodeType === 'CheckAllQuery') {
+      const ck = anyStmt as CheckQueryNode;
+      const children: ExplainNode[] = [];
+      if (ck.settings !== undefined) children.push(SET);
+      if (ck.format !== undefined) children.push(identifier(ck.format));
+      return n('CheckAllQuery', children);
+    }
+    if (nodeType === 'AttachQuery') {
+      // ATTACH with a full schema renders like CREATE; bare ATTACH uses the
+      // drop-family label.
+      const att = anyStmt as AttachQueryNode;
+      if (isSchemaFormAttachExplain(att)) {
+        return createQueryExplainNode(att as unknown as CreateLikeNode);
+      }
+      return attachExplainNode(att);
+    }
+    if (nodeType === 'Rename') {
+      const ren = anyStmt as RenameNode;
+      // Rebuild ClickHouse's children list: flattened from/to Identifier
+      // sequence per pair (with db Identifier before the table when present),
+      // then an optional Set.
+      const idLabel = (n: string | QueryParameterNode): string =>
+        typeof n === 'string' ? `Identifier ${n}` : `QueryParameter ${n.name}:${n.param_type}`;
+      const children: ExplainNode[] = [];
+      for (const el of ren.elements) {
+        if (el.from_database !== undefined) {
+          children.push(n(idLabel(el.from_database)));
+        }
+        if (el.from_table !== undefined) children.push(n(idLabel(el.from_table)));
+        if (el.to_database !== undefined) {
+          children.push(n(idLabel(el.to_database)));
+        }
+        if (el.to_table !== undefined) children.push(n(idLabel(el.to_table)));
+      }
+      if (ren.settings !== undefined) children.push(SET);
+      return n('Rename', children);
+    }
+    if (nodeType === 'KillQueryQuery') {
+      const kill = anyStmt as KillQueryQueryNode;
+      const where = kill.where;
+      const fnName = where.type === 'Function' ? where.name : '';
+      const mode = kill.test ? 'TEST' : kill.sync ? 'SYNC' : 'ASYNC';
+      const children: ExplainNode[] = [statementChildNode(where)];
+      if (kill.settings !== undefined) children.push(SET);
+      if (kill.format !== undefined) children.push(identifier(kill.format));
+      return n(`KillQueryQuery Function_${fnName} ${mode}`, children);
+    }
+    if (nodeType === 'DeleteQuery') return deleteExplainNode(anyStmt as DeleteQueryNode);
+    if (nodeType === 'UpdateQuery') return updateExplainNode(anyStmt as UpdateQueryNode);
+    if (
+      nodeType === 'DropQuery' ||
+      nodeType === 'DetachQuery' ||
+      nodeType === 'TruncateQuery' ||
+      nodeType === 'UndropQuery'
+    ) {
+      return dropFamilyExplainNode(anyStmt as DropFamilyNode);
+    }
+    if (nodeType === 'EmptyQuery') return n('');
   }
-  if (stmt.kind === 'use')
-    return n(`UseQuery ${id(stmt.database)}`, [n(`Identifier ${id(stmt.database)}`)]);
-  if (stmt.kind === 'createTable') return createTableQueryNode(stmt);
-  if (stmt.kind === 'createView') return createViewQueryNode(stmt);
-  if (stmt.kind === 'createMaterializedView') return createMaterializedViewQueryNode(stmt);
-  if (stmt.kind === 'createDatabase') return createDatabaseQueryNode(stmt);
-  if (stmt.kind === 'createFunction') return createFunctionQueryNode(stmt);
-  if (stmt.kind === 'createIndex') return createIndexQueryNode(stmt);
-  if (stmt.kind === 'createDictionary') return createDictionaryQueryNode(stmt);
-  if (stmt.kind === 'createWorkload') return createWorkloadQueryNode(stmt);
-  if (stmt.kind === 'createUser') {
-    if (!stmt.auth || stmt.auth.length === 0) return n('CreateUserQuery');
-    const authChildren = stmt.auth.map((a) => {
-      if (a.sshKeys !== undefined) {
-        const keys = a.sshKeys.map(() => n('PublicSSHKey'));
-        return n('AuthenticationData', keys);
+  return n('');
+}
+
+// Explain projection for an {@link AccessQueryNode}. ClickHouse's explain text
+// for these is just the node label (plus, for CREATE USER, an
+// AuthenticationData child per method), so this reads the native fields rather
+// than any structured payload.
+function accessQueryExplainNode(node: AccessQueryNode): ExplainNode {
+  if (node.type === 'SetRoleQuery') return n('SetRoleQuery');
+  if (node.type === 'GrantQuery' || node.type === 'RevokeQuery') return n('GrantQuery');
+  if (node.type === 'CreateUserQuery') {
+    const methods = node.authentication_methods;
+    if (!methods || methods.length === 0) return n('CreateUserQuery');
+    const authChildren = methods.map((m) => {
+      if (m.auth_type === 'SSH_KEY') {
+        return n(
+          'AuthenticationData',
+          (m.arguments ?? []).map(() => n('PublicSSHKey')),
+        );
       }
-      if (a.secret !== undefined) {
-        return n('AuthenticationData', [n(`Literal '${a.secret}'`)]);
-      }
+      const secret = m.arguments?.[0]?.value;
+      if (secret !== undefined) return n('AuthenticationData', [n(`Literal '${secret}'`)]);
       return n('AuthenticationData');
     });
     return n('CreateUserQuery', authChildren);
   }
-  if (stmt.kind === 'createRole') return n('CreateRoleQuery');
-  if (stmt.kind === 'createRowPolicy') return n('CREATE ROW POLICY or ALTER ROW POLICY query');
-  if (stmt.kind === 'createQuota') return n('CreateQuotaQuery');
-  if (stmt.kind === 'createSettingsProfile') return n('CreateSettingsProfileQuery');
-  if (stmt.kind === 'createNamedCollection') return n('CreateNamedCollectionQuery');
-  if (stmt.kind === 'createResource') {
-    return n(`CreateResourceQuery ${stmt.name}`, [n(`Identifier ${stmt.name}`)]);
+  if (node.type === 'CreateRoleQuery') return n('CreateRoleQuery');
+  if (node.type === 'CreateQuotaQuery') return n('CreateQuotaQuery');
+  if (node.type === 'CreateSettingsProfileQuery') return n('CreateSettingsProfileQuery');
+  if (node.type === 'CreateRowPolicyQuery') return n('CREATE ROW POLICY or ALTER ROW POLICY query');
+  if (node.type === 'CreateNamedCollectionQuery') return n('CreateNamedCollectionQuery');
+  if (node.type === 'CreateWorkloadQuery') {
+    const name = node.workload_name?.name ?? '';
+    const children = [identifier(name)];
+    const parent = node.workload_parent;
+    if (parent) children.push(identifier(parent.name));
+    return n(`CreateWorkloadQuery ${name}`, children);
   }
-  if (stmt.kind === 'createWindowView') return n('CreateQuery');
-  if (stmt.kind === 'createLiveView') return n('CreateQuery');
-  if (stmt.kind === 'insert') return insertQueryNode(stmt);
-  if (stmt.kind === 'truncate') {
-    if (stmt.targetType === 'TABLE') {
-      const t = stmt.table!;
-      // Label format: "TruncateQuery <db-or-empty> <table>" — for unqualified
-      // refs that collapses to "TruncateQuery  <table>" (double space).
-      const label = `TruncateQuery ${t.database ?? ''} ${id(t.table)}`;
-      const children = [n(`Identifier ${id(t.table)}`)];
-      if (t.database) children.unshift(n(`Identifier ${id(t.database)}`));
-      if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-      return n(label, children);
-    }
-    // DATABASE or TABLES: label format is "TruncateQuery <db> " (single space + trailing space)
-    const db = stmt.database!;
-    const children = [n(`Identifier ${id(db)}`)];
-    return n(`TruncateQuery ${id(db)} `, children);
+  if (node.type === 'CreateResourceQuery') {
+    const name = node.resource_name?.name ?? '';
+    return n(`CreateResourceQuery ${name}`, [identifier(name)]);
   }
-  if (stmt.kind === 'optimize') {
-    const t = stmt.table;
-    const children: ExplainNode[] = [];
-    if (stmt.partition) {
-      if (stmt.partition.kind === 'id') {
-        children.push(
-          n(`Partition_ID Literal_'${stmt.partition.id}'`, [n(`Literal '${stmt.partition.id}'`)]),
-        );
-      } else if (stmt.partition.kind === 'all') {
-        children.push(n('Partition_ID '));
-      } else {
-        children.push(n('Partition', [exprNode(stmt.partition.expr)]));
-      }
+  return n('');
+}
+
+// Explain projection for a native BackupQuery / RestoreQuery node.
+function backupExplainNode(node: BackupQueryNode): ExplainNode {
+  const label = node.kind === 'RESTORE' ? 'RestoreQuery' : 'BackupQuery';
+  const children: ExplainNode[] = [];
+  const fn = node.backup_name;
+  const args = fn.arguments ?? [];
+  const fnChildren: ExplainNode[] = args.length === 0 ? [] : [exprList(args)];
+  children.push(n(`Function ${fn.name}`, fnChildren));
+  if (node.format) children.push(identifier(node.format));
+  return n(label, children);
+}
+
+// Project one member of a SelectWithUnionQuery's select list.
+function queryMemberNode(
+  m: SelectQueryNode | SelectIntersectExceptQueryNode | SelectWithUnionQueryNode,
+): ExplainNode {
+  if (m.type === 'SelectQuery') return selectQueryNode(m);
+  if (m.type === 'SelectIntersectExceptQuery') return intersectExceptNode(m);
+  return stmtNode(m);
+}
+
+function intersectExceptNode(q: SelectIntersectExceptQueryNode): ExplainNode {
+  return n('SelectIntersectExceptQuery', q.selects.map(queryMemberNode));
+}
+
+// Project a SelectWithUnionQuery wrapper, including its trailing
+// INTO OUTFILE / FORMAT / SETTINGS clauses.
+type DropFamilyNode = DropQueryNode | DetachQueryNode | TruncateQueryNode | UndropQueryNode;
+
+// Rebuild ClickHouse's SYSTEM explain children list from the native
+// structured fields (byte-validated against ClickHouse). The `database` /
+// `table` operands become `Identifier` children; the command family decides
+// whether the target is duplicated (dictionary / distributed) and whether a
+// trailing `Set` (SETTINGS) child is appended.
+const SYSTEM_DUPLICATED_TARGET = new Set([
+  'RELOAD DICTIONARY',
+  'DROP DICTIONARY CACHE',
+  'FLUSH DISTRIBUTED',
+  'STOP DISTRIBUTED SENDS',
+  'START DISTRIBUTED SENDS',
+  'LOAD PRIMARY KEY',
+  'UNLOAD PRIMARY KEY',
+  'RESTORE REPLICA',
+]);
+const SYSTEM_WITH_SETTINGS_CHILD = new Set([
+  'FLUSH DISTRIBUTED',
+  'STOP DISTRIBUTED SENDS',
+  'START DISTRIBUTED SENDS',
+  'LOAD PRIMARY KEY',
+  'UNLOAD PRIMARY KEY',
+  'RESTORE REPLICA',
+]);
+
+function systemExplainChildren(sys: SystemQueryNode): ExplainNode[] {
+  const st = sys.system_type ?? '';
+  const mkTargets = (): ExplainNode[] => {
+    const arr: ExplainNode[] = [];
+    if (sys.database !== undefined) arr.push(identifier(sys.database.name));
+    if (sys.table !== undefined) arr.push(identifier(sys.table.name));
+    return arr;
+  };
+
+  if (SYSTEM_DUPLICATED_TARGET.has(st)) {
+    const children = [...mkTargets(), ...mkTargets()];
+    if (SYSTEM_WITH_SETTINGS_CHILD.has(st) && sys.settings !== undefined) {
+      children.push(SET);
     }
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    let suffix = id(t.table);
-    if (stmt.final) suffix += '_final';
-    if (stmt.cleanup) suffix += '_cleanup';
-    if (stmt.deduplicate) suffix += '_deduplicate';
-    const label = t.database
-      ? `OptimizeQuery ${id(t.database)} ${suffix}`
-      : `OptimizeQuery  ${suffix}`;
-    return n(label, children);
+    return children;
   }
-  if (stmt.kind === 'describe') {
-    let child: ExplainNode;
-    if (stmt.target.kind === 'table') {
-      const t = stmt.target.table;
-      child = n('TableExpression', [
-        n(
-          t.database
-            ? `TableIdentifier ${id(t.database)}.${id(t.table)}`
-            : `TableIdentifier ${id(t.table)}`,
-        ),
-      ]);
-    } else if (stmt.target.kind === 'function') {
-      const func = stmt.target.func;
-      const argsNodes = func.args.map(exprNode);
-      child = n('TableExpression', [n(`Function ${func.name}`, [n('ExpressionList', argsNodes)])]);
-    } else {
-      child = n('TableExpression', [n('Subquery', [stmtNode(stmt.target.query as Statement)])]);
-    }
-    const children: ExplainNode[] = [child];
-    const hasSettings = stmt.settings && stmt.settings.length > 0;
-    if (stmt.settingsBeforeFormat) {
-      if (hasSettings) children.push(n('Set'));
-      if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    } else {
-      if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-      if (hasSettings) children.push(n('Set'));
-    }
-    return n('DescribeQuery', children);
+  // Table/database-targeting commands — target is NOT duplicated.
+  return mkTargets();
+}
+
+// Project a child of a children-array statement node (Identifier/Set/
+// ExpressionList/TableIdentifier/nested query/expression) into its explain node.
+function statementChildNode(c: ASTNode): ExplainNode {
+  const t = (c as { type?: string }).type;
+  if (t === 'ExpressionList') {
+    const list = (c as ExpressionListNode).children ?? [];
+    return n('ExpressionList', list.map(statementChildNode));
   }
-  if (stmt.kind === 'showCreate') {
-    if (stmt.targetType === 'DATABASE') {
-      const db = stmt.database!;
-      const children = [n(`Identifier ${id(db)}`)];
-      if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-      if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-      return n(`ShowCreateDatabaseQuery ${id(db)} `, children);
-    }
-    const t = stmt.table!;
-    const labelMap: Record<string, string> = {
-      TABLE: 'ShowCreateTableQuery',
-      VIEW: 'ShowCreateViewQuery',
-      DICTIONARY: 'ShowCreateDictionaryQuery',
-    };
-    const prefix = labelMap[stmt.targetType];
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    const label = t.database
-      ? `${prefix} ${id(t.database)} ${id(t.table)}`
-      : `${prefix}  ${id(t.table)}`;
-    return n(label, children);
-  }
-  if (stmt.kind === 'detach') {
-    if (stmt.targetType === 'DATABASE') {
-      const db = stmt.database!;
-      return n(`DetachQuery ${id(db)} `, [n(`Identifier ${id(db)}`)]);
-    }
-    const t = stmt.table!;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    const label = t.database
-      ? `DetachQuery ${id(t.database)} ${id(t.table)}`
-      : `DetachQuery  ${id(t.table)}`;
-    return n(label, children);
-  }
-  if (stmt.kind === 'delete') {
-    const t = stmt.table;
-    const children: ExplainNode[] = [];
-    if (stmt.partition) {
-      if (stmt.partition.kind === 'id') {
-        children.push(
-          n(`Partition_ID Literal_'${stmt.partition.id}'`, [n(`Literal '${stmt.partition.id}'`)]),
-        );
-      } else {
-        children.push(n('Partition', [exprNode(stmt.partition.expr)]));
-      }
-    }
-    children.push(exprNode(stmt.where));
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    const label = t.database
-      ? `DeleteQuery ${id(t.database)} ${id(t.table)}`
-      : `DeleteQuery  ${id(t.table)}`;
-    return n(label, children);
-  }
-  if (stmt.kind === 'update') {
-    const t = stmt.table;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    children.push(exprNode(stmt.where));
-    const assignNodes = stmt.assignments.map((a) =>
-      n(`Assignment ${a.column}`, [exprNode(a.expr)]),
+  if (t === 'TableIdentifier') {
+    const ti = c as TableIdentifierNode;
+    return n(
+      `TableIdentifier ${ti.database !== undefined ? `${id(ti.database)}.${id(ti.name)}` : id(ti.name)}`,
     );
-    children.push(n('ExpressionList', assignNodes));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    const label = t.database
-      ? `UpdateQuery ${id(t.database)} ${id(t.table)}`
-      : `UpdateQuery  ${id(t.table)}`;
-    return n(label, children);
   }
-  if (stmt.kind === 'check') {
-    if (stmt.targetType === 'ALL') return n('CheckAllQuery');
-    if (stmt.targetType === 'DATABASE') {
-      const db = stmt.database!;
-      const children = [n(`Identifier ${id(db)}`)];
-      if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-      return n(`CheckQuery ${id(db)} `, children);
-    }
-    const t = stmt.table!;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    const label = t.database
-      ? `CheckQuery ${id(t.database)} ${id(t.table)}`
-      : `CheckQuery  ${id(t.table)}`;
-    return n(label, children);
+  if (t === 'Settings') return SET;
+  if (t === 'Partition' || t === 'Partition_ID') {
+    return nativePartitionExplain(c as PartitionNode | PartitionIdNode);
   }
-  if (stmt.kind === 'attach') {
-    if (stmt.targetType === 'DATABASE') {
-      const db = stmt.database!;
-      return n(`AttachQuery ${id(db)} `, [n(`Identifier ${id(db)}`)]);
-    }
-    const t = stmt.table!;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    const label = t.database
-      ? `AttachQuery ${id(t.database)} ${id(t.table)}`
-      : `AttachQuery ${id(t.table)}`;
-    return n(label, children);
+  if (t === 'Assignment') {
+    const a = c as AssignmentNode;
+    return n(`Assignment ${a.column}`, [exprNode(a.expression)]);
   }
-  if (stmt.kind === 'rename') {
-    const children: ExplainNode[] = [];
-    for (const p of stmt.pairs) {
-      if (p.from.database) children.push(n(`Identifier ${id(p.from.database)}`));
-      children.push(n(`Identifier ${id(p.from.table)}`));
-      if (p.to.database) children.push(n(`Identifier ${id(p.to.database)}`));
-      children.push(n(`Identifier ${id(p.to.table)}`));
-    }
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    return n('Rename', children);
+  if (t === 'UserNameWithHost') {
+    const u = c as UserNameWithHostNode;
+    return n('UserNameWithHost', [identifier(u.name ?? '')]);
   }
-  if (stmt.kind === 'executeAs') {
-    return n('ExecuteAsQuery', [
-      n('UserNameWithHost', [n(`Identifier ${stmt.user}`)]),
-      stmtNode(stmt.statement),
-    ]);
+  if (t === 'TableExpression') {
+    return tableExpressionExplainNode(c as TableExpressionNode);
   }
-  if (stmt.kind === 'kill') {
-    // Label: KillQueryQuery Function_<name> <mode>
-    // The function name is taken from the where expression's function call.
-    let fnName = '';
-    const where = stmt.where as Expression;
-    if (where.kind === 'functionCall') fnName = where.name;
-    else if (where.kind === 'binaryExpr') {
-      const opMap: Record<string, string> = {
-        '=': 'equals',
-        '!=': 'notEquals',
-        '<>': 'notEquals',
-        '<': 'less',
-        '>': 'greater',
-        '<=': 'lessOrEquals',
-        '>=': 'greaterOrEquals',
-        AND: 'and',
-        OR: 'or',
-      };
-      fnName = opMap[where.op] || where.op.toLowerCase();
-    } else if (where.kind === 'naryExpr') {
-      fnName = where.op === 'AND' ? 'and' : 'or';
-    }
-    const mode = stmt.mode ?? 'ASYNC';
-    const label = `KillQueryQuery Function_${fnName} ${mode}`;
-    const children: ExplainNode[] = [exprNode(stmt.where)];
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    return n(label, children);
+  if (t === 'SelectWithUnionQuery' || t === 'SelectIntersectExceptQuery') {
+    return stmtNode(c as Statement);
   }
-  if (stmt.kind === 'exists') {
-    const labelMap: Record<string, string> = {
-      TABLE: 'ExistsTableQuery',
-      VIEW: 'ExistsViewQuery',
-      DATABASE: 'ExistsDatabaseQuery',
-      DICTIONARY: 'ExistsDictionaryQuery',
-    };
-    const prefix = labelMap[stmt.targetType];
-    if (stmt.targetType === 'DATABASE') {
-      const db = stmt.database!;
-      const children: ExplainNode[] = [n(`Identifier ${id(db)}`)];
-      if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-      return n(`${prefix} ${id(db)} `, children);
-    }
-    const t = stmt.table!;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.settings && stmt.settings.length > 0) children.push(n('Set'));
-    const label = t.database
-      ? `${prefix} ${id(t.database)} ${id(t.table)}`
-      : `${prefix}  ${id(t.table)}`;
-    return n(label, children);
+  if (t === undefined) {
+    // Old-kind inner statement (e.g. EXECUTE AS <stmt>)
+    return stmtNode(c as Statement);
   }
-  if (stmt.kind === 'drop') {
-    // DROP FUNCTION and DROP INDEX have their own label formats
-    if (stmt.targetType === 'FUNCTION') return n('DropFunctionQuery');
-    if (stmt.targetType === 'INDEX' && stmt.table) {
-      const t = stmt.table;
-      const tableName = t.database ? `${id(t.database)}.${id(t.table)}` : ` ${id(t.table)}`;
-      const children: ExplainNode[] = [];
-      children.push(n(`Identifier ${stmt.indexName}`));
-      if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-      children.push(n(`Identifier ${id(t.table)}`));
-      return n(`DropIndexQuery ${tableName}`, children);
-    }
+  if (STATEMENT_CHILD_TYPES.has(t) || t.startsWith('ShowCreate') || t.startsWith('Exists')) {
+    return stmtNode(c as Statement);
+  }
+  return exprNode(c as Expression);
+}
 
-    const children: ExplainNode[] = [];
-    let label: string;
+// Statement `type`s that can appear as a child of a children-array statement
+// node and must be routed back through stmtNode (anything else is an expression).
+const STATEMENT_CHILD_TYPES = new Set([
+  'InsertQuery',
+  'CreateQuery',
+  'CreateFunctionQuery',
+  'CreateIndexQuery',
+  'AlterQuery',
+  'SYSTEM',
+  'DropIndexQuery',
+  'DropQuery',
+  'DetachQuery',
+  'TruncateQuery',
+  'UndropQuery',
+  'DropFunctionQuery',
+  'UseQuery',
+  'TransactionControl',
+  'OptimizeQuery',
+  'DescribeQuery',
+  'CheckQuery',
+  'CheckAllQuery',
+  'AttachQuery',
+  'Rename',
+  'KillQueryQuery',
+  'DeleteQuery',
+  'UpdateQuery',
+  'Explain',
+  'ExecuteAsQuery',
+]);
 
-    if (stmt.tables && stmt.tables.length > 0) {
-      // Multi-table DROP: DropQuery  (with ExpressionList of TableIdentifiers)
-      const tableNodes = stmt.tables.map((t) => {
-        const name = t.database ? `${id(t.database)}.${id(t.table)}` : t.table;
-        return n(`TableIdentifier ${name}`);
-      });
-      children.push(n('ExpressionList', tableNodes));
-      label = 'DropQuery  ';
-    } else if (stmt.table) {
-      const t = stmt.table;
-      if (stmt.targetType === 'DATABASE') {
-        children.push(n(`Identifier ${id(t.table)}`));
-        label = `DropQuery ${id(t.table)} `;
-      } else if (t.database) {
-        children.push(n(`Identifier ${id(t.database)}`));
-        children.push(n(`Identifier ${id(t.table)}`));
-        label = `DropQuery ${id(t.database)} ${id(t.table)}`;
-      } else {
-        children.push(n(`Identifier ${id(t.table)}`));
-        label = `DropQuery  ${id(t.table)}`;
-      }
-    } else {
-      label = 'DropQuery  ';
-    }
+function optimizeExplainNode(stmt: OptimizeQueryNode): ExplainNode {
+  let suffix = '';
+  if (stmt.final) suffix += '_final';
+  if (stmt.cleanup) suffix += '_cleanup';
+  if (stmt.deduplicate) suffix += '_deduplicate';
+  const db = stmt.database?.name ?? '';
+  const name = stmt.table?.name ?? '';
+  const label =
+    stmt.database !== undefined
+      ? `OptimizeQuery ${db} ${name}${suffix}`
+      : `OptimizeQuery  ${name}${suffix}`;
+  // Rebuild the explain children: optional partition, db?/table identifiers,
+  // optional Settings.
+  const children: ExplainNode[] = [];
+  if (stmt.partition !== undefined) children.push(statementChildNode(stmt.partition));
+  if (stmt.database !== undefined) children.push(statementChildNode(stmt.database));
+  if (stmt.table !== undefined) children.push(statementChildNode(stmt.table));
+  if (stmt.settings !== undefined) children.push(SET);
+  return n(label, children);
+}
 
-    // SETTINGS → Set child
-    if (stmt.settings && stmt.settings.length > 0) {
-      children.push(n('Set'));
-    }
-    // FORMAT → Identifier child
-    if (stmt.format) {
-      children.push(n(`Identifier ${stmt.format}`));
-    }
-
-    return n(label, children);
-  }
-  if (stmt.kind === 'undrop') {
-    const t = stmt.table;
-    const children: ExplainNode[] = [];
-    if (t.database) children.push(n(`Identifier ${id(t.database)}`));
-    children.push(n(`Identifier ${id(t.table)}`));
-    if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    const label = t.database
-      ? `UndropQuery ${id(t.database)}.${id(t.table)}`
-      : `UndropQuery  ${id(t.table)}`;
-    return n(label, children);
-  }
-  if (stmt.kind === 'backup') {
-    const label = stmt.operation === 'RESTORE' ? 'RestoreQuery' : 'BackupQuery';
-    const children: ExplainNode[] = [];
-    const d = stmt.destination;
-    const fnChildren: ExplainNode[] =
-      d.args === undefined ? [] : [n('ExpressionList', d.args.map(exprNode))];
-    children.push(n(`Function ${d.name}`, fnChildren));
-    if (stmt.format) children.push(n(`Identifier ${stmt.format}`));
-    return n(label, children);
-  }
-  if (stmt.kind === 'grant') return n('GrantQuery');
-  if (stmt.kind === 'show') return showQueryNode(stmt);
-  if (stmt.kind === 'alterRole') return n('CreateRoleQuery');
-  if (stmt.kind === 'alterQuota') return n('CreateQuotaQuery');
-  if (stmt.kind === 'alterRowPolicy') return n('CREATE ROW POLICY or ALTER ROW POLICY query');
-  if (stmt.kind === 'alterSettingsProfile') return n('CreateSettingsProfileQuery');
-  if (stmt.kind === 'alterUser') {
-    // Mirror CreateUserQuery: emit AuthenticationData children when the statement
-    // (re)sets authentication.
-    let auth: AuthenticationData[] | undefined;
-    for (const c of stmt.clauses) {
-      if (c.kind === 'identified') auth = c.auth;
-      else if (c.kind === 'notIdentified') auth = [{}];
-    }
-    if (!auth || auth.length === 0) return n('CreateUserQuery');
-    const authChildren = auth.map((a) =>
-      a.secret !== undefined
-        ? n('AuthenticationData', [n(`Literal '${a.secret}'`)])
-        : n('AuthenticationData'),
-    );
-    return n('CreateUserQuery', authChildren);
-  }
-  if (stmt.kind === 'alter') return alterQueryNode(stmt);
-
-  const format = stmt.format;
-
-  // Render a statement as a child of SelectIntersectExceptQuery.
-  // Wrapping rules for SelectWithUnionQuery:
-  //   - EXCEPT left child: always wrapped
-  //   - EXCEPT right child: never wrapped
-  //   - INTERSECT child that is compound (another intersect/except): wrapped
-  //   - INTERSECT child that is a simple select: not wrapped
-  //   - Union children: stmtNode already wraps them
-  function renderIntersectChild(s: Statement, wrapInSWU: boolean): ExplainNode {
-    if (s.kind === 'union') {
-      // stmtNode for union already returns SelectWithUnionQuery(ExpressionList(...))
-      return stmtNode(s);
-    }
-    let node: ExplainNode;
-    if (s.kind === 'select') {
-      node = selectQueryNode(s);
-      // Parenthesized selects in intersect/except context get wrapped
-      if (s.parenthesized) wrapInSWU = true;
-    } else if (s.kind === 'intersect') {
-      const leftParen = (s.left as { parenthesized?: boolean }).parenthesized === true;
-      const rightParen = (s.right as { parenthesized?: boolean }).parenthesized === true;
-      const lw =
-        s.op === 'EXCEPT' ||
-        (s.op === 'INTERSECT' && s.left.kind === 'intersect') ||
-        (s.left.kind === 'intersect' && leftParen);
-      const rw =
-        (s.op === 'INTERSECT' && s.right.kind === 'intersect') ||
-        (s.right.kind === 'intersect' && rightParen);
-      node = n('SelectIntersectExceptQuery', [
-        renderIntersectChild(s.left, lw),
-        renderIntersectChild(s.right, rw),
-      ]);
-      if ((s as { parenthesized?: boolean }).parenthesized) wrapInSWU = true;
-    } else {
-      node = stmtNode(s);
-    }
-    if (wrapInSWU) return n('SelectWithUnionQuery', [n('ExpressionList', [node])]);
-    return node;
-  }
-
-  // INTERSECT/EXCEPT produces SelectIntersectExceptQuery as the single ExpressionList child
-  if (stmt.kind === 'intersect') {
-    // Find the WITH CTEs from the left-most SELECT and distribute to all other SELECTs
-    function findLeftmostWith(s: Statement): CTE[] | undefined {
-      if (s.kind === 'select') return s.with;
-      if (s.kind === 'intersect') return findLeftmostWith(s.left);
-      return undefined;
-    }
-    function distributeWithIntersect(s: Statement, withItems: CTE[]): Statement {
-      if (s.kind === 'select' && !s.with) {
-        return { ...s, with: withItems, distributedWith: true } as Statement;
-      }
-      if (s.kind === 'select' && s.with) return s;
-      if (s.kind === 'intersect') {
-        return {
-          ...s,
-          left: distributeWithIntersect(s.left, withItems),
-          right: distributeWithIntersect(s.right, withItems),
-        } as Statement;
-      }
-      return s;
-    }
-    let distributed = stmt;
-    const leftWith = findLeftmostWith(stmt);
-    if (leftWith && leftWith.length > 0) {
-      // Distribute to right side(s) but keep left as-is
-      distributed = {
-        ...stmt,
-        right: distributeWithIntersect(stmt.right, leftWith),
-      } as typeof stmt;
-    }
-
-    const leftWrap =
-      distributed.op === 'EXCEPT' ||
-      (distributed.op === 'INTERSECT' && distributed.left.kind === 'intersect');
-    const rightWrap = distributed.op === 'INTERSECT' && distributed.right.kind === 'intersect';
-    const intersectNode = n('SelectIntersectExceptQuery', [
-      renderIntersectChild(distributed.left, leftWrap),
-      renderIntersectChild(distributed.right, rightWrap),
-    ]);
-    const children: ExplainNode[] = [n('ExpressionList', [intersectNode])];
-    if (format) children.push(n(`Identifier ${format}`));
-    return n('SelectWithUnionQuery', children);
-  }
-
-  // Distribute WITH within a union's queries and then flatten
-  function distributeAndFlatten(queries: Statement[]): Statement[] {
-    // Distribute WITH CTEs from the first SELECT to all other SELECTs
-    let distributed = queries;
-    if (queries.length > 1) {
-      const firstWith = queries[0]?.kind === 'select' ? queries[0].with : undefined;
-      if (firstWith && firstWith.length > 0) {
-        const reversedWith = markCTEsForReverseJoins(firstWith);
-        distributed = queries.map((q, i) => {
-          if (i === 0 || q.kind !== 'select' || (q.with && q.with.length > 0)) return q;
-          return { ...q, with: reversedWith, distributedWith: true } as Statement;
-        });
-      }
-    }
-    return distributed.flatMap(flattenUnion);
-  }
-
-  // Flatten nested UNION ALL so all SELECT queries appear at the same level
-  // UNION DISTINCT creates a nesting boundary (don't flatten through it)
-  // Distribute WITH within each nested union before flattening
-  function flattenUnion(s: Statement): Statement[] {
-    if (s.kind === 'union' && !s.unionMode) return distributeAndFlatten(s.queries);
-    return [s];
-  }
-
-  // Deep flatten: flatten ALL union nodes (including UNION DISTINCT) — used when
-  // the outermost union is itself UNION DISTINCT (pure DISTINCT chain)
-  function flattenUnionDeep(s: Statement): Statement[] {
-    if (s.kind === 'union') return s.queries.flatMap(flattenUnionDeep);
-    return [s];
-  }
-
-  let queries: Statement[];
-  if (stmt.kind === 'union') {
-    // For pure UNION DISTINCT chains, flatten deeply; for UNION ALL, flatten normally
-    const flattener = stmt.unionMode ? flattenUnionDeep : flattenUnion;
-    queries = stmt.queries.flatMap(flattener);
+function attachExplainNode(stmt: AttachQueryNode): ExplainNode {
+  const children: ExplainNode[] = [];
+  if (stmt.database !== undefined) children.push(statementChildNode(stmt.database));
+  if (stmt.table !== undefined) children.push(statementChildNode(stmt.table));
+  let label: string;
+  if (stmt.database !== undefined && stmt.table === undefined) {
+    label = `AttachQuery ${stmt.database.name} `;
+  } else if (stmt.database !== undefined && stmt.table !== undefined) {
+    label = `AttachQuery ${stmt.database.name} ${stmt.table.name}`;
   } else {
-    queries = [stmt];
+    label = `AttachQuery ${stmt.table?.name ?? ''}`;
   }
+  return n(label, children);
+}
 
-  // Distribute WITH CTEs from the first SELECT to all other SELECTs in the union
-  if (queries.length > 1) {
-    const firstWith = queries[0]?.kind === 'select' ? queries[0].with : undefined;
-    if (firstWith && firstWith.length > 0) {
-      const reversedWith = markCTEsForReverseJoins(firstWith);
-      queries = queries.map((q, i) => {
-        if (i === 0 || q.kind !== 'select' || (q.with && q.with.length > 0)) return q;
-        return { ...q, with: reversedWith, distributedWith: true } as Statement;
-      });
-    }
-  }
+function deleteExplainNode(stmt: DeleteQueryNode): ExplainNode {
+  const db = stmt.database?.name;
+  const tbl = stmt.table?.name ?? '';
+  const label = db !== undefined ? `DeleteQuery ${db} ${tbl}` : `DeleteQuery  ${tbl}`;
+  // Rebuild children: partition?, predicate (WHERE), database?, table,
+  // optional Settings.
+  const children: ExplainNode[] = [];
+  if (stmt.partition !== undefined) children.push(statementChildNode(stmt.partition));
+  if (stmt.predicate !== undefined) children.push(exprNode(stmt.predicate));
+  if (stmt.database !== undefined) children.push(statementChildNode(stmt.database));
+  if (stmt.table !== undefined) children.push(statementChildNode(stmt.table));
+  if (stmt.settings !== undefined) children.push(SET);
+  return n(label, children);
+}
 
-  const hasPreFormatSettings = !!(stmt.preFormatSettings && stmt.preFormatSettings.length > 0);
-  const hasPostFormatSettings = !!(stmt.postFormatSettings && stmt.postFormatSettings.length > 0);
-  const children: ExplainNode[] = [
-    n(
-      'ExpressionList',
-      queries.map((q) => {
-        if (q.kind === 'select') {
-          return selectQueryNode(q);
-        }
-        // Intersect/except inside a union: render as SelectIntersectExceptQuery directly (no outer SWU wrapper)
-        if (q.kind === 'intersect')
-          return n('SelectIntersectExceptQuery', [
-            renderIntersectChild(q.left, q.op === 'EXCEPT'),
-            renderIntersectChild(q.right, false),
-          ]);
-        return stmtNode(q);
-      }),
-    ),
-  ];
-  if (stmt.intoOutfile) {
-    children.push(n(`Literal '${escapeStringValue(stmt.intoOutfile.value)}'`));
+function updateExplainNode(stmt: UpdateQueryNode): ExplainNode {
+  const db = stmt.database?.name;
+  const tbl = stmt.table?.name ?? '';
+  const label = db !== undefined ? `UpdateQuery ${db} ${tbl}` : `UpdateQuery  ${tbl}`;
+  // Rebuild children: database?, table, predicate, assignments list,
+  // optional Settings.
+  const children: ExplainNode[] = [];
+  if (stmt.database !== undefined) children.push(statementChildNode(stmt.database));
+  if (stmt.table !== undefined) children.push(statementChildNode(stmt.table));
+  if (stmt.predicate !== undefined) children.push(exprNode(stmt.predicate));
+  if (stmt.assignments !== undefined) {
+    children.push(
+      n(
+        'ExpressionList',
+        stmt.assignments.map((a) => statementChildNode(a)),
+      ),
+    );
   }
-  // Pre-format settings (second SETTINGS before FORMAT) rendered before format identifier
-  if (hasPreFormatSettings) {
-    children.push(n('Set'));
-  }
-  if (format) {
-    children.push(n(`Identifier ${format}`));
-  }
-  // Post-format settings (SETTINGS after FORMAT) rendered after format identifier
-  if (hasPostFormatSettings) {
-    children.push(n('Set'));
-  }
+  if (stmt.settings !== undefined) children.push(SET);
+  return n(label, children);
+}
 
+// Project a drop-family statement. The label carries the database/table name
+// slots (empty slots collapse to consecutive spaces, mirroring ClickHouse).
+function dropFamilyExplainNode(stmt: DropFamilyNode): ExplainNode {
+  // Re-materialize the children list ClickHouse's `EXPLAIN AST` shows even
+  // though the AST proper stores `database`/`table` as explicit fields:
+  // ExpressionList of multi-tables (if any), then database Identifier (if
+  // any), then table Identifier (if any), then optional Settings child,
+  // then optional FORMAT Identifier.
+  const children: ExplainNode[] = [];
+  const multiTables =
+    stmt.database_and_tables !== undefined
+      ? ((stmt.database_and_tables.children ?? []) as TableIdentifierNode[])
+      : undefined;
+  if (multiTables !== undefined) {
+    children.push(
+      n(
+        'ExpressionList',
+        multiTables.map((ti) => statementChildNode(ti)),
+      ),
+    );
+  } else {
+    if (stmt.database !== undefined) children.push(statementChildNode(stmt.database));
+    if (stmt.table !== undefined) children.push(statementChildNode(stmt.table));
+  }
+  if (stmt.format !== undefined) children.push(identifier(stmt.format));
+  if (stmt.settings !== undefined) children.push(SET);
+
+  let label: string;
+  if (stmt.type === 'UndropQuery') {
+    label =
+      stmt.database !== undefined && stmt.table !== undefined
+        ? `UndropQuery ${stmt.database.name}.${stmt.table.name}`
+        : `UndropQuery  ${stmt.table?.name ?? ''}`;
+  } else if (multiTables !== undefined) {
+    label = `${stmt.type}  `;
+  } else if (stmt.database !== undefined && stmt.table === undefined) {
+    label = `${stmt.type} ${stmt.database.name} `;
+  } else if (stmt.database !== undefined && stmt.table !== undefined) {
+    label = `${stmt.type} ${stmt.database.name} ${stmt.table.name}`;
+  } else if (stmt.table !== undefined) {
+    label = `${stmt.type}  ${stmt.table.name}`;
+  } else {
+    label = `${stmt.type}  `;
+  }
+  return n(label, children);
+}
+
+function queryWrapperNode(q: SelectWithUnionQueryNode): ExplainNode {
+  const children: ExplainNode[] = [n('ExpressionList', q.selects.map(queryMemberNode))];
+  if (q.out_file !== undefined) {
+    children.push(n(`Literal '${escapeStringValue(String(q.out_file.value))}'`));
+  }
+  // ClickHouse's AST child order follows the source order of SETTINGS vs FORMAT
+  // (`_settings_before_format`), so reproduce it here even though format()
+  // canonicalizes the order.
+  if (q.settings !== undefined && q._settings_before_format) children.push(SET);
+  if (q.format !== undefined) children.push(identifier(q.format));
+  if (q.settings !== undefined && !q._settings_before_format) children.push(SET);
   return n('SelectWithUnionQuery', children);
 }
 

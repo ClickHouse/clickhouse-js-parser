@@ -1,7 +1,7 @@
 -- { echo }
-SET optimize_syntax_fuse_functions = 1;
+SET optimize_syntax_fuse_functions = '1';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -10,9 +10,9 @@ CREATE TABLE test
     a Float64,
     b LowCardinality(Nullable(Int8))
 )
-ENGINE = Log;
+ENGINE = Log();
 
-SELECT count(b) * count(b)
+SELECT count(b) * count(b) IGNORE NULLS
 FROM (
         SELECT b
         FROM test
@@ -20,9 +20,9 @@ FROM (
 
 SELECT
     avg(b) * 3,
-    (sum(b) + 1) + count(b),
+    sum(b) + 1 + count(b),
     count(b) * count(b),
-    count()
+    count() IGNORE NULLS
 FROM (
         SELECT b
         FROM test
@@ -46,30 +46,30 @@ SELECT
     sum(a),
     count(a)
 FROM (
-        SELECT CAST(materialize(1), 'LowCardinality(Nullable(Int32))') AS a
+        SELECT CAST(materialize(1) AS LowCardinality(Nullable(Int32))) AS a
     ) AS t;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
-SELECT count(b) * count(b)
+EXPLAIN SYNTAX run_query_tree_passes = '1'
+SELECT count(b) * count(b) IGNORE NULLS
 FROM (
         SELECT b
         FROM test
     );
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     avg(b) * 3,
-    (sum(b) + 1) + count(b),
+    sum(b) + 1 + count(b),
     count(b) * count(b),
-    count()
+    count() IGNORE NULLS
 FROM (
         SELECT b
         FROM test
     );
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     sum(b),
     count(b),
@@ -82,10 +82,10 @@ FROM (
         FROM test
     );
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     sum(a),
     count(a)
 FROM (
-        SELECT CAST(materialize(1), 'LowCardinality(Nullable(Int32))') AS a
+        SELECT CAST(materialize(1) AS LowCardinality(Nullable(Int32))) AS a
     ) AS t;

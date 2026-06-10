@@ -19,4 +19,4 @@ ORDER BY
 SET join_algorithm = 'auto';
 
 -- Just to test that we preserved old setting name this we use `enable_analyzer` instead of `enable_analyzer` here.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

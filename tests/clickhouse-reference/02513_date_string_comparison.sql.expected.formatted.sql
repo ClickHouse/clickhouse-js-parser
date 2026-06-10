@@ -11,7 +11,7 @@ CREATE TABLE datetime_date_table
     col_datetime64_lc LowCardinality(String),
     PRIMARY KEY(col_date)
 )
-ENGINE = MergeTree;
+ENGINE = MergeTree();
 
 INSERT INTO datetime_date_table;
 

@@ -1,6 +1,6 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET schema_inference_make_json_columns_nullable = 1;
+SET schema_inference_make_json_columns_nullable = '1';
 
 SELECT JSONAllPathsWithTypes(materialize('{"a" : [{"b" : 42}]}')::JSON);
 

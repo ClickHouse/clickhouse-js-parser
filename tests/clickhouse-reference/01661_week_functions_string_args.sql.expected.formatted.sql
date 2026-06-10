@@ -37,7 +37,7 @@ CREATE TABLE tab
     str_dt64 String,
     invalid String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dt;
 
 INSERT INTO tab;

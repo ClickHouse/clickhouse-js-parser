@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/47422
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TEMPORARY TABLE IF EXISTS test;
 
@@ -20,7 +20,7 @@ SELECT
     a,
     id
 FROM test
-SETTINGS allow_experimental_window_functions = 1;
+SETTINGS allow_experimental_window_functions = '1';
 
 -- no aliases clash, good result
 WITH avg(a) OVER () AS a2
@@ -29,11 +29,11 @@ SELECT
     a2,
     id
 FROM test
-SETTINGS allow_experimental_window_functions = 1;
+SETTINGS allow_experimental_window_functions = '1';
 
 -- aliases clash without CTE
 SELECT
     avg(a) OVER () AS a,
     id
 FROM test
-SETTINGS allow_experimental_window_functions = 1;
+SETTINGS allow_experimental_window_functions = '1';

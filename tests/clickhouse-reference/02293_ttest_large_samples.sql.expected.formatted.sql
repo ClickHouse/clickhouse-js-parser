@@ -1,7 +1,7 @@
 -- Tags: long
 SELECT
-    roundBankers(result.1, 5),
-    roundBankers(result.2, 5)
+    roundBankers((result).1, 5),
+    roundBankers((result).2, 5)
 FROM (
         SELECT studentTTest(`sample`, variant) AS result
         FROM (
@@ -19,11 +19,11 @@ FROM (
             )
     );
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 SELECT
-    roundBankers(result.1, 5),
-    roundBankers(result.2, 5)
+    roundBankers((result).1, 5),
+    roundBankers((result).2, 5)
 FROM (
         SELECT studentTTest(`sample`, variant) AS result
         FROM (
@@ -41,7 +41,7 @@ FROM (
             )
     );
 
-SELECT roundBankers(result.2, 1025)
+SELECT roundBankers((result).2, 1025)
 FROM (
         SELECT studentTTest(`sample`, variant) AS result
         FROM (
@@ -52,7 +52,7 @@ FROM (
                 LIMIT 1
                 UNION ALL
                 SELECT
-                    (toFloat64(number) % 7) + inf AS `sample`,
+                    toFloat64(number) % 7 + inf AS `sample`,
                     255 AS variant
                 FROM `system`.numbers
                 LIMIT 1023

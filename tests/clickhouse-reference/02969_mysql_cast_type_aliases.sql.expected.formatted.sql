@@ -1,6 +1,6 @@
 -- See https://dev.mysql.com/doc/refman/8.0/en/cast-functions.html#function_cast
 -- Tests are in order of the type appearance in the docs
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 SELECT '-- Uppercase tests';
 

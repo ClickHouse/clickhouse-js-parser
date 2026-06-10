@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS prewhere_column_missing;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE prewhere_column_missing
 (

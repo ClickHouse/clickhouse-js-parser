@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS t;
 
 CREATE TABLE t
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT *
 FROM `system`.numbers
 LIMIT 20;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 SELECT number
 FROM (

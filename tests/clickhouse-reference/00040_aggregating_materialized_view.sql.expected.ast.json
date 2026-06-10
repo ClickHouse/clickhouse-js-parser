@@ -1,389 +1,397 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "basic_00040"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "basic_00040"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "basic_00040"
-    },
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
-          ]
-        },
-        {
-          "kind": "tupleLiteral",
-          "elements": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "CounterID"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "is_populate": true,
+      "table": {
+        "type": "Identifier",
+        "name": "basic_00040"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Identifier",
+                "name": "StartDate"
+              },
+              {
+                "type": "Function",
+                "alias": "Visits",
+                "name": "sumState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "Sign"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "Users",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "UserID"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "visits",
+                      "database": "test"
+                    }
+                  }
+                }
               ]
             },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "StartDate"
-              ]
-            }
-          ],
-          "source": "(CounterID, StartDate)"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "populate": true,
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sumState",
-            "args": [
+            "group_by": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "Sign"
-                ]
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Identifier",
+                "name": "StartDate"
               }
             ]
-          },
-          "alias": "Visits"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "uniqState",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "UserID"
-                ]
-              }
-            ]
-          },
-          "alias": "Users"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "visits"
+          }
+        ]
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "StartDate"
-            ]
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "AggregatingMergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "StartDate"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "tuple",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "CounterID"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "StartDate"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "8192"
+                  }
+                ]
+              }
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "StartDate"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Visits"
-              ]
-            }
-          ]
-        },
-        "alias": "Visits"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Users"
-              ]
-            }
-          ]
-        },
-        "alias": "Users"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "basic_00040"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            },
+            {
+              "type": "Function",
+              "alias": "Visits",
+              "name": "sumMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Visits"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "Users",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Users"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "basic_00040"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "StartDate"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "StartDate"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Visits"
-              ]
-            }
-          ]
-        },
-        "alias": "Visits"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqMerge",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Users"
-              ]
-            }
-          ]
-        },
-        "alias": "Users"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "basic_00040"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "942285"
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            },
+            {
+              "type": "Function",
+              "alias": "Visits",
+              "name": "sumMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Visits"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "Users",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Users"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "basic_00040"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "942285"
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "StartDate"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "StartDate"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Sign"
-              ]
-            }
-          ]
-        },
-        "alias": "Visits"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniq",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
-              ]
-            }
-          ]
-        },
-        "alias": "Users"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "visits"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "942285"
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            },
+            {
+              "type": "Function",
+              "alias": "Visits",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Sign"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "Users",
+              "name": "uniq",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "visits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "942285"
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "StartDate"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "StartDate"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "StartDate"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "basic_00040"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "basic_00040"
+      }
     }
   }
 ]

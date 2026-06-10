@@ -5,7 +5,7 @@ CREATE TABLE ddl_dictonary_test_source
     id UInt64,
     value UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO ddl_dictonary_test_source;
 

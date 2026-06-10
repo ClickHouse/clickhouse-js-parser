@@ -3,7 +3,7 @@
 -- When constants are folded from CTE expressions, different constant values must produce
 -- different hashes. Otherwise the query condition cache returns wrong results.
 -- https://github.com/ClickHouse/ClickHouse/issues/96060
-SET use_query_condition_cache = 1;
+SET use_query_condition_cache = '1';
 
 DROP TABLE IF EXISTS test_qcc_cte;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_qcc_cte
 (
     activity_year Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY activity_year;
 
 -- Need enough rows to have multiple granules so the cache can incorrectly exclude some.
@@ -33,8 +33,8 @@ SELECT
     min(activity_year),
     max(activity_year)
 FROM block_0
-WHERE (activity_year = toYear(report_month))
-    OR (activity_year = toYear(report_month) - 1);
+WHERE activity_year = toYear(report_month)
+    OR activity_year = toYear(report_month) - 1;
 
 -- Second query: addMonths('2022-12-01', -12) -> year = 2021, filter: year IN (2020, 2021)
 -- Without the fix, this would return wrong results due to cache hash collision.
@@ -50,8 +50,8 @@ SELECT
     min(activity_year),
     max(activity_year)
 FROM block_0
-WHERE (activity_year = toYear(report_month))
-    OR (activity_year = toYear(report_month) - 1);
+WHERE activity_year = toYear(report_month)
+    OR activity_year = toYear(report_month) - 1;
 
 -- Third query: addMonths('2022-12-01', -36) -> year = 2019, filter: year IN (2018, 2019)
 WITH block_0 AS (
@@ -66,7 +66,7 @@ SELECT
     min(activity_year),
     max(activity_year)
 FROM block_0
-WHERE (activity_year = toYear(report_month))
-    OR (activity_year = toYear(report_month) - 1);
+WHERE activity_year = toYear(report_month)
+    OR activity_year = toYear(report_month) - 1;
 
 DROP TABLE test_qcc_cte;

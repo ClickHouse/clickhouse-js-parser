@@ -13,14 +13,14 @@ CREATE TABLE tt1
     a UInt32,
     b UInt32 ALIAS a
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE tt2
 (
     a UInt32,
     b UInt32 ALIAS a * 2
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE tt3
 (
@@ -28,14 +28,14 @@ CREATE TABLE tt3
     b UInt32 ALIAS c,
     c UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE tt4
 (
     a UInt32,
     b UInt32 ALIAS 12
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE tt_m
 (
@@ -94,7 +94,7 @@ ORDER BY
 
 SELECT b
 FROM tt_m
-WHERE b == 12;
+WHERE b = 12;
 
 SELECT b
 FROM tt_m

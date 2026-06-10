@@ -1,16 +1,16 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
 DROP VIEW IF EXISTS test_mv;
 
 CREATE TABLE test_table
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT 1 AS col1;
 
 CREATE MATERIALIZED VIEW test_mv
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 AS
 WITH subquery_on_source AS (

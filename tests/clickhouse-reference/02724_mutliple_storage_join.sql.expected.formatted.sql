@@ -23,7 +23,7 @@ CREATE TABLE `order`
     pId UInt32,
     uId UInt32
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `order`;
 
@@ -34,14 +34,14 @@ FROM (
             user.id AS uuu
         FROM
             `order`
-        LEFT JOIN user
+        ANY LEFT JOIN user
             ON uId = uuu
     );
 
 SELECT ignore(*)
 FROM
     `order`
-LEFT JOIN user
+ANY LEFT JOIN user
     ON uId = user.id
-LEFT JOIN product
+ANY LEFT JOIN product
     ON pId = product.id;

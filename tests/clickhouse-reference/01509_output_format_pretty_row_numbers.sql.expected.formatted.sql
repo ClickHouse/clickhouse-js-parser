@@ -1,10 +1,10 @@
-SET output_format_pretty_color = 1;
+SET output_format_pretty_color = '1';
 
-SET output_format_pretty_row_numbers = 0;
+SET output_format_pretty_row_numbers = '0';
 
-SET output_format_pretty_display_footer_column_names = 0;
+SET output_format_pretty_display_footer_column_names = '0';
 
-SET output_format_pretty_squash_consecutive_ms = 0;
+SET output_format_pretty_squash_consecutive_ms = '0';
 
 SELECT *
 FROM numbers(10)
@@ -34,9 +34,9 @@ SELECT *
 FROM numbers(10)
 FORMAT PrettySpace;
 
-SET output_format_pretty_row_numbers = 1;
+SET output_format_pretty_row_numbers = '1';
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 SELECT *
 FROM (

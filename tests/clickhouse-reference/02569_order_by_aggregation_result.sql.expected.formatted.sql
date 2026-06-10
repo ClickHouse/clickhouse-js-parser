@@ -3,8 +3,8 @@
 -- - https://github.com/ClickHouse/ClickHouse/issues/46273
 -- Queries that the original PR (https://github.com/ClickHouse/ClickHouse/pull/42827) tried to fix
 SELECT
-    (number = 1)
-    AND (number = 2) AS value,
+    number = 1
+    AND number = 2 AS value,
     sum(value) OVER ()
 FROM numbers(1)
 WHERE 1;
@@ -16,8 +16,8 @@ SELECT
 FROM (
         SELECT
             2
-            OR (number = 0)
-            OR (number >= 1) AS value,
+            OR number = 0
+            OR number >= 1 AS value,
             number AS time,
             exponentialTimeDecayedSum(2147483646)(value, time) OVER (RANGE BETWEEN CURRENT ROW AND CURRENT ROW) AS exp_smooth
         FROM numbers(1)
@@ -70,7 +70,7 @@ INSERT INTO table1;
 
 SELECT
     if(empty(id), toString(device), id) AS device,
-    multiIf(notEmpty(id), 'a', device == '00000000-0000-0000-0000-000000000000', 'b', 'c') AS device_id_type,
+    multiIf(notEmpty(id), 'a', device = '00000000-0000-0000-0000-000000000000', 'b', 'c') AS device_id_type,
     count()
 FROM table1
 GROUP BY

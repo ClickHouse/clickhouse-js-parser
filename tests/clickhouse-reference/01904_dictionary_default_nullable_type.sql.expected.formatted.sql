@@ -6,7 +6,7 @@ CREATE TABLE dictionary_nullable_source_table
     id UInt64,
     value Nullable(Int64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS dictionary_nullable_default_source_table;
 
@@ -15,7 +15,7 @@ CREATE TABLE dictionary_nullable_default_source_table
     id UInt64,
     value Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_nullable_source_table;
 
@@ -136,7 +136,7 @@ CREATE DICTIONARY ip_trie_dictionary
     value Nullable(Int64) DEFAULT NULL
 )
 PRIMARY KEY prefix
-SOURCE(clickhouse(HOST 'localhost' port tcpPort() TABLE 'dictionary_nullable_source_table'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() TABLE 'dictionary_nullable_source_table'))
 LIFETIME(MIN 10 MAX 1000)
 LAYOUT(IP_TRIE());
 
@@ -155,7 +155,7 @@ CREATE TABLE polygon_dictionary_nullable_source_table
     key Array(Array(Array(Tuple(Float64, Float64)))),
     value Nullable(Int64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS polygon_dictionary_nullable_default_source_table;
 
@@ -164,7 +164,7 @@ CREATE TABLE polygon_dictionary_nullable_default_source_table
     key Tuple(Float64, Float64),
     value Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO polygon_dictionary_nullable_source_table;
 
@@ -186,11 +186,11 @@ SELECT dictGet('polygon_dictionary', 'value', tuple(0.5, 0.5));
 
 SELECT dictGet('polygon_dictionary', 'value', tuple(1.5, 1.5));
 
-SELECT dictGet('polygon_dictionary', 'value', tuple(2.0, 2.0));
+SELECT dictGet('polygon_dictionary', 'value', tuple(2., 2.));
 
-SELECT dictGetOrDefault('polygon_dictionary', 'value', tuple(2.0, 2.0), 2);
+SELECT dictGetOrDefault('polygon_dictionary', 'value', tuple(2., 2.), 2);
 
-SELECT dictGetOrDefault('polygon_dictionary', 'value', tuple(2.0, 2.0), NULL);
+SELECT dictGetOrDefault('polygon_dictionary', 'value', tuple(2., 2.), NULL);
 
 SELECT dictGetOrDefault('polygon_dictionary', 'value', key, value)
 FROM polygon_dictionary_nullable_default_source_table;
@@ -210,7 +210,7 @@ CREATE TABLE range_dictionary_nullable_source_table
     end_date Date,
     value Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS range_dictionary_nullable_default_source_table;
 
@@ -219,7 +219,7 @@ CREATE TABLE range_dictionary_nullable_default_source_table
     key UInt64,
     value Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO range_dictionary_nullable_source_table;
 

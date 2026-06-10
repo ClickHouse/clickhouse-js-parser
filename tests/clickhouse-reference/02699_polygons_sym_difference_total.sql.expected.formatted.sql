@@ -1,4 +1,4 @@
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT
     [(9223372036854775807, 1.1754943508222875e-38)],

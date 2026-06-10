@@ -10,7 +10,7 @@ CREATE TABLE session
     uid String,
     dummy String DEFAULT ''
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (day, uid);
 
 CREATE TABLE queue
@@ -18,7 +18,7 @@ CREATE TABLE queue
     day Date,
     uid String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (day, uid);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS forward

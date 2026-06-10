@@ -1,327 +1,370 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/44414"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "alias_bug"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "alias_bug_dist"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "alias_bug"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "src",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "theAlias",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "ALIAS",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "trimBoth",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "src"
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "src"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "alias_bug_dist"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "table": "alias_bug"
-    },
-    "engine": {
-      "name": "Distributed",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_shard_localhost"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "alias_bug"
-        },
-        {
-          "kind": "functionCall",
-          "name": "rand",
-          "args": []
-        }
-      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "alias_bug"
+        "type": "Identifier",
+        "name": "alias_bug"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "alias_bug_dist"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alias_bug"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "src",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "theAlias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Function",
+              "name": "trimBoth",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "src"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "src"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "theAlias"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alias_bug_dist"
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "CAST",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Distributed",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "literal",
-              "type": "NULL",
-              "value": "NULL"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "test_shard_localhost"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "Nullable(String)"
-            }
-          ]
-        },
-        "alias": "src"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "alias_bug"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- OK"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "theAlias"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "CAST",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "NULL",
-              "value": "NULL"
+              "type": "Function",
+              "name": "currentDatabase",
+              "arguments": []
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "Nullable(String)"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "alias_bug"
+            },
+            {
+              "type": "Function",
+              "name": "rand",
+              "arguments": []
             }
           ]
-        },
-        "alias": "src"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "alias_bug_dist"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- Not OK"
-    ]
+        }
+      },
+      "as_table": "alias_bug"
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "alias_bug"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alias_bug"
       },
-      {
-        "kind": "columnDef",
-        "name": "src",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "theAlias",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "ALIAS",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "trimBoth",
-          "args": [
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "src"
+              "type": "Identifier",
+              "name": "theAlias"
+            },
+            {
+              "type": "Function",
+              "alias": "src",
+              "name": "CAST",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Null",
+                  "value": null
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Nullable(String)"
+                }
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "alias_bug"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
         }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "src"
-          ]
-        }
-      }
-    ]
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "CAST",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "123"
+              "type": "Identifier",
+              "name": "theAlias"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "String"
+              "type": "Function",
+              "alias": "src",
+              "name": "CAST",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Null",
+                  "value": null
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Nullable(String)"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "src"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "alias_bug_dist"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alias_bug"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "theAlias"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "src",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "theAlias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Function",
+              "name": "trimBoth",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "src"
+                }
+              ]
+            }
+          }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "src"
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "alias_bug_dist"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- Unknown identifier"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "src",
+              "name": "CAST",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "123"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "String"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "theAlias"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "alias_bug_dist"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

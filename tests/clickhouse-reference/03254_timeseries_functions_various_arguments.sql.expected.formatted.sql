@@ -26,7 +26,7 @@ FROM
     ts_data
 ARRAY JOIN timestamps AS timestamp, arrayResize(values, length(timestamps), NULL) AS value;
 
-SET allow_experimental_time_series_aggregate_functions = 1;
+SET allow_experimental_time_series_aggregate_functions = '1';
 
 -- Fail because of rows with non-matching lengths of timestamps and values
 SELECT timeSeriesResampleToGridWithStaleness(10, 120, 10, 10)(timestamps, values)
@@ -137,7 +137,7 @@ WHERE length(timestamps) = length(values);
 
 SELECT *
 FROM ts_data_nullable
-WHERE isNull(value)
+WHERE value IS NULL
     AND id < 5;
 
 SELECT timeSeriesResampleToGridWithStalenessIf(15, 125, 10, 10)(timestamps, values, length(timestamps) = length(values))
@@ -153,34 +153,34 @@ FROM ts_data_nullable;
 SELECT timeSeriesResampleToGridWithStalenessIf(15, 125, 10, 10)(timestamp, value, id < 5)
 FROM ts_data_nullable;
 
-SELECT timeSeriesResampleToGridWithStaleness(15, 125, 10, 10)([10, 20, 30]::Array(UInt32), [1.0, 2.0, NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesResampleToGridWithStaleness(15, 125, 10, 10)(CAST('[10, 20, 30]' AS Array(UInt32)), [1., 2., NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesResampleToGridWithStaleness(15, 125, 10, 10)([10, NULL, 30]::Array(Nullable(UInt32)), [1.0, 2.0, 3.0]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesResampleToGridWithStaleness(15, 125, 10, 10)([10, NULL, 30]::Array(Nullable(UInt32)), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- End timestamp not aligned by step
-SELECT timeSeriesResampleToGridWithStaleness(100, 110, 15, 10)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesResampleToGridWithStaleness(100, 110, 15, 10)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesResampleToGridWithStaleness(100, 120, 15, 10)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesResampleToGridWithStaleness(100, 120, 15, 10)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesRateToGrid(100, 140, 15, 40)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesRateToGrid(100, 140, 15, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesInstantRateToGrid(100, 140, 15, 40)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesInstantRateToGrid(100, 140, 15, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesInstantDeltaToGrid(100, 150, 15, 20)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesInstantDeltaToGrid(100, 150, 15, 20)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
 -- Start timestamp equals to end timestamp
-SELECT timeSeriesRateToGrid(120, 120, 0, 40)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesRateToGrid(120, 120, 0, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesInstantRateToGrid(120, 120, 0, 40)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesInstantRateToGrid(120, 120, 0, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
-SELECT timeSeriesInstantDeltaToGrid(120, 120, 0, 20)([89, 101, 109]::Array(UInt32), [89, 101, 109]::Array(Float32));
+SELECT timeSeriesInstantDeltaToGrid(120, 120, 0, 20)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 109]' AS Array(Float32)));
 
 -- First bucket doesn't have a value.
-SELECT timeSeriesResampleToGridWithStaleness(105, 210, 15, 30)([110, 120, 130, 140, 190, 200, 210, 220, 230]::Array(UInt32), [1, 1, 3, 4, 5, 5, 8, 12, 13]::Array(Float32));
+SELECT timeSeriesResampleToGridWithStaleness(105, 210, 15, 30)(CAST('[110, 120, 130, 140, 190, 200, 210, 220, 230]' AS Array(UInt32)), CAST('[1, 1, 3, 4, 5, 5, 8, 12, 13]' AS Array(Float32)));
 
-SELECT timeSeriesResampleToGridWithStaleness(105, 210, 15, 300)([110, 120, 130, 140, 190, 200, 210, 220, 230]::Array(UInt32), [1, 1, 3, 4, 5, 5, 8, 12, 13]::Array(Float32));
+SELECT timeSeriesResampleToGridWithStaleness(105, 210, 15, 300)(CAST('[110, 120, 130, 140, 190, 200, 210, 220, 230]' AS Array(UInt32)), CAST('[1, 1, 3, 4, 5, 5, 8, 12, 13]' AS Array(Float32)));
 
-SELECT timeSeriesResampleToGridWithStaleness(90, 210, 15, 300)([110, 120, 130, 140, 190, 200, 210, 220, 230]::Array(UInt32), [1, 1, 3, 4, 5, 5, 8, 12, 13]::Array(Float32));
+SELECT timeSeriesResampleToGridWithStaleness(90, 210, 15, 300)(CAST('[110, 120, 130, 140, 190, 200, 210, 220, 230]' AS Array(UInt32)), CAST('[1, 1, 3, 4, 5, 5, 8, 12, 13]' AS Array(Float32)));
 
 SELECT timeSeriesResampleToGridWithStaleness(100, 150, 10, 30)(toDateTime(105), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
@@ -190,26 +190,26 @@ SELECT timeSeriesInstantDeltaToGrid(100, 150, 10, 30)(toDateTime(105), [1., 2., 
 
 SELECT timeSeriesResampleToGridWithStaleness(100, 150, 10, 30)(toDateTime(105), arrayJoin([1., 2., 3.]));
 
-SELECT timeSeriesInstantRateToGrid(100, 150, 10, 30)([1, 2, 3]::Array(UInt32), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesInstantRateToGrid(100, 150, 10, 30)(CAST('[1, 2, 3]' AS Array(UInt32)), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesDeltaToGrid(100, 150, 10, 30)([1, 2, 3]::Array(UInt32), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesDeltaToGrid(100, 150, 10, 30)(CAST('[1, 2, 3]' AS Array(UInt32)), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- Try to use aggregation function state in combinators with start, end, step and window parameters that are different from original parameters
 -- An error should be returned
-SELECT timeSeriesResampleToGridWithStalenessMerge(toNullable(60), 100, 200, 20)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', ((100 + number * 10))::DateTime32, number::Float64))
+SELECT timeSeriesResampleToGridWithStalenessMerge(toNullable(60), 100, 200, 20)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', (100 + number * 10)::DateTime32, number::Float64))
 FROM numbers(5); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesInstantDeltaToGridMerge(toNullable(60), 100, 200, 20)(initializeAggregation('timeSeriesInstantDeltaToGridState(100, 200, 20, 60)', ((100 + number * 10))::DateTime32, number::Float64))
+SELECT timeSeriesInstantDeltaToGridMerge(toNullable(60), 100, 200, 20)(initializeAggregation('timeSeriesInstantDeltaToGridState(100, 200, 20, 60)', (100 + number * 10)::DateTime32, number::Float64))
 FROM numbers(5); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesResampleToGridWithStalenessMerge(60, 100, 200, 20)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', ((100 + number * 10))::DateTime32, number::Float64))
+SELECT timeSeriesResampleToGridWithStalenessMerge(60, 100, 200, 20)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', (100 + number * 10)::DateTime32, number::Float64))
 FROM numbers(5); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- With matching parameters everything should work
-SELECT timeSeriesResampleToGridWithStalenessMerge(100, 200, 20, 60)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', ((100 + number * 10))::DateTime32, number::Float64))
+SELECT timeSeriesResampleToGridWithStalenessMerge(100, 200, 20, 60)(initializeAggregation('timeSeriesResampleToGridWithStalenessState(100, 200, 20, 60)', (100 + number * 10)::DateTime32, number::Float64))
 FROM numbers(5);
 
-SELECT timeSeriesInstantDeltaToGridMerge(100, 200, 20, 60)(initializeAggregation('timeSeriesInstantDeltaToGridState(100, 200, 20, 60)', ((100 + number * 10))::DateTime32, number::Float64))
+SELECT timeSeriesInstantDeltaToGridMerge(100, 200, 20, 60)(initializeAggregation('timeSeriesInstantDeltaToGridState(100, 200, 20, 60)', (100 + number * 10)::DateTime32, number::Float64))
 FROM numbers(5);
 
 DROP TABLE ts_data;

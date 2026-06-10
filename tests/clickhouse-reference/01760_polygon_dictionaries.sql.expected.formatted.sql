@@ -12,7 +12,7 @@ CREATE TABLE `01760_db`.polygons
     value UInt64,
     value_nullable Nullable(UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `01760_db`.polygons;
 
@@ -31,7 +31,7 @@ CREATE TABLE `01760_db`.points
     def_i UInt64,
     def_s String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `01760_db`.points;
 
@@ -54,9 +54,9 @@ CREATE DICTIONARY `01760_db`.dict_array
 )
 PRIMARY KEY key
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'polygons' DB '01760_db'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(POLYGON())
-SETTINGS(dictionary_use_async_executor = 1, max_threads = 8);
+SETTINGS(dictionary_use_async_executor = '1', max_threads = '8');
 
 SELECT
     tuple(x, y) AS key,

@@ -4,6 +4,6 @@ CREATE TABLE t
     d String,
     p Map(String, String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY id
-SETTINGS index_granularity = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS index_granularity = '0'; -- { serverError BAD_ARGUMENTS }

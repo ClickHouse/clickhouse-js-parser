@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/70826
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE VIEW v0
 AS
@@ -31,18 +31,14 @@ WITH rhs AS (
 
 SELECT lhs.d2
 FROM
-    view((
-        SELECT dummy AS d2
-        FROM
-            `system`.one
-        INNER JOIN (
-                SELECT *
-                FROM view((
-                        SELECT dummy AS d2
-                        FROM `system`.one
-                    ))
-            ) AS a
-            ON a.d2 = d2
-    )) AS lhs
+    view(    SELECT dummy AS d2
+    FROM
+        `system`.one
+    INNER JOIN (
+            SELECT *
+            FROM view(                SELECT dummy AS d2
+                FROM `system`.one)
+        ) AS a
+        ON a.d2 = d2) AS lhs
 RIGHT JOIN rhs
     USING (d1);

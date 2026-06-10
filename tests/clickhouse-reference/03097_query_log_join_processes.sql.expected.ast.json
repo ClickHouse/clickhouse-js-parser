@@ -1,156 +1,182 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log",
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/56521"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        },
-        "alias": "num"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "hostName",
-          "args": []
-        },
-        "alias": "hostName"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "query_log",
-        "alias": "a"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "processes",
-        "alias": "b"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "a",
-                  "query_id"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "b",
-                  "query_id"
-                ]
-              }
+              "type": "Function",
+              "alias": "num",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
             },
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "type"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "QueryStart"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": ">",
-              "left": {
-                "kind": "functionCall",
-                "name": "dateDiff",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "second"
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "now",
-                    "args": []
+              "type": "Function",
+              "alias": "hostName",
+              "name": "hostName",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "a",
+                    "name": "query_log",
+                    "database": "system"
                   }
-                ]
+                }
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "5"
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "a.query_id",
+                            "name_parts": [
+                              "a",
+                              "query_id"
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "b.query_id",
+                            "name_parts": [
+                              "b",
+                              "query_id"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "type"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "QueryStart"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "greater",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "dateDiff",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "second"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "event_time"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "now",
+                                "arguments": []
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "current_database"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "currentDatabase",
+                            "arguments": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "b",
+                    "name": "processes",
+                    "database": "system"
+                  }
+                }
               }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "current_database"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              }
-            }
-          ]
+            ]
+          }
         }
-      }
-    },
-    "format": "Null"
+      ],
+      "format": "Null"
+    }
   }
 ]

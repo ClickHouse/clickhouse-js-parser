@@ -1,31 +1,31 @@
 -- types
 SELECT
-    argMin(x.1, x.2),
-    argMax(x.1, x.2)
+    argMin((x).1, (x).2),
+    argMax((x).1, (x).2)
 FROM (
         SELECT (number, number + 1) AS x
         FROM numbers(10)
     );
 
 SELECT
-    argMin(x.1, x.2),
-    argMax(x.1, x.2)
+    argMin((x).1, (x).2),
+    argMax((x).1, (x).2)
 FROM (
         SELECT (toString(number), toInt32(number) + 1) AS x
         FROM numbers(10)
     );
 
 SELECT
-    argMin(x.1, x.2),
-    argMax(x.1, x.2)
+    argMin((x).1, (x).2),
+    argMax((x).1, (x).2)
 FROM (
         SELECT (toDate(number, 'UTC'), toDateTime(number, 'UTC') + 1) AS x
         FROM numbers(10)
     );
 
 SELECT
-    argMin(x.1, x.2),
-    argMax(x.1, x.2)
+    argMin((x).1, (x).2),
+    argMax((x).1, (x).2)
 FROM (
         SELECT (toDecimal32(number, 2), toDecimal64(number, 2) + 1) AS x
         FROM numbers(10)

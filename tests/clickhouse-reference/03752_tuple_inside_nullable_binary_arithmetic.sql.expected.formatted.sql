@@ -1,5 +1,5 @@
 -- { echoOn }
-SET allow_experimental_nullable_tuple_type = 1;
+SET allow_experimental_nullable_tuple_type = '1';
 
 SELECT toNullable(tuple(1, 2)) * toNullable(tuple(1, 2));
 

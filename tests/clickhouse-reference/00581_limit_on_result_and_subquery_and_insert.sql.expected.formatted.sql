@@ -1,4 +1,4 @@
-SET max_result_rows = 10;
+SET max_result_rows = '10';
 
 SELECT count()
 FROM (

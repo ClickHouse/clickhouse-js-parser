@@ -6004,6 +6004,6 @@ SYSTEM CLEAR UNCOMPRESSED CACHE;
 
 SET local_filesystem_read_method = 'pread_threadpool';
 
-SET min_bytes_to_use_direct_io = 1;
+SET min_bytes_to_use_direct_io = '1';
 
-SET use_uncompressed_cache = 1;
+SET use_uncompressed_cache = '1';

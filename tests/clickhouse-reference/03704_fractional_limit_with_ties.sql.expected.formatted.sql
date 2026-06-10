@@ -4,7 +4,7 @@ CREATE TABLE `ties`
 (
     id UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `ties`;
@@ -48,43 +48,48 @@ SELECT id
 FROM `ties`
 ORDER BY id ASC;
 
-SET max_block_size = 2;
+SET max_block_size = '2';
 
 SELECT id
 FROM `ties`
 ORDER BY id ASC
-LIMIT 1, 0.1 WITH TIES;
+LIMIT 0.1 WITH TIES
+OFFSET 1;
 
 SELECT id
 FROM `ties`
 ORDER BY id ASC
-LIMIT 2, 0.1 WITH TIES;
+LIMIT 0.1 WITH TIES
+OFFSET 2;
 
 SELECT id
 FROM `ties`
 ORDER BY id ASC
-LIMIT 3, 0.1 WITH TIES;
+LIMIT 0.1 WITH TIES
+OFFSET 3;
 
 SELECT id
 FROM `ties`
 ORDER BY id ASC
-LIMIT 0.4, 0.1 WITH TIES;
+LIMIT 0.1 WITH TIES
+OFFSET 0.4;
 
 SELECT id
 FROM `ties`
 ORDER BY id ASC
-LIMIT 0.8, 0.1 WITH TIES;
+LIMIT 0.1 WITH TIES
+OFFSET 0.8;
 
-SET max_block_size = 3;
+SET max_block_size = '3';
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 SELECT number
 FROM numbers(50)
 ORDER BY number ASC
 LIMIT 0.3 WITH TIES;
 
-SET max_block_size = 5;
+SET max_block_size = '5';
 
 SELECT number
 FROM numbers(33)
@@ -96,7 +101,8 @@ FROM (
         SELECT number > 100 AS n
         FROM numbers(2000)
         ORDER BY n ASC
-        LIMIT 1, 0.01 WITH TIES
+        LIMIT 0.01 WITH TIES
+        OFFSET 1
     );
 
 SELECT count()

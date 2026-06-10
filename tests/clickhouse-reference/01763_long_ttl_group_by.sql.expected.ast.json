@@ -1,1009 +1,1238 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
       },
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "min_value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "value"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "max_value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "value"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "min_value",
-        "type": {
-          "name": "UInt32"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "max_value",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "toStartOfInterval",
-          "args": [
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "ts"
+              "type": "Identifier",
+              "name": "ts"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Function",
+              "name": "toStartOfInterval",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ts"
+                },
+                {
+                  "type": "Function",
+                  "name": "toIntervalMinute",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                }
               ]
             },
             {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
+              "type": "Identifier",
+              "name": "ts"
+            }
+          ]
+        },
+        "ttl_table": {
+          "type": "ExpressionList",
+          "children": [
+            {
+              "type": "TTLElement",
+              "mode": "GROUP_BY",
+              "ttl": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "ts"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "group_by_key": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Function",
+                  "name": "toStartOfInterval",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "ts"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "toIntervalMinute",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "group_by_assignments": [
+                {
+                  "type": "Assignment",
+                  "column": "value",
+                  "expression": {
+                    "type": "Function",
+                    "name": "sum",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "min_value",
+                  "expression": {
+                    "type": "Function",
+                    "name": "min",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "min_value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "max_value",
+                  "expression": {
+                    "type": "Function",
+                    "name": "max",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "max_value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "ts",
+                  "expression": {
+                    "type": "Function",
+                    "name": "min",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toStartOfInterval",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "ts"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "toIntervalMinute",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 }
               ]
             }
           ]
         }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
       }
-    ],
-    "ttl": [
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "ts"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalMinute",
-            "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "5"
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMinute",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMinute",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMinute",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "3"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMonth",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMonth",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMonth",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "3"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "min_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "max_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_ttl_group_by01763"
+                  }
+                }
               }
             ]
           }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                  "type": "Identifier",
+                  "name": "min_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "max_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
                 }
               ]
             }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_ttl_group_by01763"
+                  }
                 }
-              ]
-            }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMonth",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMonth",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_ttl_group_by01763"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMonth",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            }
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "min_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "max_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "min_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "max_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "min_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "max_value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "key"
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "3"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "ts"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "3"
+              }
             ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "today",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalDay",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "30"
-                }
-              ]
-            }
           }
         }
       ]
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "min_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "max_value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_ttl_group_by01763"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "ts"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "today",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalDay",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "30"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_ttl_group_by01763"
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_ttl_group_by01763"
+      }
     }
   }
 ]

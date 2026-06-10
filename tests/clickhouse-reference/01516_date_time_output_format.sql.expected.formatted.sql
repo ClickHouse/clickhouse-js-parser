@@ -4,7 +4,7 @@ CREATE TABLE test_datetime
 (
     timestamp DateTime('Asia/Istanbul')
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test_datetime;
 
@@ -34,6 +34,6 @@ CREATE TABLE test_datetime
 (
     timestamp DateTime64(3, 'Asia/Istanbul')
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test_datetime;

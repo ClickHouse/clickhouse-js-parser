@@ -1,7 +1,7 @@
 -- Tags: no-parallel-replicas
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_named_columns_in_function_tuple = 1;
+SET enable_named_columns_in_function_tuple = '1';
 
 DROP TABLE IF EXISTS src;
 
@@ -13,7 +13,7 @@ CREATE TABLE src
     type String,
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE dst
@@ -22,7 +22,7 @@ CREATE TABLE dst
     a Tuple(col_a Nullable(String), type String),
     b Tuple(col_b Nullable(String), type String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO src;
@@ -45,5 +45,5 @@ SELECT
     tuple(replaceAll(data, 'a', 'e') AS col_a, type) AS a,
     tuple(replaceAll(data, 'a', 'e') AS col_b, type) AS b
 FROM cluster(test_cluster_two_shards, currentDatabase(), src)
-SETTINGS prefer_localhost_replica = 0
+SETTINGS prefer_localhost_replica = '0'
 FORMAT JSONEachRow;

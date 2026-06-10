@@ -6,13 +6,13 @@ CREATE TABLE cte1
 (
     a Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE cte2
 (
     a Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO cte1 SELECT *
 FROM numbers(10000);

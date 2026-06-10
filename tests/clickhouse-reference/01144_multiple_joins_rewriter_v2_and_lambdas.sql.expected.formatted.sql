@@ -1,42 +1,42 @@
 SELECT
-    arrayMap((x, y) -> floor(((y - x)) / x, 3), l, r) AS diff_percent,
+    arrayMap(((x, y) -> floor((y - x) / x, 3)), l, r) AS diff_percent,
     test,
     query
 FROM
     (
         SELECT [1] AS l
-    ) AS s1
-CROSS JOIN (
+    ) AS s1,
+    (
         SELECT [2] AS r
-    ) AS s2
-CROSS JOIN (
+    ) AS s2,
+    (
         SELECT
             'test' AS test,
             'query' AS query
-    ) AS any_query
-CROSS JOIN (
+    ) AS any_query,
+    (
         SELECT 1
     ) AS check_single_query;
 
 SELECT
-    arrayMap(x -> floor(x, 4), original_medians_array.medians_by_version[1] AS l) AS l_rounded,
-    arrayMap(x -> floor(x, 4), original_medians_array.medians_by_version[2] AS r) AS r_rounded,
-    arrayMap((x, y) -> floor(((y - x)) / x, 3), l, r) AS diff_percent,
+    arrayMap((x -> floor(x, 4)), original_medians_array.medians_by_version[1] AS l) AS l_rounded,
+    arrayMap((x -> floor(x, 4)), original_medians_array.medians_by_version[2] AS r) AS r_rounded,
+    arrayMap(((x, y) -> floor((y - x) / x, 3)), l, r) AS diff_percent,
     test,
     query
 FROM
     (
         SELECT 1
-    ) AS rd
-CROSS JOIN (
-        SELECT [[1,2], [3,4]] AS medians_by_version
-    ) AS original_medians_array
-CROSS JOIN (
+    ) AS rd,
+    (
+        SELECT [[1, 2], [3, 4]] AS medians_by_version
+    ) AS original_medians_array,
+    (
         SELECT
             'test' AS test,
             'query' AS query
-    ) AS any_query
-CROSS JOIN (
+    ) AS any_query,
+    (
         SELECT 1 AS A
     ) AS check_single_query;
 
@@ -50,18 +50,18 @@ CREATE TABLE table
     metrics Array(UInt32),
     version UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
-    arrayMap(x -> floor(x, 4), original_medians_array.medians_by_version[1] AS l) AS l_rounded,
-    arrayMap(x -> floor(x, 4), original_medians_array.medians_by_version[2] AS r) AS r_rounded,
-    arrayMap((x, y) -> floor(((y - x)) / x, 3), l, r) AS diff_percent,
-    arrayMap((x, y) -> floor(x / y, 3), threshold, l) AS threshold_percent,
+    arrayMap((x -> floor(x, 4)), original_medians_array.medians_by_version[1] AS l) AS l_rounded,
+    arrayMap((x -> floor(x, 4)), original_medians_array.medians_by_version[2] AS r) AS r_rounded,
+    arrayMap(((x, y) -> floor((y - x) / x, 3)), l, r) AS diff_percent,
+    arrayMap(((x, y) -> floor(x / y, 3)), threshold, l) AS threshold_percent,
     test,
     query
 FROM
     (
-        SELECT quantileExactForEach(0.999)(arrayMap((x, y) -> abs(x - y), metrics_by_label[1], metrics_by_label[2]) AS d) AS threshold
+        SELECT quantileExactForEach(0.999)(arrayMap(((x, y) -> abs(x - y)), metrics_by_label[1], metrics_by_label[2]) AS d) AS threshold
         FROM (
                 SELECT
                     virtual_run,
@@ -86,8 +86,8 @@ FROM
                                                     run,
                                                     version
                                                 FROM table
-                                            ) AS no_query
-                                        CROSS JOIN numbers(1, 100000) AS nn
+                                            ) AS no_query,
+                                            numbers(1, 100000) AS nn
                                         ORDER BY
                                             virtual_run ASC,
                                             rand() ASC
@@ -99,8 +99,8 @@ FROM
                     ) AS virtual_medians
                 GROUP BY virtual_run
             ) AS virtual_medians_array
-    ) AS rd
-CROSS JOIN (
+    ) AS rd,
+    (
         SELECT groupArrayInsertAt(median_metrics, version) AS medians_by_version
         FROM (
                 SELECT
@@ -109,14 +109,14 @@ CROSS JOIN (
                 FROM table
                 GROUP BY version
             ) AS original_medians
-    ) AS original_medians_array
-CROSS JOIN (
+    ) AS original_medians_array,
+    (
         SELECT
             any(test) AS test,
             any(query) AS query
         FROM table
-    ) AS any_query
-CROSS JOIN (
+    ) AS any_query,
+    (
         SELECT throwIf(uniq((test, query)))
         FROM table
     ) AS check_single_query;

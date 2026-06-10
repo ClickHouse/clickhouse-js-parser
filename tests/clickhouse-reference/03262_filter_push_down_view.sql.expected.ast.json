@@ -1,358 +1,451 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "alpha"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- add_minmax_index_for_numeric_columns=0: Different plan"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "alpha__day"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha__day"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "session_timezone",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "Etc/UTC"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "session_timezone": "Etc/UTC"
       }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "alpha"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "6"
-            }
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha"
       },
-      {
-        "kind": "columnDef",
-        "name": "auid",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "auid"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "add_minmax_index_for_numeric_columns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "alpha__day"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts_date",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "auid",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ts_date"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "auid"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "toDate",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ts"
-                    ]
-                  }
-                ]
-              },
-              "alias": "ts_date"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "auid"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "6"
+                }
               ]
             }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "alpha"
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "auid",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
           }
-        }
+        ]
       },
-      "where": {
-        "kind": "binaryExpr",
-        "op": "<=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "ts_date"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "auid"
+            },
+            {
+              "type": "Identifier",
+              "name": "ts"
+            }
           ]
         },
-        "right": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "2024-01-01 00:00:00"
-              }
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalDay",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "1",
+            "add_minmax_index_for_numeric_columns": "0"
           }
         }
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
       "table": {
-        "kind": "tableRef",
-        "table": "alpha"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "alpha"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "alpha"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "trimLeft",
-        "args": [
+        "type": "Identifier",
+        "name": "alpha__day"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "explain"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "ts_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "auid",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "ts_date"
+              },
+              {
+                "type": "Identifier",
+                "name": "auid"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "ts_date",
+                                "name": "toDate",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ts"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "auid"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "alpha"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "where": {
+              "type": "Function",
+              "name": "lessOrEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ts_date"
+                },
+                {
+                  "type": "Function",
+                  "name": "minus",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "toDateTime",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "2024-01-01 00:00:00"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "toIntervalDay",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
-          {
-            "name": "indexes",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "query": {
-          "kind": "select",
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "alpha"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "auid"
+              "type": "Function",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
               ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "alpha__day"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "indexes = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "auid"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "alpha__day"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "auid"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "UInt64",
+                                                    "value": "1"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           },
           "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "auid"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%Condition:%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%Granules:%"
+                  }
+                ]
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_analyzer": "1"
             }
           }
         }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%Condition:%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%Granules:%"
-            }
-          ]
-        }
       ]
-    },
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   }
 ]

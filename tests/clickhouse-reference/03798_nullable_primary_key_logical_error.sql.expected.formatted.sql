@@ -5,10 +5,10 @@ CREATE TABLE t
     x FixedString(3),
     y Nullable(Int16)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY y
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t;
 
@@ -16,5 +16,5 @@ INSERT INTO t;
 
 INSERT INTO t;
 
-SELECT DISTINCT minDistinct(toDecimalString(isNotNull(77), isZeroOrNull(isNotNull(toNullable(1)))))
+SELECT DISTINCT minDistinct(toDecimalString(77 IS NOT NULL, isZeroOrNull(toNullable(1) IS NOT NULL))) IGNORE NULLS
 FROM t;

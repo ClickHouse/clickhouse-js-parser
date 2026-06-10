@@ -49,10 +49,10 @@ LEFT JOIN (
         WHERE inner_distributed.organization_id = 15078
     ) AS inner_distributed
     ON inner_distributed.outer_id = outer_distributed.id
-WHERE (outer_distributed.organization_id = 15078)
-    AND (date != toDate('1970-01-01'))
+WHERE outer_distributed.organization_id = 15078
+    AND date != toDate('1970-01-01')
 GROUP BY date
 ORDER BY date DESC
 SETTINGS
     distributed_product_mode = 'local',
-    optimize_skip_unused_shards = 1;
+    optimize_skip_unused_shards = '1';

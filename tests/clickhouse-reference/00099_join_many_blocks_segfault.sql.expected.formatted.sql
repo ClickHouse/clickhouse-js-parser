@@ -6,7 +6,7 @@ FROM
         SELECT 1 AS DomainID
         FROM `system`.one
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             1 AS DomainID,
             'abc' AS Domain

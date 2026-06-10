@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-DROP TABLE IF EXISTS t_async_insert_skip_settings;
+DROP TABLE IF EXISTS t_async_insert_skip_settings SYNC;
 
 CREATE TABLE t_async_insert_skip_settings
 (
@@ -8,16 +8,16 @@ CREATE TABLE t_async_insert_skip_settings
 ENGINE = ReplicatedMergeTree('/clickhouse/{database}/tables/t_async_insert_skip_settings', '1')
 ORDER BY id;
 
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
-SET wait_for_async_insert = 0;
+SET wait_for_async_insert = '0';
 
 -- Disable adaptive timeout to prevent immediate push of the first message (if the queue last push was old)
-SET async_insert_use_adaptive_busy_timeout = 0;
+SET async_insert_use_adaptive_busy_timeout = '0';
 
-SET async_insert_busy_timeout_max_ms = 1000000;
+SET async_insert_busy_timeout_max_ms = '1000000';
 
 SET insert_deduplication_token = '1';
 
@@ -60,4 +60,4 @@ FROM `system`.asynchronous_insert_log
 WHERE database = currentDatabase()
     AND table = 't_async_insert_skip_settings';
 
-DROP TABLE t_async_insert_skip_settings;
+DROP TABLE t_async_insert_skip_settings SYNC;

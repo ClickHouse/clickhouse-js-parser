@@ -1,308 +1,343 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_transform_or"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_transform_or"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "B",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "uniq"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "A",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "A"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_transform_or"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": ""
+        "type": "Identifier",
+        "name": "t_transform_or"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_transform_or"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "B",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "uniq"
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
             }
-          ]
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "A",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "A"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_transform_or"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "0"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "0"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "uniqMergeIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "B"
+                },
+                {
+                  "type": "Function",
+                  "name": "or",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "cluster",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "test_cluster_two_shards"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t_transform_or"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "legacy_column_name_of_tuple_literal": "0"
+            }
+          }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqMergeIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "B"
-            ]
-          },
-          {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "uniqMergeIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "B"
+                },
+                {
+                  "type": "Function",
+                  "name": "or",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "A"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "3"
+                        }
+                      ]
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "1"
-                },
-                "parenthesized": true
-              },
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2"
-                },
-                "parenthesized": true
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "3"
-                },
-                "parenthesized": true
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "cluster",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "test_cluster_two_shards"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t_transform_or"
+                      }
+                    ]
+                  }
+                }
               }
             ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "cluster",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_cluster_two_shards"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t_transform_or"
-          ]
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "legacy_column_name_of_tuple_literal",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqMergeIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "B"
-            ]
           },
-          {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "1"
-                },
-                "parenthesized": true
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2"
-                },
-                "parenthesized": true
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "A"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "3"
-                },
-                "parenthesized": true
-              }
-            ]
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "legacy_column_name_of_tuple_literal": "1"
+            }
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "cluster",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_cluster_two_shards"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t_transform_or"
-          ]
         }
       ]
-    },
-    "settings": [
-      {
-        "name": "legacy_column_name_of_tuple_literal",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_transform_or"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_transform_or"
+      }
     }
   }
 ]

@@ -1,12 +1,12 @@
-SET max_threads = 0;
+SET max_threads = '0';
 
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
-SET read_in_order_two_level_merge_threshold = 100;
+SET read_in_order_two_level_merge_threshold = '100';
 
-SET read_in_order_use_virtual_row = 1;
+SET read_in_order_use_virtual_row = '1';
 
 DROP TABLE IF EXISTS t_read_in_order;
 
@@ -16,9 +16,9 @@ CREATE TABLE t_read_in_order
     i UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (date, i)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_read_in_order SELECT
     '2020-10-10',
@@ -57,7 +57,7 @@ SELECT
 FROM t_read_in_order
 ORDER BY
     d DESC,
-    negate(i) ASC
+    -i ASC
 LIMIT 5;
 
 EXPLAIN PIPELINE
@@ -67,7 +67,7 @@ SELECT
 FROM t_read_in_order
 ORDER BY
     d DESC,
-    negate(i) ASC
+    -i ASC
 LIMIT 5;
 
 -- Here FinishSorting is used, because directions don't match.
@@ -77,7 +77,7 @@ SELECT
 FROM t_read_in_order
 ORDER BY
     d ASC,
-    negate(i) ASC
+    -i ASC
 LIMIT 5;
 
 EXPLAIN PIPELINE
@@ -87,7 +87,7 @@ SELECT
 FROM t_read_in_order
 ORDER BY
     d ASC,
-    negate(i) ASC
+    -i ASC
 LIMIT 5;
 
 SELECT
@@ -106,7 +106,7 @@ FROM t_read_in_order
 WHERE date = '2020-10-11'
 ORDER BY i ASC
 LIMIT 5
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN PIPELINE
 SELECT
@@ -116,7 +116,7 @@ FROM t_read_in_order
 WHERE date = '2020-10-11'
 ORDER BY i ASC
 LIMIT 5
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM t_read_in_order
@@ -134,7 +134,7 @@ ORDER BY
     i ASC,
     v ASC
 LIMIT 5
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN PIPELINE
 SELECT *
@@ -144,7 +144,7 @@ ORDER BY
     i ASC,
     v ASC
 LIMIT 5
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 INSERT INTO t_read_in_order SELECT
     '2020-10-12',
@@ -177,7 +177,7 @@ FROM t_read_in_order
 WHERE date = '2020-10-12'
 ORDER BY i DESC
 LIMIT 5
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN PIPELINE
 SELECT
@@ -187,7 +187,7 @@ FROM t_read_in_order
 WHERE date = '2020-10-12'
 ORDER BY i DESC
 LIMIT 5
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     date,
@@ -202,9 +202,9 @@ CREATE TABLE t_read_in_order
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 3, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '3', index_granularity_bytes = '10Mi';
 
 SYSTEM STOP MERGES t_read_in_order;
 
@@ -216,7 +216,7 @@ SELECT
 FROM t_read_in_order
 WHERE a = 1
 ORDER BY b ASC
-SETTINGS read_in_order_two_level_merge_threshold = 1;
+SETTINGS read_in_order_two_level_merge_threshold = '1';
 
 SELECT
     a,
@@ -224,7 +224,7 @@ SELECT
 FROM t_read_in_order
 WHERE a = 1
 ORDER BY b DESC
-SETTINGS read_in_order_two_level_merge_threshold = 1;
+SETTINGS read_in_order_two_level_merge_threshold = '1';
 
 DROP TABLE t_read_in_order;
 
@@ -234,13 +234,13 @@ CREATE TABLE t_read_in_order
     d Decimal64(5),
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (toStartOfDay(dt), d)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_read_in_order SELECT
     toDateTime('2020-10-10 00:00:00') + number,
-    1 / ((number % 100 + 1)),
+    1 / (number % 100 + 1),
     number
 FROM numbers(1000);
 

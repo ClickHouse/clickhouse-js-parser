@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS nested_map;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE nested_map
 (
@@ -46,7 +46,7 @@ CREATE TABLE nested_map_explicit
     SomeIntExcluded UInt32,
     SomeMap Nested(ID UInt32, Num Int64)
 )
-ENGINE = SummingMergeTree(d, k, 8192, (SomeMap));
+ENGINE = SummingMergeTree(d, k, 8192, SomeMap);
 
 INSERT INTO nested_map_explicit (k, SomeIntExcluded, `SomeMap.ID`, `SomeMap.Num`);
 

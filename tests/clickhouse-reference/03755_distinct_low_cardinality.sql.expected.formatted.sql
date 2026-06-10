@@ -7,7 +7,7 @@ CREATE TABLE distinct_lc_basic
     s String,
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_basic SELECT
@@ -52,7 +52,7 @@ CREATE TABLE distinct_lc_low_cardinality
     s String,
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_low_cardinality SELECT
@@ -97,7 +97,7 @@ CREATE TABLE distinct_lc_nullable
     s Nullable(String),
     lc LowCardinality(Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_nullable SELECT
@@ -171,14 +171,14 @@ SELECT (
         FROM (
                 SELECT DISTINCT lc
                 FROM distinct_lc_basic
-                SETTINGS max_block_size = 128
+                SETTINGS max_block_size = '128'
             )
     ) - (
         SELECT count()
         FROM (
                 SELECT DISTINCT lc
                 FROM distinct_lc_basic
-                SETTINGS max_block_size = 8192
+                SETTINGS max_block_size = '8192'
             )
     );
 
@@ -187,14 +187,14 @@ SELECT (
         FROM (
                 SELECT DISTINCT s
                 FROM distinct_lc_basic
-                SETTINGS max_block_size = 128
+                SETTINGS max_block_size = '128'
             )
     ) - (
         SELECT count()
         FROM (
                 SELECT DISTINCT s
                 FROM distinct_lc_basic
-                SETTINGS max_block_size = 8192
+                SETTINGS max_block_size = '8192'
             )
     );
 
@@ -234,7 +234,7 @@ CREATE TABLE distinct_lc_mixed
     k1 LowCardinality(String),
     k2 UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_mixed SELECT
@@ -275,7 +275,7 @@ CREATE TABLE distinct_lc_all_same
     s String,
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_all_same SELECT
@@ -320,7 +320,7 @@ CREATE TABLE distinct_lc_sparse_nulls
     s Nullable(String),
     lc LowCardinality(Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO distinct_lc_sparse_nulls SELECT

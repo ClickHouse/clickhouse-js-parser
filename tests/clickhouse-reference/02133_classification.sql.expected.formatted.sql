@@ -1,6 +1,6 @@
 -- Tags: no-fasttest
 -- Tag no-fasttest: depends on cld2 and nlp-data
-SET allow_experimental_nlp_functions = 1;
+SET allow_experimental_nlp_functions = '1';
 
 SELECT detectLanguage('Они сошлись. Волна и камень, Стихи и проза, лед и пламень, Не столь различны меж собой.');
 

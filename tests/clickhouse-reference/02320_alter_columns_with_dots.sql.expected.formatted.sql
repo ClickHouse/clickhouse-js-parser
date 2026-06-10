@@ -7,7 +7,7 @@ CREATE TABLE test
     `abc.2` String,
     abc String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 DESCRIBE TABLE test;

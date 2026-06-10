@@ -12,7 +12,7 @@ CREATE TABLE defaulted
 (
     v6 FixedString(16)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO defaulted SELECT toFixedString('::0', 16)

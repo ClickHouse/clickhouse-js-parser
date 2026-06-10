@@ -11,7 +11,7 @@ CREATE TABLE test_table
     data_column_1 UInt64,
     data_column_2 UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key_column;
 
 CREATE DICTIONARY test_dictionary
@@ -29,7 +29,7 @@ CREATE TABLE test_table_default
     data_1 DEFAULT dictGetUInt64('db_02097.test_dictionary', 'data_column_1', toUInt64(0)),
     data_2 DEFAULT dictGet(db_02097.test_dictionary, 'data_column_2', toUInt64(0))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 SELECT create_table_query
 FROM `system`.tables

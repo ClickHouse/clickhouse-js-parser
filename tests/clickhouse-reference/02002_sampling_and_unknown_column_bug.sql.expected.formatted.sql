@@ -4,7 +4,7 @@ CREATE TABLE sessions
 (
     user_id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY user_id
 SAMPLE BY user_id;
 

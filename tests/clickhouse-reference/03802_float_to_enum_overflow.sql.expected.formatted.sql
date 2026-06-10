@@ -14,28 +14,28 @@ SELECT CAST(1e38 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TY
 
 SELECT CAST(-1e38 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT CAST(1000.0 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(1000. AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT CAST(-1000.0 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(-1000. AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
 -- Test values just outside the range
-SELECT CAST(32768.0 AS Enum16('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(32768. AS Enum16('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT CAST(-32769.0 AS Enum16('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(-32769. AS Enum16('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT CAST(128.0 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(128. AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT CAST(-129.0 AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT CAST(-129. AS Enum8('a' = 1, 'b' = 2)); -- { serverError CANNOT_CONVERT_TYPE }
 
 -- Test valid conversions still work (value in range but not in enum - different error)
-SELECT CAST(3.0 AS Enum8('a' = 1, 'b' = 2)); -- { serverError UNKNOWN_ELEMENT_OF_ENUM }
+SELECT CAST(3. AS Enum8('a' = 1, 'b' = 2)); -- { serverError UNKNOWN_ELEMENT_OF_ENUM }
 
-SELECT CAST(3.0 AS Enum16('a' = 1, 'b' = 2)); -- { serverError UNKNOWN_ELEMENT_OF_ENUM }
+SELECT CAST(3. AS Enum16('a' = 1, 'b' = 2)); -- { serverError UNKNOWN_ELEMENT_OF_ENUM }
 
 -- Test valid conversions that should succeed
-SELECT CAST(1.0 AS Enum8('a' = 1, 'b' = 2));
+SELECT CAST(1. AS Enum8('a' = 1, 'b' = 2));
 
-SELECT CAST(2.0 AS Enum16('a' = 1, 'b' = 2));
+SELECT CAST(2. AS Enum16('a' = 1, 'b' = 2));
 
 SELECT CAST(toFloat64(1) AS Enum8('a' = 1, 'b' = 2));
 

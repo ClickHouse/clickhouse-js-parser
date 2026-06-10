@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS trepl;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE trepl
 (
@@ -8,7 +8,7 @@ CREATE TABLE trepl
     a Int32,
     b Int32
 )
-ENGINE = ReplacingMergeTree(d, (a,b), 8192);
+ENGINE = ReplacingMergeTree(d, (a, b), 8192);
 
 INSERT INTO trepl;
 

@@ -19,7 +19,7 @@ INSERT INTO database_for_dict.table_for_dict SELECT
     number,
     number % 17,
     toString(number * number),
-    number / 2.0
+    number / 2.
 FROM numbers(100);
 
 CREATE DICTIONARY database_for_dict.dict1
@@ -27,7 +27,7 @@ CREATE DICTIONARY database_for_dict.dict1
     key_column UInt64 DEFAULT 0,
     second_column UInt8 DEFAULT 1,
     third_column String DEFAULT 'qqq',
-    fourth_column Float64 DEFAULT 42.0
+    fourth_column Float64 DEFAULT 42.
 )
 PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_for_dict' DB 'database_for_dict'))
@@ -42,7 +42,7 @@ CREATE DICTIONARY database_for_dict.dict2
     key_column UInt64 DEFAULT 0,
     second_column UInt8 DEFAULT 1,
     third_column String DEFAULT 'qqq',
-    fourth_column Float64 DEFAULT 42.0
+    fourth_column Float64 DEFAULT 42.
 )
 PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'dict1' DB 'database_for_dict'))
@@ -56,7 +56,7 @@ INSERT INTO database_for_dict.table_for_dict SELECT
     number,
     number % 17,
     toString(number * number),
-    number / 2.0
+    number / 2.
 FROM numbers(100, 100);
 
 SYSTEM RELOAD DICTIONARIES;
@@ -66,7 +66,7 @@ CREATE DICTIONARY database_for_dict.dict3
     key_column UInt64 DEFAULT 0,
     second_column UInt8 DEFAULT 1,
     third_column String DEFAULT 'qqq',
-    fourth_column Float64 DEFAULT 42.0
+    fourth_column Float64 DEFAULT 42.
 )
 PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'dict2' DB 'database_for_dict'))
@@ -80,7 +80,7 @@ INSERT INTO database_for_dict.table_for_dict SELECT
     number,
     number % 17,
     toString(number * number),
-    number / 2.0
+    number / 2.
 FROM numbers(200, 100);
 
 CREATE DICTIONARY database_for_dict.dict4
@@ -88,7 +88,7 @@ CREATE DICTIONARY database_for_dict.dict4
     key_column UInt64 DEFAULT 0,
     second_column UInt8 DEFAULT 1,
     third_column String DEFAULT 'qqq',
-    fourth_column Float64 DEFAULT 42.0
+    fourth_column Float64 DEFAULT 42.
 )
 PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'non_existing_table' DB 'database_for_dict'))

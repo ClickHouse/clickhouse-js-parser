@@ -9,7 +9,7 @@ CREATE TABLE hilbert_numbers_03131
 )
 ENGINE = MergeTree()
 ORDER BY n1
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SELECT hilbertEncode(133);
 
@@ -33,7 +33,7 @@ CREATE TABLE hilbert_numbers_1_03131
 )
 ENGINE = MergeTree()
 ORDER BY n1
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO hilbert_numbers_1_03131 SELECT untuple(hilbertDecode(2, hilbertEncode(n1, n2)))
 FROM hilbert_numbers_03131;

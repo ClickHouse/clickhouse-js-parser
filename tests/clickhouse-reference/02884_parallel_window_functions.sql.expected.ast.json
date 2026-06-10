@@ -1,1283 +1,1119 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "window_function_threading"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toUInt64",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toFloat32",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "2"
-                      }
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "20000000"
-                }
-              }
-            ]
-          },
-          "alias": "ac"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "window_function_threading"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toFloat32",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          },
-          "alias": "wg"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toUInt16",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toFloat32",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "3"
-                      }
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "400"
-                }
-              }
-            ]
-          },
-          "alias": "nw"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers_mt",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000000"
-          }
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ac"
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "ac"
+            },
+            {
+              "type": "Identifier",
+              "name": "nw"
+            }
           ]
         }
       },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: long, no-tsan, no-asan, no-ubsan, no-msan, no-debug"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "explainType": "PIPELINE",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "nw"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "ac",
+                "name": "toUInt64",
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "WR"
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toFloat32",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "modulo",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "20000000"
+                      }
                     ]
                   }
                 ]
               },
-              "alias": "R"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sumIf",
-                "args": [
+              {
+                "type": "Function",
+                "alias": "wg",
+                "name": "toFloat32",
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "WR"
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "nw",
+                "name": "toUInt16",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toFloat32",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "modulo",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "400"
+                      }
                     ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "uniq_rows"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers_mt",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000000"
+                        }
                       ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
                     }
                   }
-                ]
-              },
-              "alias": "UNR"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
           ],
           "from": {
-            "kind": "subqueryFrom",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "uniq",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "nw"
-                        ]
-                      }
-                    ],
-                    "window": {
-                      "partitionBy": [
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "ac"
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN PIPELINE"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "nw"
+                                                },
+                                                {
+                                                  "type": "Function",
+                                                  "alias": "R",
+                                                  "name": "sum",
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "WR"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Function",
+                                                  "alias": "UNR",
+                                                  "name": "sumIf",
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "WR"
+                                                    },
+                                                    {
+                                                      "type": "Function",
+                                                      "name": "equals",
+                                                      "is_operator": true,
+                                                      "arguments": [
+                                                        {
+                                                          "type": "Identifier",
+                                                          "name": "uniq_rows"
+                                                        },
+                                                        {
+                                                          "type": "Literal",
+                                                          "value_type": "UInt64",
+                                                          "value": "1"
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "subquery": {
+                                                        "type": "Subquery",
+                                                        "query": {
+                                                          "type": "SelectWithUnionQuery",
+                                                          "selects": [
+                                                            {
+                                                              "type": "SelectQuery",
+                                                              "select": [
+                                                                {
+                                                                  "type": "Function",
+                                                                  "alias": "uniq_rows",
+                                                                  "name": "uniq",
+                                                                  "is_window_function": true,
+                                                                  "kind": "WINDOW_FUNCTION",
+                                                                  "arguments": [
+                                                                    {
+                                                                      "type": "Identifier",
+                                                                      "name": "nw"
+                                                                    }
+                                                                  ],
+                                                                  "window_definition": {
+                                                                    "type": "WindowDefinition",
+                                                                    "partition_by": [
+                                                                      {
+                                                                        "type": "Identifier",
+                                                                        "name": "ac"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "type": "Function",
+                                                                  "alias": "WR",
+                                                                  "name": "AVG",
+                                                                  "arguments": [
+                                                                    {
+                                                                      "type": "Identifier",
+                                                                      "name": "wg"
+                                                                    }
+                                                                  ]
+                                                                },
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "ac"
+                                                                },
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "nw"
+                                                                }
+                                                              ],
+                                                              "from": {
+                                                                "type": "TablesInSelectQuery",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "TablesInSelectQueryElement",
+                                                                    "table_expression": {
+                                                                      "type": "TableExpression",
+                                                                      "database_and_table_name": {
+                                                                        "type": "TableIdentifier",
+                                                                        "name": "window_function_threading"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              },
+                                                              "group_by": [
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "ac"
+                                                                },
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "nw"
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "group_by": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "nw"
+                                                }
+                                              ],
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "nw"
+                                                  },
+                                                  "direction": "ASC"
+                                                },
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "R"
+                                                  },
+                                                  "direction": "DESC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%ScatterByPartitionTransform%"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "4"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "<AST Error>",
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "nw"
+            },
+            {
+              "type": "Function",
+              "alias": "R",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "WR"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "UNR",
+              "name": "sumIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "WR"
+                },
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "uniq_rows"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "uniq_rows",
+                              "name": "uniq",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "nw"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "WR",
+                              "name": "AVG",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "wg"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "window_function_threading"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
                           ]
                         }
                       ]
                     }
-                  },
-                  "alias": "uniq_rows"
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "AVG",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "wg"
-                        ]
-                      }
-                    ]
-                  },
-                  "alias": "WR"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "window_function_threading"
-              },
-              "groupBy": {
-                "kind": "expressions",
-                "items": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ac"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "nw"
-                    ]
                   }
-                ]
-              }
-            }
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
+                }
               }
             ]
           },
-          "orderBy": [
+          "group_by": [
             {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
+              "type": "Identifier",
+              "name": "nw"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "nw"
               },
               "direction": "ASC"
             },
             {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "R"
-                ]
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "R"
               },
               "direction": "DESC"
             }
           ],
           "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "1"
             }
           }
         }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%ScatterByPartitionTransform%"
-        }
       ]
-    },
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "nw"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            }
-          ]
-        },
-        "alias": "R"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumIf",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "uniq_rows"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            }
-          ]
-        },
-        "alias": "UNR"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "40000000"
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniq",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ],
-              "window": {
-                "partitionBy": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ac"
-                    ]
-                  }
-                ]
-              }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "nw"
             },
-            "alias": "uniq_rows"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "AVG",
-              "args": [
+            {
+              "type": "Function",
+              "alias": "R",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "wg"
-                  ]
+                  "type": "Identifier",
+                  "name": "WR"
                 }
               ]
             },
-            "alias": "WR"
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ac"
+            {
+              "type": "Function",
+              "alias": "UNR",
+              "name": "sumIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "WR"
+                },
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "uniq_rows"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "uniq_rows",
+                              "name": "uniq",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "nw"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "WR",
+                              "name": "AVG",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "wg"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "window_function_threading"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "modulo",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "4"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "0"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "uniq_rows",
+                              "name": "uniq",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "nw"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "WR",
+                              "name": "AVG",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "wg"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "window_function_threading"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "modulo",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "4"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "1"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "uniq_rows",
+                              "name": "uniq",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "nw"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "WR",
+                              "name": "AVG",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "wg"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "window_function_threading"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "modulo",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "4"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "uniq_rows",
+                              "name": "uniq",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "nw"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "WR",
+                              "name": "AVG",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "wg"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "window_function_threading"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "modulo",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "ac"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "4"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "ac"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "nw"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "nw"
-            ]
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "nw"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "nw"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "R"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
           }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "window_function_threading"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "ac"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "nw"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "R"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "leadingComments": [
-      "-- { echoOn }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "nw"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            }
-          ]
-        },
-        "alias": "R"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumIf",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "uniq_rows"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            }
-          ]
-        },
-        "alias": "UNR"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniq",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ],
-              "window": {
-                "partitionBy": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ac"
-                    ]
-                  }
-                ]
-              }
-            },
-            "alias": "uniq_rows"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "AVG",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "wg"
-                  ]
-                }
-              ]
-            },
-            "alias": "WR"
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ac"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "nw"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "window_function_threading"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "ac"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "nw"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "R"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "40000000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "nw"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            }
-          ]
-        },
-        "alias": "R"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumIf",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "WR"
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "uniq_rows"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            }
-          ]
-        },
-        "alias": "UNR"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "union",
-        "queries": [
-          {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "uniq",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "nw"
-                      ]
-                    }
-                  ],
-                  "window": {
-                    "partitionBy": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "ac"
-                        ]
-                      }
-                    ]
-                  }
-                },
-                "alias": "uniq_rows"
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "AVG",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "wg"
-                      ]
-                    }
-                  ]
-                },
-                "alias": "WR"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ac"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "window_function_threading"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                },
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            "groupBy": {
-              "kind": "expressions",
-              "items": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ]
-            }
-          },
-          {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "uniq",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "nw"
-                      ]
-                    }
-                  ],
-                  "window": {
-                    "partitionBy": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "ac"
-                        ]
-                      }
-                    ]
-                  }
-                },
-                "alias": "uniq_rows"
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "AVG",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "wg"
-                      ]
-                    }
-                  ]
-                },
-                "alias": "WR"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ac"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "window_function_threading"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                },
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            },
-            "groupBy": {
-              "kind": "expressions",
-              "items": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ]
-            }
-          },
-          {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "uniq",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "nw"
-                      ]
-                    }
-                  ],
-                  "window": {
-                    "partitionBy": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "ac"
-                        ]
-                      }
-                    ]
-                  }
-                },
-                "alias": "uniq_rows"
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "AVG",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "wg"
-                      ]
-                    }
-                  ]
-                },
-                "alias": "WR"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ac"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "window_function_threading"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                },
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
-            },
-            "groupBy": {
-              "kind": "expressions",
-              "items": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ]
-            }
-          },
-          {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "uniq",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "nw"
-                      ]
-                    }
-                  ],
-                  "window": {
-                    "partitionBy": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "ac"
-                        ]
-                      }
-                    ]
-                  }
-                },
-                "alias": "uniq_rows"
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "AVG",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "wg"
-                      ]
-                    }
-                  ]
-                },
-                "alias": "WR"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ac"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "nw"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "window_function_threading"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                },
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            },
-            "groupBy": {
-              "kind": "expressions",
-              "items": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ac"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "nw"
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "nw"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "R"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
     }
   }
 ]

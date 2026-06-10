@@ -1,5 +1,5 @@
 -- Test that text index direct read optimization works correctly with nullable needles.
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -7,9 +7,9 @@ CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 1
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO tab;

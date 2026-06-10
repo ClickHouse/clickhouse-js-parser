@@ -9,7 +9,7 @@ CREATE TABLE null_in_subquery
 ENGINE = MergeTree()
 ORDER BY idx
 PARTITION BY dt
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO null_in_subquery SELECT
     number % 3,
@@ -18,9 +18,9 @@ INSERT INTO null_in_subquery SELECT
 FROM `system`.numbers
 LIMIT 99999;
 
-SET transform_null_in = 1;
+SET transform_null_in = '1';
 
-SELECT count() == 33333
+SELECT count() = 33333
 FROM null_in_subquery
 WHERE i IN (
         SELECT i
@@ -28,7 +28,7 @@ WHERE i IN (
         WHERE dt = 0
     );
 
-SELECT count() == 66666
+SELECT count() = 66666
 FROM null_in_subquery
 WHERE i NOT IN (
         SELECT i
@@ -36,7 +36,7 @@ WHERE i NOT IN (
         WHERE dt = 1
     );
 
-SELECT count() == 33333
+SELECT count() = 33333
 FROM null_in_subquery
 WHERE i GLOBAL IN (
         SELECT i
@@ -44,7 +44,7 @@ WHERE i GLOBAL IN (
         WHERE dt = 2
     );
 
-SELECT count() == 66666
+SELECT count() = 66666
 FROM null_in_subquery
 WHERE i GLOBAL NOT IN (
         SELECT i
@@ -53,7 +53,7 @@ WHERE i GLOBAL NOT IN (
     );
 
 -- For index column
-SELECT count() == 33333
+SELECT count() = 33333
 FROM null_in_subquery
 WHERE idx IN (
         SELECT idx
@@ -61,7 +61,7 @@ WHERE idx IN (
         WHERE dt = 0
     );
 
-SELECT count() == 66666
+SELECT count() = 66666
 FROM null_in_subquery
 WHERE idx NOT IN (
         SELECT idx
@@ -69,7 +69,7 @@ WHERE idx NOT IN (
         WHERE dt = 1
     );
 
-SELECT count() == 33333
+SELECT count() = 33333
 FROM null_in_subquery
 WHERE idx GLOBAL IN (
         SELECT idx
@@ -77,7 +77,7 @@ WHERE idx GLOBAL IN (
         WHERE dt = 2
     );
 
-SELECT count() == 66666
+SELECT count() = 66666
 FROM null_in_subquery
 WHERE idx GLOBAL NOT IN (
         SELECT idx
@@ -89,7 +89,7 @@ INSERT INTO null_in_subquery;
 
 INSERT INTO null_in_subquery;
 
-SELECT count() == 33335
+SELECT count() = 33335
 FROM null_in_subquery
 WHERE i IN (
         SELECT i
@@ -97,7 +97,7 @@ WHERE i IN (
         WHERE dt = 0
     );
 
-SELECT count() == 33333
+SELECT count() = 33333
 FROM null_in_subquery
 WHERE i IN (
         SELECT i
@@ -105,7 +105,7 @@ WHERE i IN (
         WHERE dt = 2
     );
 
-SELECT count() == 66668
+SELECT count() = 66668
 FROM null_in_subquery
 WHERE i NOT IN (
         SELECT i
@@ -113,7 +113,7 @@ WHERE i NOT IN (
         WHERE dt = 2
     );
 
-SELECT count() == 33335
+SELECT count() = 33335
 FROM null_in_subquery
 WHERE i GLOBAL IN (
         SELECT i
@@ -121,7 +121,7 @@ WHERE i GLOBAL IN (
         WHERE dt = 0
     );
 
-SELECT count() == 66666
+SELECT count() = 66666
 FROM null_in_subquery
 WHERE i GLOBAL NOT IN (
         SELECT i
@@ -129,7 +129,7 @@ WHERE i GLOBAL NOT IN (
         WHERE dt = 1
     );
 
-SELECT count() == 66668
+SELECT count() = 66668
 FROM null_in_subquery
 WHERE i GLOBAL NOT IN (
         SELECT i
@@ -148,80 +148,80 @@ CREATE TABLE null_in_tuple
 ENGINE = MergeTree()
 ORDER BY idx
 PARTITION BY dt
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO null_in_tuple;
 
-SET transform_null_in = 0;
+SET transform_null_in = '0';
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1')]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1')]
 FROM null_in_tuple
 WHERE t GLOBAL IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t GLOBAL NOT IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3')]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t GLOBAL IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3')]
 FROM null_in_tuple
 WHERE t GLOBAL NOT IN ((1, '1'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1')]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (1, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1')]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (NULL, '1'));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1'), (2, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1'), (2, NULL)]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (NULL, '1'), (2, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1'), (NULL, '3')]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1'), (NULL, '3')]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (1, NULL), (NULL, '3'));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(1, '1'), (2, NULL), (NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(1, '1'), (2, NULL), (NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t IN ((1, '1'), (1, NULL), (2, NULL), (NULL, '3'), (NULL, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (1, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (NULL, '1'));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(NULL, '3'), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(NULL, '3'), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (NULL, '1'), (2, NULL));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == [(2, NULL), (NULL, NULL)]
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = [(2, NULL), (NULL, NULL)]
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (1, NULL), (NULL, '3'));
 
-SELECT arraySort(x -> (x.1, x.2), groupArray(t)) == []
+SELECT arraySort((x -> ((x).1, (x).2)), groupArray(t)) = []
 FROM null_in_tuple
 WHERE t NOT IN ((1, '1'), (1, NULL), (2, NULL), (NULL, '3'), (NULL, NULL));

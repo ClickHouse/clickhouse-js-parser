@@ -10,15 +10,15 @@ CREATE TABLE t0
     v0 Nullable(String)
 )
 ENGINE = MergeTree()
-ORDER BY (k0);
+ORDER BY k0;
 
 CREATE TABLE t1
 (
     k0 String,
     v00 AggregateFunction(groupArrayLast(1), Nullable(String))
 )
-ENGINE = MergeTree
-ORDER BY (k0);
+ENGINE = MergeTree()
+ORDER BY k0;
 
 CREATE MATERIALIZED VIEW mv0
 TO t1
@@ -55,7 +55,7 @@ CREATE TABLE t_memory
     k Int,
     v AggregateFunction(groupArrayLast(1), Nullable(String))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_memory SELECT
     1,

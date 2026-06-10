@@ -1,172 +1,219 @@
 [
   {
-    "kind": "createDatabase",
-    "name": "rdb1",
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/test_replication_lag_metric"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica1"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "rdb1"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/test_replication_lag_metric"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica1"
+            }
+          ]
         }
-      ]
-    },
-    "leadingComments": [
-      "-- Tags: no-parallel"
-    ]
+      }
+    }
   },
   {
-    "kind": "createDatabase",
-    "name": "rdb2",
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/test_replication_lag_metric"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "rdb2"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/test_replication_lag_metric"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_ddl_task_timeout": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "rdb1"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica2"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "replication_lag"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "clusters",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "cluster"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Tuple",
+                "value": [
+                  {
+                    "value_type": "String",
+                    "value": "rdb1"
+                  },
+                  {
+                    "value_type": "String",
+                    "value": "rdb2"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "cluster"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "replica_num"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_ddl_task_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "rdb1"
       }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "rdb1",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "replication_lag"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "clusters"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "cluster"
-        ]
-      },
-      "values": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "rdb1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "rdb2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "cluster"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "replica_num"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rdb1"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rdb2"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "rdb2"
+      }
     }
   }
 ]

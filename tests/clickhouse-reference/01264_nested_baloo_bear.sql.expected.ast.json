@@ -1,182 +1,238 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "LOG_T"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "LOG_T"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "LOG_T"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "fingerprint",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "LOG_T"
       },
-      {
-        "kind": "columnDef",
-        "name": "fields",
-        "type": {
-          "name": "Nested",
-          "args": [
-            {
-              "kind": "namedField",
-              "name": "name",
-              "type": {
-                "name": "LowCardinality",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "namedField",
-              "name": "value",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "fingerprint"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "fields",
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "fields",
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "fields",
-              "name"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "fingerprint",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           },
           {
-            "kind": "columnRef",
-            "parts": [
-              "fields",
-              "value"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "LOG_T"
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "has",
-      "args": [
-        {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "node"
-            }
-          ],
-          "source": "['node']"
-        },
-        {
-          "kind": "functionCall",
-          "name": "arrayElement",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "fields",
-                "value"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "indexOf",
-              "args": [
+            "type": "ColumnDeclaration",
+            "name": "fields",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nested",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "fields",
-                    "name"
-                  ]
+                  "type": "NameTypePair",
+                  "name": "name",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "LowCardinality",
+                    "arguments": [
+                      {
+                        "type": "DataType",
+                        "name": "String"
+                      }
+                    ]
+                  }
                 },
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "ProcessName"
+                  "type": "NameTypePair",
+                  "name": "value",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "String"
+                  }
                 }
               ]
             }
-          ]
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "fingerprint"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "fields.name",
+              "name_parts": [
+                "fields",
+                "name"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "fields.value",
+              "name_parts": [
+                "fields",
+                "value"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "fields.name",
+                              "name_parts": [
+                                "fields",
+                                "name"
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "fields.value",
+                              "name_parts": [
+                                "fields",
+                                "value"
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "LOG_T"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "has",
+            "arguments": [
+              {
+                "type": "Literal",
+                "value_type": "Array",
+                "value": [
+                  {
+                    "value_type": "String",
+                    "value": "node"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "arrayElement",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "fields.value",
+                    "name_parts": [
+                      "fields",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "indexOf",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "fields.name",
+                        "name_parts": [
+                          "fields",
+                          "name"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "ProcessName"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "LOG_T"
-      }
+        "type": "Identifier",
+        "name": "LOG_T"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "LOG_T"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "LOG_T"
+      }
     }
   }
 ]

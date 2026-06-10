@@ -5,7 +5,7 @@ CREATE TABLE dt_overflow
     d Date,
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
 PARTITION BY d;
 

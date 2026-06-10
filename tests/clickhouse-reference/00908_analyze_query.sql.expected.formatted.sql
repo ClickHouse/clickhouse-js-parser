@@ -5,7 +5,7 @@ CREATE TABLE a
     a UInt8,
     b UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 EXPLAIN SYNTAX

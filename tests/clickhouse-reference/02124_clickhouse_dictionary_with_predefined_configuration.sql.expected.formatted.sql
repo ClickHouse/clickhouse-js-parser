@@ -7,7 +7,7 @@ CREATE TABLE s
     id UInt64,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO s;
 

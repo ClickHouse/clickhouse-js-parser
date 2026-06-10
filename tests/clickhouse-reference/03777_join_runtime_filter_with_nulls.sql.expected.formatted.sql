@@ -1,20 +1,20 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET join_algorithm = 'hash,parallel_hash';
 
 SET query_plan_optimize_join_order_algorithm = 'greedy';
 
-SET query_plan_optimize_join_order_limit = 1;
+SET query_plan_optimize_join_order_limit = '1';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
-SET allow_dynamic_type_in_join_keys = 1;
+SET allow_dynamic_type_in_join_keys = '1';
 
 CREATE TABLE t0
 (
@@ -29,14 +29,14 @@ CREATE TABLE t1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t0 (c0);
 
 INSERT INTO t1 (c0);
 
 -- Check result without runtime filters
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 SELECT
     id,
@@ -59,7 +59,7 @@ INNER JOIN t1
     USING (c0);
 
 -- And with runtime filters
-SET enable_join_runtime_filters = 1;
+SET enable_join_runtime_filters = '1';
 
 SELECT
     id,
@@ -118,7 +118,7 @@ INNER JOIN (
     USING (id);
 
 -- Check result when exact values limit is exceeded
-SET join_runtime_filter_exact_values_limit = 5;
+SET join_runtime_filter_exact_values_limit = '5';
 
 CREATE TABLE t2
 (

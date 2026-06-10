@@ -50,8 +50,9 @@ function hasClientError(statement: string): boolean {
 
 /** Returns true if the statement uses a disallowed setting. */
 function hasDisallowedSetting(statement: string): boolean {
-  return /implicit_transaction/.test(statement) ||
-    /output_format_tsv_crlf_end_of_line/.test(statement);
+  return (
+    /implicit_transaction/.test(statement) || /output_format_tsv_crlf_end_of_line/.test(statement)
+  );
 }
 
 /** Returns true if the statement uses a disallowed setting. */
@@ -66,12 +67,44 @@ function hasKql(statement: string): boolean {
  * accepts structurally.
  */
 const SQL_LEADING_KEYWORDS = new Set([
-  'SELECT', 'WITH', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'REPLACE',
-  'DROP', 'TRUNCATE', 'ALTER', 'ATTACH', 'DETACH', 'SET', 'USE', 'SYSTEM',
-  'EXPLAIN', 'OPTIMIZE', 'DESCRIBE', 'DESC', 'SHOW', 'GRANT', 'REVOKE',
-  'KILL', 'RENAME', 'EXCHANGE', 'CHECK', 'EXISTS', 'BACKUP', 'RESTORE',
-  'UNDROP', 'BEGIN', 'COMMIT', 'ROLLBACK', 'WATCH', 'UNDO', 'MOVE',
-  'EXECUTE', 'FROM',
+  'SELECT',
+  'WITH',
+  'INSERT',
+  'UPDATE',
+  'DELETE',
+  'CREATE',
+  'REPLACE',
+  'DROP',
+  'TRUNCATE',
+  'ALTER',
+  'ATTACH',
+  'DETACH',
+  'SET',
+  'USE',
+  'SYSTEM',
+  'EXPLAIN',
+  'OPTIMIZE',
+  'DESCRIBE',
+  'DESC',
+  'SHOW',
+  'GRANT',
+  'REVOKE',
+  'KILL',
+  'RENAME',
+  'EXCHANGE',
+  'CHECK',
+  'EXISTS',
+  'BACKUP',
+  'RESTORE',
+  'UNDROP',
+  'BEGIN',
+  'COMMIT',
+  'ROLLBACK',
+  'WATCH',
+  'UNDO',
+  'MOVE',
+  'EXECUTE',
+  'FROM',
 ]);
 
 /**
@@ -143,8 +176,8 @@ const blocklist: string[] = [
   // pre-generated expected outputs.
   '03227_implicit_select.sql',
   '03408_implicit_table.sql',
-  // Difficult to split
-  // '03011_definitive_guide_to_cast.sql',
+  // Inconsistencies between versions and explain/json AST
+  '03168_inconsistent_ast_formatting.sql',
 ];
 
 // Step 2: Remove blocklisted files

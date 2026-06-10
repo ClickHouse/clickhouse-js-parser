@@ -11,7 +11,7 @@ CREATE TABLE t_sparse
     arr1 Array(String),
     arr2 Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.1;
 
@@ -19,7 +19,7 @@ INSERT INTO t_sparse SELECT
     number,
     if(number % 10 = 0, number, 0),
     if(number % 5 = 0, toString(number), ''),
-    if(number % 7 = 0, arrayMap(x -> toString(x), range(number % 10)), []),
+    if(number % 7 = 0, arrayMap((x -> toString(x)), range(number % 10)), []),
     if(number % 12 = 0, range(number % 10), [])
 FROM numbers(200);
 
@@ -61,7 +61,7 @@ FROM t_sparse
 GROUP BY id % 7
 ORDER BY id % 7 ASC;
 
-SELECT arrayFilter(x -> x % 2 = 1, arr2)
+SELECT arrayFilter((x -> x % 2 = 1), arr2)
 FROM t_sparse
 WHERE arr2 != []
 LIMIT 5;
@@ -71,9 +71,9 @@ CREATE TABLE t_sparse_1
     id UInt64,
     v Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = '0';
 
 INSERT INTO t_sparse_1;
 

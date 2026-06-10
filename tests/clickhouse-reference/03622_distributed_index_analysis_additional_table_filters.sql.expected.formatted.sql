@@ -11,18 +11,18 @@ CREATE TABLE test_1m
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS merge_selector_base = 1000, index_granularity = 8192, min_bytes_for_wide_part = 1e9, index_granularity_bytes = 10e6, distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS merge_selector_base = '1000', index_granularity = '8192', min_bytes_for_wide_part = 1000000000., index_granularity_bytes = 10000000., distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = '0';
 
-SYSTEM stop merges test_1m;
+SYSTEM STOP MERGES test_1m;
 
 INSERT INTO test_1m SELECT
     number,
     number * 100
-FROM numbers(1e6)
+FROM numbers(1000000.)
 SETTINGS
-    max_block_size = 10000,
-    min_insert_block_size_rows = 10000,
-    max_insert_threads = 1;
+    max_block_size = '10000',
+    min_insert_block_size_rows = '10000',
+    max_insert_threads = '1';
 
 SELECT
     count(),
@@ -34,19 +34,19 @@ WHERE database = currentDatabase()
 
 SET cluster_for_parallel_replicas = 'test_cluster_one_shard_two_replicas';
 
-SET distributed_index_analysis = 1;
+SET distributed_index_analysis = '1';
 
-SET max_parallel_replicas = 2;
+SET max_parallel_replicas = '2';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
-SET additional_table_filters = map('test_1m', 'key > 10000');
+SET additional_table_filters = [('test_1m', 'key > 10000')];
 
 -- Only with analyzer
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 -- Parallel replicas changes EXPLAIN output
-SET allow_experimental_parallel_reading_from_replicas = 0;
+SET allow_experimental_parallel_reading_from_replicas = '0';
 
 -- { echo }
 SELECT count()
@@ -55,7 +55,7 @@ FROM (
         FROM test_1m
     );
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT key
 FROM (
         SELECT *

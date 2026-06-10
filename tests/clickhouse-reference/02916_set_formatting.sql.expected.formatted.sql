@@ -18,7 +18,7 @@ CREATE VIEW v1 (v UInt64)
 AS
 SELECT v
 FROM t1
-SETTINGS additional_table_filters = map('default.t1', 's != ''s1%''');
+SETTINGS additional_table_filters = [('default.t1', 's != ''s1%''')];
 
 SHOW CREATE TABLE v1 FORMAT Vertical;
 

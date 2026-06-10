@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS r_prop_table1;
 
 DROP TABLE IF EXISTS r_prop_table2;
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
 CREATE TABLE r_prop_table1
 (
@@ -35,15 +35,15 @@ INSERT INTO r_prop_table1 (column_codec, column_comment, column_ttl);
 
 SYSTEM SYNC REPLICA r_prop_table2;
 
-ALTER TABLE r_prop_table1 MODIFY COLUMN column_comment;
+ALTER TABLE r_prop_table1 MODIFY COLUMN column_comment REMOVE COMMENT;
 
 DETACH TABLE r_prop_table1;
 
 ATTACH TABLE r_prop_table1;
 
-ALTER TABLE r_prop_table2 MODIFY COLUMN column_codec;
+ALTER TABLE r_prop_table2 MODIFY COLUMN column_codec REMOVE CODEC;
 
-ALTER TABLE r_prop_table2 MODIFY COLUMN column_default;
+ALTER TABLE r_prop_table2 MODIFY COLUMN column_default REMOVE DEFAULT;
 
 INSERT INTO r_prop_table1 (column_codec, column_comment, column_ttl);
 
@@ -58,7 +58,7 @@ DETACH TABLE r_prop_table2;
 
 ATTACH TABLE r_prop_table2;
 
-ALTER TABLE r_prop_table2 MODIFY COLUMN column_ttl;
+ALTER TABLE r_prop_table2 MODIFY COLUMN column_ttl REMOVE TTL;
 
 ALTER TABLE r_prop_table1 REMOVE TTL;
 

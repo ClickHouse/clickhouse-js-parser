@@ -8,7 +8,7 @@ CREATE TABLE simple_agf_any_aggregating_mt
     anyLast_simple SimpleAggregateFunction(anyLast_respect_nulls, Nullable(UInt64)),
     anyLast_agg AggregateFunction(anyLast_respect_nulls, Nullable(UInt64))
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY a;
 
 INSERT INTO simple_agf_any_aggregating_mt SELECT

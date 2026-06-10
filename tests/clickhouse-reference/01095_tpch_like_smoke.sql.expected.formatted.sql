@@ -14,9 +14,9 @@ DROP TABLE IF EXISTS nation;
 
 DROP TABLE IF EXISTS region;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET cross_to_inner_join_rewrite = 1;
+SET cross_to_inner_join_rewrite = '1';
 
 CREATE TABLE part
 (
@@ -30,11 +30,11 @@ CREATE TABLE part
     p_retailprice Decimal(18, 2),
     p_comment String,
     CONSTRAINT pk CHECK p_partkey >= 0,
-    CONSTRAINT positive CHECK (p_size >= 0
-    AND p_retailprice >= 0)
+    CONSTRAINT positive CHECK p_size >= 0
+    AND p_retailprice >= 0
 )
-ENGINE = MergeTree
-ORDER BY (p_partkey);
+ENGINE = MergeTree()
+ORDER BY p_partkey;
 
 CREATE TABLE supplier
 (
@@ -47,8 +47,8 @@ CREATE TABLE supplier
     s_comment String,
     CONSTRAINT pk CHECK s_suppkey >= 0
 )
-ENGINE = MergeTree
-ORDER BY (s_suppkey);
+ENGINE = MergeTree()
+ORDER BY s_suppkey;
 
 CREATE TABLE partsupp
 (
@@ -58,10 +58,10 @@ CREATE TABLE partsupp
     ps_supplycost Decimal(18, 2),
     ps_comment String,
     CONSTRAINT pk CHECK ps_partkey >= 0,
-    CONSTRAINT c1 CHECK (ps_availqty >= 0
-    AND ps_supplycost >= 0)
+    CONSTRAINT c1 CHECK ps_availqty >= 0
+    AND ps_supplycost >= 0
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (ps_partkey, ps_suppkey);
 
 CREATE TABLE customer
@@ -76,8 +76,8 @@ CREATE TABLE customer
     c_comment String,
     CONSTRAINT pk CHECK c_custkey >= 0
 )
-ENGINE = MergeTree
-ORDER BY (c_custkey);
+ENGINE = MergeTree()
+ORDER BY c_custkey;
 
 CREATE TABLE orders
 (
@@ -92,7 +92,7 @@ CREATE TABLE orders
     o_comment String,
     CONSTRAINT c1 CHECK o_totalprice >= 0
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (o_orderdate, o_orderkey);
 
 CREATE TABLE lineitem
@@ -113,12 +113,12 @@ CREATE TABLE lineitem
     l_shipinstruct FixedString(25),
     l_shipmode FixedString(10),
     l_comment String,
-    CONSTRAINT c1 CHECK (l_quantity >= 0
+    CONSTRAINT c1 CHECK l_quantity >= 0
     AND l_extendedprice >= 0
     AND l_tax >= 0
-    AND l_shipdate <= l_receiptdate)
+    AND l_shipdate <= l_receiptdate
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (l_shipdate, l_receiptdate, l_orderkey, l_linenumber);
 
 CREATE TABLE nation
@@ -129,8 +129,8 @@ CREATE TABLE nation
     n_comment String,
     CONSTRAINT pk CHECK n_nationkey >= 0
 )
-ENGINE = MergeTree
-ORDER BY (n_nationkey);
+ENGINE = MergeTree()
+ORDER BY n_nationkey;
 
 CREATE TABLE region
 (
@@ -139,8 +139,8 @@ CREATE TABLE region
     r_comment String,
     CONSTRAINT pk CHECK r_regionkey >= 0
 )
-ENGINE = MergeTree
-ORDER BY (r_regionkey);
+ENGINE = MergeTree()
+ORDER BY r_regionkey;
 
 SELECT 1;
 
@@ -149,8 +149,8 @@ SELECT
     l_linestatus,
     sum(l_quantity) AS sum_qty,
     sum(l_extendedprice) AS sum_base_price,
-    sum(l_extendedprice * ((1 - l_discount))) AS sum_disc_price,
-    sum(l_extendedprice * ((1 - l_discount)) * ((1 + l_tax))) AS sum_charge,
+    sum(l_extendedprice * (1 - l_discount)) AS sum_disc_price,
+    sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) AS sum_charge,
     avg(l_quantity) AS avg_qty,
     avg(l_extendedprice) AS avg_price,
     avg(l_discount) AS avg_disc,
@@ -176,25 +176,25 @@ SELECT
     s_phone,
     s_comment
 FROM
-    part
-CROSS JOIN supplier
-CROSS JOIN partsupp
-CROSS JOIN nation
-CROSS JOIN region
+    part,
+    supplier,
+    partsupp,
+    nation,
+    region
 WHERE p_partkey = ps_partkey
     AND s_suppkey = ps_suppkey
     AND p_size = 15
-    AND like(p_type, '%BRASS')
+    AND p_type LIKE '%BRASS'
     AND s_nationkey = n_nationkey
     AND n_regionkey = r_regionkey
     AND r_name = 'EUROPE'
     AND ps_supplycost = (
         SELECT min(ps_supplycost)
         FROM
-            partsupp
-        CROSS JOIN supplier
-        CROSS JOIN nation
-        CROSS JOIN region
+            partsupp,
+            supplier,
+            nation,
+            region
         WHERE p_partkey = ps_partkey
             AND s_suppkey = ps_suppkey
             AND s_nationkey = n_nationkey
@@ -212,13 +212,13 @@ SELECT 3;
 
 SELECT
     l_orderkey,
-    sum(l_extendedprice * ((1 - l_discount))) AS revenue,
+    sum(l_extendedprice * (1 - l_discount)) AS revenue,
     o_orderdate,
     o_shippriority
 FROM
-    customer
-CROSS JOIN orders
-CROSS JOIN lineitem
+    customer,
+    orders,
+    lineitem
 WHERE c_mktsegment = 'BUILDING'
     AND c_custkey = o_custkey
     AND l_orderkey = o_orderkey
@@ -254,14 +254,14 @@ SELECT 5;
 
 SELECT
     n_name,
-    sum(l_extendedprice * ((1 - l_discount))) AS revenue
+    sum(l_extendedprice * (1 - l_discount)) AS revenue
 FROM
-    customer
-CROSS JOIN orders
-CROSS JOIN lineitem
-CROSS JOIN supplier
-CROSS JOIN nation
-CROSS JOIN region
+    customer,
+    orders,
+    lineitem,
+    supplier,
+    nation,
+    region
 WHERE c_custkey = o_custkey
     AND l_orderkey = o_orderkey
     AND l_suppkey = s_suppkey
@@ -280,7 +280,8 @@ SELECT sum(l_extendedprice * l_discount) AS revenue
 FROM lineitem
 WHERE l_shipdate >= toDate('1994-01-01')
     AND l_shipdate < toDate('1994-01-01') + toIntervalYear('1')
-    AND and(greaterOrEquals(l_discount, toDecimal32(0.06, 2) - toDecimal32(0.01, 2)), lessOrEquals(l_discount, toDecimal32(0.06, 2) + toDecimal32(0.01, 2)))
+    AND (l_discount >= toDecimal32(0.06, 2) - toDecimal32(0.01, 2)
+    AND l_discount <= toDecimal32(0.06, 2) + toDecimal32(0.01, 2))
     AND l_quantity < 24;
 
 SELECT 7;
@@ -295,24 +296,25 @@ FROM (
             n1.n_name AS supp_nation,
             n2.n_name AS cust_nation,
             toYear(l_shipdate) AS l_year,
-            l_extendedprice * ((1 - l_discount)) AS volume
+            l_extendedprice * (1 - l_discount) AS volume
         FROM
-            supplier
-        CROSS JOIN lineitem
-        CROSS JOIN orders
-        CROSS JOIN customer
-        CROSS JOIN nation AS n1
-        CROSS JOIN nation AS n2
+            supplier,
+            lineitem,
+            orders,
+            customer,
+            nation AS n1,
+            nation AS n2
         WHERE s_suppkey = l_suppkey
             AND o_orderkey = l_orderkey
             AND c_custkey = o_custkey
             AND s_nationkey = n1.n_nationkey
             AND c_nationkey = n2.n_nationkey
-            AND (((n1.n_name = 'FRANCE'
-            AND n2.n_name = 'GERMANY')
-            OR (n1.n_name = 'GERMANY'
-            AND n2.n_name = 'FRANCE')))
-            AND and(greaterOrEquals(l_shipdate, toDate('1995-01-01')), lessOrEquals(l_shipdate, toDate('1996-12-31')))
+            AND (n1.n_name = 'FRANCE'
+            AND n2.n_name = 'GERMANY'
+            OR n1.n_name = 'GERMANY'
+            AND n2.n_name = 'FRANCE')
+            AND (l_shipdate >= toDate('1995-01-01')
+            AND l_shipdate <= toDate('1996-12-31'))
     ) AS shipping
 GROUP BY
     supp_nation,
@@ -331,17 +333,17 @@ SELECT
 FROM (
         SELECT
             toYear(o_orderdate) AS o_year,
-            l_extendedprice * ((1 - l_discount)) AS volume,
+            l_extendedprice * (1 - l_discount) AS volume,
             n2.n_name AS nation
         FROM
-            part
-        CROSS JOIN supplier
-        CROSS JOIN lineitem
-        CROSS JOIN orders
-        CROSS JOIN customer
-        CROSS JOIN nation AS n1
-        CROSS JOIN nation AS n2
-        CROSS JOIN region
+            part,
+            supplier,
+            lineitem,
+            orders,
+            customer,
+            nation AS n1,
+            nation AS n2,
+            region
         WHERE p_partkey = l_partkey
             AND s_suppkey = l_suppkey
             AND l_orderkey = o_orderkey
@@ -350,7 +352,8 @@ FROM (
             AND n1.n_regionkey = r_regionkey
             AND r_name = 'AMERICA'
             AND s_nationkey = n2.n_nationkey
-            AND and(greaterOrEquals(o_orderdate, toDate('1995-01-01')), lessOrEquals(o_orderdate, toDate('1996-12-31')))
+            AND (o_orderdate >= toDate('1995-01-01')
+            AND o_orderdate <= toDate('1996-12-31'))
             AND p_type = 'ECONOMY ANODIZED STEEL'
     ) AS all_nations
 GROUP BY o_year
@@ -366,21 +369,21 @@ FROM (
         SELECT
             n_name AS nation,
             toYear(o_orderdate) AS o_year,
-            l_extendedprice * ((1 - l_discount)) - ps_supplycost * l_quantity AS amount
+            l_extendedprice * (1 - l_discount) - ps_supplycost * l_quantity AS amount
         FROM
-            part
-        CROSS JOIN supplier
-        CROSS JOIN lineitem
-        CROSS JOIN partsupp
-        CROSS JOIN orders
-        CROSS JOIN nation
+            part,
+            supplier,
+            lineitem,
+            partsupp,
+            orders,
+            nation
         WHERE s_suppkey = l_suppkey
             AND ps_suppkey = l_suppkey
             AND ps_partkey = l_partkey
             AND p_partkey = l_partkey
             AND o_orderkey = l_orderkey
             AND s_nationkey = n_nationkey
-            AND like(p_name, '%green%')
+            AND p_name LIKE '%green%'
     ) AS profit
 GROUP BY
     nation,
@@ -394,17 +397,17 @@ SELECT 10;
 SELECT
     c_custkey,
     c_name,
-    sum(l_extendedprice * ((1 - l_discount))) AS revenue,
+    sum(l_extendedprice * (1 - l_discount)) AS revenue,
     c_acctbal,
     n_name,
     c_address,
     c_phone,
     c_comment
 FROM
-    customer
-CROSS JOIN orders
-CROSS JOIN lineitem
-CROSS JOIN nation
+    customer,
+    orders,
+    lineitem,
+    nation
 WHERE c_custkey = o_custkey
     AND l_orderkey = o_orderkey
     AND o_orderdate >= toDate('1993-10-01')
@@ -428,9 +431,9 @@ SELECT
     ps_partkey,
     sum(ps_supplycost * ps_availqty) AS value
 FROM
-    partsupp
-CROSS JOIN supplier
-CROSS JOIN nation
+    partsupp,
+    supplier,
+    nation
 WHERE ps_suppkey = s_suppkey
     AND s_nationkey = n_nationkey
     AND n_name = 'GERMANY'
@@ -441,9 +444,9 @@ HAVING sum(ps_supplycost * ps_availqty) > (
         -- The above constant needs to be adjusted according
         -- to the scale factor (SF): constant = 0.0001 / SF.
         FROM
-            partsupp
-        CROSS JOIN supplier
-        CROSS JOIN nation
+            partsupp,
+            supplier,
+            nation
         WHERE ps_suppkey = s_suppkey
             AND s_nationkey = n_nationkey
             AND n_name = 'GERMANY'
@@ -456,11 +459,11 @@ SELECT
     l_shipmode,
     sum(multiIf(o_orderpriority = '1-URGENT'
     OR o_orderpriority = '2-HIGH', 1, 0)) AS high_line_count,
-    sum(multiIf(o_orderpriority <> '1-URGENT'
-    AND o_orderpriority <> '2-HIGH', 1, 0)) AS low_line_count
+    sum(multiIf(o_orderpriority != '1-URGENT'
+    AND o_orderpriority != '2-HIGH', 1, 0)) AS low_line_count
 FROM
-    orders
-CROSS JOIN lineitem
+    orders,
+    lineitem
 WHERE o_orderkey = l_orderkey
     AND l_shipmode IN ('MAIL', 'SHIP')
     AND l_commitdate < l_receiptdate
@@ -483,7 +486,7 @@ FROM (
             customer
         LEFT JOIN orders
             ON c_custkey = o_custkey
-            AND notLike(o_comment, '%special%requests%')
+            AND o_comment NOT LIKE '%special%requests%'
         GROUP BY c_custkey
     ) AS c_orders
 GROUP BY c_count
@@ -493,10 +496,10 @@ ORDER BY
 
 SELECT 14;
 
-SELECT toDecimal32(100.00, 2) * sum(multiIf(like(p_type, 'PROMO%'), l_extendedprice * ((1 - l_discount)), 0)) / ((1 + sum(l_extendedprice * ((1 - l_discount))))) AS promo_revenue
+SELECT toDecimal32(100., 2) * sum(multiIf(p_type LIKE 'PROMO%', l_extendedprice * (1 - l_discount), 0)) / (1 + sum(l_extendedprice * (1 - l_discount))) AS promo_revenue
 FROM
-    lineitem
-CROSS JOIN part
+    lineitem,
+    part
 WHERE l_partkey = p_partkey
     AND l_shipdate >= toDate('1995-09-01')
     AND l_shipdate < toDate('1995-09-01') + toIntervalMonth('1');
@@ -506,7 +509,7 @@ SELECT 15;
 WITH revenue_view AS (
     SELECT
         l_suppkey AS supplier_no,
-        sum(l_extendedprice * ((1 - l_discount))) AS total_revenue
+        sum(l_extendedprice * (1 - l_discount)) AS total_revenue
     FROM lineitem
     WHERE l_shipdate >= '1996-01-01'
         AND l_shipdate < '1996-04-01'
@@ -520,8 +523,8 @@ SELECT
     s_phone,
     total_revenue
 FROM
-    supplier
-CROSS JOIN revenue_view
+    supplier,
+    revenue_view
 WHERE s_suppkey = supplier_no
     AND total_revenue = (
         SELECT max(total_revenue)
@@ -537,16 +540,16 @@ SELECT
     p_size,
     countDistinct(ps_suppkey) AS supplier_cnt
 FROM
-    partsupp
-CROSS JOIN part
+    partsupp,
+    part
 WHERE p_partkey = ps_partkey
-    AND p_brand <> 'Brand#45'
-    AND notLike(p_type, 'MEDIUM POLISHED%')
+    AND p_brand != 'Brand#45'
+    AND p_type NOT LIKE 'MEDIUM POLISHED%'
     AND p_size IN (49, 14, 23, 45, 19, 3, 36, 9)
     AND ps_suppkey NOT IN (
         SELECT s_suppkey
         FROM supplier
-        WHERE like(s_comment, '%Customer%Complaints%')
+        WHERE s_comment LIKE '%Customer%Complaints%'
     )
 GROUP BY
     p_brand,
@@ -560,10 +563,10 @@ ORDER BY
 
 SELECT 17;
 
-SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
+SELECT sum(l_extendedprice) / 7. AS avg_yearly
 FROM
-    lineitem
-CROSS JOIN part
+    lineitem,
+    part
 WHERE p_partkey = l_partkey
     AND p_brand = 'Brand#23'
     AND p_container = 'MED BOX'
@@ -583,9 +586,9 @@ SELECT
     o_totalprice,
     sum(l_quantity)
 FROM
-    customer
-CROSS JOIN orders
-CROSS JOIN lineitem
+    customer,
+    orders,
+    lineitem
 WHERE o_orderkey IN (
         SELECT l_orderkey
         FROM lineitem
@@ -607,34 +610,37 @@ LIMIT 100;
 
 SELECT 19;
 
-SELECT sum(l_extendedprice * ((1 - l_discount))) AS revenue
+SELECT sum(l_extendedprice * (1 - l_discount)) AS revenue
 FROM
-    lineitem
-CROSS JOIN part
-WHERE (p_partkey = l_partkey
+    lineitem,
+    part
+WHERE p_partkey = l_partkey
     AND p_brand = 'Brand#12'
     AND p_container IN ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG')
     AND l_quantity >= 1
     AND l_quantity <= 1 + 10
-    AND and(greaterOrEquals(p_size, 1), lessOrEquals(p_size, 5))
+    AND (p_size >= 1
+    AND p_size <= 5)
     AND l_shipmode IN ('AIR', 'AIR REG')
-    AND l_shipinstruct = 'DELIVER IN PERSON')
-    OR (p_partkey = l_partkey
+    AND l_shipinstruct = 'DELIVER IN PERSON'
+    OR p_partkey = l_partkey
     AND p_brand = 'Brand#23'
     AND p_container IN ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK')
     AND l_quantity >= 10
     AND l_quantity <= 10 + 10
-    AND and(greaterOrEquals(p_size, 1), lessOrEquals(p_size, 10))
+    AND (p_size >= 1
+    AND p_size <= 10)
     AND l_shipmode IN ('AIR', 'AIR REG')
-    AND l_shipinstruct = 'DELIVER IN PERSON')
-    OR (p_partkey = l_partkey
+    AND l_shipinstruct = 'DELIVER IN PERSON'
+    OR p_partkey = l_partkey
     AND p_brand = 'Brand#34'
     AND p_container IN ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG')
     AND l_quantity >= 20
     AND l_quantity <= 20 + 10
-    AND and(greaterOrEquals(p_size, 1), lessOrEquals(p_size, 15))
+    AND (p_size >= 1
+    AND p_size <= 15)
     AND l_shipmode IN ('AIR', 'AIR REG')
-    AND l_shipinstruct = 'DELIVER IN PERSON');
+    AND l_shipinstruct = 'DELIVER IN PERSON';
 
 SELECT 20;
 
@@ -642,15 +648,15 @@ SELECT
     s_name,
     s_address
 FROM
-    supplier
-CROSS JOIN nation
+    supplier,
+    nation
 WHERE s_suppkey IN (
         SELECT ps_suppkey
         FROM partsupp
         WHERE ps_partkey IN (
                 SELECT p_partkey
                 FROM part
-                WHERE like(p_name, 'forest%')
+                WHERE p_name LIKE 'forest%'
             )
             AND ps_availqty > (
                 SELECT 0.5 * sum(l_quantity)
@@ -671,10 +677,10 @@ SELECT
     s_name,
     count(*) AS numwait
 FROM
-    supplier
-CROSS JOIN lineitem AS l1
-CROSS JOIN orders
-CROSS JOIN nation
+    supplier,
+    lineitem AS l1,
+    orders,
+    nation
 WHERE s_suppkey = l1.l_suppkey
     AND o_orderkey = l1.l_orderkey
     AND o_orderstatus = 'F'
@@ -683,13 +689,13 @@ WHERE s_suppkey = l1.l_suppkey
         SELECT *
         FROM lineitem AS l2
         WHERE l2.l_orderkey = l1.l_orderkey
-            AND l2.l_suppkey <> l1.l_suppkey
+            AND l2.l_suppkey != l1.l_suppkey
     ))
     AND NOT exists((
         SELECT *
         FROM lineitem AS l3
         WHERE l3.l_orderkey = l1.l_orderkey
-            AND l3.l_suppkey <> l1.l_suppkey
+            AND l3.l_suppkey != l1.l_suppkey
             AND l3.l_receiptdate > l3.l_commitdate
     ))
     AND s_nationkey = n_nationkey
@@ -715,7 +721,7 @@ FROM (
             AND c_acctbal > (
                 SELECT avg(c_acctbal)
                 FROM customer
-                WHERE c_acctbal > 0.00
+                WHERE c_acctbal > 0.
                     AND substring(c_phone, 1, 2) IN ('13', '31', '23', '29', '30', '18', '17')
             )
             AND NOT exists((

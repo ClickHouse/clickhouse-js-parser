@@ -7,7 +7,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 PRIMARY KEY c0
-PARTITION BY (murmurHash3_64(c0));
+PARTITION BY murmurHash3_64(c0);
 
 SET join_algorithm = 'full_sorting_merge';
 

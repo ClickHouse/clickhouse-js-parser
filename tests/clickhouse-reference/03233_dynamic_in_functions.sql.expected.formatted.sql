@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -8,7 +8,7 @@ CREATE TABLE test
     x UInt64,
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
     number,
@@ -221,7 +221,7 @@ SELECT
 FROM test;
 
 SELECT
-    h3Distance(585763170430222335 + d * 549755813888, 585763170430222335 + ((d + 1)) * 549755813888) AS res,
+    h3Distance(585763170430222335 + d * 549755813888, 585763170430222335 + (d + 1) * 549755813888) AS res,
     toTypeName(res)
 FROM test;
 
@@ -236,32 +236,32 @@ SELECT
 FROM test;
 
 SELECT
-    concat('str_', d) AS res,
+    'str_' || d AS res,
     toTypeName(res)
 FROM test;
 
 SELECT
-    concat('str_', d, x) AS res,
+    'str_' || d || x AS res,
     toTypeName(res)
 FROM test;
 
 SELECT
-    concat('str_', d, d) AS res,
+    'str_' || d || d AS res,
     toTypeName(res)
 FROM test;
 
 SELECT
-    concat('str_', d, x, d) AS res,
+    'str_' || d || x || d AS res,
     toTypeName(res)
 FROM test;
 
 SELECT
-    concat(d, NULL) AS res,
+    d || NULL AS res,
     toTypeName(res)
 FROM test;
 
 SELECT
-    concat('str_', d, NULL) AS res,
+    'str_' || d || NULL AS res,
     toTypeName(res)
 FROM test;
 
@@ -272,10 +272,10 @@ CREATE TABLE test
     x Nullable(UInt64),
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, number),
+    number % 2 ? NULL : number,
     number
 FROM numbers(4);
 
@@ -284,11 +284,11 @@ CREATE TABLE test
     x String,
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
-    concat('str_', number),
-    concat('str_', number)
+    'str_' || number,
+    'str_' || number
 FROM numbers(4);
 
 SELECT
@@ -371,8 +371,8 @@ FROM test;
 TRUNCATE TABLE test;
 
 INSERT INTO test SELECT
-    concat('str_', number),
-    toFixedString(concat('str_', number), 5)
+    'str_' || number,
+    toFixedString('str_' || number, 5)
 FROM numbers(4);
 
 CREATE TABLE test
@@ -380,21 +380,21 @@ CREATE TABLE test
     x Nullable(String),
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, concat('str_', number)),
-    concat('str_', number)
+    number % 2 ? NULL : 'str_' || number,
+    'str_' || number
 FROM numbers(4);
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, concat('str_', number)),
-    toFixedString(concat('str_', number), 5)
+    number % 2 ? NULL : 'str_' || number,
+    toFixedString('str_' || number, 5)
 FROM numbers(4);
 
 INSERT INTO test SELECT
     number,
-    if(number % 2, NULL, number)
+    number % 2 ? NULL : number
 FROM numbers(4);
 
 SELECT
@@ -403,28 +403,28 @@ SELECT
 FROM test;
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, number),
-    if(number % 2, NULL, number)
+    number % 2 ? NULL : number,
+    number % 2 ? NULL : number
 FROM numbers(4);
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, number),
+    number % 2 ? NULL : number,
     NULL
 FROM numbers(4);
 
 INSERT INTO test SELECT
-    concat('str_', number),
-    if(number % 2, NULL, concat('str_', number))
+    'str_' || number,
+    number % 2 ? NULL : 'str_' || number
 FROM numbers(4);
 
 INSERT INTO test SELECT
-    concat('str_', number),
-    if(number % 2, NULL, toFixedString(concat('str_', number), 5))
+    'str_' || number,
+    number % 2 ? NULL : toFixedString('str_' || number, 5)
 FROM numbers(4);
 
 INSERT INTO test SELECT
-    if(number % 2, NULL, concat('str_', number)),
-    if(number % 2, NULL, toFixedString(concat('str_', number), 5))
+    number % 2 ? NULL : 'str_' || number,
+    number % 2 ? NULL : toFixedString('str_' || number, 5)
 FROM numbers(4);
 
 CREATE TABLE test
@@ -432,7 +432,7 @@ CREATE TABLE test
     x UInt64,
     d Dynamic(max_types = 5)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 
@@ -517,7 +517,7 @@ CREATE TABLE test
 (
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 

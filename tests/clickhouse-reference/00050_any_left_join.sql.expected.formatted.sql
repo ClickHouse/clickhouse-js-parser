@@ -7,7 +7,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS a
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number * 2 AS k,
             number AS joined

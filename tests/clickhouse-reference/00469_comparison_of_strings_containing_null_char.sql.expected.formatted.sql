@@ -17,7 +17,7 @@ CREATE TABLE strings_00469
     x String,
     y String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO strings_00469;
 

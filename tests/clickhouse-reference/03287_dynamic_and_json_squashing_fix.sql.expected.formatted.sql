@@ -1,6 +1,6 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_dynamic_type = 1;
+SET enable_dynamic_type = '1';
 
 DROP TABLE IF EXISTS src;
 
@@ -10,13 +10,13 @@ CREATE TABLE src
 (
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst
 (
     d Dynamic
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO src SELECT materialize(42)::Int64;
@@ -37,13 +37,13 @@ CREATE TABLE src
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst
 (
     json JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO src SELECT '{"a" : 42}';

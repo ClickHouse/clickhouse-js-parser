@@ -25,14 +25,14 @@ ENGINE = ReplicatedMergeTree('/clickhouse/{database}/{shard}/tables/restore_0164
 ORDER BY i
 PARTITION BY toYYYYMM(d);
 
-ALTER TABLE restore_01640 FETCH PARTITION tuple(toYYYYMM(toDate('2021-01-01'))) FROM '/clickhouse/{database}/{shard}/tables/test_01640' SETTINGS insert_keeper_fault_injection_probability = 0;
+ALTER TABLE restore_01640 FETCH PARTITION tuple(toYYYYMM(toDate('2021-01-01'))) FROM '/clickhouse/{database}/{shard}/tables/test_01640' SETTINGS insert_keeper_fault_injection_probability = '0';
 
 SELECT partition_id
 FROM `system`.detached_parts
-WHERE (table = 'restore_01640')
-    AND (database = currentDatabase());
+WHERE table = 'restore_01640'
+    AND database = currentDatabase();
 
-ALTER TABLE restore_01640 ATTACH PARTITION tuple(toYYYYMM(toDate('2021-01-01'))) SETTINGS insert_keeper_fault_injection_probability = 0;
+ALTER TABLE restore_01640 ATTACH PARTITION tuple(toYYYYMM(toDate('2021-01-01'))) SETTINGS insert_keeper_fault_injection_probability = '0';
 
 ;
 

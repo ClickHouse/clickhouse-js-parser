@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/21584
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT count()
 FROM
@@ -7,7 +7,7 @@ FROM
         SELECT number AS key_1
         FROM numbers(15)
     ) AS x
-INNER JOIN (
+ALL INNER JOIN (
         SELECT number AS key_1
         FROM numbers(10)
     ) AS z

@@ -1,1012 +1,1116 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_variant_as_common_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_variant_as_common_type": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "time",
-        "type": {
-          "name": "DateTime"
-        },
-        "codec": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "DoubleDelta"
+            "type": "ColumnDeclaration",
+            "name": "time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
           },
           {
-            "name": "LZ4"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "xxx",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "two_values",
-        "type": {
-          "name": "Tuple",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Array",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+            "type": "ColumnDeclaration",
+            "name": "xxx",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "two_values",
+            "data_type": {
+              "type": "TupleDataType",
+              "name": "Tuple",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Array",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "UInt16"
                     }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt32"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "agg_simple",
-        "type": {
-          "name": "SimpleAggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "sum"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "agg",
-        "type": {
-          "name": "SimpleAggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "sumMap"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Tuple",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "Array",
-                      "args": [
-                        {
-                          "kind": "type",
-                          "type": {
-                            "name": "Int16"
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "Array",
-                      "args": [
-                        {
-                          "kind": "type",
-                          "type": {
-                            "name": "UInt64"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "xxx"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "agg_table"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "toDateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "2020-10-01 19:20:30"
-            }
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "hello"
-        },
-        {
-          "kind": "tupleLiteral",
-          "elements": [
-            {
-              "kind": "arrayLiteral",
-              "elements": [
+                  ]
+                },
                 {
-                  "kind": "functionCall",
-                  "name": "any",
-                  "args": [
+                  "type": "DataType",
+                  "name": "UInt32"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "agg_simple",
+            "data_type": {
+              "type": "DataType",
+              "name": "SimpleAggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "agg",
+            "data_type": {
+              "type": "DataType",
+              "name": "SimpleAggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sumMap"
+                },
+                {
+                  "type": "TupleDataType",
+                  "name": "Tuple",
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
+                      "type": "DataType",
+                      "name": "Array",
+                      "arguments": [
+                        {
+                          "type": "DataType",
+                          "name": "Int16"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "Array",
+                      "arguments": [
+                        {
+                          "type": "DataType",
+                          "name": "UInt64"
+                        }
                       ]
                     }
                   ]
                 }
-              ],
-              "source": "[any(number)]"
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "xxx"
             },
             {
-              "kind": "functionCall",
-              "name": "sum",
-              "args": [
+              "type": "Identifier",
+              "name": "time"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-10-01 19:20:30"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "hello"
+              },
+              {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "array",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "any",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "sum",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "sumMap",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "tuple",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toString",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "range",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "13"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "plus",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "number"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "i"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "range",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "13"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "agg_table"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "xxx"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "x"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tuple",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tuple",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "4"
+                    }
                   ]
                 }
               ]
             }
           ],
-          "source": "([any(number)], sum(number))"
-        },
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "agg_table"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sumMap",
-          "args": [
-            {
-              "kind": "tupleLiteral",
-              "elements": [
+              "type": "Function",
+              "name": "if",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "i"
-                      ],
-                      "body": {
-                        "kind": "functionCall",
-                        "name": "toString",
-                        "args": [
-                          {
-                            "kind": "columnRef",
-                            "parts": [
-                              "i"
-                            ]
-                          }
-                        ]
-                      }
+                      "type": "Identifier",
+                      "name": "xxx"
                     },
                     {
-                      "kind": "functionCall",
-                      "name": "range",
-                      "args": [
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "x"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tuple",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Array",
+                      "value": [
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "13"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
-                    {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "i"
-                      ],
-                      "body": {
-                        "kind": "binaryExpr",
-                        "op": "+",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "number"
-                          ]
-                        },
-                        "right": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "i"
-                          ]
-                        },
-                        "parenthesized": true
-                      }
-                    },
-                    {
-                      "kind": "functionCall",
-                      "name": "range",
-                      "args": [
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "13"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "source": "(arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))"
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "xxx"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "x"
-            }
-          },
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                ],
-                "source": "[2]"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            ],
-            "source": "([2], 3)"
-          },
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                ],
-                "source": "[3]"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              }
-            ],
-            "source": "([3], 4)"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "xxx"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "x"
-            }
-          },
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                ],
-                "source": "[2]"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            ],
-            "source": "([2], 3)"
-          },
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                ],
-                "source": "[3]"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "q"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "w"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "7"
-              }
-            ],
-            "source": "([3], 4, 'q', 'w', 7)"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "trailingComments": [
-      "--{ serverError NO_COMMON_TYPE }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "two_values",
-            "expr": {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "two_values"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "two_values"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  ]
-                }
-              ],
-              "source": "(two_values.1, two_values.2)"
-            }
-          }
-        ],
-        "where": {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-08-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-12-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "agg_simple",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          }
-        ],
-        "where": {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-08-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-12-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "agg",
-            "expr": {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "agg"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "agg"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  ]
-                }
-              ],
-              "source": "(agg.1, agg.2)"
-            }
-          }
-        ],
-        "where": {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-08-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-12-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "agg_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "agg",
-            "expr": {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "agg"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
-                    {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "x"
-                      ],
-                      "body": {
-                        "kind": "functionCall",
-                        "name": "toUInt64",
-                        "args": [
-                          {
-                            "kind": "binaryExpr",
-                            "op": "/",
-                            "left": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "x"
-                              ]
-                            },
-                            "right": {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "2"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "agg"
-                          ]
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
+                          "value_type": "UInt64",
                           "value": "2"
                         }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tuple",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Array",
+                      "value": [
+                        {
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "4"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "q"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "w"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "7"
                     }
                   ]
                 }
-              ],
-              "source": "(agg.1, arrayMap(x -> toUInt64(x / 2), agg.2))"
+              ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "agg_table"
+                  }
+                }
+              }
+            ]
           }
-        ],
-        "where": {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-08-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-12-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
             {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-08-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-12-01 00:00:00"
-                    }
-                  ]
-                }
-              ]
+              "type": "Assignment",
+              "column": "two_values",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "tupleElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "two_values"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "tupleElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "two_values"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
         }
-      }
-    ]
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-08-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-12-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "agg_simple",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-08-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-12-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "agg",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "tupleElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "agg"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "tupleElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "agg"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "agg_table"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-08-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-12-01 00:00:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "agg",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "tupleElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "agg"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "arrayMap",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "lambda",
+                        "is_operator": true,
+                        "is_lambda_function": true,
+                        "kind": "LAMBDA_FUNCTION",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "tuple",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "x"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "toUInt64",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "divide",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "2"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "tupleElement",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "agg"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

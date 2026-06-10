@@ -23,43 +23,43 @@ SELECT hex(groupArrayIntersectState(['str']));
 --- Check different data types
 SELECT hex(maxDistinctState(tuple('str', true)));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int8)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int8))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt8)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt8))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int16)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int16))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt16)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt16))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int32)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int32))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt32)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt32))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int64)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int64))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt64)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt64))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int128)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int128))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt128)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt128))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::Int256)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS Int256))));
 
-SELECT hex(maxDistinctState(tuple('str', 42::UInt256)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42' AS UInt256))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::BFloat16)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS BFloat16))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Float32)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Float32))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Float64)));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Float64))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Decimal32(2))));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Decimal32(2)))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Decimal64(2))));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Decimal64(2)))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Decimal128(2))));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Decimal128(2)))));
 
-SELECT hex(maxDistinctState(tuple('str', 42.42::Decimal256(2))));
+SELECT hex(maxDistinctState(tuple('str', CAST('42.42' AS Decimal256(2)))));
 
 SELECT hex(maxDistinctState(tuple('str', 'str'::Nullable(String))));
 
@@ -83,7 +83,7 @@ SELECT hex(maxDistinctState(tuple('str', tuple('str'))));
 
 SELECT hex(maxDistinctState(tuple('str', '{"str" : "str"}'::JSON)));
 
-SELECT hex(maxDistinctState(tuple('str', '{"str" : "str"}'::JSON(max_dynamic_paths=0))));
+SELECT hex(maxDistinctState(tuple('str', '{"str" : "str"}'::JSON(max_dynamic_paths = 0))));
 
 SELECT hex(maxDistinctState(tuple('str', '{"str" : "str"}'::JSON(str String))));
 
@@ -91,7 +91,7 @@ SELECT hex(maxDistinctState(tuple('str', 'str'::Variant(String))));
 
 SELECT hex(maxDistinctState(tuple('str', 'str'::Dynamic)));
 
-SELECT hex(maxDistinctState(tuple('str', 'str'::Dynamic(max_types=0))));
+SELECT hex(maxDistinctState(tuple('str', 'str'::Dynamic(max_types = 0))));
 
 SELECT hex(maxDistinctState(tuple('str', '59cd9014-8730-444c-95d0-40ed67c54268'::UUID)));
 

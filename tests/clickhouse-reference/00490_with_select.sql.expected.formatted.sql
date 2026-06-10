@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH pow(2, 2) AS four
 
@@ -44,11 +44,11 @@ FROM (
 
 WITH 'string' AS str
 
-SELECT concat(str, '_abc');
+SELECT str || '_abc';
 
 SELECT `concat(str, '_abc')`
 FROM (
         WITH 'string' AS str
 
-        SELECT concat(str, '_abc')
+        SELECT str || '_abc'
     );

@@ -1,1349 +1,913 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "range_filter_custom_range_test"
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        }
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "5",
+                              "parallel_replicas_custom_key_range_upper": "15"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
           }
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "15"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "14"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "6"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "17"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "15"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "15"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "25"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "500"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10000"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "13"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "range_filter_custom_range_test_2"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "13"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "4",
+                              "parallel_replicas_custom_key_range_upper": "14"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "send_logs_level",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "error"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- failed connection tries are ok, `parallel_replicas` cluster contains 1 unavailable node"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "parallel_replicas"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test_2"
-              ]
-            }
-          ]
-        },
-        "settings": [
-          {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "12"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "13"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_2"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_3"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_3"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "range_filter_custom_range_test_3"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "6",
+                              "parallel_replicas_custom_key_range_upper": "17"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "0",
+                              "parallel_replicas_custom_key_range_upper": "15"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "15",
+                              "parallel_replicas_custom_key_range_upper": "25"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "0",
+                              "parallel_replicas_custom_key_range_upper": "5"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "500",
+                              "parallel_replicas_custom_key_range_upper": "10000"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "3",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "10",
+                              "parallel_replicas_custom_key_range_upper": "13"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_2"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "cluster",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test_cluster_one_shard_three_replicas_localhost"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "range_filter_custom_range_test_3"
-              ]
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
             }
-          ]
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "settings": [
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_2"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "name": "prefer_localhost_replica",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "max_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "12"
-            }
-          },
-          {
-            "name": "distributed_group_by_no_merge",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "enable_parallel_replicas",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "k"
-            }
-          },
-          {
-            "name": "parallel_replicas_mode",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "custom_key_range"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_lower",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "name": "parallel_replicas_custom_key_range_upper",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "13"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
             }
           }
         ]
@@ -1351,11 +915,304 @@
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "range_filter_custom_range_test_3"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "send_logs_level": "error"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "parallel_replicas"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test_2"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "12",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "0",
+                              "parallel_replicas_custom_key_range_upper": "13"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_3"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_3"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_3"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "4"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "cluster",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test_cluster_one_shard_three_replicas_localhost"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "currentDatabase",
+                                        "arguments": []
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "range_filter_custom_range_test_3"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "Settings",
+                            "changes": {
+                              "prefer_localhost_replica": "0",
+                              "max_parallel_replicas": "12",
+                              "distributed_group_by_no_merge": "0",
+                              "enable_parallel_replicas": "1",
+                              "parallel_replicas_custom_key": "k",
+                              "parallel_replicas_mode": "custom_key_range",
+                              "parallel_replicas_custom_key_range_lower": "0",
+                              "parallel_replicas_custom_key_range_upper": "4"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "range_filter_custom_range_test_3"
+      }
     }
   }
 ]

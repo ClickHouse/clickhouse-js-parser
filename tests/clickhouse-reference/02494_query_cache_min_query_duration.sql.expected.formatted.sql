@@ -15,4 +15,4 @@ SELECT '---';
 SELECT 1
 SETTINGS
     use_query_cache = true,
-    query_cache_min_query_duration = 10000;
+    query_cache_min_query_duration = '10000';

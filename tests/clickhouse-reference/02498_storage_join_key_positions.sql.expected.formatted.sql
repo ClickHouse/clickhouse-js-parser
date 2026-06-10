@@ -1,6 +1,6 @@
 -- Tags: no-parallel-replicas
 -- It generates plan with _reading_ from storage join, but reading from storage join with complex keys is currently not supported.
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 DROP TABLE IF EXISTS t1;
 
@@ -14,7 +14,7 @@ CREATE TABLE t1
     key2 UInt64,
     key3 UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1;
@@ -46,7 +46,7 @@ SELECT '--- using ---';
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key1, key2, key3)
 ORDER BY key1 ASC;
 
@@ -57,7 +57,7 @@ SELECT
     attr
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key1, key2, key3)
 ORDER BY key1 ASC;
 
@@ -68,7 +68,7 @@ SELECT
     attr
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key2, key3, key1)
 ORDER BY key1 ASC;
 
@@ -79,7 +79,7 @@ SELECT
     attr
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key3, key2, key1)
 ORDER BY key1 ASC;
 
@@ -90,14 +90,14 @@ SELECT
     attr
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key1, key3, key2)
 ORDER BY key1 ASC;
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key3 = tj.key3
     AND t1.key2 = tj.key2
     AND t1.key1 = tj.key1
@@ -106,7 +106,7 @@ ORDER BY t1.key1 ASC;
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key2 = tj.key2
     AND t1.key3 = tj.key3
     AND t1.key1 = tj.key1
@@ -115,7 +115,7 @@ ORDER BY t1.key1 ASC;
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key3 = tj.key3
     AND t1.key1 = tj.key1
     AND t1.key2 = tj.key2
@@ -124,7 +124,7 @@ ORDER BY t1.key1 ASC;
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1
     AND t1.key3 = tj.key3
     AND t1.key2 = tj.key2
@@ -139,7 +139,7 @@ FROM
             key2 AS b
         FROM t1
     ) AS t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.a = tj.key1
     AND t1.c = tj.key3
     AND t1.b = tj.key2
@@ -154,7 +154,7 @@ FROM
             key2 AS b
         FROM t1
     ) AS t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.a = tj.key1
     AND t1.b = tj.key2
     AND t1.c = tj.key3
@@ -169,7 +169,7 @@ FROM
             key2 AS b
         FROM t1
     ) AS t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.c = tj.key3
     AND t1.a = tj.key1
     AND t1.b = tj.key2
@@ -178,7 +178,7 @@ ORDER BY t1.a ASC;
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1
     AND t1.key3 = tj.key3
     AND t1.key2 = tj.key2
@@ -187,7 +187,7 @@ INNER JOIN tj
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1
     AND t1.key3 = tj.key3
     AND t1.key2 = tj.key2
@@ -196,25 +196,25 @@ INNER JOIN tj
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON 1; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,INVALID_JOIN_ON_EXPRESSION }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON 0; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,INVALID_JOIN_ON_EXPRESSION }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON NULL; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,INVALID_JOIN_ON_EXPRESSION }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON 1 != 1; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,INVALID_JOIN_ON_EXPRESSION }
 
 -- Here is another error code because equality is handled differently in CollectJoinOnKeysVisitor.
@@ -224,49 +224,49 @@ INNER JOIN tj
 SELECT *
 FROM
     t1
-INNER JOIN tj
-    ON 1 == 1; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,AMBIGUOUS_COLUMN_NAME }
+ALL INNER JOIN tj
+    ON 1 = 1; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,AMBIGUOUS_COLUMN_NAME }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
-    ON 1 == 2; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,AMBIGUOUS_COLUMN_NAME }
+ALL INNER JOIN tj
+    ON 1 = 2; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,AMBIGUOUS_COLUMN_NAME }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key1, key2, attr); -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,UNKNOWN_IDENTIFIER }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key1, key2, key3, attr); -- { serverError INCOMPATIBLE_TYPE_OF_JOIN,UNKNOWN_IDENTIFIER }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     USING (key2, key3); -- { serverError INCOMPATIBLE_TYPE_OF_JOIN }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.attr; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN }
 
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1
     AND t1.key2 = tj.key2
     AND t1.key3 = tj.attr; -- { serverError INCOMPATIBLE_TYPE_OF_JOIN }
@@ -274,7 +274,7 @@ INNER JOIN tj
 SELECT *
 FROM
     t1
-INNER JOIN tj
+ALL INNER JOIN tj
     ON t1.key1 = tj.key1
     AND t1.key2 = tj.key2
     AND t1.key3 = tj.key3
@@ -283,7 +283,7 @@ INNER JOIN tj
 SELECT *
 FROM
     t1
-INNER JOIN tjj
+ALL INNER JOIN tjj
     ON t1.key1 = tjj.key1
     AND t1.key1 = tjj.key2
     AND t1.key1 = tjj.key3
@@ -292,7 +292,7 @@ ORDER BY t1.key1 ASC;
 SELECT *
 FROM
     t1
-INNER JOIN tjj
+ALL INNER JOIN tjj
     ON t1.key1 = tjj.key1
     AND t1.key1 = tjj.key3
     AND t1.key1 = tjj.key2

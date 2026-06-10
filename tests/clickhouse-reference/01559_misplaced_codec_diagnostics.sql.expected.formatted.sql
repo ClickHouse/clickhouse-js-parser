@@ -1,5 +1,5 @@
 CREATE TABLE t
 (
-    c CODEC(NONE)
+    c CODEC(NONE())
 )
-ENGINE = Memory; -- { clientError SYNTAX_ERROR }
+ENGINE = Memory(); -- { clientError SYNTAX_ERROR }

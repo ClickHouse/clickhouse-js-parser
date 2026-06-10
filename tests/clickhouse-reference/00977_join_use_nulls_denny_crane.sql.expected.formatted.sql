@@ -8,7 +8,7 @@ CREATE TABLE t
     b Int64,
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE s
@@ -17,7 +17,7 @@ CREATE TABLE s
     b Int64,
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t;
@@ -32,8 +32,8 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT
     t.*,
@@ -43,8 +43,8 @@ SELECT
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT
     t.*,
@@ -54,9 +54,9 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 SELECT
     t.*,
@@ -66,9 +66,9 @@ SELECT
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 DROP TABLE t;
 
@@ -80,7 +80,7 @@ CREATE TABLE t
     b Int64,
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE s
@@ -89,22 +89,22 @@ CREATE TABLE s
     b Int64,
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT *
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT *
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT
     t.*,
@@ -112,9 +112,9 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 SELECT
     t.*,
@@ -122,9 +122,9 @@ SELECT
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE t
 (
@@ -132,7 +132,7 @@ CREATE TABLE t
     b Nullable(Int64),
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE s
@@ -141,7 +141,7 @@ CREATE TABLE s
     b Nullable(Int64),
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT
@@ -150,8 +150,8 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT
     t.*,
@@ -159,24 +159,24 @@ SELECT
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b);
+    ON s.a = t.a
+    AND s.b = t.b;
 
 SELECT *
 FROM
     t
 LEFT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 SELECT *
 FROM
     t
 RIGHT JOIN s
-    ON (s.a = t.a
-    AND s.b = t.b)
-SETTINGS join_use_nulls = 1;
+    ON s.a = t.a
+    AND s.b = t.b
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE t
 (
@@ -184,7 +184,7 @@ CREATE TABLE t
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE s
@@ -193,7 +193,7 @@ CREATE TABLE s
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t
@@ -202,7 +202,7 @@ CREATE TABLE t
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE s
@@ -211,5 +211,5 @@ CREATE TABLE s
     b Nullable(Int64),
     c Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();

@@ -26,7 +26,7 @@ FROM
     ts_data
 ARRAY JOIN timestamps AS timestamp, arrayResize(values, length(timestamps), NULL) AS value;
 
-SET allow_experimental_time_series_aggregate_functions = 1;
+SET allow_experimental_time_series_aggregate_functions = '1';
 
 -- Fail because of rows with non-matching lengths of timestamps and values
 SELECT timeSeriesChangesToGrid(10, 120, 10, 10)(timestamps, values)
@@ -58,7 +58,7 @@ FROM ts_data;
 
 SELECT *
 FROM ts_data_nullable
-WHERE isNull(value)
+WHERE value IS NULL
     AND id < 5;
 
 SELECT timeSeriesResampleToGridWithStalenessIf(15, 125, 10, 10)(timestamps, values, length(timestamps) = length(values))
@@ -83,31 +83,31 @@ FROM ts_data_nullable;
 SELECT timeSeriesResetsToGridIf(15, 125, 10, 20)(timestamp, value, id < 5)
 FROM ts_data_nullable;
 
-SELECT timeSeriesChangesToGrid(15, 125, 10, 20)([10, 20, 30]::Array(UInt32), [1.0, 2.0, NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesChangesToGrid(15, 125, 10, 20)(CAST('[10, 20, 30]' AS Array(UInt32)), [1., 2., NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesChangesToGrid(15, 125, 10, 20)([10, NULL, 30]::Array(Nullable(UInt32)), [1.0, 2.0, 3.0]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesChangesToGrid(15, 125, 10, 20)([10, NULL, 30]::Array(Nullable(UInt32)), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesResetsToGrid(15, 125, 10, 20)([10, 20, 30]::Array(UInt32), [1.0, 2.0, NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesResetsToGrid(15, 125, 10, 20)(CAST('[10, 20, 30]' AS Array(UInt32)), [1., 2., NULL]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesResetsToGrid(15, 125, 10, 20)([10, NULL, 30]::Array(Nullable(UInt32)), [1.0, 2.0, 3.0]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesResetsToGrid(15, 125, 10, 20)([10, NULL, 30]::Array(Nullable(UInt32)), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- End timestamp not aligned by step
-SELECT timeSeriesChangesToGrid(100, 140, 15, 40)([89, 101, 109]::Array(UInt32), [89, 101, 99]::Array(Float32));
+SELECT timeSeriesChangesToGrid(100, 140, 15, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 99]' AS Array(Float32)));
 
-SELECT timeSeriesResetsToGrid(100, 140, 15, 40)([89, 101, 109]::Array(UInt32), [89, 101, 99]::Array(Float32));
+SELECT timeSeriesResetsToGrid(100, 140, 15, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 99]' AS Array(Float32)));
 
 -- Start timestamp equals to end timestamp
-SELECT timeSeriesChangesToGrid(120, 120, 0, 40)([89, 101, 109]::Array(UInt32), [89, 101, 99]::Array(Float32));
+SELECT timeSeriesChangesToGrid(120, 120, 0, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 99]' AS Array(Float32)));
 
-SELECT timeSeriesResetsToGrid(120, 120, 0, 40)([89, 101, 109]::Array(UInt32), [89, 101, 99]::Array(Float32));
+SELECT timeSeriesResetsToGrid(120, 120, 0, 40)(CAST('[89, 101, 109]' AS Array(UInt32)), CAST('[89, 101, 99]' AS Array(Float32)));
 
 SELECT timeSeriesChangesToGrid(100, 150, 10, 30)(toDateTime(105), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesChangesToGrid(100, 150, 10, 30)([1, 2, 3]::Array(UInt32), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesChangesToGrid(100, 150, 10, 30)(CAST('[1, 2, 3]' AS Array(UInt32)), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 SELECT timeSeriesResetsToGrid(100, 150, 10, 30)(toDateTime(105), [1., 2., 3.]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT timeSeriesResetsToGrid(100, 150, 10, 30)([1, 2, 3]::Array(UInt32), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT timeSeriesResetsToGrid(100, 150, 10, 30)(CAST('[1, 2, 3]' AS Array(UInt32)), 1.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 DROP TABLE ts_data;
 

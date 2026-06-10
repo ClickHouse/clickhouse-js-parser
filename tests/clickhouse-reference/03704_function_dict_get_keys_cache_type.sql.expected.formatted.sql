@@ -7,7 +7,7 @@ CREATE TABLE dict_src
     id UInt64,
     grp String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src;
 
@@ -18,7 +18,7 @@ CREATE DICTIONARY colors
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys('colors', 'grp', 'blue') AS keys
@@ -42,7 +42,7 @@ CREATE TABLE src_products
     category String,
     brand String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO src_products;
 
@@ -63,7 +63,7 @@ CREATE TABLE inputs
     target_brand String,
     target_timezone String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO inputs;
 
@@ -76,7 +76,7 @@ ORDER BY
     target_brand ASC,
     target_timezone ASC;
 
-ALTER TABLE src_products DELETE WHERE category = 'catA' SETTINGS mutations_sync = 1;
+ALTER TABLE src_products DELETE WHERE category = 'catA' SETTINGS mutations_sync = '1';
 
 SYSTEM RELOAD DICTIONARY dict_products;
 

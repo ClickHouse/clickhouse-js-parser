@@ -1,4 +1,4 @@
-SET output_format_pretty_display_footer_column_names = 0;
+SET output_format_pretty_display_footer_column_names = '0';
 
 SELECT 1000000 AS a
 FORMAT Pretty;
@@ -37,51 +37,51 @@ SELECT 1000000 AS a
 FORMAT PrettySpaceNoEscapesMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT Pretty;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyNoEscapes;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyNoEscapesMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyCompact;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyCompactNoEscapes;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyCompactMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettyCompactNoEscapesMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettySpace;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettySpaceNoEscapes;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettySpaceMonoBlock;
 
 SELECT 1000000 AS a
-SETTINGS output_format_pretty_single_large_number_tip_threshold = 1000
+SETTINGS output_format_pretty_single_large_number_tip_threshold = '1000'
 FORMAT PrettySpaceNoEscapesMonoBlock;
 
 SELECT 1000001 AS a
@@ -336,7 +336,7 @@ FROM `system`.numbers
 LIMIT 2
 FORMAT PrettySpaceNoEscapesMonoBlock;
 
-SET output_format_pretty_single_large_number_tip_threshold = 1;
+SET output_format_pretty_single_large_number_tip_threshold = '1';
 
 SELECT '2024-02-29'::Date
 FORMAT Pretty;

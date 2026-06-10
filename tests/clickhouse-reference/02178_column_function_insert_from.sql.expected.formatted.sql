@@ -8,21 +8,21 @@ CREATE TABLE TESTTABLE
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-PARTITION BY (pt);
+PARTITION BY pt;
 
 INSERT INTO TESTTABLE;
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 -- There is a bug which is fixed in new analyzer.
-SET max_bytes_before_external_sort = 0;
+SET max_bytes_before_external_sort = '0';
 
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
 SELECT
     attr,
     _id,
-    arrayFilter(x -> (x IN (
+    arrayFilter((x -> x IN (
         SELECT '1'
     )), attr_list) AS z
 FROM

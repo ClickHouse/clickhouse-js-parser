@@ -1,24 +1,9 @@
-DESCRIBE TABLE format(JSONEachRow, '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-');
+DESCRIBE TABLE format(JSONEachRow, '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n');
 
-DESCRIBE TABLE format(JSONEachRow, 'a String, b Int64', '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-');
+DESCRIBE TABLE format(JSONEachRow, 'a String, b Int64', '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n');
 
 SELECT *
-FROM format(JSONEachRow, 'a String, b Int64', '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-');
+FROM format(JSONEachRow, 'a String, b Int64', '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n');
 
 DESCRIBE TABLE format(CSV, '1,2,"[1,2,3]","[[''abc''], [], [''d'', ''e'']]"');
 

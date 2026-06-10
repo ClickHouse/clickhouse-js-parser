@@ -10,7 +10,7 @@ CREATE TABLE `01760_db`.example_simple_key_source
     id UInt64,
     value UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01760_db`.example_simple_key_source;
 
@@ -51,7 +51,7 @@ CREATE TABLE `01760_db`.example_complex_key_source
     id_key String,
     value UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01760_db`.example_complex_key_source;
 

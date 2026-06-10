@@ -4,7 +4,7 @@ CREATE TABLE data_a_02187
 (
     a Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO data_a_02187 SELECT *
 FROM `system`.one

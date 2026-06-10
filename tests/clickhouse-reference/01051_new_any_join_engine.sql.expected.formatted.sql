@@ -21,7 +21,7 @@ CREATE TABLE t1
     x UInt32,
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE any_left_join
@@ -89,16 +89,16 @@ INSERT INTO anti_left_join (x, s);
 
 INSERT INTO anti_right_join (x, s);
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
-SET any_join_distinct_right_table_keys = 0;
+SET any_join_distinct_right_table_keys = '0';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 SELECT *
 FROM
     t1
-LEFT JOIN any_left_join AS j
+ANY LEFT JOIN any_left_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -108,7 +108,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-INNER JOIN any_inner_join AS j
+ANY INNER JOIN any_inner_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -118,7 +118,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-RIGHT JOIN any_right_join AS j
+ANY RIGHT JOIN any_right_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -128,7 +128,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-LEFT JOIN semi_left_join AS j
+SEMI LEFT JOIN semi_left_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -138,7 +138,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-RIGHT JOIN semi_right_join AS j
+SEMI RIGHT JOIN semi_right_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -148,7 +148,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-LEFT JOIN anti_left_join AS j
+ANTI LEFT JOIN anti_left_join AS j
     USING (x)
 ORDER BY
     x ASC,
@@ -158,7 +158,7 @@ ORDER BY
 SELECT *
 FROM
     t1
-RIGHT JOIN anti_right_join AS j
+ANTI RIGHT JOIN anti_right_join AS j
     USING (x)
 ORDER BY
     x ASC,

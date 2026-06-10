@@ -1,7 +1,7 @@
-SET system_events_show_zero_values = 1;
+SET system_events_show_zero_values = '1';
 
 SELECT value
 FROM `system`.events
-WHERE event == 'PerfAlignmentFaults';
+WHERE event = 'PerfAlignmentFaults';
 
-SET system_events_show_zero_values = 0;
+SET system_events_show_zero_values = '0';

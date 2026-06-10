@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE VIEW `03215_test_v`
 AS
@@ -36,8 +36,8 @@ rtq AS (
         t.task_id,
         t.parent_id
     FROM
-        task AS t
-    CROSS JOIN rtq AS r
+        task AS t,
+        rtq AS r
     WHERE t.parent_id = r.task_id
 )
 

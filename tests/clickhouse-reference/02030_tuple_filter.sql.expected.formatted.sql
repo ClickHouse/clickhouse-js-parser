@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_tuple_filter;
 
@@ -11,13 +11,13 @@ CREATE TABLE test_tuple_filter
 ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY log_date
-SETTINGS index_granularity = 3, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '3', index_granularity_bytes = '10Mi';
 
 INSERT INTO test_tuple_filter;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
 SELECT *
 FROM test_tuple_filter
@@ -43,7 +43,7 @@ WHERE ((id, value), log_date) = ((1, 'A'), '2021-01-01');
 -- not supported functions (concat) do not lost
 SELECT *
 FROM test_tuple_filter
-WHERE (id, value, value||'foo') = ('1', 'A', 'A');
+WHERE (id, value, value || 'foo') = ('1', 'A', 'A');
 
 SELECT *
 FROM test_tuple_filter
@@ -61,15 +61,15 @@ SELECT *
 FROM test_tuple_filter
 WHERE ((id, value), tuple(log_date)) = ((1, 'A'), tuple('2021-01-01'));
 
-SET force_index_by_date = 1;
+SET force_index_by_date = '1';
 
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
 SELECT *
 FROM test_tuple_filter
 WHERE (log_date, value) = ('2021-01-01', 'A');
 
-SET force_index_by_date = 0;
+SET force_index_by_date = '0';
 
 SELECT *
 FROM test_tuple_filter
@@ -77,7 +77,7 @@ WHERE tuple(id) = tuple(1);
 
 SELECT *
 FROM test_tuple_filter
-WHERE (id, (id, id) = (1, NULL)) == (NULL, NULL);
+WHERE (id, (id, id) = (1, NULL)) = (NULL, NULL);
 
 SELECT *
 FROM test_tuple_filter

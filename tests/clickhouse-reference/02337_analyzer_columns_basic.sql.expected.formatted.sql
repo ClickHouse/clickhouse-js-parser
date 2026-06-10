@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DESCRIBE TABLE (SELECT dummy);
 
@@ -22,7 +22,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -99,7 +99,7 @@ CREATE TABLE `02337_db`.test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02337_db`.test_table;
 

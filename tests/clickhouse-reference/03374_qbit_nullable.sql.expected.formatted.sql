@@ -5,7 +5,7 @@ CREATE TABLE qbit_nullable_test
     id UInt32,
     data Nullable(QBit(Float64, 4))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbit_nullable_test;
 

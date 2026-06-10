@@ -28,7 +28,7 @@ CREATE TABLE simple_agf_summing_mt
     aggreg_map_max AggregateFunction(maxMap, Tuple(Array(String), Array(UInt64))),
     simple_map_max SimpleAggregateFunction(maxMap, Tuple(Array(String), Array(UInt64)))
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY a;
 
 INSERT INTO simple_agf_summing_mt SELECT
@@ -51,12 +51,12 @@ INSERT INTO simple_agf_summing_mt SELECT
     groupArrayArray([toUInt64(number % 1000)]),
     groupUniqArrayArrayState([toUInt64(number % 500)]),
     groupUniqArrayArray([toUInt64(number % 500)]),
-    sumMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    sumMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13))))
+    sumMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    sumMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13))))
 FROM numbers(10000)
 GROUP BY a;
 
@@ -80,12 +80,12 @@ INSERT INTO simple_agf_summing_mt SELECT
     groupArrayArray([toUInt64(number % 1000)]),
     groupUniqArrayArrayState([toUInt64(number % 500)]),
     groupUniqArrayArray([toUInt64(number % 500)]),
-    sumMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    sumMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13))))
+    sumMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    sumMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13))))
 FROM numbers(10000)
 GROUP BY a;
 
@@ -138,7 +138,7 @@ FROM (
 
 SELECT '---mutation---';
 
-ALTER TABLE simple_agf_summing_mt DELETE WHERE (a % 3) = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE simple_agf_summing_mt DELETE WHERE a % 3 = 0 SETTINGS mutations_sync = '1';
 
 INSERT INTO simple_agf_summing_mt SELECT
     number % 11151 AS a,
@@ -150,8 +150,8 @@ INSERT INTO simple_agf_summing_mt SELECT
     sum(number),
     sumWithOverflowState(number),
     sumWithOverflow(number),
-    groupBitAndState((number % 3) + 111111110),
-    groupBitAnd((number % 3) + 111111110),
+    groupBitAndState(number % 3 + 111111110),
+    groupBitAnd(number % 3 + 111111110),
     groupBitOrState(number + 111111111),
     groupBitOr(number + 111111111),
     groupBitXorState(number + 111111111),
@@ -160,12 +160,12 @@ INSERT INTO simple_agf_summing_mt SELECT
     groupArrayArray([toUInt64(number % 100)]),
     groupUniqArrayArrayState([toUInt64(number % 50)]),
     groupUniqArrayArray([toUInt64(number % 50)]),
-    sumMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    sumMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    minMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMapState((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13)))),
-    maxMap((arrayMap(i -> toString(i), range(13)), arrayMap(i -> (number + i), range(13))))
+    sumMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    sumMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    minMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMapState((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13)))),
+    maxMap((arrayMap((i -> toString(i)), range(13)), arrayMap((i -> number + i), range(13))))
 FROM numbers(10000)
 GROUP BY a;
 

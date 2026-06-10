@@ -13,102 +13,102 @@ RIGHT JOIN numbers(1) AS t2
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ANY LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+ANY RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+SEMI LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+SEMI RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ANTI LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+ANTI RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-INNER JOIN numbers(1) AS t2
+ASOF INNER JOIN numbers(1) AS t2
     USING (number); -- { serverError NOT_IMPLEMENTED }
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ASOF LEFT JOIN numbers(1) AS t2
     USING (number); -- { serverError NOT_IMPLEMENTED }
 
 -- legacy
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ALL LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+ALL RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ANY LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+ANY RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+SEMI LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+SEMI RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ANTI LEFT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-RIGHT JOIN numbers(1) AS t2
+ANTI RIGHT JOIN numbers(1) AS t2
     USING (number);
 
 SELECT *
 FROM
     numbers(1) AS t1
-LEFT JOIN numbers(1) AS t2
+ASOF LEFT JOIN numbers(1) AS t2
     USING (number); -- { serverError NOT_IMPLEMENTED }

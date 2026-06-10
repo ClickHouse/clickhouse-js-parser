@@ -17,5 +17,5 @@ SELECT
     block
 FROM `system`.unicode
 WHERE block = 'Emoticons'
-    AND like(name, '%CRY%')
+    AND name LIKE '%CRY%'
 ORDER BY code_point ASC;

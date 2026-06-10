@@ -1,137 +1,148 @@
 [
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "z",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                }
-              ],
-              "source": "['a', 'b']"
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "z"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sumMergeForEach",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
-            }
-          ]
-        },
-        "alias": "x"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "sumStateForEach",
-              "args": [
-                {
-                  "kind": "arrayLiteral",
-                  "elements": [
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "1."
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "1.1"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "1.1300175"
-                    }
-                  ],
-                  "source": "[1., 1.1, 1.1300175]"
-                }
-              ]
-            },
-            "alias": "x"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2}"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "system",
-                "one"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "z"
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "z",
+              "name": "arrayJoin",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Array",
+                  "value": [
+                    {
+                      "value_type": "String",
+                      "value": "a"
+                    },
+                    {
+                      "value_type": "String",
+                      "value": "b"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "z"
+            },
+            {
+              "type": "Function",
+              "alias": "x",
+              "name": "sumMergeForEach",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "x",
+                              "name": "sumStateForEach",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "Array",
+                                  "value": [
+                                    {
+                                      "value_type": "Float64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "value_type": "Float64",
+                                      "value": 1.1
+                                    },
+                                    {
+                                      "value_type": "Float64",
+                                      "value": 1.1300175
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2}"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "system.one",
+                                        "name_parts": [
+                                          "system",
+                                          "one"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "z"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "z"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "z"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

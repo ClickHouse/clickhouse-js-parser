@@ -1,118 +1,168 @@
 [
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "DATABASE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
       "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "ifNotExists": true,
-    "engine": {
-      "name": "Memory"
+        "type": "Identifier",
+        "name": "v0"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
       "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "table": "v0"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+      "table": {
+        "type": "Identifier",
+        "name": "v0"
       },
-      "table": "v0"
-    },
-    "refresh": "AFTER 1 SECOND APPEND",
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "c0",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Function",
+                "name": "tuple",
+                "arguments": []
+              }
+            }
+          }
+        ]
+      },
+      "refresh": {
+        "type": "RefreshStrategy",
+        "schedule_kind": "AFTER",
+        "append": true,
+        "period": {
+          "type": "TimeInterval",
+          "interval": [
+            {
+              "kind": "Second",
+              "value": "1"
+            }
+          ]
         }
       }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "v0"
+      },
+      "permanently": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "v0"
+      },
+      "commands": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "alias": "c0"
+          "type": "AlterCommand",
+          "command_type": "MODIFY_REFRESH",
+          "refresh": {
+            "type": "RefreshStrategy",
+            "schedule_kind": "AFTER",
+            "append": true,
+            "period": {
+              "type": "TimeInterval",
+              "interval": [
+                {
+                  "kind": "Second",
+                  "value": "1"
+                }
+              ]
+            }
+          }
         }
-      ],
-      "parenthesized": true
+      ]
     }
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      },
-      "table": "v0"
-    },
-    "permanently": true,
-    "trailingComments": [
-      "-- { serverError NOT_IMPLEMENTED }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      },
-      "table": "v0"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_REFRESH",
-        "refresh": "AFTER 1 SECOND APPEND"
-      }
-    ]
   }
 ]

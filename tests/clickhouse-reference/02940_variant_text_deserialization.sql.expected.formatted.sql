@@ -1,6 +1,6 @@
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET allow_suspicious_variant_types = 1;
+SET allow_suspicious_variant_types = '1';
 
 SET session_timezone = 'UTC';
 
@@ -182,7 +182,7 @@ SELECT
     v,
     variantElement(v, 'Tuple(a UInt64, b UInt64)')
 FROM format(JSONEachRow, 'v Variant(String, Tuple(a UInt64, b UInt64))', '{"v" : null}, {"v" : "string"}, {"v" : {"a" : 42, "b" : null}}, {"v" : {"a" : 44, "d" : 32}}')
-SETTINGS input_format_json_defaults_for_missing_elements_in_named_tuple = 0;
+SETTINGS input_format_json_defaults_for_missing_elements_in_named_tuple = '0';
 
 SELECT
     v,

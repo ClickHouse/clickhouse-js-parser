@@ -4,7 +4,7 @@ CREATE TABLE t_enum_in_unknown_value
 (
     e Enum('a' = 1, 'b' = 2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_enum_in_unknown_value;
 
@@ -59,7 +59,7 @@ SELECT *
 FROM t_enum_in_unknown_value
 WHERE e NOT IN ('c');
 
-SET validate_enum_literals_in_operators = 1;
+SET validate_enum_literals_in_operators = '1';
 
 SELECT *
 FROM t_enum_in_unknown_value

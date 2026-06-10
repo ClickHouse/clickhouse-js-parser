@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS defaults
 (
     vals String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS defaults
 (
     vals UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
@@ -34,13 +34,13 @@ CREATE TABLE IF NOT EXISTS defaults
 (
     vals UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS defaults
 (
     vals Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS defaults
 (
     vals DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 

@@ -6,77 +6,77 @@ CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_1
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_2
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_3
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_4
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_5
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_6
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_7
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_8
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_9
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_10
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_11
 (
     id Int32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE VIEW IF NOT EXISTS test_max_num_to_warn_02931.test_max_num_to_warn_view_1
 AS
@@ -281,7 +281,7 @@ SELECT
     replaceRegexpAll(message, '\\(\\d+\\)', '_'),
     message_format_string
 FROM `system`.warnings
-WHERE like(message, 'The number of%')
+WHERE message LIKE 'The number of%'
 ORDER BY message ASC;
 
 DROP DATABASE IF EXISTS test_max_num_to_warn_02931;

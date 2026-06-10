@@ -3,8 +3,8 @@ WITH a AS (
         t1.number AS n1,
         t2.number AS n2
     FROM
-        numbers(1) AS t1
-    CROSS JOIN numbers(1) AS t2
+        numbers(1) AS t1,
+        numbers(1) AS t2
 ),
 
 b AS (
@@ -14,8 +14,8 @@ b AS (
 
 SELECT *
 FROM
-    b AS l
-CROSS JOIN a AS r;
+    b AS l,
+    a AS r;
 
 WITH a AS (
     SELECT number
@@ -29,8 +29,8 @@ b AS (
 
 SELECT *
 FROM
-    b AS l
-CROSS JOIN a AS r;
+    b AS l,
+    a AS r;
 
 WITH a AS (
     SELECT number
@@ -44,5 +44,5 @@ b AS (
 
 SELECT *
 FROM
-    a AS l
-CROSS JOIN b AS r;
+    a AS l,
+    b AS r;

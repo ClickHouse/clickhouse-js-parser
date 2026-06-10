@@ -1,18 +1,18 @@
 -- Tags: no-fasttest
 DROP TABLE IF EXISTS t_json_partitions;
 
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 CREATE TABLE t_json_partitions
 (
     id UInt32,
     obj JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id;
 
-INSERT INTO t_json_partitions;
+INSERT INTO t_json_partitions FORMAT JSONEachRow;
 
 SELECT *
 FROM t_json_partitions

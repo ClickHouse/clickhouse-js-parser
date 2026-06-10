@@ -1,5 +1,5 @@
 -- Tags: no-random-merge-tree-settings, no-object-storage
-SET optimize_read_in_order = 1, merge_tree_min_rows_for_concurrent_read = 1000, read_in_order_use_virtual_row = 1;
+SET optimize_read_in_order = '1', merge_tree_min_rows_for_concurrent_read = '1000', read_in_order_use_virtual_row = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -7,9 +7,9 @@ CREATE TABLE tab
 (
     t DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 SYSTEM STOP MERGES tab;
 
@@ -27,7 +27,7 @@ SELECT *
 FROM tab
 ORDER BY t ASC
 SETTINGS
-    read_in_order_two_level_merge_threshold = 0,
-    max_threads = 4,
-    read_in_order_use_buffering = 0
+    read_in_order_two_level_merge_threshold = '0',
+    max_threads = '4',
+    read_in_order_use_buffering = '0'
 FORMAT tsv;

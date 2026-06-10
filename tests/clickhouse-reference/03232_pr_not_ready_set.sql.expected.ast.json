@@ -1,136 +1,199 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "is_initial_query"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "alias": "c"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "replaceRegexpAll",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
+              "type": "Identifier",
+              "name": "is_initial_query"
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "alias": "query",
+              "name": "replaceRegexpAll",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "query"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "_data_(\\d+)_(\\d+)"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "_data_"
+                }
               ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "_data_(\\\\d+)_(\\\\d+)"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "_data_"
             }
-          ]
-        },
-        "alias": "query"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "functionCall",
-            "name": "ignore",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "54"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              {
-                "kind": "functionCall",
-                "name": "ignore",
-                "args": [
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "String",
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
                     "value": "QueryFinish"
-                  },
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "toLowCardinality",
-                    "args": [
+                    "type": "Function",
+                    "name": "ignore",
+                    "arguments": [
                       {
-                        "kind": "functionCall",
-                        "name": "toLowCardinality",
-                        "args": [
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "54"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "ignore",
+                        "arguments": [
                           {
-                            "kind": "literal",
-                            "type": "UInt64",
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "QueryFinish"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "toLowCardinality",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toLowCardinality",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "11"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "QueryFinish"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "materialize",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toUInt128",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
                             "value": "11"
                           }
                         ]
@@ -138,236 +201,161 @@
                     ]
                   },
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "QueryFinish"
-              },
-              {
-                "kind": "functionCall",
-                "name": "materialize",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  }
-                ]
-              },
-              {
-                "kind": "functionCall",
-                "name": "toUInt128",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "event_date"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "yesterday",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "type"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "QueryFinish"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "-- Parallel inner query alone%"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
                   }
                 ]
               }
             ]
           },
-          "values": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    },
-                    "parenthesized": true
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": ">=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "event_date"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "yesterday",
-                      "args": []
-                    },
-                    "parenthesized": true
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "type"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "QueryFinish"
-                    },
-                    "parenthesized": true
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "-- Parallel inner query alone%"
-                      }
-                    ],
-                    "parenthesized": true
-                  }
-                ]
-              }
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "is_initial_query"
+            },
+            {
+              "type": "Identifier",
+              "name": "query"
             }
-          },
-          "parenthesized": true
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "is_initial_query"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "query"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_parallel_reading_from_replicas": "1",
+              "max_parallel_replicas": "3",
+              "cluster_for_parallel_replicas": "test_cluster_one_shard_three_replicas_localhost",
+              "parallel_replicas_for_non_replicated_merge_tree": "1",
+              "parallel_replicas_min_number_of_rows_per_replica": "10"
+            }
+          }
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "is_initial_query"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "query"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "is_initial_query"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "query"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "allow_experimental_parallel_reading_from_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_cluster_one_shard_three_replicas_localhost"
-        }
-      },
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "parallel_replicas_min_number_of_rows_per_replica",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    ]
+    }
   }
 ]

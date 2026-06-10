@@ -1,9 +1,9 @@
 -- Tags: long, no-random-merge-tree-settings, no-random-settings, no-tsan, no-debug, no-object-storage, no-distributed-cache
 -- no-tsan: too slow
 -- no-object-storage: for remote tables we use thread pool even when reading with one stream, so memory consumption is higher
-SET use_uncompressed_cache = 0;
+SET use_uncompressed_cache = '0';
 
-SET allow_prefetched_read_pool_for_remote_filesystem = 0;
+SET allow_prefetched_read_pool_for_remote_filesystem = '0';
 
 DROP TABLE IF EXISTS adaptive_table;
 
@@ -17,12 +17,12 @@ CREATE TABLE adaptive_table
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity_bytes = 1048576, min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0, enable_vertical_merge_algorithm = 0;
+SETTINGS index_granularity_bytes = '1048576', min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0', enable_vertical_merge_algorithm = '0';
 
-SET max_block_size = 900;
+SET max_block_size = '900';
 
 -- There are about 900 marks for our settings.
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 INSERT INTO adaptive_table SELECT
     number,
@@ -37,12 +37,12 @@ WHERE table = 'adaptive_table'
     AND database = currentDatabase()
     AND active;
 
-SET enable_filesystem_cache = 0;
+SET enable_filesystem_cache = '0';
 
 -- If we have computed granularity incorrectly than we will exceed this limit.
 SET max_memory_usage = '30M';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT max(length(value))
 FROM adaptive_table;

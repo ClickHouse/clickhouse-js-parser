@@ -4,13 +4,13 @@ SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON);
 
 SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}], "f" : null}'::JSON);
 
-SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=100));
+SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 100));
 
-SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=1));
+SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 1));
 
-SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=0));
+SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 0));
 
-SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_types=0));
+SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_types = 0));
 
 SELECT sipHash64('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(a Int64));
 
@@ -24,13 +24,13 @@ SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{
 
 SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}], "f" : null}'::JSON)])));
 
-SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=100))])));
+SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 100))])));
 
-SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=1))])));
+SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 1))])));
 
-SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths=0))])));
+SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_paths = 0))])));
 
-SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_types=0))])));
+SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(max_dynamic_types = 0))])));
 
 SELECT sipHash64(tuple(map('json', [toNullable('{"a" : 42, "b" : "str", "c" : [{"d" : 1}, {"e" : 2}]}'::JSON(a Int64))])));
 
@@ -42,7 +42,7 @@ CREATE TABLE test
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 
@@ -57,10 +57,10 @@ CREATE TABLE test
 (
     json JSON(max_dynamic_types = 0)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test
 (
     json JSON(max_dynamic_paths = 0)
 )
-ENGINE = Memory;
+ENGINE = Memory();

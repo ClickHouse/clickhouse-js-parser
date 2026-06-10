@@ -1,10 +1,10 @@
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
 CREATE TABLE test
 (
     v Variant(UInt64, String, Array(UInt64))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 

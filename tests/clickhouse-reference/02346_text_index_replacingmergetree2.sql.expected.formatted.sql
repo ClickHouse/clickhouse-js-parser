@@ -1,18 +1,18 @@
 DROP TABLE IF EXISTS tab;
 
 -- Tests text index with the 'ReplacingMergeTree' engine
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
 CREATE TABLE tab
 (
     id UInt64,
     version UInt64,
     text String,
-    INDEX idx_text text TYPE text(tokenizer = `array`)
+    INDEX idx_text text TYPE text(tokenizer = `array`) GRANULARITY 100000000
 )
 ENGINE = ReplacingMergeTree(version)
 ORDER BY id;
@@ -20,13 +20,13 @@ ORDER BY id;
 INSERT INTO tab SELECT
     number,
     1,
-    concat('v', toString(number))
+    'v' || toString(number)
 FROM numbers(100000);
 
 INSERT INTO tab SELECT
     number,
     2,
-    concat('v', toString(number), '_updated')
+    'v' || toString(number) || '_updated'
 FROM numbers(0, 100000, 3);
 
 OPTIMIZE TABLE tab FINAL;

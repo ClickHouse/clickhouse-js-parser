@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/42399
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE IF NOT EXISTS t0
 (
@@ -18,7 +18,7 @@ ENGINE = Memory();
 CREATE TABLE t2
 (
     c0 String,
-    c1 String MATERIALIZED (c2),
+    c1 String MATERIALIZED c2,
     c2 Int32
 )
 ENGINE = Memory();
@@ -48,8 +48,8 @@ SELECT
     t2.c1,
     t4.c0
 FROM
-    t3
-CROSS JOIN t0
-CROSS JOIN t1
-CROSS JOIN t2
-CROSS JOIN t4;
+    t3,
+    t0,
+    t1,
+    t2,
+    t4;

@@ -6,9 +6,9 @@ CREATE TABLE table1
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO table1 SELECT number
 FROM numbers(1, 300);
@@ -27,10 +27,10 @@ ORDER BY number DESC
 LIMIT 20
 SETTINGS
     cluster_for_parallel_replicas = 'parallel_replicas',
-    allow_experimental_parallel_reading_from_replicas = 1,
-    max_parallel_replicas = 3,
-    parallel_replicas_for_non_replicated_merge_tree = 1,
-    parallel_replicas_local_plan = 1;
+    allow_experimental_parallel_reading_from_replicas = '1',
+    max_parallel_replicas = '3',
+    parallel_replicas_for_non_replicated_merge_tree = '1',
+    parallel_replicas_local_plan = '1';
 
 DROP TABLE view1;
 

@@ -10,7 +10,7 @@ CREATE TABLE test
     id UInt64,
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE IF NOT EXISTS test_d AS test
@@ -21,9 +21,9 @@ INSERT INTO test SELECT
     today()
 FROM numbers(100);
 
-SET enable_parallel_replicas = 2, max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '2', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1';
 
-SET parallel_replicas_only_with_analyzer = 0; -- necessary for CI run with disabled analyzer
+SET parallel_replicas_only_with_analyzer = '0'; -- necessary for CI run with disabled analyzer
 
 SELECT
     count(),
@@ -41,7 +41,7 @@ CREATE TABLE test2
     id UInt64,
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE IF NOT EXISTS test2_d AS test2

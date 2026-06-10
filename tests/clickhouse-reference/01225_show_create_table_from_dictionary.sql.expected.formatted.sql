@@ -5,14 +5,14 @@ DROP DATABASE IF EXISTS dict_db_01225;
 
 DROP DATABASE IF EXISTS dict_db_01225_dictionary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE dict_db_01225
-ENGINE = Ordinary; -- Different internal dictionary name with Atomic
+ENGINE = Ordinary(); -- Different internal dictionary name with Atomic
 
 CREATE DATABASE dict_db_01225_dictionary
-ENGINE = Dictionary;
+ENGINE = Dictionary();
 
 CREATE TABLE dict_db_01225.dict_data
 (

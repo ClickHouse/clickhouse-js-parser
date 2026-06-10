@@ -7,7 +7,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY (c0 DESC)
-SETTINGS index_granularity = 1, allow_experimental_reverse_key = 1;
+SETTINGS index_granularity = '1', allow_experimental_reverse_key = '1';
 
 INSERT INTO t0 (c0) SELECT number
 FROM numbers(10);
@@ -19,7 +19,7 @@ INNER JOIN t0 AS tx
     USING (c0)
 ORDER BY c0 ASC
 SETTINGS
-    query_plan_join_shard_by_pk_ranges = 1,
-    max_threads = 2;
+    query_plan_join_shard_by_pk_ranges = '1',
+    max_threads = '2';
 
 DROP TABLE t0;

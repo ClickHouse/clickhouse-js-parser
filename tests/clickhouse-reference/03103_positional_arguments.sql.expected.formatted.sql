@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/56466
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS users;
 
@@ -9,7 +9,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 

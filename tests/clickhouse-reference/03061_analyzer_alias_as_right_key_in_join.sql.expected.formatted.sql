@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/24395
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE xxxx_yyy
 (

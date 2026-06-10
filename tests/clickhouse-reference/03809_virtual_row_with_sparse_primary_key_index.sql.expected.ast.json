@@ -1,386 +1,413 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-random-merge-tree-settings",
-      "-- Test that read_in_order_use_virtual_row optimization works correctly when",
-      "-- the in-memory primary key index has fewer columns than expected due to",
-      "-- optimizeIndexColumns dropping suffix columns with high cardinality.",
-      "--",
-      "-- The primary_key_ratio_of_unique_prefix_values_to_skip_suffix_columns setting",
-      "-- (default 0.9) causes suffix columns to be dropped from the in-memory index",
-      "-- when prefix columns have >= 90% unique values across mark boundaries.",
-      "--",
-      "-- Previously, this caused \"Not found column in block\" errors because the",
-      "-- virtual_row_conversion expression expected all primary key columns, but",
-      "-- the pk_block only contained the columns present in the optimized index."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true,
-    "leadingComments": [
-      "-- Create table with composite primary key"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_virtual_row_sparse_pk"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "data"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "t_virtual_row_sparse_pk"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_virtual_row_sparse_pk"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "81920"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "a"
+            },
+            {
+              "type": "Identifier",
+              "name": "b"
+            }
+          ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "8192"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_virtual_row_sparse_pk"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "data"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "81920"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    },
-    "leadingComments": [
-      "-- Insert enough data to have multiple marks (10 marks = 81920 rows with granularity 8192)",
-      "-- Use sequential numbers so column 'a' has 100% unique values at mark boundaries,",
-      "-- which triggers the index optimization to drop column 'b'"
-    ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "final": true,
-    "leadingComments": [
-      "-- Force the merge to ensure we have a single part with optimized index"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_virtual_row_sparse_pk"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "tupleLiteral",
-          "elements": [
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
+              "type": "Identifier",
+              "name": "a"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
+              "type": "Identifier",
+              "name": "b"
             }
           ],
-          "source": "(a, b)"
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "settings": [
-      {
-        "name": "read_in_order_use_virtual_row",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_virtual_row_sparse_pk"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "b"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "read_in_order_use_virtual_row": "1"
+            }
+          }
         }
-      }
-    ],
-    "leadingComments": [
-      "-- This query uses read_in_order_use_virtual_row optimization",
-      "-- It should work even when the index doesn't have all primary key columns"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100000"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "tupleLiteral",
-          "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
+              "type": "Identifier",
+              "name": "a"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
+              "type": "Identifier",
+              "name": "b"
             }
           ],
-          "source": "(a, b)"
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "settings": [
-      {
-        "name": "read_in_order_use_virtual_row",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_virtual_row_sparse_pk"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "100000"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "b"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "read_in_order_use_virtual_row": "1"
+            }
+          }
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Also test with PREWHERE which may take a different code path"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "tupleLiteral",
-          "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
+              "type": "Identifier",
+              "name": "a"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
+              "type": "Identifier",
+              "name": "b"
             }
           ],
-          "source": "(a, b)"
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "settings": [
-      {
-        "name": "read_in_order_use_virtual_row",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_virtual_row_sparse_pk"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "b"
+                  }
+                ]
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "read_in_order_use_virtual_row": "1"
+            }
+          }
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Test descending order"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
-    },
-    "leadingComments": [
-      "-- Verify the total count is correct"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_virtual_row_sparse_pk"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_virtual_row_sparse_pk"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_virtual_row_sparse_pk"
+      }
     }
   }
 ]

@@ -1,15 +1,15 @@
 -- Tags: replica, distributed
-SET enable_parallel_replicas = 1;
+SET enable_parallel_replicas = '1';
 
 SET parallel_replicas_mode = 'sampling_key';
 
-SET max_parallel_replicas = 2;
+SET max_parallel_replicas = '2';
 
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
 DROP TABLE IF EXISTS report;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE report
 (

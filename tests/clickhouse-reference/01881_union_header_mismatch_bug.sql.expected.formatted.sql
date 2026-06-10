@@ -10,7 +10,7 @@ FROM (
             toInt64(0) AS `rows`,
             toInt64(0) AS elements
     )
-WHERE `rows` - elements <> 0;
+WHERE `rows` - elements != 0;
 
 SELECT
     label,

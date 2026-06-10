@@ -4,11 +4,11 @@ CREATE TABLE map_test_index_map_keys
 (
     row_id UInt32,
     map Map(String, String),
-    INDEX map_bloom_filter_keys mapKeys(map) TYPE bloom_filter GRANULARITY 1
+    INDEX map_bloom_filter_keys mapKeys(map) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO map_test_index_map_keys;
 
@@ -119,11 +119,11 @@ CREATE TABLE map_test_index_map_values
 (
     row_id UInt32,
     map Map(String, String),
-    INDEX map_bloom_filter_values mapValues(map) TYPE bloom_filter GRANULARITY 1
+    INDEX map_bloom_filter_values mapValues(map) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO map_test_index_map_values;
 

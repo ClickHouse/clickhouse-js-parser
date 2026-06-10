@@ -3,9 +3,9 @@
 -- no-parallel-replicas: profile events may differ with parallel replicas.
 DROP TABLE IF EXISTS t_lightweight_mut_7;
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
-SET max_streams_for_merge_tree_reading = 1;
+SET max_streams_for_merge_tree_reading = '1';
 
 CREATE TABLE t_lightweight_mut_7
 (
@@ -33,7 +33,7 @@ FROM t_lightweight_mut_7;
 
 SYSTEM START MERGES t_lightweight_mut_7;
 
-ALTER TABLE t_lightweight_mut_7 UPDATE v = v WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE t_lightweight_mut_7 UPDATE v = v WHERE 1 SETTINGS mutations_sync = '2';
 
 ALTER TABLE t_lightweight_mut_7 UPDATE v = v * v WHERE 1;
 
@@ -46,7 +46,7 @@ SELECT
     2,
     sum(v)
 FROM t_lightweight_mut_7
-SETTINGS apply_mutations_on_fly = 0;
+SETTINGS apply_mutations_on_fly = '0';
 
 SELECT
     3,
@@ -61,7 +61,7 @@ SELECT
     ProfileEvents['MutationsAppliedOnFlyInAllReadTasks']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND ilike(query, 'SELECT%FROM%t_lightweight_mut_7%')
+    AND query ILIKE 'SELECT%FROM%t_lightweight_mut_7%'
     AND type = 'QueryFinish'
 ORDER BY event_time_microseconds ASC;
 

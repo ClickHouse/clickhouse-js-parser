@@ -20,7 +20,7 @@ ALTER TABLE alter_test ADD COLUMN Added1 UInt32 AFTER Added0;
 
 ALTER TABLE alter_test ADD COLUMN AddedNested1 Nested(A UInt32, B UInt64) AFTER Added2;
 
-ALTER TABLE alter_test ADD COLUMN `AddedNested1.C` Array(String) AFTER `AddedNested1.B`;
+ALTER TABLE alter_test ADD COLUMN `AddedNested1.C` Array(String) AFTER AddedNested1.B;
 
 ALTER TABLE alter_test ADD COLUMN AddedNested2 Nested(A UInt32, B UInt64) AFTER AddedNested1;
 
@@ -30,23 +30,23 @@ ALTER TABLE alter_test DROP COLUMN ToDrop;
 
 ALTER TABLE alter_test MODIFY COLUMN Added0 String;
 
-ALTER TABLE alter_test DROP COLUMN `NestedColumn.A`;
+ALTER TABLE alter_test DROP COLUMN NestedColumn.A;
 
-ALTER TABLE alter_test DROP COLUMN `NestedColumn.S`;
+ALTER TABLE alter_test DROP COLUMN NestedColumn.S;
 
-ALTER TABLE alter_test DROP COLUMN `AddedNested1.B`;
+ALTER TABLE alter_test DROP COLUMN AddedNested1.B;
 
-ALTER TABLE alter_test ADD COLUMN Added0 UInt32;
+ALTER TABLE alter_test ADD COLUMN IF NOT EXISTS Added0 UInt32;
 
-ALTER TABLE alter_test ADD COLUMN AddedNested1 Nested(A UInt32, B UInt64);
+ALTER TABLE alter_test ADD COLUMN IF NOT EXISTS AddedNested1 Nested(A UInt32, B UInt64);
 
-ALTER TABLE alter_test ADD COLUMN `AddedNested1.C` Array(String);
+ALTER TABLE alter_test ADD COLUMN IF NOT EXISTS `AddedNested1.C` Array(String);
 
-ALTER TABLE alter_test MODIFY COLUMN ToDrop UInt64;
+ALTER TABLE alter_test MODIFY COLUMN IF EXISTS ToDrop UInt64;
 
-ALTER TABLE alter_test DROP COLUMN ToDrop;
+ALTER TABLE alter_test DROP COLUMN IF EXISTS ToDrop;
 
-ALTER TABLE alter_test COMMENT COLUMN ToDrop 'new comment';
+ALTER TABLE alter_test COMMENT COLUMN IF EXISTS ToDrop 'new comment';
 
 ALTER TABLE alter_test RENAME COLUMN Added0 TO RenamedColumn;
 

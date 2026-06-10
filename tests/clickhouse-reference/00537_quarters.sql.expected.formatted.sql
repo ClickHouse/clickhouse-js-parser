@@ -1,5 +1,5 @@
 SELECT
-    ((toDate('2017-01-01') AS base)) + toIntervalMonth(number) AS d,
+    (toDate('2017-01-01') AS base) + toIntervalMonth(number) AS d,
     toDateTime(d, 'UTC') AS t,
     toQuarter(d) AS qd,
     toQuarter(t) AS qt,

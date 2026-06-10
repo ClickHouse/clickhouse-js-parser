@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS left_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE left_table
     APIKey Int32,
     SomeColumn String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO left_table;
@@ -19,7 +19,7 @@ CREATE TABLE right_table
     APIKey Int32,
     EventValueForPostback String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO right_table;
@@ -29,7 +29,7 @@ SELECT
     ConversionEventValue
 FROM
     left_table AS left_table
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM
             (
@@ -38,7 +38,7 @@ INNER JOIN (
                     EventValueForPostback AS ConversionEventValue
                 FROM right_table AS right_table
             )
-        INNER JOIN (
+        ALL INNER JOIN (
                 SELECT APIKey
                 FROM left_table AS left_table
                 GROUP BY APIKey

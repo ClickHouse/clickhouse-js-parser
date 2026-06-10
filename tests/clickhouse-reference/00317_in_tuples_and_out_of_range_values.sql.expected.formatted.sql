@@ -1,12 +1,12 @@
-SELECT (1,'') IN ((-1,''));
+SELECT (1, '') IN ((-1, ''),);
 
-SELECT (1,'') IN ((1,''));
+SELECT (1, '') IN ((1, ''),);
 
-SELECT (1,'') IN (-1, '');
+SELECT (1, '') IN (-1, '');
 
-SELECT (1,'') IN (1, '');
+SELECT (1, '') IN (1, '');
 
-SELECT (1,'') IN ((-1,''), (1,''));
+SELECT (1, '') IN ((-1, ''), (1, ''));
 
 SELECT (number, toString(number)) IN ((1, '1'), (-1, '-1'))
 FROM `system`.numbers

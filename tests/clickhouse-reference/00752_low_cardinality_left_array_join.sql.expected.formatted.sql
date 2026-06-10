@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS lc_left_aj;
 
@@ -9,7 +9,7 @@ CREATE TABLE lc_left_aj
     val Array(LowCardinality(Float64)),
     null_val Array(LowCardinality(Nullable(Float64)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO lc_left_aj;
 

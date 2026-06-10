@@ -14,15 +14,15 @@ DROP TABLE IF EXISTS data_01756_str;
 DROP TABLE IF EXISTS data_01756_signed;
 
 -- separate log entry for localhost queries
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
-SET force_optimize_skip_unused_shards = 2;
+SET force_optimize_skip_unused_shards = '2';
 
-SET optimize_skip_unused_shards = 1;
+SET optimize_skip_unused_shards = '1';
 
-SET optimize_skip_unused_shards_rewrite_in = 0;
+SET optimize_skip_unused_shards_rewrite_in = '0';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 -- { echoOn }
 -- SELECT
@@ -44,22 +44,22 @@ SELECT
 FROM dist_01756
 WHERE dummy IN (0, 2);
 
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT splitByString('IN', query)[-1]
 FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND event_time > now() - toIntervalHour(1)
     AND NOT is_initial_query
-    AND notLike(query, '%system%query_log%')
-    AND like(query, concat('%', currentDatabase(), '%AS%id_no%'))
+    AND query NOT LIKE '%system%query_log%'
+    AND query LIKE concat('%', currentDatabase(), '%AS%id_no%')
     AND type = 'QueryFinish'
 ORDER BY query ASC;
 
 --
 -- w/ optimize_skip_unused_shards_rewrite_in=1
 --
-SET optimize_skip_unused_shards_rewrite_in = 1;
+SET optimize_skip_unused_shards_rewrite_in = '1';
 
 WITH (
         SELECT currentDatabase()
@@ -76,8 +76,8 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND event_time > now() - toIntervalHour(1)
     AND NOT is_initial_query
-    AND notLike(query, '%system%query_log%')
-    AND like(query, concat('%', currentDatabase(), '%AS%id_02%'))
+    AND query NOT LIKE '%system%query_log%'
+    AND query LIKE concat('%', currentDatabase(), '%AS%id_02%')
     AND type = 'QueryFinish'
 ORDER BY query ASC;
 
@@ -96,8 +96,8 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND event_time > now() - toIntervalHour(1)
     AND NOT is_initial_query
-    AND notLike(query, '%system%query_log%')
-    AND like(query, concat('%', currentDatabase(), '%AS%id_2%'))
+    AND query NOT LIKE '%system%query_log%'
+    AND query LIKE concat('%', currentDatabase(), '%AS%id_2%')
     AND type = 'QueryFinish'
 ORDER BY query ASC;
 
@@ -116,8 +116,8 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND event_time > now() - toIntervalHour(1)
     AND NOT is_initial_query
-    AND notLike(query, '%system%query_log%')
-    AND like(query, concat('%', currentDatabase(), '%AS%id_00%'))
+    AND query NOT LIKE '%system%query_log%'
+    AND query LIKE concat('%', currentDatabase(), '%AS%id_00%')
     AND type = 'QueryFinish'
 ORDER BY query ASC;
 
@@ -125,7 +125,7 @@ CREATE TABLE data_01756_signed
 (
     key Int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 WITH (
         SELECT currentDatabase()
@@ -142,8 +142,8 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND event_time > now() - toIntervalHour(1)
     AND NOT is_initial_query
-    AND notLike(query, '%system%query_log%')
-    AND like(query, concat('%', currentDatabase(), '%AS%key_signed%'))
+    AND query NOT LIKE '%system%query_log%'
+    AND query LIKE concat('%', currentDatabase(), '%AS%key_signed%')
     AND type = 'QueryFinish'
 ORDER BY query ASC;
 
@@ -168,7 +168,7 @@ WHERE dummy IN (
 SELECT *
 FROM dist_01756
 WHERE dummy IN (toUInt8(0))
-SETTINGS enable_analyzer = 0; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
+SETTINGS enable_analyzer = '0'; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
 
 -- NOT IN does not supported
 SELECT *
@@ -194,7 +194,7 @@ WHERE dummy IN (tuple(2));
 
 -- Identifier is NULL
 SELECT
-    (2 IN (tuple(2))),
+    2 IN (2,),
     *
 FROM dist_01756
 WHERE dummy IN (0, 2)
@@ -202,7 +202,7 @@ FORMAT Null;
 
 -- Literal is NULL
 SELECT
-    (dummy IN (tuple(toUInt8(2)))),
+    dummy IN (toUInt8(2),),
     *
 FROM dist_01756
 WHERE dummy IN (0, 2)
@@ -241,7 +241,7 @@ WHERE key IN (0, 2);
 SELECT *
 FROM dist_01756_str
 WHERE key IN ('0', NULL)
-SETTINGS enable_analyzer = 0; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
+SETTINGS enable_analyzer = '0'; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
 
 CREATE TABLE dist_01756_column AS `system`.one
 ENGINE = Distributed(test_cluster_two_shards, `system`, one, dummy);
@@ -262,14 +262,14 @@ WHERE dummy IN ('0', '2');
 SELECT *
 FROM dist_01756
 WHERE dummy IN (0, 2)
-SETTINGS optimize_skip_unused_shards_limit = 1; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
+SETTINGS optimize_skip_unused_shards_limit = '1'; -- { serverError UNABLE_TO_SKIP_UNUSED_SHARDS }
 
 SELECT *
 FROM dist_01756
 WHERE dummy IN (0, 2)
 SETTINGS
-    optimize_skip_unused_shards_limit = 1,
-    force_optimize_skip_unused_shards = 0;
+    optimize_skip_unused_shards_limit = '1',
+    force_optimize_skip_unused_shards = '0';
 
 -- { echoOff }
 DROP TABLE dist_01756;

@@ -1,7 +1,7 @@
 -- insert data duplicates by providing deduplication token on insert
-DROP TABLE IF EXISTS insert_dedup_token1;
+DROP TABLE IF EXISTS insert_dedup_token1 SYNC;
 
-DROP TABLE IF EXISTS insert_dedup_token2;
+DROP TABLE IF EXISTS insert_dedup_token2 SYNC;
 
 CREATE TABLE insert_dedup_token1
 (
@@ -17,7 +17,7 @@ SELECT *
 FROM insert_dedup_token1
 ORDER BY id ASC;
 
-SYSTEM FLUSH LOGS system.part_log;
+SYSTEM FLUSH LOGS `system`.part_log;
 
 SELECT DISTINCT exception
 FROM `system`.part_log
@@ -54,6 +54,6 @@ SET insert_deduplication_token = '2';
 
 INSERT INTO insert_dedup_token2; -- inserted
 
-DROP TABLE insert_dedup_token1;
+DROP TABLE insert_dedup_token1 SYNC;
 
-DROP TABLE insert_dedup_token2;
+DROP TABLE insert_dedup_token2 SYNC;

@@ -1,12 +1,12 @@
 -- Tags: long
 -- test became more than an order of magnitude slower with max_bytes_before_external_sort=1
-SET max_bytes_before_external_sort = 0;
+SET max_bytes_before_external_sort = '0';
 
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
 DROP TABLE IF EXISTS stack;
 
-SET max_insert_threads = 4;
+SET max_insert_threads = '4';
 
 CREATE TABLE stack
 (
@@ -17,10 +17,10 @@ CREATE TABLE stack
     expiration_dt DateTime,
     quantity UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (brand_id, toStartOfHour(dt))
 PARTITION BY toYYYYMM(dt)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO stack SELECT
     number % 99991,

@@ -1,4 +1,4 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 SELECT sum(hasAllTokens('', ''));
 

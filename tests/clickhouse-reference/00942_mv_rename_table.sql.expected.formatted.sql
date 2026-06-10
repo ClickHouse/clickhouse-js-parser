@@ -8,10 +8,10 @@ CREATE TABLE src_00942
 (
     x UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW view_table_00942
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT *
 FROM src_00942;

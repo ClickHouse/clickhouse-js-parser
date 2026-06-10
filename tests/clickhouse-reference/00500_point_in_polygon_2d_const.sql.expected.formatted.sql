@@ -27,7 +27,7 @@ INSERT INTO p;
 
 SELECT id
 FROM s
-WHERE pointInPolygon((lng,lat), (
+WHERE pointInPolygon((lng, lat), (
         SELECT shape
         FROM p
         WHERE polygon_id = 8

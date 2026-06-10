@@ -8,7 +8,7 @@ CREATE TABLE table_with_column_ttl
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0; -- column TTL doesn't work for compact parts
+SETTINGS min_bytes_for_wide_part = '0'; -- column TTL doesn't work for compact parts
 
 INSERT INTO table_with_column_ttl;
 
@@ -22,7 +22,7 @@ SELECT
 FROM table_with_column_ttl
 ORDER BY UserID ASC;
 
-ALTER TABLE table_with_column_ttl MODIFY COLUMN Age;
+ALTER TABLE table_with_column_ttl MODIFY COLUMN Age REMOVE TTL;
 
 SHOW CREATE TABLE table_with_column_ttl;
 

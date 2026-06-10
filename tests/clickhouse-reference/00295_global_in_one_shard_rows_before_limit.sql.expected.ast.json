@@ -1,270 +1,295 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "output_format_write_statistics",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "output_format_write_statistics": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: shard"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "range",
-              "args": [
+              "type": "Function",
+              "alias": "x",
+              "name": "arrayJoin",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
+                  "type": "Function",
+                  "name": "range",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "100"
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "x"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.2"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "one"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "functionCall",
-              "name": "toUInt8",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "arrayJoin",
-                    "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
                       {
-                        "kind": "functionCall",
-                        "name": "range",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "100"
-                          }
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.2"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.one",
+                        "name_parts": [
+                          "system",
+                          "one"
                         ]
                       }
                     ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "50"
                   }
                 }
-              ]
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "globalIn",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "toUInt8",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "plus",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "arrayJoin",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "range",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "100"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "50"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "x"
             }
-          ]
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
         }
-      },
-      "global": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "JSONCompact"
+      ],
+      "format": "JSONCompact"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "range",
-              "args": [
+              "type": "Function",
+              "alias": "x",
+              "name": "arrayJoin",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
+                  "type": "Function",
+                  "name": "range",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "100"
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "x"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2,3}"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "one"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "functionCall",
-              "name": "toUInt8",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "arrayJoin",
-                    "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
                       {
-                        "kind": "functionCall",
-                        "name": "range",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "100"
-                          }
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2,3}"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.one",
+                        "name_parts": [
+                          "system",
+                          "one"
                         ]
                       }
                     ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "50"
                   }
                 }
-              ]
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "globalIn",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "toUInt8",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "plus",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "arrayJoin",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "range",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "100"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "50"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "x"
             }
-          ]
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
         }
-      },
-      "global": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "JSONCompact"
+      ],
+      "format": "JSONCompact"
+    }
   }
 ]

@@ -5,11 +5,11 @@ DROP TABLE IF EXISTS replicated_alter1;
 
 DROP TABLE IF EXISTS replicated_alter2;
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE replicated_alter1
 (
@@ -61,9 +61,9 @@ ALTER TABLE replicated_alter1 DROP COLUMN `n.d`, MODIFY COLUMN s Int64;
 
 ALTER TABLE replicated_alter1 ADD COLUMN `n.d` Array(Date), MODIFY COLUMN s UInt32;
 
-ALTER TABLE replicated_alter1 DROP COLUMN `n.ui8`, DROP COLUMN `n.d`;
+ALTER TABLE replicated_alter1 DROP COLUMN n.ui8, DROP COLUMN n.d;
 
-ALTER TABLE replicated_alter1 DROP COLUMN `n.s`;
+ALTER TABLE replicated_alter1 DROP COLUMN n.s;
 
 ALTER TABLE replicated_alter1 ADD COLUMN `n.s` Array(String), ADD COLUMN `n.d` Array(Date);
 

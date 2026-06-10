@@ -23,10 +23,10 @@ CREATE TABLE opentelemetry_span_log_9997438610282160742
 ENGINE = MergeTree()
 ORDER BY (check_name, finish_date, finish_time_us, trace_id)
 PARTITION BY toYYYYMM(finish_date)
-SETTINGS index_granularity = 8192, old_parts_lifetime = 60;
+SETTINGS index_granularity = '8192', old_parts_lifetime = '60';
 
 -- attribute.values column may conflict with subcolumn "values" of attribute map
-ALTER TABLE opentelemetry_span_log_9997438610282160742 MODIFY SETTING use_const_adaptive_granularity = 1;
+ALTER TABLE opentelemetry_span_log_9997438610282160742 MODIFY SETTING use_const_adaptive_granularity = '1';
 
 ALTER TABLE opentelemetry_span_log_9997438610282160742 RENAME COLUMN span_id TO span_id2;
 
@@ -39,5 +39,5 @@ CREATE TABLE opentelemetry_span_log_compact
     `attribute.values` Array(String) ALIAS mapValues(attribute),
     attribute Map(LowCardinality(String), String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();

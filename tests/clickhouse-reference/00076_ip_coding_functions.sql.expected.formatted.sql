@@ -1,48 +1,48 @@
-SET cast_ipv4_ipv6_default_on_conversion_error = 1;
+SET cast_ipv4_ipv6_default_on_conversion_error = '1';
 
-SELECT IPv4StringToNum('') == 0;
+SELECT IPv4StringToNum('') = 0;
 
-SELECT IPv4StringToNum(materialize('')) == 0;
+SELECT IPv4StringToNum(materialize('')) = 0;
 
-SELECT IPv4StringToNum('not an ip string') == 0;
+SELECT IPv4StringToNum('not an ip string') = 0;
 
-SELECT IPv4StringToNum(materialize('not an ip string')) == 0;
-
-SELECT
-    IPv4StringToNum('127.0.0.1' AS p) == ((0x7f000001 AS n)),
-    IPv4NumToString(n) == p;
+SELECT IPv4StringToNum(materialize('not an ip string')) = 0;
 
 SELECT
-    IPv4StringToNum(materialize('127.0.0.1') AS p) == ((materialize(0x7f000001) AS n)),
-    IPv4NumToString(n) == p;
+    IPv4StringToNum('127.0.0.1' AS p) = (2130706433 AS n),
+    IPv4NumToString(n) = p;
 
-SELECT IPv4NumToString(toUInt32(0)) == '0.0.0.0';
+SELECT
+    IPv4StringToNum(materialize('127.0.0.1') AS p) = (materialize(2130706433) AS n),
+    IPv4NumToString(n) = p;
 
-SELECT IPv4NumToString(materialize(toUInt32(0))) == materialize('0.0.0.0');
+SELECT IPv4NumToString(toUInt32(0)) = '0.0.0.0';
 
-SELECT IPv4NumToString(toUInt32(0x7f000001)) == '127.0.0.1';
+SELECT IPv4NumToString(materialize(toUInt32(0))) = materialize('0.0.0.0');
 
-SELECT IPv4NumToString(materialize(toUInt32(0x7f000001))) == materialize('127.0.0.1');
+SELECT IPv4NumToString(toUInt32(2130706433)) = '127.0.0.1';
 
-SELECT IPv6NumToString(toFixedString('', 16)) == '::';
+SELECT IPv4NumToString(materialize(toUInt32(2130706433))) = materialize('127.0.0.1');
 
-SELECT IPv6NumToString(toFixedString(materialize(''), 16)) == materialize('::');
+SELECT IPv6NumToString(toFixedString('', 16)) = '::';
 
-SELECT IPv6NumToString(IPv6StringToNum('::ffff:127.0.0.1' AS p) AS n) == p;
+SELECT IPv6NumToString(toFixedString(materialize(''), 16)) = materialize('::');
 
-SELECT IPv6NumToString(IPv6StringToNum(materialize('::ffff:127.0.0.1') AS p) AS n) == p;
+SELECT IPv6NumToString(IPv6StringToNum('::ffff:127.0.0.1' AS p) AS n) = p;
 
-SELECT IPv6NumToString(toFixedString(unhex('20010DB800000003000001FF0000002E'), 16)) == '2001:db8:0:3:0:1ff:0:2e';
+SELECT IPv6NumToString(IPv6StringToNum(materialize('::ffff:127.0.0.1') AS p) AS n) = p;
 
-SELECT IPv6NumToString(toFixedString(unhex(materialize('20010DB800000003000001FF0000002E')), 16)) == materialize('2001:db8:0:3:0:1ff:0:2e');
+SELECT IPv6NumToString(toFixedString(unhex('20010DB800000003000001FF0000002E'), 16)) = '2001:db8:0:3:0:1ff:0:2e';
 
-SELECT IPv6StringToNum('') == toFixedString(materialize(''), 16);
+SELECT IPv6NumToString(toFixedString(unhex(materialize('20010DB800000003000001FF0000002E')), 16)) = materialize('2001:db8:0:3:0:1ff:0:2e');
 
-SELECT IPv6StringToNum(materialize('')) == toFixedString(materialize(''), 16);
+SELECT IPv6StringToNum('') = toFixedString(materialize(''), 16);
 
-SELECT IPv6StringToNum('not an ip string') == toFixedString(materialize(''), 16);
+SELECT IPv6StringToNum(materialize('')) = toFixedString(materialize(''), 16);
 
-SELECT IPv6StringToNum(materialize('not an ip string')) == toFixedString(materialize(''), 16);
+SELECT IPv6StringToNum('not an ip string') = toFixedString(materialize(''), 16);
+
+SELECT IPv6StringToNum(materialize('not an ip string')) = toFixedString(materialize(''), 16);
 
 /* IPv4ToIPv6 */
 SELECT hex(IPv4ToIPv6(1297626935));
@@ -54,7 +54,7 @@ CREATE TABLE addresses
 (
     addr UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO addresses (addr);
 
@@ -201,7 +201,7 @@ CREATE TABLE addresses
 (
     addr String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO addresses (addr);
 

@@ -6,14 +6,14 @@ CREATE TABLE table1
 (
     x Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARALLEL WITH
 CREATE TABLE table2
 (
     y Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y;
 
 SHOW CREATE TABLE table1;

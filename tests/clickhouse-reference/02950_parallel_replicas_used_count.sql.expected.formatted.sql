@@ -6,18 +6,18 @@ CREATE TABLE test
     k UInt64,
     v String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test SELECT
     number,
     toString(number)
 FROM numbers(10000);
 
-SET parallel_replicas_only_with_analyzer = 0; -- necessary for CI run with disabled analyzer
+SET parallel_replicas_only_with_analyzer = '0'; -- necessary for CI run with disabled analyzer
 
-SET enable_parallel_replicas = 2, max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '2', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 -- default coordinator
 SELECT
@@ -39,7 +39,7 @@ WHERE type = 'QueryFinish'
             AND type = 'QueryFinish'
             AND initial_query_id = query_id
     )
-SETTINGS enable_parallel_replicas = 0;
+SETTINGS enable_parallel_replicas = '0';
 
 -- In order coordinator
 SELECT k
@@ -48,10 +48,10 @@ ORDER BY k ASC
 LIMIT 5
 OFFSET 89
 SETTINGS
-    optimize_read_in_order = 1,
+    optimize_read_in_order = '1',
     log_comment = '02950_parallel_replicas_used_replicas_count_2',
-    merge_tree_min_rows_for_concurrent_read = 1,
-    max_threads = 1;
+    merge_tree_min_rows_for_concurrent_read = '1',
+    max_threads = '1';
 
 SELECT ProfileEvents['ParallelReplicasUsedCount'] > 0
 FROM `system`.query_log
@@ -64,7 +64,7 @@ WHERE type = 'QueryFinish'
             AND type = 'QueryFinish'
             AND initial_query_id = query_id
     )
-SETTINGS enable_parallel_replicas = 0;
+SETTINGS enable_parallel_replicas = '0';
 
 -- In reverse order coordinator
 SELECT k
@@ -73,10 +73,10 @@ ORDER BY k DESC
 LIMIT 5
 OFFSET 9906
 SETTINGS
-    optimize_read_in_order = 1,
+    optimize_read_in_order = '1',
     log_comment = '02950_parallel_replicas_used_replicas_count_3',
-    merge_tree_min_rows_for_concurrent_read = 1,
-    max_threads = 1;
+    merge_tree_min_rows_for_concurrent_read = '1',
+    max_threads = '1';
 
 SELECT ProfileEvents['ParallelReplicasUsedCount'] > 0
 FROM `system`.query_log
@@ -89,6 +89,6 @@ WHERE type = 'QueryFinish'
             AND type = 'QueryFinish'
             AND initial_query_id = query_id
     )
-SETTINGS enable_parallel_replicas = 0;
+SETTINGS enable_parallel_replicas = '0';
 
 DROP TABLE test;

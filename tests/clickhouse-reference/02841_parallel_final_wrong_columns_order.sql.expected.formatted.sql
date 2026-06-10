@@ -20,9 +20,9 @@ INSERT INTO tab2 SELECT
     toString(number),
     toString(number),
     0
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
-SET max_threads = 2;
+SET max_threads = '2';
 
 SELECT count()
 FROM tab2 FINAL;

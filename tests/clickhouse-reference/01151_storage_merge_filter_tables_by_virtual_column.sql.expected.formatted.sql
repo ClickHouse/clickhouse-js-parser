@@ -10,7 +10,7 @@ CREATE TABLE src_table_1
 (
     n UInt64
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(10);
 
@@ -18,7 +18,7 @@ CREATE TABLE src_table_2
 (
     n UInt64
 )
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT number * 10
 FROM numbers(10);
 
@@ -26,7 +26,7 @@ CREATE TABLE src_table_3
 (
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n AS
 SELECT number * 100
 FROM numbers(10);
@@ -35,7 +35,7 @@ CREATE TABLE `set`
 (
     s String
 )
-ENGINE = Set AS
+ENGINE = Set() AS
 SELECT arrayJoin(['src_table_1', 'src_table_2']);
 
 CREATE TEMPORARY TABLE tmp

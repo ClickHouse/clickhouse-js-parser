@@ -1,4 +1,4 @@
 SELECT [map(1, [], '', 1), map('', 1, 1, '', toUInt128(1), 1)]
 SETTINGS
-    allow_experimental_variant_type = 1,
-    use_variant_as_common_type = 1;
+    allow_experimental_variant_type = '1',
+    use_variant_as_common_type = '1';

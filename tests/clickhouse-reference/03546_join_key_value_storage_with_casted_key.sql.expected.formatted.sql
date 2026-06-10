@@ -1,12 +1,12 @@
 -- Tags: use-rocksdb
 -- Old analyzer doesn't support this case
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t0
 (
     c0 Bool
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY c0;
 
 INSERT INTO t0 (c0);

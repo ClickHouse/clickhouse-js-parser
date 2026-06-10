@@ -7,7 +7,7 @@ CREATE TABLE test
     c Nullable(Float),
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY date;
 
@@ -17,4 +17,4 @@ CREATE TEMPORARY TABLE test3 AS test;
 
 DROP TABLE test;
 
-SHOW CREATE TABLE test3;
+SHOW CREATE TEMPORARY TABLE test3;

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -55,19 +55,19 @@ INSERT INTO t2 (c0);
 
 SELECT t1.c1
 FROM
-    t3
-CROSS JOIN t1
+    t3,
+    t1
 WHERE true
     AND t1.c2
 UNION ALL
 SELECT t1.c1
 FROM
-    t3
-CROSS JOIN t1
+    t3,
+    t1
 WHERE NOT t1.c2
 UNION ALL
 SELECT t1.c1
 FROM
-    t3
-CROSS JOIN t1
-WHERE isNull(t1.c2);
+    t3,
+    t1
+WHERE t1.c2 IS NULL;

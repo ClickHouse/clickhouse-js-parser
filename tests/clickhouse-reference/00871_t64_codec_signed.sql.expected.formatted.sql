@@ -3,13 +3,13 @@ DROP TABLE IF EXISTS t64;
 CREATE TABLE t64
 (
     i8 Int8,
-    t_i8 Int8 CODEC(T64, LZ4),
+    t_i8 Int8 CODEC(T64(), LZ4()),
     i16 Int16,
-    t_i16 Int16 CODEC(T64, LZ4),
+    t_i16 Int16 CODEC(T64(), LZ4()),
     i32 Int32,
-    t_i32 Int32 CODEC(T64, LZ4),
+    t_i32 Int32 CODEC(T64(), LZ4()),
     i64 Int64,
-    t_i64 Int64 CODEC(T64, LZ4)
+    t_i64 Int64 CODEC(T64(), LZ4())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -52,7 +52,7 @@ FROM t64
 ORDER BY i64 ASC;
 
 INSERT INTO t64 SELECT
-    (intExp2(8) - 10 + number) AS x,
+    intExp2(8) - 10 + number AS x,
     x,
     x,
     x,
@@ -107,7 +107,7 @@ FROM t64
 WHERE i64 != t_i64;
 
 INSERT INTO t64 SELECT
-    (intExp2(16) - 10 + number) AS x,
+    intExp2(16) - 10 + number AS x,
     x,
     x,
     x,
@@ -118,7 +118,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (intExp2(16) - 10 + number) AS x,
+    intExp2(16) - 10 + number AS x,
     x,
     x,
     x,
@@ -129,7 +129,7 @@ INSERT INTO t64 SELECT
 FROM numbers(11);
 
 INSERT INTO t64 SELECT
-    (intExp2(16) - 64 + number) AS x,
+    intExp2(16) - 64 + number AS x,
     x,
     x,
     x,
@@ -140,7 +140,7 @@ INSERT INTO t64 SELECT
 FROM numbers(64);
 
 INSERT INTO t64 SELECT
-    (intExp2(16) - 64 + number) AS x,
+    intExp2(16) - 64 + number AS x,
     x,
     x,
     x,
@@ -151,7 +151,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (intExp2(16) - 1 + number) AS x,
+    intExp2(16) - 1 + number AS x,
     x,
     x,
     x,
@@ -162,7 +162,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(16)) + number) AS x,
+    10 - toInt64(intExp2(16)) + number AS x,
     x,
     x,
     x,
@@ -173,7 +173,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(16)) + number) AS x,
+    10 - toInt64(intExp2(16)) + number AS x,
     x,
     x,
     x,
@@ -184,7 +184,7 @@ INSERT INTO t64 SELECT
 FROM numbers(11);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(16)) + number) AS x,
+    64 - toInt64(intExp2(16)) + number AS x,
     x,
     x,
     x,
@@ -195,7 +195,7 @@ INSERT INTO t64 SELECT
 FROM numbers(64);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(16)) + number) AS x,
+    64 - toInt64(intExp2(16)) + number AS x,
     x,
     x,
     x,
@@ -206,7 +206,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(16)) + number) AS x,
+    1 - toInt64(intExp2(16)) + number AS x,
     x,
     x,
     x,
@@ -217,7 +217,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (intExp2(24) - 10 + number) AS x,
+    intExp2(24) - 10 + number AS x,
     x,
     x,
     x,
@@ -228,7 +228,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (intExp2(24) - 10 + number) AS x,
+    intExp2(24) - 10 + number AS x,
     x,
     x,
     x,
@@ -239,7 +239,7 @@ INSERT INTO t64 SELECT
 FROM numbers(11);
 
 INSERT INTO t64 SELECT
-    (intExp2(24) - 64 + number) AS x,
+    intExp2(24) - 64 + number AS x,
     x,
     x,
     x,
@@ -250,7 +250,7 @@ INSERT INTO t64 SELECT
 FROM numbers(128);
 
 INSERT INTO t64 SELECT
-    (intExp2(24) - 64 + number) AS x,
+    intExp2(24) - 64 + number AS x,
     x,
     x,
     x,
@@ -261,7 +261,7 @@ INSERT INTO t64 SELECT
 FROM numbers(129);
 
 INSERT INTO t64 SELECT
-    (intExp2(24) - 1 + number) AS x,
+    intExp2(24) - 1 + number AS x,
     x,
     x,
     x,
@@ -272,7 +272,7 @@ INSERT INTO t64 SELECT
 FROM numbers(129);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(24)) + number) AS x,
+    10 - toInt64(intExp2(24)) + number AS x,
     x,
     x,
     x,
@@ -283,7 +283,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(24)) + number) AS x,
+    10 - toInt64(intExp2(24)) + number AS x,
     x,
     x,
     x,
@@ -294,7 +294,7 @@ INSERT INTO t64 SELECT
 FROM numbers(11);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(24)) + number) AS x,
+    64 - toInt64(intExp2(24)) + number AS x,
     x,
     x,
     x,
@@ -305,7 +305,7 @@ INSERT INTO t64 SELECT
 FROM numbers(128);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(24)) + number) AS x,
+    64 - toInt64(intExp2(24)) + number AS x,
     x,
     x,
     x,
@@ -316,7 +316,7 @@ INSERT INTO t64 SELECT
 FROM numbers(129);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(24)) + number) AS x,
+    1 - toInt64(intExp2(24)) + number AS x,
     x,
     x,
     x,
@@ -327,7 +327,7 @@ INSERT INTO t64 SELECT
 FROM numbers(129);
 
 INSERT INTO t64 SELECT
-    (intExp2(32) - 2 + number) AS x,
+    intExp2(32) - 2 + number AS x,
     x,
     x,
     x,
@@ -338,7 +338,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2);
 
 INSERT INTO t64 SELECT
-    (intExp2(32) - 2 + number) AS x,
+    intExp2(32) - 2 + number AS x,
     x,
     x,
     x,
@@ -349,7 +349,7 @@ INSERT INTO t64 SELECT
 FROM numbers(3);
 
 INSERT INTO t64 SELECT
-    (intExp2(32) - 64 + number) AS x,
+    intExp2(32) - 64 + number AS x,
     x,
     x,
     x,
@@ -360,7 +360,7 @@ INSERT INTO t64 SELECT
 FROM numbers(64);
 
 INSERT INTO t64 SELECT
-    (intExp2(32) - 64 + number) AS x,
+    intExp2(32) - 64 + number AS x,
     x,
     x,
     x,
@@ -371,7 +371,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (intExp2(32) - 1 + number) AS x,
+    intExp2(32) - 1 + number AS x,
     x,
     x,
     x,
@@ -382,7 +382,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(32)) + number) AS x,
+    10 - toInt64(intExp2(32)) + number AS x,
     x,
     x,
     x,
@@ -393,7 +393,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(32)) + number) AS x,
+    10 - toInt64(intExp2(32)) + number AS x,
     x,
     x,
     x,
@@ -404,7 +404,7 @@ INSERT INTO t64 SELECT
 FROM numbers(11);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(32)) + number) AS x,
+    64 - toInt64(intExp2(32)) + number AS x,
     x,
     x,
     x,
@@ -415,7 +415,7 @@ INSERT INTO t64 SELECT
 FROM numbers(64);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(32)) + number) AS x,
+    64 - toInt64(intExp2(32)) + number AS x,
     x,
     x,
     x,
@@ -426,7 +426,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(32)) + number) AS x,
+    1 - toInt64(intExp2(32)) + number AS x,
     x,
     x,
     x,
@@ -437,7 +437,7 @@ INSERT INTO t64 SELECT
 FROM numbers(65);
 
 INSERT INTO t64 SELECT
-    (intExp2(40) - 10 + number) AS x,
+    intExp2(40) - 10 + number AS x,
     x,
     x,
     x,
@@ -448,7 +448,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (intExp2(40) - 10 + number) AS x,
+    intExp2(40) - 10 + number AS x,
     x,
     x,
     x,
@@ -459,7 +459,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (intExp2(40) - 64 + number) AS x,
+    intExp2(40) - 64 + number AS x,
     x,
     x,
     x,
@@ -470,7 +470,7 @@ INSERT INTO t64 SELECT
 FROM numbers(512);
 
 INSERT INTO t64 SELECT
-    (intExp2(40) - 64 + number) AS x,
+    intExp2(40) - 64 + number AS x,
     x,
     x,
     x,
@@ -481,7 +481,7 @@ INSERT INTO t64 SELECT
 FROM numbers(513);
 
 INSERT INTO t64 SELECT
-    (intExp2(40) - 1 + number) AS x,
+    intExp2(40) - 1 + number AS x,
     x,
     x,
     x,
@@ -492,7 +492,7 @@ INSERT INTO t64 SELECT
 FROM numbers(513);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(40)) + number) AS x,
+    10 - toInt64(intExp2(40)) + number AS x,
     x,
     x,
     x,
@@ -503,7 +503,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(40)) + number) AS x,
+    10 - toInt64(intExp2(40)) + number AS x,
     x,
     x,
     x,
@@ -514,7 +514,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(40)) + number) AS x,
+    64 - toInt64(intExp2(40)) + number AS x,
     x,
     x,
     x,
@@ -525,7 +525,7 @@ INSERT INTO t64 SELECT
 FROM numbers(512);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(40)) + number) AS x,
+    64 - toInt64(intExp2(40)) + number AS x,
     x,
     x,
     x,
@@ -536,7 +536,7 @@ INSERT INTO t64 SELECT
 FROM numbers(513);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(40)) + number) AS x,
+    1 - toInt64(intExp2(40)) + number AS x,
     x,
     x,
     x,
@@ -547,7 +547,7 @@ INSERT INTO t64 SELECT
 FROM numbers(513);
 
 INSERT INTO t64 SELECT
-    (intExp2(48) - 10 + number) AS x,
+    intExp2(48) - 10 + number AS x,
     x,
     x,
     x,
@@ -558,7 +558,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (intExp2(48) - 10 + number) AS x,
+    intExp2(48) - 10 + number AS x,
     x,
     x,
     x,
@@ -569,7 +569,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (intExp2(48) - 64 + number) AS x,
+    intExp2(48) - 64 + number AS x,
     x,
     x,
     x,
@@ -580,7 +580,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1024);
 
 INSERT INTO t64 SELECT
-    (intExp2(48) - 64 + number) AS x,
+    intExp2(48) - 64 + number AS x,
     x,
     x,
     x,
@@ -591,7 +591,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1025);
 
 INSERT INTO t64 SELECT
-    (intExp2(48) - 1 + number) AS x,
+    intExp2(48) - 1 + number AS x,
     x,
     x,
     x,
@@ -602,7 +602,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1025);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(48)) + number) AS x,
+    10 - toInt64(intExp2(48)) + number AS x,
     x,
     x,
     x,
@@ -613,7 +613,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(48)) + number) AS x,
+    10 - toInt64(intExp2(48)) + number AS x,
     x,
     x,
     x,
@@ -624,7 +624,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(48)) + number) AS x,
+    64 - toInt64(intExp2(48)) + number AS x,
     x,
     x,
     x,
@@ -635,7 +635,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1024);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(48)) + number) AS x,
+    64 - toInt64(intExp2(48)) + number AS x,
     x,
     x,
     x,
@@ -646,7 +646,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1025);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(48)) + number) AS x,
+    1 - toInt64(intExp2(48)) + number AS x,
     x,
     x,
     x,
@@ -657,7 +657,7 @@ INSERT INTO t64 SELECT
 FROM numbers(1025);
 
 INSERT INTO t64 SELECT
-    (intExp2(56) - 10 + number) AS x,
+    intExp2(56) - 10 + number AS x,
     x,
     x,
     x,
@@ -668,7 +668,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (intExp2(56) - 10 + number) AS x,
+    intExp2(56) - 10 + number AS x,
     x,
     x,
     x,
@@ -679,7 +679,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (intExp2(56) - 64 + number) AS x,
+    intExp2(56) - 64 + number AS x,
     x,
     x,
     x,
@@ -690,7 +690,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2048);
 
 INSERT INTO t64 SELECT
-    (intExp2(56) - 64 + number) AS x,
+    intExp2(56) - 64 + number AS x,
     x,
     x,
     x,
@@ -701,7 +701,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2049);
 
 INSERT INTO t64 SELECT
-    (intExp2(56) - 1 + number) AS x,
+    intExp2(56) - 1 + number AS x,
     x,
     x,
     x,
@@ -712,7 +712,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2049);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(56)) + number) AS x,
+    10 - toInt64(intExp2(56)) + number AS x,
     x,
     x,
     x,
@@ -723,7 +723,7 @@ INSERT INTO t64 SELECT
 FROM numbers(10);
 
 INSERT INTO t64 SELECT
-    (10 - toInt64(intExp2(56)) + number) AS x,
+    10 - toInt64(intExp2(56)) + number AS x,
     x,
     x,
     x,
@@ -734,7 +734,7 @@ INSERT INTO t64 SELECT
 FROM numbers(20);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(56)) + number) AS x,
+    64 - toInt64(intExp2(56)) + number AS x,
     x,
     x,
     x,
@@ -745,7 +745,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2048);
 
 INSERT INTO t64 SELECT
-    (64 - toInt64(intExp2(56)) + number) AS x,
+    64 - toInt64(intExp2(56)) + number AS x,
     x,
     x,
     x,
@@ -756,7 +756,7 @@ INSERT INTO t64 SELECT
 FROM numbers(2049);
 
 INSERT INTO t64 SELECT
-    (1 - toInt64(intExp2(56)) + number) AS x,
+    1 - toInt64(intExp2(56)) + number AS x,
     x,
     x,
     x,

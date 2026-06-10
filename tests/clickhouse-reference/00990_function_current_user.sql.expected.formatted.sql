@@ -1,5 +1,5 @@
 -- Since the actual user name is unknown, have to perform just smoke tests
-SELECT isNotNull(currentUser());
+SELECT currentUser() IS NOT NULL;
 
 SELECT length(currentUser()) > 0;
 
@@ -10,5 +10,5 @@ SELECT
 
 SELECT currentUser() = initial_user
 FROM `system`.processes
-WHERE like(query, '%$!@#%')
+WHERE query LIKE '%$!@#%'
     AND current_database = currentDatabase();

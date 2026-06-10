@@ -10,7 +10,7 @@ FROM
         FROM numbers(2)
         GROUP BY dt
     ) AS q0
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             toDate(addDays(toDate('2015-12-01'), number)) AS dt,
             sum(number) AS cnt2

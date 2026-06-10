@@ -4,7 +4,7 @@ CREATE TABLE t
 (
     n int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO t;

@@ -6,10 +6,10 @@ CREATE TABLE test
     flag UInt8,
     id UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (t, id)
 PARTITION BY t
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test;
 

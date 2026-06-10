@@ -5,7 +5,7 @@ CREATE TABLE test_degs_to_rads
 (
     degrees Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_degs_to_rads;
 
@@ -44,7 +44,7 @@ CREATE TABLE test_rads_to_degs
 (
     radians Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_rads_to_degs;
 

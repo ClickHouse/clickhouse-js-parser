@@ -1,6 +1,6 @@
-SET compile_expressions = 1;
+SET compile_expressions = '1';
 
-SET min_count_to_compile_expression = 1;
+SET min_count_to_compile_expression = '1';
 
 DROP TABLE IF EXISTS time_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE time_table
     timecol DateTime,
     value Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO time_table;

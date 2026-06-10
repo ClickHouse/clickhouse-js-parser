@@ -1,6 +1,6 @@
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
-SELECT toUInt64(dense_rank(1) OVER (ORDER BY 100 ASC GROUPS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING))
+SELECT toUInt64(dense_rank(1) OVER (ORDER BY 100 ASC GROUPS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING))
 FROM numbers(10); -- { serverError NOT_IMPLEMENTED }
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

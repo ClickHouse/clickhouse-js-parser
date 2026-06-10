@@ -1,19 +1,19 @@
 -- Tags: no-parallel, no-parallel-replicas
 -- no-parallel: looks at server-wide metrics
 --- These tests verify the caching of a deserialized text index header in the consecutive executions.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
-SET query_plan_direct_read_from_text_index = 1;
+SET query_plan_direct_read_from_text_index = '1';
 
-SET use_text_index_header_cache = 1;
+SET use_text_index_header_cache = '1';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 DROP TABLE IF EXISTS tab;
 
@@ -21,11 +21,11 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = `array`, dictionary_block_size = 128)
+    INDEX idx message TYPE text(tokenizer = `array`, dictionary_block_size = 128) GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id)
-SETTINGS index_granularity = 128;
+ENGINE = MergeTree()
+ORDER BY id
+SETTINGS index_granularity = '128';
 
 --- The text index would have 4 parts/marks.
 INSERT INTO tab SELECT
@@ -39,13 +39,13 @@ DROP VIEW IF EXISTS text_index_cache_stats;
 
 CREATE VIEW text_index_cache_stats
 AS
-(SELECT concat('cache_hits = ', toString(ProfileEvents['TextIndexHeaderCacheHits']), ', cache_misses = ', toString(ProfileEvents['TextIndexHeaderCacheMisses']))
+SELECT concat('cache_hits = ', toString(ProfileEvents['TextIndexHeaderCacheHits']), ', cache_misses = ', toString(ProfileEvents['TextIndexHeaderCacheMisses']))
 FROM `system`.query_log
 WHERE query_kind = 'Select'
     AND current_database = currentDatabase()
-    AND endsWith(trimRight(query), concat('hasAnyTokens(message, ''', {filter:String}, ''');'))
+    AND endsWith(trimRight(query), concat('hasAnyTokens(message, ''', 'placeholder', ''');'))
     AND type = 'QueryFinish'
-LIMIT 1);
+LIMIT 1;
 
 SELECT '--- cache miss on the first run.';
 

@@ -37,7 +37,7 @@ CREATE TABLE test_string
     s3 FixedString(10),
     s4 FixedString(10)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_string;
 

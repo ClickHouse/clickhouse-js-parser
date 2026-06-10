@@ -1,5 +1,5 @@
 SELECT
-    CAST('a', 'Nullable(FixedString(1))') AS s,
+    CAST('a' AS Nullable(FixedString(1))) AS s,
     toTypeName(s),
     toString(s);
 

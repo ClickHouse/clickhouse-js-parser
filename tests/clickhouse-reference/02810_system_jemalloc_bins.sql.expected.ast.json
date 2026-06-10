@@ -1,391 +1,482 @@
 [
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "jemalloc_enabled",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "value"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "jemalloc_enabled",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "in",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "value"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "Tuple",
+                            "value": [
+                              {
+                                "value_type": "String",
+                                "value": "ON"
+                              },
+                              {
+                                "value_type": "String",
+                                "value": "1"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "build_options",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "name"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "USE_JEMALLOC"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Subquery",
+              "alias": "total_bins",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "count",
+                        "arguments": []
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "jemalloc_bins",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Subquery",
+              "alias": "large_bins",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "count",
+                        "arguments": []
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "jemalloc_bins",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Identifier",
+                      "name": "large"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Subquery",
+              "alias": "small_bins",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "count",
+                        "arguments": []
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "jemalloc_bins",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "not",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "large"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Subquery",
+              "alias": "large_allocated_bytes",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "sum",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "multiply",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "size"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "minus",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "allocations"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "deallocations"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "jemalloc_bins",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Identifier",
+                      "name": "large"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Subquery",
+              "alias": "small_allocated_bytes",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "sum",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "multiply",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "size"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "minus",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "allocations"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "deallocations"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "jemalloc_bins",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "not",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "large"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "total_bins"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
                   ]
                 },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "ON"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "1"
-                  }
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "build_options"
+                {
+                  "type": "Identifier",
+                  "name": "jemalloc_enabled"
+                }
+              ]
             },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "name"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "USE_JEMALLOC"
-              }
-            }
-          }
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "total_bins",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "jemalloc_bins"
-            }
-          }
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "large_bins",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "jemalloc_bins"
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "large_bins"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "jemalloc_enabled"
+                }
+              ]
             },
-            "where": {
-              "kind": "columnRef",
-              "parts": [
-                "large"
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "small_bins"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "jemalloc_enabled"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "large_allocated_bytes"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "jemalloc_enabled"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "small_allocated_bytes"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "jemalloc_enabled"
+                }
               ]
             }
-          }
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "small_bins",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "jemalloc_bins"
-            },
-            "where": {
-              "kind": "unaryExpr",
-              "op": "NOT",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "large"
-                ]
-              }
-            }
-          }
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "large_allocated_bytes",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "size"
-                      ]
-                    },
-                    "right": {
-                      "kind": "binaryExpr",
-                      "op": "-",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "allocations"
-                        ]
-                      },
-                      "right": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "deallocations"
-                        ]
-                      },
-                      "parenthesized": true
-                    }
-                  }
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "jemalloc_bins"
-            },
-            "where": {
-              "kind": "columnRef",
-              "parts": [
-                "large"
-              ]
-            }
-          }
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "small_allocated_bytes",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "size"
-                      ]
-                    },
-                    "right": {
-                      "kind": "binaryExpr",
-                      "op": "-",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "allocations"
-                        ]
-                      },
-                      "right": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "deallocations"
-                        ]
-                      },
-                      "parenthesized": true
-                    }
-                  }
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "jemalloc_bins"
-            },
-            "where": {
-              "kind": "unaryExpr",
-              "op": "NOT",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "large"
-                ]
-              }
-            }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "total_bins"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "jemalloc_enabled"
           ]
         }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "large_bins"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "jemalloc_enabled"
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "small_bins"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "jemalloc_enabled"
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "large_allocated_bytes"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "jemalloc_enabled"
-          ]
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "small_allocated_bytes"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "jemalloc_enabled"
-          ]
-        }
-      }
-    ]
+      ]
+    }
   }
 ]

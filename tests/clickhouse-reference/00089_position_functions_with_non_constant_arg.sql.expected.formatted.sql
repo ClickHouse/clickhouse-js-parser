@@ -1,5 +1,5 @@
 -- Tags: stateful
-SET max_threads = 0; -- let's reset to automatic detection of the number of threads, otherwise test can be slow.
+SET max_threads = '0'; -- let's reset to automatic detection of the number of threads, otherwise test can be slow.
 
 SELECT count()
 FROM test.hits
@@ -20,7 +20,7 @@ WHERE positionCaseInsensitiveUTF8(Title, 'новости') != positionCaseInsens
 SELECT position(URL, domain(URL)) AS x
 FROM test.hits
 WHERE x = 0
-    AND notLike(URL, '%yandex.ru%')
+    AND URL NOT LIKE '%yandex.ru%'
 LIMIT 100;
 
 SELECT URL

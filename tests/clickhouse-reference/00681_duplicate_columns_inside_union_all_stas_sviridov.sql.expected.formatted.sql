@@ -4,7 +4,7 @@ CREATE TABLE test_00681
 (
     x Int32
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test_00681;
 

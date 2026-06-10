@@ -4,7 +4,7 @@ CREATE TABLE test_fixed_string_nested_json
 (
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY data;
 
 INSERT INTO test_fixed_string_nested_json (data);

@@ -15,8 +15,7 @@ ORDER BY tuple();
 INSERT INTO t0 SELECT number
 FROM numbers(1);
 
-ALTER TABLE t0 ADD PROJECTION x (SELECT i
-ORDER BY i ASC) SETTINGS mutations_sync = 2;
+ALTER TABLE t0 ADD PROJECTION x (SELECT i ORDER BY i) SETTINGS mutations_sync = '2';
 
 -- With force_optimize_projection=1, the projection code path is exercised.
 -- The fix causes it to safely skip the optimization and return PROJECTION_NOT_USED error
@@ -24,6 +23,6 @@ ORDER BY i ASC) SETTINGS mutations_sync = 2;
 SELECT 1
 FROM t0
 WHERE materialize(1)
-SETTINGS force_optimize_projection = 1; -- { serverError PROJECTION_NOT_USED }
+SETTINGS force_optimize_projection = '1'; -- { serverError PROJECTION_NOT_USED }
 
 DROP TABLE t0;

@@ -8,7 +8,7 @@ CREATE TABLE collapsing
 )
 ENGINE = CollapsingMergeTree(sign)
 ORDER BY key
-SETTINGS enable_vertical_merge_algorithm = 1, vertical_merge_algorithm_min_rows_to_activate = 0, vertical_merge_algorithm_min_columns_to_activate = 0;
+SETTINGS enable_vertical_merge_algorithm = '1', vertical_merge_algorithm_min_rows_to_activate = '0', vertical_merge_algorithm_min_columns_to_activate = '0';
 
 INSERT INTO collapsing;
 

@@ -7,7 +7,7 @@ CREATE TABLE test_new_col
     csv_col1 String DEFAULT csv_as_array[1],
     csv_col2 String DEFAULT csv_as_array[2]
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_new_col (_csv);

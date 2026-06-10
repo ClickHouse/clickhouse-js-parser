@@ -13,7 +13,7 @@ CREATE TABLE ipv6_range
     ip IPv6,
     cidr UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ipv6_range (ip, cidr);
 
@@ -21,31 +21,36 @@ WITH IPv6CIDRToRange(IPv6StringToNum('2001:0db8:0000:85a3:0000:0000:ac1f:8001'),
 
 SELECT COUNT(*)
 FROM ipv6_range
-WHERE and(greaterOrEquals(ip, ip_range.1), lessOrEquals(ip, ip_range.2));
+WHERE ip >= tupleElement(ip_range, 1)
+    AND ip <= tupleElement(ip_range, 2);
 
 WITH IPv6CIDRToRange(IPv6StringToNum('2001:0db8:0000:85a3:0000:0000:ac1f:8001'), 25) AS ip_range
 
 SELECT COUNT(*)
 FROM ipv6_range
-WHERE and(greaterOrEquals(ip, ip_range.1), lessOrEquals(ip, ip_range.2));
+WHERE ip >= tupleElement(ip_range, 1)
+    AND ip <= tupleElement(ip_range, 2);
 
 WITH IPv6CIDRToRange(IPv6StringToNum('2001:0db8:0000:85a3:0000:0000:ac1f:8001'), 26) AS ip_range
 
 SELECT COUNT(*)
 FROM ipv6_range
-WHERE and(greaterOrEquals(ip, ip_range.1), lessOrEquals(ip, ip_range.2));
+WHERE ip >= tupleElement(ip_range, 1)
+    AND ip <= tupleElement(ip_range, 2);
 
 WITH IPv6CIDRToRange(IPv6StringToNum('2001:0db8:0000:85a3:0000:0000:ac1f:8001'), 64) AS ip_range
 
 SELECT COUNT(*)
 FROM ipv6_range
-WHERE and(greaterOrEquals(ip, ip_range.1), lessOrEquals(ip, ip_range.2));
+WHERE ip >= tupleElement(ip_range, 1)
+    AND ip <= tupleElement(ip_range, 2);
 
 WITH IPv6CIDRToRange(IPv6StringToNum('2001:0db8:0000:85a3:0000:0000:ac1f:8001'), 0) AS ip_range
 
 SELECT COUNT(*)
 FROM ipv6_range
-WHERE and(greaterOrEquals(ip, ip_range.1), lessOrEquals(ip, ip_range.2));
+WHERE ip >= tupleElement(ip_range, 1)
+    AND ip <= tupleElement(ip_range, 2);
 
 SELECT
     IPv6NumToString(ip),

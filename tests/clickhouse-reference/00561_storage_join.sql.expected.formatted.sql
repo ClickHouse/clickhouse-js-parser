@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS joinbug;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE joinbug
 (
@@ -48,7 +48,7 @@ FROM
     (
         SELECT toUInt64(arrayJoin(range(50))) AS id2
     ) AS js1
-LEFT JOIN joinbug_join
+SEMI LEFT JOIN joinbug_join
     USING (id2);
 
 -- type conversion
@@ -57,7 +57,7 @@ FROM
     (
         SELECT toUInt32(11) AS id2
     ) AS js1
-LEFT JOIN joinbug_join
+SEMI LEFT JOIN joinbug_join
     USING (id2);
 
 -- can't convert right side in case on storage join
@@ -66,7 +66,7 @@ FROM
     (
         SELECT toInt64(11) AS id2
     ) AS js1
-LEFT JOIN joinbug_join
+SEMI LEFT JOIN joinbug_join
     USING (id2); -- { serverError TYPE_MISMATCH, 386 }
 
 DROP TABLE joinbug;

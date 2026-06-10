@@ -6,7 +6,7 @@ CREATE TABLE decimal
     b Decimal64(8),
     c Decimal128(8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c) SELECT
     toDecimal32(number - 50, 4),
@@ -156,9 +156,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantile(0.0)(a),
-    quantile(0.0)(b),
-    quantile(0.0)(c)
+    quantile(0.)(a),
+    quantile(0.)(b),
+    quantile(0.)(c)
 FROM decimal
 WHERE a >= 0;
 
@@ -191,19 +191,19 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantile(1.0)(a),
-    quantile(1.0)(b),
-    quantile(1.0)(c)
+    quantile(1.)(a),
+    quantile(1.)(b),
+    quantile(1.)(c)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantiles(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a)
+SELECT quantiles(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a)
 FROM decimal;
 
-SELECT quantiles(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b)
+SELECT quantiles(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b)
 FROM decimal;
 
-SELECT quantiles(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c)
+SELECT quantiles(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c)
 FROM decimal;
 
 SELECT
@@ -222,9 +222,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileExact(0.0)(a),
-    quantileExact(0.0)(b),
-    quantileExact(0.0)(c)
+    quantileExact(0.)(a),
+    quantileExact(0.)(b),
+    quantileExact(0.)(c)
 FROM decimal
 WHERE a >= 0;
 
@@ -257,19 +257,19 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileExact(1.0)(a),
-    quantileExact(1.0)(b),
-    quantileExact(1.0)(c)
+    quantileExact(1.)(a),
+    quantileExact(1.)(b),
+    quantileExact(1.)(c)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesExact(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a)
+SELECT quantilesExact(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a)
 FROM decimal;
 
-SELECT quantilesExact(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b)
+SELECT quantilesExact(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b)
 FROM decimal;
 
-SELECT quantilesExact(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c)
+SELECT quantilesExact(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c)
 FROM decimal;
 
 SELECT
@@ -288,9 +288,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileExactLow(0.0)(a),
-    quantileExactLow(0.0)(b),
-    quantileExactLow(0.0)(c)
+    quantileExactLow(0.)(a),
+    quantileExactLow(0.)(b),
+    quantileExactLow(0.)(c)
 FROM decimal
 WHERE a >= 0;
 
@@ -323,19 +323,19 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileExactLow(1.0)(a),
-    quantileExactLow(1.0)(b),
-    quantileExactLow(1.0)(c)
+    quantileExactLow(1.)(a),
+    quantileExactLow(1.)(b),
+    quantileExactLow(1.)(c)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesExactLow(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a)
+SELECT quantilesExactLow(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a)
 FROM decimal;
 
-SELECT quantilesExactLow(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b)
+SELECT quantilesExactLow(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b)
 FROM decimal;
 
-SELECT quantilesExactLow(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c)
+SELECT quantilesExactLow(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c)
 FROM decimal;
 
 SELECT
@@ -354,9 +354,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileExactHigh(0.0)(a),
-    quantileExactHigh(0.0)(b),
-    quantileExactHigh(0.0)(c)
+    quantileExactHigh(0.)(a),
+    quantileExactHigh(0.)(b),
+    quantileExactHigh(0.)(c)
 FROM decimal
 WHERE a >= 0;
 
@@ -389,19 +389,19 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileExactHigh(1.0)(a),
-    quantileExactHigh(1.0)(b),
-    quantileExactHigh(1.0)(c)
+    quantileExactHigh(1.)(a),
+    quantileExactHigh(1.)(b),
+    quantileExactHigh(1.)(c)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesExactHigh(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a)
+SELECT quantilesExactHigh(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a)
 FROM decimal;
 
-SELECT quantilesExactHigh(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b)
+SELECT quantilesExactHigh(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b)
 FROM decimal;
 
-SELECT quantilesExactHigh(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c)
+SELECT quantilesExactHigh(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c)
 FROM decimal;
 
 SELECT
@@ -420,9 +420,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileExactWeighted(0.0)(a, 1),
-    quantileExactWeighted(0.0)(b, 2),
-    quantileExactWeighted(0.0)(c, 3)
+    quantileExactWeighted(0.)(a, 1),
+    quantileExactWeighted(0.)(b, 2),
+    quantileExactWeighted(0.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
@@ -455,19 +455,19 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileExactWeighted(1.0)(a, 1),
-    quantileExactWeighted(1.0)(b, 2),
-    quantileExactWeighted(1.0)(c, 3)
+    quantileExactWeighted(1.)(a, 1),
+    quantileExactWeighted(1.)(b, 2),
+    quantileExactWeighted(1.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesExactWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a, 1)
+SELECT quantilesExactWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a, 1)
 FROM decimal;
 
-SELECT quantilesExactWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b, 2)
+SELECT quantilesExactWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b, 2)
 FROM decimal;
 
-SELECT quantilesExactWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c, 3)
+SELECT quantilesExactWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c, 3)
 FROM decimal;
 
 SELECT

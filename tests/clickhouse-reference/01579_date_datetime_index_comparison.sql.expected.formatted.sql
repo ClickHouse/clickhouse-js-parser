@@ -1,4 +1,4 @@
-SET use_variant_as_common_type = 0;
+SET use_variant_as_common_type = '0';
 
 DROP TABLE IF EXISTS test_index;
 
@@ -6,7 +6,7 @@ CREATE TABLE test_index
 (
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY date
 PARTITION BY toYYYYMM(date);
 

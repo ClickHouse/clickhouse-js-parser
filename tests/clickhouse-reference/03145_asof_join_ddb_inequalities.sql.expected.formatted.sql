@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS events0;
 
 DROP TABLE IF EXISTS probe0;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'full_sorting_merge';
 
@@ -13,7 +13,7 @@ CREATE TABLE events0
     begin Nullable(DateTime('UTC')),
     value Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO events0 SELECT
@@ -27,7 +27,7 @@ CREATE TABLE probe0
 (
     begin Nullable(DateTime('UTC'))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO probe0 SELECT toDateTime('2023-03-21 12:00:00', 'UTC') + toIntervalHour(number)
@@ -35,7 +35,7 @@ FROM numbers(10);
 
 INSERT INTO probe0;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     p.begin,
@@ -43,7 +43,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-INNER JOIN events0 AS e
+ASOF INNER JOIN events0 AS e
     ON p.begin > e.begin
 ORDER BY p.begin ASC;
 
@@ -53,7 +53,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-LEFT JOIN events0 AS e
+ASOF LEFT JOIN events0 AS e
     ON p.begin > e.begin
 ORDER BY p.begin ASC;
 
@@ -63,7 +63,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-INNER JOIN events0 AS e
+ASOF INNER JOIN events0 AS e
     ON p.begin <= e.begin
 ORDER BY p.begin ASC;
 
@@ -73,7 +73,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-LEFT JOIN events0 AS e
+ASOF LEFT JOIN events0 AS e
     ON p.begin <= e.begin
 ORDER BY p.begin ASC;
 
@@ -83,7 +83,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-INNER JOIN events0 AS e
+ASOF INNER JOIN events0 AS e
     ON p.begin < e.begin
 ORDER BY p.begin ASC;
 
@@ -93,6 +93,6 @@ SELECT
     e.value
 FROM
     probe0 AS p
-LEFT JOIN events0 AS e
+ASOF LEFT JOIN events0 AS e
     ON p.begin < e.begin
 ORDER BY p.begin ASC;

@@ -16,8 +16,8 @@ ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO argmax_comb SELECT
-    CAST(number % 10, 'UInt64') AS id,
-    avgArgMaxState(CAST(number, 'Float64'), id)
+    CAST(number % 10 AS UInt64) AS id,
+    avgArgMaxState(CAST(number AS Float64), id)
 FROM numbers(100)
 GROUP BY id;
 

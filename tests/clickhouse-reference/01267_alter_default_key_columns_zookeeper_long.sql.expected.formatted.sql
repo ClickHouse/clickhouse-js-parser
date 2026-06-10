@@ -6,7 +6,7 @@ CREATE TABLE test_alter
     x Date,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
 PARTITION BY x;
 
@@ -40,9 +40,9 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_01267/alter', '
 ORDER BY s
 PARTITION BY x;
 
-ALTER TABLE test_alter_r1 MODIFY COLUMN s DEFAULT 'Hello' SETTINGS replication_alter_partitions_sync = 2;
+ALTER TABLE test_alter_r1 MODIFY COLUMN s DEFAULT 'Hello' SETTINGS replication_alter_partitions_sync = '2';
 
-ALTER TABLE test_alter_r2 MODIFY COLUMN x DEFAULT '2000-01-01' SETTINGS replication_alter_partitions_sync = 2;
+ALTER TABLE test_alter_r2 MODIFY COLUMN x DEFAULT '2000-01-01' SETTINGS replication_alter_partitions_sync = '2';
 
 DESCRIBE TABLE test_alter_r1;
 

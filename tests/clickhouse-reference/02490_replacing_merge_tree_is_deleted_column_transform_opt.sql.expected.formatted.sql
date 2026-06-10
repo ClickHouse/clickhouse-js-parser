@@ -12,7 +12,7 @@ CREATE TABLE tab
 ENGINE = ReplacingMergeTree(version, is_deleted)
 ORDER BY id
 PARTITION BY pkey
-SETTINGS index_granularity = 512;
+SETTINGS index_granularity = '512';
 
 -- insert 10000 rows in partition 'A' and delete half of them and merge the 2 parts
 INSERT INTO tab SELECT
@@ -31,7 +31,7 @@ INSERT INTO tab SELECT
     IF(number % 2 = 0, 0, 1)
 FROM numbers(10000);
 
-OPTIMIZE TABLE tab SETTINGS mutations_sync = 2;
+OPTIMIZE TABLE tab SETTINGS mutations_sync = '2';
 
 SYSTEM STOP MERGES tab;
 
@@ -52,7 +52,7 @@ INSERT INTO tab SELECT
     IF(number % 2 = 0, 0, 1)
 FROM numbers(10000);
 
-SET do_not_merge_across_partitions_select_final = 1;
+SET do_not_merge_across_partitions_select_final = '1';
 
 -- verify : 10000 rows expected
 SELECT count()
@@ -66,12 +66,12 @@ WHERE id >= 100;
 -- only even id's are left - 0 rows expected
 SELECT count()
 FROM tab FINAL
-WHERE (id % 2) = 1;
+WHERE id % 2 = 1;
 
 -- 10000 rows expected
 SELECT count()
 FROM tab FINAL
-WHERE (id % 2) = 0;
+WHERE id % 2 = 0;
 
 -- create some more partitions
 INSERT INTO tab SELECT
@@ -111,15 +111,15 @@ FROM numbers(100);
 SELECT count()
 FROM tab FINAL
 SETTINGS
-    do_not_merge_across_partitions_select_final = 0,
-    split_intersecting_parts_ranges_into_layers_final = 0;
+    do_not_merge_across_partitions_select_final = '0',
+    split_intersecting_parts_ranges_into_layers_final = '0';
 
 SELECT count()
 FROM tab FINAL
 SETTINGS
-    do_not_merge_across_partitions_select_final = 1,
-    split_intersecting_parts_ranges_into_layers_final = 1;
+    do_not_merge_across_partitions_select_final = '1',
+    split_intersecting_parts_ranges_into_layers_final = '1';
 
 SYSTEM START MERGES tab;
 
-OPTIMIZE TABLE tab FINAL SETTINGS mutations_sync = 2;
+OPTIMIZE TABLE tab FINAL SETTINGS mutations_sync = '2';

@@ -1,5 +1,5 @@
 -- Test that format settings are respected during internal CAST for JSON type
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 -- Direct CAST should respect date_time_input_format setting
 SELECT
@@ -14,7 +14,7 @@ CREATE TABLE test_json_datetime
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_json_datetime SELECT '{"a" : "2024 April 4"}'
 SETTINGS date_time_input_format = 'best_effort';

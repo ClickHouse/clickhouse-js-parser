@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS `02702_logical_optimizer`;
 
@@ -7,11 +7,11 @@ CREATE TABLE `02702_logical_optimizer`
     a Int32,
     b LowCardinality(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `02702_logical_optimizer`;
 
-SET optimize_min_equality_disjunction_chain_length = 3;
+SET optimize_min_equality_disjunction_chain_length = '3';
 
 SELECT *
 FROM `02702_logical_optimizer`
@@ -50,7 +50,7 @@ CREATE TABLE `02702_logical_optimizer_with_null_column`
     a Nullable(Int32),
     b LowCardinality(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `02702_logical_optimizer_with_null_column`;
 
@@ -69,15 +69,15 @@ WHERE a = 1
 
 SELECT materialize(1) AS k
 WHERE NULL
-    OR ((0
-    OR (k = 2)
-    OR ((k = CAST(1, 'Nullable(UInt8)')
-    OR k = 3))));
+    OR (0
+    OR k = 2
+    OR (k = CAST(1 AS Nullable(UInt8))
+    OR k = 3));
 
-SELECT (k = 2)
-    OR (k = 1)
-    OR (((NULL
-    OR 1)) = k)
+SELECT k = 2
+    OR k = 1
+    OR (NULL
+    OR 1) = k
 FROM (
         SELECT 1 AS k
     );

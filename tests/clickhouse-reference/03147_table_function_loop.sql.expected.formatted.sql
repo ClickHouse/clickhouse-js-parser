@@ -6,13 +6,13 @@ LIMIT 10;
 SELECT *
 FROM loop(numbers(3))
 LIMIT 10
-SETTINGS max_block_size = 1;
+SETTINGS max_block_size = '1';
 
 CREATE TABLE t
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 SELECT *
@@ -23,11 +23,11 @@ INSERT INTO t SELECT *
 FROM numbers(10);
 
 SELECT *
-FROM loop({CLICKHOUSE_DATABASE:Identifier}.t)
+FROM loop(CLICKHOUSE_DATABASE.t)
 LIMIT 15;
 
 SELECT *
-FROM loop({CLICKHOUSE_DATABASE:Identifier}, t)
+FROM loop(CLICKHOUSE_DATABASE, t)
 LIMIT 15;
 
 SELECT *

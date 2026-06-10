@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS alter_00147;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE alter_00147
 (
@@ -23,7 +23,7 @@ SELECT *
 FROM
     alter_00147
 ARRAY JOIN n
-WHERE like(n.x, '%Hello%');
+WHERE n.x LIKE '%Hello%';
 
 ALTER TABLE alter_00147 ADD COLUMN `n.y` Array(UInt64);
 
@@ -43,7 +43,7 @@ SELECT *
 FROM
     alter_00147
 ARRAY JOIN n
-WHERE like(n.x, '%Hello%')
+WHERE n.x LIKE '%Hello%'
 ORDER BY n.x ASC;
 
 OPTIMIZE TABLE alter_00147;

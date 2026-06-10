@@ -6,7 +6,7 @@ CREATE TABLE nullable_set_index
     b Nullable(String),
     INDEX b_index b TYPE set(0) GRANULARITY 8192
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO nullable_set_index;
@@ -33,7 +33,7 @@ CREATE TABLE nullable_set_index
     b Nullable(String),
     INDEX b_index b TYPE set(1) GRANULARITY 8192
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO nullable_set_index;
@@ -44,7 +44,7 @@ CREATE TABLE nullable_set_index
     b LowCardinality(Nullable(String)),
     INDEX b_index b TYPE set(0) GRANULARITY 8192
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE nullable_set_index
@@ -53,5 +53,5 @@ CREATE TABLE nullable_set_index
     b LowCardinality(Nullable(String)),
     INDEX b_index b TYPE set(1) GRANULARITY 8192
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;

@@ -18,7 +18,7 @@ CREATE TABLE wt
     a Int,
     b Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO wt SELECT
     0,

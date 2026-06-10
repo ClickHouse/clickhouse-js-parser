@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS alias_3;
 
 DROP TABLE IF EXISTS alias_4;
 
-SET allow_experimental_alias_table_engine = 1;
+SET allow_experimental_alias_table_engine = '1';
 
 -- Create source table
 CREATE TABLE source_table
@@ -18,7 +18,7 @@ CREATE TABLE source_table
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO source_table;
@@ -98,11 +98,11 @@ WHERE database = currentDatabase()
 SELECT count()
 FROM alias_4;
 
-ALTER TABLE alias_4 MODIFY SETTING max_bytes_to_merge_at_max_space_in_pool = 1000000;
+ALTER TABLE alias_4 MODIFY SETTING max_bytes_to_merge_at_max_space_in_pool = '1000000';
 
 SHOW CREATE TABLE source_table FORMAT TSVRaw;
 
-ALTER TABLE alias_4 UPDATE value = 'updated' WHERE id = 1 SETTINGS mutations_sync = 1;
+ALTER TABLE alias_4 UPDATE value = 'updated' WHERE id = 1 SETTINGS mutations_sync = '1';
 
 SELECT
     id,
@@ -111,7 +111,7 @@ SELECT
 FROM source_table
 WHERE id = 1;
 
-ALTER TABLE alias_4 DELETE WHERE id = 2 SETTINGS mutations_sync = 1;
+ALTER TABLE alias_4 DELETE WHERE id = 2 SETTINGS mutations_sync = '1';
 
 SELECT count()
 FROM source_table
@@ -127,7 +127,7 @@ CREATE TABLE source_partitioned
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY toYYYYMM(date);
 
@@ -139,7 +139,7 @@ INSERT INTO alias_part;
 SELECT count()
 FROM alias_part;
 
-ALTER TABLE alias_part DROP PARTITION '202401';
+ALTER TABLE alias_part DETACH PARTITION '202401';
 
 ALTER TABLE alias_part ATTACH PARTITION '202401';
 
@@ -220,7 +220,7 @@ CREATE TABLE source_attach
     id UInt32,
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO source_attach;
@@ -257,7 +257,7 @@ CREATE TABLE metadata_target
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE metadata_alias
@@ -322,7 +322,7 @@ CREATE TABLE temp_target
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO temp_target;
@@ -392,7 +392,7 @@ CREATE TABLE mv_test_source
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE mv_test_alias
@@ -404,7 +404,7 @@ CREATE TABLE mv_test_alias_dest
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE mv_test_target_dest
@@ -412,7 +412,7 @@ CREATE TABLE mv_test_target_dest
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 -- Create MV on Alias table

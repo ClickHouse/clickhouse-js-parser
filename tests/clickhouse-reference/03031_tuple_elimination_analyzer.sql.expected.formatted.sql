@@ -6,7 +6,7 @@ CREATE TABLE test
 (
     id LowCardinality(UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id AS
 SELECT 0;
 

@@ -5,7 +5,7 @@ CREATE TABLE t_point_in_polygon
     a UInt64,
     p Point
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO t_point_in_polygon (a);

@@ -1,7 +1,7 @@
 -- For tables with a text index, the merge may produce a corrupt .mrk file format
-SET allow_experimental_full_text_index = 1;
+SET allow_experimental_full_text_index = '1';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
 DROP TABLE IF EXISTS tab;
 
@@ -9,11 +9,11 @@ CREATE TABLE tab
 (
     i Int32,
     str String,
-    INDEX inv_idx str TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX inv_idx str TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS index_granularity_bytes = 0, min_bytes_for_wide_part = 0; -- avoid warning about non-adaptive granularity being incompatible with compact part format
+SETTINGS index_granularity_bytes = '0', min_bytes_for_wide_part = '0'; -- avoid warning about non-adaptive granularity being incompatible with compact part format
 
 INSERT INTO tab SELECT
     2,

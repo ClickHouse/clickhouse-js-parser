@@ -21,7 +21,7 @@ CREATE TABLE t_virtual_row_sparse_pk
 )
 ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 -- Insert enough data to have multiple marks (10 marks = 81920 rows with granularity 8192)
 -- Use sequential numbers so column 'a' has 100% unique values at mark boundaries,
@@ -43,7 +43,7 @@ SELECT
 FROM t_virtual_row_sparse_pk
 ORDER BY (a, b) ASC
 LIMIT 5
-SETTINGS read_in_order_use_virtual_row = 1;
+SETTINGS read_in_order_use_virtual_row = '1';
 
 -- Also test with PREWHERE which may take a different code path
 SELECT
@@ -53,7 +53,7 @@ FROM t_virtual_row_sparse_pk
 PREWHERE a < 100000
 ORDER BY (a, b) ASC
 LIMIT 5
-SETTINGS read_in_order_use_virtual_row = 1;
+SETTINGS read_in_order_use_virtual_row = '1';
 
 -- Test descending order
 SELECT
@@ -62,7 +62,7 @@ SELECT
 FROM t_virtual_row_sparse_pk
 ORDER BY (a, b) DESC
 LIMIT 5
-SETTINGS read_in_order_use_virtual_row = 1;
+SETTINGS read_in_order_use_virtual_row = '1';
 
 -- Verify the total count is correct
 SELECT count()

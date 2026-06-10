@@ -1,7 +1,7 @@
 -- Tags: stateful
 SELECT
     PP.Key1 AS `ym:s:paramsLevel1`,
-    sum(arrayAll(x_1 -> x_1 = '', ParsedParams.Key2)) AS `ym:s:visits`
+    sum(arrayAll((x_1 -> x_1 = ''), ParsedParams.Key2)) AS `ym:s:visits`
 FROM
     test.hits
 ARRAY JOIN ParsedParams AS PP
@@ -10,7 +10,8 @@ GROUP BY `ym:s:paramsLevel1`
 ORDER BY
     PP.Key1 ASC,
     `ym:s:visits` ASC
-LIMIT 0, 100;
+LIMIT 100
+OFFSET 0;
 
 SELECT
     PP.Key1 AS x1,

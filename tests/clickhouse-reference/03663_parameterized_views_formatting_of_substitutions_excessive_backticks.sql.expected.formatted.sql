@@ -10,10 +10,10 @@ SELECT
     database
 FROM `system`.parts_columns
 WHERE active = 1
-    AND ((database = {db:String}
-    OR database = currentDatabase()))
-    AND (match(table, {table:String}))
-    AND (match(column, {column:String}))
+    AND (database = 'placeholder'
+    OR database = currentDatabase())
+    AND match(table, 'placeholder')
+    AND match(column, 'placeholder')
 GROUP BY
     database,
     table,
@@ -23,6 +23,6 @@ DETACH TABLE audit_size_column;
 
 ATTACH TABLE audit_size_column;
 
-SHOW TABLE audit_size_column FORMAT Raw;
+SHOW CREATE TABLE audit_size_column FORMAT Raw;
 
 DROP TABLE audit_size_column;

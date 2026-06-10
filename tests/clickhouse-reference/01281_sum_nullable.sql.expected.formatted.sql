@@ -17,5 +17,5 @@ FROM (
 SELECT sum(number)
 FROM numbers(10);
 
-SELECT sum(if(number < 1000, NULL, number))
+SELECT sum(number < 1000 ? NULL : number)
 FROM numbers(10);

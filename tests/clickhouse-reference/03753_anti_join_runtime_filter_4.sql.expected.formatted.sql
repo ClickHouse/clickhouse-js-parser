@@ -4,7 +4,7 @@ CREATE TABLE nation
     n_nationkey Int32,
     n_name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n_nationkey;
 
 CREATE TABLE customer
@@ -13,9 +13,9 @@ CREATE TABLE customer
     c_nationkey Int32,
     c_nationkey_copy Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c_custkey
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 INSERT INTO nation;
 
@@ -43,9 +43,9 @@ INSERT INTO customer SELECT
     100
 FROM numbers(10);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET join_algorithm = 'hash,parallel_hash';
 
@@ -53,37 +53,37 @@ SET join_algorithm = 'hash,parallel_hash';
 SELECT count()
 FROM
     customer
-LEFT JOIN nation
+ANTI LEFT JOIN nation
     ON c_nationkey = n_nationkey
     AND n_name = 'FRANCE'
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 SELECT count()
 FROM
     customer
-LEFT JOIN (
+ANTI LEFT JOIN (
         SELECT *
         FROM nation
         WHERE n_name = 'FRANCE'
     ) AS n
     ON c_nationkey = n.n_nationkey
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 SELECT count()
 FROM
     customer
-LEFT JOIN nation
+ANTI LEFT JOIN nation
     ON c_nationkey = n_nationkey
     AND n_name = 'FRANCE'
-SETTINGS enable_join_runtime_filters = 1;
+SETTINGS enable_join_runtime_filters = '1';
 
 SELECT count()
 FROM
     customer
-LEFT JOIN (
+ANTI LEFT JOIN (
         SELECT *
         FROM nation
         WHERE n_name = 'FRANCE'
     ) AS n
     ON c_nationkey = n.n_nationkey
-SETTINGS enable_join_runtime_filters = 1;
+SETTINGS enable_join_runtime_filters = '1';

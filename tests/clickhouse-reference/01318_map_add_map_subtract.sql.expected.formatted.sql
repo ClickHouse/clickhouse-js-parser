@@ -2,8 +2,8 @@ DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 ENGINE = Memory() AS
-(SELECT ([1, number], [toInt32(2),2]) AS map
-FROM numbers(1, 10));
+SELECT ([1, number], [toInt32(2), 2]) AS map
+FROM numbers(1, 10);
 
 -- mapAdd
 SELECT mapAdd([1], [1]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
@@ -22,7 +22,7 @@ FROM tab; -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 SELECT mapAdd(([toUInt64(1)], [toInt32(1)]), map)
 FROM tab;
 
-SELECT mapAdd(cast(map, 'Tuple(Array(UInt8), Array(UInt8))'), ([1], [1]), ([2],[2]))
+SELECT mapAdd(CAST(map AS Tuple(Array(UInt8), Array(UInt8))), ([1], [1]), ([2], [2]))
 FROM tab;
 
 -- cleanup
@@ -78,15 +78,15 @@ SELECT
     toTypeName(res); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT mapAdd((['a', 'b'], [1, 1]), ([key], [1]))
-FROM values('key String', ('b'), ('c'), ('d'));
+FROM values('key String', 'b', 'c', 'd');
 
 SELECT
-    mapAdd((cast(['a', 'b'], 'Array(FixedString(1))'), [1, 1]), ([key], [1])) AS res,
+    mapAdd((CAST(['a', 'b'] AS Array(FixedString(1))), [1, 1]), ([key], [1])) AS res,
     toTypeName(res)
-FROM values('key FixedString(1)', ('b'), ('c'), ('d'));
+FROM values('key FixedString(1)', 'b', 'c', 'd');
 
-SELECT mapAdd((cast(['a', 'b'], 'Array(LowCardinality(String))'), [1, 1]), ([key], [1]))
-FROM values('key String', ('b'), ('c'), ('d'));
+SELECT mapAdd((CAST(['a', 'b'] AS Array(LowCardinality(String))), [1, 1]), ([key], [1]))
+FROM values('key String', 'b', 'c', 'd');
 
 SELECT
     mapAdd((key, val), (key, val)) AS res,

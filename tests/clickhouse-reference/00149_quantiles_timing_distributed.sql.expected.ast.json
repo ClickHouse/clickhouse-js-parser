@@ -1,232 +1,277 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000000"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful, distributed"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "cityHash64",
-            "args": [
-              {
-                "kind": "asterisk"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "quantileTiming",
-            "params": [
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.5"
-              }
-            ],
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "SendTiming"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "count",
-            "args": []
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3,4,5,6,7,8,9,10}"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test",
-                "hits"
-              ]
-            }
-          ]
-        },
-        "where": {
-          "kind": "binaryExpr",
-          "op": "!=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "SendTiming"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "Int64",
-            "value": "-1"
-          }
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "CounterID"
-              ]
-            }
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "100000000"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "cityHash64",
-            "args": [
-              {
-                "kind": "asterisk"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "quantileTiming",
-            "params": [
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.5"
-              }
-            ],
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "SendTiming"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "count",
-            "args": []
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3,4,5,6,7,8,9,10}"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test",
-                "hits"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "cityHash64",
+                  "arguments": [
+                    {
+                      "type": "Asterisk"
+                    }
+                  ]
+                }
               ]
             }
-          ]
-        },
-        "where": {
-          "kind": "binaryExpr",
-          "op": "!=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "SendTiming"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            },
+                            {
+                              "type": "Function",
+                              "name": "quantileTiming",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "SendTiming"
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "Float64",
+                                  "value": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3,4,5,6,7,8,9,10}"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test.hits",
+                                        "name_parts": [
+                                          "test",
+                                          "hits"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "notEquals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "SendTiming"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "Int64",
+                                "value": "-1"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "Int64",
-            "value": "-1"
           }
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "CounterID"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "cityHash64",
+                  "arguments": [
+                    {
+                      "type": "Asterisk"
+                    }
+                  ]
+                }
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            },
+                            {
+                              "type": "Function",
+                              "name": "quantileTiming",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "SendTiming"
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "Float64",
+                                  "value": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3,4,5,6,7,8,9,10}"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test.hits",
+                                        "name_parts": [
+                                          "test",
+                                          "hits"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "notEquals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "SendTiming"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "Int64",
+                                "value": "-1"
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "optimize_aggregation_in_order": "1"
+            }
+          }
         }
-      }
-    },
-    "settings": [
-      {
-        "name": "optimize_aggregation_in_order",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+      ]
+    }
   }
 ]

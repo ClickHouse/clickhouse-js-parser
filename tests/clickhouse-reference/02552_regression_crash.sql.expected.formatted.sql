@@ -6,7 +6,7 @@ CREATE TABLE store_sales
     ss_cdemo_sk Float64,
     ss_hdemo_sk Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO store_sales;
 

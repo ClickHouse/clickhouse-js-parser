@@ -1,420 +1,397 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CACHE",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: Messes with internal cache"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- enable query cache session-wide but also force it individually in each of below statements"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_system_table_handling",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "save"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- check that SELECT statements create entries in the query cache ..."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CACHE"
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- ... and all other statements also should not create entries:",
-      "-- CREATE"
-    ],
-    "trailingComments": [
-      "--  SETTINGS use_query_cache = true; -- SETTINGS rejected as unknown"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "b",
-          "type": {
-            "name": "String"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test2"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_query_cache": true
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_cache_system_table_handling": "save"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
           }
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
         }
       }
-    ],
-    "leadingComments": [
-      "-- ALTER"
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
       "table": {
-        "kind": "tableRef",
-        "table": "eligible_test"
-      }
-    },
-    "leadingComments": [
-      "-- INSERT"
-    ],
-    "trailingComments": [
-      "-- SETTINGS use_query_cache = true; -- SETTINGS rejected as unknown"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "eligible_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      },
+      "commands": [
         {
-          "kind": "asterisk"
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "eligible_test"
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "use_query_cache": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowTables",
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CheckQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true,
+          "check_query_single_value_result": "1"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DescribeQuery",
+      "table_expression": {
+        "type": "TableExpression",
+        "database_and_table_name": {
+          "type": "TableIdentifier",
+          "name": "eligible_test"
+        }
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ExistsTableQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "KillQueryQuery",
+      "kill_type": "QUERY",
+      "where": {
+        "type": "Function",
+        "name": "equals",
+        "is_operator": true,
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "query_id"
+          },
+          {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "3-857d-4a57-9ee0-3c7da5d60a90"
+          }
+        ]
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "eligible_test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Rename",
+      "elements": [
+        {
+          "from_table": "eligible_test",
+          "to_table": "eligible_test2"
         }
       ],
-      "from": {
-        "kind": "tableRef",
-        "table": "eligible_test"
-      },
-      "settings": [
-        {
-          "name": "use_query_cache",
-          "value": {
-            "kind": "literal",
-            "type": "Bool",
-            "value": "1"
-          }
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true
         }
-      ]
+      }
     }
   },
   {
-    "kind": "show",
-    "show": {
-      "type": "listing",
-      "objectType": "TABLES",
-      "settings": [
-        {
-          "name": "use_query_cache",
-          "value": {
-            "kind": "literal",
-            "type": "Bool",
-            "value": "1"
-          }
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- SHOW"
-    ]
-  },
-  {
-    "kind": "check",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      },
-      {
-        "name": "check_query_single_value_result",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- CHECK"
-    ]
-  },
-  {
-    "kind": "describe",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "eligible_test"
+        "type": "Identifier",
+        "name": "eligible_test2"
       }
-    },
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- DESCRIBE"
-    ]
-  },
-  {
-    "kind": "exists",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- EXISTS"
-    ]
-  },
-  {
-    "kind": "kill",
-    "target": "QUERY",
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "query_id"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "3-857d-4a57-9ee0-3c7da5d60a90"
-      }
-    },
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- KILL"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "final": true,
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- OPTIMIZE"
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test"
-    },
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- TRUNCATE"
-    ]
-  },
-  {
-    "kind": "rename",
-    "targetType": "TABLE",
-    "pairs": [
-      {
-        "from": {
-          "kind": "tableRef",
-          "table": "eligible_test"
-        },
-        "to": {
-          "kind": "tableRef",
-          "table": "eligible_test2"
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- RENAME"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "eligible_test2"
     }
   }
 ]

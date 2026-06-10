@@ -1,11 +1,9 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT *
-FROM view((
-        SELECT row_number()
-        FROM numbers(3)
-        WINDOW w AS ()
-    ));
+FROM view(    SELECT row_number() OVER w
+    FROM numbers(3)
+    WINDOW w AS ());
 
 SELECT *
 FROM viewExplain('EXPLAIN', '', (

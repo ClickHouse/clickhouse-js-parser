@@ -7,7 +7,7 @@ CREATE TABLE test_03143
     y String TTL timestamp + toIntervalDay(1),
     z String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_03143;

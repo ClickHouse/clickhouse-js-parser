@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS testTable
     B Int64
 )
 ENGINE = MergeTree()
-ORDER BY (A);
+ORDER BY A;
 
 INSERT INTO testTable;
 
@@ -19,7 +19,7 @@ SELECT
     B
 FROM testTable;
 
-SELECT CAST(ALow, 'String') AS AStr
+SELECT CAST(ALow AS String) AS AStr
 FROM testView
 GROUP BY AStr
 ORDER BY AStr ASC;
@@ -32,4 +32,4 @@ CREATE TABLE IF NOT EXISTS testTable
     B Int64
 )
 ENGINE = MergeTree()
-ORDER BY (A);
+ORDER BY A;

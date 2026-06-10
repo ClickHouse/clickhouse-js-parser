@@ -1,5 +1,5 @@
 -- Test for Bug 47393
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -7,11 +7,11 @@ CREATE TABLE tab
 (
     id UInt64,
     str String,
-    INDEX idx str TYPE text(tokenizer = ngrams(3)) GRANULARITY 1
+    INDEX idx str TYPE text(tokenizer = ngrams(3)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 1, min_bytes_for_wide_part = 1;
+SETTINGS min_rows_for_wide_part = '1', min_bytes_for_wide_part = '1';
 
 INSERT INTO tab (str);
 
@@ -22,11 +22,11 @@ WHERE database = currentDatabase()
     AND active = 1;
 
 -- Update column synchronously
-ALTER TABLE tab UPDATE str = 'I am not inverted' WHERE 1 SETTINGS mutations_sync = 1;
+ALTER TABLE tab UPDATE str = 'I am not inverted' WHERE 1 SETTINGS mutations_sync = '1';
 
 SELECT str
 FROM tab
-WHERE like(str, '%inverted%')
+WHERE str LIKE '%inverted%'
 SETTINGS force_data_skipping_indices = 'idx';
 
 DROP TABLE tab;

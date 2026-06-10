@@ -2,13 +2,13 @@ CREATE TABLE t0
 (
     c0 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t1
 (
     c1 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 (c0);
 

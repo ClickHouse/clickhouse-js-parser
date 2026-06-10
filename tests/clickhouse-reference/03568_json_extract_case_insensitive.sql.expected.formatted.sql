@@ -66,6 +66,6 @@ SELECT JSONExtractKeysAndValuesRawCaseInsensitive('{"Name": "Alice", "AGE": 30}'
 
 SELECT JSONExtractKeysCaseInsensitive('{"Name": "Alice", "AGE": 30}');
 
-SET allow_simdjson = 0;
+SET allow_simdjson = '0';
 
-SET allow_simdjson = 1;
+SET allow_simdjson = '1';

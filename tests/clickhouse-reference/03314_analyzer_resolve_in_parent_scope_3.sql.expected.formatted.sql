@@ -3,10 +3,10 @@ CREATE TABLE test
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-WITH (a > b) AS cte,
+WITH a > b AS cte,
 
 query AS (
     SELECT count()

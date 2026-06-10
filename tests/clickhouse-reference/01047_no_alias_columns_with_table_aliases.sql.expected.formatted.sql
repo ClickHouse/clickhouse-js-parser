@@ -6,8 +6,8 @@ CREATE TABLE requests
     event_date Date MATERIALIZED toDate(event_time),
     event_tm DateTime ALIAS event_time
 )
-ENGINE = MergeTree
-ORDER BY (event_time);
+ENGINE = MergeTree()
+ORDER BY event_time;
 
 INSERT INTO requests (event_time);
 

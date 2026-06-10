@@ -1,6 +1,6 @@
-SET max_threads = 2;
+SET max_threads = '2';
 
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
 DROP TABLE IF EXISTS TESTTABLE4;
 
@@ -11,8 +11,8 @@ CREATE TABLE TESTTABLE4
     l String
 )
 ENGINE = MergeTree()
-ORDER BY (_id)
-PARTITION BY (pt);
+ORDER BY _id
+PARTITION BY pt;
 
 INSERT INTO TESTTABLE4;
 

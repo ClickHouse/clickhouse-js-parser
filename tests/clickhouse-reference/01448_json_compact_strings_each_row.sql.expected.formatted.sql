@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS test_table;
 
 DROP TABLE IF EXISTS test_table_2;
 
-SET input_format_null_as_default = 0;
+SET input_format_null_as_default = '0';
 
 SELECT 1;
 
@@ -72,16 +72,16 @@ CREATE TABLE test_table
 ENGINE = MergeTree()
 ORDER BY v2;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRow;
 
 TRUNCATE TABLE test_table;
 
 SELECT 6;
 
 /* Check input_format_null_as_default = 1 */
-SET input_format_null_as_default = 1;
+SET input_format_null_as_default = '1';
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRow;
 
 SELECT 7;
 
@@ -94,7 +94,7 @@ CREATE TABLE test_table_2
 ENGINE = MergeTree()
 ORDER BY v1;
 
-INSERT INTO test_table_2;
+INSERT INTO test_table_2 FORMAT JSONCompactStringsEachRow;
 
 SELECT *
 FROM test_table_2
@@ -104,34 +104,34 @@ TRUNCATE TABLE test_table_2;
 
 SELECT 8;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNamesAndTypes;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNames;
 
 SELECT 9;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNamesAndTypes;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNames;
 
 SELECT 10;
 
-SET input_format_skip_unknown_fields = 1;
+SET input_format_skip_unknown_fields = '1';
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNamesAndTypes;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNames;
 
 SELECT 11;
 
-INSERT INTO test_table;
+INSERT INTO test_table FORMAT JSONCompactStringsEachRowWithNamesAndTypes;
 
 SELECT 12;
 
 /* Check Nested */
-INSERT INTO test_table_2;
+INSERT INTO test_table_2 FORMAT JSONCompactStringsEachRowWithNamesAndTypes;
 
-INSERT INTO test_table_2;
+INSERT INTO test_table_2 FORMAT JSONCompactStringsEachRowWithNames;
 
 SELECT *
 FROM test_table_2

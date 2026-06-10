@@ -13,7 +13,7 @@ PRIMARY KEY (user_id, timestamp);
 
 INSERT INTO my_first_table (user_id, job_id, message, timestamp, metric);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     1 AS constant,

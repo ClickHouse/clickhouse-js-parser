@@ -1,4 +1,4 @@
-SET allow_materialized_view_with_bad_select = 1;
+SET allow_materialized_view_with_bad_select = '1';
 
 DROP TABLE IF EXISTS mv_extra_columns_dst;
 
@@ -19,7 +19,7 @@ CREATE TABLE mv_extra_columns_src
     v1 UInt64,
     v2 UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
 -- Extra columns are ignored when pushing to destination table.
 -- This test exists to prevent unintended changes to existing behaviour.

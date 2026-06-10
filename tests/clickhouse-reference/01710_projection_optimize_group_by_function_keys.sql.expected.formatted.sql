@@ -8,17 +8,9 @@ CREATE TABLE proj
     float_value Float32,
     datetime_value DateTime,
     string_value String,
-    PROJECTION test_projection (    SELECT
-        toStartOfDay(toDateTime(datetime_value)) AS Day,
-        datetime_value,
-        float_value,
-        countDistinct(if(zero_integer_value = 1, string_value, NULL))
-    GROUP BY
-        Day,
-        datetime_value,
-        float_value)
+    PROJECTION test_projection (SELECT toStartOfDay(toDateTime(datetime_value)) AS Day, datetime_value, float_value, countDistinct(if(zero_integer_value = 1, string_value, NULL)) GROUP BY Day, datetime_value, float_value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY bool_value
 PARTITION BY toDate(datetime_value);
 

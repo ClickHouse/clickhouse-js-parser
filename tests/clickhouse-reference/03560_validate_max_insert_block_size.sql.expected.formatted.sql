@@ -5,18 +5,18 @@ CREATE TABLE t
 (
     n Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS merge_max_block_size = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS merge_max_block_size = '0'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE t
 (
     n Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS merge_max_block_size = 1;
+SETTINGS merge_max_block_size = '1';
 
-ALTER TABLE t MODIFY SETTING merge_max_block_size = 0; -- { serverError BAD_ARGUMENTS }
+ALTER TABLE t MODIFY SETTING merge_max_block_size = '0'; -- { serverError BAD_ARGUMENTS }
 
 DROP TABLE t;

@@ -10,7 +10,7 @@ CREATE TABLE ids
     id UUID,
     whatever String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO ids;
@@ -21,7 +21,7 @@ CREATE TABLE data
     event_time DateTime,
     status String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO data;
@@ -32,7 +32,7 @@ CREATE TABLE data2
     event_time DateTime,
     status String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO data2;
@@ -44,7 +44,7 @@ FROM
     ids AS l
 INNER JOIN merge(currentDatabase(), 'data*') AS s
     ON l.id = s.id
-WHERE (status IN (['CREATED', 'CREATING']))
+WHERE status IN (['CREATED', 'CREATING'])
 ORDER BY event_time DESC;
 
 SELECT
@@ -54,7 +54,7 @@ FROM
     ids AS l
 INNER JOIN clusterAllReplicas(test_cluster_two_shards, merge(currentDatabase(), 'data*')) AS s
     ON l.id = s.id
-WHERE (status IN (['CREATED', 'CREATING']))
+WHERE status IN (['CREATED', 'CREATING'])
 ORDER BY event_time DESC;
 
 SELECT
@@ -62,10 +62,8 @@ SELECT
     whatever
 FROM
     ids AS l
-INNER JOIN view((
-        SELECT *
-        FROM merge(currentDatabase(), 'data*')
-    )) AS s
+INNER JOIN view(    SELECT *
+    FROM merge(currentDatabase(), 'data*')) AS s
     ON l.id = s.id
-WHERE (status IN (['CREATED', 'CREATING']))
+WHERE status IN (['CREATED', 'CREATING'])
 ORDER BY event_time DESC;

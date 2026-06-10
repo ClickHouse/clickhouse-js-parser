@@ -56,12 +56,12 @@ CREATE TABLE t_100_columns
     c49 String,
     c50 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id % 50
-SETTINGS min_bytes_for_wide_part = 0, ratio_of_defaults_for_sparse_serialization = 1.0, serialization_info_version = 'basic', max_compress_block_size = '1M', storage_policy = 's3_cache', auto_statistics_types = '';
+SETTINGS min_bytes_for_wide_part = '0', ratio_of_defaults_for_sparse_serialization = 1., serialization_info_version = 'basic', max_compress_block_size = '1M', storage_policy = 's3_cache', auto_statistics_types = '';
 
-SET max_insert_delayed_streams_for_parallel_write = 55;
+SET max_insert_delayed_streams_for_parallel_write = '55';
 
 INSERT INTO t_100_columns (id) SELECT number
 FROM numbers(100);
@@ -71,7 +71,7 @@ SYSTEM FLUSH LOGS query_log;
 SELECT if(memory_usage < 300000000, 'Ok', format('Fail: memory usage {}', formatReadableSize(memory_usage)))
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(query, 'INSERT INTO t_100_columns%')
+    AND query LIKE 'INSERT INTO t_100_columns%'
     AND type = 'QueryFinish';
 
 DROP TABLE t_100_columns;

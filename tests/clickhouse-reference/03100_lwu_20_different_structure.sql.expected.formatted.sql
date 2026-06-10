@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS testing;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE testing
 (
@@ -10,9 +10,9 @@ CREATE TABLE testing
     d Int32,
     e Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY a
-SETTINGS min_bytes_for_wide_part = 0, enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS min_bytes_for_wide_part = '0', enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO testing SELECT
     number,

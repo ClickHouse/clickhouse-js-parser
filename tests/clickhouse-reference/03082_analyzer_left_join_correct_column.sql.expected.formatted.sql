@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/39634
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test1
 (
@@ -7,7 +7,7 @@ CREATE TABLE test1
     `x.y` Decimal(18, 4)
 )
 ENGINE = MergeTree()
-ORDER BY (pk);
+ORDER BY pk;
 
 CREATE TABLE test2
 (
@@ -15,7 +15,7 @@ CREATE TABLE test2
     `x.y` Decimal(18, 4)
 )
 ENGINE = MergeTree()
-ORDER BY (pk);
+ORDER BY pk;
 
 INSERT INTO test1 SELECT
     'pk1',

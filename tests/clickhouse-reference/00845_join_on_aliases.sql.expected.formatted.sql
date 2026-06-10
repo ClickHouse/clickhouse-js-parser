@@ -7,14 +7,14 @@ CREATE TABLE table1
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE table2
 (
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1 SELECT
     number,
@@ -86,8 +86,8 @@ FROM
     table1 AS t1
 INNER JOIN table2 AS t2
     ON t1_a = t2_a
-WHERE ((table1.a AS t1_a)) > 4
-    AND ((table2.a AS t2_a)) > 2
+WHERE (table1.a AS t1_a) > 4
+    AND (table2.a AS t2_a) > 2
 ORDER BY `all` ASC;
 
 SELECT
@@ -97,8 +97,8 @@ FROM
     table1 AS t1
 INNER JOIN table2 AS t2
     ON t1_a = t2_a
-WHERE ((t1.a AS t1_a)) > 2
-    AND ((t2.a AS t2_a)) > 4
+WHERE (t1.a AS t1_a) > 2
+    AND (t2.a AS t2_a) > 4
 ORDER BY `all` ASC;
 
 DROP TABLE table1;

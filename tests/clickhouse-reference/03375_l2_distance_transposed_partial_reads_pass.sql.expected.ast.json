@@ -1,497 +1,559 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbit"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "QBit",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "BFloat16"
-              }
-            },
-            {
-              "kind": "literal",
-              "value": "16"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "leadingComments": [
-      "-- Check if [L2/cosine/...]DistanceTransposed(vec, reference_vec, N) partial reads are achieved with optimize_qbit_distance_function_reads"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_qbit_distance_function_reads",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "explain",
-    "settings": [
-      {
-        "name": "actions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "query": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "reference_vec",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayMap",
-            "args": [
-              {
-                "kind": "lambdaExpr",
-                "params": [
-                  "i"
-                ],
-                "body": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "i"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                }
-              },
-              {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "16"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "L2DistanceTransposed",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "vec"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "reference_vec"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              }
-            ]
-          },
-          "alias": "dist"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "qbit"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
     }
   },
   {
-    "kind": "explain",
-    "settings": [
-      {
-        "name": "actions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "query": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "reference_vec",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayMap",
-            "args": [
-              {
-                "kind": "lambdaExpr",
-                "params": [
-                  "i"
-                ],
-                "body": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "i"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                }
-              },
-              {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "16"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "cosineDistanceTransposed",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "vec"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "reference_vec"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              }
-            ]
-          },
-          "alias": "dist"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "qbit"
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_qbit_distance_function_reads",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbit"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbit"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "QBit",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "BFloat16"
-              }
-            },
-            {
-              "kind": "literal",
-              "value": "1"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/88362"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "qbit"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "reference_vec",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "source": "[2]"
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
+        "type": "Identifier",
+        "name": "qbit"
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "round",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "L2DistanceTransposed",
-              "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "QBit",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "vec"
-                  ]
+                  "type": "DataType",
+                  "name": "BFloat16"
                 },
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "reference_vec"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toNullable",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "16"
                 }
               ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
             }
-          ]
-        },
-        "alias": "dist"
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "qbit"
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "reference_vec",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "source": "[2]"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_qbit_distance_function_reads": true
       }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "Function",
+                "alias": "reference_vec",
+                "name": "arrayMap",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "lambda",
+                    "is_operator": true,
+                    "is_lambda_function": true,
+                    "kind": "LAMBDA_FUNCTION",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "tuple",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "range",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "16"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Function",
+                "alias": "dist",
+                "name": "L2DistanceTransposed",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "reference_vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "4"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "qbit"
+                    }
+                  }
+                }
+              ]
+            }
+          }
         ]
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "round",
-          "args": [
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "actions": "1"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "Function",
+                "alias": "reference_vec",
+                "name": "arrayMap",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "lambda",
+                    "is_operator": true,
+                    "is_lambda_function": true,
+                    "kind": "LAMBDA_FUNCTION",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "tuple",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "range",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "16"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Function",
+                "alias": "dist",
+                "name": "cosineDistanceTransposed",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "reference_vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "4"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "qbit"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "actions": "1"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_qbit_distance_function_reads": false
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "qbit"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "qbit"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "QBit",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "BFloat16"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "qbit"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "functionCall",
-              "name": "L2DistanceTransposed",
-              "args": [
+              "type": "Literal",
+              "alias": "reference_vec",
+              "value_type": "Array",
+              "value": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "vec"
-                  ]
-                },
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Function",
+              "alias": "dist",
+              "name": "round",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "reference_vec"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toLowCardinality",
-                  "args": [
+                  "type": "Function",
+                  "name": "L2DistanceTransposed",
+                  "arguments": [
                     {
-                      "kind": "functionCall",
+                      "type": "Identifier",
+                      "name": "vec"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "reference_vec"
+                    },
+                    {
+                      "type": "Function",
                       "name": "toNullable",
-                      "args": [
+                      "arguments": [
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
+                          "type": "Literal",
+                          "value_type": "UInt64",
                           "value": "1"
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
                 }
               ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "qbit"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Literal",
+              "alias": "reference_vec",
+              "value_type": "Array",
+              "value": [
+                {
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+              "type": "Function",
+              "alias": "dist",
+              "name": "round",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "L2DistanceTransposed",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "vec"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "reference_vec"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "toLowCardinality",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "toNullable",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "dist"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "qbit"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "qbit"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

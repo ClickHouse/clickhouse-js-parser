@@ -1,98 +1,124 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Test for fix of double onFinish() call in SaveSubqueryResultToBufferTransform",
-      "-- This query previously caused a logical error due to ChunkBuffer underflow",
-      "-- Note: The totals row returns NULL because the common subplan buffering",
-      "-- optimization only buffers main data streams, not the totals stream.",
-      "-- This is a known limitation when combining correlated subqueries with WITH TOTALS."
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "first_value",
-                "args": [
-                  {
-                    "kind": "asterisk"
-                  }
-                ]
-              }
-            ],
-            "from": {
-              "kind": "subqueryFrom",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t0",
-                      "c0"
-                    ]
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "alias": "a0"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            "alias": "c0"
-          }
-        ],
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "isNull",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "8"
-                }
-              ]
+              "type": "Subquery",
+              "alias": "a0",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "first_value",
+                        "arguments": [
+                          {
+                            "type": "Asterisk"
+                          }
+                        ]
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "subquery": {
+                              "type": "Subquery",
+                              "query": {
+                                "type": "SelectWithUnionQuery",
+                                "selects": [
+                                  {
+                                    "type": "SelectQuery",
+                                    "select": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "t0.c0",
+                                        "name_parts": [
+                                          "t0",
+                                          "c0"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
-          ]
-        },
-        "withTotals": true
-      },
-      "alias": "t0"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "t0",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "group_by_with_totals": true,
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "c0",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ],
+                          "group_by": [
+                            {
+                              "type": "Function",
+                              "name": "isNull",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "8"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

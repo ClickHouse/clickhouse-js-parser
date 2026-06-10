@@ -1,12 +1,12 @@
 -- Tags: no-shared-merge-tree
 -- With shared merge tree non deterministic mutations are allowed
-DROP TABLE IF EXISTS t_mutations_nondeterministic;
+DROP TABLE IF EXISTS t_mutations_nondeterministic SYNC;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-SET mutations_execute_subqueries_on_initiator = 1;
+SET mutations_execute_subqueries_on_initiator = '1';
 
-SET mutations_execute_nondeterministic_on_initiator = 1;
+SET mutations_execute_nondeterministic_on_initiator = '1';
 
 -- SELECT sum(...)
 CREATE TABLE t_mutations_nondeterministic
@@ -37,7 +37,7 @@ WHERE database = currentDatabase()
     AND is_done
 ORDER BY command ASC;
 
-DROP TABLE t_mutations_nondeterministic;
+DROP TABLE t_mutations_nondeterministic SYNC;
 
 -- SELECT groupArray(...)
 CREATE TABLE t_mutations_nondeterministic
@@ -98,7 +98,8 @@ ALTER TABLE t_mutations_nondeterministic UPDATE v = now() WHERE 1;
 
 SELECT
     id,
-    and(greaterOrEquals(v, now() - toIntervalMinute(10)), lessOrEquals(v, now()))
+    v >= now() - toIntervalMinute(10)
+    AND v <= now()
 FROM t_mutations_nondeterministic;
 
 SELECT replaceRegexpOne(command, '(\\d{10})', 'timestamp')
@@ -117,7 +118,7 @@ ALTER TABLE t_mutations_nondeterministic UPDATE v = (
     SELECT sum(number)
     FROM numbers(1000)
     WHERE number > randConstant()
-) WHERE 1 SETTINGS mutations_execute_subqueries_on_initiator = 0, allow_nondeterministic_mutations = 1;
+) WHERE 1 SETTINGS mutations_execute_subqueries_on_initiator = '0', allow_nondeterministic_mutations = '1';
 
 -- DELETE WHERE now()
 CREATE TABLE t_mutations_nondeterministic

@@ -14,7 +14,7 @@ INSERT INTO data;
 
 SELECT
     field,
-    countIf(num_field > 6.0)
+    countIf(num_field > 6.)
 FROM data
-PREWHERE (num_field > 6.0)
+PREWHERE num_field > 6.
 GROUP BY field;

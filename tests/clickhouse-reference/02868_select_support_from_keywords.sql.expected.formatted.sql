@@ -6,9 +6,9 @@ CREATE TABLE test_table
     to Float64
 )
 ENGINE = CollapsingMergeTree(__sign)
-ORDER BY (date)
+ORDER BY date
 PARTITION BY toYYYYMM(date)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE VIEW test_view
 AS

@@ -7,33 +7,37 @@ CREATE TABLE t
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t SELECT
     number,
     number % 12345
-FROM numbers_mt(1e7);
+FROM numbers_mt(10000000.);
 
-SET max_threads = 4, optimize_read_in_order = 1;
+SET max_threads = '4', optimize_read_in_order = '1';
 
-SELECT countIf(like(`explain`, '%ScatterByPartitionTransform%'))
+SELECT countIf(`explain` LIKE '%ScatterByPartitionTransform%')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT
-            a,
-            b,
-            ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC) AS rn
-        FROM t
-        SETTINGS query_plan_reuse_storage_ordering_for_window_functions = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT
+                    a,
+                    b,
+                    ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC) AS rn
+                FROM t
+                SETTINGS query_plan_reuse_storage_ordering_for_window_functions = '0'
+            ))
     );
 
-SELECT countIf(like(`explain`, '%ScatterByPartitionTransform%'))
+SELECT countIf(`explain` LIKE '%ScatterByPartitionTransform%')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT
-            a,
-            b,
-            ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC) AS rn
-        FROM t
-        SETTINGS query_plan_reuse_storage_ordering_for_window_functions = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT
+                    a,
+                    b,
+                    ROW_NUMBER() OVER (PARTITION BY a ORDER BY b DESC) AS rn
+                FROM t
+                SETTINGS query_plan_reuse_storage_ordering_for_window_functions = '1'
+            ))
     );

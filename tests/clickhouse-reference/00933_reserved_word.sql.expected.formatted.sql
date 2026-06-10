@@ -4,7 +4,7 @@ CREATE TABLE reserved_word_table
 (
     index UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY index;
 
 DETACH TABLE reserved_word_table;

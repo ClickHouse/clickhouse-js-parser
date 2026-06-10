@@ -1,17 +1,17 @@
 -- Tags: no-asan, no-tsan, no-msan, no-ubsan, no-sanitize-coverage, no-parallel-replicas, no-flaky-check
-SET parallel_view_processing = 1, max_insert_threads = 2;
+SET parallel_view_processing = '1', max_insert_threads = '2';
 
 CREATE TABLE test_set
 (
     c0 Int
 )
-ENGINE = Set;
+ENGINE = Set();
 
 CREATE TABLE test_table
 (
     c0 Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c0
 PARTITION BY c0;
 
@@ -21,8 +21,8 @@ TO test_set
     c0 Int
 )
 AS
-(SELECT *
-FROM test_table);
+SELECT *
+FROM test_table;
 
 -- Expect the single insert chain
 EXPLAIN PIPELINE
@@ -34,13 +34,13 @@ CREATE TABLE t0
 (
     c0 Int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE t1
 (
     c0 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW v0
 TO t0
@@ -48,8 +48,8 @@ TO t0
     c0 Int
 )
 AS
-(SELECT isNull(t1.*) AS c0
-FROM t1);
+SELECT t1.* IS NULL AS c0
+FROM t1;
 
 INSERT INTO t1 (c0) SELECT c0
 FROM generateRandom('c0 Int', 1, 1, 0)

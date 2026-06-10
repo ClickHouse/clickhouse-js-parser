@@ -5,7 +5,7 @@ CREATE TABLE t
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY a;
 

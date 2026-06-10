@@ -1,169 +1,237 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "tables": [
-      {
-        "kind": "tableRef",
-        "table": "source"
-      },
-      {
-        "kind": "tableRef",
-        "table": "destination"
-      },
-      {
-        "kind": "tableRef",
-        "table": "source_to_destination_mv"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "if_exists": true,
+      "database_and_tables": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "TableIdentifier",
+            "name": "source"
+          },
+          {
+            "type": "TableIdentifier",
+            "name": "destination"
+          },
+          {
+            "type": "TableIdentifier",
+            "name": "source_to_destination_mv"
+          }
+        ]
       }
-    ],
-    "ifExists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "destination"
-    },
-    "orReplace": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "some_data",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "JSON"
-              }
-            }
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "replace_table": true,
+      "create_or_replace": true,
+      "table": {
+        "type": "Identifier",
+        "name": "destination"
       },
-      {
-        "kind": "columnDef",
-        "name": "a_val",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "arrayElement",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "some_data",
-                "a"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "some_data",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "JSON"
+                }
               ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "a_val",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "some_data.a",
+                  "name_parts": [
+                    "some_data",
+                    "a"
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "replace_table": true,
+      "create_or_replace": true,
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "some_data",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "JSON"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Null",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "source_to_destination_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "some_data"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "destination"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "some_data"
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+              "type": "Identifier",
+              "name": "a_val"
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "orReplace": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "some_data",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "JSON"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "destination"
+                  }
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
-    ],
-    "engine": {
-      "name": "Null"
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "source_to_destination_mv"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "destination"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "some_data"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "source"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "some_data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a_val"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "destination"
+      ]
     }
   }
 ]

@@ -10,13 +10,13 @@ CREATE TABLE test_00687
 (
     x String
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW mv_bad
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple()
 AS
@@ -27,7 +27,7 @@ CREATE MATERIALIZED VIEW mv_good
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple()
 AS
@@ -38,7 +38,7 @@ CREATE MATERIALIZED VIEW mv_group
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple()
 AS

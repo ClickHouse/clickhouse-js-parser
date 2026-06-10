@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET query_plan_join_swap_table = 0, query_plan_optimize_join_order_limit = 1; -- Changes query plan
+SET query_plan_join_swap_table = '0', query_plan_optimize_join_order_limit = '1'; -- Changes query plan
 
-SET correlated_subqueries_use_in_memory_buffer = 0;
+SET correlated_subqueries_use_in_memory_buffer = '0';
 
 CREATE TABLE users
 (
@@ -12,7 +12,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -20,7 +20,7 @@ INSERT INTO users;
 
 INSERT INTO users;
 
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT *
 FROM users AS u1
 WHERE uid = (
@@ -28,7 +28,7 @@ WHERE uid = (
         FROM users AS u2
         WHERE u1.name = u2.name
     )
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 SELECT *
 FROM users AS u1

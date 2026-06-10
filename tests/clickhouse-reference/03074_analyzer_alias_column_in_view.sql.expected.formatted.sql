@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/28687
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE VIEW alias (dummy int, n ALIAS dummy)
 AS

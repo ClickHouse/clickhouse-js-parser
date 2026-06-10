@@ -1,4 +1,4 @@
-SET enable_analyzer = 1, max_threads = 1;
+SET enable_analyzer = '1', max_threads = '1';
 
 DROP TABLE IF EXISTS t1, t2, t3;
 
@@ -7,7 +7,7 @@ CREATE TABLE t1
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t2
@@ -15,7 +15,7 @@ CREATE TABLE t2
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t1 (id, name);
@@ -59,7 +59,7 @@ FROM (
 ORDER BY `ALL` ASC;
 
 CREATE TABLE t3
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id AS
 SELECT
     rowNumberInAllBlocks() + 1 AS id,

@@ -1,518 +1,600 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_aggregation_memory_efficient",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_aggregation_memory_efficient": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: distributed"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "any",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "total"
+              "type": "Function",
+              "alias": "total_distinct_avg",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "total"
+                }
               ]
             }
-          ]
-        },
-        "alias": "total_distinct_avg"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "total",
+                              "name": "avgDistinct",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition"
+                              }
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3}"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "numbers_mt",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100000"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "avgDistinct",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ],
-              "window": {}
-            },
-            "alias": "total"
           }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3}"
-            },
-            {
-              "kind": "functionCall",
-              "name": "numbers_mt",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                }
-              ]
-            }
-          ]
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "running_avg"
+              "type": "Function",
+              "alias": "final_running_avg",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "running_avg"
+                }
               ]
             }
-          ]
-        },
-        "alias": "final_running_avg"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "running_avg",
+                              "name": "avgDistinct",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "order_by": [
+                                  {
+                                    "type": "OrderByElement",
+                                    "expression": {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    "direction": "ASC"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3}"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "numbers_mt",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100000"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "avgDistinct",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ],
-              "window": {
-                "orderBy": [
-                  {
-                    "kind": "orderByItem",
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "direction": "ASC"
-                  }
-                ]
-              }
-            },
-            "alias": "running_avg"
           }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3}"
-            },
-            {
-              "kind": "functionCall",
-              "name": "numbers_mt",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                }
-              ]
-            }
-          ]
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arraySort",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "groupUniqArray",
-              "args": [
+              "type": "Function",
+              "alias": "max_strings_per_partition",
+              "name": "arraySort",
+              "arguments": [
                 {
-                  "kind": "tupleLiteral",
-                  "elements": [
+                  "type": "Function",
+                  "name": "groupUniqArray",
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "partition_mod"
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "partition_mod"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "max_val"
+                        }
                       ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "max_val"
-                      ]
-                    }
-                  ],
-                  "source": "(partition_mod, max_val)"
-                }
-              ]
-            }
-          ]
-        },
-        "alias": "max_strings_per_partition"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            },
-            "alias": "partition_mod"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "maxDistinct",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "toString",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "5"
-                      }
                     }
                   ]
                 }
-              ],
-              "window": {
-                "partitionBy": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "7"
-                    }
-                  }
-                ]
-              }
-            },
-            "alias": "max_val"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3}"
-            },
-            {
-              "kind": "functionCall",
-              "name": "numbers_mt",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                }
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "partition_mod",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "10"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "max_val",
+                              "name": "maxDistinct",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "toString",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "5"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "7"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3}"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "numbers_mt",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100000"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arraySort",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "groupUniqArray",
-              "args": [
+              "type": "Function",
+              "alias": "argmin_per_partition",
+              "name": "arraySort",
+              "arguments": [
                 {
-                  "kind": "tupleLiteral",
-                  "elements": [
+                  "type": "Function",
+                  "name": "groupUniqArray",
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "partition_mod"
-                      ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "argMin_val"
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "partition_mod"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "argMin_val"
+                        }
                       ]
                     }
-                  ],
-                  "source": "(partition_mod, argMin_val)"
+                  ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "argmin_per_partition"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "alias": "ts"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "ts"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            },
-            "alias": "partition_mod"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ts"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "5"
-                  }
-                }
-              ]
-            },
-            "alias": "s"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "argMinDistinct",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ts"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "s"
-                  ]
-                }
-              ],
-              "window": {
-                "partitionBy": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "ts"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "alias": "ts",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "partition_mod",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "ts"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "10"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "s",
+                              "name": "toString",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "ts"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "5"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "argMin_val",
+                              "name": "argMinDistinct",
+                              "is_window_function": true,
+                              "kind": "WINDOW_FUNCTION",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "ts"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "s"
+                                }
+                              ],
+                              "window_definition": {
+                                "type": "WindowDefinition",
+                                "partition_by": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "ts"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "3"
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "order_by": [
+                                  {
+                                    "type": "OrderByElement",
+                                    "expression": {
+                                      "type": "Identifier",
+                                      "name": "ts"
+                                    },
+                                    "direction": "ASC"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2,3}"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "numbers_mt",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100000"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "ts"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
                       ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
                     }
                   }
-                ],
-                "orderBy": [
-                  {
-                    "kind": "orderByItem",
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "ts"
-                      ]
-                    },
-                    "direction": "ASC"
-                  }
-                ]
-              }
-            },
-            "alias": "argMin_val"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2,3}"
-            },
-            {
-              "kind": "functionCall",
-              "name": "numbers_mt",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
                 }
-              ]
-            }
-          ]
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "ts"
-              ]
-            },
-            "direction": "ASC"
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_aggregation_memory_efficient",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_aggregation_memory_efficient": "0"
       }
-    ]
+    }
   }
 ]

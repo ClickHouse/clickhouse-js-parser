@@ -4,7 +4,7 @@
 SELECT
     number,
     p,
-    count(*) OVER (PARTITION BY p ORDER BY number DESC ROWS BETWEEN UNBOUNDED PRECEDING AND 65537 PRECEDING)
+    count(*) OVER (PARTITION BY p ORDER BY number DESC NULLS FIRST ROWS BETWEEN UNBOUNDED PRECEDING AND 65537 PRECEDING)
 FROM (
         SELECT
             number,
@@ -12,6 +12,6 @@ FROM (
         FROM numbers(71)
     )
 ORDER BY
-    p ASC,
-    number DESC
-SETTINGS max_block_size = 2;
+    p ASC NULLS LAST,
+    number DESC NULLS FIRST
+SETTINGS max_block_size = '2';

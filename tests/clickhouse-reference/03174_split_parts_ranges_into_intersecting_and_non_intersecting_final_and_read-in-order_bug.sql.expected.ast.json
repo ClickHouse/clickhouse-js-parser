@@ -1,405 +1,416 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "DateTime",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "literal",
-              "value": "'UTC'"
+              "type": "Identifier",
+              "name": "v"
             }
           ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Int32"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
         }
       }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-tsan, no-asan, no-msan, no-fasttest",
-      "-- Test is slow"
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2000-01-01"
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2000-01-01"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
               }
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "1e7"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 10000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "final": true
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "d",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "*",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "60"
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "60"
-            },
-            "parenthesized": true
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "24"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toStartOfDay",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
-            }
-          ]
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "y"
-              ]
-            }
-          ]
-        },
-        "alias": "v"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "/",
-            "left": {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "z"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "d"
-                  ]
-                },
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "z"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "d"
-                    ]
-                  }
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "parenthesized": true
-              }
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "/",
-            "left": {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "toUInt64",
-                  "args": [
+              "type": "Function",
+              "alias": "d",
+              "name": "multiply",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "multiply",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "binaryExpr",
-                      "op": "-",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "k"
-                        ]
-                      },
-                      "right": {
-                        "kind": "functionCall",
-                        "name": "toDateTime",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "2000-01-01"
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "UTC"
-                          }
-                        ]
-                      }
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "60"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "60"
                     }
                   ]
                 },
-                "alias": "z",
-                "parenthesized": true
-              },
-              "right": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "z"
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "24"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "alias": "k",
+              "name": "toStartOfDay",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "v",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "y"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "est",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "divide",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "multiply",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "z"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "d"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "minus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "plus",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "z"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "d"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "parenthesized": true
-              }
+                {
+                  "type": "Function",
+                  "name": "divide",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "multiply",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "alias": "z",
+                          "name": "toUInt64",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "minus",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "k"
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "toDateTime",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "String",
+                                      "value": "2000-01-01"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "String",
+                                      "value": "UTC"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "minus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "z"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+            {
+              "type": "Function",
+              "alias": "delta",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "est"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                }
+              ]
             }
-          }
-        },
-        "alias": "est"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "est"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  },
+                  "final": true
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "v"
-            ]
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "8",
+              "optimize_aggregation_in_order": "1",
+              "split_parts_ranges_into_intersecting_and_non_intersecting_final": "1"
+            }
           }
-        },
-        "alias": "delta"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab",
-      "final": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8"
-        }
-      },
-      {
-        "name": "optimize_aggregation_in_order",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "split_parts_ranges_into_intersecting_and_non_intersecting_final",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   }
 ]

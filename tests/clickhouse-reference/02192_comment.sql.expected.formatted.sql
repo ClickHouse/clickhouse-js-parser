@@ -19,6 +19,5 @@ SELECT
     1;
 
 SELECT
-    '
-# hello',
+    '\n# hello',
     1;

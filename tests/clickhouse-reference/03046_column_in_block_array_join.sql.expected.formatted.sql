@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/37729
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS nested_test;
 
@@ -10,7 +10,7 @@ CREATE TABLE nested_test
     s String,
     nest Nested(x UInt64, y UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s;
 
 CREATE TABLE join_test
@@ -18,7 +18,7 @@ CREATE TABLE join_test
     id Int64,
     y UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO nested_test;

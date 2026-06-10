@@ -5,7 +5,7 @@ CREATE TABLE rollup_having
     a Nullable(String),
     b Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO rollup_having;
 
@@ -22,7 +22,7 @@ GROUP BY
     a,
     b
 WITH ROLLUP
-HAVING isNotNull(a)
+HAVING a IS NOT NULL
 ORDER BY
     a ASC,
     b ASC,
@@ -37,8 +37,8 @@ GROUP BY
     a,
     b
 WITH ROLLUP
-HAVING isNotNull(a)
-    AND isNotNull(b)
+HAVING a IS NOT NULL
+    AND b IS NOT NULL
 ORDER BY
     a ASC,
     b ASC,

@@ -6,7 +6,7 @@ CREATE TABLE summing
     x UInt64,
     e Enum('hello' = 1, 'world' = 2)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY k;
 
 INSERT INTO summing SELECT

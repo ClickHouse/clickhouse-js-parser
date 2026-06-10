@@ -1,5 +1,5 @@
 -- Tags: stateful, distributed
-SET max_rows_to_read = 100000000;
+SET max_rows_to_read = '100000000';
 
 SELECT sum(cityHash64(*))
 FROM (
@@ -22,4 +22,4 @@ FROM (
         WHERE SendTiming != -1
         GROUP BY CounterID
     )
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';

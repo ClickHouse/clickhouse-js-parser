@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS t_03209;
+DROP TABLE IF EXISTS t_03209 SYNC;
 
 CREATE TABLE t_03209
 (
@@ -11,16 +11,16 @@ ORDER BY tuple();
 
 INSERT INTO t_03209;
 
-SET max_parallel_replicas = 2, cluster_for_parallel_replicas = 'parallel_replicas';
+SET max_parallel_replicas = '2', cluster_for_parallel_replicas = 'parallel_replicas';
 
 SELECT *
 FROM t_03209
 WHERE a IN (toDecimal32('33.3000', 4))
-SETTINGS allow_experimental_parallel_reading_from_replicas = 0;
+SETTINGS allow_experimental_parallel_reading_from_replicas = '0';
 
 SELECT *
 FROM t_03209
 WHERE a IN (toDecimal32('33.3000', 4))
-SETTINGS allow_experimental_parallel_reading_from_replicas = 1;
+SETTINGS allow_experimental_parallel_reading_from_replicas = '1';
 
-DROP TABLE t_03209;
+DROP TABLE t_03209 SYNC;

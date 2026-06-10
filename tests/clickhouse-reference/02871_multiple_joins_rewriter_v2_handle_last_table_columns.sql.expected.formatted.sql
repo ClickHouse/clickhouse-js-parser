@@ -16,7 +16,7 @@ CROSS JOIN (
 
 -- alias clash
 SELECT
-    (a + 1) AS c,
+    a + 1 AS c,
     Z.c + 1
 FROM
     (
@@ -31,7 +31,7 @@ CROSS JOIN (
 
 -- column clash
 SELECT
-    (X.c + 1) AS c,
+    X.c + 1 AS c,
     Z.c + 1
 FROM
     (
@@ -45,11 +45,11 @@ CROSS JOIN (
     ) AS Z;
 
 SELECT
-    (X.a + 1) AS a,
-    (Y.a + 1) AS Y_a,
-    (Z.a + 1) AS Z_a,
-    (Y.b + 1) AS b,
-    (Z.b + 1) AS Z_b
+    X.a + 1 AS a,
+    Y.a + 1 AS Y_a,
+    Z.a + 1 AS Z_a,
+    Y.b + 1 AS b,
+    Z.b + 1 AS Z_b
 FROM
     (
         SELECT 10 AS a

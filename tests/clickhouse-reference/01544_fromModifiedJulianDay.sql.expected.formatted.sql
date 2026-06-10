@@ -6,7 +6,7 @@ SELECT fromModifiedJulianDay(59154);
 
 SELECT fromModifiedJulianDay(NULL);
 
-SELECT fromModifiedJulianDay(CAST(NULL, 'Nullable(Int64)'));
+SELECT fromModifiedJulianDay(CAST(NULL AS Nullable(Int64)));
 
 SELECT fromModifiedJulianDay(-678942); -- { serverError CANNOT_FORMAT_DATETIME }
 
@@ -30,7 +30,7 @@ CREATE TABLE fromModifiedJulianDay_test
 (
     d Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO fromModifiedJulianDay_test;
 

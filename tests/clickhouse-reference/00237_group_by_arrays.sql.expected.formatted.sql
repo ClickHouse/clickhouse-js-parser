@@ -44,7 +44,7 @@ SELECT
     count() AS c
 FROM (
         SELECT
-            arrayMap(x -> toString(x), range(number)) AS arr1,
+            arrayMap((x -> toString(x)), range(number)) AS arr1,
             range(toUInt64(10 - number)) AS arr2
         FROM `system`.numbers
         LIMIT 11
@@ -63,8 +63,8 @@ SELECT
     count() AS c
 FROM (
         SELECT
-            arrayMap(x -> toString(x), range(number)) AS arr1,
-            arrayMap(x -> toString(x), range(toUInt64(10 - number))) AS arr2
+            arrayMap((x -> toString(x)), range(number)) AS arr1,
+            arrayMap((x -> toString(x)), range(toUInt64(10 - number))) AS arr2
         FROM `system`.numbers
         LIMIT 11
     )
@@ -82,7 +82,7 @@ SELECT
     count() AS c
 FROM (
         SELECT
-            arrayMap(x -> toString(x), range(number)) AS arr1,
+            arrayMap((x -> toString(x)), range(number)) AS arr1,
             replicate(range(toUInt64(10 - number)), arr1) AS arr2
         FROM `system`.numbers
         LIMIT 11
@@ -101,7 +101,7 @@ SELECT
     count() AS c
 FROM (
         SELECT
-            arrayMap(x -> toString(x), range(number)) AS arr1,
+            arrayMap((x -> toString(x)), range(number)) AS arr1,
             replicate(range(toUInt64(10 - number)), arr1) AS arr2
         FROM (
                 SELECT number % 11 AS number

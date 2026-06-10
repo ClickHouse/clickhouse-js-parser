@@ -1,1 +1,1 @@
-SELECT match('ab', 'a.*b');
+SELECT 'ab' REGEXP 'a.*b';

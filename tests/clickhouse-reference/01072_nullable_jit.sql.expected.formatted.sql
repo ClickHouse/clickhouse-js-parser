@@ -1,4 +1,4 @@
-SET compile_expressions = 1;
+SET compile_expressions = '1';
 
 DROP TABLE IF EXISTS foo;
 

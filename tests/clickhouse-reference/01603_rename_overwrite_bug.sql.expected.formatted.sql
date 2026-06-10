@@ -3,19 +3,19 @@ SET send_logs_level = 'fatal';
 
 DROP DATABASE IF EXISTS test_1603_rename_bug_ordinary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test_1603_rename_bug_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE TABLE test_1603_rename_bug_ordinary.foo
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(100);
 
 CREATE TABLE test_1603_rename_bug_ordinary.bar
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT *
 FROM numbers(200);
 
@@ -37,15 +37,15 @@ DROP DATABASE test_1603_rename_bug_ordinary;
 DROP DATABASE IF EXISTS test_1603_rename_bug_atomic;
 
 CREATE DATABASE test_1603_rename_bug_atomic
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE test_1603_rename_bug_atomic.foo
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(100);
 
 CREATE TABLE test_1603_rename_bug_atomic.bar
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT *
 FROM numbers(200);
 

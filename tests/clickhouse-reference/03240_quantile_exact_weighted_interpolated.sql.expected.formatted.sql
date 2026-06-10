@@ -9,7 +9,7 @@ CREATE TABLE decimal
     d Date,
     w UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c, f, d, w) SELECT
     toDecimal32(number - 50, 4),
@@ -41,9 +41,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileExactWeightedInterpolated(0.0)(a, 1),
-    quantileExactWeightedInterpolated(0.0)(b, 2),
-    quantileExactWeightedInterpolated(0.0)(c, 3)
+    quantileExactWeightedInterpolated(0.)(a, 1),
+    quantileExactWeightedInterpolated(0.)(b, 2),
+    quantileExactWeightedInterpolated(0.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
@@ -76,25 +76,25 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileExactWeightedInterpolated(1.0)(a, 1),
-    quantileExactWeightedInterpolated(1.0)(b, 2),
-    quantileExactWeightedInterpolated(1.0)(c, 3)
+    quantileExactWeightedInterpolated(1.)(a, 1),
+    quantileExactWeightedInterpolated(1.)(b, 2),
+    quantileExactWeightedInterpolated(1.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesExactWeightedInterpolated(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a, 1)
+SELECT quantilesExactWeightedInterpolated(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a, 1)
 FROM decimal;
 
-SELECT quantilesExactWeightedInterpolated(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b, 2)
+SELECT quantilesExactWeightedInterpolated(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b, 2)
 FROM decimal;
 
-SELECT quantilesExactWeightedInterpolated(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c, 3)
+SELECT quantilesExactWeightedInterpolated(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c, 3)
 FROM decimal;
 
-SELECT quantilesExactWeightedInterpolated(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(f, 4)
+SELECT quantilesExactWeightedInterpolated(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(f, 4)
 FROM decimal;
 
-SELECT quantilesExactWeightedInterpolated(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(d, 5)
+SELECT quantilesExactWeightedInterpolated(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(d, 5)
 FROM decimal;
 
 SELECT quantilesExactWeightedInterpolatedMerge(0.2, 0.4, 0.6, 0.8)(x)

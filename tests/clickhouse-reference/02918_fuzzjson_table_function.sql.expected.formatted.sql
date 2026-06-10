@@ -1,6 +1,6 @@
 -- Tags: no-parallel, no-replicated-database: Named collection is used
 --
-DROP NAMED COLLECTION IF EXISTS 02918_json_fuzzer;
+DROP NAMED COLLECTION IF EXISTS `02918_json_fuzzer`;
 
 CREATE NAMED COLLECTION `02918_json_fuzzer` AS json_str = '{}';
 
@@ -47,7 +47,7 @@ CREATE TABLE `02918_table_str`
 (
     json_str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `02918_table_str` SELECT *
 FROM fuzzJSON(`02918_json_fuzzer`)

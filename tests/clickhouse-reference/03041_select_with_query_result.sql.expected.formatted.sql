@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/44153
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS parent;
 
@@ -46,8 +46,8 @@ WITH with_table AS (
     LEFT JOIN join_table_2 AS jt2
         ON jt2.c_id = p.c_id
     WHERE p.a_id = 0
-        AND ((jt2.c_id = 0
-        OR p.created_at = 0))
+        AND (jt2.c_id = 0
+        OR p.created_at = 0)
 )
 
 SELECT

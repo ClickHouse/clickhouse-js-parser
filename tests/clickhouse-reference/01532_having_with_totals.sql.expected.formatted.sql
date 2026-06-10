@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS local_t;
 
 CREATE TABLE local_t
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT 1 AS a;
 
 SELECT *

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -20,7 +20,7 @@ WITH x -> toString(x) AS lambda
 SELECT
     lambda(1),
     lambda(NULL),
-    lambda([1,2,3]);
+    lambda([1, 2, 3]);
 
 WITH x -> toString(x) AS lambda_1,
 
@@ -31,7 +31,7 @@ lambda_2 AS lambda_3
 SELECT
     lambda_1(1),
     lambda_2(NULL),
-    lambda_3([1,2,3]);
+    lambda_3([1, 2, 3]);
 
 WITH x -> x + 1 AS lambda
 
@@ -45,29 +45,29 @@ SELECT
     lambda(value)
 FROM test_table;
 
-SELECT arrayMap(x -> x + 1, [1,2,3]);
+SELECT arrayMap((x -> x + 1), [1, 2, 3]);
 
 WITH x -> x + 1 AS lambda
 
-SELECT arrayMap(lambda, [1,2,3]);
+SELECT arrayMap(lambda, [1, 2, 3]);
 
 SELECT
-    arrayMap(((x -> toString(x))) AS lambda, [1,2,3]),
-    arrayMap(lambda, ['1','2','3']);
+    arrayMap((x -> toString(x) AS lambda), [1, 2, 3]),
+    arrayMap(lambda, ['1', '2', '3']);
 
 WITH x -> toString(x) AS lambda_1
 
 SELECT
-    arrayMap(lambda_1 AS lambda_2, [1,2,3]),
+    arrayMap(lambda_1 AS lambda_2, [1, 2, 3]),
     arrayMap(lambda_2, ['1', '2', '3']);
 
-SELECT arrayMap(x -> id, [1,2,3])
+SELECT arrayMap((x -> id), [1, 2, 3])
 FROM test_table;
 
-SELECT arrayMap(x -> x + id, [1,2,3])
+SELECT arrayMap((x -> x + id), [1, 2, 3])
 FROM test_table;
 
-SELECT arrayMap(((x -> concat(concat(toString(x), '_'), toString(id)))) AS lambda, [1,2,3])
+SELECT arrayMap((x -> concat(concat(toString(x), '_'), toString(id)) AS lambda), [1, 2, 3])
 FROM test_table;
 
 DROP TABLE IF EXISTS test_table_tuple;
@@ -77,14 +77,14 @@ CREATE TABLE test_table_tuple
     id UInt64,
     value Tuple(value_0_level_0 String, value_1_level_0 String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_tuple;
 
 WITH x -> concat(concat(toString(x.id), '_'), x.value) AS lambda
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     lambda(value);
 
 WITH x -> concat(concat(x.value_0_level_0, '_'), x.value_1_level_0) AS lambda
@@ -101,33 +101,33 @@ WITH x -> * AS lambda
 SELECT lambda(1)
 FROM test_table;
 
-WITH cast(tuple(1), 'Tuple (value UInt64)') AS compound_value
+WITH CAST(tuple(1), 'Tuple (value UInt64)') AS compound_value
 
-SELECT arrayMap(x -> compound_value.*, [1,2,3]);
+SELECT arrayMap((x -> compound_value.*), [1, 2, 3]);
 
-WITH cast(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
+WITH CAST(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
 
-SELECT arrayMap(x -> compound_value.*, [1,2,3]); -- { serverError UNSUPPORTED_METHOD }
+SELECT arrayMap((x -> compound_value.*), [1, 2, 3]); -- { serverError UNSUPPORTED_METHOD }
 
-WITH cast(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
+WITH CAST(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
 
-SELECT arrayMap(x -> plus(compound_value.*), [1,2,3]);
+SELECT arrayMap((x -> plus(compound_value.*)), [1, 2, 3]);
 
-WITH cast(tuple(1), 'Tuple (value UInt64)') AS compound_value
+WITH CAST(tuple(1), 'Tuple (value UInt64)') AS compound_value
 
 SELECT
     id,
     test_table.* APPLY(x -> compound_value.*)
 FROM test_table;
 
-WITH cast(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
+WITH CAST(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
 
 SELECT
     id,
     test_table.* APPLY(x -> compound_value.*)
 FROM test_table; -- { serverError UNSUPPORTED_METHOD }
 
-WITH cast(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
+WITH CAST(tuple(1, 1), 'Tuple (value_1 UInt64, value_2 UInt64)') AS compound_value
 
 SELECT
     id,
@@ -137,7 +137,7 @@ FROM test_table;
 WITH x -> untuple(x) AS lambda
 
 SELECT
-    cast((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
+    CAST((1, 'Value'), 'Tuple (id UInt64, value String)') AS value,
     lambda(value);
 
 WITH (functor, x) -> functor(x) AS lambda,
@@ -167,13 +167,13 @@ WITH 222 AS lambda
 
 SELECT arrayMap(lambda(tuple(x), x + 1), [1, 2, 3]);
 
-SELECT arrayMap(lambda(tuple(x), x + 1), [1, 2, 3]);
+SELECT arrayMap(lambda((x,), x + 1), [1, 2, 3]);
 
 SELECT arraySort(lambda((x, y), y), ['world', 'hello'], [2, 1]);
 
 WITH 222 AS lambda
 
-SELECT arrayMap(lambda(tuple(x), x + 1), [1, 2, 3]);
+SELECT arrayMap(lambda((x,), x + 1), [1, 2, 3]);
 
 WITH x -> x + 1 AS lambda
 
@@ -200,11 +200,11 @@ DROP TABLE test_table_tuple;
 
 DROP TABLE test_table;
 
-WITH x -> (lambda(x) + 1) AS lambda
+WITH x -> lambda(x) + 1 AS lambda
 
 SELECT lambda(1); -- {serverError UNSUPPORTED_METHOD }
 
-WITH x -> (lambda1(x) + 1) AS lambda,
+WITH x -> lambda1(x) + 1 AS lambda,
 
 lambda AS lambda1
 

@@ -1,433 +1,542 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "server_date",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
       },
-      {
-        "kind": "columnDef",
-        "name": "server_time",
-        "type": {
-          "name": "Datetime",
-          "args": [
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "server_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "server_time",
+            "data_type": {
+              "type": "DataType",
+              "name": "Datetime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Asia/Istanbul"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "dimension_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "literal",
-              "value": "'Asia/Istanbul'"
+              "type": "Identifier",
+              "name": "server_date"
             }
           ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "dimension_1",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "server_date"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "server_date"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "server_date",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "dimension_1",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "server_date"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "server_date"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "foo"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "bar"
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_move_to_prewhere",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "any_join_distinct_right_table_keys",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "foo"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "bar"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "dimension_1"
-        ]
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "foo",
-              "server_date"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-11-07"
-          },
-          "parenthesized": true
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "server_date"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "server_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "dimension_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "server_date"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "server_date"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_move_to_prewhere": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "any_join_distinct_right_table_keys": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "foo",
-                  "server_time"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo"
+                  }
+                }
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "Asia/Yekaterinburg"
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "dimension_1"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar"
+                  }
+                }
               }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-11-07"
-          },
-          "parenthesized": true
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "foo.server_date",
+                    "name_parts": [
+                      "foo",
+                      "server_date"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-11-07"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDate",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "foo.server_time",
+                        "name_parts": [
+                          "foo",
+                          "server_time"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "Asia/Yekaterinburg"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-11-07"
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toDateTime",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "foo",
-              "server_time"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toDateTime",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "foo.server_time",
+                  "name_parts": [
+                    "foo",
+                    "server_time"
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "dimension_1"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar"
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "foo"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "bar"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "dimension_1"
-        ]
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toDate",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "foo",
-              "server_time"
+          "where": {
+            "type": "Function",
+            "name": "lessOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "foo.server_time",
+                    "name_parts": [
+                      "foo",
+                      "server_time"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "UTC"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-04-30"
+                  }
+                ]
+              }
             ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
           }
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "toDate",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-04-30"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toDateTime",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "foo",
-              "server_time"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "foo"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "bar"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "dimension_1"
-        ]
-      }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toDate",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "foo",
-              "server_time"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "toDate",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-04-30"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "any_join_distinct_right_table_keys",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
         }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toDateTime",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "foo.server_time",
+                  "name_parts": [
+                    "foo",
+                    "server_time"
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "SEMI",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "dimension_1"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "lessOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "foo.server_time",
+                    "name_parts": [
+                      "foo",
+                      "server_time"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "UTC"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-04-30"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "any_join_distinct_right_table_keys": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      }
     }
   }
 ]

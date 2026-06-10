@@ -4,7 +4,7 @@ CREATE TABLE test
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 

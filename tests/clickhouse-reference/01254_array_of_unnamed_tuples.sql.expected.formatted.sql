@@ -6,7 +6,7 @@ CREATE TABLE mass_table_457
     name String,
     value UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO mass_table_457 SELECT *
 FROM generateRandom('`key` Array(Tuple(Float64, Float64)),`name` String,`value` UInt64', 1, 10, 2)

@@ -2,9 +2,9 @@ DROP SETTINGS PROFILE IF EXISTS s1_01418, s2_01418;
 
 SELECT '--- assigning ---';
 
-SET custom_a = 5;
+SET custom_a = '5';
 
-SET custom_b = -177;
+SET custom_b = '-177';
 
 SET custom_c = 98.11;
 
@@ -30,14 +30,14 @@ SELECT
     name,
     value
 FROM `system`.`settings`
-WHERE like(name, 'custom_%')
+WHERE name LIKE 'custom_%'
 ORDER BY name ASC;
 
 SET custom_a = 'changed';
 
 SET custom_b = NULL;
 
-SET custom_c = 50000;
+SET custom_c = '50000';
 
 SET custom_d = 1.11;
 
@@ -45,9 +45,9 @@ SELECT
     getSetting('custom_e') AS v,
     toTypeName(v); -- { serverError UNKNOWN_SETTING } -- Setting not found.
 
-SET custom_e = 404;
+SET custom_e = '404';
 
-SET invalid_custom = 8; -- { serverError UNKNOWN_SETTING } -- Setting is neither a builtin nor started with one of the registered prefixes for user-defined settings.
+SET invalid_custom = '8'; -- { serverError UNKNOWN_SETTING } -- Setting is neither a builtin nor started with one of the registered prefixes for user-defined settings.
 
 SELECT
     getSetting('custom_e') AS v,

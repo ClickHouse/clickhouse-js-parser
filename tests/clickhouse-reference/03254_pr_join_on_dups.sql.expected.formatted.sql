@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS X;
+DROP TABLE IF EXISTS X SYNC;
 
-DROP TABLE IF EXISTS Y;
+DROP TABLE IF EXISTS Y SYNC;
 
-SET min_bytes_to_use_direct_io = 0; -- min_bytes_to_use_direct_io > 0 is broken and leads to unexpected results, https://github.com/ClickHouse/ClickHouse/issues/65690
+SET min_bytes_to_use_direct_io = '0'; -- min_bytes_to_use_direct_io > 0 is broken and leads to unexpected results, https://github.com/ClickHouse/ClickHouse/issues/65690
 
 CREATE TABLE X
 (
@@ -30,7 +30,7 @@ INSERT INTO Y (id, y_a);
 
 INSERT INTO Y (id, y_a, y_b);
 
-SET enable_analyzer = 1, enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_analyzer = '1', enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT
     X.*,
@@ -74,7 +74,7 @@ SELECT
 FROM
     X
 INNER JOIN Y
-    ON (X.id + 1) = (Y.id + 1)
+    ON X.id + 1 = Y.id + 1
 ORDER BY
     X.id ASC,
     X.x_a ASC,
@@ -125,7 +125,7 @@ SELECT
 FROM
     X
 LEFT JOIN Y
-    ON (X.id + 1) = (Y.id + 1)
+    ON X.id + 1 = Y.id + 1
 ORDER BY
     X.id ASC,
     X.x_a ASC,
@@ -458,6 +458,6 @@ ORDER BY
     s.x_a ASC,
     s.x_b ASC;
 
-DROP TABLE X;
+DROP TABLE X SYNC;
 
-DROP TABLE Y;
+DROP TABLE Y SYNC;

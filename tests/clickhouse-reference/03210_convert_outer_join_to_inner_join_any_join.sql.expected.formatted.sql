@@ -7,7 +7,7 @@ CREATE TABLE user_country
     user_id UInt64,
     country String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY user_id;
 
 CREATE TABLE user_transactions
@@ -15,7 +15,7 @@ CREATE TABLE user_transactions
     user_id UInt64,
     transaction_id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY user_id;
 
 INSERT INTO user_country (user_id, country);
@@ -29,7 +29,7 @@ INSERT INTO user_transactions (user_id, transaction_id);
 SELECT *
 FROM
     user_transactions
-LEFT JOIN user_country
+ANY LEFT JOIN user_country
     USING (user_id)
 WHERE user_id = 1
     AND country = 'US'

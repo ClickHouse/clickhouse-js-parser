@@ -187,7 +187,7 @@ SELECT
     x,
     x
 FROM remote('127.0.0.2', `system`, one)
-SETTINGS max_query_size = 10000;
+SETTINGS max_query_size = '10000';
 
 SELECT
     1 AS x,

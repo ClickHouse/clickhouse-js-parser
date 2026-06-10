@@ -11,20 +11,20 @@ CREATE TABLE t
     _version UInt64
 )
 ENGINE = ReplacingMergeTree(_version, _is_deleted)
-ORDER BY (account_id);
+ORDER BY account_id;
 
 INSERT INTO t SELECT
     number,
     0,
     1
-FROM numbers(1e3);
+FROM numbers(1000.);
 
 -- Mark the first 100 rows as deleted.
 INSERT INTO t SELECT
     number,
     1,
     1
-FROM numbers(1e2);
+FROM numbers(100.);
 
 -- Put everything in one partition
 OPTIMIZE TABLE t FINAL;
@@ -40,10 +40,10 @@ FROM t FINAL;
 -- as if no rows were deleted.
 SELECT count()
 FROM t FINAL
-SETTINGS do_not_merge_across_partitions_select_final = 1;
+SETTINGS do_not_merge_across_partitions_select_final = '1';
 
 SELECT count()
 FROM t FINAL
-SETTINGS do_not_merge_across_partitions_select_final = 0;
+SETTINGS do_not_merge_across_partitions_select_final = '0';
 
 DROP TABLE t;

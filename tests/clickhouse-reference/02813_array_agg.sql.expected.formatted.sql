@@ -5,7 +5,7 @@ CREATE TABLE t
     n Int32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO t SELECT

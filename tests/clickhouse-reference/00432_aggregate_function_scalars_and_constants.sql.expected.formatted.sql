@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS agg_func_col;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE agg_func_col
 (
@@ -58,16 +58,6 @@ SELECT arrayReduce('avgState', [0]) IN (arrayReduce('avgState', [0, 1]), arrayRe
 
 SELECT arrayReduce('avgState', [0]) IN (arrayReduce('avgState', [0, 1]), arrayReduce('avgState', [1]));
 
-SELECT arrayReduce('uniqExactMerge', [arrayReduce('uniqExactMergeState',
-        [
-            arrayReduce('uniqExactState', [12345678901]),
-            arrayReduce('uniqExactState', [12345678901])
-        ])
-    ]);
+SELECT arrayReduce('uniqExactMerge', [arrayReduce('uniqExactMergeState', [arrayReduce('uniqExactState', [12345678901]), arrayReduce('uniqExactState', [12345678901])])]);
 
-SELECT arrayReduce('uniqExactMerge', [arrayReduce('uniqExactMergeState',
-        [
-            arrayReduce('uniqExactState', [12345678901]),
-            arrayReduce('uniqExactState', [12345678902])
-        ])
-    ]);
+SELECT arrayReduce('uniqExactMerge', [arrayReduce('uniqExactMergeState', [arrayReduce('uniqExactState', [12345678901]), arrayReduce('uniqExactState', [12345678902])])]);

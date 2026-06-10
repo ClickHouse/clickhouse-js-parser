@@ -5,7 +5,7 @@ CREATE TABLE multidimensional
     x UInt64,
     arr Array(Array(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO multidimensional;
@@ -31,7 +31,7 @@ CREATE TABLE multidimensional
     arr Array(Array(String)),
     t Tuple(String, Array(Nullable(String)), Tuple(UInt32, Date))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO multidimensional;
 
@@ -41,7 +41,7 @@ CREATE TABLE multidimensional
     arr Array(Array(String)),
     t Tuple(String, Array(Nullable(String)), Tuple(UInt32, Date))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE multidimensional
 (
@@ -49,7 +49,7 @@ CREATE TABLE multidimensional
     arr Array(Array(String)),
     t Tuple(String, Array(Nullable(String)), Tuple(UInt32, Date))
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE multidimensional
 (
@@ -57,4 +57,4 @@ CREATE TABLE multidimensional
     arr Array(Array(String)),
     t Tuple(String, Array(Nullable(String)), Tuple(UInt32, Date))
 )
-ENGINE = Log;
+ENGINE = Log();

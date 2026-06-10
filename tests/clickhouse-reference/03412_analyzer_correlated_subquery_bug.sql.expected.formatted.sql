@@ -1,9 +1,9 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 CREATE TABLE mem2
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT number
 FROM numbers(2);
 
@@ -27,7 +27,7 @@ WHERE exists((
 
 SELECT number
 FROM mem2 AS tbl
-WHERE length(arrayFilter(x -> (x
+WHERE length(arrayFilter((x -> x
     OR exists((
         SELECT number
         FROM numbers(1)

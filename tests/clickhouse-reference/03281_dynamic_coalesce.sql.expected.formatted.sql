@@ -1,34 +1,34 @@
-SET enable_dynamic_type = 1;
+SET enable_dynamic_type = '1';
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), 42) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, 42) AS res
 FROM numbers(5);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : 42) AS res
 FROM numbers(5);
 
-SELECT coalesce(if(number % 2, NULL, number), if(number % 3, NULL, 42::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number, number % 3 ? NULL : CAST('42' AS Dynamic)) AS res
 FROM numbers(5);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : CAST('42' AS Dynamic)) AS res
 FROM numbers(5);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42), if(number % 4 == 1, NULL, 43)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : 42, number % 4 = 1 ? NULL : 43) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number), if(number % 3, NULL, 42::Dynamic), if(number % 4 == 1, NULL, 43)) AS res
+SELECT coalesce(number % 2 ? NULL : number, number % 3 ? NULL : CAST('42' AS Dynamic), number % 4 = 1 ? NULL : 43) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number), if(number % 3, NULL, 42), if(number % 4 == 1, NULL, 43::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number, number % 3 ? NULL : 42, number % 4 = 1 ? NULL : CAST('43' AS Dynamic)) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42::Dynamic), if(number % 4 == 1, NULL, 43)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : CAST('42' AS Dynamic), number % 4 = 1 ? NULL : 43) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number), if(number % 3, NULL, 42::Dynamic), if(number % 4 == 1, NULL, 43::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number, number % 3 ? NULL : CAST('42' AS Dynamic), number % 4 = 1 ? NULL : CAST('43' AS Dynamic)) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42), if(number % 4 == 1, NULL, 43::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : 42, number % 4 = 1 ? NULL : CAST('43' AS Dynamic)) AS res
 FROM numbers(10);
 
-SELECT coalesce(if(number % 2, NULL, number::Dynamic), if(number % 3, NULL, 42::Dynamic), if(number % 4 == 1, NULL, 43::Dynamic)) AS res
+SELECT coalesce(number % 2 ? NULL : number::Dynamic, number % 3 ? NULL : CAST('42' AS Dynamic), number % 4 = 1 ? NULL : CAST('43' AS Dynamic)) AS res
 FROM numbers(10);

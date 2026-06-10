@@ -1,119 +1,138 @@
-import type {
-  Statement,
-  Expression,
-  FromExpr,
-  OrderByItem,
-  CTE,
-  TableElement,
-  ASTNodeKind,
-  ASTNodeKindMap,
-} from './ast';
+import type { Statement, Expression, ASTNodeTypeMap, ASTNodeLookupMap } from './ast';
 
 /**
- * Maps each AST node `kind` to the union type that represents the position
- * where it can appear. This ensures that a visitor can only return a node type
- * compatible with the original node's position.
+ * The AST node `type` values that occupy an **expression** position — anywhere
+ * an {@link Expression} is accepted (SELECT items, WHERE, function arguments,
+ * ...). A visitor for one of these kinds may return any other Expression, so
+ * these keys widen to `Expression` in {@link NodePositionMap}.
  */
-export interface NodePositionMap {
-  // Expression nodes
-  literal: Expression;
-  columnRef: Expression;
-  functionCall: Expression;
-  castExpr: Expression;
-  lambdaExpr: Expression;
-  binaryExpr: Expression;
-  naryExpr: Expression;
-  unaryExpr: Expression;
-  asterisk: Expression;
-  qualifiedAsterisk: Expression;
-  tupleExpansion: Expression;
-  queryParam: Expression;
-  alias: Expression;
-  arrayLiteral: Expression;
-  tupleLiteral: Expression;
-  subqueryExpr: Expression;
-  inExpr: Expression;
-  columnsExpr: Expression;
-  jsonSubcolumn: Expression;
+type ExpressionPositionKey =
+  | 'Literal'
+  | 'Identifier'
+  | 'Function'
+  | 'Asterisk'
+  | 'QualifiedAsterisk'
+  | 'Subquery'
+  | 'QueryParameter'
+  | 'ColumnsRegexpMatcher'
+  | 'ColumnsListMatcher'
+  | 'QualifiedColumnsRegexpMatcher'
+  | 'QualifiedColumnsListMatcher';
 
-  // FROM clause nodes
-  tableRef: FromExpr;
-  subqueryFrom: FromExpr;
-  tableFunctionRef: FromExpr;
-  joinExpr: FromExpr;
-  arrayJoinExpr: FromExpr;
+/**
+ * The AST node `type` values that occupy a **top-level statement** position (a
+ * member of the parsed `Statement[]`, a subquery/CTE body, a UNION member, or
+ * an explained inner statement). A visitor for one of these kinds may return
+ * any other Statement, so these keys widen to `Statement` in
+ * {@link NodePositionMap}.
+ *
+ * Note: `Settings` and `SelectWithUnionQuery` are dual-position (they also
+ * appear in expression position — `f(x SETTINGS k=v)`, `view(SELECT ...)`).
+ * The map can encode only one position per key; `SelectWithUnionQuery` is
+ * treated as a statement and `Settings` (below) as its own node type.
+ */
+type StatementPositionKey =
+  | 'SelectQuery'
+  | 'SelectWithUnionQuery'
+  | 'SelectIntersectExceptQuery'
+  | 'Explain'
+  | 'EmptyQuery'
+  | 'DropQuery'
+  | 'DetachQuery'
+  | 'TruncateQuery'
+  | 'UndropQuery'
+  | 'DropFunctionQuery'
+  | 'InsertQuery'
+  | 'CreateQuery'
+  | 'CreateFunctionQuery'
+  | 'CreateIndexQuery'
+  | 'AlterQuery'
+  | 'SYSTEM'
+  | 'SHOW'
+  | 'ShowTables'
+  | 'ShowColumns'
+  | 'ShowIndexes'
+  | 'ShowFunctions'
+  | 'ShowSetting'
+  | 'ShowEngineQuery'
+  | 'ShowAccessEntitiesQuery'
+  | 'ShowAccessQuery'
+  | 'ShowProcesslistQuery'
+  | 'ShowGrantsQuery'
+  | 'ShowPrivilegesQuery'
+  | 'ShowCreateNamedCollectionQuery'
+  | 'ShowCreateAccessEntityQuery'
+  | 'DropAccessEntityQuery'
+  | 'DropNamedCollectionQuery'
+  | 'DropWorkloadQuery'
+  | 'DropResourceQuery'
+  | 'CREATE'
+  | 'CreateUserQuery'
+  | 'CreateRoleQuery'
+  | 'CreateQuotaQuery'
+  | 'CreateSettingsProfileQuery'
+  | 'CreateNamedCollectionQuery'
+  | 'CreateWorkloadQuery'
+  | 'CreateResourceQuery'
+  | 'CreateRowPolicyQuery'
+  | 'GrantQuery'
+  | 'RevokeQuery'
+  | 'SetRoleQuery'
+  | 'BackupQuery'
+  | 'RestoreQuery'
+  | 'ParallelWithQuery'
+  | 'DropIndexQuery'
+  | 'UseQuery'
+  | 'TransactionControl'
+  | 'ExecuteAsQuery'
+  | 'OptimizeQuery'
+  | 'DescribeQuery'
+  | 'ShowCreateTableQuery'
+  | 'ShowCreateViewQuery'
+  | 'ShowCreateDictionaryQuery'
+  | 'ShowCreateDatabaseQuery'
+  | 'ExistsTableQuery'
+  | 'ExistsViewQuery'
+  | 'ExistsDictionaryQuery'
+  | 'ExistsDatabaseQuery'
+  | 'CheckQuery'
+  | 'CheckAllQuery'
+  | 'AttachQuery'
+  | 'Rename'
+  | 'KillQueryQuery'
+  | 'DeleteQuery'
+  | 'UpdateQuery';
 
-  // CTE nodes
-  cteSubquery: CTE;
-  cteExpr: CTE;
-  cteTuple: CTE;
+/**
+ * Maps each AST node `type` to the type a visitor may return when replacing a
+ * node of that kind — i.e. the union representing the position where the node
+ * appears. This ensures a visitor can only return a node compatible with the
+ * original node's position (e.g. an Expression node can only be replaced with
+ * another Expression).
+ *
+ * Derived directly from {@link ASTNodeTypeMap} so it can never drift: every
+ * known node type is covered automatically. Expression-position keys widen to
+ * {@link Expression} and statement-position keys widen to {@link Statement};
+ * every other (structural sub-node) key defaults to its own node type, so a
+ * newly-added node type is transformable in place with no manual edit here.
+ */
+export type NodePositionMap = {
+  [K in keyof ASTNodeTypeMap]: K extends ExpressionPositionKey
+    ? Expression
+    : K extends StatementPositionKey
+      ? Statement
+      : ASTNodeTypeMap[K];
+};
 
-  // ORDER BY nodes
-  orderByItem: OrderByItem;
-
-  // Statement nodes
-  select: Statement;
-  union: Statement;
-  intersect: Statement;
-  explain: Statement;
-  set: Statement;
-  transactionControl: Statement;
-  setRole: Statement;
-  use: Statement;
-  system: Statement;
-  createTable: Statement;
-  createView: Statement;
-  createMaterializedView: Statement;
-  createDatabase: Statement;
-  createFunction: Statement;
-  createIndex: Statement;
-  createDictionary: Statement;
-  createWorkload: Statement;
-  createUser: Statement;
-  createRole: Statement;
-  createRowPolicy: Statement;
-  createQuota: Statement;
-  createSettingsProfile: Statement;
-  createNamedCollection: Statement;
-  createResource: Statement;
-  createWindowView: Statement;
-  createLiveView: Statement;
-  alter: Statement;
-  alterCommand: Statement;
-  parallelWith: Statement;
-  insert: Statement;
-  truncate: Statement;
-  drop: Statement;
-  undrop: Statement;
-  backup: Statement;
-  grant: Statement;
-  show: Statement;
-  alterUser: Statement;
-  alterRole: Statement;
-  alterQuota: Statement;
-  alterRowPolicy: Statement;
-  alterSettingsProfile: Statement;
-  optimize: Statement;
-  describe: Statement;
-  showCreate: Statement;
-  detach: Statement;
-  delete: Statement;
-  update: Statement;
-  check: Statement;
-  attach: Statement;
-  rename: Statement;
-  exists: Statement;
-  kill: Statement;
-  executeAs: Statement;
-  empty: Statement;
-
-  // CREATE TABLE element nodes
-  columnDef: TableElement;
-  constraintDef: TableElement;
-  indexDef: TableElement;
-  projectionDef: TableElement;
-  foreignKeyDef: TableElement;
-}
+// Compile-time drift guard: every ASTNodeTypeMap key must be covered by
+// NodePositionMap. The mapped type above guarantees this structurally; this
+// assertion documents the invariant and fails the build if the relationship
+// is ever broken (e.g. by refactoring NodePositionMap away from the map).
+type _AssertNodePositionMapIsTotal = keyof ASTNodeTypeMap extends keyof NodePositionMap
+  ? true
+  : never;
+const _assertNodePositionMapIsTotal: _AssertNodePositionMapIsTotal = true;
+void _assertNodePositionMapIsTotal;
 
 /**
  * Immutably transforms all AST nodes of the given `kind` by applying a
@@ -135,17 +154,17 @@ export interface NodePositionMap {
  * const ast = parse('SELECT * FROM t WHERE id = {id:UInt64}');
  *
  * // Replace query parameters with literal values
- * const transformed = transformNodes(ast, 'queryParam', (node) => ({
- *   kind: 'literal',
- *   type: 'UInt64',
+ * const transformed = transformNodes(ast, 'QueryParameter', (node) => ({
+ *   type: 'Literal',
+ *   value_type: 'UInt64',
  *   value: '42',
  * }));
  * ```
  */
-export function transformNodes<K extends ASTNodeKind>(
+export function transformNodes<K extends keyof ASTNodeLookupMap>(
   statements: Statement[],
   kind: K,
-  visitor: (node: ASTNodeKindMap[K]) => NodePositionMap[K],
+  visitor: (node: ASTNodeLookupMap[K]) => NodePositionMap[K],
 ): Statement[] {
   function walkChildren(obj: Record<string, unknown>): Record<string, unknown> {
     let copy: Record<string, unknown> | undefined;
@@ -188,8 +207,13 @@ export function transformNodes<K extends ASTNodeKind>(
     const withChildren = walkChildren(obj);
 
     // Visit matching AST nodes
-    if (obj.kind === kind) {
-      const visited = visitor(withChildren as ASTNodeKindMap[K]) as Record<string, unknown>;
+    // New-shape nodes match on `type`; old-shape nodes match on `kind`.
+    // (`type` checked first: native Function nodes carry a data field named `kind`.)
+    if (typeof obj.type === 'string' ? obj.type === kind : obj.kind === kind) {
+      const visited = visitor(withChildren as ASTNodeLookupMap[K]) as unknown as Record<
+        string,
+        unknown
+      >;
       return visited === withChildren && withChildren === obj ? obj : visited;
     }
 

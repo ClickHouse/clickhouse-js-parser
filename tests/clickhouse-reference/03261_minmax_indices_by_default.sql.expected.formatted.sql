@@ -1,4 +1,4 @@
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS tbl1;
 
@@ -15,11 +15,11 @@ CREATE TABLE tbl1
     key Int,
     x Int,
     y Int,
-    INDEX x_idx x TYPE minmax GRANULARITY 1
+    INDEX x_idx x TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = true, add_minmax_index_for_string_columns = true, add_minmax_index_for_temporal_columns = true, index_granularity = 8192, index_granularity_bytes = 10485760;
+SETTINGS add_minmax_index_for_numeric_columns = true, add_minmax_index_for_string_columns = true, add_minmax_index_for_temporal_columns = true, index_granularity = '8192', index_granularity_bytes = '10485760';
 
 INSERT INTO tbl1;
 
@@ -82,7 +82,7 @@ CREATE TABLE tbl2
     key Int,
     x Int,
     y Int,
-    INDEX auto_minmax_index_x x TYPE minmax
+    INDEX auto_minmax_index_x x TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key
@@ -93,11 +93,11 @@ CREATE TABLE tbl2
     key Int,
     x Int,
     y Int,
-    INDEX auto_minmax_index_x x TYPE minmax
+    INDEX auto_minmax_index_x x TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 CREATE TABLE tbl3
 (
@@ -107,9 +107,9 @@ CREATE TABLE tbl3
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-ALTER TABLE tbl3 ADD INDEX auto_minmax_index_y y TYPE minmax;
+ALTER TABLE tbl3 ADD INDEX auto_minmax_index_y y TYPE minmax() GRANULARITY 1;
 
 CREATE TABLE tbl4
 (
@@ -121,7 +121,7 @@ ENGINE = MergeTree()
 ORDER BY key
 SETTINGS add_minmax_index_for_string_columns = true;
 
-ALTER TABLE tbl4 ADD INDEX auto_minmax_index_y y TYPE minmax; -- { serverError BAD_ARGUMENTS, ILLEGAL_COLUMN }
+ALTER TABLE tbl4 ADD INDEX auto_minmax_index_y y TYPE minmax() GRANULARITY 1; -- { serverError BAD_ARGUMENTS, ILLEGAL_COLUMN }
 
 CREATE TABLE tbl5
 (
@@ -133,7 +133,7 @@ ENGINE = MergeTree()
 ORDER BY key
 SETTINGS add_minmax_index_for_temporal_columns = true;
 
-ALTER TABLE tbl5 ADD INDEX auto_minmax_index_y y TYPE minmax; -- { serverError BAD_ARGUMENTS, ILLEGAL_COLUMN }
+ALTER TABLE tbl5 ADD INDEX auto_minmax_index_y y TYPE minmax() GRANULARITY 1; -- { serverError BAD_ARGUMENTS, ILLEGAL_COLUMN }
 
 CREATE TABLE tbl6
 (
@@ -141,7 +141,7 @@ CREATE TABLE tbl6
     x Int,
     y Int,
     s String,
-    INDEX x_idx x TYPE minmax
+    INDEX x_idx x TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key

@@ -1,7 +1,7 @@
 -- Tags: no-fasttest, no-parallel, no-msan
-SET compile_expressions = 1;
+SET compile_expressions = '1';
 
-SET min_count_to_compile_expression = 0;
+SET min_count_to_compile_expression = '0';
 
 SYSTEM CLEAR COMPILED EXPRESSION CACHE;
 
@@ -14,14 +14,14 @@ SELECT ProfileEvents['CompileFunction']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND query == 'SELECT number + number + number FROM numbers(1);'
+    AND query = 'SELECT number + number + number FROM numbers(1);'
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(10)
 LIMIT 1;
 
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
 SELECT
     avg(number),
@@ -34,7 +34,7 @@ SELECT ProfileEvents['CompileFunction']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND query == 'SELECT avg(number), avg(number + 1), avg(number + 2) FROM numbers(1) GROUP BY number;'
+    AND query = 'SELECT avg(number), avg(number + 1), avg(number + 2) FROM numbers(1) GROUP BY number;'
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(10)
 LIMIT 1;

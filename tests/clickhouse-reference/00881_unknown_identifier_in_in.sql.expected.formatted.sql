@@ -4,7 +4,7 @@ FROM (
     )
 GROUP BY 1
 HAVING x IN (
-        SELECT countIf(y, z == 1)
+        SELECT countIf(y, z = 1)
         FROM (
                 SELECT
                     1 AS y,

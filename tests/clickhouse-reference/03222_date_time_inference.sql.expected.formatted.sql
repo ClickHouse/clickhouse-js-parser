@@ -1,10 +1,10 @@
-SET input_format_try_infer_datetimes = 1;
+SET input_format_try_infer_datetimes = '1';
 
-SET input_format_try_infer_dates = 1;
+SET input_format_try_infer_dates = '1';
 
-SET schema_inference_make_columns_nullable = 0;
+SET schema_inference_make_columns_nullable = '0';
 
-SET input_format_json_try_infer_numbers_from_strings = 0;
+SET input_format_json_try_infer_numbers_from_strings = '0';
 
 SET session_timezone = 'UTC';
 

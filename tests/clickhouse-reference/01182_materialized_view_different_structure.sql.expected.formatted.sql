@@ -1,4 +1,4 @@
-SET allow_materialized_view_with_bad_select = 1;
+SET allow_materialized_view_with_bad_select = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -26,7 +26,7 @@ CREATE TABLE numbers
 (
     number UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW test_mv
 TO test_table
@@ -71,14 +71,14 @@ CREATE TABLE src
     n UInt64,
     s FixedString(16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst
 (
     n UInt8,
     s String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv
 TO dst

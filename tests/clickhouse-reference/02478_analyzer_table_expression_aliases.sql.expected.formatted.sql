@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -18,30 +18,30 @@ SELECT '--';
 
 SELECT *
 FROM
-    test_table AS t1
-CROSS JOIN t1;
+    test_table AS t1,
+    t1;
 
 SELECT *
 FROM
-    t1
-CROSS JOIN test_table AS t1;
+    t1,
+    test_table AS t1;
 
 SELECT *
 FROM
-    test_table AS test_table
-CROSS JOIN test_table;
+    test_table AS test_table,
+    test_table;
 
 SELECT *
 FROM
     (
         SELECT 1
-    ) AS test_table
-CROSS JOIN test_table AS subquery;
+    ) AS test_table,
+    test_table AS subquery;
 
 SELECT *
 FROM
-    test_table AS subquery
-CROSS JOIN (
+    test_table AS subquery,
+    (
         SELECT 1
     ) AS test_table;
 
@@ -58,23 +58,23 @@ WITH cte_subquery AS (
 
 SELECT *
 FROM
-    cte_subquery AS cte_subquery
-CROSS JOIN cte_subquery AS subquery;
+    cte_subquery AS cte_subquery,
+    cte_subquery AS subquery;
 
 SELECT *
 FROM
-    t3
-CROSS JOIN test_table AS t1
-CROSS JOIN t1 AS t2
-CROSS JOIN t2 AS t3;
+    t3,
+    test_table AS t1,
+    t1 AS t2,
+    t2 AS t3;
 
 SELECT *
 FROM
-    t3 AS t4
-CROSS JOIN (
+    t3 AS t4,
+    (
         SELECT 1
-    ) AS t1
-CROSS JOIN t1 AS t2
-CROSS JOIN t2 AS t3;
+    ) AS t1,
+    t1 AS t2,
+    t2 AS t3;
 
 DROP TABLE test_table;

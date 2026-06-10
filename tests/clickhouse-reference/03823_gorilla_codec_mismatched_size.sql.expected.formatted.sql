@@ -1,7 +1,7 @@
 -- Gorilla codec with data_bytes_size larger than the column type.
 -- When all data fits in the "skip" section (uncompressed_size < data_bytes_size),
 -- decompression should still work correctly.
-SET allow_suspicious_codecs = 1;
+SET allow_suspicious_codecs = '1';
 
 DROP TABLE IF EXISTS t_gorilla_mismatched;
 
@@ -19,7 +19,7 @@ FROM t_gorilla_mismatched;
 
 CREATE TABLE t_gorilla_mismatched
 (
-    c0 Int16 CODEC(Gorilla(4), ZSTD)
+    c0 Int16 CODEC(Gorilla(4), ZSTD())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -41,6 +41,6 @@ CREATE TABLE t_gorilla_mismatched
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 10000000000;
+SETTINGS min_bytes_for_wide_part = '10000000000';
 
 INSERT INTO t_gorilla_mismatched (c0);

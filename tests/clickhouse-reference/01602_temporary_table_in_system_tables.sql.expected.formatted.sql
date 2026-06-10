@@ -22,19 +22,19 @@ SELECT
     engine_full,
     is_temporary
 FROM `system`.tables
-WHERE like(name, 'test_01602%')
+WHERE name LIKE 'test_01602%'
 ORDER BY name ASC;
 
 SELECT *
 FROM `system`.`columns`
-WHERE like(table, 'test_01602%')
+WHERE table LIKE 'test_01602%'
 ORDER BY
     table ASC,
     name ASC;
 
-SHOW CREATE TABLE test_01602a;
+SHOW CREATE TEMPORARY TABLE test_01602a;
 
-SHOW CREATE TABLE test_01602b;
+SHOW CREATE TEMPORARY TABLE test_01602b;
 
 SELECT COUNT()
 FROM `system`.databases

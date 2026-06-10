@@ -1,7 +1,7 @@
 -- Tags: distributed
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS test_low_null_float;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_low_null_float
 (
     a LowCardinality(Nullable(Float64))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dist_00717
 (

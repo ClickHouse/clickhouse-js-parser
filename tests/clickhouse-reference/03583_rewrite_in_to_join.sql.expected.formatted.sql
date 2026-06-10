@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET rewrite_in_to_join = 1;
+SET rewrite_in_to_join = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 SET correlated_subqueries_default_join_kind = 'left';
 
@@ -10,15 +10,17 @@ SET correlated_subqueries_default_join_kind = 'left';
 -- Check that with these settings the plan contains a join
 SELECT `explain`
 FROM (
-        EXPLAIN keep_logical_steps = 1, description = 0
-        SELECT number IN (
-                SELECT *
-                FROM numbers(2)
-            )
-        FROM numbers(3)
-        SETTINGS enable_join_runtime_filters = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'keep_logical_steps = 1, description = 0', (
+                SELECT number IN (
+                        SELECT *
+                        FROM numbers(2)
+                    )
+                FROM numbers(3)
+                SETTINGS enable_join_runtime_filters = '0'
+            ))
     )
-WHERE ilike(`explain`, '%join%');
+WHERE `explain` ILIKE '%join%';
 
 SELECT number IN (
         SELECT *
@@ -125,17 +127,17 @@ SELECT number IN (
     )
 FROM numbers(3);
 
-EXPLAIN keep_logical_steps = 1, description = 0
+EXPLAIN keep_logical_steps = '1', description = '0'
 SELECT *
 FROM numbers(8)
 WHERE number IN (
         SELECT number
         FROM numbers(5)
     )
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 -- Same subquery as CTE
-EXPLAIN keep_logical_steps = 1, description = 0
+EXPLAIN keep_logical_steps = '1', description = '0'
 WITH t AS (
     SELECT number
     FROM numbers(5)
@@ -144,7 +146,7 @@ WITH t AS (
 SELECT *
 FROM numbers(8)
 WHERE number IN (t)
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';
 
 WITH t AS (
     SELECT number
@@ -158,7 +160,7 @@ WHERE number IN (t);
 -- Tuple
 SELECT *
 FROM numbers(8)
-WHERE (number+1, number+2) IN (
+WHERE (number + 1, number + 2) IN (
         SELECT
             number,
             number + 1
@@ -175,12 +177,12 @@ WITH t AS (
 
 SELECT *
 FROM numbers(8)
-WHERE (number+1, number+2) IN (t);
+WHERE (number + 1, number + 2) IN (t);
 
 -- Mismatching number of elements 
 SELECT *
 FROM numbers(8)
-WHERE (number+1, number+2, number+3) IN (
+WHERE (number + 1, number + 2, number + 3) IN (
         SELECT
             number,
             number + 1
@@ -196,12 +198,12 @@ WITH t AS (
 
 SELECT *
 FROM numbers(8)
-WHERE (number+1, number+2, number+3) IN (t); -- {serverError NUMBER_OF_COLUMNS_DOESNT_MATCH,BAD_ARGUMENTS, ILLEGAL_TYPE_OF_ARGUMENT}
+WHERE (number + 1, number + 2, number + 3) IN (t); -- {serverError NUMBER_OF_COLUMNS_DOESNT_MATCH,BAD_ARGUMENTS, ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- Inside IF function condition and arguments
-SELECT if(c0 = ANY((
+SELECT c0 IN (
         SELECT 1
-    )), 1, 2)
+    ) ? 1 : 2
 FROM (
         SELECT 1 AS c0
     ) AS tx;

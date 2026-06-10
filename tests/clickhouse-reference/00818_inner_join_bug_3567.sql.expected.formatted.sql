@@ -1,6 +1,6 @@
-SET output_format_pretty_color = 1;
+SET output_format_pretty_color = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS table1;
 
@@ -11,7 +11,7 @@ CREATE TABLE table1
     a String,
     b Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE table2
@@ -20,7 +20,7 @@ CREATE TABLE table2
     a String,
     d Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 INSERT INTO table1;
@@ -41,7 +41,7 @@ FORMAT PrettyCompact;
 SELECT *
 FROM
     table1 AS t1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             *,
             c,
@@ -57,7 +57,7 @@ FORMAT PrettyCompact;
 SELECT *
 FROM
     table1 AS t1
-INNER JOIN (
+ALL INNER JOIN (
         SELECT
             *,
             c,

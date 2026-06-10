@@ -1,20 +1,16 @@
-DROP TABLE IF EXISTS combinator_argMin_table_r1;
+DROP TABLE IF EXISTS combinator_argMin_table_r1 SYNC;
 
-DROP TABLE IF EXISTS combinator_argMin_table_r2;
+DROP TABLE IF EXISTS combinator_argMin_table_r2 SYNC;
 
 CREATE TABLE combinator_argMin_table_r1
 (
     id Int32,
     value Int32,
     agg_time DateTime,
-    PROJECTION first_items (    SELECT
-        id,
-        minArgMin(agg_time, value),
-        maxArgMax(agg_time, value)
-    GROUP BY id)
+    PROJECTION first_items (SELECT id, minArgMin(agg_time, value), maxArgMax(agg_time, value) GROUP BY id)
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_03128/combinator_argMin_table', 'r1')
-ORDER BY (id);
+ORDER BY id;
 
 INSERT INTO combinator_argMin_table_r1 SELECT
     number % 10 AS id,
@@ -34,18 +30,14 @@ CREATE TABLE combinator_argMin_table_r2
     id Int32,
     value Int32,
     agg_time DateTime,
-    PROJECTION first_items (    SELECT
-        id,
-        minArgMin(agg_time, value),
-        maxArgMax(agg_time, value)
-    GROUP BY id)
+    PROJECTION first_items (SELECT id, minArgMin(agg_time, value), maxArgMax(agg_time, value) GROUP BY id)
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_03128/combinator_argMin_table', 'r2')
-ORDER BY (id);
+ORDER BY id;
 
 SYSTEM SYNC REPLICA combinator_argMin_table_r2;
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 SELECT
     id,
@@ -54,7 +46,7 @@ SELECT
 FROM combinator_argMin_table_r1
 GROUP BY id
 ORDER BY id ASC
-SETTINGS force_optimize_projection = 1;
+SETTINGS force_optimize_projection = '1';
 
 SELECT
     id,
@@ -63,4 +55,4 @@ SELECT
 FROM combinator_argMin_table_r2
 GROUP BY id
 ORDER BY id ASC
-SETTINGS force_optimize_projection = 1;
+SETTINGS force_optimize_projection = '1';

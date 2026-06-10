@@ -5,7 +5,7 @@ CREATE TABLE test
     col1 Int64,
     dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY dt;
 
@@ -13,7 +13,7 @@ INSERT INTO test;
 
 ALTER TABLE test ADD COLUMN col2 String;
 
-ALTER TABLE test ADD INDEX i1 tuple(col1, col2) TYPE set(100) GRANULARITY 1;
+ALTER TABLE test ADD INDEX i1 (col1, col2) TYPE set(100) GRANULARITY 1;
 
 ALTER TABLE test MATERIALIZE INDEX i1;
 
@@ -21,9 +21,6 @@ ALTER TABLE test ADD COLUMN col3 String;
 
 ALTER TABLE test DROP COLUMN col3;
 
-ALTER TABLE test ADD PROJECTION p1 (SELECT
-    col2,
-    sum(col1)
-GROUP BY col2);
+ALTER TABLE test ADD PROJECTION p1 (SELECT col2, sum(col1) GROUP BY col2);
 
 ALTER TABLE test MATERIALIZE PROJECTION p1;

@@ -9,7 +9,7 @@ ENGINE = Memory() AS
 SELECT
     number,
     number
-FROM numbers(1e5);
+FROM numbers(100000.);
 
 DROP TABLE IF EXISTS test_table_nullable;
 
@@ -21,8 +21,8 @@ CREATE TABLE test_table_nullable
 ENGINE = Memory() AS
 SELECT
     number,
-    if(number % 2 == 0, NULL, number)
-FROM numbers(1e5);
+    number % 2 = 0 ? NULL : number
+FROM numbers(100000.);
 
 DROP TABLE IF EXISTS test_table_string;
 
@@ -33,9 +33,9 @@ CREATE TABLE test_table_string
 )
 ENGINE = Memory() AS
 SELECT
-    concat('foo', number::String),
+    'foo' || number::String,
     number
-FROM numbers(1e5);
+FROM numbers(100000.);
 
 DROP TABLE IF EXISTS test_table_complex;
 
@@ -50,7 +50,7 @@ SELECT
     number,
     number,
     number
-FROM numbers(1e5);
+FROM numbers(100000.);
 
 DROP DICTIONARY IF EXISTS test_sparse_dictionary_load_factor;
 
@@ -61,8 +61,8 @@ CREATE DICTIONARY test_sparse_dictionary_load_factor
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE test_table))
-LIFETIME(0)
-LAYOUT(SPARSE_HASHED(MAX_LOAD_FACTOR 0.90));
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(SPARSE_HASHED(MAX_LOAD_FACTOR 0.9));
 
 SHOW CREATE TABLE test_sparse_dictionary_load_factor;
 
@@ -88,8 +88,8 @@ CREATE DICTIONARY test_dictionary_load_factor
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE test_table))
-LIFETIME(0)
-LAYOUT(HASHED(MAX_LOAD_FACTOR 0.90));
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(HASHED(MAX_LOAD_FACTOR 0.9));
 
 SHOW CREATE TABLE test_dictionary_load_factor;
 
@@ -115,8 +115,8 @@ CREATE DICTIONARY test_dictionary_load_factor_nullable
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE test_table_nullable))
-LIFETIME(0)
-LAYOUT(HASHED(MAX_LOAD_FACTOR 0.90));
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(HASHED(MAX_LOAD_FACTOR 0.9));
 
 SHOW CREATE TABLE test_dictionary_load_factor_nullable;
 
@@ -143,8 +143,8 @@ CREATE DICTIONARY test_complex_dictionary_load_factor
 )
 PRIMARY KEY key_1, key_2
 SOURCE(clickhouse(TABLE test_table_complex))
-LIFETIME(0)
-LAYOUT(COMPLEX_KEY_HASHED(MAX_LOAD_FACTOR 0.90));
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(COMPLEX_KEY_HASHED(MAX_LOAD_FACTOR 0.9));
 
 SYSTEM RELOAD DICTIONARY test_complex_dictionary_load_factor;
 
@@ -170,7 +170,7 @@ CREATE DICTIONARY test_dictionary_load_factor_string
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE test_table_string))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED(MAX_LOAD_FACTOR 1));
 
 -- should because of MAX_LOAD_FACTOR is 1 (maximum allowed value is 0.99)

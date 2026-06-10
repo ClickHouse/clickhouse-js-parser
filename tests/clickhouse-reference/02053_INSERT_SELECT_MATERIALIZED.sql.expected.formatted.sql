@@ -5,7 +5,7 @@ CREATE TABLE data_02053
     A Nullable(Int64),
     X Int64 MATERIALIZED coalesce(A, -1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO data_02053;

@@ -1,107 +1,114 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_index_analysis_only_on_coordinator",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_index_analysis_only_on_coordinator": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful",
-      "-- Even in presence of OR, we evaluate the \"0 IN (1, 2, 3)\" as a constant expression therefore it does not prevent the index analysis.",
-      "-- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures."
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
             ]
           },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "14917930"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "33034174"
-            }
-          ]
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "CounterID"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "14917930"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "33034174"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "1"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "2"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "3"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_rows_to_read": "1000000",
+              "force_primary_key": "1"
             }
-          ]
+          }
         }
       ]
-    },
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        }
-      },
-      {
-        "name": "force_primary_key",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   }
 ]

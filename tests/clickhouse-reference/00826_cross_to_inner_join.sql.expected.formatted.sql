@@ -1,8 +1,8 @@
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET convert_query_to_cnf = 0;
+SET convert_query_to_cnf = '0';
 
 SELECT *
 FROM
@@ -19,14 +19,14 @@ CREATE TABLE t1_00826
     a Int8,
     b Nullable(Int8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2_00826
 (
     a Int8,
     b Nullable(Int8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1_00826;
 
@@ -85,8 +85,8 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.a = t2_00826.a
-    AND ((t1_00826.b = t2_00826.b
-    AND 1))
+    AND (t1_00826.b = t2_00826.b
+    AND 1)
 ORDER BY `all` ASC;
 
 SELECT *
@@ -105,8 +105,8 @@ FROM
 CROSS JOIN t2_00826
 WHERE t1_00826.a = t2_00826.a
     AND t1_00826.b = t2_00826.b
-    AND ((t1_00826.a >= 1
-    OR t2_00826.b = 1))
+    AND (t1_00826.a >= 1
+    OR t2_00826.b = 1)
 ORDER BY `all` ASC;
 
 SELECT *
@@ -114,7 +114,7 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.a + 1 = t2_00826.a + t2_00826.b
-    AND (t1_00826.a + t1_00826.b + t2_00826.a + t2_00826.b > 5)
+    AND t1_00826.a + t1_00826.b + t2_00826.a + t2_00826.b > 5
 ORDER BY `all` ASC;
 
 SELECT *
@@ -122,8 +122,8 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.b = t2_00826.a
-    AND ((isNull(t2_00826.b)
-    OR t2_00826.b > t2_00826.a))
+    AND (t2_00826.b IS NULL
+    OR t2_00826.b > t2_00826.a)
 ORDER BY t1_00826.a ASC;
 
 SELECT a AS b
@@ -136,25 +136,25 @@ ORDER BY `ALL` ASC;
 
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.a = t2_00826.a
 ORDER BY `ALL` ASC;
 
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.b = t2_00826.b
 ORDER BY `ALL` ASC;
 
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.a = t2_00826.a
-    AND ((isNull(t2_00826.b)
-    OR t2_00826.b < 2))
+    AND (t2_00826.b IS NULL
+    OR t2_00826.b < 2)
 ORDER BY `ALL` ASC;
 
 EXPLAIN SYNTAX
@@ -168,8 +168,8 @@ ORDER BY `all` ASC;
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.a = t2_00826.a
 ORDER BY `all` ASC;
 
@@ -213,9 +213,9 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.a = t2_00826.a
-    AND ((t1_00826.a = t2_00826.a
-    AND ((t1_00826.a = t2_00826.a
-    AND t1_00826.b = t2_00826.b))))
+    AND (t1_00826.a = t2_00826.a
+    AND (t1_00826.a = t2_00826.a
+    AND t1_00826.b = t2_00826.b))
 ORDER BY `all` ASC;
 
 EXPLAIN SYNTAX
@@ -236,8 +236,8 @@ FROM
 CROSS JOIN t2_00826
 WHERE t1_00826.a = t2_00826.a
     AND t1_00826.b = t2_00826.b
-    AND ((t1_00826.a >= 1
-    OR t2_00826.b = 1))
+    AND (t1_00826.a >= 1
+    OR t2_00826.b = 1)
 ORDER BY `all` ASC;
 
 EXPLAIN SYNTAX
@@ -246,7 +246,7 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.a + 1 = t2_00826.a + t2_00826.b
-    AND (t1_00826.a + t1_00826.b + t2_00826.a + t2_00826.b > 5)
+    AND t1_00826.a + t1_00826.b + t2_00826.a + t2_00826.b > 5
 ORDER BY `all` ASC;
 
 EXPLAIN SYNTAX
@@ -255,8 +255,8 @@ FROM
     t1_00826
 CROSS JOIN t2_00826
 WHERE t1_00826.b = t2_00826.a
-    AND ((isNull(t2_00826.b)
-    OR t2_00826.b > t2_00826.a))
+    AND (t2_00826.b IS NULL
+    OR t2_00826.b > t2_00826.a)
 ORDER BY `all` ASC;
 
 EXPLAIN SYNTAX
@@ -271,19 +271,19 @@ ORDER BY `all` ASC;
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.b = t2_00826.b
 ORDER BY `all` ASC;
 
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    t1_00826
-CROSS JOIN t2_00826
+    t1_00826,
+    t2_00826
 WHERE t1_00826.a = t2_00826.a
-    AND ((isNull(t2_00826.b)
-    OR t2_00826.b < 2))
+    AND (t2_00826.b IS NULL
+    OR t2_00826.b < 2)
 ORDER BY `all` ASC;
 
 DROP TABLE t1_00826;

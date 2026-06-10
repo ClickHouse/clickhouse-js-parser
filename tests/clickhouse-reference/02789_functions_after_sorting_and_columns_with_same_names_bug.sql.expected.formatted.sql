@@ -7,7 +7,7 @@ CREATE TABLE test
     pt String,
     count_distinct_exposure_uv AggregateFunction(uniqHLL12, Int64)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY pt;
 
 SELECT *
@@ -16,11 +16,11 @@ FROM (
             m0.pt AS pt,
             m0.exposure_uv AS exposure_uv,
             round(m2.exposure_uv, 4) AS exposure_uv_hb_last_value,
-            if(isNull(m2.exposure_uv)
-            OR m2.exposure_uv = 0, NULL, round(((m0.exposure_uv - m2.exposure_uv)) * 1.0 / m2.exposure_uv, 4)) AS exposure_uv_hb_diff_percent,
+            if(m2.exposure_uv IS NULL
+            OR m2.exposure_uv = 0, NULL, round((m0.exposure_uv - m2.exposure_uv) * 1. / m2.exposure_uv, 4)) AS exposure_uv_hb_diff_percent,
             round(m1.exposure_uv, 4) AS exposure_uv_tb_last_value,
-            if(isNull(m1.exposure_uv)
-            OR m1.exposure_uv = 0, NULL, round(((m0.exposure_uv - m1.exposure_uv)) * 1.0 / m1.exposure_uv, 4)) AS exposure_uv_tb_diff_percent
+            if(m1.exposure_uv IS NULL
+            OR m1.exposure_uv = 0, NULL, round((m0.exposure_uv - m1.exposure_uv) * 1. / m1.exposure_uv, 4)) AS exposure_uv_tb_diff_percent
         FROM
             (
                 SELECT
@@ -82,14 +82,14 @@ FROM (
 ORDER BY
     pt ASC,
     exposure_uv DESC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE test1
 (
     pt String,
     exposure_uv Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM (
@@ -120,7 +120,7 @@ FROM (
             ON m0.pt = m2.pt
     ) AS c0
 ORDER BY exposure_uv ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT
     pt AS pt,

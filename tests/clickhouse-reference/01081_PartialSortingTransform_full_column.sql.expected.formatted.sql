@@ -17,7 +17,7 @@ FROM
 INNER JOIN `system`.one AS rhs
     ON rhs.dummy = 1
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
 
 SELECT 1
 FROM
@@ -25,4 +25,4 @@ FROM
 INNER JOIN `system`.one AS rhs
     ON rhs.dummy = 1
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

@@ -4,10 +4,10 @@ CREATE TABLE t
 (
     i Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY i
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO t SELECT number
 FROM numbers(3);

@@ -12,7 +12,7 @@ FROM (
         WHERE SendTiming != -1
         GROUP BY CounterID
     )
-SETTINGS max_block_size = 63169;
+SETTINGS max_block_size = '63169';
 
 SELECT sum(cityHash64(*))
 FROM (
@@ -25,5 +25,5 @@ FROM (
         GROUP BY CounterID
     )
 SETTINGS
-    optimize_aggregation_in_order = 1,
-    max_block_size = 63169;
+    optimize_aggregation_in_order = '1',
+    max_block_size = '63169';

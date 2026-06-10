@@ -1,14 +1,14 @@
 -- Test for Bug 90609
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 (
     text String,
-    INDEX idx text TYPE text(tokenizer = splitByNonAlpha)
+    INDEX idx text TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab;
@@ -17,18 +17,22 @@ SELECT 1
 FROM (
         SELECT *
         FROM (
-                EXPLAIN actions = 1
-                SELECT text
-                FROM tab
-                WHERE hasAnyTokens(text, ['Alick'])
-                SETTINGS use_skip_indexes_on_data_read = 1
+                SELECT *
+                FROM viewExplain('EXPLAIN', 'actions = 1', (
+                        SELECT text
+                        FROM tab
+                        WHERE hasAnyTokens(text, ['Alick'])
+                        SETTINGS use_skip_indexes_on_data_read = '1'
+                    ))
             )
     )
 PREWHERE (
-        EXPLAIN actions = 1
-        SELECT 1
-        FROM tab
-        PREWHERE hasAllTokens(text, ['Alick'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT 1
+                FROM tab
+                PREWHERE hasAllTokens(text, ['Alick'])
+            ))
     ) = '1'; -- { serverError INCORRECT_RESULT_OF_SCALAR_SUBQUERY }
 
 -- Another test caused the same bug.
@@ -48,6 +52,6 @@ WHERE (
         SELECT *
         FROM sub
     ) != ''
-SETTINGS use_skip_indexes_on_data_read = 1;
+SETTINGS use_skip_indexes_on_data_read = '1';
 
 DROP TABLE tab;

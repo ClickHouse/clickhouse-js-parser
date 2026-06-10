@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `nulls`;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE `nulls`
 (
@@ -11,12 +11,12 @@ ENGINE = MergeTree(d, d, 8192);
 
 INSERT INTO `nulls` SELECT
     toDate('2000-01-01'),
-    if(number % 10 != 0, number, NULL)
+    number % 10 != 0 ? number : NULL
 FROM `system`.numbers
 LIMIT 10000;
 
 SELECT count()
 FROM `nulls`
-WHERE isNull(x);
+WHERE x IS NULL;
 
 DROP TABLE `nulls`;

@@ -12,28 +12,28 @@ CREATE TABLE t1
     x UInt32,
     y UInt32
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t2
 (
     x UInt32,
     y UInt32 DEFAULT x + 1
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t3
 (
     x UInt32,
     y UInt32 MATERIALIZED x + 1
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t4
 (
     x UInt32,
     y UInt32 ALIAS x + 1
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t1;
 

@@ -4,7 +4,7 @@ CREATE TABLE t0
 (
     c0 Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t0 (c0);
@@ -44,7 +44,7 @@ ORDER BY
     ty.c1 ASC
 SETTINGS query_plan_join_swap_table = 'true';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT *
 FROM

@@ -5,7 +5,7 @@ CREATE TABLE main
     section String,
     description String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE destination_join
@@ -22,7 +22,7 @@ CREATE TABLE destination_set
 (
     key String
 )
-ENGINE = Set;
+ENGINE = Set();
 
 CREATE MATERIALIZED VIEW mv_to_join
 TO destination_join

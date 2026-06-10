@@ -7,14 +7,14 @@ CREATE TABLE t_1
     order_0 UInt64,
     ordinary_1 UInt32,
     p_time Date,
-    computed ALIAS concat('computed_', CAST(p_time AS String)),
-    granule MATERIALIZED CAST(order_0 / 0x2000 AS UInt64) % 3,
-    INDEX index_granule granule TYPE minmax GRANULARITY 1
+    computed ALIAS 'computed_' || CAST(p_time AS String),
+    granule MATERIALIZED CAST(order_0 / 8192 AS UInt64) % 3,
+    INDEX index_granule granule TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY order_0
 PARTITION BY toYYYYMM(p_time)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE t_random_1
 (
@@ -22,7 +22,7 @@ CREATE TABLE t_random_1
 )
 ENGINE = GenerateRandom(1, 5, 3);
 
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 INSERT INTO t_1 SELECT
     rowNumberInAllBlocks(),
@@ -35,7 +35,7 @@ OPTIMIZE TABLE t_1 FINAL;
 
 ALTER TABLE t_1 ADD COLUMN foo String DEFAULT 'foo';
 
-SELECT COUNTDistinct((_part))
+SELECT COUNTDistinct(_part)
 FROM t_1;
 
 SELECT
@@ -83,7 +83,8 @@ SELECT
     _part
 FROM t_1
 WHERE order_0 <= 1
-    OR (and(greaterOrEquals(order_0, 10000), lessOrEquals(order_0, 10002)))
+    OR order_0 >= 10000
+    AND order_0 <= 10002
     OR order_0 >= 999998
 ORDER BY order_0 ASC;
 
@@ -93,7 +94,8 @@ SELECT
     _part
 FROM t_1
 WHERE order_0 <= 1
-    OR (and(greaterOrEquals(order_0, 10000), lessOrEquals(order_0, 10002)))
+    OR order_0 >= 10000
+    AND order_0 <= 10002
     OR order_0 >= 999998
 ORDER BY order_0 DESC;
 
@@ -146,14 +148,14 @@ SELECT
     sum(_part_offset),
     sum(order_0)
 FROM t_1
-WHERE granule == 0;
+WHERE granule = 0;
 
 SELECT
     count(*),
     sum(_part_offset),
     sum(order_0)
 FROM t_1
-WHERE granule == 0
+WHERE granule = 0
     AND _part_offset < 100000;
 
 SELECT
@@ -161,12 +163,12 @@ SELECT
     sum(_part_offset),
     sum(order_0)
 FROM t_1
-WHERE granule == 0
+WHERE granule = 0
     AND _part_offset >= 100000;
 
 SELECT _part_offset
 FROM t_1
-WHERE granule == 0
+WHERE granule = 0
     AND _part_offset >= 100000
 ORDER BY order_0 ASC
 LIMIT 3;
@@ -175,7 +177,7 @@ SELECT
     _part_offset,
     foo
 FROM t_1
-WHERE granule == 0
+WHERE granule = 0
     AND _part_offset >= 100000
 ORDER BY order_0 ASC
 LIMIT 3;
@@ -185,7 +187,7 @@ SELECT
     sum(_part_offset),
     sum(order_0)
 FROM t_1
-PREWHERE granule == 0
+PREWHERE granule = 0
 WHERE _part_offset >= 100000;
 
 SELECT
@@ -194,7 +196,7 @@ SELECT
     sum(order_0)
 FROM t_1
 PREWHERE _part != ''
-WHERE granule == 0;
+WHERE granule = 0;
 
 SELECT
     count(*),
@@ -202,11 +204,11 @@ SELECT
     sum(order_0)
 FROM t_1
 PREWHERE _part_offset > 100000
-WHERE granule == 0;
+WHERE granule = 0;
 
 SELECT _part_offset
 FROM t_1
-PREWHERE order_0 % 10000 == 42
+PREWHERE order_0 % 10000 = 42
 ORDER BY order_0 ASC
 LIMIT 3;
 
@@ -214,6 +216,6 @@ SELECT
     _part_offset,
     foo
 FROM t_1
-PREWHERE order_0 % 10000 == 42
+PREWHERE order_0 % 10000 = 42
 ORDER BY order_0 ASC
 LIMIT 3;

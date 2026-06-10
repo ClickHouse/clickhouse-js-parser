@@ -56,4 +56,4 @@ FORMAT TSVWithNames;
 
 ALTER TABLE table_for_rename RENAME COLUMN value100 TO renamed_value100; --{serverError NOT_FOUND_COLUMN_IN_BLOCK}
 
-ALTER TABLE table_for_rename RENAME COLUMN value100 TO renamed_value100;
+ALTER TABLE table_for_rename RENAME COLUMN IF EXISTS value100 TO renamed_value100;

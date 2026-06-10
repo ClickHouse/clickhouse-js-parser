@@ -5,9 +5,9 @@ CREATE TABLE b
     x Int64,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (x, y)
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO b;
 

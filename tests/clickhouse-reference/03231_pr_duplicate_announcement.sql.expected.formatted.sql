@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS test_table;
+DROP TABLE IF EXISTS test_table SYNC;
 
 CREATE TABLE test_table
 (
@@ -10,7 +10,7 @@ ORDER BY tuple();
 
 INSERT INTO test_table;
 
-DROP TABLE IF EXISTS test_table_for_in;
+DROP TABLE IF EXISTS test_table_for_in SYNC;
 
 CREATE TABLE test_table_for_in
 (
@@ -21,7 +21,7 @@ ORDER BY tuple();
 
 INSERT INTO test_table_for_in;
 
-SET allow_experimental_parallel_reading_from_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET allow_experimental_parallel_reading_from_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT
     id,
@@ -35,6 +35,6 @@ WHERE id IN (
         FROM test_table_for_in
     );
 
-DROP TABLE test_table;
+DROP TABLE test_table SYNC;
 
-DROP TABLE test_table_for_in;
+DROP TABLE test_table_for_in SYNC;

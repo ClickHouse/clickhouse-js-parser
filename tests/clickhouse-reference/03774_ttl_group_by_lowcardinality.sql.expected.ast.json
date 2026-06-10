@@ -1,321 +1,506 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl_group_by__fuzz_13"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Test TTL GROUP BY with LowCardinality columns in SET expression",
-      "-- This verifies the fix for type mismatch crash when using LowCardinality types"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl_group_by__fuzz_13"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
       },
-      {
-        "kind": "columnDef",
-        "name": "i",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
             }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "i",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Nullable",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "UInt64"
                     }
-                  }
-                ]
-              }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Function",
+              "name": "toStartOfMonth",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "modulo",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "i"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
             }
           ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "toStartOfMonth",
-          "args": [
+        },
+        "ttl_table": {
+          "type": "ExpressionList",
+          "children": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "d"
+              "type": "TTLElement",
+              "mode": "GROUP_BY",
+              "ttl": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalYear",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "group_by_key": [
+                {
+                  "type": "Function",
+                  "name": "toStartOfMonth",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "modulo",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "i"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ],
+              "group_by_assignments": [
+                {
+                  "type": "Assignment",
+                  "column": "d",
+                  "expression": {
+                    "type": "Function",
+                    "name": "any",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toStartOfMonth",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "d"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "i",
+                  "expression": {
+                    "type": "Function",
+                    "name": "any",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "v",
+                  "expression": {
+                    "type": "Function",
+                    "name": "sum",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "v"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "TTLElement",
+              "mode": "GROUP_BY",
+              "ttl": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalYear",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "40"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "group_by_key": [
+                {
+                  "type": "Function",
+                  "name": "toStartOfMonth",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    }
+                  ]
+                }
+              ],
+              "group_by_assignments": [
+                {
+                  "type": "Assignment",
+                  "column": "d",
+                  "expression": {
+                    "type": "Function",
+                    "name": "any",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toStartOfMonth",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "d"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assignment",
+                  "column": "v",
+                  "expression": {
+                    "type": "Function",
+                    "name": "sum",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "v"
+                      }
+                    ]
+                  }
+                }
               ]
             }
           ]
         }
-      },
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "i"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        }
       }
-    ],
-    "ttl": [
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalYear",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalYear",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "40"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "allow_suspicious_low_cardinality_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "ttl_group_by__fuzz_13"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "toDate",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "2000-10-10"
-            }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2000-10-10"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "ttl_group_by__fuzz_13"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "toDate",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "1970-10-10"
-            }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "1970-10-10"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl_group_by__fuzz_13"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
+      },
+      "final": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "d"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "ttl_group_by__fuzz_13"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "d"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "v"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "ttl_group_by__fuzz_13"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "d"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl_group_by__fuzz_13"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl_group_by__fuzz_13"
+      }
     }
   }
 ]

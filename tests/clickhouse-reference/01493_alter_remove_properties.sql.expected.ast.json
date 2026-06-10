@@ -1,577 +1,666 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "column_default",
-        "type": {
-          "name": "UInt64"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "42"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
       },
-      {
-        "kind": "columnDef",
-        "name": "column_materialized",
-        "type": {
-          "name": "UInt64"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "binaryExpr",
-          "op": "*",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "column_default"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "42"
-          }
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_alias",
-        "type": {
-          "name": "UInt64"
-        },
-        "defaultKind": "ALIAS",
-        "defaultExpr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "column_default"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_codec",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "ZSTD",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "column_default",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "42"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_materialized",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "multiply",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "column_default"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "42"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "column_default"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_comment",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            },
+            "comment": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Some comment"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_ttl",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "ttl": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "column_comment"
+                },
+                {
+                  "type": "Function",
+                  "name": "toIntervalMonth",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            }
           }
         ]
       },
-      {
-        "kind": "columnDef",
-        "name": "column_comment",
-        "type": {
-          "name": "Date"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "comment": "Some comment"
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_ttl",
-        "type": {
-          "name": "UInt64"
-        },
-        "ttl": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "column_comment"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalMonth",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
+        "order_by": {
+          "type": "Function",
           "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "ttl": [
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "column_comment"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalMonth",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
-            ]
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "showCreate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP TTL MERGES prop_table"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "prop_table"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_default"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_materialized"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_comment"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_codec"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_alias"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "prop_table"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_default"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_materialized"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "column_ttl"
-          ]
+          "arguments": []
         },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_materialized"
+        "ttl_table": {
+          "type": "ExpressionList",
+          "children": [
+            {
+              "type": "TTLElement",
+              "mode": "DELETE",
+              "ttl": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "column_comment"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMonth",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
         }
       }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateTableQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "prop_table"
+        "type": "Identifier",
+        "name": "prop_table"
       }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_materialized"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_default"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP TTL MERGES",
       "table": {
-        "kind": "tableRef",
-        "table": "prop_table"
+        "type": "Identifier",
+        "name": "prop_table"
       }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_materialized"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_codec"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_comment"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_ttl"
-        ]
-      }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "REMOVE_TTL"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "column_codec"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_comment"
+        },
+        {
+          "type": "Identifier",
           "name": "column_ttl"
         }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "column_default"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_materialized"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_codec"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_comment"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_ttl"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "prop_table"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_comment"
+          },
+          "remove_property": "COMMENT"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_codec"
+          },
+          "remove_property": "CODEC"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_alias"
+          },
+          "remove_property": "ALIAS"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "column_alias"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_codec"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_comment"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_ttl"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "column_default"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_materialized"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_codec"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_comment"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_ttl"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "prop_table"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "column_ttl"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_materialized"
+          },
+          "remove_property": "MATERIALIZED"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "column_materialized"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_alias"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_codec"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_comment"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_ttl"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_default"
+          },
+          "remove_property": "DEFAULT"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "column_materialized"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_alias"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_codec"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_comment"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_ttl"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "REMOVE_TTL"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_ttl"
+          },
+          "remove_property": "TTL"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START TTL MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
       }
-    ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM START TTL MERGES prop_table"
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "prop_table"
+      },
+      "final": true
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "prop_table"
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "prop_table"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "prop_table"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

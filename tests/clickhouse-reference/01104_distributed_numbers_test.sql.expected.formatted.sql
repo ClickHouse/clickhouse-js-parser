@@ -10,7 +10,7 @@ FROM (
         WHERE number = 100
     )
 LIMIT 2
-SETTINGS max_threads = 1
+SETTINGS max_threads = '1'
 FORMAT Null;
 
 DROP TABLE IF EXISTS d_numbers;
@@ -31,8 +31,8 @@ FROM d_numbers AS n
 WHERE n.number = 100
 LIMIT 2
 SETTINGS
-    max_threads = 1,
-    prefer_localhost_replica = 1;
+    max_threads = '1',
+    prefer_localhost_replica = '1';
 
 SELECT sum(number)
 FROM (
@@ -42,8 +42,8 @@ FROM (
         LIMIT 3
     )
 SETTINGS
-    max_threads = 2,
-    prefer_localhost_replica = 1;
+    max_threads = '2',
+    prefer_localhost_replica = '1';
 
 SET distributed_product_mode = 'local';
 

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS tab_00481;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE tab_00481
 (
@@ -19,7 +19,7 @@ INSERT INTO tab_00481 SELECT
 FROM `system`.numbers
 LIMIT 42;
 
-SET preferred_max_column_in_block_size_bytes = 32;
+SET preferred_max_column_in_block_size_bytes = '32';
 
 SELECT
     blockSize(),

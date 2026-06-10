@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS mutation_table;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE mutation_table
 (
@@ -10,7 +10,7 @@ CREATE TABLE mutation_table
 ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO mutation_table (id, price);
 
@@ -24,9 +24,9 @@ CREATE TABLE mutation_table
     dt Nullable(Date),
     name Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO mutation_table (name, dt);
 
@@ -45,11 +45,11 @@ INSERT INTO mutation_table (name, dt);
 INSERT INTO mutation_table (name, dt);
 
 UPDATE mutation_table SET dt = toDateOrNull('2020-08-03') WHERE name = 'car'
-AND isNull(dt);
+AND dt IS NULL;
 
 UPDATE mutation_table SET dt = toDateOrNull('2020-08-04') WHERE name = 'car'
-OR isNull(dt);
+OR dt IS NULL;
 
 INSERT INTO mutation_table (name, dt);
 
-UPDATE mutation_table SET dt = NULL WHERE isNotNull(name);
+UPDATE mutation_table SET dt = NULL WHERE name IS NOT NULL;

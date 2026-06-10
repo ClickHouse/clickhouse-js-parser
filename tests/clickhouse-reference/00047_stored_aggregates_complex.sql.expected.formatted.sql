@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS stored_aggregates;
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE stored_aggregates
 (
@@ -53,7 +53,7 @@ SELECT
     uniqMerge(Uniq),
     anyMerge(`Any`),
     anyIfMerge(AnyIf),
-    arrayMap(x -> round(x, 6), quantilesMerge(0.5, 0.9)(Quantiles)),
+    arrayMap((x -> round(x, 6)), quantilesMerge(0.5, 0.9)(Quantiles)),
     groupArrayMerge(GroupArray)
 FROM stored_aggregates
 GROUP BY
@@ -73,7 +73,7 @@ SELECT
     uniqMerge(Uniq),
     anyMerge(`Any`),
     anyIfMerge(AnyIf),
-    arrayMap(x -> round(x, 6), quantilesMerge(0.5, 0.9)(Quantiles)),
+    arrayMap((x -> round(x, 6)), quantilesMerge(0.5, 0.9)(Quantiles)),
     groupArrayMerge(GroupArray)
 FROM stored_aggregates
 GROUP BY
@@ -90,7 +90,7 @@ SELECT
     uniqMerge(Uniq),
     anyMerge(`Any`),
     anyIfMerge(AnyIf),
-    arrayMap(x -> round(x, 6), quantilesMerge(0.5, 0.9)(Quantiles)),
+    arrayMap((x -> round(x, 6)), quantilesMerge(0.5, 0.9)(Quantiles)),
     groupArrayMerge(GroupArray)
 FROM stored_aggregates
 GROUP BY d

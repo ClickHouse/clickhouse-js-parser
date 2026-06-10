@@ -19,21 +19,21 @@ CREATE TABLE table2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_03779/table', '2')
 ORDER BY x;
 
-SET insert_quorum = 2;
+SET insert_quorum = '2';
 
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET wait_for_async_insert = 0;
+SET wait_for_async_insert = '0';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
-SET wait_for_async_insert_timeout = 10000, async_insert_max_query_number = 1000, async_insert_max_data_size = 10000000, async_insert_use_adaptive_busy_timeout = 0;
+SET wait_for_async_insert_timeout = '10000', async_insert_max_query_number = '1000', async_insert_max_data_size = '10000000', async_insert_use_adaptive_busy_timeout = '0';
 
-SET insert_quorum_parallel = 0;
+SET insert_quorum_parallel = '0';
 
 INSERT INTO table1; -- { serverError  UNSUPPORTED_PARAMETER }
 
-SET insert_quorum_parallel = 1;
+SET insert_quorum_parallel = '1';
 
 INSERT INTO table1;
 
@@ -49,7 +49,7 @@ INSERT INTO table2;
 
 SYSTEM FLUSH ASYNC INSERT QUEUE table2;
 
-SYSTEM FLUSH LOGS system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 SELECT
     'q1',
@@ -73,13 +73,13 @@ FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND query_kind = 'System'
     AND has(databases, current_database())
-    AND has(tables, concat(current_database(), '.table2'))
+    AND has(tables, current_database() || '.table2')
 ORDER BY event_time DESC
 FORMAT Vertical;
 
 SYSTEM STOP FETCHES table1;
 
-SET wait_for_async_insert = 1, insert_quorum_timeout = 1;
+SET wait_for_async_insert = '1', insert_quorum_timeout = '1';
 
 INSERT INTO table2; -- { serverError UNKNOWN_STATUS_OF_INSERT }
 

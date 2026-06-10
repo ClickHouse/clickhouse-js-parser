@@ -1,9 +1,9 @@
 -- Tags: no-parallel-replicas, long
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
 DROP TABLE IF EXISTS tab;
 
@@ -13,10 +13,10 @@ CREATE TABLE tab
     col_str String,
     message String,
     arr Array(String),
-    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -220,7 +220,7 @@ WHERE hasAnyTokens(col_str, '');
 
 SELECT count()
 FROM tab
-WHERE hasAnyTokens(col_str, ['','']);
+WHERE hasAnyTokens(col_str, ['', '']);
 
 -- { echoOff }
 DROP TABLE tab;
@@ -231,7 +231,7 @@ CREATE TABLE tab
     id UInt8,
     s FixedString(11)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
@@ -276,10 +276,10 @@ CREATE TABLE tab
 (
     id Int,
     text FixedString(16),
-    INDEX idx_text text TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX idx_text text TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
 ENGINE = MergeTree()
-ORDER BY (id);
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -305,10 +305,10 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab (id, message);
 
@@ -416,10 +416,10 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = ngrams(4))
+    INDEX idx message TYPE text(tokenizer = ngrams(4)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -515,10 +515,10 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = splitByString(['()', '\\']))
+    INDEX idx message TYPE text(tokenizer = splitByString(['()', '\\'])) GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -622,10 +622,10 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = 'array')
+    INDEX idx message TYPE text(tokenizer = 'array') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -703,10 +703,10 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 SELECT groupArray(id)
 FROM tab
@@ -908,11 +908,11 @@ CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 1
+    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id)
-SETTINGS index_granularity = 1;
+ENGINE = MergeTree()
+ORDER BY id
+SETTINGS index_granularity = '1';
 
 INSERT INTO tab SELECT
     number,
@@ -936,301 +936,373 @@ FROM numbers(1024);
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Click'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Click'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3; -- Skip the primary index parts and granules.
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2; -- Skip the primary index parts and granules.
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, 'Click')
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, 'Click')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3; -- Skip the primary index parts and granules.
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2; -- Skip the primary index parts and granules.
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hallo'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hallo'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, 'Hallo')
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, 'Hallo')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hallo', 'Word']) -- Word does not exist in terms
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hallo', 'Word'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, 'Hallo Word') -- Word does not exist in terms
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, 'Hallo Word')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hello', 'Word'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hello', 'Word'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hallo', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hallo', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hello', 'Hallo'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hello', 'Hallo'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['ClickHouse'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['ClickHouse'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['ClickHouse', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['ClickHouse', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Click'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Click'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, 'Click')
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, 'Click')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hallo'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hallo'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, 'Hallo')
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, 'Hallo')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hello', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hello', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, 'Hello World')
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, 'Hello World')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hallo', 'Word']) -- Word does not exist in terms
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hallo', 'Word'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, 'Hallo Word') -- Word does not exist in terms
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, 'Hallo Word')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hello'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hello'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hallo', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hallo', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['Hello', 'Hallo'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['Hello', 'Hallo'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['ClickHouse'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['ClickHouse'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAllTokens(message, ['ClickHouse', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAllTokens(message, ['ClickHouse', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 CREATE TABLE tab
 (
     id UInt32,
     message String,
-    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id)
-SETTINGS index_granularity = 1;
+ENGINE = MergeTree()
+ORDER BY id
+SETTINGS index_granularity = '1';
 
 INSERT INTO tab SELECT
     number,
@@ -1239,27 +1311,33 @@ FROM numbers(1024);
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hello', 'World'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hello', 'World'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE hasAnyTokens(message, ['Hello', 'ClickHouse'])
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE hasAnyTokens(message, ['Hello', 'ClickHouse'])
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3;
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT id
 FROM tab

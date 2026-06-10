@@ -1,106 +1,108 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.{2,4}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "view",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "functionCall",
-                    "name": "sleep",
-                    "args": [
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
                       {
-                        "kind": "literal",
-                        "type": "Float64",
-                        "value": "0.1"
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.{2,4}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "view",
+                        "arguments": [
+                          {
+                            "type": "SelectWithUnionQuery",
+                            "selects": [
+                              {
+                                "type": "SelectQuery",
+                                "select": [
+                                  {
+                                    "type": "Function",
+                                    "name": "sleep",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "Float64",
+                                        "value": 0.1
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "from": {
+                                  "type": "TablesInSelectQuery",
+                                  "children": [
+                                    {
+                                      "type": "TablesInSelectQueryElement",
+                                      "table_expression": {
+                                        "type": "TableExpression",
+                                        "table_function": {
+                                          "type": "Function",
+                                          "name": "numbers",
+                                          "arguments": [
+                                            {
+                                              "type": "Literal",
+                                              "value_type": "UInt64",
+                                              "value": "20"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "settings": {
+                                  "type": "Settings",
+                                  "changes": {
+                                    "max_block_size": "1"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }
-                ],
-                "from": {
-                  "kind": "tableFunctionRef",
-                  "name": "numbers",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "20"
-                    }
-                  ]
-                },
-                "settings": [
-                  {
-                    "name": "max_block_size",
-                    "value": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  }
-                ]
-              },
-              "leadingComments": [
-                "-- This is the emulation of the slow query, the server will return a line each 0.1 second"
-              ]
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "drain_timeout": "-1",
+              "query_profiler_real_time_period_ns": "1",
+              "use_hedged_requests": "0"
             }
-          ]
+          }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "settings": [
-      {
-        "name": "drain_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "Int64",
-          "value": "-1"
-        }
-      },
-      {
-        "name": "query_profiler_real_time_period_ns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "use_hedged_requests",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- This is a regression test for EINTR handling in MultiplexedConnections::getReplicaForReading()"
-    ]
+    }
   }
 ]

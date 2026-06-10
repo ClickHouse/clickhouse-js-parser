@@ -1,15 +1,15 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 -- It affects number of read rows and max_rows_to_read.
-SET max_bytes_before_external_sort = 0;
+SET max_bytes_before_external_sort = '0';
 
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
-SET max_bytes_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
 -- incremental streaming usecase
 -- that has sense only if data filling order has guarantees of chronological order
@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS mv_checkouts2target;
 CREATE TABLE target_table
 ENGINE = SummingMergeTree()
 ORDER BY id
-SETTINGS index_granularity = 128, index_granularity_bytes = '10Mi' AS
+SETTINGS index_granularity = '128', index_granularity_bytes = '10Mi' AS
 SELECT
     number AS id,
     maxState(toDateTime(0, 'UTC')) AS latest_login_time,
@@ -36,7 +36,7 @@ SELECT
     maxState(toUInt64(0)) AS biggest_inactivity_period
 FROM numbers(50000)
 GROUP BY id
-SETTINGS max_insert_threads = 1;
+SETTINGS max_insert_threads = '1';
 
 -- source table #1
 CREATE TABLE logins
@@ -44,7 +44,7 @@ CREATE TABLE logins
     id UInt64,
     ts DateTime('UTC')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 -- and mv with something like feedback from target table
@@ -83,7 +83,7 @@ CREATE TABLE checkouts
     id UInt64,
     ts DateTime('UTC')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE MATERIALIZED VIEW mv_checkouts2target
@@ -137,7 +137,7 @@ FROM numbers(50000);
 --      1000 rows in the `IN (SELECT id FROM table)` in the mat views
 --      (1000/128) marks per part * (3 + 2) parts * 128 granularity = 5120 rows
 --      Total: 7120
-SET max_rows_to_read = 7120;
+SET max_rows_to_read = '7120';
 
 INSERT INTO logins SELECT
     number AS id,
@@ -153,7 +153,7 @@ FROM numbers(1000);
 -- and we plan to make two more inserts. With index_granularity=128 and max id=1
 -- we expect to read not more than:
 --      1 mark per part * (5 + 2) parts * 128 granularity + 1 (numbers(1)) = 897 rows
-SET max_rows_to_read = 897;
+SET max_rows_to_read = '897';
 
 INSERT INTO logins SELECT
     number + 2 AS id,
@@ -165,7 +165,7 @@ INSERT INTO checkouts SELECT
     '2001-01-01 11:10:02'
 FROM numbers(1);
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 SELECT '-- unmerged state';
 

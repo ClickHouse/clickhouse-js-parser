@@ -14,31 +14,59 @@ import { createTwoFilesPatch } from 'diff';
 import { minimatch } from 'minimatch';
 import pc from 'picocolors';
 import { format, formatExplain, parse } from '../src/index.js';
+import { stripAstMeta, stripVolatile } from '../src/meta.js';
+import { substituteQueryParameters } from '../src/query-parameters.js';
+
+/**
+ * Reads a reference `.sql` case, applying the same query-parameter substitution the
+ * reference generator and reference tests use so the diff scripts compare against the
+ * same transformed SQL.
+ */
+function readReferenceSql(sqlPath: string): string {
+  return substituteQueryParameters(fs.readFileSync(sqlPath, 'utf-8'));
+}
 
 /** Directory holding the ClickHouse reference `.sql` cases and their expected outputs. */
 export const CLICKHOUSE_DIR = new URL('../tests/clickhouse-reference', import.meta.url).pathname;
 
-/** Placeholders the explain reference files use for statements ClickHouse couldn't explain. */
+/** Placeholders the reference files use for statements ClickHouse couldn't process. */
 const QUERY_PARAMS = '<Query Parameters>';
 const EXPLAIN_ERROR = '<Explain Error>';
+const AST_ERROR = '<AST Error>';
 
 // ── Output computation (shared by the plain and diff scripts) ───────────────────
 
-/** Recursively removes `location` and `parent` keys, matching tests/helpers.ts. */
-export function stripMeta(value: unknown): unknown {
-  if (value === null || value === undefined || typeof value !== 'object') return value;
-  if (Array.isArray(value)) return value.map(stripMeta);
-  const result: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-    if (k === 'location' || k === 'parent') continue;
-    result[k] = stripMeta(v);
+/**
+ * AST from `parse()` stripped to the ClickHouse-native view, as compared by the
+ * ast suite. When `expected` is provided, `<AST Error>` / `<Query Parameters>`
+ * placeholder entries are copied through at their statement indices so they
+ * don't surface as spurious diffs (mirroring the ast reference test).
+ */
+export function computeAst(sql: string, expected: string | null = null): string {
+  const actual = stripAstMeta(parse(sql)) as unknown[];
+  if (expected !== null) {
+    try {
+      const expectedEntries = JSON.parse(expected) as unknown[];
+      for (let i = 0; i < expectedEntries.length && i < actual.length; i++) {
+        if (expectedEntries[i] === AST_ERROR || expectedEntries[i] === QUERY_PARAMS) {
+          actual[i] = expectedEntries[i];
+        }
+      }
+    } catch {
+      // Unparseable expected file: diff against the plain actual output.
+    }
   }
-  return result;
+  return JSON.stringify(actual, null, 2);
 }
 
-/** AST from `parse()` with `location`/`parent` stripped, as compared by the ast suite. */
-export function computeAst(sql: string): string {
-  return JSON.stringify(stripMeta(parse(sql)), null, 2);
+/**
+ * AST from `parse()` with only the volatile keys (`location`/`parent`) removed, so the
+ * library-only underscore-prefixed fields (`_name`, `_fmt`, `_fmt_src`, ...) and comments
+ * are retained. This is the full internal view the formatter actually consumes, as opposed
+ * to {@link computeAst}'s ClickHouse-native stripped view.
+ */
+export function computeAstFull(sql: string): string {
+  return JSON.stringify(stripVolatile(parse(sql)), null, 2);
 }
 
 /** Re-formatted SQL from `format(parse(...))`, as compared by the format suite. */
@@ -74,6 +102,53 @@ export function computeExplain(sql: string, expected: string | null): string {
 
 /** Signature shared by every `compute*` function; `expected` is only used by explain. */
 export type Compute = (sql: string, expected: string | null) => string;
+
+/** Recursively sorts object keys so property reordering doesn't surface as a diff. */
+function sortKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortKeysDeep);
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      out[key] = sortKeysDeep((value as Record<string, unknown>)[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+/**
+ * Unwraps a reference AST entry. Each entry in an `.expected.ast.json` array is
+ * either a sentinel string (`<AST Error>`, `<Query Parameters>`) or a
+ * `{ version, ast }` envelope wrapping the actual AST node (the shape
+ * `EXPLAIN AST json = 1` now emits). Envelopes are unwrapped to their `ast`; any
+ * other value is returned verbatim. Mirrors the ast reference test so the diff
+ * script and test never drift apart.
+ */
+function unwrapAstEnvelope(entry: unknown): unknown {
+  if (entry && typeof entry === 'object' && !Array.isArray(entry) && 'ast' in entry) {
+    return (entry as { ast: unknown }).ast;
+  }
+  return entry;
+}
+
+/**
+ * Comparison-time normalizer for AST JSON: re-serializes with object keys sorted, so
+ * differences that are only property reorderings within an object don't surface as
+ * diffs. When the value is a top-level array, each entry is unwrapped from its
+ * `{ version, ast }` envelope (see {@link unwrapAstEnvelope}) so the enveloped
+ * expected output diffs cleanly against the bare AST nodes this library produces.
+ * Falls back to the original string when it isn't valid JSON (e.g. an error
+ * placeholder), so those are still compared verbatim.
+ */
+export function normalizeAstJson(s: string): string {
+  try {
+    const parsed = JSON.parse(s);
+    const unwrapped = Array.isArray(parsed) ? parsed.map(unwrapAstEnvelope) : parsed;
+    return JSON.stringify(sortKeysDeep(unwrapped), null, 2);
+  } catch {
+    return s;
+  }
+}
 
 // ── Reference resolution ────────────────────────────────────────────────────────
 
@@ -246,7 +321,12 @@ function renderCase(result: CaseResult, opts: CliOptions): boolean {
 
   if (opts.onlyDiffs && !differs) return false;
 
-  const status = expected === null ? pc.yellow('no expected file') : differs ? pc.red('DIFF') : pc.green('match');
+  const status =
+    expected === null
+      ? pc.yellow('no expected file')
+      : differs
+        ? pc.red('DIFF')
+        : pc.green('match');
   const titleBar = `━━━ ${fileName} ━━━ ${useColor(opts) ? status : stripAnsi(status)}`;
   process.stdout.write('\n' + (useColor(opts) ? pc.bold(titleBar) : titleBar) + '\n');
 
@@ -291,7 +371,13 @@ function renderCase(result: CaseResult, opts: CliOptions): boolean {
  * Top-level runner for the diff scripts. Resolves references, computes each case via
  * `compute`, renders them, and prints a summary / sets exit code.
  */
-export function run(opts: CliOptions, expectedSuffix: string, compute: Compute): void {
+export function run(
+  opts: CliOptions,
+  expectedSuffix: string,
+  compute: Compute,
+  /** Applied to both actual and expected before diffing/display (identity by default). */
+  normalize: (s: string) => string = (s) => s,
+): void {
   const files = resolveReferences(opts.selector);
 
   if (files.length === 0) {
@@ -305,14 +391,19 @@ export function run(opts: CliOptions, expectedSuffix: string, compute: Compute):
   for (const fileName of files) {
     const sqlPath = path.join(CLICKHOUSE_DIR, fileName);
     const expectedPath = `${sqlPath}${expectedSuffix}`;
-    const expected = fs.existsSync(expectedPath) ? fs.readFileSync(expectedPath, 'utf-8') : null;
+    const rawExpected = fs.existsSync(expectedPath)
+      ? fs.readFileSync(expectedPath, 'utf-8')
+      : null;
 
     let actual: string;
     try {
-      actual = compute(fs.readFileSync(sqlPath, 'utf-8'), expected);
+      actual = compute(readReferenceSql(sqlPath), rawExpected);
     } catch (e) {
       actual = `<Error> ${e instanceof Error ? e.message : String(e)}`;
     }
+
+    actual = normalize(actual);
+    const expected = rawExpected === null ? null : normalize(rawExpected);
 
     const differs = renderCase({ fileName, actual, expected, expectedPath }, opts);
     if (differs) diffCount++;
@@ -426,7 +517,7 @@ export function runOutput(opts: OutputCliOptions, compute: Compute): void {
 
     let actual: string;
     try {
-      actual = compute(fs.readFileSync(sqlPath, 'utf-8'), null);
+      actual = compute(readReferenceSql(sqlPath), null);
     } catch (e) {
       actual = `<Error> ${e instanceof Error ? e.message : String(e)}`;
       errors++;

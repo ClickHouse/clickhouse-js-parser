@@ -6,7 +6,7 @@ CREATE TABLE t_map_lc
     k Array(LowCardinality(String)) ALIAS mapKeys(kv),
     v Array(LowCardinality(String)) ALIAS mapValues(kv)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_map_lc;
 
@@ -14,6 +14,6 @@ SELECT
     k,
     v
 FROM t_map_lc
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 DROP TABLE t_map_lc;

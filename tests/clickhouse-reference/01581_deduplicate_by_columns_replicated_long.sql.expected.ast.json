@@ -1,471 +1,501 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long, replica",
-      "--- See also tests/queries/0_stateless/01581_deduplicate_by_columns_local.sql",
-      "--- replicated case",
-      "-- Just in case if previous tests run left some stuff behind."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "replication_alter_partitions_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "unique_value",
-        "type": {
-          "name": "UInt64"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "rowNumberInBlock",
-          "args": []
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_01581/replicated_deduplicate"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- IRL insert_replica_id were filled from hostname"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r2"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "unique_value",
-        "type": {
-          "name": "UInt64"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "rowNumberInBlock",
-          "args": []
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_01581/replicated_deduplicate"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_deduplicate_by_columns_r1"
-      }
-    },
-    "leadingComments": [
-      "-- insert some data, 2 records: (3, 1003), (4, 1004) are duplicated and have difference in unique_value / insert_replica_id",
-      "-- (1, 1001), (5, 2005) has full duplicates"
-    ]
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      },
+      "if_exists": true,
+      "sync": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_deduplicate_by_columns_r2"
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r2"
+      },
+      "if_exists": true,
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "replication_alter_partitions_sync": "2"
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_deduplicate_by_columns_r2",
-    "leadingComments": [
-      "-- make sure that all data is present on all replicas"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_deduplicate_by_columns_r1"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "r1"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "unique_value"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "unique_value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "rowNumberInBlock",
+              "arguments": []
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_01581/replicated_deduplicate"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
           ]
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "unique_value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "rowNumberInBlock",
+              "arguments": []
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_01581/replicated_deduplicate"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "val"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "val"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "unique_value"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicated_deduplicate_by_columns_r1"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "val"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "val"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "r2"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "unique_value"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r2"
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "val"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "unique_value"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicated_deduplicate_by_columns_r2"
+                  }
+                }
+              }
             ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r2"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "val"
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "val"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "val"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
       },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      "final": true,
+      "deduplicate": true
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "final": true,
-    "deduplicate": true,
-    "leadingComments": [
-      "-- NOTE: here and below we need FINAL to force deduplication in such a small set of data in only 1 part.",
-      "-- that should remove full duplicates"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "functionCall",
-        "name": "COLUMNS",
-        "args": [
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
           {
-            "kind": "literal",
-            "type": "String",
-            "value": "[id, val]"
+            "type": "Identifier",
+            "name": "id"
+          },
+          {
+            "type": "Identifier",
+            "name": "val"
           }
         ]
       }
-    ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnsExpr",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
           {
-            "kind": "literal",
-            "type": "String",
-            "value": "[i]"
+            "type": "ColumnsRegexpMatcher",
+            "pattern": "[id, val]"
           }
-        ],
-        "transformers": [
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
           {
-            "kind": "except",
-            "columns": [
-              "unique_value"
+            "type": "ColumnsRegexpMatcher",
+            "pattern": "[i]",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "unique_value"
+                  }
+                ]
+              }
             ]
           }
         ]
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r1"
-    },
-    "leadingComments": [
-      "-- cleanup the mess"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r1"
+      }
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_deduplicate_by_columns_r2"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_deduplicate_by_columns_r2"
+      }
     }
   }
 ]

@@ -6,11 +6,11 @@ CREATE TABLE t
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE MATERIALIZED VIEW t_mv
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 AS
 SELECT
@@ -19,13 +19,13 @@ SELECT
 FROM t
 GROUP BY y;
 
-SET max_bytes_before_external_group_by = 1000000000;
+SET max_bytes_before_external_group_by = '1000000000';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
-SET group_by_two_level_threshold = 100;
+SET group_by_two_level_threshold = '100';
 
-SET min_insert_block_size_rows = 100;
+SET min_insert_block_size_rows = '100';
 
 INSERT INTO t SELECT number
 FROM numbers(300);

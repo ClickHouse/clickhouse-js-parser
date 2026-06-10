@@ -8,7 +8,7 @@ CREATE TABLE base
 (
     a Int32
 )
-ENGINE = TinyLog
+ENGINE = TinyLog()
 COMMENT 'original comment';
 
 CREATE TABLE copy_without_comment AS base;

@@ -7,9 +7,9 @@ CREATE TABLE t_bloom_filter
     INDEX key_bf key TYPE bloom_filter(0.01) GRANULARITY 2147483648,
     INDEX value_bf value TYPE bloom_filter(0.01) GRANULARITY 2147483648
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.0, vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, allow_vertical_merges_from_compact_to_wide_parts = 1, min_bytes_for_wide_part = 0, enable_block_number_column = 0, enable_block_offset_column = 0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0., vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', allow_vertical_merges_from_compact_to_wide_parts = '1', min_bytes_for_wide_part = '0', enable_block_number_column = '0', enable_block_offset_column = '0';
 
 SYSTEM STOP MERGES t_bloom_filter;
 

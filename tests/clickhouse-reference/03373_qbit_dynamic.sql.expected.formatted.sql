@@ -1,4 +1,4 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 DROP TABLE IF EXISTS qbit_dynamic_test;
 
@@ -7,7 +7,7 @@ CREATE TABLE qbit_dynamic_test
     id UInt32,
     data Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbit_dynamic_test;
 

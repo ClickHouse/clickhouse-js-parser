@@ -8,17 +8,17 @@ CREATE TABLE test
 (
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
-SETTINGS index_granularity = 1, use_primary_key_cache = 0;
+SETTINGS index_granularity = '1', use_primary_key_cache = '0';
 
 CREATE TABLE test2
 (
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
-SETTINGS index_granularity = 1, use_primary_key_cache = 0;
+SETTINGS index_granularity = '1', use_primary_key_cache = '0';
 
 SELECT '-- Insert data into columns';
 

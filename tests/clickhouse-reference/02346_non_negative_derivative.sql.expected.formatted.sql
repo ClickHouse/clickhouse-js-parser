@@ -21,16 +21,18 @@ SELECT (
         SELECT
             ts,
             metric,
-            nonNegativeDerivative(metric, ts) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+            nonNegativeDerivative(metric, ts) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
         FROM nnd
-        LIMIT 5, 1
+        LIMIT 1
+        OFFSET 5
     ) = (
         SELECT
             ts,
             metric,
-            nonNegativeDerivative(metric, ts, toIntervalSecond(1)) OVER (PARTITION BY metric ORDER BY ts ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+            nonNegativeDerivative(metric, ts, toIntervalSecond(1)) OVER (PARTITION BY metric ORDER BY ts ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
         FROM nnd
-        LIMIT 5, 1
+        LIMIT 1
+        OFFSET 5
     );
 
 SELECT
@@ -64,7 +66,7 @@ FROM nnd;
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalSecond(6)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN 1 PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalSecond(6)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd;
 
 -- Minute
@@ -78,7 +80,7 @@ FROM nnd;
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalHour(8)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalHour(8)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd;
 
 -- Day
@@ -92,7 +94,7 @@ FROM nnd;
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalWeek(10)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN 1 PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalWeek(10)) OVER (PARTITION BY id > 3 ORDER BY ts ASC, metric ASC ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd;
 
 -- shall not work for month, quarter, year (intervals with floating number of seconds)
@@ -100,44 +102,44 @@ FROM nnd;
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalMonth(11)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalMonth(11)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 -- Quarter
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalQuarter(12)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalQuarter(12)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 -- Year
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalYear(13)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalYear(13)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 -- test against wrong arguments/types
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, 1, toIntervalNanosecond(3)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, 1, toIntervalNanosecond(3)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError BAD_ARGUMENTS }
 
 SELECT
     ts,
     metric,
-    nonNegativeDerivative('string not datetime', ts, toIntervalNanosecond(3)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative('string not datetime', ts, toIntervalNanosecond(3)) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError BAD_ARGUMENTS }
 
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric, ts, toIntervalNanosecond(3), id) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric, ts, toIntervalNanosecond(3), id) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT
     ts,
     metric,
-    nonNegativeDerivative(metric) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS deriv
+    nonNegativeDerivative(metric) OVER (PARTITION BY metric ORDER BY ts ASC, metric ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS deriv
 FROM nnd; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }

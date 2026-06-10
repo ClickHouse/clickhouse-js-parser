@@ -5,7 +5,7 @@ CREATE TABLE `test_foo_#`
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -19,7 +19,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -31,7 +31,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -43,7 +43,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -55,7 +55,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -69,7 +69,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date)
 COMMENT 'test'
@@ -81,7 +81,7 @@ CREATE TABLE test_foo
     date Date,
     town LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date);
 

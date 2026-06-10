@@ -1,96 +1,96 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/49472"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "database"
+              "type": "Function",
+              "alias": "name",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "database"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "table"
+                }
               ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "table"
-              ]
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "clusterAllReplicas",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "test_shard_localhost"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.tables",
+                        "name_parts": [
+                          "system",
+                          "tables"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "database"
+              },
+              {
+                "type": "Function",
+                "name": "currentDatabase",
+                "arguments": []
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "name"
             }
           ]
-        },
-        "alias": "name"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "clusterAllReplicas",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_shard_localhost"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "tables"
-          ]
         }
-      ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "database"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "currentDatabase",
-        "args": []
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        }
-      ]
-    },
-    "format": "Null"
+      ],
+      "format": "Null"
+    }
   }
 ]

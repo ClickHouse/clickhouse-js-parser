@@ -14,7 +14,7 @@ CREATE TABLE test
     b Array(Float64),
     c Array(UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 

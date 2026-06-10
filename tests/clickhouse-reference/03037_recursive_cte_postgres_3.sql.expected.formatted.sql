@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -43,7 +43,7 @@ CREATE TABLE tree
     id UInt64,
     parent_id Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO tree;
 
@@ -53,7 +53,7 @@ INSERT INTO tree;
 WITH RECURSIVE t AS (
     SELECT
         1 AS id,
-        []::Array(UInt64) AS path
+        CAST('[]' AS Array(UInt64)) AS path
     UNION ALL
     SELECT
         tree.id,
@@ -61,7 +61,7 @@ WITH RECURSIVE t AS (
     FROM
         tree
     INNER JOIN t
-        ON (tree.parent_id = t.id)
+        ON tree.parent_id = t.id
 )
 
 SELECT
@@ -70,9 +70,9 @@ SELECT
 FROM
     t AS t1
 INNER JOIN t AS t2
-    ON (t1.path[1] = t2.path[1]
+    ON t1.path[1] = t2.path[1]
     AND length(t1.path) = 1
-    AND length(t2.path) > 1)
+    AND length(t2.path) > 1
 ORDER BY
     t1.id ASC,
     t2.id ASC;
@@ -81,7 +81,7 @@ ORDER BY
 WITH RECURSIVE t AS (
     SELECT
         1 AS id,
-        []::Array(UInt64) AS path
+        CAST('[]' AS Array(UInt64)) AS path
     UNION ALL
     SELECT
         tree.id,
@@ -89,7 +89,7 @@ WITH RECURSIVE t AS (
     FROM
         tree
     INNER JOIN t
-        ON (tree.parent_id = t.id)
+        ON tree.parent_id = t.id
 )
 
 SELECT
@@ -98,9 +98,9 @@ SELECT
 FROM
     t AS t1
 INNER JOIN t AS t2
-    ON (t1.path[1] = t2.path[1]
+    ON t1.path[1] = t2.path[1]
     AND length(t1.path) = 1
-    AND length(t2.path) > 1)
+    AND length(t2.path) > 1
 GROUP BY t1.id
 ORDER BY t1.id ASC;
 
@@ -108,7 +108,7 @@ ORDER BY t1.id ASC;
 WITH RECURSIVE t AS (
     SELECT
         1 AS id,
-        []::Array(UInt64) AS path
+        CAST('[]' AS Array(UInt64)) AS path
     UNION ALL
     SELECT
         tree.id,
@@ -116,7 +116,7 @@ WITH RECURSIVE t AS (
     FROM
         tree
     INNER JOIN t
-        ON (tree.parent_id = t.id)
+        ON tree.parent_id = t.id
 )
 
 SELECT
@@ -126,4 +126,4 @@ SELECT
 FROM
     t AS t1
 INNER JOIN t AS t2
-    ON (t1.id = t2.id); -- { echoOff }
+    ON t1.id = t2.id; -- { echoOff }

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -40,7 +40,10 @@ SELECT
     grouping(id),
     grouping(value)
 FROM test_table
-GROUP BY ROLLUP(id, value);
+GROUP BY
+    id,
+    value
+WITH ROLLUP;
 
 SELECT
     grouping(id) AS grouping_id,
@@ -48,7 +51,10 @@ SELECT
     id,
     value
 FROM test_table
-GROUP BY ROLLUP(id, value)
+GROUP BY
+    id,
+    value
+WITH ROLLUP
 ORDER BY
     grouping_id ASC,
     grouping_value ASC;
@@ -58,7 +64,10 @@ SELECT
     grouping(id),
     grouping(value)
 FROM test_table
-GROUP BY CUBE(id, value);
+GROUP BY
+    id,
+    value
+WITH CUBE;
 
 SELECT
     grouping(id) AS grouping_id,
@@ -66,7 +75,10 @@ SELECT
     id,
     value
 FROM test_table
-GROUP BY CUBE(id, value)
+GROUP BY
+    id,
+    value
+WITH CUBE
 ORDER BY
     grouping_id ASC,
     grouping_value ASC;

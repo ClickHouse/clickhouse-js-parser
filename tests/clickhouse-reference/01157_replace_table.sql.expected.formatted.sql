@@ -10,9 +10,9 @@ DROP TABLE IF EXISTS `join`;
 CREATE TABLE t
 (
     n UInt64,
-    s String DEFAULT concat('s', toString(n))
+    s String DEFAULT 's' || toString(n)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dist
 (
@@ -26,7 +26,7 @@ CREATE TABLE buf
 )
 ENGINE = Buffer(currentDatabase(), dist, 1, 10, 100, 10, 100, 1000, 1000);
 
-SYSTEM stop distributed sends dist;
+SYSTEM STOP DISTRIBUTED SENDS dist;
 
 INSERT INTO buf;
 
@@ -42,7 +42,7 @@ REPLACE TABLE dist
 )
 ENGINE = Buffer(currentDatabase(), t, 1, 10, 100, 10, 100, 1000, 1000);
 
-SYSTEM stop distributed sends buf;
+SYSTEM STOP DISTRIBUTED SENDS buf;
 
 INSERT INTO buf;
 
@@ -64,13 +64,13 @@ REPLACE TABLE buf
 (
     n int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 REPLACE TABLE dist
 (
     n int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 SELECT *
 FROM t
@@ -97,7 +97,7 @@ FROM t;
 SELECT *
 FROM
     numbers(10) AS t
-INNER JOIN `join`
+ANY INNER JOIN `join`
     ON t.number = `join`.n
 ORDER BY n ASC;
 

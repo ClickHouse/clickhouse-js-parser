@@ -28,7 +28,7 @@ SELECT [(NULL, 2), (2, NULL)] / 1;
 
 SELECT [(1., 100000000000000000000.), (NULL, 1048577)] * 7;
 
-SELECT [CAST('2', 'UInt64'), number] * 7
+SELECT [CAST('2' AS UInt64), number] * 7
 FROM numbers(5);
 
 SELECT [2, 3, 5] * number
@@ -48,12 +48,12 @@ INSERT INTO my_table (values);
 
 SELECT values * 5
 FROM my_table
-WHERE arrayExists(x -> x > 5, values);
+WHERE arrayExists((x -> x > 5), values);
 
 DROP TABLE my_table;
 
 SELECT [6, 6, 3] % 2;
 
-SELECT [6, 6, 3] / 2.5::Decimal(1, 1);
+SELECT [6, 6, 3] / CAST('2.5' AS Decimal(1, 1));
 
 SELECT [1] / 'a'; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }

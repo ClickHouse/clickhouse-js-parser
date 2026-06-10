@@ -2,14 +2,14 @@
 -- Tag no-parallel: due to attaching to system.query_log
 -- Tag no-replicated-database: Replicated database will has extra queries
 -- Attach MV to system.query_log and check that writing query_log will not fail
-SET log_queries = 1;
+SET log_queries = '1';
 
 DROP TABLE IF EXISTS log_proxy_02572;
 
 DROP TABLE IF EXISTS push_to_logs_proxy_mv_02572;
 
 -- create log tables
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 CREATE TABLE log_proxy_02572 AS `system`.query_log
 ENGINE = Distributed('test_shard_localhost', currentDatabase(), 'receiver_02572');
@@ -27,7 +27,7 @@ DROP TABLE log_proxy_02572;
 
 DROP TABLE push_to_logs_proxy_mv_02572;
 
-SET log_queries = 0;
+SET log_queries = '0';
 
 -- lower() to pass through clickhouse-test "exception" check
 SELECT

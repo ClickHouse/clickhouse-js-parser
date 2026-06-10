@@ -6,9 +6,9 @@ CREATE TABLE t50
     b Int,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 50, index_granularity_bytes = 1000, min_index_granularity_bytes = 500;
+SETTINGS index_granularity = '50', index_granularity_bytes = '1000', min_index_granularity_bytes = '500';
 
 -- some magic to satisfy conditions to run optimizations in MergeTreeRangeReader
 INSERT INTO t50 SELECT

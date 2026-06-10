@@ -6,7 +6,7 @@ CREATE TABLE mt_01451
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS old_parts_lifetime = 0;
+SETTINGS old_parts_lifetime = '0';
 
 SYSTEM STOP MERGES mt_01451;
 
@@ -20,9 +20,9 @@ SELECT v
 FROM mt_01451
 ORDER BY v ASC;
 
-ALTER TABLE mt_01451 DROP PART 'all_100_100_0'; -- { serverError NO_SUCH_DATA_PART }
+ALTER TABLE mt_01451 DETACH PART 'all_100_100_0'; -- { serverError NO_SUCH_DATA_PART }
 
-ALTER TABLE mt_01451 DROP PART 'all_2_2_0';
+ALTER TABLE mt_01451 DETACH PART 'all_2_2_0';
 
 SELECT name
 FROM `system`.detached_parts

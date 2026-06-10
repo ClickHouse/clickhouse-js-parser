@@ -1,4 +1,4 @@
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT number
 FROM numbers(10)
@@ -132,18 +132,18 @@ CREATE TABLE num_tab
     id UInt8,
     val UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, val) AS
 SELECT
     number % 2 AS id,
     number AS val
 FROM numbers(20);
 
-SELECT IF((count() = 5)
-    AND (min(val) = 15)
-    AND (max(val) = 19)
-    AND (sum(val) = 85)
-    AND (uniqExact(id) = 2), 'OK', 'FAIL')
+SELECT IF(count() = 5
+    AND min(val) = 15
+    AND max(val) = 19
+    AND sum(val) = 85
+    AND uniqExact(id) = 2, 'OK', 'FAIL')
 FROM (
         SELECT
             id,
@@ -155,7 +155,7 @@ FROM (
     );
 
 CREATE TABLE num_tab
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number AS
 SELECT number
 FROM numbers(1000000);
@@ -166,4 +166,4 @@ ORDER BY number ASC
 LIMIT 10
 OFFSET 0.99999;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

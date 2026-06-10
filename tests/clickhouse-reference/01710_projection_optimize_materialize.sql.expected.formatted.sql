@@ -8,10 +8,10 @@ CREATE TABLE z
     id UInt64,
     c UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY pk
 PARTITION BY d
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.;
 
 INSERT INTO z SELECT
     number,
@@ -22,12 +22,9 @@ FROM numbers(1000000);
 
 OPTIMIZE TABLE z FINAL;
 
-ALTER TABLE z ADD PROJECTION pp (SELECT
-    id,
-    sum(c)
-GROUP BY id);
+ALTER TABLE z ADD PROJECTION pp (SELECT id, sum(c) GROUP BY id);
 
-ALTER TABLE z MATERIALIZE PROJECTION pp SETTINGS mutations_sync = 1;
+ALTER TABLE z MATERIALIZE PROJECTION pp SETTINGS mutations_sync = '1';
 
 SELECT
     name,

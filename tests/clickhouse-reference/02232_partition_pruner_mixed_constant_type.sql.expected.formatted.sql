@@ -4,7 +4,7 @@ CREATE TABLE broken
 (
     time UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY time
 PARTITION BY toYYYYMMDD(toDate(time / 1000));
 

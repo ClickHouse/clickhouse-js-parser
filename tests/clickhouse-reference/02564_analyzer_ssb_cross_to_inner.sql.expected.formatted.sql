@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS customer;
 
@@ -21,8 +21,8 @@ CREATE TABLE customer
     C_PHONE String,
     C_MKTSEGMENT LowCardinality(String)
 )
-ENGINE = MergeTree
-ORDER BY (C_CUSTKEY);
+ENGINE = MergeTree()
+ORDER BY C_CUSTKEY;
 
 CREATE TABLE lineorder
 (
@@ -44,7 +44,7 @@ CREATE TABLE lineorder
     LO_COMMITDATE Date,
     LO_SHIPMODE LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (LO_ORDERDATE, LO_ORDERKEY)
 PARTITION BY toYear(LO_ORDERDATE);
 
@@ -60,7 +60,7 @@ CREATE TABLE part
     P_SIZE UInt8,
     P_CONTAINER LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY P_PARTKEY;
 
 CREATE TABLE supplier
@@ -73,7 +73,7 @@ CREATE TABLE supplier
     S_REGION LowCardinality(String),
     S_PHONE String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY S_SUPPKEY;
 
 CREATE TABLE date
@@ -96,31 +96,33 @@ CREATE TABLE date
     D_HOLIDAYFL UInt8,
     D_WEEKDAYFL UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY D_DATEKEY;
 
-SET cross_to_inner_join_rewrite = 2;
+SET cross_to_inner_join_rewrite = '2';
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT
     D_YEARMONTHNUM,
     S_CITY,
     P_BRAND,
     sum(LO_REVENUE - LO_SUPPLYCOST) AS profit
 FROM
-    date
-CROSS JOIN customer
-CROSS JOIN supplier
-CROSS JOIN part
-CROSS JOIN lineorder
+    date,
+    customer,
+    supplier,
+    part,
+    lineorder
 WHERE LO_CUSTKEY = C_CUSTKEY
     AND LO_SUPPKEY = S_SUPPKEY
     AND LO_PARTKEY = P_PARTKEY
     AND LO_ORDERDATE = D_DATEKEY
     AND S_NATION = 'UNITED KINGDOM'
     AND P_CATEGORY = 'MFGR#21'
-    AND (and(greaterOrEquals(LO_QUANTITY, 34), lessOrEquals(LO_QUANTITY, 44)))
-    AND (and(greaterOrEquals(LO_ORDERDATE, toDate('1996-01-01')), lessOrEquals(LO_ORDERDATE, toDate('1996-12-31'))))
+    AND (LO_QUANTITY >= 34
+    AND LO_QUANTITY <= 44)
+    AND (LO_ORDERDATE >= toDate('1996-01-01')
+    AND LO_ORDERDATE <= toDate('1996-12-31'))
 GROUP BY
     D_YEARMONTHNUM,
     S_CITY,

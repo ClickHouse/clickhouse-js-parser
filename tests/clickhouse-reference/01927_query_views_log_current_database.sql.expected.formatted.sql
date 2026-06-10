@@ -1,6 +1,6 @@
-SET log_queries = 0;
+SET log_queries = '0';
 
-SET log_query_threads = 0;
+SET log_query_threads = '0';
 
 -- SETUP TABLES
 CREATE TABLE table_a
@@ -8,7 +8,7 @@ CREATE TABLE table_a
     a String,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY b;
 
 CREATE TABLE table_b
@@ -16,14 +16,14 @@ CREATE TABLE table_b
     a Float64,
     count Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE table_c
 (
     a Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE table_d
@@ -31,7 +31,7 @@ CREATE TABLE table_d
     a Float64,
     count Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE table_e
@@ -39,7 +39,7 @@ CREATE TABLE table_e
     a Float64,
     count Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE table_f
@@ -47,7 +47,7 @@ CREATE TABLE table_f
     a Float64,
     count Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 -- SETUP MATERIALIZED VIEWS
@@ -77,13 +77,13 @@ LEFT JOIN table_e
     ON table_d.a = table_e.a;
 
 -- ENABLE LOGS
-SET parallel_view_processing = 0;
+SET parallel_view_processing = '0';
 
-SET log_query_views = 1;
+SET log_query_views = '1';
 
 SET log_queries_min_type = 'QUERY_FINISH';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 -- INSERT 1
 INSERT INTO table_a SELECT
@@ -114,7 +114,7 @@ SELECT
     ProfileEvents['InsertedRows'] AS profile_insert_rows,
     ProfileEvents['InsertedBytes'] AS profile_insert_bytes
 FROM `system`.query_log
-WHERE like(query, '-- INSERT 1%INSERT INTO table_a%')
+WHERE query LIKE '-- INSERT 1%INSERT INTO table_a%'
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
 FORMAT Vertical;
@@ -138,7 +138,7 @@ FROM `system`.query_views_log
 WHERE initial_query_id = (
         SELECT initial_query_id
         FROM `system`.query_log
-        WHERE like(query, '-- INSERT 1%INSERT INTO table_a%')
+        WHERE query LIKE '-- INSERT 1%INSERT INTO table_a%'
             AND current_database = currentDatabase()
             AND event_date >= yesterday()
         LIMIT 1
@@ -161,7 +161,7 @@ SELECT
     ProfileEvents['InsertedRows'] AS profile_insert_rows,
     ProfileEvents['InsertedBytes'] AS profile_insert_bytes
 FROM `system`.query_log
-WHERE like(query, '-- INSERT 2%INSERT INTO table_d%')
+WHERE query LIKE '-- INSERT 2%INSERT INTO table_d%'
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
 FORMAT Vertical;
@@ -185,7 +185,7 @@ FROM `system`.query_views_log
 WHERE initial_query_id = (
         SELECT initial_query_id
         FROM `system`.query_log
-        WHERE like(query, '-- INSERT 2%INSERT INTO table_d%')
+        WHERE query LIKE '-- INSERT 2%INSERT INTO table_d%'
             AND current_database = currentDatabase()
             AND event_date >= yesterday()
         LIMIT 1

@@ -1,10 +1,10 @@
-SET use_statistics = 0;
+SET use_statistics = '0';
 
 DROP TABLE IF EXISTS products;
 
 DROP TABLE IF EXISTS sales;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE sales
 (
@@ -13,14 +13,14 @@ CREATE TABLE sales
     amount Decimal(10, 2),
     product_id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO sales SELECT
     number,
     '2024-05-05' + toIntervalDay(intDiv(number, 1000)),
-    ((number + 1)) % 100,
+    (number + 1) % 100,
     number % 100000
 FROM numbers(1000000);
 
@@ -29,48 +29,48 @@ CREATE TABLE products
     id Int32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO products SELECT
     number,
-    concat('product ', toString(number))
+    'product ' || toString(number)
 FROM numbers(100000);
 
 SET query_plan_join_swap_table = 'auto';
 
-SET query_plan_optimize_join_order_limit = 2;
+SET query_plan_optimize_join_order_limit = '2';
 
-SET enable_join_runtime_filters = 0;
-
-SELECT *
-FROM
-    products
-CROSS JOIN sales
-WHERE sales.product_id = products.id
-    AND date = '2024-05-07'
-SETTINGS log_comment = '03279_join_choose_build_table_no_idx'
-FORMAT Null;
+SET enable_join_runtime_filters = '0';
 
 SELECT *
 FROM
+    products,
     sales
-CROSS JOIN products
 WHERE sales.product_id = products.id
     AND date = '2024-05-07'
 SETTINGS log_comment = '03279_join_choose_build_table_no_idx'
 FORMAT Null;
 
-SET mutations_sync = 2;
+SELECT *
+FROM
+    sales,
+    products
+WHERE sales.product_id = products.id
+    AND date = '2024-05-07'
+SETTINGS log_comment = '03279_join_choose_build_table_no_idx'
+FORMAT Null;
 
-ALTER TABLE sales ADD INDEX date_idx date TYPE minmax GRANULARITY 1;
+SET mutations_sync = '2';
+
+ALTER TABLE sales ADD INDEX date_idx date TYPE minmax() GRANULARITY 1;
 
 ALTER TABLE sales MATERIALIZE INDEX date_idx;
 
 SELECT *
 FROM
-    products
-CROSS JOIN sales
+    products,
+    sales
 WHERE sales.product_id = products.id
     AND date = '2024-05-07'
 SETTINGS log_comment = '03279_join_choose_build_table_idx'
@@ -78,8 +78,8 @@ FORMAT Null;
 
 SELECT *
 FROM
-    sales
-CROSS JOIN products
+    sales,
+    products
 WHERE sales.product_id = products.id
     AND date = '2024-05-07'
 SETTINGS log_comment = '03279_join_choose_build_table_idx'
@@ -90,62 +90,70 @@ SYSTEM FLUSH LOGS query_log;
 -- condtitions are pushed down, but no filter by index applied
 -- build table is as it's written in query
 SELECT
-    if(and(greaterOrEquals(ProfileEvents['JoinBuildTableRowCount'], 100), lessOrEquals(ProfileEvents['JoinBuildTableRowCount'], 2000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
-    if(and(greaterOrEquals(ProfileEvents['JoinProbeTableRowCount'], 90000), lessOrEquals(ProfileEvents['JoinProbeTableRowCount'], 110000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
-    if(ProfileEvents['JoinResultRowCount'] == 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] >= 100
+    AND ProfileEvents['JoinBuildTableRowCount'] <= 2000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinProbeTableRowCount'] >= 90000
+    AND ProfileEvents['JoinProbeTableRowCount'] <= 110000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
     `Settings`['query_plan_join_swap_table']
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
     AND query_kind = 'Select'
     AND current_database = currentDatabase()
-    AND like(query, '%products, sales%')
+    AND query LIKE '%products, sales%'
     AND log_comment = '03279_join_choose_build_table_no_idx'
 ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(and(greaterOrEquals(ProfileEvents['JoinBuildTableRowCount'], 90000), lessOrEquals(ProfileEvents['JoinBuildTableRowCount'], 110000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
-    if(and(greaterOrEquals(ProfileEvents['JoinProbeTableRowCount'], 100), lessOrEquals(ProfileEvents['JoinProbeTableRowCount'], 2000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
-    if(ProfileEvents['JoinResultRowCount'] == 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] >= 90000
+    AND ProfileEvents['JoinBuildTableRowCount'] <= 110000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinProbeTableRowCount'] >= 100
+    AND ProfileEvents['JoinProbeTableRowCount'] <= 2000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
     `Settings`['query_plan_join_swap_table']
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
     AND query_kind = 'Select'
     AND current_database = currentDatabase()
-    AND like(query, '%sales, products%')
+    AND query LIKE '%sales, products%'
     AND log_comment = '03279_join_choose_build_table_no_idx'
 ORDER BY event_time DESC
 LIMIT 1;
 
 -- after adding index, optimizer can choose best table order
 SELECT
-    if(and(greaterOrEquals(ProfileEvents['JoinBuildTableRowCount'], 100), lessOrEquals(ProfileEvents['JoinBuildTableRowCount'], 2000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
-    if(and(greaterOrEquals(ProfileEvents['JoinProbeTableRowCount'], 90000), lessOrEquals(ProfileEvents['JoinProbeTableRowCount'], 110000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
-    if(ProfileEvents['JoinResultRowCount'] == 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] >= 100
+    AND ProfileEvents['JoinBuildTableRowCount'] <= 2000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinProbeTableRowCount'] >= 90000
+    AND ProfileEvents['JoinProbeTableRowCount'] <= 110000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
     `Settings`['query_plan_join_swap_table']
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
     AND query_kind = 'Select'
     AND current_database = currentDatabase()
-    AND like(query, '%products, sales%')
+    AND query LIKE '%products, sales%'
     AND log_comment = '03279_join_choose_build_table_idx'
 ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(and(greaterOrEquals(ProfileEvents['JoinBuildTableRowCount'], 100), lessOrEquals(ProfileEvents['JoinBuildTableRowCount'], 2000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
-    if(and(greaterOrEquals(ProfileEvents['JoinProbeTableRowCount'], 90000), lessOrEquals(ProfileEvents['JoinProbeTableRowCount'], 110000)), 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
-    if(ProfileEvents['JoinResultRowCount'] == 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] >= 100
+    AND ProfileEvents['JoinBuildTableRowCount'] <= 2000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinProbeTableRowCount'] >= 90000
+    AND ProfileEvents['JoinProbeTableRowCount'] <= 110000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 1000, 'ok', format('fail({}): {}', query_id, ProfileEvents['JoinResultRowCount'])),
     `Settings`['query_plan_join_swap_table']
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
     AND query_kind = 'Select'
     AND current_database = currentDatabase()
-    AND like(query, '%sales, products%')
+    AND query LIKE '%sales, products%'
     AND log_comment = '03279_join_choose_build_table_idx'
 ORDER BY event_time DESC
 LIMIT 1;

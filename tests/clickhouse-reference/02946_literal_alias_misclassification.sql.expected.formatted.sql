@@ -6,7 +6,7 @@ CREATE TABLE literal_alias_misclassification
     a Nullable(String),
     b Nullable(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO literal_alias_misclassification;

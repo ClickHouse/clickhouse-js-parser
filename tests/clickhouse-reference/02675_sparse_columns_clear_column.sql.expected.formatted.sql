@@ -5,9 +5,9 @@ CREATE TABLE t_sparse_columns_clear
     arr Array(UInt64),
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9, min_bytes_for_wide_part = 0, enable_block_number_column = 0, enable_block_offset_column = 0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9, min_bytes_for_wide_part = '0', enable_block_number_column = '0', enable_block_offset_column = '0';
 
 INSERT INTO t_sparse_columns_clear SELECT
     [number],
@@ -23,23 +23,23 @@ WHERE database = currentDatabase()
     AND active
 ORDER BY column ASC;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-SET alter_sync = 2;
+SET alter_sync = '2';
 
-ALTER TABLE t_sparse_columns_clear DROP COLUMN v;
+ALTER TABLE t_sparse_columns_clear CLEAR COLUMN v;
 
 OPTIMIZE TABLE t_sparse_columns_clear FINAL;
 
-DROP TABLE t_sparse_columns_clear;
+DROP TABLE t_sparse_columns_clear SYNC;
 
 SYSTEM FLUSH LOGS text_log;
 
-SET max_rows_to_read = 0; -- system.text_log can be really big
+SET max_rows_to_read = '0'; -- system.text_log can be really big
 
 SELECT
     count(),
     groupArray(message)
 FROM `system`.text_log
-WHERE like(logger_name, concat('%', currentDatabase(), '.t_sparse_columns_clear', '%'))
+WHERE logger_name LIKE '%' || currentDatabase() || '.t_sparse_columns_clear' || '%'
     AND level = 'Error';

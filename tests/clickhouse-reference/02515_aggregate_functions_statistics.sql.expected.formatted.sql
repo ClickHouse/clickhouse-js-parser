@@ -7,7 +7,7 @@ CREATE TABLE fh
     c_value Float64,
     d_value Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO fh (a_value, b_value, c_value, d_value);
 
@@ -47,7 +47,7 @@ FROM (
         LIMIT 1
     );
 
-SELECT arrayMap(x -> arrayMap(y -> round(y, 5), x), corrMatrix(a_value, b_value, c_value, d_value))
+SELECT arrayMap((x -> arrayMap((y -> round(y, 5)), x)), corrMatrix(a_value, b_value, c_value, d_value))
 FROM fh;
 
 SELECT
@@ -97,7 +97,7 @@ FROM (
         LIMIT 1
     );
 
-SELECT arrayMap(x -> arrayMap(y -> round(y, 5), x), covarSampMatrix(a_value, b_value, c_value, d_value))
+SELECT arrayMap((x -> arrayMap((y -> round(y, 5)), x)), covarSampMatrix(a_value, b_value, c_value, d_value))
 FROM fh;
 
 SELECT
@@ -147,7 +147,7 @@ FROM (
         LIMIT 1
     );
 
-SELECT arrayMap(x -> arrayMap(y -> round(y, 5), x), covarPopMatrix(a_value, b_value, c_value, d_value))
+SELECT arrayMap((x -> arrayMap((y -> round(y, 5)), x)), covarPopMatrix(a_value, b_value, c_value, d_value))
 FROM fh;
 
 SELECT

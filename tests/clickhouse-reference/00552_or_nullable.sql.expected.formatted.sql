@@ -7,7 +7,7 @@ SELECT
     OR NULL,
     toNullable(1)
     OR NULL,
-    0.0
+    0.
     OR NULL,
     0.1
     OR NULL,
@@ -28,7 +28,7 @@ SELECT
     AND NULL,
     toNullable(1)
     AND NULL,
-    0.0
+    0.
     AND NULL,
     0.1
     AND NULL,
@@ -52,7 +52,7 @@ SELECT
     OR x,
     toNullable(1)
     OR x,
-    0.0
+    0.
     OR x,
     0.1
     OR x,
@@ -64,7 +64,7 @@ SELECT
     OR 1
     OR x
 FROM (
-        SELECT if(number % 2, number % 3, NULL) AS x
+        SELECT number % 2 ? number % 3 : NULL AS x
         FROM `system`.numbers
         LIMIT 10
     );
@@ -81,7 +81,7 @@ SELECT
     AND x,
     toNullable(1)
     AND x,
-    0.0
+    0.
     AND x,
     0.1
     AND x,
@@ -93,7 +93,7 @@ SELECT
     AND 1
     AND x
 FROM (
-        SELECT if(number % 2, number % 3, NULL) AS x
+        SELECT number % 2 ? number % 3 : NULL AS x
         FROM `system`.numbers
         LIMIT 10
     );
@@ -104,7 +104,7 @@ CREATE TABLE test
 (
     x Nullable(Int32)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test;
 

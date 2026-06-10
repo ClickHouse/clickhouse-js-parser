@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT DISTINCT
     firstNonDefault(__table3.dummy, __table4.dummy) AS dummy,
@@ -6,7 +6,7 @@ SELECT DISTINCT
     __table4.`isNotDistinctFrom(3, isZeroOrNull(isNotNull(3)))` AS `isNotDistinctFrom(3, isZeroOrNull(isNotNull(3)))`
 FROM
     `system`.one AS __table3
-FULL JOIN (
+ALL FULL JOIN (
         SELECT DISTINCT
             __table5.dummy AS dummy,
             __table5.`isNotNull(map(assumeNotNull(isNull(3)), NULL))` AS `isNotNull(map(assumeNotNull(isNull(3)), NULL))`,
@@ -28,4 +28,4 @@ GROUP BY
     __table4.`isNotDistinctFrom(3, isZeroOrNull(isNotNull(3)))`,
     __table4.`isNotNull(map(assumeNotNull(isNull(3)), NULL))`
 WITH CUBE
-SETTINGS enable_lazy_columns_replication = 1;
+SETTINGS enable_lazy_columns_replication = '1';

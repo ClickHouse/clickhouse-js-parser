@@ -1,90 +1,131 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: zookeeper, no-encrypted-storage",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/72887"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c0",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory",
-      "args": []
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "transactionControl",
-    "action": "begin"
-  },
-  {
-    "kind": "explain",
-    "explainType": "PLAN",
-    "query": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          },
-          "alias": "tx"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "tableRef",
-          "table": "t0"
-        },
-        "constraint": {
-          "kind": "on",
-          "expr": {
-            "kind": "literal",
-            "type": "Bool",
-            "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c0",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
           }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
       }
-    },
-    "trailingComments": [
-      "-- { serverError NOT_IMPLEMENTED }"
-    ]
+    }
   },
   {
-    "kind": "transactionControl",
-    "action": "rollback"
+    "version": 2,
+    "ast": {
+      "type": "TransactionControl",
+      "action": "BEGIN"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "alias": "tx",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "1"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "INNER",
+                    "on": {
+                      "type": "Literal",
+                      "value_type": "Bool",
+                      "value": true
+                    }
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "t0"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TransactionControl",
+      "action": "ROLLBACK"
+    }
   }
 ]

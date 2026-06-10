@@ -1,2 +1,2 @@
-SELECT round(rankCorr(number, negate(number)))
+SELECT round(rankCorr(number, -number))
 FROM numbers(5000000);

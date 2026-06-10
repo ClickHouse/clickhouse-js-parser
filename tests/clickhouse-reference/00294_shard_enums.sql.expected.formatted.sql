@@ -1,9 +1,9 @@
 -- Tags: shard
-SET max_threads = 1;
+SET max_threads = '1';
 
 DROP TABLE IF EXISTS enums;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE enums
 (
@@ -44,7 +44,7 @@ CREATE TABLE enums
 (
     e Enum8('a' = 0, 'b' = 1, 'c' = 2, 'd' = 3)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO enums;
 
@@ -120,7 +120,7 @@ FROM enums;
 DROP TABLE IF EXISTS enums_copy;
 
 CREATE TABLE enums_copy
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM enums;
 
@@ -130,7 +130,7 @@ FROM enums_copy;
 DROP TABLE enums_copy;
 
 CREATE TABLE enums_copy
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM remote('127.0.0.2', currentDatabase(), enums);
 

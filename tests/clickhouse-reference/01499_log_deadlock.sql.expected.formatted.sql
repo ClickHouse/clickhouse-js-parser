@@ -5,7 +5,7 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t;
 
@@ -21,10 +21,10 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();

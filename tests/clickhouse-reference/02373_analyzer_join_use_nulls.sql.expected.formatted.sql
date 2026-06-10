@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE IF EXISTS test_table_join_1;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_table_join_1
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DROP TABLE IF EXISTS test_table_join_2;
@@ -19,7 +19,7 @@ CREATE TABLE test_table_join_2
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_table_join_1;

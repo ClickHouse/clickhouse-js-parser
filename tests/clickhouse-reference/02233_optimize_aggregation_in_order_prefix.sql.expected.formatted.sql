@@ -1,5 +1,5 @@
 -- Tags: no-object-storage
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 DROP TABLE IF EXISTS data_02233;
 
@@ -22,10 +22,10 @@ GROUP BY
     parent_key,
     child_key,
     child_key
-ORDER BY parent_key ASC
+ORDER BY parent_key ASC NULLS LAST
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1';
 
 SELECT
     child_key,
@@ -37,10 +37,10 @@ GROUP BY
     child_key,
     child_key
 WITH TOTALS
-ORDER BY parent_key ASC
+ORDER BY parent_key ASC NULLS LAST
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1';
 
 -- { echoOn }
 INSERT INTO data_02233 SELECT
@@ -63,9 +63,9 @@ ORDER BY
     parent_key ASC,
     child_key ASC
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1,
-    read_in_order_two_level_merge_threshold = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1',
+    read_in_order_two_level_merge_threshold = '1';
 
 EXPLAIN PIPELINE
 SELECT
@@ -81,9 +81,9 @@ ORDER BY
     parent_key ASC,
     child_key ASC
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 0,
-    read_in_order_two_level_merge_threshold = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '0',
+    read_in_order_two_level_merge_threshold = '1';
 
 SELECT
     parent_key,
@@ -98,8 +98,8 @@ ORDER BY
     parent_key ASC,
     child_key ASC
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1';
 
 SELECT
     parent_key,
@@ -114,9 +114,9 @@ ORDER BY
     parent_key ASC,
     child_key ASC
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1,
-    max_block_size = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1',
+    max_block_size = '1';
 
 SELECT
     parent_key,
@@ -131,8 +131,8 @@ ORDER BY
     parent_key ASC,
     child_key ASC
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 0;
+    max_threads = '1',
+    optimize_aggregation_in_order = '0';
 
 -- fuzzer
 SELECT
@@ -146,10 +146,10 @@ GROUP BY
     child_key
 ORDER BY
     child_key ASC,
-    parent_key ASC
+    parent_key ASC NULLS LAST
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1';
 
 SELECT
     child_key,
@@ -163,10 +163,10 @@ GROUP BY
 WITH TOTALS
 ORDER BY
     child_key ASC,
-    parent_key ASC
+    parent_key ASC NULLS LAST
 SETTINGS
-    max_threads = 1,
-    optimize_aggregation_in_order = 1;
+    max_threads = '1',
+    optimize_aggregation_in_order = '1';
 
 -- { echoOff }
 DROP TABLE data_02233;

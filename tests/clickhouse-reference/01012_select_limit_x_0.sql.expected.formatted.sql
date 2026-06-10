@@ -1,3 +1,4 @@
 SELECT count()
 FROM `system`.numbers
-LIMIT 1, 0;
+LIMIT 0
+OFFSET 1;

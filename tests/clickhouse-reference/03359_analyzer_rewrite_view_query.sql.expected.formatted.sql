@@ -4,7 +4,7 @@ CREATE TABLE mydestination
 (
     object String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY object;
 
 CREATE MATERIALIZED VIEW myview

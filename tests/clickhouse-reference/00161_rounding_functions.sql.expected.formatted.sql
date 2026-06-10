@@ -99,7 +99,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat32(((number - 10)) / 10) AS x,
+    toFloat32((number - 10) / 10) AS x,
     round(x),
     roundBankers(x),
     floor(x),
@@ -109,7 +109,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat64(((number - 10)) / 10) AS x,
+    toFloat64((number - 10) / 10) AS x,
     round(x),
     roundBankers(x),
     floor(x),
@@ -119,7 +119,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat32(((number - 10)) / 10) AS x,
+    toFloat32((number - 10) / 10) AS x,
     round(x, 1),
     roundBankers(x, 1),
     floor(x, 1),
@@ -129,7 +129,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat64(((number - 10)) / 10) AS x,
+    toFloat64((number - 10) / 10) AS x,
     round(x, 1),
     roundBankers(x, 1),
     floor(x, 1),

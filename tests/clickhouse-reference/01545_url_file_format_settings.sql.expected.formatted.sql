@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET use_hive_partitioning = 0; -- required because of "?query=select"
+SET use_hive_partitioning = '0'; -- required because of "?query=select"
 
 CREATE TABLE file_delim
 (

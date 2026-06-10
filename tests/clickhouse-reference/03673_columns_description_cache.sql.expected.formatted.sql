@@ -23,7 +23,7 @@ CREATE TABLE t_mt
     key Int
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 SELECT columns_descriptions_cache_size
 FROM `system`.tables
@@ -34,16 +34,16 @@ INSERT INTO t_mt;
 
 INSERT INTO t_mt;
 
-ALTER TABLE t_mt ADD COLUMN value String SETTINGS mutations_sync = 2;
+ALTER TABLE t_mt ADD COLUMN value String SETTINGS mutations_sync = '2';
 
 INSERT INTO t_mt;
 
 INSERT INTO t_mt;
 
 -- now let's try to remove ColumnsDescription with old structure
-ALTER TABLE t_mt DROP PART 'all_1_1_0';
+ALTER TABLE t_mt DETACH PART 'all_1_1_0';
 
-ALTER TABLE t_mt DROP PART 'all_2_2_0';
+ALTER TABLE t_mt DETACH PART 'all_2_2_0';
 
 -- reattach
 DETACH TABLE t_mt;

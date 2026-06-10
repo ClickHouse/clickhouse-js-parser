@@ -4,7 +4,7 @@ CREATE TABLE `03094_grouparrysorted_dest`
     SlowSpans AggregateFunction(groupArraySorted(100), Tuple(NegativeDurationNs Int64, Timestamp DateTime64(9), TraceId String, SpanId String)) CODEC(ZSTD(1))
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (ServiceName);
+ORDER BY ServiceName;
 
 CREATE TABLE `03094_grouparrysorted_src`
 (
@@ -15,14 +15,14 @@ CREATE TABLE `03094_grouparrysorted_src`
     SpanId String
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE MATERIALIZED VIEW `03094_grouparrysorted_mv`
 TO `03094_grouparrysorted_dest`
 AS
 SELECT
     ServiceName,
-    groupArraySortedState(100)(CAST(tuple(negate(Duration), Timestamp, TraceId, SpanId), 'Tuple(NegativeDurationNs Int64, Timestamp DateTime64(9), TraceId String, SpanId String)')) AS SlowSpans
+    groupArraySortedState(100)(CAST(tuple(-Duration, Timestamp, TraceId, SpanId) AS Tuple(NegativeDurationNs Int64, Timestamp DateTime64(9), TraceId String, SpanId String))) AS SlowSpans
 FROM `03094_grouparrysorted_src`
 GROUP BY ServiceName;
 

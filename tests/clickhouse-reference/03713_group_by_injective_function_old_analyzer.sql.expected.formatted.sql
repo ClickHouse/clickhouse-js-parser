@@ -6,5 +6,5 @@ GROUP BY (a, b)
 ORDER BY (a, b) ASC
 LIMIT 1
 SETTINGS
-    optimize_injective_functions_in_group_by = 0,
-    enable_analyzer = 0;
+    optimize_injective_functions_in_group_by = '0',
+    enable_analyzer = '0';

@@ -7,7 +7,7 @@ GROUP BY
     isNullable(1)
 WITH TOTALS
 ORDER BY 1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- Simplified version of the above query
 SELECT number
@@ -52,7 +52,8 @@ LIMIT 10;
 
 SELECT number
 FROM numbers(0, 1000, 2)
-WHERE and(greaterOrEquals(number, 10), lessOrEquals(number, 40));
+WHERE number >= 10
+    AND number <= 40;
 
 SELECT number
 FROM numbers(18446744073709551610, 10, 3)
@@ -95,7 +96,7 @@ SELECT *
 FROM `system`.numbers
 LIMIT 0;
 
-SET max_threads = 10;
+SET max_threads = '10';
 
 SELECT number
 FROM numbers_mt(10, 14630045721179951620, 6670599363308407409);
@@ -139,7 +140,8 @@ LIMIT 10;
 
 SELECT number
 FROM numbers_mt(0, 1000, 2)
-WHERE and(greaterOrEquals(number, 10), lessOrEquals(number, 40));
+WHERE number >= 10
+    AND number <= 40;
 
 SELECT number
 FROM numbers_mt(18446744073709551610, 10, 3)
@@ -207,13 +209,17 @@ WHERE number >= 5
 
 SELECT number
 FROM `system`.numbers_mt
-WHERE (and(greaterOrEquals(number, 10), lessOrEquals(number, 15)))
-    OR (and(greaterOrEquals(number, 100), lessOrEquals(number, 105)));
+WHERE number >= 10
+    AND number <= 15
+    OR number >= 100
+    AND number <= 105;
 
 SELECT number
 FROM `system`.numbers_mt
-WHERE (and(greaterOrEquals(number, 10), lessOrEquals(number, 20)))
-    OR (and(greaterOrEquals(number, 100), lessOrEquals(number, 110)))
+WHERE number >= 10
+    AND number <= 20
+    OR number >= 100
+    AND number <= 110
 LIMIT 7;
 
 SELECT
@@ -240,9 +246,12 @@ SELECT
     max(number),
     sum(number)
 FROM `system`.numbers_mt
-WHERE (and(greaterOrEquals(number, 0), lessOrEquals(number, 50)))
-    OR (and(greaterOrEquals(number, 1000), lessOrEquals(number, 1100)))
-    OR (and(greaterOrEquals(number, 100000), lessOrEquals(number, 100100)));
+WHERE number >= 0
+    AND number <= 50
+    OR number >= 1000
+    AND number <= 1100
+    OR number >= 100000
+    AND number <= 100100;
 
 SELECT
     count(),
@@ -250,9 +259,12 @@ SELECT
     max(number),
     sum(number)
 FROM `system`.numbers_mt
-WHERE (and(greaterOrEquals(number, 2), lessOrEquals(number, 50)))
-    OR (and(greaterOrEquals(number, 30), lessOrEquals(number, 60)))
-    OR (and(greaterOrEquals(number, 50), lessOrEquals(number, 70)));
+WHERE number >= 2
+    AND number <= 50
+    OR number >= 30
+    AND number <= 60
+    OR number >= 50
+    AND number <= 70;
 
 SELECT
     count(),
@@ -264,5 +276,6 @@ WHERE number < 1000;
 
 SELECT number
 FROM `system`.numbers_mt
-WHERE and(greaterOrEquals(number, 123456), lessOrEquals(number, 1000000))
+WHERE number >= 123456
+    AND number <= 1000000
 LIMIT 10;

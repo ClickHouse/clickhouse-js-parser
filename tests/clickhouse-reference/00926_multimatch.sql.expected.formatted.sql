@@ -95,7 +95,7 @@ SELECT 1 = multiMatchAny(materialize('abc'), [''])
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAny(materialize('abc'), []::Array(String))
+SELECT 0 = multiMatchAny(materialize('abc'), CAST('[]' AS Array(String)))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -237,7 +237,7 @@ SELECT 1 = multiMatchAny(materialize('abcdef'), ['a......', 'a.....'])
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAny(materialize('aaaa'), ['.*aa.*aaa.*', 'aaaaaa{2}', '\(aa\){3}'])
+SELECT 0 = multiMatchAny(materialize('aaaa'), ['.*aa.*aaa.*', 'aaaaaa{2}', '\\(aa\\){3}'])
 FROM `system`.numbers
 LIMIT 10;
 
@@ -245,7 +245,7 @@ SELECT 1 = multiMatchAny(materialize('abc'), ['a\0d'])
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAnyIndex(materialize('gogleuedeuniangoogle'), []::Array(String))
+SELECT 0 = multiMatchAnyIndex(materialize('gogleuedeuniangoogle'), CAST('[]' AS Array(String)))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -270,7 +270,7 @@ SELECT multiMatchAny(materialize('/odezhda-dlya-bega/'), ['/odezhda-dlya-bega/',
 SELECT 1 = multiMatchAny('фабрикант', ['f[ae]b[ei]rl', 'ф[иаэе]б[еэи][рпл]', 'афиукд', 'a[ft],th', '^ф[аиеэ]?б?[еэи]?$', 'берлик', 'fab', 'фа[беьв]+е?[рлко]']);
 
 -- All indices tests
-SELECT [] = multiMatchAllIndices(materialize('Butterbrot!'), []::Array(String))
+SELECT [] = multiMatchAllIndices(materialize('Butterbrot!'), CAST('[]' AS Array(String)))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -290,7 +290,7 @@ SELECT [1, 2, 3, 11] = arraySort(multiMatchAllIndices('фабрикант', ['',
 
 SELECT [1] = multiMatchAllIndices(materialize('/odezhda-dlya-bega/'), ['/odezhda-dlya-bega/', 'kurtki-i-vetrovki-dlya-bega', 'futbolki-i-mayki-dlya-bega']);
 
-SELECT [] = multiMatchAllIndices(materialize('aaaa'), ['.*aa.*aaa.*', 'aaaaaa{2}', '\(aa\){3}']);
+SELECT [] = multiMatchAllIndices(materialize('aaaa'), ['.*aa.*aaa.*', 'aaaaaa{2}', '\\(aa\\){3}']);
 
 SELECT arraySort(multiMatchAllIndices(arrayJoin(['aaaa', 'aaaaaa', 'bbbb', 'aaaaaaaaaaaaaa']), ['.*aa.*aaa.*', 'aaaaaa{2}', '(aa){3}']));
 
@@ -388,7 +388,7 @@ SELECT 1 = multiMatchAny(materialize('abc'), materialize(['']))
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAny(materialize('abc'), materialize([]::Array(String)))
+SELECT 0 = multiMatchAny(materialize('abc'), materialize(CAST('[]' AS Array(String))))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -530,7 +530,7 @@ SELECT 1 = multiMatchAny(materialize('abcdef'), materialize(['a......', 'a.....'
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAny(materialize('aaaa'), materialize(['.*aa.*aaa.*', 'aaaaaa{2}', '\(aa\){3}']))
+SELECT 0 = multiMatchAny(materialize('aaaa'), materialize(['.*aa.*aaa.*', 'aaaaaa{2}', '\\(aa\\){3}']))
 FROM `system`.numbers
 LIMIT 10;
 
@@ -538,7 +538,7 @@ SELECT 1 = multiMatchAny(materialize('abc'), materialize(['a\0d']))
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT 0 = multiMatchAnyIndex(materialize('gogleuedeuniangoogle'), materialize([]::Array(String)))
+SELECT 0 = multiMatchAnyIndex(materialize('gogleuedeuniangoogle'), materialize(CAST('[]' AS Array(String))))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -563,7 +563,7 @@ SELECT multiMatchAny(materialize('/odezhda-dlya-bega/'), materialize(['/odezhda-
 SELECT 1 = multiMatchAny(materialize('фабрикант'), materialize(['f[ae]b[ei]rl', 'ф[иаэе]б[еэи][рпл]', 'афиукд', 'a[ft],th', '^ф[аиеэ]?б?[еэи]?$', 'берлик', 'fab', 'фа[беьв]+е?[рлко]']));
 
 -- All indices tests
-SELECT [] = multiMatchAllIndices(materialize('Butterbrot!'), materialize([]::Array(String)))
+SELECT [] = multiMatchAllIndices(materialize('Butterbrot!'), materialize(CAST('[]' AS Array(String))))
 FROM `system`.numbers
 LIMIT 5;
 
@@ -583,4 +583,4 @@ SELECT [1, 2, 3, 11] = arraySort(multiMatchAllIndices(materialize('фабрик�
 
 SELECT [1] = multiMatchAllIndices(materialize('/odezhda-dlya-bega/'), materialize(['/odezhda-dlya-bega/', 'kurtki-i-vetrovki-dlya-bega', 'futbolki-i-mayki-dlya-bega']));
 
-SELECT [] = multiMatchAllIndices(materialize('aaaa'), materialize(['.*aa.*aaa.*', 'aaaaaa{2}', '\(aa\){3}']));
+SELECT [] = multiMatchAllIndices(materialize('aaaa'), materialize(['.*aa.*aaa.*', 'aaaaaa{2}', '\\(aa\\){3}']));

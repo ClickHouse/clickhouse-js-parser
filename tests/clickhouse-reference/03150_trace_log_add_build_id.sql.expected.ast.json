@@ -1,164 +1,219 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_queries": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-asan, no-tsan, no-msan, no-ubsan, no-sanitize-coverage"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_query_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_query_threads": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_profiler_real_time_period_ns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_profiler_real_time_period_ns": "100000000"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sleep",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS trace_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
-            {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "trace_log"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "isNotNull",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "build_id"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sleep",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
           ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "countIf",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "trace_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "arrayExists",
-              "args": [
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "lambdaExpr",
-                  "params": [
-                    "x"
-                  ],
-                  "body": {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "x"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%:%:%"
-                      }
-                    ]
-                  }
+                  "type": "Function",
+                  "name": "COUNT",
+                  "arguments": [
+                    {
+                      "type": "Asterisk"
+                    }
+                  ]
                 },
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "lines"
-                  ]
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
                 }
               ]
             }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "trace_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "isNotNull",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "build_id"
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "trace_log"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "countIf",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayExists",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "lambda",
+                          "is_operator": true,
+                          "is_lambda_function": true,
+                          "kind": "LAMBDA_FUNCTION",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tuple",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "x"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "like",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "x"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "%:%:%"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "lines"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "trace_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

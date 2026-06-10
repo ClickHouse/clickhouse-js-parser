@@ -1,186 +1,257 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "raw"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "name",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "raw"
       },
-      {
-        "kind": "columnDef",
-        "name": "num",
-        "type": {
-          "name": "String"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "num",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "name"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "parsed_eph"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "name",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "parsed_eph"
       },
-      {
-        "kind": "columnDef",
-        "name": "num_ephemeral",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "EPHEMERAL"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "num_ephemeral",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "EPHEMERAL",
+            "default_expression": {
+              "type": "Function",
+              "name": "defaultValueOfTypeName",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UInt32"
+                }
+              ]
+            },
+            "ephemeral_default": true
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "num",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "num_ephemeral"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "num",
-        "type": {
-          "name": "UInt32"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "columnRef",
-          "parts": [
-            "num_ephemeral"
-          ]
+        "order_by": {
+          "type": "Identifier",
+          "name": "name"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "parse_mv_eph"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "parsed_eph"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toUInt32",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "parse_mv_eph"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "num"
+                "type": "Identifier",
+                "name": "name"
+              },
+              {
+                "type": "Function",
+                "alias": "num_ephemeral",
+                "name": "toUInt32",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "num"
+                  }
                 ]
               }
-            ]
-          },
-          "alias": "num_ephemeral"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "raw"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "raw"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "raw"
+                    }
+                  }
+                }
+              ]
+            }
+          }
         ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "num"
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "parsed_eph"
+          }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "parsed_eph"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "VIEW",
-    "table": {
-      "kind": "tableRef",
-      "table": "parse_mv_eph"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "raw"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "parsed_eph"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "num"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parsed_eph"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "raw"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "parse_mv_eph"
+      },
+      "is_view": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "parsed_eph"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "raw"
+      }
     }
   }
 ]

@@ -1,106 +1,129 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/11757"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "arrayLiteral",
-                  "elements": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "aa",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "a",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "CROSS"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "bb",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "b",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "4"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
                     {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
+                      "type": "Identifier",
+                      "name": "aa.a",
+                      "name_parts": [
+                        "aa",
+                        "a"
+                      ]
                     },
                     {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
+                      "type": "Identifier",
+                      "name": "bb.b",
+                      "name_parts": [
+                        "bb",
+                        "b"
+                      ]
                     }
-                  ],
-                  "source": "[1, 2]"
-                },
-                "alias": "a"
+                  ]
+                }
               }
             ]
-          },
-          "alias": "aa"
-        },
-        "kind": "joinExpr",
-        "joinType": "CROSS",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "arrayLiteral",
-                  "elements": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "4"
-                    }
-                  ],
-                  "source": "[3, 4]"
-                },
-                "alias": "b"
-              }
-            ]
-          },
-          "alias": "bb"
-        }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "aa",
-            "a"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "bb",
-            "b"
-          ]
+          }
         }
       ]
     }

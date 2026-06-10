@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET session_timezone = 'UTC';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'full_sorting_merge';
 
@@ -15,8 +15,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(10)
-    CROSS JOIN (
+        numbers(10),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -33,7 +33,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # Coverage: Missing right side bin
@@ -43,8 +43,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(10)
-    CROSS JOIN (
+        numbers(10),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -63,7 +63,7 @@ SELECT
     COUNT(*)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 20 dates, 5 keys
@@ -73,8 +73,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(20)
-    CROSS JOIN (
+        numbers(20),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -91,7 +91,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 30 dates, 5 keys
@@ -101,8 +101,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(30)
-    CROSS JOIN (
+        numbers(30),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -119,7 +119,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 50 dates, 5 keys
@@ -129,8 +129,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(50)
-    CROSS JOIN (
+        numbers(50),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -147,7 +147,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 100 dates, 5 keys
@@ -157,8 +157,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(100)
-    CROSS JOIN (
+        numbers(100),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -175,7 +175,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 100 dates, 50 keys
@@ -185,8 +185,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(100)
-    CROSS JOIN (
+        numbers(100),
+        (
             SELECT number AS k
             FROM numbers(50)
         )
@@ -203,7 +203,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 1000 dates, 5 keys
@@ -213,8 +213,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(1000)
-    CROSS JOIN (
+        numbers(1000),
+        (
             SELECT number AS k
             FROM numbers(5)
         )
@@ -231,7 +231,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 1000 dates, 50 keys
@@ -241,8 +241,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(1000)
-    CROSS JOIN (
+        numbers(1000),
+        (
             SELECT number AS k
             FROM numbers(50)
         )
@@ -259,7 +259,7 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);
 
 -- # 10000 dates, 50 keys
@@ -269,8 +269,8 @@ WITH build AS (
         toDateTime('2001-01-01 00:00:00') + toIntervalMinute(number) AS t,
         number AS v
     FROM
-        numbers(10000)
-    CROSS JOIN (
+        numbers(10000),
+        (
             SELECT number AS k
             FROM numbers(50)
         )
@@ -287,5 +287,5 @@ probe AS (
 SELECT SUM(v)
 FROM
     probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (k, t);

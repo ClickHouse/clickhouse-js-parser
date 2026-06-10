@@ -6,9 +6,9 @@ CREATE TABLE t_parts_profile_events
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 10, min_bytes_for_wide_part = 0;
+SETTINGS min_rows_for_wide_part = '10', min_bytes_for_wide_part = '0';
 
 SYSTEM STOP MERGES t_parts_profile_events;
 
@@ -32,7 +32,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = '02306_part_types_profile_events'
-    AND ilike(query, 'INSERT INTO%')
+    AND query ILIKE 'INSERT INTO%'
     AND type = 'QueryFinish';
 
 SELECT
@@ -42,7 +42,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = '02306_part_types_profile_events'
-    AND ilike(query, 'OPTIMIZE TABLE%')
+    AND query ILIKE 'OPTIMIZE TABLE%'
     AND type = 'QueryFinish';
 
 SELECT part_type

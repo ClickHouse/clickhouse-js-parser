@@ -26,9 +26,9 @@ TO t0
     c1 LowCardinality(Int)
 )
 AS
-(SELECT
+SELECT
     1 AS c0,
-    1 AS c1);
+    1 AS c1;
 
 SELECT c0::Int
 FROM v0;

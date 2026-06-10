@@ -4,12 +4,12 @@ CREATE TABLE max_parts_in_total
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY x
-SETTINGS max_parts_in_total = 10;
+SETTINGS max_parts_in_total = '10';
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
 INSERT INTO max_parts_in_total SELECT number
 FROM numbers(10);

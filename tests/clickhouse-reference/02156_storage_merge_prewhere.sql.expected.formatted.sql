@@ -1,10 +1,10 @@
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET enable_multiple_prewhere_read_steps = 1;
+SET enable_multiple_prewhere_read_steps = '1';
 
-SET prefer_localhost_replica = 1; -- Make sure plan is reliable
+SET prefer_localhost_replica = '1'; -- Make sure plan is reliable
 
-SET optimize_functions_to_subcolumns = 0;
+SET optimize_functions_to_subcolumns = '0';
 
 DROP TABLE IF EXISTS t_02156_mt1;
 
@@ -25,25 +25,25 @@ CREATE TABLE t_02156_mt1
     k UInt32,
     v String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 CREATE TABLE t_02156_mt2
 (
     k UInt32,
     v String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 CREATE TABLE t_02156_log
 (
     k UInt32,
     v String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE t_02156_dist
 (
@@ -90,27 +90,31 @@ FROM numbers(10000);
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count()
-        FROM t_02156_merge1
-        WHERE k = 3
-            AND notEmpty(v)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count()
+                FROM t_02156_merge1
+                WHERE k = 3
+                    AND notEmpty(v)
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '1';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count()
-        FROM t_02156_merge1
-        WHERE k = 3
-            AND notEmpty(v)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count()
+                FROM t_02156_merge1
+                WHERE k = 3
+                    AND notEmpty(v)
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '0';
 
 SELECT count()
 FROM t_02156_merge1
@@ -119,14 +123,16 @@ WHERE k = 3
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count()
-        FROM t_02156_merge2
-        WHERE k = 3
-            AND notEmpty(v)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count()
+                FROM t_02156_merge2
+                WHERE k = 3
+                    AND notEmpty(v)
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%');
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%';
 
 SELECT count()
 FROM t_02156_merge2
@@ -135,14 +141,16 @@ WHERE k = 3
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count()
-        FROM t_02156_merge3
-        WHERE k = 3
-            AND notEmpty(v)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count()
+                FROM t_02156_merge3
+                WHERE k = 3
+                    AND notEmpty(v)
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%');
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%';
 
 SELECT count()
 FROM t_02156_merge3

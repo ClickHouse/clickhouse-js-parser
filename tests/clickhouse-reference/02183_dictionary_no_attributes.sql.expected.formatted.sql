@@ -4,7 +4,7 @@ CREATE TABLE `02183_dictionary_test_table`
 (
     id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02183_dictionary_test_table`;
 
@@ -19,7 +19,7 @@ CREATE DICTIONARY `02183_flat_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02183_dictionary_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SELECT dictGet('02183_flat_dictionary', 'value', 0); -- {serverError BAD_ARGUMENTS}
@@ -43,7 +43,7 @@ CREATE DICTIONARY `02183_hashed_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02183_dictionary_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictHas('02183_hashed_dictionary', 0);
@@ -65,7 +65,7 @@ CREATE DICTIONARY `02183_hashed_array_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02183_dictionary_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED_ARRAY());
 
 SELECT dictHas('02183_hashed_array_dictionary', 0);
@@ -87,7 +87,7 @@ CREATE DICTIONARY `02183_cache_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02183_dictionary_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(CACHE(SIZE_IN_CELLS 10));
 
 SELECT dictHas('02183_cache_dictionary', 0);
@@ -109,7 +109,7 @@ CREATE DICTIONARY `02183_direct_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02183_dictionary_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictHas('02183_direct_dictionary', 0);
@@ -131,7 +131,7 @@ CREATE TABLE ip_trie_dictionary_source_table
 (
     prefix String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO ip_trie_dictionary_source_table;
 
@@ -143,7 +143,7 @@ CREATE DICTIONARY `02183_ip_trie_dictionary`
 )
 PRIMARY KEY prefix
 SOURCE(clickhouse(TABLE 'ip_trie_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(IP_TRIE());
 
 SELECT dictHas('02183_ip_trie_dictionary', tuple(IPv4StringToNum('127.0.0.0')));
@@ -163,7 +163,7 @@ CREATE TABLE `02183_polygon_dictionary_source_table`
 (
     key Array(Array(Array(Tuple(Float64, Float64))))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02183_polygon_dictionary_source_table`;
 
@@ -175,8 +175,8 @@ CREATE DICTIONARY `02183_polygon_dictionary`
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE '02183_polygon_dictionary_source_table'))
-LIFETIME(0)
-LAYOUT(POLYGON(store_polygon_key_column 1));
+LIFETIME(MIN 0 MAX 0)
+LAYOUT(POLYGON(STORE_POLYGON_KEY_COLUMN 1));
 
 SELECT dictHas('02183_polygon_dictionary', tuple(0.5, 0.5));
 
@@ -197,7 +197,7 @@ CREATE TABLE `02183_range_dictionary_source_table`
     start UInt64,
     `end` UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02183_range_dictionary_source_table`;
 
@@ -211,7 +211,7 @@ CREATE DICTIONARY `02183_range_dictionary`
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE '02183_range_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 RANGE(MIN start MAX `end`)
 LAYOUT(RANGE_HASHED());
 

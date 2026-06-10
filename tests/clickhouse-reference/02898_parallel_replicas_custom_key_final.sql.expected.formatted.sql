@@ -5,7 +5,7 @@ CREATE TABLE `02898_parallel_replicas_final`
     x String,
     y Int32
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY cityHash64(x);
 
 INSERT INTO `02898_parallel_replicas_final` SELECT
@@ -20,8 +20,8 @@ FROM cluster(test_cluster_one_shard_three_replicas_localhost, currentDatabase(),
 GROUP BY y
 ORDER BY y ASC
 SETTINGS
-    max_parallel_replicas = 3,
-    enable_parallel_replicas = 1,
+    max_parallel_replicas = '3',
+    enable_parallel_replicas = '1',
     parallel_replicas_custom_key = 'cityHash64(y)',
     parallel_replicas_mode = 'custom_key_sampling';
 
@@ -32,8 +32,8 @@ FROM cluster(test_cluster_one_shard_three_replicas_localhost, currentDatabase(),
 GROUP BY y
 ORDER BY y ASC
 SETTINGS
-    max_parallel_replicas = 3,
-    enable_parallel_replicas = 1,
+    max_parallel_replicas = '3',
+    enable_parallel_replicas = '1',
     parallel_replicas_custom_key = 'cityHash64(y)',
     parallel_replicas_mode = 'custom_key_range';
 

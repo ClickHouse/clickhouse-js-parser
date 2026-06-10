@@ -1,5 +1,5 @@
 CREATE TABLE test
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 PRIMARY KEY id AS
 SELECT number AS id
 FROM numbers(100);
@@ -15,4 +15,4 @@ WHERE id IN (
     )
 ORDER BY id ASC
 LIMIT 1 BY id
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

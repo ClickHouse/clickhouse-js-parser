@@ -10,23 +10,23 @@ CREATE TABLE test_alter_drop_comment
     c1 Int,
     c2 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Test case 1: DROP COLUMN + COMMENT COLUMN IF EXISTS (should succeed)
 -- This was previously failing with "Cannot find column c0 in ColumnsDescription"
-ALTER TABLE test_alter_drop_comment DROP COLUMN c0, COMMENT COLUMN c0 'this comment should be silently ignored';
+ALTER TABLE test_alter_drop_comment DROP COLUMN c0, COMMENT COLUMN IF EXISTS c0 'this comment should be silently ignored';
 
 -- Verify that c0 is dropped and c1, c2 remain
 DESCRIBE TABLE test_alter_drop_comment;
 
 -- Test case 2: COMMENT COLUMN IF EXISTS on non-existent column (should succeed)
-ALTER TABLE test_alter_drop_comment COMMENT COLUMN non_existent_column 'this should be ignored';
+ALTER TABLE test_alter_drop_comment COMMENT COLUMN IF EXISTS non_existent_column 'this should be ignored';
 
 -- Test case 3: COMMENT COLUMN without IF EXISTS on non-existent column (should fail)
 ALTER TABLE test_alter_drop_comment COMMENT COLUMN non_existent_column 'this should fail'; -- { serverError NOT_FOUND_COLUMN_IN_BLOCK }
 
 -- Test case 4: Multiple operations with IF EXISTS
-ALTER TABLE test_alter_drop_comment DROP COLUMN c1, COMMENT COLUMN c1 'dropped column comment', COMMENT COLUMN c2 'existing column comment';
+ALTER TABLE test_alter_drop_comment DROP COLUMN c1, COMMENT COLUMN IF EXISTS c1 'dropped column comment', COMMENT COLUMN IF EXISTS c2 'existing column comment';
 
 SELECT
     table,
@@ -50,7 +50,7 @@ CREATE TABLE test_alter_drop_comment_mt
 ENGINE = MergeTree()
 ORDER BY id;
 
-ALTER TABLE test_alter_drop_comment_mt DROP COLUMN status, COMMENT COLUMN status 'dropped status column', COMMENT COLUMN value 'existing value column';
+ALTER TABLE test_alter_drop_comment_mt DROP COLUMN status, COMMENT COLUMN IF EXISTS status 'dropped status column', COMMENT COLUMN IF EXISTS value 'existing value column';
 
 DESCRIBE TABLE test_alter_drop_comment_mt;
 
@@ -62,7 +62,7 @@ CREATE TABLE test_alter_fail
     c0 Int,
     c1 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 ALTER TABLE test_alter_fail DROP COLUMN c0, COMMENT COLUMN c0 'this should fail'; -- { serverError NOT_FOUND_COLUMN_IN_BLOCK }
 

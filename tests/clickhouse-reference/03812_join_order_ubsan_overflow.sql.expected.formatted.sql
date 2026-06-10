@@ -12,18 +12,18 @@ CREATE TABLE data_03812
     key UInt64,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO data_03812;
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
-EXPLAIN PLAN
+EXPLAIN
 SELECT 1
 FROM
     data_03812 AS t1
-INNER JOIN (
+ALL INNER JOIN (
         SELECT number
         FROM `system`.numbers
         LIMIT 9223372036854775806

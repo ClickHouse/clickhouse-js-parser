@@ -57,7 +57,7 @@ SELECT
     y
 FROM (
         SELECT
-            if(number % 3 = 0, NULL, number) AS x,
+            number % 3 = 0 ? NULL : number AS x,
             number AS y
         FROM `system`.numbers
         LIMIT 10

@@ -6,7 +6,7 @@ CREATE TABLE perf
     user_id UInt64,
     z Float64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 SELECT *
 FROM (
@@ -29,7 +29,7 @@ FROM (
                         FROM perf AS perf_1
                         WHERE user_id = 0
                     ) AS jss1
-                INNER JOIN (
+                ALL INNER JOIN (
                         SELECT
                             perf_2.site,
                             perf_2.z AS z_2
@@ -38,8 +38,8 @@ FROM (
                     ) AS jss2
                     USING (site)
             ) AS avg_values,
-            z_1 - avg_values.1 AS dif_1,
-            z_2 - avg_values.2 AS dif_2,
+            z_1 - (avg_values).1 AS dif_1,
+            z_2 - (avg_values).2 AS dif_2,
             dif_1 * dif_2 AS mul,
             dif_1 * dif_1 AS sqr_dif_1,
             dif_2 * dif_2 AS sqr_dif_2
@@ -51,7 +51,7 @@ FROM (
                 FROM perf AS perf_1
                 WHERE user_id = 0
             ) AS js1
-        INNER JOIN (
+        ALL INNER JOIN (
                 SELECT
                     perf_2.site,
                     perf_2.z AS z_2

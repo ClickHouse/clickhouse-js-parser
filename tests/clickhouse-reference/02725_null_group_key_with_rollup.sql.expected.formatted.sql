@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS group_by_null_key;
 
@@ -29,12 +29,14 @@ SELECT
     c1,
     count(*)
 FROM group_by_null_key
-GROUP BY ROLLUP(c1);
+GROUP BY c1
+WITH ROLLUP;
 
 SELECT
     c2,
     count(*)
 FROM group_by_null_key
-GROUP BY ROLLUP(c2);
+GROUP BY c2
+WITH ROLLUP;
 
 DROP TABLE group_by_null_key;

@@ -1,6 +1,6 @@
 -- Tags: no-fasttest, no-ordinary-database
 -- Tests that text search indexes use a (non-standard) index granularity of 64 by default.
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 -- After CREATE TABLE
 DROP TABLE IF EXISTS tab;
@@ -9,7 +9,7 @@ CREATE TABLE tab
 (
     k UInt64,
     s String,
-    INDEX idx s TYPE text(tokenizer = ngrams(2))
+    INDEX idx s TYPE text(tokenizer = ngrams(2)) GRANULARITY 100000000
 )
 ENGINE = MergeTree()
 ORDER BY k;
@@ -31,9 +31,9 @@ CREATE TABLE tab
 ENGINE = MergeTree()
 ORDER BY k;
 
-ALTER TABLE tab ADD INDEX idx s TYPE text(tokenizer = ngrams(2));
+ALTER TABLE tab ADD INDEX idx s TYPE text(tokenizer = ngrams(2)) GRANULARITY 100000000;
 
 -- After ALTER DROP + ALTER ADD TABLE
 ALTER TABLE tab DROP INDEX idx;
 
-ALTER TABLE tab ADD INDEX idx s TYPE text(tokenizer = 'splitByNonAlpha');
+ALTER TABLE tab ADD INDEX idx s TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000;

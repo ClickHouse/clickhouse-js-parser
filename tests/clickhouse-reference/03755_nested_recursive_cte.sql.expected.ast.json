@@ -1,228 +1,325 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t0"
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_recursive_cte_evaluation_depth",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- The original problematic query pattern - inner CTE references outer CTE",
-      "-- Using count() to get deterministic output regardless of how many rows are produced before hitting the limit"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "format": "Values"
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_recursive_cte_evaluation_depth": "5"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "with": [
-          {
-            "kind": "cteSubquery",
-            "name": "q",
-            "query": {
-              "kind": "union",
-              "queries": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "select",
-                  "select": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ],
-                  "from": {
-                    "kind": "tableRef",
-                    "table": "t0"
-                  }
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
                 },
                 {
-                  "kind": "select",
-                  "with": [
-                    {
-                      "kind": "cteSubquery",
-                      "name": "x",
-                      "query": {
-                        "kind": "union",
-                        "queries": [
-                          {
-                            "kind": "select",
-                            "select": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "1"
-                              }
-                            ],
-                            "from": {
-                              "kind": "tableRef",
-                              "table": "t0"
-                            }
-                          },
-                          {
-                            "kind": "union",
-                            "queries": [
-                              {
-                                "kind": "select",
-                                "select": [
-                                  {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "1"
-                                  }
-                                ],
-                                "from": {
-                                  "kind": "tableRef",
-                                  "table": "q"
-                                },
-                                "where": {
-                                  "kind": "literal",
-                                  "type": "Bool",
-                                  "value": "0"
-                                }
-                              },
-                              {
-                                "kind": "select",
-                                "select": [
-                                  {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "1"
-                                  }
-                                ],
-                                "from": {
-                                  "kind": "tableRef",
-                                  "table": "x"
-                                },
-                                "where": {
-                                  "kind": "literal",
-                                  "type": "Bool",
-                                  "value": "0"
-                                }
-                              }
-                            ],
-                            "parenthesized": true
-                          }
-                        ]
-                      }
-                    }
-                  ],
-                  "recursive": true,
-                  "select": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ],
-                  "from": {
-                    "kind": "tableRef",
-                    "table": "x"
-                  },
-                  "parenthesized": true
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
                 }
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "recursive_with": true,
+                          "with": [
+                            {
+                              "type": "WithElement",
+                              "name": "q",
+                              "subquery": {
+                                "type": "Subquery",
+                                "query": {
+                                  "type": "SelectWithUnionQuery",
+                                  "selects": [
+                                    {
+                                      "type": "SelectQuery",
+                                      "select": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "1"
+                                        }
+                                      ],
+                                      "from": {
+                                        "type": "TablesInSelectQuery",
+                                        "children": [
+                                          {
+                                            "type": "TablesInSelectQueryElement",
+                                            "table_expression": {
+                                              "type": "TableExpression",
+                                              "database_and_table_name": {
+                                                "type": "TableIdentifier",
+                                                "name": "t0"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "SelectQuery",
+                                      "recursive_with": true,
+                                      "with": [
+                                        {
+                                          "type": "WithElement",
+                                          "name": "x",
+                                          "subquery": {
+                                            "type": "Subquery",
+                                            "query": {
+                                              "type": "SelectWithUnionQuery",
+                                              "selects": [
+                                                {
+                                                  "type": "SelectQuery",
+                                                  "select": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value_type": "UInt64",
+                                                      "value": "1"
+                                                    }
+                                                  ],
+                                                  "from": {
+                                                    "type": "TablesInSelectQuery",
+                                                    "children": [
+                                                      {
+                                                        "type": "TablesInSelectQueryElement",
+                                                        "table_expression": {
+                                                          "type": "TableExpression",
+                                                          "database_and_table_name": {
+                                                            "type": "TableIdentifier",
+                                                            "name": "t0"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "type": "SelectQuery",
+                                                  "select": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value_type": "UInt64",
+                                                      "value": "1"
+                                                    }
+                                                  ],
+                                                  "from": {
+                                                    "type": "TablesInSelectQuery",
+                                                    "children": [
+                                                      {
+                                                        "type": "TablesInSelectQueryElement",
+                                                        "table_expression": {
+                                                          "type": "TableExpression",
+                                                          "database_and_table_name": {
+                                                            "type": "TableIdentifier",
+                                                            "name": "q"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "where": {
+                                                    "type": "Literal",
+                                                    "value_type": "Bool",
+                                                    "value": false
+                                                  }
+                                                },
+                                                {
+                                                  "type": "SelectQuery",
+                                                  "select": [
+                                                    {
+                                                      "type": "Literal",
+                                                      "value_type": "UInt64",
+                                                      "value": "1"
+                                                    }
+                                                  ],
+                                                  "from": {
+                                                    "type": "TablesInSelectQuery",
+                                                    "children": [
+                                                      {
+                                                        "type": "TablesInSelectQueryElement",
+                                                        "table_expression": {
+                                                          "type": "TableExpression",
+                                                          "database_and_table_name": {
+                                                            "type": "TableIdentifier",
+                                                            "name": "x"
+                                                          }
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "where": {
+                                                    "type": "Literal",
+                                                    "value_type": "Bool",
+                                                    "value": false
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "select": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "1"
+                                        }
+                                      ],
+                                      "from": {
+                                        "type": "TablesInSelectQuery",
+                                        "children": [
+                                          {
+                                            "type": "TablesInSelectQueryElement",
+                                            "table_expression": {
+                                              "type": "TableExpression",
+                                              "database_and_table_name": {
+                                                "type": "TableIdentifier",
+                                                "name": "x"
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "q"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ],
-        "recursive": true,
-        "select": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "q"
         }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError TOO_DEEP_RECURSION }"
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      }
     }
   }
 ]

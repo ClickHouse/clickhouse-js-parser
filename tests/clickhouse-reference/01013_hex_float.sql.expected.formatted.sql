@@ -1,12 +1,12 @@
-SELECT hex(1.0);
+SELECT hex(1.);
 
 SELECT hex(101.);
 
-SELECT hex(1e+18);
+SELECT hex(1000000000000000000.);
 
 SELECT hex(1e-20);
 
-SELECT hex(1e+100);
+SELECT hex(1e100);
 
 SELECT hex(0.000578);
 

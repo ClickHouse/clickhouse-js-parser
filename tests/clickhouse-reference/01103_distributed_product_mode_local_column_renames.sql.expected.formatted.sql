@@ -15,14 +15,14 @@ CREATE TABLE t1_shard
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t2_shard
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t1_distr AS t1_shard

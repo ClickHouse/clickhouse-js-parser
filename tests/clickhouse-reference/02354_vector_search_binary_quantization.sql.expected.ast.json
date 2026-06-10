@@ -1,402 +1,242 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest, no-ordinary-database, no-parallel-replicas",
-      "-- no-parallel-replicas: The test really wants lower quality result to be returned from the index",
-      "--                       with rescoring=OFF. That is required to confirm binary quantization works",
-      "--                       as expected. In parallel replicas, rescoring is always ON.",
-      "-- Test for vector similarity index with binary quantization.",
-      "-- Also has good number of calls to reinterpret() to test conversion of native floats to Array(Float32)"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "vec_idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "vec"
-          ]
-        },
-        "indexType": {
-          "name": "vector_similarity",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "hnsw"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "cosineDistance"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1536"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "b1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "64"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "128"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-- INSERT 20 rows using the reinterpret() technique"
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dbpedia"
-      }
+        "type": "Identifier",
+        "name": "dbpedia"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "vec"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "dbpedia"
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "<dbpedia:Honda>"
-                  }
-                }
-              }
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    },
-    "settings": [
-      {
-        "name": "use_skip_indexes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "vec"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "dbpedia"
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "<dbpedia:Honda>"
-                  }
-                }
-              }
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "explain"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dbpedia"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "indexes",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
             }
           }
         ],
-        "query": {
-          "kind": "select",
+        "indices": [
+          {
+            "type": "Index",
+            "name": "vec_idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "vec"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "vector_similarity",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "hnsw"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "cosineDistance"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1536"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "b1"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "64"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "128"
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "2"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "id"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-- INSERT 20 rows using the reinterpret() technique"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dbpedia"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "dbpedia"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dbpedia"
+                  }
+                }
+              }
+            ]
           },
-          "orderBy": [
+          "order_by": [
             {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "functionCall",
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
                 "name": "cosineDistance",
-                "args": [
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "vec"
-                    ]
+                    "type": "Identifier",
+                    "name": "vec"
                   },
                   {
-                    "kind": "subqueryExpr",
+                    "type": "Subquery",
                     "query": {
-                      "kind": "select",
-                      "select": [
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "vec"
-                          ]
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "vec"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "dbpedia"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "id"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "<dbpedia:Honda>"
+                              }
+                            ]
+                          }
                         }
-                      ],
-                      "from": {
-                        "kind": "tableRef",
-                        "table": "dbpedia"
-                      },
-                      "where": {
-                        "kind": "binaryExpr",
-                        "op": "=",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "id"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "String",
-                          "value": "<dbpedia:Honda>"
-                        }
-                      }
+                      ]
                     }
                   }
                 ]
@@ -405,627 +245,988 @@
             }
           ],
           "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4"
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_skip_indexes": "0"
             }
           }
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%vector_similarity%"
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "vec"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "dbpedia"
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "<dbpedia:Pizza>"
-                  }
-                }
-              }
+              "type": "Identifier",
+              "name": "id"
             }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dbpedia"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "vec"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "dbpedia"
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "<dbpedia:Database_theory>"
-                  }
-                }
-              }
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "data_uncompressed_bytes"
-              ]
-            },
-            "right": {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "*",
-                "left": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "20"
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1536"
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              },
-              "parenthesized": true
-            }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "Good"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "data_uncompressed_bytes"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dbpedia"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "vec"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "dbpedia"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "id"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "<dbpedia:Honda>"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "explain",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "indexes = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "id"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "dbpedia"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Function",
+                                                    "name": "cosineDistance",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "vec"
+                                                      },
+                                                      {
+                                                        "type": "Subquery",
+                                                        "query": {
+                                                          "type": "SelectWithUnionQuery",
+                                                          "selects": [
+                                                            {
+                                                              "type": "SelectQuery",
+                                                              "select": [
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "vec"
+                                                                }
+                                                              ],
+                                                              "from": {
+                                                                "type": "TablesInSelectQuery",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "TablesInSelectQueryElement",
+                                                                    "table_expression": {
+                                                                      "type": "TableExpression",
+                                                                      "database_and_table_name": {
+                                                                        "type": "TableIdentifier",
+                                                                        "name": "dbpedia"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              },
+                                                              "where": {
+                                                                "type": "Function",
+                                                                "name": "equals",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "id"
+                                                                  },
+                                                                  {
+                                                                    "type": "Literal",
+                                                                    "value_type": "String",
+                                                                    "value": "<dbpedia:Honda>"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "4"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%vector_similarity%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dbpedia"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "vec"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "dbpedia"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "id"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "<dbpedia:Pizza>"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dbpedia"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "vec"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "dbpedia"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "id"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "<dbpedia:Database_theory>"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "data_uncompressed_bytes"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "multiply",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "multiply",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "20"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1536"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Good"
+                },
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "data_uncompressed_bytes"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "data_skipping_indices",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "name"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "vec_idx"
+                  }
                 ]
               }
             ]
           }
-        ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dbpedia"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "data_skipping_indices"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
+            }
           }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "vec_idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "vec"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "vector_similarity",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "hnsw"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "cosineDistance"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "8"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "b1"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "64"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "128"
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "name"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "vec_idx"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "Float64",
+                        "value": -0.25
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.25
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.1
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.1
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "vector_search_with_rescoring": "0"
+            }
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Check that an index with binary quantization (1 bit / dimension) is smaller than an index with BFloat16 (2 bytes / dimension)"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dbpedia"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Now test that a rescoring multiplier > 1.0 helps with search accuracy"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "Array",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "Float64",
+                        "value": -0.25
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.25
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.1
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.1
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.9
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "ASC"
             }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "vec_idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "vec"
-          ]
-        },
-        "indexType": {
-          "name": "vector_similarity",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "hnsw"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "cosineDistance"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "8"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "b1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "64"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "128"
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "vector_search_with_rescoring": "1",
+              "vector_search_index_fetch_multiplier": "4"
             }
-          ]
+          }
         }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "-0.25"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.25"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.10"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.10"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                }
-              ],
-              "source": "[-0.25, 0.25, 0.10, 0.10, 0.9, 0.9, 0.9, 0.9]"
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "settings": [
-      {
-        "name": "vector_search_with_rescoring",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Expect 1."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "-0.25"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.25"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.10"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.10"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.9"
-                }
-              ],
-              "source": "[-0.25, 0.25, 0.10, 0.10, 0.9, 0.9, 0.9, 0.9]"
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "settings": [
-      {
-        "name": "vector_search_with_rescoring",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "vector_search_index_fetch_multiplier",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Expect 2"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
     }
   }
 ]

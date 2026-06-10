@@ -42,7 +42,7 @@ SELECT bin(toLowCardinality(materialize('12332424')));
 
 SELECT unbin('');
 
-SELECT unbin('0') == '\0';
+SELECT unbin('0') = '\0';
 
 SELECT unbin('00110000'); -- 0
 
@@ -56,24 +56,24 @@ SELECT unbin(toNullable(materialize('00110000')));
 
 SELECT unbin(toLowCardinality(materialize('00110000')));
 
-SELECT unbin(bin('')) == '';
+SELECT unbin(bin('')) = '';
 
-SELECT bin(unbin('')) == '';
+SELECT bin(unbin('')) = '';
 
-SELECT bin(unbin('0')) == '00000000';
+SELECT bin(unbin('0')) = '00000000';
 
 -- hex and bin consistent for corner cases
-SELECT hex('') == bin('');
+SELECT hex('') = bin('');
 
-SELECT unhex('') == unbin('');
+SELECT unhex('') = unbin('');
 
-SELECT unhex('0') == unbin('0');
+SELECT unhex('0') = unbin('0');
 
 -- hex and bin support AggregateFunction
-SELECT hex(sumState(number)) == hex(toString(sumState(number)))
+SELECT hex(sumState(number)) = hex(toString(sumState(number)))
 FROM numbers(10);
 
-SELECT hex(avgState(number)) == hex(toString(avgState(number)))
+SELECT hex(avgState(number)) = hex(toString(avgState(number)))
 FROM numbers(99);
 
 SELECT hex(avgState(number))

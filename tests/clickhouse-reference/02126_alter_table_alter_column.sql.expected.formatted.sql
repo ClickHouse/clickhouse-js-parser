@@ -6,7 +6,7 @@ CREATE TABLE alter_column_02126
     x Int,
     y Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 SHOW CREATE TABLE alter_column_02126;

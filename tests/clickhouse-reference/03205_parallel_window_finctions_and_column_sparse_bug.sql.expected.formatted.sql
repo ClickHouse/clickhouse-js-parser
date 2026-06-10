@@ -3,10 +3,10 @@ CREATE TABLE t
     c Int32,
     d Bool
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
-SYSTEM stop merges t;
+SYSTEM STOP MERGES t;
 
 INSERT INTO t;
 
@@ -19,11 +19,11 @@ SELECT
     c,
     row_number() OVER (PARTITION BY d ORDER BY c ASC) AS c8
 FROM t
-ORDER BY d ASC
 QUALIFY c8 = 1
+ORDER BY d ASC
 SETTINGS
-    max_threads = 2,
-    enable_analyzer = 1;
+    max_threads = '2',
+    enable_analyzer = '1';
 
 SELECT '---';
 
@@ -35,7 +35,7 @@ FROM t
 ORDER BY
     d ASC,
     c8 ASC
-SETTINGS max_threads = 2;
+SETTINGS max_threads = '2';
 
 DROP TABLE t;
 

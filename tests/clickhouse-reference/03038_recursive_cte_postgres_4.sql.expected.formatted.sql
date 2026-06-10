@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -44,7 +44,7 @@ CREATE TABLE graph
     t UInt64,
     label String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO graph;
 
@@ -60,8 +60,8 @@ WITH RECURSIVE search_graph AS (
         has(path, tuple(g.f, g.t)),
         arrayConcat(sg.path, [tuple(g.f, g.t)])
     FROM
-        graph AS g
-    CROSS JOIN search_graph AS sg
+        graph AS g,
+        search_graph AS sg
     WHERE g.f = sg.t
         AND NOT is_cycle
 )
@@ -83,8 +83,8 @@ WITH RECURSIVE search_graph AS (
         has(path, tuple(g.f, g.t)),
         arrayConcat(sg.path, [tuple(g.f, g.t)])
     FROM
-        graph AS g
-    CROSS JOIN search_graph AS sg
+        graph AS g,
+        search_graph AS sg
     WHERE g.f = sg.t
         AND NOT is_cycle
 )

@@ -36,7 +36,7 @@ INSERT INTO t2 (id, value2);
 
 INSERT INTO t3 (id, value3);
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 SELECT
     t1.id,

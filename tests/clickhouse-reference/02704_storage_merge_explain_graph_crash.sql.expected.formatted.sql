@@ -11,7 +11,7 @@ CREATE TABLE foo
     Id Int32,
     Val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id;
 
 INSERT INTO foo SELECT
@@ -24,7 +24,7 @@ CREATE TABLE foo2
     Id Int32,
     Val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id;
 
 INSERT INTO foo2 SELECT
@@ -42,13 +42,13 @@ ENGINE = Distributed(test_shard_localhost, currentDatabase(), foo2);
 CREATE TABLE merge1 AS foo
 ENGINE = Merge(currentDatabase(), '^(foo|foo2_dist)$');
 
-EXPLAIN PIPELINE graph = 1, compact = 1
+EXPLAIN PIPELINE graph = '1', compact = '1'
 SELECT *
 FROM merge1
 FORMAT Null;
 
-EXPLAIN PIPELINE graph = 1, compact = 1
+EXPLAIN PIPELINE graph = '1', compact = '1'
 SELECT *
 FROM merge1
 FORMAT Null
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

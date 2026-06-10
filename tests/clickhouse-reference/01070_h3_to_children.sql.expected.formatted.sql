@@ -8,7 +8,7 @@ CREATE TABLE h3_indexes
     h3_index UInt64,
     res UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO h3_indexes;
 

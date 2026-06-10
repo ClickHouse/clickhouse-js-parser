@@ -1,7 +1,7 @@
 -- Tags: long
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_arithmetic_operations_in_aggregate_functions = 1;
+SET optimize_arithmetic_operations_in_aggregate_functions = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -972,4 +972,4 @@ FROM numbers(100);
 SELECT round(max(log(2) * 3 * sin(0.3) * number * 4))
 FROM numbers(100);
 
-SET optimize_arithmetic_operations_in_aggregate_functions = 0;
+SET optimize_arithmetic_operations_in_aggregate_functions = '0';

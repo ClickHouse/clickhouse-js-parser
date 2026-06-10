@@ -24,7 +24,7 @@ CREATE TABLE test_prewhere_column_type
     a LowCardinality(String),
     x Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_prewhere_column_type;
@@ -33,14 +33,14 @@ SELECT
     a,
     y
 FROM test_prewhere_column_type
-PREWHERE (x = 2) AS y;
+PREWHERE x = 2 AS y;
 
 SELECT
     a,
     toTypeName(x = 2),
     toTypeName(x)
 FROM test_prewhere_column_type
-WHERE (x = 2) AS y;
+WHERE x = 2 AS y;
 
 DROP TABLE test_prewhere_default_column;
 

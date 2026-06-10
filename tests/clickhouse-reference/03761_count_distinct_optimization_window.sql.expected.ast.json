@@ -1,85 +1,99 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "c0"
-            ]
-          }
-        ],
-        "window": {
-          "orderBy": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "c0"
+              "type": "Function",
+              "name": "uniqExact",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c0"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Identifier",
+                      "name": "c0"
+                    },
+                    "direction": "DESC"
+                  }
                 ]
-              },
-              "direction": "DESC"
+              }
             }
-          ]
-        }
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "alias": "c0"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "t0",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "alias": "c0",
+                              "name": "number"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "10"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "count_distinct_optimization": "1",
+              "enable_analyzer": "1"
+            }
           }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          ]
         }
-      },
-      "alias": "t0"
-    },
-    "settings": [
-      {
-        "name": "count_distinct_optimization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/86442",
-      "-- The transformation shouldn't be applied if the aggregation has window parameters"
-    ]
+      ]
+    }
   }
 ]

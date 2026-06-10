@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 0;
+SET allow_experimental_correlated_subqueries = '0';
 
-WITH arrayMap(x -> x + 1, [0]) AS a
+WITH arrayMap((x -> x + 1), [0]) AS a
 
 SELECT 1
 WHERE 1 IN (
@@ -15,7 +15,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -23,7 +23,7 @@ INSERT INTO users;
 
 INSERT INTO users;
 
-CREATE FUNCTION oldest_before AS age_max -> (
+CREATE OR REPLACE FUNCTION oldest_before AS age_max -> (
     SELECT uid
     FROM users
     WHERE users.age < age_max

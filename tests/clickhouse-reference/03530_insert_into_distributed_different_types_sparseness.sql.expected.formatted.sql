@@ -19,8 +19,8 @@ CREATE TABLE sparse
 (
     key String
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.01;
 
 INSERT INTO sparse SELECT ''::String
@@ -35,16 +35,16 @@ CREATE TABLE intermediate
 (
     key String
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE TABLE non_sparse
 (
     key String
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1;
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS ratio_of_defaults_for_sparse_serialization = '1';
 
 CREATE TABLE non_sparse_remote AS remote('127.1', currentDatabase(), non_sparse);
 
@@ -59,7 +59,7 @@ CREATE TABLE log
 (
     key String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE log_remote AS remote('127.1', currentDatabase(), log);
 

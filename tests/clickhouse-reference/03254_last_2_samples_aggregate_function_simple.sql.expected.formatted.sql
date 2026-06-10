@@ -1,11 +1,11 @@
-SET allow_experimental_ts_to_grid_aggregate_function = 1;
+SET allow_experimental_ts_to_grid_aggregate_function = '1';
 
 -- Table for raw data
 CREATE TABLE t_raw_timeseries
 (
     metric_id UInt64,
-    timestamp DateTime64(3, 'UTC') CODEC(DoubleDelta, ZSTD),
-    value Float64 CODEC(DoubleDelta)
+    timestamp DateTime64(3, 'UTC') CODEC(DoubleDelta(), ZSTD()),
+    value Float64 CODEC(DoubleDelta())
 )
 ENGINE = MergeTree()
 ORDER BY (metric_id, timestamp);
@@ -14,7 +14,7 @@ ORDER BY (metric_id, timestamp);
 CREATE TABLE t_resampled_timeseries_15_sec
 (
     metric_id UInt64,
-    grid_timestamp DateTime('UTC') CODEC(DoubleDelta, ZSTD),
+    grid_timestamp DateTime('UTC') CODEC(DoubleDelta(), ZSTD()),
     samples AggregateFunction(timeSeriesLastTwoSamples, DateTime64(3, 'UTC'), Float64)
 )
 ENGINE = AggregatingMergeTree()
@@ -25,7 +25,7 @@ CREATE MATERIALIZED VIEW mv_resampled_timeseries
 TO t_resampled_timeseries_15_sec
 (
     metric_id UInt64,
-    grid_timestamp DateTime('UTC') CODEC(DoubleDelta, ZSTD),
+    grid_timestamp DateTime('UTC') CODEC(DoubleDelta(), ZSTD()),
     samples AggregateFunction(timeSeriesLastTwoSamples, DateTime64(3, 'UTC'), Float64)
 )
 AS
@@ -41,7 +41,7 @@ ORDER BY
 -- Insert some data
 INSERT INTO t_raw_timeseries (metric_id, timestamp, value) SELECT
     number % 10 AS metric_id,
-    '2024-12-12 12:00:00'::DateTime64(3, 'UTC') + toIntervalMillisecond(((number / 10) % 100) * 900) AS timestamp,
+    '2024-12-12 12:00:00'::DateTime64(3, 'UTC') + toIntervalMillisecond(number / 10 % 100 * 900) AS timestamp,
     number % 3 + number % 29 AS value
 FROM numbers(1000);
 
@@ -49,7 +49,8 @@ FROM numbers(1000);
 SELECT *
 FROM t_raw_timeseries
 WHERE metric_id = 3
-    AND and(greaterOrEquals(timestamp, '2024-12-12 12:00:12'), lessOrEquals(timestamp, '2024-12-12 12:00:31'))
+    AND (timestamp >= '2024-12-12 12:00:12'
+    AND timestamp <= '2024-12-12 12:00:31')
 ORDER BY
     metric_id ASC,
     timestamp ASC;
@@ -58,16 +59,17 @@ ORDER BY
 SELECT
     metric_id,
     grid_timestamp,
-    (finalizeAggregation(samples).1 as timestamp, finalizeAggregation(samples).2 as value)
+    (finalizeAggregation(samples).1 AS timestamp, finalizeAggregation(samples).2 AS value)
 FROM t_resampled_timeseries_15_sec
 WHERE metric_id = 3
-    AND and(greaterOrEquals(grid_timestamp, '2024-12-12 12:00:15'), lessOrEquals(grid_timestamp, '2024-12-12 12:00:30'))
+    AND (grid_timestamp >= '2024-12-12 12:00:15'
+    AND grid_timestamp <= '2024-12-12 12:00:30')
 ORDER BY
     metric_id ASC,
     grid_timestamp ASC;
 
 -- Calculate idelta and irate from the raw data
-WITH '2024-12-12 12:00:15'::DateTime64(3,'UTC') AS start_ts, -- start of timestamp grid
+WITH '2024-12-12 12:00:15'::DateTime64(3, 'UTC') AS start_ts, -- start of timestamp grid
 
   start_ts + toIntervalSecond(60) AS end_ts, -- end of timestamp grid
 
@@ -81,11 +83,12 @@ SELECT
     timeSeriesInstantRateToGrid(start_ts, end_ts, step_seconds, window_seconds)(timestamp, value)
 FROM t_raw_timeseries
 WHERE metric_id = 3
-    AND and(greaterOrEquals(timestamp, start_ts - toIntervalSecond(window_seconds)), lessOrEquals(timestamp, end_ts))
+    AND (timestamp >= start_ts - toIntervalSecond(window_seconds)
+    AND timestamp <= end_ts)
 GROUP BY metric_id;
 
 -- Calculate idelta and irate from the re-sampled data
-WITH '2024-12-12 12:00:15'::DateTime64(3,'UTC') AS start_ts, -- start of timestamp grid
+WITH '2024-12-12 12:00:15'::DateTime64(3, 'UTC') AS start_ts, -- start of timestamp grid
 
   start_ts + toIntervalSecond(60) AS end_ts, -- end of timestamp grid
 
@@ -104,6 +107,7 @@ FROM (
             finalizeAggregation(samples).2 AS values
         FROM t_resampled_timeseries_15_sec
         WHERE metric_id = 3
-            AND and(greaterOrEquals(grid_timestamp, start_ts - toIntervalSecond(window_seconds)), lessOrEquals(grid_timestamp, end_ts))
+            AND (grid_timestamp >= start_ts - toIntervalSecond(window_seconds)
+            AND grid_timestamp <= end_ts)
     )
 GROUP BY metric_id;

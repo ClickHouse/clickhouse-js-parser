@@ -7,12 +7,12 @@ CREATE TABLE t02006 ON CLUSTER test_shard_localhost
 (
     d Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d
 FORMAT Null;
 
 CREATE MATERIALIZED VIEW m02006 ON CLUSTER test_shard_localhost
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 AS
 SELECT
@@ -24,20 +24,20 @@ GROUP BY
     i
 FORMAT Null;
 
-ALTER TABLE t02006 ON CLUSTER test_shard_localhost ADD COLUMN f UInt64 FORMAT Null;
+ALTER TABLE t02006 ON CLUSTER test_shard_localhost ADD COLUMN IF NOT EXISTS f UInt64 FORMAT Null;
 
 DESCRIBE TABLE t02006;
 
 DROP TABLE IF EXISTS tt02006 ON CLUSTER test_shard_localhost FORMAT Null;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t02006 ON CLUSTER test_shard_localhost
 (
     a String,
     b UInt32
 )
-ENGINE = ReplicatedMergeTree
+ENGINE = ReplicatedMergeTree()
 PRIMARY KEY a
 ORDER BY a
 FORMAT Null;
@@ -47,7 +47,7 @@ CREATE TABLE tt02006 ON CLUSTER test_shard_localhost
     a String,
     total SimpleAggregateFunction(sum, UInt64)
 )
-ENGINE = ReplicatedAggregatingMergeTree
+ENGINE = ReplicatedAggregatingMergeTree()
 ORDER BY a
 FORMAT Null;
 

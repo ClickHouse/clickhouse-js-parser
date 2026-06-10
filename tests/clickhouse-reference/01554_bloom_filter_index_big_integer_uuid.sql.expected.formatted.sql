@@ -5,7 +5,7 @@ CREATE TABLE `01154_test`
 )
 ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO `01154_test`;
 
@@ -26,7 +26,7 @@ CREATE TABLE `01154_test`
 )
 ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE `01154_test`
 (
@@ -35,7 +35,7 @@ CREATE TABLE `01154_test`
 )
 ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE `01154_test`
 (
@@ -44,7 +44,7 @@ CREATE TABLE `01154_test`
 )
 ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO `01154_test`;
 

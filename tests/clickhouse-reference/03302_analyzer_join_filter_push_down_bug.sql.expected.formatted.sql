@@ -3,7 +3,7 @@ CREATE TABLE t1
     key Int32,
     value DateTime
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO t1 SELECT
     number,
@@ -11,13 +11,13 @@ INSERT INTO t1 SELECT
 FROM numbers(10000);
 
 CREATE TABLE t2
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT
     key AS key1,
     value
 FROM t1;
 
-EXPLAIN actions = 1
+EXPLAIN actions = '1'
 SELECT count()
 FROM (
         SELECT key
@@ -27,4 +27,4 @@ FROM (
         WHERE t1.value >= toDateTime(toString(t2.value))
     )
 WHERE key = 162601
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

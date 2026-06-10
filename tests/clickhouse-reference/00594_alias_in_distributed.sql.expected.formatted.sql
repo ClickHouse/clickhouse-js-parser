@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS alias_local10;
 
 DROP TABLE IF EXISTS alias10;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE alias_local10
 (

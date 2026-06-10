@@ -5,7 +5,7 @@ CREATE TABLE table_function_dictionary_source_table
     id UInt64,
     value UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO table_function_dictionary_source_table;
 

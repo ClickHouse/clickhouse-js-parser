@@ -9,7 +9,7 @@ CREATE TABLE insert
     t DateTime,
     a Array(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO insert;
 
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS t_306
 (
     a int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_306;
 

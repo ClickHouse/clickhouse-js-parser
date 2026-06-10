@@ -7,7 +7,7 @@ CREATE TABLE product_groups
     group_id Int64,
     group_name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE products
 (
@@ -16,7 +16,7 @@ CREATE TABLE products
     price DECIMAL(11, 2),
     group_id Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO product_groups;
 
@@ -102,7 +102,7 @@ SELECT
     product_name,
     group_name,
     price,
-    LAST_VALUE(price) OVER (PARTITION BY group_name ORDER BY price ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS highest_price_per_group
+    LAST_VALUE(price) OVER (PARTITION BY group_name ORDER BY price ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS highest_price_per_group
 FROM
     products
 INNER JOIN product_groups
@@ -123,7 +123,7 @@ FROM (
             price,
             group_name,
             avg(price) OVER (PARTITION BY group_name ORDER BY price ASC) AS avg0,
-            avg(price) OVER (PARTITION BY group_name ORDER BY price ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS avg1
+            avg(price) OVER (PARTITION BY group_name ORDER BY price ASC RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS avg1
         FROM
             products
         INNER JOIN product_groups

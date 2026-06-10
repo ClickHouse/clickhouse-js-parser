@@ -1,7 +1,7 @@
 -- Tags: long
 -- { echo }
 -- Test for the cume_dist window function.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT '-- Basic functionality';
 
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS test_cume_dist
     a Int,
     b Nullable(Int)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 TRUNCATE TABLE test_cume_dist;
 
@@ -64,14 +64,14 @@ ORDER BY a ASC;
 SELECT
     a,
     b,
-    cume_dist() OVER (ORDER BY b ASC)
+    cume_dist() OVER (ORDER BY b ASC NULLS FIRST)
 FROM test_cume_dist
 ORDER BY a ASC;
 
 SELECT
     a,
     b,
-    cume_dist() OVER (ORDER BY b ASC)
+    cume_dist() OVER (ORDER BY b ASC NULLS LAST)
 FROM test_cume_dist
 ORDER BY a ASC;
 

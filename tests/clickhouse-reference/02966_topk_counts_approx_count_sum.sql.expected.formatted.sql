@@ -1,6 +1,6 @@
-WITH arraySlice(arrayReverseSort(x -> (x.2, x.1), arrayZip(untuple(sumMap(([k], [1]))))), 1, 5) AS topKExact,
+WITH arraySlice(arrayReverseSort((x -> ((x).2, (x).1)), arrayZip(untuple(sumMap(([k], [1]))))), 1, 5) AS topKExact,
 
-arraySlice(arrayReverseSort(x -> (x.2, x.1), arrayZip(untuple(sumMap(([k], [w]))))), 1, 5) AS topKWeightedExact
+arraySlice(arrayReverseSort((x -> ((x).2, (x).1)), arrayZip(untuple(sumMap(([k], [w]))))), 1, 5) AS topKWeightedExact
 
 SELECT
     topKExact,
@@ -12,7 +12,7 @@ SELECT
     approx_top_sum(3, 4)(k, w) AS approx_top_sum
 FROM (
         SELECT
-            concat(countDigits(number * number), '_', intDiv((number % 10), 7)) AS k,
+            concat(countDigits(number * number), '_', intDiv(number % 10, 7)) AS k,
             number AS w
         FROM numbers(1000)
     )

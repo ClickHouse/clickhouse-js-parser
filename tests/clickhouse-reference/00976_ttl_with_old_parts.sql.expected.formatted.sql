@@ -5,10 +5,10 @@ CREATE TABLE ttl
     d Date,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY toDayOfMonth(d)
-SETTINGS remove_empty_parts = 0;
+SETTINGS remove_empty_parts = '0';
 
 INSERT INTO ttl;
 

@@ -6,7 +6,7 @@ CREATE TABLE installation_stats
     info String,
     message_type String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 SELECT count(*) AS total
 FROM (
@@ -15,7 +15,7 @@ FROM (
             info,
             count() AS cnt
         FROM installation_stats
-        WHERE like(message_type, 'fail')
+        WHERE message_type LIKE 'fail'
         GROUP BY
             message,
             info

@@ -1,4 +1,4 @@
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -7,9 +7,9 @@ CREATE TABLE test
     id UInt64,
     json JSON
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1, min_rows_for_wide_part = 1, index_granularity = 32, merge_max_block_size = 32;
+SETTINGS min_bytes_for_wide_part = '1', min_rows_for_wide_part = '1', index_granularity = '32', merge_max_block_size = '32';
 
 INSERT INTO test SELECT
     number,
@@ -33,15 +33,15 @@ CREATE TABLE test
     id UInt64,
     json JSON
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1, min_rows_for_wide_part = 1, index_granularity = 32, merge_max_block_size = 32;
+SETTINGS min_bytes_for_wide_part = '1', min_rows_for_wide_part = '1', index_granularity = '32', merge_max_block_size = '32';
 
 CREATE TABLE test
 (
     id UInt64,
     json JSON
 )
-ENGINE = CoalescingMergeTree
+ENGINE = CoalescingMergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1, min_rows_for_wide_part = 1, index_granularity = 32, merge_max_block_size = 32;
+SETTINGS min_bytes_for_wide_part = '1', min_rows_for_wide_part = '1', index_granularity = '32', merge_max_block_size = '32';

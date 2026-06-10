@@ -1,300 +1,324 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "Test_00584"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "Test_00584"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "Test_00584"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "createdDate",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Test_00584"
       },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Enum8",
-          "args": [
-            {
-              "kind": "enumValues",
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "createdDate",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "EnumDataType",
+              "name": "Enum8",
               "values": [
                 {
                   "name": "A",
-                  "value": "0"
+                  "value": 0
                 },
                 {
                   "name": "B",
-                  "value": "1"
+                  "value": 1
                 },
                 {
                   "name": "ALL",
-                  "value": "2"
+                  "value": 2
                 }
               ]
             }
-          ]
-        }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int64"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "createdDate"
+            },
+            {
+              "type": "Identifier",
+              "name": "str"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
+          ]
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "createdDate"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "str"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "Test_00584"
+        "type": "Identifier",
+        "name": "Test_00584"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_threads": "1"
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "TestView"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "str"
+              },
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Function",
+                "alias": "sum",
+                "name": "sumIf",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "Test_00584"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "str"
+              },
+              {
+                "type": "Identifier",
+                "name": "key"
+              }
+            ]
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "str",
+                "name": "str"
+              },
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "CAST",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "ALL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Enum8('A' = 0, 'B' = 1, 'ALL' = 2)"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "sum",
+                "name": "sumIf",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "Test_00584"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "str"
+              }
+            ]
+          }
+        ]
       }
-    ]
+    }
   },
   {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "TestView"
-    },
-    "asQuery": {
-      "kind": "union",
-      "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "str"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sumIf",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "a"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
-                  }
-                ]
-              },
-              "alias": "sum"
+              "type": "Asterisk"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "Test_00584"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "key"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              "alias": "str"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "castExpr",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "ALL"
-                },
-                "type": "Enum8('A' = 0, 'B' = 1, 'ALL' = 2)"
-              },
-              "alias": "key"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sumIf",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "a"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "TestView"
                   }
-                ]
-              },
-              "alias": "sum"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "Test_00584"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
+                }
               }
             ]
-          }
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "TestView"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "TestView"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "TestView"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "Test_00584"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "Test_00584"
+      }
     }
   }
 ]

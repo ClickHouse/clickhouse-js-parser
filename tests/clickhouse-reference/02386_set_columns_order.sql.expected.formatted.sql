@@ -9,7 +9,7 @@ CREATE TABLE userid_set
     userid UInt64,
     name String
 )
-ENGINE = Set;
+ENGINE = Set();
 
 INSERT INTO userid_set;
 
@@ -19,9 +19,9 @@ CREATE TABLE userid_test
     name String
 )
 ENGINE = MergeTree()
-ORDER BY (userid)
-PARTITION BY (intDiv(userid, 500))
-SETTINGS index_granularity = 8192;
+ORDER BY userid
+PARTITION BY intDiv(userid, 500)
+SETTINGS index_granularity = '8192';
 
 INSERT INTO userid_test;
 
@@ -35,7 +35,7 @@ CREATE TABLE userid_set2
     name String,
     birthdate Date
 )
-ENGINE = Set;
+ENGINE = Set();
 
 INSERT INTO userid_set2;
 

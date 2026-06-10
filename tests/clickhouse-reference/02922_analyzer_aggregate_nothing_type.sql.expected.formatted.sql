@@ -84,16 +84,16 @@ FROM remote('127.0.0.{1,2}', numbers(3));
 SELECT quantileIfArrayArray(0.5)([[1, NULL]], [[1, 0]]) AS x
 FROM remote('127.0.0.{1,2}', numbers(3));
 
-SELECT quantilesArray(0.5, 0.9)([NULL :: Nullable(UInt64), NULL]) AS x
+SELECT quantilesArray(0.5, 0.9)([NULL::Nullable(UInt64), NULL]) AS x
 FROM remote('127.0.0.{1,2}', numbers(3));
 
-SELECT quantilesArrayIf(0.5, 0.9)([NULL :: Nullable(UInt64)], 1) AS x
+SELECT quantilesArrayIf(0.5, 0.9)([NULL::Nullable(UInt64)], 1) AS x
 FROM remote('127.0.0.{1,2}', numbers(3));
 
-SELECT quantilesArrayIf(0.5, 0.9)([NULL :: Nullable(UInt64)], 0) AS x
+SELECT quantilesArrayIf(0.5, 0.9)([NULL::Nullable(UInt64)], 0) AS x
 FROM remote('127.0.0.{1,2}', numbers(3));
 
-SELECT quantilesIfArray(0.5, 0.9)([NULL :: Nullable(UInt64), NULL], [1, 0]) AS x
+SELECT quantilesIfArray(0.5, 0.9)([NULL::Nullable(UInt64), NULL], [1, 0]) AS x
 FROM remote('127.0.0.{1,2}', numbers(3));
 
 SELECT quantilesIfArray(0.5, 0.9)([1, NULL], [1, 0]) AS x
@@ -216,13 +216,13 @@ CREATE TABLE t1
 (
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1 SELECT *
 FROM numbers(10);
 
-SET enable_parallel_replicas = 1, max_parallel_replicas = 2, use_hedged_requests = 0, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '1', max_parallel_replicas = '2', use_hedged_requests = '0', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = '1';
 
 SELECT count(NULL)
 FROM t1

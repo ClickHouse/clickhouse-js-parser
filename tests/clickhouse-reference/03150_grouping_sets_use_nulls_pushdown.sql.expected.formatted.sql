@@ -5,7 +5,7 @@ CREATE TABLE test_grouping_sets_predicate
     day_ Date,
     type_1 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY day_;
 
 INSERT INTO test_grouping_sets_predicate SELECT
@@ -43,7 +43,7 @@ FROM (
     )
 WHERE day_ = '2023-01-05'
 ORDER BY * ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM (
@@ -54,7 +54,7 @@ FROM (
 WHERE day_ = '2023-01-05'
 GROUP BY *
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM (
@@ -65,7 +65,7 @@ FROM (
 WHERE day_ = '2023-01-05'
 GROUP BY GROUPING SETS ((*))
 ORDER BY type_1 ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM (

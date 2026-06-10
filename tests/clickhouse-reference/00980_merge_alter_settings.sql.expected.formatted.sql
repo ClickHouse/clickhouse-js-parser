@@ -9,7 +9,7 @@ CREATE TABLE log_for_alter
 )
 ENGINE = Log();
 
-ALTER TABLE log_for_alter MODIFY SETTING aaa = 123; -- { serverError NOT_IMPLEMENTED }
+ALTER TABLE log_for_alter MODIFY SETTING aaa = '123'; -- { serverError NOT_IMPLEMENTED }
 
 DROP TABLE IF EXISTS table_for_alter;
 
@@ -20,13 +20,13 @@ CREATE TABLE table_for_alter
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 4096, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '4096', index_granularity_bytes = '10Mi';
 
-ALTER TABLE table_for_alter MODIFY SETTING index_granularity = 555; -- { serverError READONLY_SETTING }
+ALTER TABLE table_for_alter MODIFY SETTING index_granularity = '555'; -- { serverError READONLY_SETTING }
 
 SHOW CREATE TABLE table_for_alter;
 
-ALTER TABLE table_for_alter MODIFY SETTING parts_to_throw_insert = 1, parts_to_delay_insert = 1;
+ALTER TABLE table_for_alter MODIFY SETTING parts_to_throw_insert = '1', parts_to_delay_insert = '1';
 
 INSERT INTO table_for_alter;
 
@@ -36,16 +36,16 @@ DETACH TABLE table_for_alter;
 
 ATTACH TABLE table_for_alter;
 
-ALTER TABLE table_for_alter MODIFY SETTING xxx_yyy = 124; -- { serverError UNKNOWN_SETTING }
+ALTER TABLE table_for_alter MODIFY SETTING xxx_yyy = '124'; -- { serverError UNKNOWN_SETTING }
 
-ALTER TABLE table_for_alter MODIFY SETTING parts_to_throw_insert = 100, parts_to_delay_insert = 100;
+ALTER TABLE table_for_alter MODIFY SETTING parts_to_throw_insert = '100', parts_to_delay_insert = '100';
 
 SELECT COUNT()
 FROM table_for_alter;
 
-ALTER TABLE table_for_alter MODIFY SETTING check_delay_period = 10, check_delay_period = 20, check_delay_period = 30;
+ALTER TABLE table_for_alter MODIFY SETTING check_delay_period = '30';
 
-ALTER TABLE table_for_alter ADD COLUMN Data2 UInt64, MODIFY SETTING check_delay_period = 5, check_delay_period = 10, check_delay_period = 15;
+ALTER TABLE table_for_alter ADD COLUMN Data2 UInt64, MODIFY SETTING check_delay_period = '15';
 
 DROP TABLE IF EXISTS table_for_reset_setting;
 
@@ -56,9 +56,9 @@ CREATE TABLE table_for_reset_setting
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 4096, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '4096', index_granularity_bytes = '10Mi';
 
-ALTER TABLE table_for_reset_setting MODIFY SETTING index_granularity = 555; -- { serverError READONLY_SETTING }
+ALTER TABLE table_for_reset_setting MODIFY SETTING index_granularity = '555'; -- { serverError READONLY_SETTING }
 
 SHOW CREATE TABLE table_for_reset_setting;
 
@@ -66,7 +66,7 @@ INSERT INTO table_for_reset_setting;
 
 INSERT INTO table_for_reset_setting;
 
-ALTER TABLE table_for_reset_setting MODIFY SETTING parts_to_throw_insert = 1, parts_to_delay_insert = 1;
+ALTER TABLE table_for_reset_setting MODIFY SETTING parts_to_throw_insert = '1', parts_to_delay_insert = '1';
 
 ALTER TABLE table_for_reset_setting RESET SETTING parts_to_delay_insert, parts_to_throw_insert;
 
@@ -79,6 +79,6 @@ ALTER TABLE table_for_reset_setting RESET SETTING index_granularity; -- { server
 -- don't execute alter with incorrect setting
 ALTER TABLE table_for_reset_setting RESET SETTING merge_with_ttl_timeout, unknown_setting; -- { serverError BAD_ARGUMENTS }
 
-ALTER TABLE table_for_reset_setting MODIFY SETTING merge_with_ttl_timeout = 300, max_concurrent_queries = 1;
+ALTER TABLE table_for_reset_setting MODIFY SETTING merge_with_ttl_timeout = '300', max_concurrent_queries = '1';
 
 ALTER TABLE table_for_reset_setting RESET SETTING max_concurrent_queries, merge_with_ttl_timeout;

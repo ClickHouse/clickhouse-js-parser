@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS table_00483;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE table_00483
 (
@@ -9,7 +9,7 @@ CREATE TABLE table_00483
     `Struct.Key2` Array(UInt64),
     padding FixedString(16)
 )
-ENGINE = MergeTree(date, (date), 16);
+ENGINE = MergeTree(date, date, 16);
 
 INSERT INTO table_00483 SELECT
     today() AS date,
@@ -19,7 +19,7 @@ INSERT INTO table_00483 SELECT
 FROM `system`.numbers
 LIMIT 100;
 
-SET preferred_max_column_in_block_size_bytes = 96;
+SET preferred_max_column_in_block_size_bytes = '96';
 
 SELECT
     blockSize(),
@@ -37,7 +37,7 @@ CREATE TABLE table_00483
     padding FixedString(16),
     x UInt64
 )
-ENGINE = MergeTree(date, (date), 8);
+ENGINE = MergeTree(date, date, 8);
 
 INSERT INTO table_00483 SELECT
     today() AS date,
@@ -48,7 +48,7 @@ INSERT INTO table_00483 SELECT
 FROM `system`.numbers
 LIMIT 100;
 
-SET preferred_max_column_in_block_size_bytes = 112;
+SET preferred_max_column_in_block_size_bytes = '112';
 
 SELECT
     blockSize(),

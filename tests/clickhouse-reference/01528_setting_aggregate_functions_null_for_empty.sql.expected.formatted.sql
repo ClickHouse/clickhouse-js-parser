@@ -18,12 +18,12 @@ FROM defaults;
 SELECT countOrNull(n)
 FROM defaults;
 
-SET aggregate_functions_null_for_empty = 1;
+SET aggregate_functions_null_for_empty = '1';
 
 INSERT INTO defaults SELECT *
 FROM numbers(10);
 
-SET aggregate_functions_null_for_empty = 0;
+SET aggregate_functions_null_for_empty = '0';
 
 EXPLAIN SYNTAX
 SELECT sumIf(1, number > 0)

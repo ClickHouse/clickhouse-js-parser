@@ -62,7 +62,7 @@ SELECT
 
 SELECT
     accurateCastOrDefault('123', 'FixedString(2)'),
-    accurateCastOrDefault('123', 'FixedString(2)', cast('12', 'FixedString(2)'));
+    accurateCastOrDefault('123', 'FixedString(2)', CAST('12' AS FixedString(2)));
 
 SELECT
     accurateCastOrDefault(inf, 'Int64'),

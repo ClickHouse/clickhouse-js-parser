@@ -7,7 +7,7 @@ CREATE TABLE t_index_empty_part
 )
 ENGINE = MergeTree()
 PRIMARY KEY (c0, c1)
-SETTINGS primary_key_lazy_load = 0, remove_empty_parts = 0;
+SETTINGS primary_key_lazy_load = '0', remove_empty_parts = '0';
 
 INSERT INTO t_index_empty_part (c0, c1);
 

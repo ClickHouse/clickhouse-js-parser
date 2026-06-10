@@ -9,7 +9,7 @@ SELECT LpNorm([3., 4., 5.], 1.1);
 SELECT LinfNorm([0, 0, 2]);
 
 -- Overflows
-WITH CAST([-547274980, 1790553898, 1981517754, 1908431500, 1352428565, -573412550, -552499284, 2096941042], 'Array(Int32)') AS a
+WITH CAST([-547274980, 1790553898, 1981517754, 1908431500, 1352428565, -573412550, -552499284, 2096941042] AS Array(Int32)) AS a
 
 SELECT
     L1Norm(a),
@@ -31,21 +31,21 @@ CREATE TABLE vec1
     id UInt64,
     v Array(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE vec1f
 (
     id UInt64,
     v Array(Float32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE vec1d
 (
     id UInt64,
     v Array(Float64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO vec1;
 
@@ -97,15 +97,15 @@ FROM vec1d;
 
 SELECT L1Norm(1, 2); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
-SELECT LpNorm([1,2]); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
+SELECT LpNorm([1, 2]); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
-SELECT LpNorm([1,2], -3.4); -- { serverError ARGUMENT_OUT_OF_BOUND }
+SELECT LpNorm([1, 2], -3.4); -- { serverError ARGUMENT_OUT_OF_BOUND }
 
-SELECT LpNorm([1,2], 'aa'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT LpNorm([1, 2], 'aa'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT LpNorm([1,2], [1]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT LpNorm([1, 2], [1]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT LpNorm([1,2], materialize(3.14)); -- { serverError ILLEGAL_COLUMN }
+SELECT LpNorm([1, 2], materialize(3.14)); -- { serverError ILLEGAL_COLUMN }
 
 DROP TABLE vec1;
 

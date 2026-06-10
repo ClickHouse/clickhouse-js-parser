@@ -1,4 +1,4 @@
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 WITH RECURSIVE test_table AS (
     SELECT 1 AS number

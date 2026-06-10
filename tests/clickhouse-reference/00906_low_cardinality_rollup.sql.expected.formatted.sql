@@ -5,7 +5,7 @@ CREATE TABLE lc
     a LowCardinality(Nullable(String)),
     b LowCardinality(Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO lc;

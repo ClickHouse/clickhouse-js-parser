@@ -20,4 +20,4 @@ ORDER BY
     c DESC,
     CounterID ASC
 LIMIT 100
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';

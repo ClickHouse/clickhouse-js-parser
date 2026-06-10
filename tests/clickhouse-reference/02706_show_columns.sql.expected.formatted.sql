@@ -9,9 +9,9 @@ CREATE TABLE tab
     uint64 UInt64,
     int32 Nullable(Int32) COMMENT 'example comment',
     str String,
-    INDEX idx str TYPE set(1000)
+    INDEX idx str TYPE set(1000) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY uint64
 ORDER BY (uint64, str);
 
@@ -19,7 +19,7 @@ SELECT '--- Aliases of SHOW COLUMNS';
 
 SHOW COLUMNS FROM tab;
 
-SHOW FIELDS FROM tab;
+SHOW COLUMNS FROM tab;
 
 SHOW EXTENDED COLUMNS FROM tab;
 
@@ -33,7 +33,7 @@ SHOW COLUMNS FROM tab ILIKE '%INT%';
 
 SHOW COLUMNS FROM tab NOT ILIKE '%INT%';
 
-SHOW COLUMNS FROM tab WHERE like(field, '%int%');
+SHOW COLUMNS FROM tab WHERE field LIKE '%int%';
 
 SHOW COLUMNS FROM tab LIMIT 1;
 
@@ -43,7 +43,7 @@ CREATE TABLE `$4@^7`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 SHOW COLUMNS FROM `$4@^7`;
@@ -56,7 +56,7 @@ CREATE TABLE `NULL`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 SHOW COLUMNS FROM `NULL`;
@@ -69,7 +69,7 @@ CREATE TABLE `tab.with.dots`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 SHOW COLUMNS FROM `tab.with.dots`;
@@ -84,10 +84,10 @@ CREATE TABLE `'`.`'`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
-SHOW COLUMNS FROM `'` FROM `'`;
+SHOW COLUMNS FROM `'`.`'`;
 
 SHOW COLUMNS FROM `'`.`'`; -- abbreviated form
 
@@ -109,10 +109,10 @@ CREATE TABLE database_123456789abcde.tab
     int32 Int32,
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY uint64;
 
-SHOW COLUMNS FROM tab FROM database_123456789abcde;
+SHOW COLUMNS FROM database_123456789abcde.tab;
 
 SHOW COLUMNS FROM database_123456789abcde.tab;
 

@@ -5,7 +5,7 @@ CREATE TABLE t0
     c0 Int
 )
 ENGINE = MergeTree()
-ORDER BY (c0);
+ORDER BY c0;
 
 INSERT INTO t0;
 
@@ -26,7 +26,7 @@ CREATE TABLE t0__fuzz_41
 (
     c0 DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c0;
 
 INSERT INTO t0__fuzz_41;
@@ -51,8 +51,8 @@ FROM
         SELECT
             1 AS id,
             2 AS value
-    ) AS subquery_1
-CROSS JOIN (
+    ) AS subquery_1,
+    (
         SELECT
             3 AS id,
             4

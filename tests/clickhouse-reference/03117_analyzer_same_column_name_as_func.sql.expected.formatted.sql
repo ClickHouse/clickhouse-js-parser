@@ -1,12 +1,12 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/39855
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE x
 (
     a UInt64,
     `sipHash64(a)` UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO x SELECT

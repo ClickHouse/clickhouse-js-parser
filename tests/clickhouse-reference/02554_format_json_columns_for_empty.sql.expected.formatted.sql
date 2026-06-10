@@ -5,7 +5,7 @@ CREATE TABLE json_columns
     n UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 SELECT *

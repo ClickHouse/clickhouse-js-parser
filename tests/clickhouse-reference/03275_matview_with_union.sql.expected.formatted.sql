@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS dst;
 
 DROP TABLE IF EXISTS matview;
 
-SET use_async_executor_for_materialized_views = 1;
+SET use_async_executor_for_materialized_views = '1';
 
 CREATE TABLE src
 (
@@ -80,9 +80,9 @@ ORDER BY
     `step` ASC,
     rounded_event_time ASC,
     key ASC
-SETTINGS query_plan_remove_redundant_sorting = 0;
+SETTINGS query_plan_remove_redundant_sorting = '0';
 
-SET optimize_on_insert = 1;
+SET optimize_on_insert = '1';
 
 INSERT INTO src SELECT
     toDateTime('2020-10-01 00:00:00') + number,

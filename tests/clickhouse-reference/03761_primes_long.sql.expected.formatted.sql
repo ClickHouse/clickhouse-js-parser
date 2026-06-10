@@ -1,7 +1,7 @@
 -- Tags: long
-SET max_rows_to_read = 150000000;
+SET max_rows_to_read = '150000000';
 
-WITH toUInt64(1e15) AS lo,
+WITH toUInt64(1000000000000000.) AS lo,
 
 lo + 2000000 AS hi
 
@@ -12,18 +12,20 @@ FROM
     (
         SELECT prime
         FROM `system`.primes
-        WHERE and(greaterOrEquals(prime, lo), lessOrEquals(prime, hi))
+        WHERE prime >= lo
+            AND prime <= hi
     ) AS p
 INNER JOIN (
         SELECT prime
         FROM `system`.primes
-        WHERE and(greaterOrEquals(prime, lo), lessOrEquals(prime, hi + 2))
+        WHERE prime >= lo
+            AND prime <= hi + 2
     ) AS q
     ON q.prime = p.prime + 2
 ORDER BY p.prime ASC
 LIMIT 100;
 
-WITH toUInt64(1e15) AS lo,
+WITH toUInt64(1000000000000000.) AS lo,
 
 lo + 2000000 AS hi
 
@@ -34,12 +36,14 @@ FROM
     (
         SELECT prime
         FROM `system`.primes
-        WHERE and(greaterOrEquals(prime, lo), lessOrEquals(prime, hi))
+        WHERE prime >= lo
+            AND prime <= hi
     ) AS p
 INNER JOIN (
         SELECT prime
         FROM `system`.primes
-        WHERE and(greaterOrEquals(prime, 2 * lo + 1), lessOrEquals(prime, 2 * hi + 1))
+        WHERE prime >= 2 * lo + 1
+            AND prime <= 2 * hi + 1
     ) AS q
     ON q.prime = 2 * p.prime + 1
 ORDER BY p.prime ASC

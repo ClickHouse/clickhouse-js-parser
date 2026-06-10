@@ -17,10 +17,10 @@ FROM numbers(9);
 SELECT count()
 FROM table_rename_with_ttl;
 
-SET materialize_ttl_after_modify = 0;
+SET materialize_ttl_after_modify = '0';
 
 ALTER TABLE table_rename_with_ttl MODIFY TTL date1 + toIntervalMonth(1);
 
 ALTER TABLE table_rename_with_ttl RENAME COLUMN date1 TO renamed_date1;
 
-ALTER TABLE table_rename_with_ttl MATERIALIZE TTL SETTINGS mutations_sync = 2;
+ALTER TABLE table_rename_with_ttl MATERIALIZE TTL SETTINGS mutations_sync = '2';

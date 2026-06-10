@@ -3,21 +3,21 @@ CREATE TABLE adaptive_spill_03277_1
     k String,
     x String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE adaptive_spill_03277_2
 (
     k String,
     x String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE adaptive_spill_03277_3
 (
     k String,
     x String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO adaptive_spill_03277_1 SELECT
     CAST(number AS String) AS k,
@@ -34,11 +34,11 @@ INSERT INTO adaptive_spill_03277_3 SELECT
     CAST(number AS String) AS x
 FROM numbers(1000000);
 
-SET max_threads = 4;
+SET max_threads = '4';
 
 SET join_algorithm = 'grace_hash';
 
-SET max_bytes_in_join = 0;
+SET max_bytes_in_join = '0';
 
 --set max_memory_usage=629145600
 SET enable_adaptive_memory_spill_scheduler = true;

@@ -15,18 +15,18 @@ CREATE TABLE n1
     key UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE n2
 (
     key UInt64,
     value Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE n1_n2_join
 (
@@ -34,7 +34,7 @@ CREATE TABLE n1_n2_join
     v1 String,
     v2 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k;
 
 -- mv with explicit target table
@@ -53,7 +53,7 @@ ORDER BY n1.key ASC;
 
 INSERT INTO n2 SELECT
     number,
-    negate(number)
+    -number
 FROM numbers(10);
 
 INSERT INTO n1 SELECT
@@ -66,25 +66,25 @@ CREATE TABLE n3
     key UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO n3 SELECT
     number,
     toString(number + 100)
 FROM numbers(10);
 
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = '1';
 
-(SELECT *
+SELECT *
 FROM
     mv
 INNER JOIN n3
     ON mv.k = n3.key
 ORDER BY
     mv.k ASC,
-    n3.key ASC)
+    n3.key ASC
 EXCEPT
 (SELECT *
 FROM
@@ -94,7 +94,7 @@ INNER JOIN n3
 ORDER BY
     mv.k ASC,
     n3.key ASC
-SETTINGS enable_parallel_replicas = 0);
+SETTINGS enable_parallel_replicas = '0');
 
 -- materailzed view with inner table
 CREATE MATERIALIZED VIEW mv2
@@ -109,14 +109,14 @@ INNER JOIN n2
     ON n1.key = n2.key
 ORDER BY n1.key ASC;
 
-(SELECT *
+SELECT *
 FROM
     mv2
 INNER JOIN n3
     ON mv2.k = n3.key
 ORDER BY
     mv2.k ASC,
-    n3.key ASC)
+    n3.key ASC
 EXCEPT
 (SELECT *
 FROM
@@ -126,7 +126,7 @@ INNER JOIN n3
 ORDER BY
     mv2.k ASC,
     n3.key ASC
-SETTINGS enable_parallel_replicas = 0);
+SETTINGS enable_parallel_replicas = '0');
 
 DROP TABLE mv2;
 

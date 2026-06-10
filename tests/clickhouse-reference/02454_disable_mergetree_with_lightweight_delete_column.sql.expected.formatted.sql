@@ -6,7 +6,7 @@ CREATE TABLE t_row_exists
     a int,
     _row_exists int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a; --{serverError ILLEGAL_COLUMN}
 
 CREATE TABLE t_row_exists
@@ -14,7 +14,7 @@ CREATE TABLE t_row_exists
     a int,
     b int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 ALTER TABLE t_row_exists ADD COLUMN _row_exists int; --{serverError ILLEGAL_COLUMN}
@@ -34,7 +34,7 @@ CREATE TABLE t_row_exists
     a int,
     _row_exists int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_row_exists;
 
@@ -46,4 +46,4 @@ CREATE TABLE t_row_exists
     a int,
     b int
 )
-ENGINE = Memory;
+ENGINE = Memory();

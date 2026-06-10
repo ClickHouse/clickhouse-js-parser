@@ -7,9 +7,9 @@ WITH arrayJoin(finalizeAggregation((
     ))) AS hist
 
 SELECT
-    round(hist.1) AS l,
-    round(hist.2) AS r,
-    round(hist.3) AS cnt;
+    round((hist).1) AS l,
+    round((hist).2) AS r,
+    round((hist).3) AS cnt;
 
 WITH arrayJoin(finalizeAggregation((
         SELECT histogramState(3)(number)
@@ -20,6 +20,6 @@ WITH arrayJoin(finalizeAggregation((
     ))) AS hist
 
 SELECT
-    round(hist.1) AS l,
-    round(hist.2) AS r,
-    round(hist.3) AS cnt;
+    round((hist).1) AS l,
+    round((hist).2) AS r,
+    round((hist).3) AS cnt;

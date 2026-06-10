@@ -4,7 +4,7 @@ CREATE TABLE log
 (
     x UInt8
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 SELECT *
 FROM log
@@ -22,10 +22,10 @@ CREATE TABLE log
 (
     x UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE log
 (
     x UInt8
 )
-ENGINE = Log;
+ENGINE = Log();

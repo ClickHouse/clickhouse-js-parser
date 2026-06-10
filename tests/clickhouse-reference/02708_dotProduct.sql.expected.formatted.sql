@@ -13,165 +13,165 @@ SELECT arrayDotProduct([1, 2], [3, 4, 5]); -- { serverError SIZES_OF_ARRAYS_DONT
 SELECT dotProduct([1, 2], (3, 4, 5)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT
-    [1, 2, 3]::Array(UInt8) AS x,
-    [4, 5, 6]::Array(UInt8) AS y,
+    CAST('[1, 2, 3]' AS Array(UInt8)) AS x,
+    CAST('[4, 5, 6]' AS Array(UInt8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1, 2, 3]::Array(UInt16) AS x,
-    [4, 5, 6]::Array(UInt16) AS y,
+    CAST('[1, 2, 3]' AS Array(UInt16)) AS x,
+    CAST('[4, 5, 6]' AS Array(UInt16)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1, 2, 3]::Array(UInt32) AS x,
-    [4, 5, 6]::Array(UInt32) AS y,
+    CAST('[1, 2, 3]' AS Array(UInt32)) AS x,
+    CAST('[4, 5, 6]' AS Array(UInt32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1, 2, 3]::Array(UInt64) AS x,
-    [4, 5, 6]::Array(UInt64) AS y,
+    CAST('[1, 2, 3]' AS Array(UInt64)) AS x,
+    CAST('[4, 5, 6]' AS Array(UInt64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [-1, -2, -3]::Array(Int8) AS x,
-    [4, 5, 6]::Array(Int8) AS y,
+    CAST('[-1, -2, -3]' AS Array(Int8)) AS x,
+    CAST('[4, 5, 6]' AS Array(Int8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [-1, -2, -3]::Array(Int16) AS x,
-    [4, 5, 6]::Array(Int16) AS y,
+    CAST('[-1, -2, -3]' AS Array(Int16)) AS x,
+    CAST('[4, 5, 6]' AS Array(Int16)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [-1, -2, -3]::Array(Int32) AS x,
-    [4, 5, 6]::Array(Int32) AS y,
+    CAST('[-1, -2, -3]' AS Array(Int32)) AS x,
+    CAST('[4, 5, 6]' AS Array(Int32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [-1, -2, -3]::Array(Int64) AS x,
-    [4, 5, 6]::Array(Int64) AS y,
+    CAST('[-1, -2, -3]' AS Array(Int64)) AS x,
+    CAST('[4, 5, 6]' AS Array(Int64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1, 2, 3]::Array(Float32) AS x,
-    [4, 5, 6]::Array(Float32) AS y,
+    CAST('[1, 2, 3]' AS Array(Float32)) AS x,
+    CAST('[4, 5, 6]' AS Array(Float32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1, 2, 3]::Array(Float64) AS x,
-    [4, 5, 6]::Array(Float64) AS y,
+    CAST('[1, 2, 3]' AS Array(Float64)) AS x,
+    CAST('[4, 5, 6]' AS Array(Float64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 -- empty arrays
 SELECT
-    []::Array(Float32) AS x,
-    []::Array(Float32) AS y,
+    CAST('[]' AS Array(Float32)) AS x,
+    CAST('[]' AS Array(Float32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    []::Array(UInt8) AS x,
-    []::Array(UInt8) AS y,
+    CAST('[]' AS Array(UInt8)) AS x,
+    CAST('[]' AS Array(UInt8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::UInt8, 2::UInt8, 3::UInt8) AS x,
-    (4::UInt8, 5::UInt8, 6::UInt8) AS y,
+    (CAST('1' AS UInt8), CAST('2' AS UInt8), CAST('3' AS UInt8)) AS x,
+    (CAST('4' AS UInt8), CAST('5' AS UInt8), CAST('6' AS UInt8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::UInt16, 2::UInt16, 3::UInt16) AS x,
-    (4::UInt16, 5::UInt16, 6::UInt16) AS y,
+    (CAST('1' AS UInt16), CAST('2' AS UInt16), CAST('3' AS UInt16)) AS x,
+    (CAST('4' AS UInt16), CAST('5' AS UInt16), CAST('6' AS UInt16)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::UInt32, 2::UInt32, 3::UInt32) AS x,
-    (4::UInt32, 5::UInt32, 6::UInt32) AS y,
+    (CAST('1' AS UInt32), CAST('2' AS UInt32), CAST('3' AS UInt32)) AS x,
+    (CAST('4' AS UInt32), CAST('5' AS UInt32), CAST('6' AS UInt32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::UInt64, 2::UInt64, 3::UInt64) AS x,
-    (4::UInt64, 5::UInt64, 6::UInt64) AS y,
+    (CAST('1' AS UInt64), CAST('2' AS UInt64), CAST('3' AS UInt64)) AS x,
+    (CAST('4' AS UInt64), CAST('5' AS UInt64), CAST('6' AS UInt64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (-1::Int8, -2::Int8, -3::Int8) AS x,
-    (4::Int8, 5::Int8, 6::Int8) AS y,
+    (CAST('-1' AS Int8), CAST('-2' AS Int8), CAST('-3' AS Int8)) AS x,
+    (CAST('4' AS Int8), CAST('5' AS Int8), CAST('6' AS Int8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (-1::Int16, -2::Int16, -3::Int16) AS x,
-    (4::Int16, 5::Int16, 6::Int16) AS y,
+    (CAST('-1' AS Int16), CAST('-2' AS Int16), CAST('-3' AS Int16)) AS x,
+    (CAST('4' AS Int16), CAST('5' AS Int16), CAST('6' AS Int16)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (-1::Int32, -2::Int32, -3::Int32) AS x,
-    (4::Int32, 5::Int32, 6::Int32) AS y,
+    (CAST('-1' AS Int32), CAST('-2' AS Int32), CAST('-3' AS Int32)) AS x,
+    (CAST('4' AS Int32), CAST('5' AS Int32), CAST('6' AS Int32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (-1::Int64, -2::Int64, -3::Int64) AS x,
-    (4::Int64, 5::Int64, 6::Int64) AS y,
+    (CAST('-1' AS Int64), CAST('-2' AS Int64), CAST('-3' AS Int64)) AS x,
+    (CAST('4' AS Int64), CAST('5' AS Int64), CAST('6' AS Int64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::Float32, 2::Float32, 3::Float32) AS x,
-    (4::Float32, 5::Float32, 6::Float32) AS y,
+    (CAST('1' AS Float32), CAST('2' AS Float32), CAST('3' AS Float32)) AS x,
+    (CAST('4' AS Float32), CAST('5' AS Float32), CAST('6' AS Float32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::Float64, 2::Float64, 3::Float64) AS x,
-    (4::Float64, 5::Float64, 6::Float64) AS y,
+    (CAST('1' AS Float64), CAST('2' AS Float64), CAST('3' AS Float64)) AS x,
+    (CAST('4' AS Float64), CAST('5' AS Float64), CAST('6' AS Float64)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    materialize([1::UInt8, 2::UInt8, 3::UInt8]) AS x,
-    [4::UInt8, 5::UInt8, 6::UInt8] AS y,
+    materialize([CAST('1' AS UInt8), CAST('2' AS UInt8), CAST('3' AS UInt8)]) AS x,
+    [CAST('4' AS UInt8), CAST('5' AS UInt8), CAST('6' AS UInt8)] AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    materialize([]::Array(Float32)) AS x,
-    []::Array(Float32) AS y,
+    materialize(CAST('[]' AS Array(Float32))) AS x,
+    CAST('[]' AS Array(Float32)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    materialize([]::Array(UInt8)) AS x,
-    []::Array(UInt8) AS y,
+    materialize(CAST('[]' AS Array(UInt8))) AS x,
+    CAST('[]' AS Array(UInt8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    [1::UInt16, 2::UInt8, 3::Float32] AS x,
-    [4::Int16, 5::Float32, 6::UInt8] AS y,
+    [CAST('1' AS UInt16), CAST('2' AS UInt8), CAST('3' AS Float32)] AS x,
+    [CAST('4' AS Int16), CAST('5' AS Float32), CAST('6' AS UInt8)] AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
 SELECT
-    (1::UInt16, 2::UInt8, 3::Float32) AS x,
-    (4::Int16, 5::Float32, 6::UInt8) AS y,
+    (CAST('1' AS UInt16), CAST('2' AS UInt8), CAST('3' AS Float32)) AS x,
+    (CAST('4' AS Int16), CAST('5' AS Float32), CAST('6' AS UInt8)) AS y,
     dotProduct(x, y) AS res,
     toTypeName(res);
 
@@ -188,7 +188,7 @@ CREATE TABLE tab
     id UInt64,
     vec Array(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
@@ -213,19 +213,19 @@ ORDER BY id ASC;
 
 SELECT
     id,
-    arrayDotProduct([5.0, 2.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0]::Array(Float32), vec)
+    arrayDotProduct(CAST('[5.0, 2.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0]' AS Array(Float32)), vec)
 FROM tab
 ORDER BY id ASC;
 
 SELECT
     id,
-    arrayDotProduct([5.0, 2.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0]::Array(Float64), vec)
+    arrayDotProduct(CAST('[5.0, 2.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0, 3.0, 5.0, 1.0, 2.0]' AS Array(Float64)), vec)
 FROM tab
 ORDER BY id ASC;
 
 SELECT
     id,
-    arrayDotProduct([5, 2, 2, 3, 5, 1, 2, 3, 5, 1, 2, 3, 5, 1, 2, 3, 5, 1, 2]::Array(UInt32), vec)
+    arrayDotProduct(CAST('[5, 2, 2, 3, 5, 1, 2, 3, 5, 1, 2, 3, 5, 1, 2, 3, 5, 1, 2]' AS Array(UInt32)), vec)
 FROM tab
 ORDER BY id ASC;
 

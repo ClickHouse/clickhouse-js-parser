@@ -22,7 +22,11 @@ SELECT
     b,
     c
 FROM test02313
-GROUP BY ROLLUP(a, b, c)
+GROUP BY
+    a,
+    b,
+    c
+WITH ROLLUP
 ORDER BY
     d ASC,
     a ASC,
@@ -35,7 +39,11 @@ SELECT
     b,
     c
 FROM test02313
-GROUP BY CUBE(a, b, c)
+GROUP BY
+    a,
+    b,
+    c
+WITH CUBE
 ORDER BY
     d ASC,
     a ASC,

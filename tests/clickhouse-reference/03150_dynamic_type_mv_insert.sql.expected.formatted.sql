@@ -1,6 +1,6 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
-SET allow_suspicious_types_in_order_by = 1;
+SET allow_suspicious_types_in_order_by = '1';
 
 DROP TABLE IF EXISTS null_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE null_table
     n1 UInt8,
     n2 Dynamic(max_types = 3)
 )
-ENGINE = Null;
+ENGINE = Null();
 
 DROP TABLE IF EXISTS to_table;
 
@@ -18,7 +18,7 @@ CREATE TABLE to_table
     n1 UInt8,
     n2 Dynamic(max_types = 4)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 DROP VIEW IF EXISTS dummy_rmv;

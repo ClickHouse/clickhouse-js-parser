@@ -1,35 +1,35 @@
 -- { echo }
-SELECT materialize([[13]])[1::Int8];
+SELECT materialize([[13]])[CAST('1' AS Int8)];
 
-SELECT materialize([['Hello']])[1::Int8];
+SELECT materialize([['Hello']])[CAST('1' AS Int8)];
 
-SELECT materialize([13])[1::Int8];
+SELECT materialize([13])[CAST('1' AS Int8)];
 
-SELECT materialize(['Hello'])[1::Int8];
+SELECT materialize(['Hello'])[CAST('1' AS Int8)];
 
-SELECT materialize([[13], [14]])[2::Int8];
+SELECT materialize([[13], [14]])[CAST('2' AS Int8)];
 
-SELECT materialize([['Hello'], ['world']])[2::Int8];
+SELECT materialize([['Hello'], ['world']])[CAST('2' AS Int8)];
 
-SELECT materialize([13, 14])[2::Int8];
+SELECT materialize([13, 14])[CAST('2' AS Int8)];
 
-SELECT materialize(['Hello', 'world'])[2::Int8];
+SELECT materialize(['Hello', 'world'])[CAST('2' AS Int8)];
 
-SELECT materialize([[13], [14]])[3::Int8];
+SELECT materialize([[13], [14]])[CAST('3' AS Int8)];
 
-SELECT materialize([['Hello'], ['world']])[3::Int8];
+SELECT materialize([['Hello'], ['world']])[CAST('3' AS Int8)];
 
-SELECT materialize([13, 14])[3::Int8];
+SELECT materialize([13, 14])[CAST('3' AS Int8)];
 
-SELECT materialize(['Hello', 'world'])[3::Int8];
+SELECT materialize(['Hello', 'world'])[CAST('3' AS Int8)];
 
-SELECT materialize([[13], [14]])[0::Int8];
+SELECT materialize([[13], [14]])[CAST('0' AS Int8)];
 
-SELECT materialize([['Hello'], ['world']])[0::Int8];
+SELECT materialize([['Hello'], ['world']])[CAST('0' AS Int8)];
 
-SELECT materialize([13, 14])[0::Int8];
+SELECT materialize([13, 14])[CAST('0' AS Int8)];
 
-SELECT materialize(['Hello', 'world'])[0::Int8];
+SELECT materialize(['Hello', 'world'])[CAST('0' AS Int8)];
 
 SELECT materialize([[13], [14]])[-1];
 

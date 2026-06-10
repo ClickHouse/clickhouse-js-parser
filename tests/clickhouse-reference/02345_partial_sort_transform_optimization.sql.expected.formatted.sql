@@ -7,7 +7,7 @@ FROM (
                     0 AS a,
                     toNullable(number) AS b,
                     toString(number) AS c
-                FROM numbers(1e6)
+                FROM numbers(1000000.)
             )
         ORDER BY
             a DESC,
@@ -26,6 +26,7 @@ FROM (
         ORDER BY
             k ASC,
             number DESC
-        LIMIT 1025, 1023
+        LIMIT 1023
+        OFFSET 1025
     )
 LIMIT 5;

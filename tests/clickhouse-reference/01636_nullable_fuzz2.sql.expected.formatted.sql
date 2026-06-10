@@ -7,7 +7,7 @@ CREATE TABLE open_events_tmp
     APIKey UInt32,
     EventDate Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (APIKey, EventDate)
 PARTITION BY toMonday(EventDate);
 
@@ -16,7 +16,7 @@ CREATE TABLE tracking_events_tmp
     APIKey UInt32,
     EventDate Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (APIKey, EventDate)
 PARTITION BY toYYYYMM(EventDate);
 
@@ -55,16 +55,16 @@ FROM
     (
         SELECT EventDate
         FROM tracking_events_tmp AS t1
-        WHERE (EventDate >= toDate('2020-07-09'))
-            AND (EventDate <= toDate('2020-07-11'))
-            AND (APIKey = 2)
+        WHERE EventDate >= toDate('2020-07-09')
+            AND EventDate <= toDate('2020-07-11')
+            AND APIKey = 2
         GROUP BY EventDate
     )
 FULL JOIN (
         SELECT EventDate
         FROM remote('127.0.0.{1,3}', currentDatabase(), open_events_tmp) AS t2
-        WHERE (EventDate <= toDate('2020-07-12'))
-            AND (APIKey = 2)
+        WHERE EventDate <= toDate('2020-07-12')
+            AND APIKey = 2
         GROUP BY EventDate
         WITH TOTALS
     )
@@ -73,8 +73,8 @@ ORDER BY EventDate ASC
 SETTINGS
     totals_mode = 'after_having_auto',
     group_by_overflow_mode = 'any',
-    max_rows_to_group_by = 10000000,
-    joined_subquery_requires_alias = 0;
+    max_rows_to_group_by = '10000000',
+    joined_subquery_requires_alias = '0';
 
 DROP TABLE open_events_tmp;
 

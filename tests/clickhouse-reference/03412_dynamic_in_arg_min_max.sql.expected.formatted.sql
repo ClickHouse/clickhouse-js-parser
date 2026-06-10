@@ -12,7 +12,7 @@ CREATE TABLE test
     y UInt32,
     z UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
     1,

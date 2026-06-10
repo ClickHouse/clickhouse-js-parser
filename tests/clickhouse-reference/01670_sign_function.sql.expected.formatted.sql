@@ -14,7 +14,7 @@ CREATE TABLE test
     n4 Float64,
     n5 Decimal32(5)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 

@@ -1,13 +1,13 @@
 -- Tags: long, replica, no-replicated-database, no-shared-merge-tree
 -- Tag no-replicated-database: Old syntax is not allowed
 -- no-shared-merge-tree -- old syntax not supported, for new syntax additional test
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 SET send_logs_level = 'fatal';
 
 DROP TABLE IF EXISTS old_style;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE old_style
 (
@@ -76,7 +76,7 @@ SHOW CREATE TABLE summing_r2;
 
 DETACH TABLE summing_r2;
 
-ALTER TABLE summing_r1 ADD COLUMN t UInt32 AFTER z, MODIFY ORDER BY (x, y, t * t) SETTINGS replication_alter_partitions_sync = 2; -- { serverError UNFINISHED }
+ALTER TABLE summing_r1 ADD COLUMN t UInt32 AFTER z, MODIFY ORDER BY (x, y, t * t) SETTINGS replication_alter_partitions_sync = '2'; -- { serverError UNFINISHED }
 
 ATTACH TABLE summing_r2;
 

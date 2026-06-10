@@ -13,4 +13,4 @@ SELECT *
 FROM `system`.errors
 WHERE name = 'UNKNOWN_IDENTIFIER'
     AND last_error_time > now() - 1
-    AND like(last_error_message, '%Missing columns%89467d35-77c2-4f82-ae7a-f093ff40f4cd%');
+    AND last_error_message LIKE '%Missing columns%89467d35-77c2-4f82-ae7a-f093ff40f4cd%';

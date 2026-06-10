@@ -5,21 +5,21 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 0)
 )
-ENGINE = Memory; -- { serverError UNEXPECTED_AST_STRUCTURE }
+ENGINE = Memory(); -- { serverError UNEXPECTED_AST_STRUCTURE }
 
 CREATE TABLE qbits
 (
     id UInt32,
     vec QBit(UInt32, 2)
 )
-ENGINE = Memory; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+ENGINE = Memory(); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 CREATE TABLE qbits
 (
     id UInt32,
     vec QBit(Float64, 1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits;
 

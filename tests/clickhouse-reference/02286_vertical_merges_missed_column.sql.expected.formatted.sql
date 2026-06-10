@@ -5,9 +5,9 @@ CREATE TABLE t_vertical_merges
     a Nullable(String),
     b Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS vertical_merge_algorithm_min_columns_to_activate = 1, vertical_merge_algorithm_min_rows_to_activate = 1, min_bytes_for_wide_part = 0;
+SETTINGS vertical_merge_algorithm_min_columns_to_activate = '1', vertical_merge_algorithm_min_rows_to_activate = '1', min_bytes_for_wide_part = '0';
 
 INSERT INTO t_vertical_merges SELECT
     NULL,
@@ -28,15 +28,15 @@ CREATE TABLE t_vertical_merges
     a Array(Int16),
     b Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS vertical_merge_algorithm_min_columns_to_activate = 1, vertical_merge_algorithm_min_rows_to_activate = 1, min_bytes_for_wide_part = 0;
+SETTINGS vertical_merge_algorithm_min_columns_to_activate = '1', vertical_merge_algorithm_min_rows_to_activate = '1', min_bytes_for_wide_part = '0';
 
 INSERT INTO t_vertical_merges SELECT
     [],
     1;
 
-ALTER TABLE t_vertical_merges DROP COLUMN b;
+ALTER TABLE t_vertical_merges CLEAR COLUMN b;
 
 SELECT
     a,

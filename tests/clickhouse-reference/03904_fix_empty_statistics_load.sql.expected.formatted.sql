@@ -1,5 +1,5 @@
 -- Test for issue #96068
-SET use_statistics = 1;
+SET use_statistics = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -17,7 +17,7 @@ CREATE TABLE tab
 ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY u64_minmax
-SETTINGS min_bytes_for_wide_part = 0, auto_statistics_types = '';
+SETTINGS min_bytes_for_wide_part = '0', auto_statistics_types = '';
 
 -- Insert looooots of parts (1000)
 INSERT INTO tab SELECT
@@ -36,7 +36,7 @@ FROM tab
 WHERE u64_countmin > 3500
     AND u64_countmin < 3600
 FORMAT NULL
-SETTINGS use_statistics_cache = 0, log_comment = '03904_empty';
+SETTINGS use_statistics_cache = '0', log_comment = '03904_empty';
 
 SYSTEM FLUSH LOGS query_log;
 

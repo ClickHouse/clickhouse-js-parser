@@ -1,620 +1,698 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-random-merge-tree-settings",
-      "-- We use a hack - partition by ignore(d1). In some cases there are two columns",
-      "-- not fully correlated (<1) (date_begin - date_end or datetime - datetime_in_TZ_with_DST)",
-      "-- If we partition by these columns instead of one it will be twice more partitions.",
-      "-- Partition by (.., ignore(d1)) allows to partition by the first column but build",
-      "-- min_max indexes for both column, so partition pruning works for both columns.",
-      "-- It's very similar to min_max skip index but gives bigger performance boost,",
-      "-- because partition pruning happens on very early query stage."
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
       },
-      {
-        "kind": "columnDef",
-        "name": "d1",
-        "type": {
-          "name": "DateTime"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalHour",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "8"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "functionCall",
-          "name": "toYYYYMM",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toDateTime",
-              "args": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d1",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "d"
+                  "type": "Identifier",
+                  "name": "d"
+                },
+                {
+                  "type": "Function",
+                  "name": "toIntervalHour",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "8"
+                    }
                   ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Function",
+              "name": "toYYYYMM",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toDateTime",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "ignore",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d1"
                 }
               ]
             }
           ]
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      },
+      "columns": [
         {
-          "kind": "functionCall",
-          "name": "ignore",
-          "args": [
+          "type": "Identifier",
+          "name": "d"
+        },
+        {
+          "type": "Identifier",
+          "name": "id"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-31 22:30:00"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "d"
+        },
+        {
+          "type": "Identifier",
+          "name": "id"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:30:00"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "d"
+        },
+        {
+          "type": "Identifier",
+          "name": "id"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-31 22:30:00"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "d"
+        },
+        {
+          "type": "Identifier",
+          "name": "id"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2023-01-31 22:30:00"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
-              ]
+              "type": "Identifier",
+              "name": "_partition_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "_partition_value"
             }
-          ]
-        }
-      ],
-      "source": "(toYYYYMM(toDateTime(d)), ignore(d1))"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "d"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2021-12-31 22:30:00"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
               }
             ]
           },
-          "alias": "d"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "d"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2022-01-01 00:30:00"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
               }
             ]
           },
-          "alias": "d"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "d"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2022-01-31 22:30:00"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
               }
             ]
           },
-          "alias": "d"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "d"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2023-01-31 22:30:00"
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-31 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:00:00"
+                  }
+                ]
               }
             ]
           },
-          "alias": "d"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    }
-  },
-  {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2021-12-31 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2022-01-01 00:00:00"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "explain",
-    "explainType": "ESTIMATE",
-    "query": {
-      "kind": "select",
-      "distinct": {
-        "kind": "distinct"
-      },
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      },
-      "where": {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN ESTIMATE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d"
+            "type": "SelectQuery",
+            "distinct": true,
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "_partition_id"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "weird_partitions_02245"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-12-31 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d"
+            "where": {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-12-31 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2022-01-01 00:00:00"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2022-01-01 00:00:00"
             }
           }
         ]
@@ -622,156 +700,190 @@
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2022-01-01 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-31 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:00:00"
+                  }
+                ]
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2021-12-31 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2022-01-01 00:00:00"
-          }
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
+  "<AST Error>",
   {
-    "kind": "empty"
-  },
-  {
-    "kind": "explain",
-    "explainType": "ESTIMATE",
-    "query": {
-      "kind": "select",
-      "distinct": {
-        "kind": "distinct"
-      },
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      },
-      "where": {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN ESTIMATE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d"
+            "type": "SelectQuery",
+            "distinct": true,
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "_partition_id"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "weird_partitions_02245"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2022-01-01 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
+            "where": {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2022-01-01 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-12-31 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2022-01-01 00:00:00"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-12-31 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2022-01-01 00:00:00"
             }
           }
         ]
@@ -779,123 +891,157 @@
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2021-12-31 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-31 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:00:00"
+                  }
+                ]
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2022-01-01 00:00:00"
-          }
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "explain",
-    "explainType": "ESTIMATE",
-    "query": {
-      "kind": "select",
-      "distinct": {
-        "kind": "distinct"
-      },
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      },
-      "where": {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN ESTIMATE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
+            "type": "SelectQuery",
+            "distinct": true,
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "_partition_id"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "weird_partitions_02245"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-12-31 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
+            "where": {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-12-31 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2022-01-01 00:00:00"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2022-01-01 00:00:00"
             }
           }
         ]
@@ -903,153 +1049,189 @@
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_partition_id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_partition_id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "weird_partitions_02245"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2022-01-01 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2022-01-01 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-31 00:00:00"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-01-01 00:00:00"
+                  }
+                ]
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2021-12-31 00:00:00"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d1"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-01-01 00:00:00"
-          }
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_partition_id"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "explain",
-    "explainType": "ESTIMATE",
-    "query": {
-      "kind": "select",
-      "distinct": {
-        "kind": "distinct"
-      },
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "_partition_id"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "weird_partitions_02245"
-      },
-      "where": {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN ESTIMATE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d"
+            "type": "SelectQuery",
+            "distinct": true,
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "_partition_id"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "weird_partitions_02245"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2022-01-01 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
+            "where": {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2022-01-01 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-12-31 00:00:00"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2020-01-01 00:00:00"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-12-31 00:00:00"
-            }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "d1"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2020-01-01 00:00:00"
             }
           }
         ]
@@ -1057,11 +1239,14 @@
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "weird_partitions_02245"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "weird_partitions_02245"
+      }
     }
   }
 ]

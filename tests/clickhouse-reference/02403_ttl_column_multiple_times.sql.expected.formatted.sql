@@ -7,7 +7,7 @@ CREATE TABLE ttl_table
 )
 ENGINE = MergeTree()
 ORDER BY EventDate
-SETTINGS vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1;
+SETTINGS vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1';
 
 SYSTEM STOP MERGES ttl_table;
 

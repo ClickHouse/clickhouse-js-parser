@@ -1,1224 +1,1814 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "output_format_json_quote_64bit_integers",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "output_format_json_quote_64bit_integers": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: long, no-azure-blob-storage"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "json",
-        "type": {
-          "name": "JSON",
-          "args": [
-            {
-              "kind": "setting",
-              "name": "max_dynamic_paths",
-              "value": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "8"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "source"
+        "type": "Identifier",
+        "name": "source"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "json",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON",
+              "arguments": [
+                {
+                  "type": "ObjectTypeArgument",
+                  "parameter": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "max_dynamic_paths"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "8"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "format": "JSONAsObject"
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "json",
-        "type": {
-          "name": "Tuple",
-          "args": [
-            {
-              "kind": "namedField",
-              "name": "data",
-              "type": {
-                "name": "JSON",
-                "args": [
-                  {
-                    "kind": "setting",
-                    "name": "max_dynamic_paths",
-                    "value": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "8"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_wide_advanced_tuple"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_wide_advanced_tuple"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "json",
+            "data_type": {
+              "type": "TupleDataType",
+              "name": "Tuple",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "JSON",
+                  "arguments": [
+                    {
+                      "type": "ObjectTypeArgument",
+                      "parameter": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "max_dynamic_paths"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "8"
+                          }
+                        ]
+                      }
                     }
+                  ]
+                }
+              ],
+              "element_names": [
+                "data"
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "2",
+            "min_bytes_for_wide_part": "1",
+            "min_rows_for_wide_part": "1",
+            "write_marks_for_substreams_in_compact_parts": "1",
+            "object_serialization_version": "v3",
+            "object_shared_data_serialization_version": "advanced",
+            "object_shared_data_serialization_version_for_zero_level_parts": "advanced",
+            "object_shared_data_buckets_for_wide_part": "2"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_wide_advanced_tuple"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "tuple",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json"
                   }
                 ]
               }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "min_rows_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "write_marks_for_substreams_in_compact_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "object_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "v3"
-        }
-      },
-      {
-        "name": "object_shared_data_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "advanced"
-        }
-      },
-      {
-        "name": "object_shared_data_serialization_version_for_zero_level_parts",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "advanced"
-        }
-      },
-      {
-        "name": "object_shared_data_buckets_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_wide_advanced_tuple"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "json"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source"
+                    }
+                  }
+                }
               ]
             }
-          ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
         }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source"
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "data"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
-    },
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_wide_advanced_tuple"
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.c",
+              "name_parts": [
+                "json",
+                "data",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.data.b",
+              "name_parts": [
+                "json",
+                "data",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data.^`a`",
+              "name_parts": [
+                "json",
+                "data",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.data",
+              "name_parts": [
+                "json",
+                "data"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_wide_advanced_tuple"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_wide_advanced_tuple"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      }
     }
   }
 ]

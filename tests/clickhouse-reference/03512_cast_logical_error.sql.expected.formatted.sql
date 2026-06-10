@@ -10,7 +10,7 @@ CREATE TABLE t0
 (
     c0 Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t1
 (
@@ -24,7 +24,7 @@ TO t1
     c0 String
 )
 AS
-(SELECT 1::Array(Int) AS c0); -- { serverError CANNOT_READ_ARRAY_FROM_TEXT }
+SELECT CAST('1' AS Array(Int)) AS c0; -- { serverError CANNOT_READ_ARRAY_FROM_TEXT }
 
 CREATE TABLE t0
 (
@@ -45,7 +45,7 @@ TO t1
     c1 String
 )
 AS
-(SELECT '2010-10-10' AS c1);
+SELECT '2010-10-10' AS c1;
 
 SELECT CAST(c1 AS Enum('1' = 1))
 FROM v0;

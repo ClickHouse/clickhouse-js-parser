@@ -1,7 +1,7 @@
 -- Tags: no-fasttest
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = 0;
+SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = '0';
 
 DROP TABLE IF EXISTS t_json_2;
 
@@ -13,7 +13,7 @@ CREATE TABLE t_json_2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_01825_2/t_json_2', 'r1')
 ORDER BY tuple();
 
-INSERT INTO t_json_2;
+INSERT INTO t_json_2 FORMAT JSONEachRow;
 
 SELECT
     id,
@@ -30,11 +30,11 @@ SELECT
 FROM t_json_2
 ORDER BY id ASC;
 
-INSERT INTO t_json_2;
+INSERT INTO t_json_2 FORMAT JSONEachRow;
 
 TRUNCATE TABLE t_json_2;
 
-INSERT INTO t_json_2;
+INSERT INTO t_json_2 FORMAT JSONEachRow;
 
 SELECT
     id,
@@ -42,9 +42,9 @@ SELECT
 FROM t_json_2
 ORDER BY id ASC;
 
-INSERT INTO t_json_2;
+INSERT INTO t_json_2 FORMAT JSONEachRow;
 
-INSERT INTO t_json_2;
+INSERT INTO t_json_2 FORMAT JSONEachRow;
 
 SELECT
     id,

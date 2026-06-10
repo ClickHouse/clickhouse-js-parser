@@ -12,7 +12,7 @@ CREATE TABLE t02176
 (
     timestamp DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toStartOfWeek(timestamp);
 

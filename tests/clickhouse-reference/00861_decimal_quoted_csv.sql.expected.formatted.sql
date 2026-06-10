@@ -7,8 +7,8 @@ CREATE TABLE test_00861
     d64 Decimal64(2),
     d128 Decimal128(2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-INSERT INTO test_00861;
+INSERT INTO test_00861 FORMAT CSV;
 
 DROP TABLE test_00861;

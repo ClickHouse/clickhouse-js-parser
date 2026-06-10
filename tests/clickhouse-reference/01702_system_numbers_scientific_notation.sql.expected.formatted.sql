@@ -1,9 +1,9 @@
 SELECT *
-FROM numbers(1e2)
+FROM numbers(100.)
 FORMAT Null;
 
 SELECT *
-FROM numbers_mt(1e2)
+FROM numbers_mt(100.)
 FORMAT Null;
 
 SELECT *

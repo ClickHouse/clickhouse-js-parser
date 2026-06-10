@@ -1,4 +1,4 @@
-SELECT toTypeName(topKDistinctState(toNullable(10))(toString(number)))
+SELECT toTypeName(topKDistinctState(toNullable(10))(toString(number)) IGNORE NULLS)
 FROM numbers(100)
 GROUP BY
     tuple((map((materialize(toNullable(1)), 2), 4, (3, 4), 5), 3)),

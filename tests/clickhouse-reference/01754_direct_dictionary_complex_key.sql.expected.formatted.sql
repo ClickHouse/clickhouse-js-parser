@@ -10,7 +10,7 @@ CREATE TABLE `01754_dictionary_db`.complex_key_simple_attributes_source_table
     value_first String,
     value_second String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `01754_dictionary_db`.complex_key_simple_attributes_source_table;
@@ -73,7 +73,7 @@ CREATE TABLE `01754_dictionary_db`.complex_key_complex_attributes_source_table
     value_first String,
     value_second Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `01754_dictionary_db`.complex_key_complex_attributes_source_table;

@@ -5,6 +5,6 @@ WHERE table = NULL
 
 SELECT DISTINCT marks
 FROM `system`.parts
-WHERE (table = NULL)
-    AND (database = currentDatabase())
-    AND (active = 1);
+WHERE table = NULL
+    AND database = currentDatabase()
+    AND active = 1;

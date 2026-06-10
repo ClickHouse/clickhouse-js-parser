@@ -4,7 +4,7 @@ CREATE TABLE cardinality
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO cardinality (x) SELECT concat('v', toString(number))

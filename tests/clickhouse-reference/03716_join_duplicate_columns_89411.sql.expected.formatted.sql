@@ -8,7 +8,7 @@ FROM
     ) AS t1
 INNER JOIN (
         SELECT
-            CAST(0, 'UInt64') AS k,
+            CAST(0 AS UInt64) AS k,
             k
         FROM numbers(3)
     ) AS t2

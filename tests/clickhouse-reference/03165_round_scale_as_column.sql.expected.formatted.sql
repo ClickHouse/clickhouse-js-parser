@@ -100,7 +100,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat32(((number - 10)) / 10) AS x,
+    toFloat32((number - 10) / 10) AS x,
     round(x),
     roundBankers(x),
     floor(x),
@@ -110,7 +110,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat64(((number - 10)) / 10) AS x,
+    toFloat64((number - 10) / 10) AS x,
     round(x),
     roundBankers(x),
     floor(x),
@@ -121,7 +121,7 @@ LIMIT 20;
 
 -- Functions round(), roundBankers(), floor(), ceil() and trunc() accept non-const 'scale' arguments
 SELECT
-    toFloat32(((number - 10)) / 10) AS x,
+    toFloat32((number - 10) / 10) AS x,
     round(x, materialize(1)),
     roundBankers(x, materialize(1)),
     floor(x, materialize(1)),
@@ -131,7 +131,7 @@ FROM `system`.numbers
 LIMIT 20;
 
 SELECT
-    toFloat64(((number - 10)) / 10) AS x,
+    toFloat64((number - 10) / 10) AS x,
     round(x, materialize(1)),
     roundBankers(x, materialize(1)),
     floor(x, materialize(1)),
@@ -359,7 +359,7 @@ CREATE TABLE tab
     f32 Float32,
     f64 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab SELECT
     number,
@@ -388,8 +388,8 @@ INSERT INTO tab SELECT
     number - 10,
     number - 10,
     number - 10,
-    ((toFloat32(number) - 10)) / 10,
-    ((toFloat64(number) - 10)) / 10
+    (toFloat32(number) - 10) / 10,
+    (toFloat64(number) - 10) / 10
 FROM `system`.numbers
 LIMIT 20;
 
@@ -420,8 +420,8 @@ INSERT INTO tab SELECT
     number - 10,
     number - 10,
     number - 10,
-    ((toFloat32(number) - 10)) / 10,
-    ((toFloat64(number) - 10)) / 10
+    (toFloat32(number) - 10) / 10,
+    (toFloat64(number) - 10) / 10
 FROM `system`.numbers
 LIMIT 20;
 
@@ -452,14 +452,14 @@ INSERT INTO tab SELECT
     number - 10,
     number - 10,
     number - 10,
-    ((toFloat32(number) - 10)) / 10,
-    ((toFloat64(number) - 10)) / 10
+    (toFloat32(number) - 10) / 10,
+    (toFloat64(number) - 10) / 10
 FROM `system`.numbers
 LIMIT 20;
 
 INSERT INTO tab SELECT
     number + 200,
-    negate(number),
+    -number,
     0,
     0,
     0,
@@ -475,7 +475,7 @@ LIMIT 10;
 
 INSERT INTO tab SELECT
     number + 210,
-    negate(number),
+    -number,
     0,
     0,
     0,
@@ -655,7 +655,7 @@ CREATE TABLE tab
     d128 Decimal128(4),
     d256 Decimal256(4)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab;
 

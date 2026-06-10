@@ -6,14 +6,11 @@ CREATE TABLE test
 (
     i int,
     j int,
-    PROJECTION p (    SELECT
-        *,
-        _part_offset
-    ORDER BY j ASC)
+    PROJECTION p (SELECT *, _part_offset ORDER BY j)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS index_granularity = 1, max_bytes_to_merge_at_max_space_in_pool = 1;
+SETTINGS index_granularity = '1', max_bytes_to_merge_at_max_space_in_pool = '1';
 
 -- make 5 parts
 INSERT INTO test SELECT
@@ -44,8 +41,8 @@ SELECT
 FROM test
 WHERE _part_starting_offset + _part_offset = 8
 SETTINGS
-    parallel_replicas_local_plan = 0,
-    max_rows_to_read = 1;
+    parallel_replicas_local_plan = '0',
+    max_rows_to_read = '1';
 
 SELECT
     *,
@@ -53,22 +50,22 @@ SELECT
 FROM test
 WHERE _part_offset + _part_starting_offset = 8
 SETTINGS
-    parallel_replicas_local_plan = 0,
-    max_rows_to_read = 1;
+    parallel_replicas_local_plan = '0',
+    max_rows_to_read = '1';
 
 -- from fuzzer
 SELECT *
 FROM test
-PREWHERE 8 = (_part_offset + _part_starting_offset)
-WHERE 8 = (_part_offset + _part_starting_offset)
+PREWHERE 8 = _part_offset + _part_starting_offset
+WHERE 8 = _part_offset + _part_starting_offset
 SETTINGS
-    parallel_replicas_local_plan = 0,
-    max_rows_to_read = 1;
+    parallel_replicas_local_plan = '0',
+    max_rows_to_read = '1';
 
 SELECT *
 FROM test
-PREWHERE (8 = (_part_starting_offset * _part_offset))
+PREWHERE 8 = _part_starting_offset * _part_offset
     AND 3
-WHERE 8 = (_part_starting_offset + _part_offset);
+WHERE 8 = _part_starting_offset + _part_offset;
 
 DROP TABLE test;

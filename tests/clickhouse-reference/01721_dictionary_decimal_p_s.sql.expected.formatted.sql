@@ -11,7 +11,7 @@ CREATE TABLE table_decimal_dict
     Decimal128_ Decimal(25, 8),
     Decimal256_ Decimal(76, 37)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table_decimal_dict SELECT
     number,
@@ -30,7 +30,7 @@ CREATE DICTIONARY IF NOT EXISTS decimal_dict
 )
 PRIMARY KEY KeyField
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_decimal_dict' DB current_database()))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(SPARSE_HASHED());
 
 SELECT '-------- 42 --------';

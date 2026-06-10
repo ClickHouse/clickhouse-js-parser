@@ -12,7 +12,7 @@ FROM (
         FROM (
                 SELECT
                     2 AS x,
-                    arrayJoin([1,2,3])
+                    arrayJoin([1, 2, 3])
             )
     )
 ORDER BY x ASC;

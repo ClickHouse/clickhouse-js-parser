@@ -7,14 +7,14 @@ CREATE TABLE t1
     id Int32,
     key String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     id Int32,
     key String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -23,6 +23,6 @@ INSERT INTO t2;
 SELECT *
 FROM
     t1
-INNER JOIN t2
-    ON ((NULL = t1.key) = t2.id)
-    AND (('' = t1.key) = t2.id);
+ANY INNER JOIN t2
+    ON NULL = t1.key = t2.id
+    AND '' = t1.key = t2.id;

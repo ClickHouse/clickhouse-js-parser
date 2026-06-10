@@ -1,120 +1,106 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_before_external_group_by": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-replicated-database, no-asan, no-tsan, no-msan, no-ubsan, no-coverage",
-      "-- Sanitizers have their own mechanism of tracking the allocation/deallocations and it doesn't work with our MemoryTracker. "
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_ratio_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_ratio_before_external_group_by": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "100M"
-        }
-      },
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "1G"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "100M",
+        "max_rows_to_read": "1G"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cityHash64",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "functionCall",
-                "name": "rand",
-                "args": []
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1000"
+              "type": "Function",
+              "alias": "n",
+              "name": "cityHash64",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "modulo",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "rand",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1000"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "groupBitmapState",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers_mt",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "200000000"
+                      }
+                    ]
+                  }
+                }
               }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "n"
             }
           ]
-        },
-        "alias": "n"
-      },
-      {
-        "kind": "functionCall",
-        "name": "groupBitmapState",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers_mt",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "200000000"
         }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      ]
-    },
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+      ],
+      "format": "Null"
+    }
   }
 ]

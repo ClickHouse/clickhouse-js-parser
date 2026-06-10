@@ -3,7 +3,9 @@ SELECT
     b
 FROM
     numbers(1)
-ARRAY JOIN [materialize(3) IN (SELECT 42)] AS b;
+ARRAY JOIN [materialize(3) IN (
+        SELECT 42
+    )] AS b;
 
 SELECT *
 FROM

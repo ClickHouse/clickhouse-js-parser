@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS ANIMAL;
 
@@ -6,7 +6,7 @@ CREATE TABLE ANIMAL
 (
     ANIMAL Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO ANIMAL (ANIMAL);
@@ -27,7 +27,7 @@ FROM (
                 INNER JOIN ANIMAL AS b
                     ON a.ANIMAL = b.ANIMAL
                 LEFT JOIN ANIMAL AS c
-                    ON (b.ANIMAL = c.ANIMAL)
+                    ON b.ANIMAL = c.ANIMAL
                 RIGHT JOIN (
                         SELECT *
                         FROM ANIMAL
@@ -38,10 +38,10 @@ FROM (
                         SELECT *
                         FROM ANIMAL
                     ) AS d
-                    ON (a.ANIMAL = d.ANIMAL)
-                WHERE d.ANIMAL <> 'CAT'
-                    AND c.ANIMAL <> 'DOG'
-                    AND b.ANIMAL <> 'FISH'
+                    ON a.ANIMAL = d.ANIMAL
+                WHERE d.ANIMAL != 'CAT'
+                    AND c.ANIMAL != 'DOG'
+                    AND b.ANIMAL != 'FISH'
             ) AS x
         WHERE x.b >= 'CAT'
         GROUP BY x.b

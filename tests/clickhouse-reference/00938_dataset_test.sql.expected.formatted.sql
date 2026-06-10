@@ -8,18 +8,18 @@ CREATE TABLE IF NOT EXISTS defaults
     predict1 Float64,
     predict2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
 DROP TABLE IF EXISTS model;
 
 CREATE TABLE model
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT stochasticLinearRegressionState(0.03, 0.00001, 2, 'Momentum')(target, param1, param2) AS state
 FROM defaults;
 
-SELECT ans > -67.0
+SELECT ans > -67.
     AND ans < -66.9
 FROM (
         WITH (

@@ -14,8 +14,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [1,2]) AS a,
-            arrayReduce('uniqThetaState', [2,3,4]) AS b
+            arrayReduce('uniqThetaState', [1, 2]) AS a,
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS b
     );
 
 SELECT
@@ -24,8 +24,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [2,3,4]) AS a,
-            arrayReduce('uniqThetaState', [1,2]) AS b
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS a,
+            arrayReduce('uniqThetaState', [1, 2]) AS b
     );
 
 SELECT
@@ -44,8 +44,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [1,2]) AS a,
-            arrayReduce('uniqThetaState', [2,3,4]) AS b
+            arrayReduce('uniqThetaState', [1, 2]) AS a,
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS b
     );
 
 SELECT
@@ -54,8 +54,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [2,3,4]) AS a,
-            arrayReduce('uniqThetaState', [1,2]) AS b
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS a,
+            arrayReduce('uniqThetaState', [1, 2]) AS b
     );
 
 SELECT
@@ -74,8 +74,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [1,2]) AS a,
-            arrayReduce('uniqThetaState', [2,3,4]) AS b
+            arrayReduce('uniqThetaState', [1, 2]) AS a,
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS b
     );
 
 SELECT
@@ -84,8 +84,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            arrayReduce('uniqThetaState', [2,3,4]) AS a,
-            arrayReduce('uniqThetaState', [1,2]) AS b
+            arrayReduce('uniqThetaState', [2, 3, 4]) AS a,
+            arrayReduce('uniqThetaState', [1, 2]) AS b
     );
 
 SELECT
@@ -94,8 +94,8 @@ SELECT
     finalizeAggregation(b)
 FROM (
         SELECT
-            (uniqThetaStateIf(number, number > 0)) AS a,
-            (uniqThetaStateIf(number, number > 5)) AS b
+            uniqThetaStateIf(number, number > 0) AS a,
+            uniqThetaStateIf(number, number > 5) AS b
         FROM (
                 SELECT number
                 FROM `system`.numbers
@@ -111,7 +111,7 @@ CREATE TABLE test1
     uv AggregateFunction(uniqTheta, Int64)
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (year);
+ORDER BY year;
 
 INSERT INTO test1 (year, uv) SELECT
     '2021',
@@ -156,7 +156,7 @@ CREATE TABLE test2
     uv Int64
 )
 ENGINE = MergeTree()
-ORDER BY (year);
+ORDER BY year;
 
 INSERT INTO test2 (year, uv) SELECT
     '2021',

@@ -1,4 +1,4 @@
-SET transform_null_in = 1;
+SET transform_null_in = '1';
 
 SELECT NULL IN (NULL);
 

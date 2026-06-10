@@ -5,8 +5,8 @@ CREATE TABLE t0
     c0 Int
 )
 ENGINE = MergeTree()
-ORDER BY (c0 * NULL)
-SETTINGS allow_nullable_key = 1;
+ORDER BY c0 * NULL
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t0 (c0);
 

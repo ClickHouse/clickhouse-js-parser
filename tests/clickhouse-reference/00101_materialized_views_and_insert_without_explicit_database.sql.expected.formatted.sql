@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS test_view;
 
 DROP TABLE IF EXISTS test_view_filtered;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_table
 (
@@ -21,7 +21,7 @@ CREATE MATERIALIZED VIEW test_view
     `Rows` UInt64,
     MaxHitTime DateTime('America/Los_Angeles')
 )
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     count() AS `Rows`,
@@ -33,7 +33,7 @@ CREATE MATERIALIZED VIEW test_view_filtered
     EventDate Date,
     CounterID UInt32
 )
-ENGINE = Memory
+ENGINE = Memory()
 POPULATE
 AS
 SELECT
@@ -60,9 +60,9 @@ DROP TABLE test_view;
 DROP TABLE test_view_filtered;
 
 -- Check only sophisticated constructors and desctructors:
-CREATE DATABASE IF NOT EXISTS {CLICKHOUSE_DATABASE_1:Identifier};
+CREATE DATABASE IF NOT EXISTS CLICKHOUSE_DATABASE_1;
 
-USE {CLICKHOUSE_DATABASE_1:Identifier};
+USE CLICKHOUSE_DATABASE_1;
 
 DROP TABLE IF EXISTS tmp;
 
@@ -87,7 +87,7 @@ CREATE TABLE tmp
     date Date,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW tmp_mv
 ENGINE = AggregatingMergeTree(date, (date, name), 8192)
@@ -104,7 +104,7 @@ GROUP BY
 CREATE TABLE tmp_mv2 AS tmp_mv;
 
 CREATE TABLE tmp_mv3 AS tmp_mv
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW tmp_mv4
 ENGINE = AggregatingMergeTree(date, date, 8192)
@@ -131,6 +131,6 @@ EXISTS TABLE `.inner.tmp_mv4`;
 
 DROP TABLE tmp;
 
-DROP DATABASE {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE CLICKHOUSE_DATABASE;
 
-DROP DATABASE {CLICKHOUSE_DATABASE_1:Identifier};
+DROP DATABASE CLICKHOUSE_DATABASE_1;

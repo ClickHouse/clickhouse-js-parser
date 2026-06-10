@@ -1,4 +1,4 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 CREATE TABLE m
 (
@@ -11,7 +11,7 @@ CREATE TABLE b
     key UInt32,
     ID UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE a1

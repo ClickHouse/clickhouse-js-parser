@@ -4,7 +4,7 @@ CREATE TABLE `02005_test_table`
 (
     value Map(Int64, Int64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 SELECT mapPopulateSeries(value)
 FROM `02005_test_table`;
@@ -37,7 +37,7 @@ CREATE TABLE `02005_test_table`
     key Array(Int64),
     value Array(Int64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 SELECT mapPopulateSeries(key, value)
 FROM `02005_test_table`;

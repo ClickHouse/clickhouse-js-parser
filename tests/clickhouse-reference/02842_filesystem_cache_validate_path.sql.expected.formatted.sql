@@ -11,7 +11,7 @@ CREATE TABLE test
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS disk = disk(type = cache, max_size = '1Mi', path = '/kek', disk = 'local_disk'); -- {serverError BAD_ARGUMENTS}
+SETTINGS disk = 'disk(type = cache, max_size = ''1Mi'', path = ''/kek'', disk = ''local_disk'')'; -- {serverError BAD_ARGUMENTS}
 
 CREATE TABLE test
 (
@@ -19,7 +19,7 @@ CREATE TABLE test
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS disk = disk(type = cache, max_size = '1Mi', path = '/var/lib/clickhouse/filesystem_caches/../kek', disk = 'local_disk'); -- {serverError BAD_ARGUMENTS}
+SETTINGS disk = 'disk(type = cache, max_size = ''1Mi'', path = ''/var/lib/clickhouse/filesystem_caches/../kek'', disk = ''local_disk'')'; -- {serverError BAD_ARGUMENTS}
 
 CREATE TABLE test
 (
@@ -27,7 +27,7 @@ CREATE TABLE test
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS disk = disk(type = cache, max_size = '1Mi', path = '../kek', disk = 'local_disk'); -- {serverError BAD_ARGUMENTS}
+SETTINGS disk = 'disk(type = cache, max_size = ''1Mi'', path = ''../kek'', disk = ''local_disk'')'; -- {serverError BAD_ARGUMENTS}
 
 CREATE TABLE test_1
 (
@@ -35,7 +35,7 @@ CREATE TABLE test_1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS disk = disk(type = cache, max_size = '1Mi', path = '/var/lib/clickhouse/filesystem_caches/kek', disk = 'local_disk');
+SETTINGS disk = 'disk(type = cache, max_size = ''1Mi'', path = ''/var/lib/clickhouse/filesystem_caches/kek'', disk = ''local_disk'')';
 
 CREATE TABLE test_2
 (
@@ -43,4 +43,4 @@ CREATE TABLE test_2
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS disk = disk(type = cache, max_size = '1Mi', path = 'kek2', disk = 'local_disk');
+SETTINGS disk = 'disk(type = cache, max_size = ''1Mi'', path = ''kek2'', disk = ''local_disk'')';

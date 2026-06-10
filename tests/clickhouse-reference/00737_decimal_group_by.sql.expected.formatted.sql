@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS decimal
     B Decimal128(18),
     C Decimal128(18)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal;
 

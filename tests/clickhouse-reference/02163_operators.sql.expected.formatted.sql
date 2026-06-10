@@ -42,7 +42,8 @@ q AS r,
 
 1 AS t
 
-SELECT isNull(toIntervalMinute(concat(caseWithExpression(multiIf(NOT isNotNull(negate(a[`b.c`]) * u DIV v + d)
+SELECT toIntervalMinute(caseWithExpression(multiIf(NOT -a[`b.c`] * u DIV v + d IS NOT NULL
     AND e
-    OR and(greaterOrEquals(f, g), lessOrEquals(f, h)), i, j), w, k, NULL), [l, (m, n)])))
-    OR NOT o::Array(INT) = p <> q < r > s != t AS upyachka;
+    OR f >= g
+    AND f <= h, i, j), w, k, NULL) || [l, (m, n)]) IS NULL
+    OR NOT o::Array(INT) = p != q < r > s != t AS upyachka;

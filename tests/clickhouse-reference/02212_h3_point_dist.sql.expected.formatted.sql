@@ -8,7 +8,7 @@ CREATE TABLE table1
     lat2 Float64,
     lon2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1;
 
@@ -48,6 +48,6 @@ ORDER BY k ASC;
 
 DROP TABLE table1;
 
-SELECT round(h3PointDistRads(-10.0, 0.0, 10.0, arrayJoin([0.0])), 5) AS h3PointDistRads;
+SELECT round(h3PointDistRads(-10., 0., 10., arrayJoin([0.])), 5) AS h3PointDistRads;
 
-SELECT round(h3PointDistRads(-10.0, 0.0, 10.0, toFloat64(0)), 5) AS h3PointDistRads;
+SELECT round(h3PointDistRads(-10., 0., 10., toFloat64(0)), 5) AS h3PointDistRads;

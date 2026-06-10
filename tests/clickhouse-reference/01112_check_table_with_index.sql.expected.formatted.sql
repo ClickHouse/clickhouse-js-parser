@@ -6,13 +6,13 @@ CREATE TABLE check_table_with_indices
 (
     id UInt64,
     data String,
-    INDEX a id TYPE minmax GRANULARITY 3
+    INDEX a id TYPE minmax() GRANULARITY 3
 )
 ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO check_table_with_indices;
 
-CHECK TABLE check_table_with_indices SETTINGS max_threads = 1;
+CHECK TABLE check_table_with_indices SETTINGS max_threads = '1';
 
 DROP TABLE check_table_with_indices;

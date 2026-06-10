@@ -7,13 +7,13 @@ CREATE TABLE t_sparse_pk
     k UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.0, index_granularity = 1;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0., index_granularity = '1';
 
 INSERT INTO t_sparse_pk;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 SELECT
     k,
@@ -37,20 +37,20 @@ ORDER BY
 CREATE TABLE t_sparse_pk
 (
     k UInt64,
-    v UInt64 CODEC(NONE)
+    v UInt64 CODEC(NONE())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.0, index_granularity = 30;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0., index_granularity = '30';
 
 CREATE TABLE t_full_pk
 (
     k UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.1, index_granularity = 30;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.1, index_granularity = '30';
 
 INSERT INTO t_sparse_pk SELECT
     number % 10,
@@ -102,10 +102,10 @@ WHERE k = 0
     OR k = 7
     OR k = 8;
 
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
-SELECT (k = NULL)
-    OR (k = 1000)
+SELECT k = NULL
+    OR k = 1000
 FROM t_sparse_pk
 LIMIT 3;
 

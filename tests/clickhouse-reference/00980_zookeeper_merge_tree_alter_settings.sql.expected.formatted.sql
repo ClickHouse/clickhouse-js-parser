@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS replicated_table_for_alter1;
 
 DROP TABLE IF EXISTS replicated_table_for_alter2;
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
 CREATE TABLE replicated_table_for_alter1
 (
@@ -25,13 +25,13 @@ ORDER BY id;
 
 SHOW CREATE TABLE replicated_table_for_alter1;
 
-ALTER TABLE replicated_table_for_alter1 MODIFY SETTING index_granularity = 4096; -- { serverError READONLY_SETTING }
+ALTER TABLE replicated_table_for_alter1 MODIFY SETTING index_granularity = '4096'; -- { serverError READONLY_SETTING }
 
 INSERT INTO replicated_table_for_alter2;
 
 SYSTEM SYNC REPLICA replicated_table_for_alter1;
 
-ALTER TABLE replicated_table_for_alter1 MODIFY SETTING use_minimalistic_part_header_in_zookeeper = 1;
+ALTER TABLE replicated_table_for_alter1 MODIFY SETTING use_minimalistic_part_header_in_zookeeper = '1';
 
 INSERT INTO replicated_table_for_alter1;
 
@@ -51,7 +51,7 @@ DETACH TABLE replicated_table_for_alter1;
 
 ATTACH TABLE replicated_table_for_alter1;
 
-ALTER TABLE replicated_table_for_alter2 MODIFY SETTING parts_to_throw_insert = 1, parts_to_delay_insert = 1;
+ALTER TABLE replicated_table_for_alter2 MODIFY SETTING parts_to_throw_insert = '1', parts_to_delay_insert = '1';
 
 INSERT INTO replicated_table_for_alter2; -- { serverError TOO_MANY_PARTS }
 
@@ -59,7 +59,7 @@ INSERT INTO replicated_table_for_alter1;
 
 SHOW CREATE TABLE replicated_table_for_alter2;
 
-ALTER TABLE replicated_table_for_alter1 ADD COLUMN Data2 UInt64, MODIFY SETTING check_delay_period = 5, check_delay_period = 10, check_delay_period = 15;
+ALTER TABLE replicated_table_for_alter1 ADD COLUMN Data2 UInt64, MODIFY SETTING check_delay_period = '15';
 
 DROP TABLE IF EXISTS replicated_table_for_reset_setting1;
 
@@ -85,11 +85,11 @@ SHOW CREATE TABLE replicated_table_for_reset_setting1;
 
 SHOW CREATE TABLE replicated_table_for_reset_setting2;
 
-ALTER TABLE replicated_table_for_reset_setting1 MODIFY SETTING index_granularity = 4096; -- { serverError READONLY_SETTING }
+ALTER TABLE replicated_table_for_reset_setting1 MODIFY SETTING index_granularity = '4096'; -- { serverError READONLY_SETTING }
 
-ALTER TABLE replicated_table_for_reset_setting1 MODIFY SETTING merge_with_ttl_timeout = 100;
+ALTER TABLE replicated_table_for_reset_setting1 MODIFY SETTING merge_with_ttl_timeout = '100';
 
-ALTER TABLE replicated_table_for_reset_setting2 MODIFY SETTING merge_with_ttl_timeout = 200;
+ALTER TABLE replicated_table_for_reset_setting2 MODIFY SETTING merge_with_ttl_timeout = '200';
 
 DETACH TABLE replicated_table_for_reset_setting2;
 

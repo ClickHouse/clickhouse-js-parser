@@ -3,7 +3,7 @@ DROP DATABASE IF EXISTS test_dict_db;
 
 CREATE DATABASE test_dict_db;
 
-SET check_table_dependencies = 0;
+SET check_table_dependencies = '0';
 
 CREATE TABLE test_dict_db.table1
 (
@@ -28,7 +28,7 @@ CREATE TABLE test_dict_db.table1
     col19 Nullable(DateTime('UTC')),
     col20 Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (col1, col2, col3, col4, col5);
 
 INSERT INTO test_dict_db.table1;
@@ -94,10 +94,10 @@ CREATE TABLE test_dict_db.table1
     col19 DateTime('UTC'),
     col20 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (col1, col2, col3, col4, col5);
 
-SET input_format_null_as_default = 1;
+SET input_format_null_as_default = '1';
 
 SYSTEM RELOAD DICTIONARY test_dict_db.table1_dict;
 

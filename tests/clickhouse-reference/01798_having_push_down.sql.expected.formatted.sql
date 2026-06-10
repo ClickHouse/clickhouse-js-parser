@@ -5,7 +5,7 @@ CREATE TABLE t_having
     c0 Int32,
     c1 UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c0;
 
 INSERT INTO t_having SELECT
@@ -20,9 +20,9 @@ SELECT
 FROM t_having
 GROUP BY c0
 HAVING c0 = 0
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
-SET enable_positional_arguments = 0;
+SET enable_positional_arguments = '0';
 
 SELECT
     c0 + -1,
@@ -34,7 +34,7 @@ GROUP BY
     intDivOrZero(intDivOrZero(intDivOrZero(NULL, NULL), NULL), NULL),
     c0
 HAVING c0 = 2
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
 SELECT sum(c0 + 257)
 FROM t_having
@@ -44,7 +44,7 @@ GROUP BY
     -2147483649,
     c0
 HAVING c0 = -9223372036854775808
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
 SELECT
     c0 + -2,
@@ -56,9 +56,9 @@ GROUP BY
     1023,
     c0
 HAVING c0 = 0.9998999834060669
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = '1';
 
 SELECT
     sum(c0 = 0),

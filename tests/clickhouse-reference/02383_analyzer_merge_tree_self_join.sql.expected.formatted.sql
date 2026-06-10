@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table_join_1;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table_join_1
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 DROP TABLE IF EXISTS test_table_join_2;
@@ -17,7 +17,7 @@ CREATE TABLE test_table_join_2
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table_join_1;

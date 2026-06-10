@@ -1,182 +1,231 @@
 [
   {
-    "kind": "drop",
-    "targetType": "DICTIONARY",
-    "table": {
-      "kind": "tableRef",
-      "table": "dict"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "s"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "s"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "s"
+        "type": "Identifier",
+        "name": "dict"
+      },
+      "if_exists": true,
+      "is_dictionary": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "s"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "s"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "createDictionary",
-    "table": {
-      "kind": "tableRef",
-      "table": "dict"
-    },
-    "dictAttrs": [
-      {
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "s"
       },
-      {
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "dictDef": {
-      "primaryKey": [
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_dictionary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "dict"
+      },
+      "dictionary_attributes": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
+          "type": "DictionaryAttributeDeclaration",
+          "name": "id",
+          "data_type": {
+            "type": "DataType",
+            "name": "UInt64"
+          }
+        },
+        {
+          "type": "DictionaryAttributeDeclaration",
+          "name": "value",
+          "data_type": {
+            "type": "DataType",
+            "name": "String"
+          }
         }
       ],
-      "source": {
-        "name": "clickhouse",
-        "pairs": [
+      "dictionary": {
+        "type": "Dictionary",
+        "primary_key": [
           {
-            "name": "NAME",
-            "value": {
-              "kind": "columnRef",
-              "parts": [
-                "clickhouse_dictionary"
+            "type": "Identifier",
+            "name": "id"
+          }
+        ],
+        "source": {
+          "type": "FunctionWithKeyValueArguments",
+          "name": "clickhouse",
+          "elements": [
+            {
+              "type": "pair",
+              "key": "name",
+              "value": {
+                "type": "Identifier",
+                "name": "clickhouse_dictionary"
+              }
+            },
+            {
+              "type": "pair",
+              "key": "port",
+              "value": {
+                "type": "Function",
+                "name": "tcpPort",
+                "arguments": []
+              }
+            },
+            {
+              "type": "pair",
+              "key": "db",
+              "value": {
+                "type": "Function",
+                "name": "currentDatabase",
+                "arguments": []
+              }
+            }
+          ]
+        },
+        "lifetime": {
+          "type": "DictionaryLifetime",
+          "min_sec": 1,
+          "max_sec": 1000
+        },
+        "layout": {
+          "type": "DictionaryLayout",
+          "layout_type": "cache",
+          "parameters": [
+            {
+              "type": "pair",
+              "key": "size_in_cells",
+              "value": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "dictGet",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "dict"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "value"
+                },
+                {
+                  "type": "Function",
+                  "name": "toUInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                }
               ]
             }
-          },
-          {
-            "name": "PORT",
-            "value": {
-              "kind": "functionCall",
-              "name": "tcpPort",
-              "args": []
-            }
-          },
-          {
-            "name": "DB",
-            "value": {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            }
-          }
-        ]
-      },
-      "lifetime": {
-        "min": 1,
-        "max": 1000
-      },
-      "layout": {
-        "name": "CACHE",
-        "pairs": [
-          {
-            "name": "SIZE_IN_CELLS",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        ]
-      }
+          ]
+        }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "dictGet",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "dict"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "value"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toUInt64",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "DICTIONARY",
-    "table": {
-      "kind": "tableRef",
-      "table": "dict"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dict"
+      },
+      "is_dictionary": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "s"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "s"
+      }
     }
   }
 ]

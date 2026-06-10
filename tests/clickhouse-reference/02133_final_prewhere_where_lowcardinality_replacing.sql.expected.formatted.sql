@@ -4,7 +4,7 @@ CREATE TABLE errors_local
 (
     level LowCardinality(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY level
 SETTINGS min_bytes_for_wide_part = '10000000';
 
@@ -23,5 +23,5 @@ CREATE TABLE errors_local
 (
     level LowCardinality(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY level;

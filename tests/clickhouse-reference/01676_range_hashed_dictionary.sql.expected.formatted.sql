@@ -26,7 +26,7 @@ SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'date_tab
 LIFETIME(MIN 1 MAX 1000)
 RANGE(MIN StartDate MAX EndDate)
 LAYOUT(RANGE_HASHED())
-SETTINGS(dictionary_use_async_executor = 1, max_threads = 8);
+SETTINGS(dictionary_use_async_executor = '1', max_threads = '8');
 
 SELECT dictGet('range_dictionary', 'Tax', toUInt64(1), toDate('2019-05-15'));
 

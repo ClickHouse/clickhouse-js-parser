@@ -1,5 +1,5 @@
 -- Tags: memory-engine
-SET enable_json_type = 0;
+SET enable_json_type = '0';
 
 DROP TABLE IF EXISTS example_mt;
 
@@ -10,7 +10,7 @@ CREATE TABLE example_mt
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS async_insert = 1, allow_suspicious_low_cardinality_types = 1;
+SETTINGS async_insert = '1', allow_suspicious_low_cardinality_types = '1';
 
 SHOW CREATE TABLE example_mt;
 
@@ -21,8 +21,8 @@ CREATE TABLE example_memory
     id UInt64,
     data LowCardinality(UInt8)
 )
-ENGINE = Memory
-SETTINGS max_rows_to_keep = 100, allow_suspicious_low_cardinality_types = 1;
+ENGINE = Memory()
+SETTINGS max_rows_to_keep = '100', allow_suspicious_low_cardinality_types = '1';
 
 SHOW CREATE TABLE example_memory;
 
@@ -33,8 +33,8 @@ CREATE TABLE example_set
     id UInt64,
     data LowCardinality(UInt8)
 )
-ENGINE = Set
-SETTINGS persistent = 1, allow_suspicious_low_cardinality_types = 1;
+ENGINE = Set()
+SETTINGS persistent = '1', allow_suspicious_low_cardinality_types = '1';
 
 SHOW CREATE TABLE example_set;
 
@@ -46,6 +46,6 @@ CREATE TABLE example_join
     data LowCardinality(UInt8)
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS persistent = 1, allow_suspicious_low_cardinality_types = 1;
+SETTINGS persistent = '1', allow_suspicious_low_cardinality_types = '1';
 
 SHOW CREATE TABLE example_join;

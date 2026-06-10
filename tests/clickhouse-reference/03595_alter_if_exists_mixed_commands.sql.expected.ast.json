@@ -1,209 +1,271 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-replicated-database",
-      "-- Test runtime IF EXISTS checks for mixed replicated/non-replicated ALTER commands",
-      "-- This test verifies that IF EXISTS clauses work correctly when mixing different types",
-      "-- of ALTER operations (replicated and non-replicated) in the same statement"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "leadingComments": [
-      "-- Test 1: COMMENT COLUMN IF EXISTS with column deleted by previous command"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "x"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "COMMENT_COLUMN",
-        "columnName": "x",
-        "comment": {
-          "kind": "literal",
-          "type": "String",
-          "value": "test comment"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- This should succeed - DROP removes x, COMMENT with IF EXISTS should be silently ignored"
-    ]
-  },
-  {
-    "kind": "describe",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_alter_mixed"
-      }
+        "type": "Identifier",
+        "name": "test_alter_mixed"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_alter_mixed"
       },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "Float64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "leadingComments": [
-      "-- Test 2: Multiple operations with mixed types in sequence"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_alter_mixed"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "a"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "a"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "a",
-          "type": {
-            "name": "Int64"
-          }
-        }
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "COMMENT_COLUMN",
-        "columnName": "a",
-        "comment": {
-          "kind": "literal",
-          "type": "String",
-          "value": "should be ignored"
-        }
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "RENAME_COLUMN",
-        "oldName": "a",
-        "newName": "a_renamed"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "b",
-          "type": {
-            "name": "String"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
           },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "test"
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
-        }
+        ]
       },
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "c"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "c",
-          "type": {
-            "name": "Float32"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
       }
-    ],
-    "leadingComments": [
-      "-- Complex case: multiple drops and modifications including comments"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_alter_mixed"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "x"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "COMMENT_COLUMN",
+          "if_exists": true,
+          "column": {
+            "type": "Identifier",
+            "name": "x"
+          },
+          "comment": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "test comment"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DescribeQuery",
+      "table_expression": {
+        "type": "TableExpression",
+        "database_and_table_name": {
+          "type": "TableIdentifier",
+          "name": "test_alter_mixed"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_alter_mixed"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_alter_mixed"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_alter_mixed"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "a"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "if_exists": true,
+          "column": {
+            "type": "Identifier",
+            "name": "a"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "if_exists": true,
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "COMMENT_COLUMN",
+          "if_exists": true,
+          "column": {
+            "type": "Identifier",
+            "name": "a"
+          },
+          "comment": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "should be ignored"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "RENAME_COLUMN",
+          "if_exists": true,
+          "column": {
+            "type": "Identifier",
+            "name": "a"
+          },
+          "rename_to": {
+            "type": "Identifier",
+            "name": "a_renamed"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "if_exists": true,
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "test"
+            }
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "c"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "if_exists": true,
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float32"
+            }
+          }
+        }
+      ]
+    }
   }
 ]

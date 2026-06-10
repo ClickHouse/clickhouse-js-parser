@@ -20,7 +20,7 @@ FROM (
         FROM numbers(3)
     ) AS ITBL; -- { serverError ILLEGAL_AGGREGATION }
 
-SET prefer_column_name_to_alias = 1;
+SET prefer_column_name_to_alias = '1';
 
 SELECT
     sum(x) AS x,
@@ -30,7 +30,7 @@ FROM (
         UNION ALL
         SELECT 2 AS x
     ) AS t
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';
 
 SELECT
     sum(C1) AS C1,
@@ -39,7 +39,7 @@ FROM (
         SELECT number AS C1
         FROM numbers(3)
     ) AS ITBL
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';
 
 DROP TABLE IF EXISTS mytable;
 
@@ -73,6 +73,6 @@ FROM mytable
 GROUP BY uuid
 HAVING max(end_ts) < 1620141001
 ORDER BY any(start_ts) DESC
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';
 
 DROP TABLE mytable;

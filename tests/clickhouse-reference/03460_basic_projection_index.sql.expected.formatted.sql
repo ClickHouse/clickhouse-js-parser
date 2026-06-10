@@ -1,11 +1,11 @@
 -- { echo ON }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
-SET optimize_aggregation_in_order = 0;
+SET optimize_aggregation_in_order = '0';
 
-SET min_table_rows_to_use_projection_index = 0;
+SET min_table_rows_to_use_projection_index = '0';
 
 ------------------------------------------------------------------------------
 -- 1. Basic projection index behavior (simple table)
@@ -17,12 +17,12 @@ CREATE TABLE t_proj
     id UInt64,
     region String,
     user_id UInt32,
-    PROJECTION region_proj INDEX region TYPE basic,
-    PROJECTION user_id_proj INDEX user_id TYPE basic
+    PROJECTION region_proj INDEX region TYPE basic(),
+    PROJECTION user_id_proj INDEX user_id TYPE basic()
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1, min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, enable_vertical_merge_algorithm = 0;
+SETTINGS index_granularity = '1', min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', enable_vertical_merge_algorithm = '0';
 
 INSERT INTO t_proj;
 
@@ -31,13 +31,15 @@ OPTIMIZE TABLE t_proj FINAL;
 -- Pick projection based on both filters
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_proj
-        WHERE region = 'eu'
-            AND user_id = 101
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_proj
+                WHERE region = 'eu'
+                    AND user_id = 101
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -49,12 +51,14 @@ ORDER BY `ALL` ASC;
 -- Region only
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_proj
-        WHERE region = 'zzz'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_proj
+                WHERE region = 'zzz'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -65,12 +69,14 @@ ORDER BY `ALL` ASC;
 -- User only
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_proj
-        WHERE user_id = 106
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_proj
+                WHERE user_id = 106
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -81,13 +87,15 @@ ORDER BY `ALL` ASC;
 -- OR → projection index disabled
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_proj
-        WHERE region = 'asia'
-            OR user_id = 101
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_proj
+                WHERE region = 'asia'
+                    OR user_id = 101
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -107,11 +115,11 @@ CREATE TABLE t_gran
 (
     id UInt64,
     region String,
-    PROJECTION region_proj INDEX region TYPE basic
+    PROJECTION region_proj INDEX region TYPE basic()
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 16, min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, enable_vertical_merge_algorithm = 0;
+SETTINGS index_granularity = '16', min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', enable_vertical_merge_algorithm = '0';
 
 INSERT INTO t_gran;
 
@@ -139,12 +147,14 @@ OPTIMIZE TABLE t_gran FINAL;
 
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_gran
-        WHERE region = 'top'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_gran
+                WHERE region = 'top'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -154,12 +164,14 @@ ORDER BY `ALL` ASC;
 
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_gran
-        WHERE region = 'mid'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_gran
+                WHERE region = 'mid'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -169,12 +181,14 @@ ORDER BY `ALL` ASC;
 
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_gran
-        WHERE region = 'bot'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_gran
+                WHERE region = 'bot'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -194,25 +208,27 @@ CREATE TABLE t_partial
     id UInt64,
     region String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1, min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, enable_vertical_merge_algorithm = 0;
+SETTINGS index_granularity = '1', min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', enable_vertical_merge_algorithm = '0';
 
 INSERT INTO t_partial;
 
-ALTER TABLE t_partial ADD PROJECTION region_proj INDEX region TYPE basic;
+ALTER TABLE t_partial ADD PROJECTION region_proj INDEX region TYPE basic();
 
 INSERT INTO t_partial;
 
 -- Should use projection for rows 4–6 only
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_partial
-        WHERE region = 'ru'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_partial
+                WHERE region = 'ru'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -223,12 +239,14 @@ ORDER BY `ALL` ASC;
 -- CN appears in both partial and full materialized parts
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN projections = 1
         SELECT *
-        FROM t_partial
-        WHERE region = 'cn'
+        FROM viewExplain('EXPLAIN', 'projections = 1', (
+                SELECT *
+                FROM t_partial
+                WHERE region = 'cn'
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
+WHERE `explain` LIKE '%ReadFromMergeTree%'
     OR match(`explain`, '^\\s+[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:');
 
 SELECT *
@@ -241,15 +259,15 @@ DROP TABLE t_partial;
 ------------------------------------------------------------------------------
 -- 4. (Replicated)MergeTree consistency test
 ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS t_repl;
+DROP TABLE IF EXISTS t_repl SYNC;
 
-DROP TABLE IF EXISTS t_repl2;
+DROP TABLE IF EXISTS t_repl2 SYNC;
 
 CREATE TABLE t_repl
 (
     id UInt64,
     region String,
-    PROJECTION region_proj INDEX region TYPE basic
+    PROJECTION region_proj INDEX region TYPE basic()
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/{database}/test/proj', 'r1')
 ORDER BY id;
@@ -260,7 +278,7 @@ CREATE TABLE t_repl2
 (
     id UInt64,
     region String,
-    PROJECTION region_proj INDEX region TYPE basic
+    PROJECTION region_proj INDEX region TYPE basic()
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/{database}/test/proj', 'r2')
 ORDER BY id;
@@ -282,29 +300,29 @@ ATTACH TABLE t_repl2;
 
 DESCRIBE TABLE mergeTreeProjection(currentDatabase(), t_repl2, region_proj);
 
-DROP TABLE t_repl;
+DROP TABLE t_repl SYNC;
 
-DROP TABLE t_repl2;
+DROP TABLE t_repl2 SYNC;
 
 ------------------------------------------------------------------------------
 -- 5. BAD CASES
 ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS t_bad;
+DROP TABLE IF EXISTS t_bad SYNC;
 
 -- Unknown index type
 CREATE TABLE t_bad
 (
     id UInt64,
-    PROJECTION bad INDEX id TYPE unknown_type
+    PROJECTION bad INDEX id TYPE unknown_type()
 )
-ENGINE = MergeTree
-ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
+ENGINE = MergeTree()
+ORDER BY (); -- { serverError INCORRECT_QUERY }
 
 -- Invalid expression inside index
 CREATE TABLE t_bad
 (
     id UInt64,
-    PROJECTION bad INDEX missing TYPE basic
+    PROJECTION bad INDEX missing TYPE basic()
 )
-ENGINE = MergeTree
-ORDER BY tuple(); -- { serverError UNKNOWN_IDENTIFIER }
+ENGINE = MergeTree()
+ORDER BY (); -- { serverError UNKNOWN_IDENTIFIER }

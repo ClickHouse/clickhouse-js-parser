@@ -1,11 +1,11 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE table0
 (
     id Int64,
     val String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE table1
@@ -13,7 +13,7 @@ CREATE TABLE table1
     id2 Int64,
     val String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id2;
 
 CREATE TABLE table2
@@ -22,7 +22,7 @@ CREATE TABLE table2
     id2 Int64,
     val String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, id2);
 
 INSERT INTO table0;
@@ -53,7 +53,7 @@ ORDER BY `ALL` ASC;
 WITH t0 AS (
     SELECT *
     FROM table0
-    WHERE like(val, 'b%')
+    WHERE val LIKE 'b%'
 )
 
 SELECT *

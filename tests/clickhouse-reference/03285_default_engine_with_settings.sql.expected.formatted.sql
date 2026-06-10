@@ -12,7 +12,7 @@ CREATE TABLE example_table
     data String
 )
 ORDER BY id
-SETTINGS max_part_loading_threads = 8;
+SETTINGS max_part_loading_threads = '8';
 
 SHOW CREATE TABLE example_table;
 
@@ -25,7 +25,7 @@ CREATE TABLE example_table2
     data String
 )
 ORDER BY id
-SETTINGS max_part_loading_threads = 8; -- { serverError BAD_ARGUMENTS }
+SETTINGS max_part_loading_threads = '8'; -- { serverError BAD_ARGUMENTS }
 
 -- Memory with max_part_loading_threads is wrong
 CREATE TABLE example_table2
@@ -33,13 +33,13 @@ CREATE TABLE example_table2
     id UInt32,
     data String
 )
-SETTINGS max_part_loading_threads = 8; -- { serverError UNKNOWN_SETTING }
+SETTINGS max_part_loading_threads = '8'; -- { serverError UNKNOWN_SETTING }
 
 CREATE TABLE example_table2
 (
     id UInt32,
     data String
 )
-SETTINGS max_rows_to_keep = 42;
+SETTINGS max_rows_to_keep = '42';
 
 SHOW CREATE TABLE example_table2;

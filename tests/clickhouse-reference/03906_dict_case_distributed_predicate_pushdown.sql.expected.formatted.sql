@@ -1,6 +1,6 @@
 -- Regression test for https://github.com/ClickHouse/ClickHouse/issues/87403
 -- Dictionary + CASE + distributed table: predicate pushdown should not filter out rows incorrectly.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t_dict_dist_local;
 
@@ -24,14 +24,8 @@ CREATE DICTIONARY d_dict_dist
     d String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(QUERY '
-    SELECT * FROM (
-        SELECT toInt64(1) AS id, ''alpha'' AS d
-        UNION ALL
-        SELECT toInt64(2) AS id, ''beta'' AS d
-    )
-'))
-LIFETIME(0)
+SOURCE(clickhouse(QUERY '\n    SELECT * FROM (\n        SELECT toInt64(1) AS id, ''alpha'' AS d\n        UNION ALL\n        SELECT toInt64(2) AS id, ''beta'' AS d\n    )\n'))
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 CREATE TABLE t_dict_dist AS t_dict_dist_local

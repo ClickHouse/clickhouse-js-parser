@@ -6,10 +6,10 @@ CREATE TABLE t_modify_to_nullable
     id UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY key
-SETTINGS min_bytes_for_wide_part = 0, ratio_of_defaults_for_sparse_serialization = 0.9;
+SETTINGS min_bytes_for_wide_part = '0', ratio_of_defaults_for_sparse_serialization = 0.9;
 
 INSERT INTO t_modify_to_nullable SELECT
     1,
@@ -40,7 +40,7 @@ SELECT
     arraySort(groupUniqArray(s))
 FROM t_modify_to_nullable;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE t_modify_to_nullable MODIFY COLUMN s Nullable(String);
 

@@ -6,15 +6,15 @@ FROM `system`.zookeeper; -- { serverError BAD_ARGUMENTS }
 
 SELECT count() > 0
 FROM `system`.zookeeper
-WHERE like(name, '%_%'); -- { serverError BAD_ARGUMENTS }
+WHERE name LIKE '%_%'; -- { serverError BAD_ARGUMENTS }
 
 SELECT count() > 0
 FROM `system`.zookeeper
-WHERE like(value, '%'); -- { serverError BAD_ARGUMENTS }
+WHERE value LIKE '%'; -- { serverError BAD_ARGUMENTS }
 
 SELECT count() > 0
 FROM `system`.zookeeper
-WHERE like(path, '/%'); -- { serverError BAD_ARGUMENTS }
+WHERE path LIKE '/%'; -- { serverError BAD_ARGUMENTS }
 
 SELECT count() > 0
 FROM `system`.zookeeper

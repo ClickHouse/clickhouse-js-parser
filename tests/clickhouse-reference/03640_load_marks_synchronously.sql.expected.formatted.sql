@@ -10,17 +10,17 @@ CREATE TABLE data
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS prewarm_mark_cache = 0, index_granularity = 1000;
+SETTINGS prewarm_mark_cache = '0', index_granularity = '1000';
 
 INSERT INTO data SELECT *
 FROM numbers(1000);
 
 SELECT *
 FROM data
-SETTINGS load_marks_asynchronously = 1
+SETTINGS load_marks_asynchronously = '1'
 FORMAT Null; /* 1 */
 
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     query,

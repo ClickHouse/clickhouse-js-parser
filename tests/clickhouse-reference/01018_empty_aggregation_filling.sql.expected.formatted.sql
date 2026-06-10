@@ -184,9 +184,9 @@ SELECT arrayReduce('maxOrDefault', arrayPopBack(['hello']));
 
 SELECT arrayReduce('maxOrNull', arrayPopBack(['hello']));
 
-SELECT arrayReduce('maxOrDefault', arrayPopBack(arrayPopBack([toDateTime('2011-04-05 14:19:19'), null])));
+SELECT arrayReduce('maxOrDefault', arrayPopBack(arrayPopBack([toDateTime('2011-04-05 14:19:19'), NULL])));
 
-SELECT arrayReduce('maxOrNull', arrayPopBack(arrayPopBack([toDateTime('2011-04-05 14:19:19'), null])));
+SELECT arrayReduce('maxOrNull', arrayPopBack(arrayPopBack([toDateTime('2011-04-05 14:19:19'), NULL])));
 
 SELECT arrayReduce('avgOrDefault', arrayPopBack([toDecimal128(-123.45, 2)]));
 
@@ -204,9 +204,9 @@ SELECT arrayReduce('maxOrDefault', ['hello']);
 
 SELECT arrayReduce('maxOrNull', ['hello']);
 
-SELECT arrayReduce('maxOrDefault', [toDateTime('2011-04-05 14:19:19'), null]);
+SELECT arrayReduce('maxOrDefault', [toDateTime('2011-04-05 14:19:19'), NULL]);
 
-SELECT arrayReduce('maxOrNull', [toDateTime('2011-04-05 14:19:19'), null]);
+SELECT arrayReduce('maxOrNull', [toDateTime('2011-04-05 14:19:19'), NULL]);
 
 SELECT arrayReduce('avgOrDefault', [toDecimal128(-123.45, 2)]);
 

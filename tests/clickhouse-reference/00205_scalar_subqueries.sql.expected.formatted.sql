@@ -19,12 +19,12 @@ SELECT
     ) = (
         SELECT 10
     ),
-    ((
+    (
         SELECT
             1,
             'Hello',
             [1, 2]
-    ).3)[1];
+    ).3[1];
 
 SELECT toUInt64((
         SELECT 9

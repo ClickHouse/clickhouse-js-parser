@@ -1,13 +1,13 @@
 -- Tags: stateful, no-parallel, no-random-settings
 -- no-parallel: Heavy and it drops filesystem cache
 -- { echo }
-SET allow_prefetched_read_pool_for_remote_filesystem = 0;
+SET allow_prefetched_read_pool_for_remote_filesystem = '0';
 
-SET enable_filesystem_cache_on_write_operations = 0;
+SET enable_filesystem_cache_on_write_operations = '0';
 
 SET max_memory_usage = '20G';
 
-SET read_through_distributed_cache = 1;
+SET read_through_distributed_cache = '1';
 
 SYSTEM CLEAR FILESYSTEM CACHE;
 
@@ -172,14 +172,14 @@ WHERE UserID = 12345678901234567890;
 
 SELECT count()
 FROM test.hits_s3
-WHERE like(URL, '%metrika%');
+WHERE URL LIKE '%metrika%';
 
 SELECT
     uniq(SearchPhrase) AS u,
     max(URL) AS m,
     count() AS c
 FROM test.hits_s3
-WHERE like(URL, '%metrika%')
+WHERE URL LIKE '%metrika%'
     AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY
@@ -195,8 +195,8 @@ SELECT
     count() AS c,
     uniq(UserID)
 FROM test.hits_s3
-WHERE like(Title, '%Яндекс%')
-    AND notLike(URL, '%.yandex.%')
+WHERE Title LIKE '%Яндекс%'
+    AND URL NOT LIKE '%.yandex.%'
     AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
@@ -204,7 +204,7 @@ LIMIT 10;
 
 SELECT *
 FROM test.hits_s3
-WHERE like(URL, '%metrika%')
+WHERE URL LIKE '%metrika%'
 ORDER BY EventTime ASC
 LIMIT 10
 FORMAT Null;
@@ -475,8 +475,8 @@ SELECT
     TraficSourceID,
     SearchEngineID,
     AdvEngineID,
-    (if((SearchEngineID = 0
-    AND AdvEngineID = 0), Referer, '')) AS Src,
+    SearchEngineID = 0
+    AND AdvEngineID = 0 ? Referer : '' AS Src,
     URL AS Dst,
     count() AS PageViews
 FROM test.hits_s3

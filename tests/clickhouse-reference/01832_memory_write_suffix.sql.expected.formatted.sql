@@ -6,7 +6,7 @@ CREATE TABLE data_01832
 (
     key Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO data_01832;
 

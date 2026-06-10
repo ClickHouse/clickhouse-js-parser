@@ -1,4 +1,4 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 DROP TABLE IF EXISTS test_max_types;
 
@@ -6,7 +6,7 @@ CREATE TABLE test_max_types
 (
     d Dynamic(max_types = 5)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_max_types;
 
@@ -22,7 +22,7 @@ CREATE TABLE test_nested_dynamic
     d1 Dynamic,
     d2 Dynamic(max_types = 2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_nested_dynamic;
 
@@ -39,7 +39,7 @@ CREATE TABLE test_rapid_schema
 (
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_rapid_schema;
 
@@ -56,9 +56,9 @@ SELECT
 FROM test_rapid_schema
 FORMAT PrettyCompactMonoBlock;
 
-SELECT finalizeAggregation(CAST(dynamic_state, 'AggregateFunction(sum, UInt64)'))
+SELECT finalizeAggregation(CAST(dynamic_state AS AggregateFunction(sum, UInt64)))
 FROM (
-        SELECT CAST(state, 'Dynamic') AS dynamic_state
+        SELECT CAST(state AS Dynamic) AS dynamic_state
         FROM (
                 SELECT sumState(number) AS state
                 FROM numbers(10000)

@@ -6,7 +6,7 @@ CREATE TABLE test
     b Int64,
     c Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test (a, b, c);
@@ -27,7 +27,7 @@ CREATE TABLE test2
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test2 (a, b);
@@ -38,7 +38,7 @@ SELECT
 FROM test2
 ORDER BY
     a ASC,
-    b ASC;
+    b ASC WITH FILL;
 
 SELECT
     *,
@@ -53,7 +53,7 @@ CREATE TABLE test3
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test3 (a, b);

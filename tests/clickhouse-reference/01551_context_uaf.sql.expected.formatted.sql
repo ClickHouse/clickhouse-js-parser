@@ -10,8 +10,8 @@ ENGINE = File(TSV, '/dev/null');
 
 CREATE VIEW v
 AS
-(SELECT *
-FROM f);
+SELECT *
+FROM f;
 
 SELECT *
 FROM v; -- was failing long time ago

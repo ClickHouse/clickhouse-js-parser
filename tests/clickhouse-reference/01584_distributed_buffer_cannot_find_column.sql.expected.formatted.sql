@@ -22,10 +22,10 @@ CREATE TABLE realtimedrep
     bankConnCode String,
     reqDate DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY transID
 PARTITION BY toDate(reqDate)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE realtimedistributed
 (

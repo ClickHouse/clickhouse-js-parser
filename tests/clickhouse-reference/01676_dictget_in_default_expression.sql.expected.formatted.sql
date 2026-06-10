@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-DROP DATABASE IF EXISTS test_01676;
+DROP DATABASE IF EXISTS test_01676 SYNC;
 
 CREATE DATABASE test_01676;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_01676.dict_data
     key UInt64,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_01676.dict_data;
@@ -20,7 +20,7 @@ CREATE DICTIONARY test_01676.dict
 )
 PRIMARY KEY key
 SOURCE(clickhouse(DB 'test_01676' TABLE 'dict_data' HOST '127.0.0.1' PORT tcpPort()))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 CREATE TABLE test_01676.table
@@ -28,7 +28,7 @@ CREATE TABLE test_01676.table
     x UInt64,
     y UInt64 DEFAULT dictGet('test_01676.dict', 'value', x)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_01676.table (x);

@@ -9,11 +9,11 @@ CREATE TABLE test_has_skip_minmax
     id UInt32,
     key_col UInt32,
     payload String,
-    INDEX idx_key_minmax key_col TYPE minmax GRANULARITY 4
+    INDEX idx_key_minmax key_col TYPE minmax() GRANULARITY 4
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1000;
+SETTINGS index_granularity = '1000';
 
 INSERT INTO test_has_skip_minmax SELECT
     number,
@@ -21,7 +21,7 @@ INSERT INTO test_has_skip_minmax SELECT
     toString(number)
 FROM numbers(100000);
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_has_skip_minmax
 WHERE has([5432, 7432, 9999], key_col);
@@ -34,16 +34,16 @@ CREATE TABLE test_has_skip_set
     event_time DateTime,
     INDEX user_set_idx user_id TYPE set(100) GRANULARITY 2
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY event_time
-SETTINGS index_granularity = 1000, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1000', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_has_skip_set SELECT
     toUInt32(intDiv(number, 1000)) AS user_id,
     now() - toIntervalMinute(number) AS event_time
 FROM numbers(100000);
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_has_skip_set
 WHERE has([10, 20, 30], user_id);
@@ -57,9 +57,9 @@ CREATE TABLE test_has_skip_bloom
     payload String,
     INDEX idx_key_bf key_str TYPE bloom_filter(0.1) GRANULARITY 4
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1000;
+SETTINGS index_granularity = '1000';
 
 INSERT INTO test_has_skip_bloom SELECT
     number,
@@ -67,7 +67,7 @@ INSERT INTO test_has_skip_bloom SELECT
     toString(number)
 FROM numbers(100000);
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_has_skip_bloom
 WHERE has(['v_12345', 'v_54321', 'v_99999'], key_str);

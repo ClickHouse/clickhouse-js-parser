@@ -16,6 +16,7 @@ export default defineConfig(
       'src/parser.js',
       'src/parser.d.ts',
       'scripts/**',
+      'tmp/**',
     ],
   },
 );

@@ -25,7 +25,7 @@ CREATE TABLE order_attribution
 )
 ENGINE = ReplacingMergeTree(_version)
 ORDER BY (brand_id, campaign_id, event_type, latest_ad_created_at, user_id, order_product_event_id, ad_event_id)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE VIEW view_order_attribution (order_product_event_id String, order_id String, brand_id String, user_id String, sp_id Nullable(String), gmv Float64, gsv Float64, po_created_at DateTime64(9, 'UTC'), event_brand_id Nullable(String), campaign_id UInt32, event_bid_type String, event_bid_value Nullable(Float64), event_inventory_id UInt32, event_user_id String, ad_event_id String, event_type String, latest_ad_created_at DateTime64(9, 'UTC'))
 AS
@@ -68,7 +68,7 @@ FROM (
             argMax(ad_event_id, _version) AS ad_event_id,
             argMax(latest_ad_created_at, _version) AS latest_ad_created_at
         FROM analytics.order_attribution
-        WHERE attribution_window <= {attr_window:UInt32}
+        WHERE attribution_window <= 0
         GROUP BY
             order_product_event_id,
             order_id,

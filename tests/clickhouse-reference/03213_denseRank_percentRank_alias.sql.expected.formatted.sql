@@ -7,10 +7,10 @@ SELECT
     number,
     p,
     o,
-    count(*),
-    rank(),
-    denseRank(),
-    row_number()
+    count(*) OVER w,
+    rank() OVER w,
+    denseRank() OVER w,
+    row_number() OVER w
 FROM (
         SELECT
             number,
@@ -21,12 +21,12 @@ FROM (
             o ASC,
             number ASC
     ) AS t
+WINDOW w AS (PARTITION BY p ORDER BY o ASC, number ASC)
 ORDER BY
     p ASC,
     o ASC,
     number ASC
-WINDOW w AS (PARTITION BY p ORDER BY o ASC, number ASC)
-SETTINGS max_block_size = 2;
+SETTINGS max_block_size = '2';
 
 DROP TABLE IF EXISTS product_groups;
 
@@ -37,7 +37,7 @@ CREATE TABLE product_groups
     group_id Int64,
     group_name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE products
 (
@@ -46,7 +46,7 @@ CREATE TABLE products
     price DECIMAL(11, 2),
     group_id Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO product_groups;
 

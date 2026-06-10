@@ -10,7 +10,7 @@ SELECT 1
 SETTINGS
     use_query_cache = true,
     query_cache_nondeterministic_function_handling = 'save',
-    max_threads = 16;
+    max_threads = '16';
 
 -- Check that entry in QC exists
 SELECT COUNT(*)
@@ -24,7 +24,7 @@ SELECT 1
 SETTINGS
     use_query_cache = true,
     enable_writes_to_query_cache = false,
-    max_threads = 16;
+    max_threads = '16';
 
 -- Technically, both SELECT queries have different ASTs, leading to different QC keys. QC does some AST normalization (erase all
 -- QC-related settings) such that the keys match regardless. Verify by checking that the second query caused a QC hit.

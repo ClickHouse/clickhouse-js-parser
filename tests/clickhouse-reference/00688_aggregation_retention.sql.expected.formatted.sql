@@ -5,7 +5,7 @@ CREATE TABLE retention_test
     date Date,
     uid Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO retention_test SELECT
     '2018-08-06',

@@ -4,7 +4,7 @@ CREATE TABLE index
 (
     d Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d;
 
 INSERT INTO index;

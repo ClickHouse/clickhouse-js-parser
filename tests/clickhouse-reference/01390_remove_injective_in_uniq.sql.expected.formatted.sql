@@ -1,4 +1,4 @@
-SET optimize_injective_functions_inside_uniq = 1;
+SET optimize_injective_functions_inside_uniq = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -28,11 +28,11 @@ FROM (
 
 EXPLAIN SYNTAX
 SELECT
-    uniq(negate(x)),
-    uniqExact(negate(x)),
-    uniqHLL12(negate(x)),
-    uniqCombined(negate(x)),
-    uniqCombined64(negate(x))
+    uniq(-x),
+    uniqExact(-x),
+    uniqHLL12(-x),
+    uniqCombined(-x),
+    uniqCombined64(-x)
 FROM (
         SELECT number % 2 AS x
         FROM numbers(10)
@@ -52,11 +52,11 @@ FROM (
 
 EXPLAIN SYNTAX
 SELECT
-    uniq(bitNot(negate(x))),
-    uniqExact(bitNot(negate(x))),
-    uniqHLL12(bitNot(negate(x))),
-    uniqCombined(bitNot(negate(x))),
-    uniqCombined64(bitNot(negate(x)))
+    uniq(bitNot(-x)),
+    uniqExact(bitNot(-x)),
+    uniqHLL12(bitNot(-x)),
+    uniqCombined(bitNot(-x)),
+    uniqCombined64(bitNot(-x))
 FROM (
         SELECT number % 2 AS x
         FROM numbers(10)
@@ -64,18 +64,18 @@ FROM (
 
 EXPLAIN SYNTAX
 SELECT
-    uniq(negate(bitNot(negate(x)))),
-    uniqExact(negate(bitNot(negate(x)))),
-    uniqHLL12(negate(bitNot(negate(x)))),
-    uniqCombined(negate(bitNot(negate(x)))),
-    uniqCombined64(negate(bitNot(negate(x))))
+    uniq(-bitNot(-x)),
+    uniqExact(-bitNot(-x)),
+    uniqHLL12(-bitNot(-x)),
+    uniqCombined(-bitNot(-x)),
+    uniqCombined64(-bitNot(-x))
 FROM (
         SELECT number % 2 AS x
         FROM numbers(10)
     );
 
 EXPLAIN SYNTAX
-SELECT countDistinct(negate(bitNot(negate(x))))
+SELECT countDistinct(-bitNot(-x))
 FROM (
         SELECT number % 2 AS x
         FROM numbers(10)
@@ -85,4 +85,4 @@ EXPLAIN SYNTAX
 SELECT uniq(concatAssumeInjective('x', 'y'))
 FROM numbers(10);
 
-SET optimize_injective_functions_inside_uniq = 0;
+SET optimize_injective_functions_inside_uniq = '0';

@@ -20,7 +20,7 @@ CREATE DICTIONARY dict
     value String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(host 'localhost' port tcpPort() user 'default' db currentDatabase() table 'view'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB currentDatabase() TABLE 'view'))
 LIFETIME(MIN 600 MAX 600)
 LAYOUT(HASHED());
 
@@ -28,7 +28,7 @@ SHOW CREATE TABLE dict;
 
 CREATE TABLE table
 (
-    col MATERIALIZED dictGet(concat(currentDatabase(), '.dict'), 'value', toUInt32(1)),
+    col MATERIALIZED dictGet(currentDatabase() || '.dict', 'value', toUInt32(1)),
     phys Int
 )
 ENGINE = MergeTree()

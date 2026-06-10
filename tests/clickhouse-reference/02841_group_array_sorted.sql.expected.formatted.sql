@@ -22,7 +22,7 @@ CREATE TABLE test
 (
     a Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test;
@@ -73,7 +73,7 @@ CREATE TABLE test
     id Decimal(76, 53),
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test SELECT
@@ -92,7 +92,7 @@ CREATE TABLE test
     id UInt64,
     agg AggregateFunction(groupArraySorted(2), UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test SELECT

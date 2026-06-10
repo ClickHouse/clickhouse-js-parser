@@ -17,8 +17,10 @@ SELECT
 
 SELECT jumpConsistentHash(intHash64(number), 787)
 FROM `system`.numbers
-LIMIT 1000000, 2;
+LIMIT 2
+OFFSET 1000000;
 
 SELECT kostikConsistentHash(16045690984833335023 + number - number, 120)
 FROM `system`.numbers
-LIMIT 1000000, 2;
+LIMIT 2
+OFFSET 1000000;

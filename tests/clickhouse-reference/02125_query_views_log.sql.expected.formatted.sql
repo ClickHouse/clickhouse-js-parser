@@ -1,4 +1,4 @@
-SET output_format_pretty_single_large_number_tip_threshold = 0;
+SET output_format_pretty_single_large_number_tip_threshold = '0';
 
 DROP TABLE IF EXISTS src;
 
@@ -33,13 +33,13 @@ SELECT *
 FROM src;
 
 INSERT INTO src SELECT *
-FROM numbers(1e6)
+FROM numbers(1000000.)
 SETTINGS
-    log_queries = 1,
-    max_untracked_memory = 0,
-    parallel_view_processing = 0;
+    log_queries = '1',
+    max_untracked_memory = '0',
+    parallel_view_processing = '0';
 
-SYSTEM flush logs query_views_log, query_log;
+SYSTEM FLUSH LOGS query_views_log, query_log;
 
 -- { echo }
 SELECT
@@ -49,7 +49,7 @@ SELECT
     written_rows,
     written_bytes
 FROM `system`.query_views_log
-WHERE startsWith(view_name, concat(currentDatabase(), '.mv'))
+WHERE startsWith(view_name, currentDatabase() || '.mv')
 ORDER BY view_name ASC
 FORMAT Vertical;
 

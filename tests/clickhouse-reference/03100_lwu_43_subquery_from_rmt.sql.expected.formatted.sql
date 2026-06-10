@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS lightweight_test;
+DROP TABLE IF EXISTS lightweight_test SYNC;
 
-DROP TABLE IF EXISTS keys;
+DROP TABLE IF EXISTS keys SYNC;
 
 CREATE TABLE lightweight_test
 (
@@ -9,16 +9,16 @@ CREATE TABLE lightweight_test
     key String
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/lightweight_test', '1')
-ORDER BY (key)
+ORDER BY key
 PARTITION BY toYYYYMMDD(ts)
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 CREATE TABLE keys
 (
     key String
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/keys', '1')
-ORDER BY (key);
+ORDER BY key;
 
 INSERT INTO lightweight_test;
 

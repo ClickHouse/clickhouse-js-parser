@@ -7,8 +7,8 @@ SELECT
 FROM `system`.tables
 WHERE database = currentDatabase();
 
-WITH (notLike(database, 'system')
-    AND name = 'fake') AS `$condition`,
+WITH database NOT LIKE 'system'
+    AND name = 'fake' AS `$condition`,
 
 `$main` AS (
     SELECT DISTINCT table
@@ -42,7 +42,7 @@ FROM (
         SELECT paddedval
     );
 
-WITH ('408','420') AS some_tuple
+WITH ('408', '420') AS some_tuple
 
 SELECT '408' IN (some_tuple) AS flag;
 
@@ -75,28 +75,29 @@ CREATE TABLE test
     Block_Height UInt64,
     Block_Date Date
 )
-ENGINE = Log;
+ENGINE = Log();
 
-WITH and(greaterOrEquals(Block_Height, 1), lessOrEquals(Block_Height, 2)) AS block_filter
+WITH Block_Height >= 1
+    AND Block_Height <= 2 AS block_filter
 
 SELECT *
 FROM test
 WHERE block_filter
-    AND (Block_Date IN (
+    AND Block_Date IN (
         SELECT Block_Date
         FROM test
         WHERE block_filter
-    ));
+    );
 
 CREATE TABLE test_cte
 (
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-WITH (a > b) AS cte,
+WITH a > b AS cte,
 
 query AS (
     SELECT count()
@@ -107,7 +108,7 @@ query AS (
 SELECT *
 FROM query;
 
-WITH arrayMap(x -> (x + 1), [0]) AS a
+WITH arrayMap((x -> x + 1), [0]) AS a
 
 SELECT 1
 WHERE 1 IN (

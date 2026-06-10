@@ -1,11 +1,11 @@
 -- Tags: no-fasttest
 DROP TABLE IF EXISTS select_final;
 
-SET allow_asynchronous_read_from_io_pool_for_merge_tree = 0;
+SET allow_asynchronous_read_from_io_pool_for_merge_tree = '0';
 
-SET do_not_merge_across_partitions_select_final = 1;
+SET do_not_merge_across_partitions_select_final = '1';
 
-SET max_threads = 16;
+SET max_threads = '16';
 
 CREATE TABLE select_final
 (
@@ -16,7 +16,7 @@ CREATE TABLE select_final
 ENGINE = ReplacingMergeTree()
 ORDER BY (x, t)
 PARTITION BY toYYYYMM(t)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO select_final SELECT
     toDate('2000-01-01'),

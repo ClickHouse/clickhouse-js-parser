@@ -1,362 +1,407 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints1"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long, replica"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints2"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
       },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "constraintDef",
-        "name": "a_constraint",
-        "constraintType": "CHECK",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00988/alter_constraints"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "constraintDef",
-        "name": "a_constraint",
-        "constraintType": "CHECK",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00988/alter_constraints"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints1"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints2"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_constraints1"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_constraints2"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints1"
-      }
-    },
-    "trailingComments": [
-      "-- { serverError VIOLATED_CONSTRAINT }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints1"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_CONSTRAINT",
-        "constraintName": "a_constraint"
-      }
-    ],
-    "settings": [
-      {
-        "name": "alter_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints2"
-      }
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints1"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_CONSTRAINT",
-        "constraint": {
-          "kind": "constraintDef",
-          "name": "b_constraint",
-          "constraintType": "CHECK",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "b"
+        ],
+        "constraints": [
+          {
+            "type": "Constraint",
+            "name": "a_constraint",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
               ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00988/alter_constraints"
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "type": "Constraint",
+            "name": "a_constraint",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00988/alter_constraints"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "alter_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_CONSTRAINT",
+          "constraint": {
+            "type": "Identifier",
+            "name": "a_constraint"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "alter_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_CONSTRAINT",
+          "constraint_declaration": {
+            "type": "Constraint",
+            "name": "b_constraint",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "b"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
             }
           }
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "alter_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_CONSTRAINT",
-        "constraint": {
-          "kind": "constraintDef",
-          "name": "a_constraint",
-          "constraintType": "CHECK",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "alter_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints1"
-      }
-    },
-    "trailingComments": [
-      "-- { serverError VIOLATED_CONSTRAINT }"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_constraints2"
-      }
-    },
-    "trailingComments": [
-      "-- { serverError VIOLATED_CONSTRAINT }"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints1"
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_constraints2"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "alter_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_CONSTRAINT",
+          "constraint_declaration": {
+            "type": "Constraint",
+            "name": "a_constraint",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_constraints2"
+      }
     }
   }
 ]

@@ -8,13 +8,13 @@ CREATE TABLE t_in_tuple_index
 )
 ENGINE = MergeTree()
 ORDER BY (PLATFORM, USER_ID, ID)
-SETTINGS index_granularity = 2048, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '2048', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_in_tuple_index;
 
 SELECT count()
 FROM t_in_tuple_index
-WHERE (PLATFORM, USER_ID) IN (('insta', '33'));
+WHERE (PLATFORM, USER_ID) IN (('insta', '33'),);
 
 SELECT count()
 FROM t_in_tuple_index

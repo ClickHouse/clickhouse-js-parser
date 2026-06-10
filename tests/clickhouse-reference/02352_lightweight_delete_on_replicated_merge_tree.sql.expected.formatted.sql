@@ -1,7 +1,7 @@
 -- Tags: long
-DROP TABLE IF EXISTS replicated_table_r1;
+DROP TABLE IF EXISTS replicated_table_r1 SYNC;
 
-DROP TABLE IF EXISTS replicated_table_r2;
+DROP TABLE IF EXISTS replicated_table_r2 SYNC;
 
 CREATE TABLE replicated_table_r1
 (
@@ -24,7 +24,7 @@ INSERT INTO replicated_table_r1 SELECT
     toString(number)
 FROM numbers(100);
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
 DELETE FROM replicated_table_r1 WHERE id = 10;
 
@@ -38,16 +38,16 @@ DELETE FROM replicated_table_r2 WHERE name IN ('1', '2', '3', '4');
 
 DELETE FROM replicated_table_r1 WHERE 1;
 
-DROP TABLE IF EXISTS t_light_r1;
+DROP TABLE IF EXISTS t_light_r1 SYNC;
 
-DROP TABLE IF EXISTS t_light_r2;
+DROP TABLE IF EXISTS t_light_r2 SYNC;
 
 CREATE TABLE t_light_r1
 (
     a int,
     b int,
     c int,
-    INDEX i_c b TYPE minmax GRANULARITY 4
+    INDEX i_c b TYPE minmax() GRANULARITY 4
 )
 ENGINE = ReplicatedMergeTree('/test/02352/{database}/t_light', '1')
 ORDER BY a
@@ -58,7 +58,7 @@ CREATE TABLE t_light_r2
     a int,
     b int,
     c int,
-    INDEX i_c b TYPE minmax GRANULARITY 4
+    INDEX i_c b TYPE minmax() GRANULARITY 4
 )
 ENGINE = ReplicatedMergeTree('/test/02352/{database}/t_light', '2')
 ORDER BY a
@@ -87,19 +87,19 @@ SELECT *
 FROM t_light_r2
 ORDER BY a ASC;
 
-OPTIMIZE TABLE t_light_r1 FINAL SETTINGS mutations_sync = 2;
+OPTIMIZE TABLE t_light_r1 FINAL SETTINGS mutations_sync = '2';
 
 CREATE TABLE t_light_sync_r1
 (
     a int,
     b int,
     c int,
-    INDEX i_c b TYPE minmax GRANULARITY 4
+    INDEX i_c b TYPE minmax() GRANULARITY 4
 )
 ENGINE = ReplicatedMergeTree('/test/02352/{database}/t_sync', '1')
 ORDER BY a
 PARTITION BY c % 5
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_light_sync_r1 SELECT
     number,
@@ -114,12 +114,12 @@ CREATE TABLE t_light_sync_r2
     a int,
     b int,
     c int,
-    INDEX i_c b TYPE minmax GRANULARITY 4
+    INDEX i_c b TYPE minmax() GRANULARITY 4
 )
 ENGINE = ReplicatedMergeTree('/test/02352/{database}/t_sync', '2')
 ORDER BY a
 PARTITION BY c % 5
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 SYSTEM SYNC REPLICA t_light_sync_r2;
 
@@ -127,6 +127,6 @@ SELECT *
 FROM t_light_sync_r2
 ORDER BY a ASC;
 
-DROP TABLE IF EXISTS t_light_sync_r1;
+DROP TABLE IF EXISTS t_light_sync_r1 SYNC;
 
-DROP TABLE IF EXISTS t_light_sync_r2;
+DROP TABLE IF EXISTS t_light_sync_r2 SYNC;

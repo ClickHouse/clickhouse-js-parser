@@ -50,8 +50,8 @@ CREATE TABLE table_for_rename_with_primary_key
     INDEX idx value1 TYPE set(1) GRANULARITY 1
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_01213/table_for_rename_pk2', '1')
-ORDER BY (key1, key2, key3)
 PRIMARY KEY (key1, key2)
+ORDER BY (key1, key2, key3)
 PARTITION BY date;
 
 INSERT INTO table_for_rename_with_primary_key SELECT

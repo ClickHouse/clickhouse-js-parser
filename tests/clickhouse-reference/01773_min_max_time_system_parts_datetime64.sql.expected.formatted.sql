@@ -4,7 +4,7 @@ CREATE TABLE test
 (
     time DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toStartOfInterval(time, toIntervalYear(2));
 

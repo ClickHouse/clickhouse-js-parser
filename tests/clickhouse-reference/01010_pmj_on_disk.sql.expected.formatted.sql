@@ -10,7 +10,7 @@ FROM
         SELECT number AS n
         FROM numbers(4)
     ) AS nums
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number * 2 AS n,
             number + 10 AS j
@@ -19,11 +19,11 @@ LEFT JOIN (
     USING (n)
 ORDER BY n ASC;
 
-SET max_rows_in_join = 1000;
+SET max_rows_in_join = '1000';
 
 SET join_algorithm = 'partial_merge';
 
-SET partial_merge_join_optimizations = 1;
+SET partial_merge_join_optimizations = '1';
 
 SET join_algorithm = 'auto';
 

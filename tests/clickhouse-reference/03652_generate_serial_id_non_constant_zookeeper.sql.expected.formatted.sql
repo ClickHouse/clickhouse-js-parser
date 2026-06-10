@@ -1,7 +1,7 @@
 -- Tags: zookeeper
-WITH concat(currentDatabase(), '_test1_', (number MOD 3)) AS key1,
+WITH currentDatabase() || '_test1_' || number % 3 AS key1,
 
-concat(currentDatabase(), '_test2_', (number DIV 3)) AS key2
+currentDatabase() || '_test2_' || number DIV 3 AS key2
 
 SELECT
     number,

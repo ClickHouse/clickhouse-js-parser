@@ -8,8 +8,8 @@ CREATE TABLE table_a
     something String,
     other Nullable(String)
 )
-ENGINE = MergeTree
-ORDER BY (event_id);
+ENGINE = MergeTree()
+ORDER BY event_id;
 
 CREATE TABLE table_b
 (
@@ -17,8 +17,8 @@ CREATE TABLE table_b
     something Nullable(String),
     other String
 )
-ENGINE = MergeTree
-ORDER BY (event_id);
+ENGINE = MergeTree()
+ORDER BY event_id;
 
 INSERT INTO table_a;
 
@@ -39,7 +39,7 @@ FROM
         FROM table_a
         GROUP BY other
     ) AS s1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             other,
             count() AS count_b
@@ -67,7 +67,7 @@ FROM
         FROM table_a
         GROUP BY something
     ) AS s1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             something,
             count() AS count_b
@@ -95,7 +95,7 @@ FROM
         FROM table_a
         GROUP BY something
     ) AS s1
-RIGHT JOIN (
+ALL RIGHT JOIN (
         SELECT
             something,
             count() AS count_b
@@ -108,7 +108,7 @@ ORDER BY
     s1.something ASC,
     s2.something ASC;
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     something,
@@ -123,7 +123,7 @@ FROM
         FROM table_a
         GROUP BY something
     ) AS s1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             something,
             count() AS count_b

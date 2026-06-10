@@ -5,42 +5,46 @@ CREATE TABLE bloom_filter_test
 (
     id UInt64,
     m Map(String, String),
-    INDEX idx_mk mapKeys(m) TYPE bloom_filter GRANULARITY 1
+    INDEX idx_mk mapKeys(m) TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bloom_filter_test;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT id -- 'm' not in projection columns
-        FROM bloom_filter_test
-        WHERE mapContains(m, '1')
-        ORDER BY id ASC
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT id -- 'm' not in projection columns
+                FROM bloom_filter_test
+                WHERE mapContains(m, '1')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules:%');
+WHERE `explain` LIKE '%Granules:%';
 
 SELECT id -- 'm' not in projection columns
 FROM bloom_filter_test
 WHERE mapContains(m, '1')
 ORDER BY id ASC;
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT * -- 'm' in projection columns
-        FROM bloom_filter_test
-        WHERE mapContains(m, '1')
-        ORDER BY id ASC
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT * -- 'm' in projection columns
+                FROM bloom_filter_test
+                WHERE mapContains(m, '1')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules:%');
+WHERE `explain` LIKE '%Granules:%';
 
 SELECT * -- 'm' in projection columns
 FROM bloom_filter_test

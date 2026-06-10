@@ -4,7 +4,7 @@ CREATE TABLE foo
     open_price Int8,
     close_price Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY open_time;
 
 INSERT INTO foo SELECT
@@ -22,7 +22,7 @@ FROM (
             toFloat64(argMax(close_price, open_time)) AS close
         FROM foo
         GROUP BY group_id
-        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open, close)
+        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open AS open, close AS close)
     );
 
 -- `close` interpolate expression is removed
@@ -36,7 +36,7 @@ FROM (
             toFloat64(argMax(close_price, open_time)) AS close
         FROM foo
         GROUP BY group_id
-        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open, close)
+        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open AS open, close AS close)
     );
 
 -- Both interpolate expressions are kept
@@ -51,5 +51,5 @@ FROM (
             toFloat64(argMax(close_price, open_time)) AS close
         FROM foo
         GROUP BY group_id
-        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open, close)
+        ORDER BY group_id ASC WITH FILL STEP 1 INTERPOLATE (open AS open, close AS close)
     );

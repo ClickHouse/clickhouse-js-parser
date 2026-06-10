@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS t_ind_merge_1;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t_ind_merge_1
 (
@@ -8,11 +8,11 @@ CREATE TABLE t_ind_merge_1
     b UInt64,
     c UInt64,
     d UInt64,
-    INDEX idx_b b TYPE minmax
+    INDEX idx_b b TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 64, merge_max_block_size = 8192, vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, enable_block_number_column = 0, enable_block_offset_column = 0;
+SETTINGS index_granularity = '64', merge_max_block_size = '8192', vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', enable_block_number_column = '0', enable_block_offset_column = '0';
 
 INSERT INTO t_ind_merge_1 SELECT
     number,
@@ -26,7 +26,7 @@ FROM t_ind_merge_1
 WHERE b < 100
 SETTINGS force_data_skipping_indices = 'idx_b';
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM t_ind_merge_1
 WHERE b < 100;
@@ -35,7 +35,7 @@ OPTIMIZE TABLE t_ind_merge_1 FINAL;
 
 SYSTEM FLUSH LOGS text_log;
 
-SET max_rows_to_read = 0; -- system.text_log can be really big
+SET max_rows_to_read = '0'; -- system.text_log can be really big
 
 WITH (
         SELECT uuid
@@ -51,8 +51,8 @@ SELECT
     `groups`[2] AS merged,
     `groups`[3] AS gathered
 FROM `system`.text_log
-WHERE (((query_id = concat(uuid, '::all_1_2_1'))
-    OR (query_id = concat(currentDatabase(), '.t_ind_merge_1::all_1_2_1'))))
+WHERE (query_id = uuid || '::all_1_2_1'
+    OR query_id = currentDatabase() || '.t_ind_merge_1::all_1_2_1')
     AND notEmpty(`groups`)
 ORDER BY event_time_microseconds ASC;
 

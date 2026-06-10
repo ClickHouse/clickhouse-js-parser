@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS v
 (
     value Array(Enum('foo' = 1, 'bar' = 2))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO v;
 
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS v2
 (
     value Array(Array(Nullable(Enum('foo' = 1, 'bar' = 2))))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO v2;
 

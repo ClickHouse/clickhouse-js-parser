@@ -4,7 +4,7 @@ SET send_logs_level = 'fatal';
 DROP DATABASE IF EXISTS test_01109;
 
 CREATE DATABASE test_01109
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 USE test_01109;
 
@@ -66,23 +66,23 @@ DROP DATABASE IF EXISTS test_01109_ordinary;
 
 CREATE DATABASE test_01109_other_atomic;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test_01109_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE TABLE test_01109_other_atomic.t3
 ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT
     rowNumberInAllBlocks() + (
-        SELECT max((*,*).1.1) + 1
+        SELECT max((*, *).1.1) + 1
         FROM (
-                SELECT tuple(*)
+                SELECT (*,)
                 FROM t1
                 UNION ALL
-                SELECT tuple(*)
+                SELECT (*,)
                 FROM t2
             )
     ),
@@ -112,7 +112,7 @@ FROM test_01109_ordinary.t4;
 DROP DATABASE IF EXISTS test_01109_rename_exists;
 
 CREATE DATABASE test_01109_rename_exists
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 USE test_01109_rename_exists;
 

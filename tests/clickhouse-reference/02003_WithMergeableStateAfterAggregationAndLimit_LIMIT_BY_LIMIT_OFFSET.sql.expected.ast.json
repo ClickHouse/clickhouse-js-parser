@@ -1,377 +1,205 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": ""
-      }
-    ],
-    "format": "Null",
-    "leadingComments": [
-      "-- Here we use a trick with shardNum() to generate unique data on each shard.",
-      "-- Since distributed_group_by_no_merge=2 will use WithMergeableStateAfterAggregationAndLimit,",
-      "-- which assume that the data on shards is unique",
-      "-- (LIMIT BY will be applied only on shards, not on the initiator).",
-      "-- To distinguish echoing from the comments above we use SELECT FORMAT Null."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.{1,2}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "view",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
+              "type": "Literal",
+              "value_type": "String",
+              "value": ""
+            }
+          ]
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  "<AST Error>",
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.{1,2}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "view",
+                        "arguments": [
+                          {
+                            "type": "SelectWithUnionQuery",
+                            "selects": [
+                              {
+                                "type": "SelectQuery",
+                                "select": [
+                                  {
+                                    "type": "Function",
+                                    "alias": "number",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "20"
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "from": {
+                                  "type": "TablesInSelectQuery",
+                                  "children": [
+                                    {
+                                      "type": "TablesInSelectQueryElement",
+                                      "table_expression": {
+                                        "type": "TableExpression",
+                                        "table_function": {
+                                          "type": "Function",
+                                          "name": "numbers",
+                                          "arguments": [
+                                            {
+                                              "type": "Literal",
+                                              "value_type": "UInt64",
+                                              "value": "40"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "where": {
+                                  "type": "Function",
+                                  "name": "equals",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "2"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "minus",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Function",
+                                          "name": "shardNum",
+                                          "arguments": []
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "1"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
                         ]
                       },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "20"
+                      {
+                        "type": "Identifier",
+                        "name": "number"
                       }
-                    },
-                    "alias": "number"
-                  }
-                ],
-                "from": {
-                  "kind": "tableFunctionRef",
-                  "name": "numbers",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "40"
-                    }
-                  ]
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    },
-                    "parenthesized": true
-                  },
-                  "right": {
-                    "kind": "binaryExpr",
-                    "op": "-",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "shardNum",
-                      "args": []
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    },
-                    "parenthesized": true
+                    ]
                   }
                 }
               }
-            }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limitBy": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      },
-      "by": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "offset": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "5"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      },
-      "commaSyntax": true
-    },
-    "settings": [
-      {
-        "name": "optimize_skip_unused_shards",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "optimize_distributed_group_by_sharding_key",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "distributed_push_down_limit",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- { echo }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.{1,2}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "view",
-          "args": [
+            ]
+          },
+          "group_by": [
             {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "20"
-                      }
-                    },
-                    "alias": "number"
-                  }
-                ],
-                "from": {
-                  "kind": "tableFunctionRef",
-                  "name": "numbers",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "40"
-                    }
-                  ]
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    },
-                    "parenthesized": true
-                  },
-                  "right": {
-                    "kind": "binaryExpr",
-                    "op": "-",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "shardNum",
-                      "args": []
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    },
-                    "parenthesized": true
-                  }
-                }
-              }
+              "type": "Identifier",
+              "name": "number"
             }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "offset": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "distributed_group_by_no_merge": "2",
+              "distributed_push_down_limit": "1"
+            }
+          },
+          "limit_by": {
+            "length": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            },
+            "by": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ]
+          }
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limitBy": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      },
-      "by": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "offset": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "5"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      },
-      "commaSyntax": true
-    },
-    "settings": [
-      {
-        "name": "distributed_group_by_no_merge",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      {
-        "name": "distributed_push_down_limit",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   }
 ]

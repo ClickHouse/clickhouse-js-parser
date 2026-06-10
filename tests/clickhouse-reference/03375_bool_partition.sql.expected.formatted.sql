@@ -6,7 +6,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-PARTITION BY (c0);
+PARTITION BY c0;
 
 INSERT INTO t0 (c0);
 

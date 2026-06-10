@@ -5,7 +5,7 @@ CREATE TABLE nested
     x UInt8,
     n Nested(a UInt64, b String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO nested;
 
@@ -32,28 +32,28 @@ CREATE TABLE nested
     x UInt8,
     n Nested(a UInt64, b String)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE nested
 (
     x UInt8,
     n Nested(a UInt64, b String)
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE nested
 (
     x UInt8,
     n Nested(a UInt64, b String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE nested
 (
     x UInt8,
     n Nested(a UInt64, b String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 DROP TABLE nested;

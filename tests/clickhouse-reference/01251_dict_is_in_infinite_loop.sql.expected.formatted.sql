@@ -11,7 +11,7 @@ CREATE TABLE database_for_dict.dict_source
     parent_id UInt64,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO database_for_dict.dict_source;
 
@@ -20,11 +20,11 @@ DROP DICTIONARY IF EXISTS database_for_dict.dictionary_with_hierarchy;
 CREATE DICTIONARY database_for_dict.dictionary_with_hierarchy
 (
     id UInt64,
-    parent_id UInt64,
+    parent_id UInt64 HIERARCHICAL,
     value String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(host 'localhost' port tcpPort() user 'default' db 'database_for_dict' table 'dict_source'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB 'database_for_dict' TABLE 'dict_source'))
 LIFETIME(MIN 1 MAX 1)
 LAYOUT(HASHED());
 
@@ -57,22 +57,22 @@ SELECT dictGetHierarchy('database_for_dict.dictionary_with_hierarchy', materiali
 CREATE DICTIONARY database_for_dict.dictionary_with_hierarchy
 (
     id UInt64,
-    parent_id UInt64,
+    parent_id UInt64 HIERARCHICAL,
     value String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(host 'localhost' port tcpPort() user 'default' db 'database_for_dict' table 'dict_source'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB 'database_for_dict' TABLE 'dict_source'))
 LIFETIME(MIN 1 MAX 1)
 LAYOUT(FLAT());
 
 CREATE DICTIONARY database_for_dict.dictionary_with_hierarchy
 (
     id UInt64,
-    parent_id UInt64,
+    parent_id UInt64 HIERARCHICAL,
     value String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(host 'localhost' port tcpPort() user 'default' db 'database_for_dict' table 'dict_source'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB 'database_for_dict' TABLE 'dict_source'))
 LIFETIME(MIN 1 MAX 1)
 LAYOUT(CACHE(SIZE_IN_CELLS 10));
 

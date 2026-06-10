@@ -7,7 +7,7 @@ CREATE TABLE `fill`
     val Int,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `fill`;
 
@@ -22,19 +22,19 @@ ORDER BY
 SELECT *
 FROM `fill`
 ORDER BY
-    date ASC,
+    date ASC WITH FILL,
     val ASC;
 
 SELECT *
 FROM `fill`
 ORDER BY
     date ASC WITH FILL FROM toDate('2019-05-01') TO toDate('2019-05-31'),
-    val ASC;
+    val ASC WITH FILL;
 
 SELECT *
 FROM `fill`
 ORDER BY
-    date DESC,
+    date DESC WITH FILL,
     val ASC WITH FILL FROM 1 TO 6;
 
 -- Some weird cases
@@ -57,7 +57,7 @@ CREATE TABLE `fill`
     a UInt32,
     b Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `fill`;
 
@@ -71,13 +71,13 @@ ORDER BY
 SELECT *
 FROM `fill`
 ORDER BY
-    a ASC,
-    b ASC;
+    a ASC WITH FILL,
+    b ASC WITH FILL;
 
 SELECT *
 FROM `fill`
 ORDER BY
-    a ASC,
+    a ASC WITH FILL,
     b ASC WITH FILL TO 6 STEP 2;
 
 SELECT *

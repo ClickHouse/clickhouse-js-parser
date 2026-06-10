@@ -13,7 +13,7 @@ SELECT
     URL
 FROM test.hits
 WHERE 1
-    AND (SearchEngineID != 0)
-    AND (browser != 0)
-    AND (search_engine != 0)
+    AND SearchEngineID != 0
+    AND browser != 0
+    AND search_engine != 0
 FORMAT Null;

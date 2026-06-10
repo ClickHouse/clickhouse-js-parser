@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS subquery_cte_in;
 
@@ -8,7 +8,7 @@ CREATE TABLE subquery_cte_in
     label UInt32,
     id UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (label, id, date);
 
 INSERT INTO subquery_cte_in;
@@ -18,15 +18,15 @@ FROM (
         WITH (
                 SELECT max(date)
                 FROM subquery_cte_in
-                WHERE (id = 6)
-                    AND (label = 2)
+                WHERE id = 6
+                    AND label = 2
             ) AS cte_1,
 
         (
                 SELECT max(date)
                 FROM subquery_cte_in
-                WHERE (id = 10)
-                    AND (label = 2)
+                WHERE id = 10
+                    AND label = 2
             ) AS cte_2
 
         SELECT date AS date_out

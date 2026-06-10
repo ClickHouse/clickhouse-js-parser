@@ -1,7 +1,7 @@
 -- Tags: no-parallel, log-engine
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_dynamic_type = 1;
+SET enable_dynamic_type = '1';
 
 DROP TABLE IF EXISTS test;
 

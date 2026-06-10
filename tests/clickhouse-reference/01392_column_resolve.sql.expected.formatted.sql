@@ -50,5 +50,5 @@ LEFT JOIN (
         SELECT *
         FROM leftjoin
     ) AS dummy
-    ON (dummy.id = conversion.conversionId)
+    ON dummy.id = conversion.conversionId
 ORDER BY myValue ASC;

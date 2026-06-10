@@ -1,9 +1,9 @@
 -- { echo ON }
-SET max_threads = 8;
+SET max_threads = '8';
 
-SET max_projection_rows_to_use_projection_index = 102400000;
+SET max_projection_rows_to_use_projection_index = '102400000';
 
-SET min_table_rows_to_use_projection_index = 0;
+SET min_table_rows_to_use_projection_index = '0';
 
 DROP TABLE IF EXISTS tab;
 
@@ -12,13 +12,12 @@ CREATE TABLE tab
     i Int64,
     a Int64,
     text String,
-    PROJECTION by_text (    SELECT _part_offset
-    ORDER BY text ASC)
+    PROJECTION by_text (SELECT _part_offset ORDER BY text)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY i % 4
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO tab SELECT
     number,
@@ -30,6 +29,6 @@ SELECT *
 FROM tab
 WHERE text = '1000'
 SETTINGS
-    use_query_condition_cache = 0,
-    optimize_use_projections = 1,
-    optimize_use_projection_filtering = 1;
+    use_query_condition_cache = '0',
+    optimize_use_projections = '1',
+    optimize_use_projection_filtering = '1';

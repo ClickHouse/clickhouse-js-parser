@@ -1,6 +1,6 @@
 SELECT
     sum(c),
-    toInt32(((h - NULL::Nullable(DateTime))) / 3600) + 1 AS a
+    toInt32((h - NULL::Nullable(DateTime)) / 3600) + 1 AS a
 FROM (
         SELECT
             count() AS c,
@@ -8,8 +8,8 @@ FROM (
         FROM (
                 SELECT now() AS h
             )
-        WHERE toInt32(((h - NULL::Nullable(DateTime))) / 3600) + 1 = 1
+        WHERE toInt32((h - NULL::Nullable(DateTime)) / 3600) + 1 = 1
         GROUP BY h
     )
 GROUP BY a
-SETTINGS min_count_to_compile_expression = 0;
+SETTINGS min_count_to_compile_expression = '0';

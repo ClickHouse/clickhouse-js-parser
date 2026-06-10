@@ -8,13 +8,13 @@ CREATE TABLE `01746_merge_tree`
     n3 Int8,
     n4 Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 DROP TABLE IF EXISTS `01746_merge_tree_mv`;
 
 CREATE MATERIALIZED VIEW `01746_merge_tree_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n2,
@@ -41,12 +41,12 @@ CREATE TABLE `01746_null`
     n2 Int8,
     n3 Int8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 DROP TABLE IF EXISTS `01746_null_mv`;
 
 CREATE MATERIALIZED VIEW `01746_null_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n1,
@@ -73,7 +73,7 @@ CREATE TABLE `01746_local`
     n2 Int8,
     n3 Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS `01746_dist`;
 
@@ -83,7 +83,7 @@ ENGINE = Distributed('test_shard_localhost', currentDatabase(), `01746_local`, r
 DROP TABLE IF EXISTS `01746_dist_mv`;
 
 CREATE MATERIALIZED VIEW `01746_dist_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n1,
@@ -112,7 +112,7 @@ CREATE TABLE `01746_merge_t`
     n2 Int8,
     n3 Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS `01746_merge`;
 
@@ -122,7 +122,7 @@ ENGINE = Merge(currentDatabase(), '01746_merge_t');
 DROP TABLE IF EXISTS `01746_merge_mv`;
 
 CREATE MATERIALIZED VIEW `01746_merge_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n1,
@@ -151,7 +151,7 @@ CREATE TABLE `01746_buffer_t`
     n2 Int8,
     n3 Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS `01746_buffer`;
 
@@ -161,7 +161,7 @@ ENGINE = Buffer(currentDatabase(), `01746_buffer_t`, 16, 10, 100, 10000, 1000000
 DROP TABLE IF EXISTS `01746_buffer_mv`;
 
 CREATE MATERIALIZED VIEW `01746_buffer_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n1,

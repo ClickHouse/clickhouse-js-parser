@@ -1,6 +1,6 @@
 SELECT
-    -0,
-    toTypeName(-0),
+    0,
+    toTypeName(0),
     -1,
     toTypeName(-1),
     -0.,
@@ -14,7 +14,7 @@ CREATE TABLE t4
 (
     c26 String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE VIEW t7
 AS
@@ -25,7 +25,7 @@ SELECT c_7_c4585_14 AS c_4_c4593_5
 FROM (
         SELECT
             avg(0) AS c_7_c4572_1,
-            max(-0) AS c_7_c4585_14
+            max(0) AS c_7_c4585_14
         FROM t7 AS ref_0
         GROUP BY ref_0.c_2_c46_1
     ) AS subq_0
@@ -36,7 +36,7 @@ FROM (
         SELECT
             1 AS k,
             max(0) AS a,
-            max(-0) AS x
+            max(0) AS x
         FROM t7
         GROUP BY k
     )
@@ -46,7 +46,7 @@ SELECT x
 FROM (
         SELECT
             avg(0) AS c_7_c4572_1,
-            max(-0) AS x
+            max(0) AS x
         FROM t7 AS ref_0
         GROUP BY ref_0.c_2_c46_1
     )

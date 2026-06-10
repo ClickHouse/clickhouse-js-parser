@@ -2,7 +2,7 @@
 -- Tag no-parallel: Messes with internal cache
 -- Tag release: Checks fields in system.query_condition_cache which are not available in release builds
 -- Tests that SYSTEM CLEAR QUERY CONDITION CACHE works
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 -- (it's silly to use what will be tested below but we have to assume other tests cluttered the query cache)
 SYSTEM CLEAR QUERY CONDITION CACHE;
@@ -14,7 +14,7 @@ CREATE TABLE tab
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO tab SELECT

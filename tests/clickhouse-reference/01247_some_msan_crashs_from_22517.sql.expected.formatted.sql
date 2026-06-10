@@ -19,6 +19,6 @@ FROM (
             ) > NULL)))), dummy, 65535) AS dummy
         ORDER BY
             ignore(-2) ASC,
-            identity(x) DESC
+            identity(x) DESC NULLS FIRST
     )
 FORMAT Null; -- { serverError UNKNOWN_IDENTIFIER }

@@ -1,5 +1,5 @@
 -- Tags: no-parallel-replicas
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -8,7 +8,7 @@ CREATE TABLE test
     arr Array(UInt64),
     t Tuple(a Array(UInt32), b Array(UInt32))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
     [1, 2, 3],

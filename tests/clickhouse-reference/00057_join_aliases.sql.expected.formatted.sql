@@ -1,4 +1,4 @@
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
 SELECT *
 FROM (
@@ -14,7 +14,7 @@ FROM (
                     number / 2 AS n
                 FROM `system`.numbers
             ) AS js1
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT
                     number / 3 AS n,
                     number AS j1,

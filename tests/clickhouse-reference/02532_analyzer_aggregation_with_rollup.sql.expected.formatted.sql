@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     sum(a.number) AS total,
@@ -7,9 +7,9 @@ SELECT
     grouping(c.number) + grouping(b.number) AS l,
     rank() OVER (PARTITION BY grouping(c.number) + grouping(b.number), multiIf(grouping(c.number) = 0, b.number, NULL) ORDER BY sum(a.number) DESC) AS r
 FROM
-    numbers(10) AS a
-CROSS JOIN numbers(10) AS b
-CROSS JOIN numbers(10) AS c
+    numbers(10) AS a,
+    numbers(10) AS b,
+    numbers(10) AS c
 GROUP BY
     cn,
     bn

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     grouping(num1),
@@ -32,7 +32,7 @@ CREATE TABLE users
     age Int16,
     ts DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO users;

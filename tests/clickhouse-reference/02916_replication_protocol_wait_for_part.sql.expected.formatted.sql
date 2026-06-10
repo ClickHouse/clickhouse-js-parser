@@ -6,7 +6,7 @@ CREATE TABLE tableIn
 )
 ENGINE = ReplicatedMergeTree('/test/02916/{database}/table', '1')
 ORDER BY tuple()
-SETTINGS storage_policy = 's3_cache', sleep_before_commit_local_part_in_replicated_table_ms = 5000;
+SETTINGS storage_policy = 's3_cache', sleep_before_commit_local_part_in_replicated_table_ms = '5000';
 
 CREATE TABLE tableOut
 (
@@ -22,7 +22,7 @@ INSERT INTO tableIn;
 
 INSERT INTO tableIn;
 
-SYSTEM sync replica tableOut;
+SYSTEM SYNC REPLICA tableOut;
 
 SELECT count()
 FROM tableOut;

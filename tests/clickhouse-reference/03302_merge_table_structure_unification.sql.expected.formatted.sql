@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_a;
 
@@ -12,7 +12,7 @@ CREATE TABLE test_a
     b String,
     c Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test_b
 (
@@ -20,7 +20,7 @@ CREATE TABLE test_b
     c Array(Nullable(String)),
     d DateTime('UTC') DEFAULT now()
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_a;
 
@@ -45,7 +45,7 @@ ORDER BY a ASC;
 
 DROP TABLE test_merge;
 
-SET merge_table_max_tables_to_look_for_schema_inference = 1;
+SET merge_table_max_tables_to_look_for_schema_inference = '1';
 
 DROP TABLE test_a;
 

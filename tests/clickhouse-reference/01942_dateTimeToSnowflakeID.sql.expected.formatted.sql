@@ -1,8 +1,8 @@
 SET session_timezone = 'UTC'; -- disable timezone randomization
 
-SET enable_analyzer = 1; -- The old path formats the result with different whitespaces
+SET enable_analyzer = '1'; -- The old path formats the result with different whitespaces
 
-SET output_format_pretty_single_large_number_tip_threshold = 0;
+SET output_format_pretty_single_large_number_tip_threshold = '0';
 
 SELECT '-- Negative tests';
 
@@ -69,10 +69,10 @@ now64(2) AS dt64_2,
 now64(3) AS dt64_3
 
 SELECT
-    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_0), 0, 'UTC') == dt64_0,
-    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_1), 0, 'UTC') == dt64_1,
-    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_2), 0, 'UTC') == dt64_2,
-    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_3), 0, 'UTC') == dt64_3
+    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_0), 0, 'UTC') = dt64_0,
+    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_1), 0, 'UTC') = dt64_1,
+    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_2), 0, 'UTC') = dt64_2,
+    snowflakeIDToDateTime64(dateTime64ToSnowflakeID(dt64_3), 0, 'UTC') = dt64_3
 FORMAT Vertical;
 
 -- not idempotent

@@ -1,4 +1,4 @@
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 DROP TABLE IF EXISTS test;
 
@@ -8,15 +8,15 @@ CREATE TABLE test
     v LowCardinality(String),
     INDEX v v TYPE set(0) GRANULARITY 1
 )
-ENGINE = MergeTree
-ORDER BY (ts);
+ENGINE = MergeTree()
+ORDER BY ts;
 
 INSERT INTO test (v);
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT
-    CAST(NULL, 'Nullable(String)') AS source,
+    CAST(NULL AS Nullable(String)) AS source,
     v AS v
 FROM test
-WHERE (source = 'VALUE1')
-    OR (ilike(v, 'VALUE1'));
+WHERE source = 'VALUE1'
+    OR v ILIKE 'VALUE1';

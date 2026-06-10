@@ -9,9 +9,9 @@ CREATE TABLE `02581_trips`
     id2 UInt32,
     description String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 -- Make multiple parts
 INSERT INTO `02581_trips` SELECT
@@ -48,9 +48,9 @@ ORDER BY _part ASC;
 
 -- Run mutation with a 'IN big subquery'
 ALTER TABLE `02581_trips` UPDATE description = '1' WHERE id IN (
-    SELECT ((number * 10 + 1))::UInt32
+    SELECT (number * 10 + 1)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 SELECT
     count(),
@@ -61,66 +61,66 @@ GROUP BY _part
 ORDER BY _part ASC;
 
 ALTER TABLE `02581_trips` UPDATE description = '2' WHERE id IN (
-    SELECT ((number * 10 + 2))::UInt32
+    SELECT (number * 10 + 2)::UInt32
     FROM numbers(10000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with `id 'IN big subquery'
 ALTER TABLE `02581_trips` UPDATE description = 'a' WHERE id IN (
-    SELECT ((number * 10))::UInt32
+    SELECT (number * 10)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 SELECT count()
 FROM `02581_trips`
 WHERE description = '';
 
 ALTER TABLE `02581_trips` UPDATE description = 'a' WHERE id IN (
-    SELECT ((number * 10 + 1))::UInt32
+    SELECT (number * 10 + 1)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2, max_rows_in_set = 1000;
+) SETTINGS mutations_sync = '2', max_rows_in_set = '1000';
 
 -- Run mutation with func(`id`) IN big subquery
 ALTER TABLE `02581_trips` UPDATE description = 'b' WHERE id::UInt64 IN (
-    SELECT ((number * 10 + 2))::UInt32
+    SELECT (number * 10 + 2)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with non-PK `id2` IN big subquery
 ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id2 IN (
-    SELECT ((number * 10 + 3))::UInt32
+    SELECT (number * 10 + 3)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id IN (
-    SELECT ((number * 10 + 4))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id IN (
+    SELECT (number * 10 + 4)::UInt32
     FROM numbers(10000000)
-))
-OR (id2 IN (
-    SELECT ((number * 10 + 4))::UInt32
+)
+OR id2 IN (
+    SELECT (number * 10 + 4)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id::UInt64 IN (
-    SELECT ((number * 10 + 5))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id::UInt64 IN (
+    SELECT (number * 10 + 5)::UInt32
     FROM numbers(10000000)
-))
-OR (id2::UInt64 IN (
-    SELECT ((number * 10 + 5))::UInt32
+)
+OR id2::UInt64 IN (
+    SELECT (number * 10 + 5)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id::UInt32 IN (
-    SELECT ((number * 10 + 6))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id::UInt32 IN (
+    SELECT (number * 10 + 6)::UInt32
     FROM numbers(10000000)
-))
-OR (((id2 + 1))::String IN (
-    SELECT ((number * 10 + 6))::UInt32
+)
+OR (id2 + 1)::String IN (
+    SELECT (number * 10 + 6)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- { echoOff }
 DROP TABLE `02581_trips`;

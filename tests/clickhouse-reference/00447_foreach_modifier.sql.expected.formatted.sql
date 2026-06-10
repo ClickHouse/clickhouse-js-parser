@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS data
 (
     sketch Array(Int8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO data;
@@ -76,7 +76,7 @@ SELECT
 FROM (
         SELECT
             number % 3 AS k,
-            arrayMap(x -> toString(x), range(number)) AS arr
+            arrayMap((x -> toString(x)), range(number)) AS arr
         FROM `system`.numbers
         LIMIT 10
     )
@@ -89,7 +89,7 @@ SELECT
 FROM (
         SELECT
             intDiv(number, 3) AS k,
-            arrayMap(x -> toString(x), range(number)) AS arr
+            arrayMap((x -> toString(x)), range(number)) AS arr
         FROM `system`.numbers
         LIMIT 10
     )
@@ -103,7 +103,7 @@ SELECT
 FROM (
         SELECT
             intDiv(number, 3) AS k,
-            arrayMap(x -> number + x, range(number)) AS arr
+            arrayMap((x -> number + x), range(number)) AS arr
         FROM `system`.numbers
         LIMIT 10
     )

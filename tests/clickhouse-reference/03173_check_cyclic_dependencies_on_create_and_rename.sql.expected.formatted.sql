@@ -6,12 +6,12 @@ CREATE TABLE test
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test SELECT
     number,
-    concat('str_', toString(number))
+    'str_' || toString(number)
 FROM numbers(10);
 
 DROP DICTIONARY IF EXISTS test_dict;
@@ -32,7 +32,7 @@ CREATE TABLE view_source
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO view_source SELECT *

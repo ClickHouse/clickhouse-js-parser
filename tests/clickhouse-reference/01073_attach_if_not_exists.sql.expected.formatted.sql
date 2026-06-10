@@ -2,7 +2,7 @@ CREATE TABLE aine
 (
     a Int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 ATTACH TABLE aine; -- { serverError TABLE_ALREADY_EXISTS }
 

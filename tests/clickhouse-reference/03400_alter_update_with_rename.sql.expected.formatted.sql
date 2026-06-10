@@ -10,7 +10,7 @@ CREATE TABLE test_alter_atomic
 (
     c0 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_alter_atomic;
 
@@ -41,7 +41,7 @@ CREATE TABLE test_alter_atomic
     key Int32,
     c0 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO test_alter_atomic;
@@ -69,7 +69,7 @@ CREATE TABLE test_alter_atomic
     c0 Int32,
     c1 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO test_alter_atomic;
@@ -80,7 +80,7 @@ ALTER TABLE test_alter_atomic UPDATE c0 = 100 WHERE true, RENAME COLUMN c1 TO c2
 -- Wait for mutation to complete
 SELECT sleepEachRow(0.1)
 FROM numbers(30)
-SETTINGS function_sleep_max_microseconds_per_block = 10000000
+SETTINGS function_sleep_max_microseconds_per_block = '10000000'
 FORMAT Null;
 
 SELECT

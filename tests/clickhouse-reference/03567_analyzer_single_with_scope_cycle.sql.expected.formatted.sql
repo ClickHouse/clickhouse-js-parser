@@ -3,7 +3,7 @@ CREATE TABLE tab
     x String,
     y UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab SELECT
@@ -28,9 +28,9 @@ FROM (
                     )
             )
     )
-SETTINGS allow_experimental_analyzer = 0; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS allow_experimental_analyzer = '0'; -- { serverError UNKNOWN_IDENTIFIER }
 
-SET enable_scopes_for_with_statement = 0;
+SET enable_scopes_for_with_statement = '0';
 
 WITH a AS b
 
@@ -50,4 +50,4 @@ FROM (
                     )
             )
     )
-SETTINGS allow_experimental_analyzer = 1; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS allow_experimental_analyzer = '1'; -- { serverError UNKNOWN_IDENTIFIER }

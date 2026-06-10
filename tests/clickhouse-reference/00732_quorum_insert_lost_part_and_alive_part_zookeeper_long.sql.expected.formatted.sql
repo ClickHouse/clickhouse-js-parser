@@ -26,17 +26,17 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00732/quorum_lo
 ORDER BY x
 PARTITION BY y;
 
-SET insert_quorum = 2, insert_quorum_parallel = 0;
+SET insert_quorum = '2', insert_quorum_parallel = '0';
 
-SET select_sequential_consistency = 1;
-
-INSERT INTO quorum1;
+SET select_sequential_consistency = '1';
 
 INSERT INTO quorum1;
 
 INSERT INTO quorum1;
 
-SET insert_quorum_timeout = 0;
+INSERT INTO quorum1;
+
+SET insert_quorum_timeout = '0';
 
 SYSTEM STOP FETCHES quorum1;
 
@@ -50,7 +50,7 @@ SELECT x
 FROM quorum2
 ORDER BY x ASC;
 
-SET select_sequential_consistency = 0;
+SET select_sequential_consistency = '0';
 
 SYSTEM START FETCHES quorum1;
 

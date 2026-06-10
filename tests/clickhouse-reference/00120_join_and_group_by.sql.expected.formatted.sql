@@ -1,7 +1,7 @@
 SELECT value
 FROM
     `system`.one
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             dummy,
             dummy AS value
@@ -21,7 +21,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number,
             intHash32(number) AS value2

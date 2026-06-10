@@ -12,7 +12,7 @@ CREATE TABLE t
 (
     d Nullable(Decimal(18, 3))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT toIntervalMillisecond(d)

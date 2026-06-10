@@ -5,7 +5,7 @@ CREATE TABLE `03161_table`
     id UInt32,
     f UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `03161_table`;
 
@@ -15,43 +15,43 @@ EXPLAIN SYNTAX
 SELECT id
 FROM `03161_table`
 WHERE f
-    AND ((NOT f
-    OR f))
+    AND (NOT f
+    OR f)
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 1;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '1';
 
 SELECT id
 FROM `03161_table`
 WHERE f
-    AND ((NOT f
-    OR f))
+    AND (NOT f
+    OR f)
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 1;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT id
 FROM `03161_table`
 WHERE f
-    AND ((NOT f
-    OR f))
+    AND (NOT f
+    OR f)
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 0;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '0';
 
 SELECT id
 FROM `03161_table`
 WHERE f
-    AND ((NOT f
-    OR f))
+    AND (NOT f
+    OR f)
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 0;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '0';
 
 -- Checking reproducer from GitHub issue
 -- https://github.com/ClickHouse/ClickHouse/issues/57400
@@ -70,46 +70,46 @@ CREATE TABLE `03161_reproducer`
     c8 UInt8,
     c9 UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `03161_reproducer`;
 
 SELECT count()
 FROM `03161_reproducer`
-WHERE ((NOT c2)
+WHERE NOT c2
     AND c2
-    AND (NOT c1))
-    OR ((NOT c2)
+    AND NOT c1
+    OR NOT c2
     AND c3
-    AND (NOT c5))
-    OR ((NOT c7)
-    AND (NOT c8))
-    OR (c9
+    AND NOT c5
+    OR NOT c7
+    AND NOT c8
+    OR c9
     AND c6
     AND c8
-    AND (NOT c8)
-    AND (NOT c7))
+    AND NOT c8
+    AND NOT c7
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 1;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '1';
 
 SELECT count()
 FROM `03161_reproducer`
-WHERE ((NOT c2)
+WHERE NOT c2
     AND c2
-    AND (NOT c1))
-    OR ((NOT c2)
+    AND NOT c1
+    OR NOT c2
     AND c3
-    AND (NOT c5))
-    OR ((NOT c7)
-    AND (NOT c8))
-    OR (c9
+    AND NOT c5
+    OR NOT c7
+    AND NOT c8
+    OR c9
     AND c6
     AND c8
-    AND (NOT c8)
-    AND (NOT c7))
+    AND NOT c8
+    AND NOT c7
 SETTINGS
-    convert_query_to_cnf = 1,
-    optimize_using_constraints = 1,
-    enable_analyzer = 0;
+    convert_query_to_cnf = '1',
+    optimize_using_constraints = '1',
+    enable_analyzer = '0';

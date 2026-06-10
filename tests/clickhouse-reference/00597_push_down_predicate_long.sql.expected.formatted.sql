@@ -1,17 +1,17 @@
 -- Tags: long
 SET send_logs_level = 'fatal';
 
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_00597;
 
 DROP TABLE IF EXISTS test_view_00597;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_00597
 (
@@ -45,7 +45,7 @@ INSERT INTO test_00597;
 
 INSERT INTO test_00597;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 SELECT '-------No need for predicate optimization, but still works-------';
 
@@ -54,7 +54,7 @@ SELECT 1;
 SELECT 1 AS id
 WHERE id = 1;
 
-SELECT arrayJoin([1,2,3]) AS id
+SELECT arrayJoin([1, 2, 3]) AS id
 WHERE id = 1;
 
 SELECT *
@@ -96,7 +96,7 @@ FROM
     (
         SELECT 1 AS a
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             1 AS a,
             1 AS b
@@ -111,7 +111,7 @@ FROM
     (
         SELECT 1 AS a
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             1 AS a,
             1 AS b
@@ -130,7 +130,7 @@ FROM
             1 AS a,
             1 AS b
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT 1 AS a
     )
     USING (a)
@@ -145,7 +145,7 @@ FROM
             1 AS a,
             1 AS b
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT 1 AS a
     )
     USING (a)
@@ -160,7 +160,7 @@ FROM
     (
         SELECT 1 AS a
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             1 AS a,
             1 AS b
@@ -175,7 +175,7 @@ FROM
     (
         SELECT 1 AS a
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             1 AS a,
             1 AS b
@@ -193,7 +193,7 @@ FROM
             1 AS a,
             1 AS b
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT 1 AS a
     )
     USING (a)
@@ -572,7 +572,7 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     )
@@ -585,13 +585,13 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     )
     USING (id)
 WHERE id = 1
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT *
 FROM
@@ -599,13 +599,13 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     )
     USING (id)
 WHERE id = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT *
@@ -613,7 +613,7 @@ FROM
     (
         SELECT toInt8(1) AS id
     )
-LEFT JOIN test_00597
+ANY LEFT JOIN test_00597
     USING (id)
 WHERE value = 1;
 
@@ -622,7 +622,7 @@ FROM
     (
         SELECT toInt8(1) AS id
     )
-LEFT JOIN test_00597
+ANY LEFT JOIN test_00597
     USING (id)
 WHERE value = 1;
 
@@ -633,7 +633,7 @@ FROM
     (
         SELECT toInt8(1) AS id
     )
-LEFT JOIN test_00597 AS b
+ANY LEFT JOIN test_00597 AS b
     USING (id)
 WHERE value = 1;
 
@@ -642,7 +642,7 @@ FROM
     (
         SELECT toInt8(1) AS id
     )
-LEFT JOIN test_00597 AS b
+ANY LEFT JOIN test_00597 AS b
     USING (id)
 WHERE value = 1;
 
@@ -656,7 +656,7 @@ FROM (
                 SELECT *
                 FROM test_00597
             )
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT *
                 FROM test_00597
             )
@@ -672,14 +672,14 @@ FROM (
                 SELECT *
                 FROM test_00597
             )
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT *
                 FROM test_00597
             )
             USING (id)
     )
 WHERE id = 1
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT *
 FROM (
@@ -689,14 +689,14 @@ FROM (
                 SELECT *
                 FROM test_00597
             )
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT *
                 FROM test_00597
             )
             USING (id)
     )
 WHERE id = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- Optimize predicate expression with join query and qualified
 EXPLAIN SYNTAX
@@ -706,7 +706,7 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
@@ -719,13 +719,13 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
     USING (id)
 WHERE b.id = 1
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT *
 FROM
@@ -733,13 +733,13 @@ FROM
         SELECT *
         FROM test_00597
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
     USING (id)
 WHERE b.id = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- Compatibility test
 EXPLAIN SYNTAX
@@ -752,7 +752,7 @@ FROM
         FROM `system`.numbers
         LIMIT 1
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
@@ -768,13 +768,13 @@ FROM
         FROM `system`.numbers
         LIMIT 1
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
     USING (date, id)
 WHERE b.date = toDate('2000-01-01')
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT *
 FROM
@@ -785,13 +785,13 @@ FROM
         FROM `system`.numbers
         LIMIT 1
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM test_00597
     ) AS b
     USING (date, id)
 WHERE b.date = toDate('2000-01-01')
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT *
@@ -802,7 +802,7 @@ FROM (
                 SELECT *
                 FROM test_00597
             ) AS a
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT *
                 FROM test_00597
             ) AS b
@@ -818,7 +818,7 @@ FROM (
                 SELECT *
                 FROM test_00597
             ) AS a
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT *
                 FROM test_00597
             ) AS b
@@ -834,7 +834,7 @@ FROM
         SELECT *
         FROM test_00597
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT *
         FROM (
                 SELECT *
@@ -850,7 +850,7 @@ FROM
         SELECT *
         FROM test_00597
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT *
         FROM (
                 SELECT *
@@ -859,7 +859,7 @@ INNER JOIN (
     ) AS r
     USING (id)
 WHERE r.id = 1
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT *
 FROM
@@ -867,7 +867,7 @@ FROM
         SELECT *
         FROM test_00597
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT *
         FROM (
                 SELECT *
@@ -876,7 +876,7 @@ INNER JOIN (
     ) AS r
     USING (id)
 WHERE r.id = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- issue 20497
 EXPLAIN SYNTAX

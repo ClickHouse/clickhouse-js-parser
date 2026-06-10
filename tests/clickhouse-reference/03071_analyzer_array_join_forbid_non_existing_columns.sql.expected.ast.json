@@ -1,105 +1,106 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/9233"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                ],
-                "source": "[1, 2, 3]"
-              },
-              "alias": "x"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "5"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "6"
-                  }
-                ],
-                "source": "[4, 5, 6]"
-              },
-              "alias": "y"
+              "type": "Asterisk"
             }
-          ]
-        }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "Y"
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "x",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "y",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "4"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "5"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "6"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "Y"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
         }
       ]
-    },
-    "trailingComments": [
-      "-- { serverError UNKNOWN_IDENTIFIER }"
-    ]
+    }
   }
 ]

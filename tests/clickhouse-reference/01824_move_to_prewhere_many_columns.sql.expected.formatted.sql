@@ -1,9 +1,9 @@
 -- Tags: no-random-merge-tree-settings
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET convert_query_to_cnf = 0;
+SET convert_query_to_cnf = '0';
 
-SET move_all_conditions_to_prewhere = 0;
+SET move_all_conditions_to_prewhere = '0';
 
 DROP TABLE IF EXISTS t_move_to_prewhere;
 
@@ -15,10 +15,10 @@ CREATE TABLE t_move_to_prewhere
     c UInt8,
     fat_string String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id
-SETTINGS min_rows_for_wide_part = 100, min_bytes_for_wide_part = 0;
+SETTINGS min_rows_for_wide_part = '100', min_bytes_for_wide_part = '0';
 
 INSERT INTO t_move_to_prewhere SELECT
     1,
@@ -53,16 +53,18 @@ WHERE a
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count()
-        FROM t_move_to_prewhere
-        WHERE a
-            AND b
-            AND c
-            AND NOT ignore(fat_string)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count()
+                FROM t_move_to_prewhere
+                WHERE a
+                    AND b
+                    AND c
+                    AND NOT ignore(fat_string)
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter%');
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter%';
 
 -- With only compact parts, we cannot move 3 conditions to PREWHERE,
 -- because we don't know sizes and we can use only number of columns in conditions.
@@ -75,10 +77,10 @@ CREATE TABLE t_move_to_prewhere
     c UInt8,
     fat_string String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY id
-SETTINGS min_rows_for_wide_part = 10000, min_bytes_for_wide_part = 100000000;
+SETTINGS min_rows_for_wide_part = '10000', min_bytes_for_wide_part = '100000000';
 
 EXPLAIN SYNTAX
 SELECT count()

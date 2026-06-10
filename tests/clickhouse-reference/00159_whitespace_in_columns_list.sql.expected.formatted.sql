@@ -4,7 +4,7 @@ CREATE TABLE memory
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO memory;
 

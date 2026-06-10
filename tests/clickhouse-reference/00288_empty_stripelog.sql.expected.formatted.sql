@@ -4,7 +4,7 @@ CREATE TABLE stripelog
 (
     x UInt8
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 SELECT *
 FROM stripelog

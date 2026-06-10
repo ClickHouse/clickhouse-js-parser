@@ -5,15 +5,15 @@ CREATE TABLE test_table
     A Nullable(String),
     B Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (A, B)
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO test_table;
 
 SELECT *
 FROM test_table
-WHERE isNull(B);
+WHERE B IS NULL;
 
 DROP TABLE test_table;
 
@@ -27,14 +27,14 @@ CREATE TABLE dm_metric_small2
 )
 ENGINE = MergeTree()
 ORDER BY (x, y, z)
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO dm_metric_small2;
 
 SELECT *
 FROM dm_metric_small2
-WHERE (x = 1)
-    AND (y = 1)
-    AND isNull(z);
+WHERE x = 1
+    AND y = 1
+    AND z IS NULL;
 
 DROP TABLE dm_metric_small2;

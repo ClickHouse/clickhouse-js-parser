@@ -1,24 +1,24 @@
 DROP TABLE IF EXISTS aliases_test;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE aliases_test
 (
     date Date,
     id UInt64,
-    `array` DEFAULT ['zero','one','two'],
+    `array` DEFAULT ['zero', 'one', 'two'],
     d1 DEFAULT `array`,
     a1 ALIAS `array`,
     a2 ALIAS a1,
     a3 ALIAS a2,
-    a4 ALIAS arrayMap(x -> toString(x), range(3)),
+    a4 ALIAS arrayMap((x -> toString(x)), range(3)),
     a5 ALIAS a4,
     a6 ALIAS a5,
     `struct.d1` DEFAULT `array`,
     `struct.a1` ALIAS `array`,
     `struct.a2` ALIAS `struct.a1`,
     `struct.a3` ALIAS `struct.a2`,
-    `struct.a4` ALIAS arrayMap(x -> toString(x), range(3)),
+    `struct.a4` ALIAS arrayMap((x -> toString(x)), range(3)),
     `struct.a5` ALIAS `struct.a4`,
     `struct.a6` ALIAS `struct.a5`
 )

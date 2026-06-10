@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS table1;
 
@@ -12,21 +12,21 @@ CREATE TABLE table1
 (
     a UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE table2
 (
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE table3
 (
     b UInt32,
     c UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE table5
 (
@@ -34,7 +34,7 @@ CREATE TABLE table5
     b UInt32,
     c UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1 SELECT number
 FROM numbers(21);
@@ -55,7 +55,7 @@ INSERT INTO table5 SELECT
     number * 500
 FROM numbers(10);
 
-SET joined_subquery_requires_alias = 1;
+SET joined_subquery_requires_alias = '1';
 
 SELECT
     t1.a,
@@ -208,9 +208,9 @@ SELECT
     t2.a AS t2_a,
     t2.b AS t2_b,
     t3.b AS t3_b,
-    (t1.a + table2.b) AS t1_t2_x,
-    (table1.a + table3.b) AS t1_t3_x,
-    (t2.b + t3.b) AS t2_t3_x
+    t1.a + table2.b AS t1_t2_x,
+    table1.a + table3.b AS t1_t3_x,
+    t2.b + t3.b AS t2_t3_x
 FROM
     table1 AS t1
 INNER JOIN table2 AS t2

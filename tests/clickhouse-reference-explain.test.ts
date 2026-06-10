@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { formatExplain, parse } from '../src/index';
-import { CLICKHOUSE_DIR, discoverCases } from './helpers';
+import { CLICKHOUSE_DIR, discoverCases, readReferenceSql } from './helpers';
 
 const QUERY_PARAMS = '<Query Parameters>';
 const EXPLAIN_ERROR = '<Explain Error>';
@@ -14,7 +14,7 @@ describe('clickhouse reference - explain', () => {
     it(fileName, () => {
       if (!fs.existsSync(explainPath)) return;
 
-      const sql = fs.readFileSync(filePath, 'utf-8');
+      const sql = readReferenceSql(filePath);
       const statements = parse(sql);
 
       const expectedEntries = fs.readFileSync(explainPath, 'utf-8').trimEnd().split('\n\n');

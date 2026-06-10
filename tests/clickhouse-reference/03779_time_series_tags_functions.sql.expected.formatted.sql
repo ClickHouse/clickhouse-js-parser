@@ -1,7 +1,7 @@
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
+    same_group2 = group2,
     timeSeriesGroupToTags(empty_group),
     empty_group
 FROM (
@@ -13,17 +13,17 @@ FROM (
     );
 
 SELECT
-    same_id1 == id1,
-    same_id2 == id2,
-    same_id3 == id3,
-    same_id4 == id4,
-    same_id5 == id5,
-    same_id6 == id6,
-    same_id7 == id7,
-    group2 == group3,
-    group4 == group5
-    AND group5 == group6,
-    group7 == 0,
+    same_id1 = id1,
+    same_id2 = id2,
+    same_id3 = id3,
+    same_id4 = id4,
+    same_id5 = id5,
+    same_id6 = id6,
+    same_id7 = id7,
+    group2 = group3,
+    group4 = group5
+    AND group5 = group6,
+    group7 = 0,
     timeSeriesIdToTags(id1) AS tags1,
     timeSeriesIdToTags(id2) AS tags2,
     timeSeriesIdToTags(id3) AS tags3,
@@ -31,17 +31,17 @@ SELECT
     timeSeriesIdToTags(id5) AS tags5,
     timeSeriesIdToTags(id6) AS tags6,
     timeSeriesIdToTags(id7) AS tags7,
-    tags2 == tags3,
-    tags4 == tags5
-    AND tags5 == tags6,
+    tags2 = tags3,
+    tags4 = tags5
+    AND tags5 = tags6,
     empty(tags7),
-    timeSeriesGroupToTags(group1) == tags1,
-    timeSeriesGroupToTags(group2) == tags2,
-    timeSeriesGroupToTags(group3) == tags3,
-    timeSeriesGroupToTags(group4) == tags4,
-    timeSeriesGroupToTags(group5) == tags5,
-    timeSeriesGroupToTags(group6) == tags6,
-    timeSeriesGroupToTags(group7) == tags7
+    timeSeriesGroupToTags(group1) = tags1,
+    timeSeriesGroupToTags(group2) = tags2,
+    timeSeriesGroupToTags(group3) = tags3,
+    timeSeriesGroupToTags(group4) = tags4,
+    timeSeriesGroupToTags(group5) = tags5,
+    timeSeriesGroupToTags(group6) = tags6,
+    timeSeriesGroupToTags(group7) = tags7
 FROM (
         SELECT
             1111111111111 AS id1,
@@ -76,8 +76,8 @@ SELECT
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
-    again_group2 == group2,
+    same_group2 = group2,
+    again_group2 = group2,
     timeSeriesGroupToTags(group3)
 FROM (
         SELECT
@@ -93,12 +93,12 @@ FROM (
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
-    again_group2 == group2,
+    same_group2 = group2,
+    again_group2 = group2,
     timeSeriesGroupToTags(group3),
-    same_group3 == group3,
-    again_group3 == group3,
-    same_dest_group == dest_group
+    same_group3 = group3,
+    again_group3 = group3,
+    same_dest_group = dest_group
 FROM (
         SELECT
             timeSeriesTagsToGroup([('region', 'eu'), ('env', 'dev')], '__name__', 'http_requests_count') AS dest_group,
@@ -116,9 +116,9 @@ FROM (
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
+    same_group2 = group2,
     timeSeriesGroupToTags(empty_group),
-    empty_group == 0
+    empty_group = 0
 FROM (
         SELECT
             timeSeriesTagsToGroup([('region', 'eu'), ('env', 'dev')], '__name__', 'http_requests_count') AS src_group,
@@ -131,11 +131,11 @@ FROM (
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
-    again_group2 == group2,
+    same_group2 = group2,
+    again_group2 = group2,
     timeSeriesGroupToTags(empty_group),
-    empty_group == 0,
-    same_src_group == src_group
+    empty_group = 0,
+    same_src_group = src_group
 FROM (
         SELECT
             timeSeriesTagsToGroup([('region', 'eu'), ('env', 'dev')], '__name__', 'http_requests_count') AS src_group,
@@ -150,11 +150,11 @@ FROM (
 SELECT
     timeSeriesGroupToTags(group1),
     timeSeriesGroupToTags(group2),
-    same_group2 == group2,
-    again_group2 == group2,
+    same_group2 = group2,
+    again_group2 = group2,
     timeSeriesGroupToTags(empty_group),
-    empty_group == 0,
-    again_empty_group == 0
+    empty_group = 0,
+    again_empty_group = 0
 FROM (
         SELECT
             timeSeriesTagsToGroup([('region', 'eu'), ('env', 'dev')], '__name__', 'http_requests_count') AS src_group,
@@ -195,9 +195,9 @@ SELECT
     timeSeriesGroupToTags(group4),
     timeSeriesGroupToTags(group5),
     timeSeriesGroupToTags(group6),
-    same_src_group == src_group,
-    again_src_group == src_group,
-    once_again_src_group == src_group
+    same_src_group = src_group,
+    again_src_group = src_group,
+    once_again_src_group = src_group
 FROM (
         SELECT
             timeSeriesTagsToGroup([('__name__', 'up'), ('job', 'api-server'), ('service', 'a:c')]) AS src_group,

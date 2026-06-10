@@ -1,4 +1,4 @@
-SET output_format_write_statistics = 0;
+SET output_format_write_statistics = '0';
 
 SELECT
     concat('Hello, ', unhex('a0'), ' World') AS s1,

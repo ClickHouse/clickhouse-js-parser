@@ -1,4 +1,4 @@
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS t_sparse_alter;
 
@@ -8,7 +8,7 @@ CREATE TABLE t_sparse_alter
     u UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.5;
 

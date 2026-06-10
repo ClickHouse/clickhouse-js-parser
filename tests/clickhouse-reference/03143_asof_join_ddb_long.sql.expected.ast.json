@@ -1,536 +1,623 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "build"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long, no-random-merge-tree-settings, no-distributed-cache",
-      "-- no-random-merge-tree-settings - times out in private"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "build"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "skewed_probe"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "skewed_probe"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "session_timezone",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "UTC"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "session_timezone": "UTC"
       }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "build"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "functionCall",
-              "name": "toDateTime",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "build"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "begin"
+            }
+          ]
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "begin",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "1990-03-21 13:00:00"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "4"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "alias": "value",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "1990-03-21 13:00:00"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "4000000"
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
             }
-          },
-          "alias": "begin"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4"
-            }
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4000000"
           }
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "begin"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "skewed_probe"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "asQuery": {
-      "kind": "union",
-      "queries": [
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1990-04-21 13:00:01"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "toIntervalMinute",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
-                  ]
-                }
-              },
-              "alias": "begin"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              "alias": "key"
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "5"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1990-05-21 13:00:01"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "toIntervalMinute",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
-                  ]
-                }
-              },
-              "alias": "begin"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "key"
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1990-06-21 13:00:01"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "toIntervalMinute",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
-                  ]
-                }
-              },
-              "alias": "begin"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              },
-              "alias": "key"
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "20"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1990-03-21 13:00:01"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "toIntervalMinute",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
-                  ]
-                }
-              },
-              "alias": "begin"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              },
-              "alias": "key"
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4000000"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "begin"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "SUM",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "skewed_probe"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "build"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "key",
-          "begin"
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "SUM",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "skewed_probe"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "begin"
+            }
+          ]
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "value"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "begin",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "1990-04-21 13:00:01"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "begin",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "1990-05-21 13:00:01"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "begin",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "1990-06-21 13:00:01"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "2"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "20"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "begin",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "1990-03-21 13:00:01"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMinute",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "3"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "4000000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "SUM",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "skewed_probe"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "strictness": "ASOF",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "key"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "begin"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "build"
+                  }
+                }
+              }
             ]
           }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "skewed_probe"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "build"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "key",
-          "begin"
-        ]
-      }
-    },
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "full_sorting_merge"
         }
-      }
-    ]
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "SUM",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "skewed_probe"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "strictness": "ASOF",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "key"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "begin"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "build"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "join_algorithm": "full_sorting_merge"
+            }
+          }
+        }
+      ]
+    }
   }
 ]

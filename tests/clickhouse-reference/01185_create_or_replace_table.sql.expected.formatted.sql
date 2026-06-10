@@ -6,7 +6,7 @@ REPLACE TABLE t1
     n UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n; -- { serverError UNKNOWN_TABLE }
 
 SHOW TABLES;
@@ -16,7 +16,7 @@ CREATE OR REPLACE TABLE t1
     n UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 SHOW CREATE TABLE t1;
@@ -28,7 +28,7 @@ CREATE OR REPLACE TABLE t1
     n UInt64,
     s Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO t1;
@@ -40,7 +40,7 @@ REPLACE TABLE t1
 (
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO t1;

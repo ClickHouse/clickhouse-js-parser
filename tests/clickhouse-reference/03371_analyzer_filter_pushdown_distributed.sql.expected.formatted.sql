@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE bug_table
 (
@@ -6,7 +6,7 @@ CREATE TABLE bug_table
     c1 String,
     c2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (c1, c2)
 PARTITION BY toYYYYMM(date_column);
 
@@ -22,7 +22,7 @@ ENGINE = Distributed('test_cluster_two_shards', currentDatabase(), 'bug_table', 
 
 SET distributed_product_mode = 'allow';
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 WITH alias_1 AS (
     SELECT
@@ -39,4 +39,4 @@ WHERE c2 IN (
     )
 FORMAT Null;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';

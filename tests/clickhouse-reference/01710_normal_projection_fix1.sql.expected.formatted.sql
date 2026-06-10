@@ -6,22 +6,21 @@ CREATE TABLE t
     i int,
     j int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO t;
 
-ALTER TABLE t ADD PROJECTION x (SELECT *
-ORDER BY j ASC);
+ALTER TABLE t ADD PROJECTION x (SELECT * ORDER BY j);
 
 INSERT INTO t;
 
 INSERT INTO t;
 
-SET optimize_use_projections = 1, force_optimize_projection = 1;
+SET optimize_use_projections = '1', force_optimize_projection = '1';
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 SELECT i
 FROM t

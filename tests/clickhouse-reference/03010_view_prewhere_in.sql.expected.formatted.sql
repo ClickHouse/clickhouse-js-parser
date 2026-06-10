@@ -10,16 +10,16 @@ WITH data AS (
 r AS (
     SELECT
         '' AS id,
-        1::UInt8 AS value
+        CAST('1' AS UInt8) AS value
 )
 
 SELECT
     now() AS date,
     value
-    AND (data.id IN (
+    AND data.id IN (
         SELECT '' AS d
         FROM `system`.one
-    )) AS value
+    ) AS value
 FROM
     data
 LEFT JOIN r

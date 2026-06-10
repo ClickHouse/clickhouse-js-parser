@@ -2,7 +2,7 @@ CREATE TABLE test
 (
     json JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test SELECT '{"a" : "str"}';
@@ -15,8 +15,8 @@ SELECT
 FROM test
 GROUP BY toString(json.a)
 SETTINGS
-    enable_analyzer = 1,
-    optimize_injective_functions_in_group_by = 0;
+    enable_analyzer = '1',
+    optimize_injective_functions_in_group_by = '0';
 
 SELECT
     count(),
@@ -24,8 +24,8 @@ SELECT
 FROM test
 GROUP BY toString(json.a)
 SETTINGS
-    enable_analyzer = 1,
-    optimize_injective_functions_in_group_by = 1;
+    enable_analyzer = '1',
+    optimize_injective_functions_in_group_by = '1';
 
 EXPLAIN QUERY TREE
 SELECT
@@ -34,7 +34,7 @@ SELECT
 FROM test
 GROUP BY toString(json.a)
 SETTINGS
-    enable_analyzer = 1,
-    optimize_injective_functions_in_group_by = 1;
+    enable_analyzer = '1',
+    optimize_injective_functions_in_group_by = '1';
 
 DROP TABLE test;

@@ -1,13 +1,13 @@
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 -- #40014
 CREATE TABLE m0
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1, ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS index_granularity = '1', ratio_of_defaults_for_sparse_serialization = 1.;
 
 INSERT INTO m0 SELECT number
 FROM numbers(10);
@@ -17,9 +17,9 @@ CREATE TABLE m1
     id UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1, ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS index_granularity = '1', ratio_of_defaults_for_sparse_serialization = 1.;
 
 INSERT INTO m1 SELECT
     number,
@@ -43,8 +43,8 @@ WHERE id > 1
     AND id < 5
 ORDER BY id ASC
 SETTINGS
-    force_primary_key = 1,
-    max_bytes_to_read = 64;
+    force_primary_key = '1',
+    max_bytes_to_read = '64';
 
 -- #40706
 CREATE VIEW v

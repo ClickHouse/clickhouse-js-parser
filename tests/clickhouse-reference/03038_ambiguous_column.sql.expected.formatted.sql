@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/48308
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS `03038_table`;
 
@@ -7,7 +7,7 @@ CREATE TABLE `03038_table`
 (
     time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY time;
 
 SELECT *

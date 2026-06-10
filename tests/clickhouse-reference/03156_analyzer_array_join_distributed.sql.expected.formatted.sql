@@ -4,7 +4,7 @@ CREATE TABLE arrays_test
     arr Array(UInt8)
 )
 ENGINE = MergeTree()
-ORDER BY (s);
+ORDER BY s;
 
 INSERT INTO arrays_test;
 
@@ -52,11 +52,11 @@ CREATE TABLE hourly
     `metric.names` Array(String),
     `metric.values` Array(Int64)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     '2020-01-01',
     ['a', 'b'],
-    [1,2];
+    [1, 2];
 
 SELECT
     toDate(hour) AS day,

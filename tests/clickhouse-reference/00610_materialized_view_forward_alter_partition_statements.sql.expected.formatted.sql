@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS tab_00610;
 
 DROP TABLE IF EXISTS mv_00610;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE tab_00610
 (

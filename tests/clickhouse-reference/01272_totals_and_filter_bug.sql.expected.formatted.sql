@@ -8,7 +8,7 @@ FROM (
         WITH TOTALS
     )
 WHERE number > 0
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
 CREATE TABLE foo
 (
@@ -17,7 +17,7 @@ CREATE TABLE foo
     metric_1 UInt32
 )
 ENGINE = MergeTree()
-ORDER BY (server_date)
+ORDER BY server_date
 PARTITION BY toYYYYMM(server_date);
 
 CREATE TABLE bar
@@ -27,7 +27,7 @@ CREATE TABLE bar
     metric_2 UInt32
 )
 ENGINE = MergeTree()
-ORDER BY (server_date)
+ORDER BY server_date
 PARTITION BY toYYYYMM(server_date);
 
 INSERT INTO foo;
@@ -47,7 +47,7 @@ FROM
         GROUP BY dimension_1
         WITH TOTALS
     ) AS subquery_1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             dimension_1,
             sum(metric_2) AS sum_metric_2

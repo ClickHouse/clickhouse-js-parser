@@ -4,14 +4,14 @@ SELECT
 FROM (
         SELECT
             bl,
-            anyIf(n, cond) AS any_ignore,
-            anyIf(n, cond) AS any_respect,
-            anyLastIf(n, cond) AS last_ignore,
-            anyLastIf(n, cond) AS last_respect,
-            anyIf(nullable_n, cond) AS any_nullable_ignore,
-            anyIf(nullable_n, cond) AS any_nullable_respect,
-            anyLastIf(nullable_n, cond) AS last_nullable_ignore,
-            anyLastIf(nullable_n, cond) AS last_nullable_respect
+            anyIf(n, cond) IGNORE NULLS AS any_ignore,
+            anyIf(n, cond) RESPECT NULLS AS any_respect,
+            anyLastIf(n, cond) IGNORE NULLS AS last_ignore,
+            anyLastIf(n, cond) RESPECT NULLS AS last_respect,
+            anyIf(nullable_n, cond) IGNORE NULLS AS any_nullable_ignore,
+            anyIf(nullable_n, cond) RESPECT NULLS AS any_nullable_respect,
+            anyLastIf(nullable_n, cond) IGNORE NULLS AS last_nullable_ignore,
+            anyLastIf(nullable_n, cond) RESPECT NULLS AS last_nullable_respect
         FROM (
                 SELECT
                     number AS n,
@@ -41,7 +41,7 @@ FROM (
 SELECT
     any(tp) AS default,
     toTypeName(default) AS default_type,
-    any(tp) AS `respect`,
+    any(tp) RESPECT NULLS AS `respect`,
     toTypeName(`respect`) AS respect_type
 FROM (
         SELECT (toLowCardinality(number), number) AS tp
@@ -65,7 +65,7 @@ FROM (
         SELECT first_value_respect_nullsState(number::LowCardinality(Nullable(UInt8))) AS t
         FROM numbers(0)
     )
-SETTINGS allow_suspicious_low_cardinality_types = 1;
+SETTINGS allow_suspicious_low_cardinality_types = '1';
 
 SELECT first_value_respect_nullsOrNullMerge(t)
 FROM (
@@ -111,8 +111,8 @@ FROM (
 
 -- Assert sanitizer: passing NULL (not Nullable() with different values is accepted and ignored)
 SELECT
-    anyLastIf(n, cond),
-    anyLastIf(nullable_n, cond)
+    anyLastIf(n, cond) RESPECT NULLS,
+    anyLastIf(nullable_n, cond) RESPECT NULLS
 FROM (
         SELECT
             number AS n,

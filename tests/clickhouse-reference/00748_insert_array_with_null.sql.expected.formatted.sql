@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS arraytest;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
-SET input_format_null_as_default = 0;
+SET input_format_null_as_default = '0';
 
 CREATE TABLE arraytest
 (

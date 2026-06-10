@@ -1,4 +1,4 @@
-SET input_format_json_empty_as_default = 1, allow_experimental_variant_type = 1;
+SET input_format_json_empty_as_default = '1', allow_experimental_variant_type = '1';
 
 -- Simple types
 -- { echoOn }
@@ -63,11 +63,11 @@ CREATE TABLE table1
 )
 ENGINE = Memory();
 
-SET input_format_defaults_for_omitted_fields = 0;
+SET input_format_defaults_for_omitted_fields = '0';
 
-INSERT INTO table1;
+INSERT INTO table1 FORMAT JSONEachRow;
 
-SET input_format_defaults_for_omitted_fields = 1;
+SET input_format_defaults_for_omitted_fields = '1';
 
 -- { echoOn }
 SELECT *

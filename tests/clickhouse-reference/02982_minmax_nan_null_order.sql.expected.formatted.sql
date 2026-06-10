@@ -6,8 +6,8 @@ SELECT
 FROM values((nan, 0.), (0., 0.), (5., 5.));
 
 SELECT
-    minIf((c1, c2), c2 >= 0.0),
-    maxIf((c1, c2), c2 >= 0.0)
+    minIf((c1, c2), c2 >= 0.),
+    maxIf((c1, c2), c2 >= 0.)
 FROM values((nan, 0.), (0., 0.), (5., 5.));
 
 SELECT (c1, c2) AS t
@@ -26,8 +26,8 @@ SELECT
 FROM values((-5, 0), (nan, 0.), (0., 0.), (5., 5.));
 
 SELECT
-    minIf((c1, c2), c2 >= 0.0),
-    maxIf((c1, c2), c2 >= 0.0)
+    minIf((c1, c2), c2 >= 0.),
+    maxIf((c1, c2), c2 >= 0.)
 FROM values((-5, 0), (nan, 0.), (0., 0.), (5., 5.));
 
 SELECT (c1, c2) AS t

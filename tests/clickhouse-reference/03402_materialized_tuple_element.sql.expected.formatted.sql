@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t;
 
@@ -7,8 +7,8 @@ CREATE TABLE t
     id Int32,
     d Tuple(year Int32, month Int32, day Int32)
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 ALTER TABLE t ADD COLUMN dt Date MATERIALIZED makeDate(d.year, d.month, d.day);
 

@@ -4,14 +4,14 @@ CREATE TABLE t_tuple_numeric
 (
     t Tuple(`1` Tuple(`2` Int, `3` Int), `4` Int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SHOW CREATE TABLE t_tuple_numeric;
 
 INSERT INTO t_tuple_numeric;
 
-SET output_format_json_named_tuples_as_objects = 1;
+SET output_format_json_named_tuples_as_objects = '1';
 
 SELECT *
 FROM t_tuple_numeric
@@ -24,15 +24,15 @@ SELECT
 FROM t_tuple_numeric;
 
 SELECT
-    t.1.1,
-    t.1.2,
-    t.2
+    (t).1.1,
+    (t).1.2,
+    (t).2
 FROM t_tuple_numeric;
 
-SELECT t.1.3
+SELECT (t).1.3
 FROM t_tuple_numeric; -- {serverError NOT_FOUND_COLUMN_IN_BLOCK, ARGUMENT_OUT_OF_BOUND}
 
-SELECT t.4
+SELECT (t).4
 FROM t_tuple_numeric; -- {serverError NOT_FOUND_COLUMN_IN_BLOCK, ARGUMENT_OUT_OF_BOUND}
 
 SELECT
@@ -47,7 +47,7 @@ CREATE TABLE t_tuple_numeric
 (
     t Tuple(Tuple(Int, Int), Int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 WITH '{"1":{"key":"value"}}' AS data,

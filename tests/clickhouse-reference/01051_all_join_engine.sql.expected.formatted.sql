@@ -13,7 +13,7 @@ CREATE TABLE t1
     x UInt32,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE left_join
 (
@@ -53,7 +53,7 @@ INSERT INTO right_join (x, s);
 
 INSERT INTO full_join (x, s);
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
 SELECT *
 FROM
@@ -95,7 +95,7 @@ ORDER BY
     str ASC,
     s ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE left_join;
 
@@ -111,7 +111,7 @@ CREATE TABLE left_join
     s String
 )
 ENGINE = Join(`ALL`, `LEFT`, x)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE inner_join
 (
@@ -119,7 +119,7 @@ CREATE TABLE inner_join
     s String
 )
 ENGINE = Join(`ALL`, `INNER`, x)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE right_join
 (
@@ -127,7 +127,7 @@ CREATE TABLE right_join
     s String
 )
 ENGINE = Join(`ALL`, `RIGHT`, x)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE full_join
 (
@@ -135,6 +135,6 @@ CREATE TABLE full_join
     s String
 )
 ENGINE = Join(`ALL`, `FULL`, x)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 DROP TABLE t1;

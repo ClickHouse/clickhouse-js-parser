@@ -1,4 +1,4 @@
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
 DROP TABLE IF EXISTS source;
 
@@ -7,11 +7,11 @@ CREATE TABLE source
     Name String,
     Value Int64
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 INSERT INTO source SELECT
-    ['fail', 'success'][(((number + 1)) % 2) + 1] AS Name,
+    ['fail', 'success'][(number + 1) % 2 + 1] AS Name,
     number AS Value
 FROM numbers(1000);
 
@@ -22,8 +22,8 @@ CREATE TABLE test_agg_variant
     Name String,
     Value Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))
 )
-ENGINE = MergeTree
-ORDER BY (Name);
+ENGINE = MergeTree()
+ORDER BY Name;
 
 INSERT INTO test_agg_variant SELECT
     Name,
@@ -31,10 +31,7 @@ INSERT INTO test_agg_variant SELECT
 FROM (
         SELECT
             Name,
-            arrayJoin([
-            uniqExactState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64)), 
-            avgState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))
-        ]) AS t
+            arrayJoin([uniqExactState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64)), avgState(Value)::Variant(AggregateFunction(uniqExact, Int64), AggregateFunction(avg, Int64))]) AS t
         FROM source
         GROUP BY Name
     );

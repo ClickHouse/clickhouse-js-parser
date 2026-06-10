@@ -8,9 +8,9 @@ CREATE TABLE t_lwu_deletes_vertical
     c3 String,
     c4 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, enable_block_number_column = 1, enable_block_offset_column = 1, vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, vertical_merge_optimize_lightweight_delete = 1;
+SETTINGS min_bytes_for_wide_part = '0', enable_block_number_column = '1', enable_block_offset_column = '1', vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', vertical_merge_optimize_lightweight_delete = '1';
 
 INSERT INTO t_lwu_deletes_vertical SELECT
     number,
@@ -20,7 +20,7 @@ INSERT INTO t_lwu_deletes_vertical SELECT
     randomPrintableASCII(10)
 FROM numbers(100000);
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 SET lightweight_delete_mode = 'lightweight_update_force';
 

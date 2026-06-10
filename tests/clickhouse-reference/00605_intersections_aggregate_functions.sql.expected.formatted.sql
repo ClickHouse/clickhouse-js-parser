@@ -5,7 +5,7 @@ CREATE TABLE test
     start Integer,
     `end` Integer
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test (start, `end`);
 

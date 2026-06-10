@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS ANIMAL;
+DROP TABLE IF EXISTS ANIMAL SYNC;
 
 CREATE TABLE ANIMAL
 (
@@ -9,9 +9,9 @@ ORDER BY tuple();
 
 INSERT INTO ANIMAL (ANIMAL);
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET allow_experimental_parallel_reading_from_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET allow_experimental_parallel_reading_from_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT *
 FROM (
@@ -41,9 +41,9 @@ FROM (
                         FROM ANIMAL
                     ) AS d
                     ON a.ANIMAL = d.ANIMAL
-                WHERE (d.ANIMAL != 'CAT')
-                    AND (c.ANIMAL != 'DOG')
-                    AND (b.ANIMAL != 'FISH')
+                WHERE d.ANIMAL != 'CAT'
+                    AND c.ANIMAL != 'DOG'
+                    AND b.ANIMAL != 'FISH'
             ) AS x
         WHERE x.b >= 'CAT'
         GROUP BY x.b
@@ -51,4 +51,4 @@ FROM (
     ) AS ANIMAL
 WHERE ANIMAL.ANIMAL >= 0;
 
-DROP TABLE ANIMAL;
+DROP TABLE ANIMAL SYNC;

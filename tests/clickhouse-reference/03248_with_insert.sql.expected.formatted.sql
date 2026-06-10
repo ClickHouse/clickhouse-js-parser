@@ -1,31 +1,41 @@
 DROP TABLE IF EXISTS x;
 
 CREATE TABLE x
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT *
 FROM numbers(0);
 
 SYSTEM STOP MERGES x;
 
+INSERT INTO x WITH y AS (
+    SELECT *
+    FROM numbers(10)
+)
+
+SELECT *
+FROM y
+INTERSECT
 WITH y AS (
     SELECT *
     FROM numbers(10)
 )
 
-INSERT INTO x SELECT *
-FROM y
-INTERSECT
 SELECT *
 FROM numbers(5);
 
+INSERT INTO x WITH y AS (
+    SELECT *
+    FROM numbers(10)
+)
+
+SELECT *
+FROM numbers(5)
+INTERSECT
 WITH y AS (
     SELECT *
     FROM numbers(10)
 )
 
-INSERT INTO x SELECT *
-FROM numbers(5)
-INTERSECT
 SELECT *
 FROM y;
 
@@ -38,14 +48,14 @@ CREATE TABLE x
 (
     d date
 )
-ENGINE = Log;
+ENGINE = Log();
 
-WITH y AS (
+INSERT INTO x WITH y AS (
     SELECT
         number,
         plus(toDate('2025-01-01'), toIntervalYear(number)) AS new_date
     FROM numbers(10)
 )
 
-INSERT INTO x SELECT y.new_date
+SELECT y.new_date
 FROM y;

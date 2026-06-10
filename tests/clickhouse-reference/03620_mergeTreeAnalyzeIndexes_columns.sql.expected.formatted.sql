@@ -10,7 +10,7 @@ CREATE TABLE data
 ENGINE = MergeTree()
 ORDER BY key;
 
-SYSTEM stop merges data;
+SYSTEM STOP MERGES data;
 
 INSERT INTO data SELECT
     *,
@@ -29,8 +29,8 @@ FROM mergeTreeAnalyzeIndexes(currentDatabase(), data, key >= 1000);
 SELECT ranges
 FROM mergeTreeAnalyzeIndexes(currentDatabase(), data, key >= 1000);
 
-SELECT arraySum(arrayMap(e -> ((e.2) - (e.1)), ranges)) AS ranges_size
+SELECT arraySum(arrayMap((e -> (e).2 - (e).1), ranges)) AS ranges_size
 FROM mergeTreeAnalyzeIndexes(currentDatabase(), data, key >= 1000);
 
-SELECT sum(arraySum(arrayMap(e -> ((e.2) - (e.1)), ranges))) AS ranges_size
+SELECT sum(arraySum(arrayMap((e -> (e).2 - (e).1), ranges))) AS ranges_size
 FROM mergeTreeAnalyzeIndexes(currentDatabase(), data, key >= 1000);

@@ -5,10 +5,10 @@ CREATE TABLE test1
     i int,
     j int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY i
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test1 SELECT
     number,
@@ -17,17 +17,17 @@ FROM numbers(10);
 
 SELECT count()
 FROM test1
-WHERE NOT has([1,2,3], i);
+WHERE NOT has([1, 2, 3], i);
 
 SELECT count()
 FROM test1
 WHERE i NOT IN (1, 2, 3);
 
-SET max_rows_to_read = 5;
+SET max_rows_to_read = '5';
 
 SELECT *
 FROM test1
-WHERE NOT has([1,2,3,4,5], i)
+WHERE NOT has([1, 2, 3, 4, 5], i)
 ORDER BY i ASC;
 
 SELECT *
@@ -47,7 +47,7 @@ CREATE TABLE t1
     a Float64,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY date;
 
 CREATE TABLE t2
@@ -56,7 +56,7 @@ CREATE TABLE t2
     a Float64,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY date;
 
 INSERT INTO t1 (a, b);

@@ -7,7 +7,7 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = Memory
+ENGINE = Memory()
 COMMENT 'Hello';
 
 SELECT comment
@@ -23,8 +23,8 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 COMMENT 'Hello';
 
 # The case when there are many operations in one ALTER
@@ -32,8 +32,8 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 COMMENT 'Hello';
 
 ALTER TABLE t MODIFY COMMENT 'World', MODIFY COLUMN x UInt16;
@@ -44,17 +44,17 @@ CREATE TABLE t
     x UInt8
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_comment_table1/t', '1')
-ORDER BY tuple()
+ORDER BY ()
 COMMENT 'Hello';
 
-DROP TABLE t;
+DROP TABLE t SYNC;
 
 CREATE TABLE t
 (
     x UInt8
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_comment_table2/t', '1')
-ORDER BY tuple()
+ORDER BY ()
 COMMENT 'Hello';
 
 # The cases when there is no comment on creation
@@ -62,25 +62,25 @@ CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t
 (
     x UInt8
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE TABLE t
 (
     x UInt8
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_comment_table3/t', '1')
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE TABLE t
 (
     x UInt8
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_comment_table4/t', '1')
-ORDER BY tuple();
+ORDER BY ();

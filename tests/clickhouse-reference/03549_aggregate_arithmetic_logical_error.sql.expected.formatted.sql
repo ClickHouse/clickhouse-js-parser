@@ -1,4 +1,4 @@
-SELECT sumMerge(initializeAggregation('sumState', 1) * CAST('1.1.1.1', 'IPv4')); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT sumMerge(initializeAggregation('sumState', 1) * CAST('1.1.1.1' AS IPv4)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 DROP TABLE IF EXISTS t;
 
@@ -7,7 +7,7 @@ CREATE TABLE t
     a IPv4,
     b BFloat16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT sumMerge(y * a)
 FROM (

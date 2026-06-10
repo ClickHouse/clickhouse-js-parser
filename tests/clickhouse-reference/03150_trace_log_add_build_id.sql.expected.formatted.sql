@@ -1,9 +1,9 @@
 -- Tags: no-asan, no-tsan, no-msan, no-ubsan, no-sanitize-coverage
-SET log_queries = 1;
+SET log_queries = '1';
 
-SET log_query_threads = 1;
+SET log_query_threads = '1';
 
-SET query_profiler_real_time_period_ns = 100000000;
+SET query_profiler_real_time_period_ns = '100000000';
 
 SELECT sleep(1);
 
@@ -11,7 +11,7 @@ SYSTEM FLUSH LOGS trace_log;
 
 SELECT COUNT(*) > 1
 FROM `system`.trace_log
-WHERE isNotNull(build_id);
+WHERE build_id IS NOT NULL;
 
-SELECT countIf(arrayExists(x -> like(x, '%:%:%'), lines)) > 1
+SELECT countIf(arrayExists((x -> x LIKE '%:%:%'), lines)) > 1
 FROM `system`.trace_log;

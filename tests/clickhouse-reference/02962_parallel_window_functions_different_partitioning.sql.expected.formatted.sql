@@ -5,7 +5,7 @@ CREATE TABLE empsalary
     salary Int32,
     enroll_date Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO empsalary;
 

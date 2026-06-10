@@ -1,803 +1,773 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_10m"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-replicated-database, long",
-      "-- - no-replicated-database - it uses cluster of multiple nodes, while we use different clusters",
-      "-- Make sure that distributed index analysis works with parallel replicas"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_10m"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_index_analysis_min_parts_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "distributed_index_analysis_min_indexes_size_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop merges test_10m"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_10m"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "*",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
+        "type": "Identifier",
+        "name": "test_10m"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_10m"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "distributed_index_analysis_min_parts_to_activate": "0",
+            "distributed_index_analysis_min_indexes_size_to_activate": "0"
           }
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "test_10m"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_10m"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "10e6"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "multiply",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 10000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_for_non_replicated_merge_tree": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_index_analysis_only_on_coordinator",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_index_analysis_only_on_coordinator": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_local_plan",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_local_plan": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "send_logs_level",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "error"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "send_logs_level": "error"
       }
-    ],
-    "leadingComments": [
-      "--- Ignore warnings when replica does not respond, and analysis is done on initiator"
-    ]
+    }
   },
+  "<AST Error>",
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_10m"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_parallel_reading_from_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "distributed_index_analysis",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_replicas"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- { echo }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_10m"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_parallel_reading_from_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "distributed_index_analysis",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_replicas"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_10m"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_parallel_reading_from_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "distributed_index_analysis",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_cluster_one_shard_two_replicas"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM flush logs query_log",
-    "leadingComments": [
-      "-- { echoOff }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "anyIf",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "normalizeQuery",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "is_initial_query"
-              ]
-            }
-          ]
-        },
-        "alias": "q"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "functionCall",
-                "name": "any",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayElement",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "Settings"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "allow_experimental_parallel_reading_from_replicas"
-                      }
-                    ]
-                  }
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "1"
-              },
-              "leadingComments": [
-                "-- in case of parallel replicas, it is possible that there will be less subqueries then max, but should not exceed it"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "any",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "arrayElement",
-                        "args": [
-                          {
-                            "kind": "columnRef",
-                            "parts": [
-                              "Settings"
-                            ]
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "cluster_for_parallel_replicas"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "parallel_replicas"
-                  }
-                },
-                {
-                  "kind": "castExpr",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "max2",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "count",
-                        "args": []
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "19"
-                      }
-                    ]
-                  },
-                  "type": "UInt64",
-                  "operator": true,
-                  "leadingComments": [
-                    "-- the max is hosts in parallel_replicas (10) * 2 (one for the query itself and one for mergeTreeAnalyzeIndexes()) - 1 * 2 (for local replica we do not issue a separate query) + 1 (query itself)"
-                  ]
-                },
-                {
-                  "kind": "castExpr",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "max2",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "count",
-                        "args": []
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "3"
-                      }
-                    ]
-                  },
-                  "type": "UInt64",
-                  "operator": true,
-                  "leadingComments": [
-                    "-- the max is hosts in test_cluster_one_shard_two_replicas (2) * 2 (one for the query itself and one for mergeTreeAnalyzeIndexes()) - 1 * 2 (for local replica we do not issue a separate query) + 1 (query itself)"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "any",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "arrayElement",
-                        "args": [
-                          {
-                            "kind": "columnRef",
-                            "parts": [
-                              "Settings"
-                            ]
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "cluster_for_parallel_replicas"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "parallel_replicas"
-                  }
-                },
-                {
-                  "kind": "castExpr",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "max2",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "count",
-                        "args": []
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "10"
-                      }
-                    ]
-                  },
-                  "type": "UInt64",
-                  "operator": true
-                },
-                {
-                  "kind": "castExpr",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "max2",
-                    "args": [
-                      {
-                        "kind": "functionCall",
-                        "name": "count",
-                        "args": []
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "2"
-                      }
-                    ]
-                  },
-                  "type": "UInt64",
-                  "operator": true
-                }
-              ],
-              "leadingComments": [
-                "-- in case of distributed index analyss, it is possible that there will be less subqueries then max, due to failures on remote"
-              ]
-            }
-          ]
-        },
-        "alias": "queries_with_subqueries"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "anyIf",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": ">",
-              "left": {
-                "kind": "functionCall",
-                "name": "arrayElement",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ProfileEvents"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "DistributedIndexAnalysisScheduledReplicas"
-                  }
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "is_initial_query"
-              ]
-            }
-          ]
-        },
-        "alias": "distributed_index_analysis_replicas"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "anyIf",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": ">",
-              "left": {
-                "kind": "functionCall",
-                "name": "arrayElement",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ProfileEvents"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "ParallelReplicasUsedCount"
-                  }
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "is_initial_query"
-              ]
-            }
-          ]
-        },
-        "alias": "read_with_parallel_replicas"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_kind"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "Select"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "Settings"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "distributed_index_analysis"
-              }
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "1"
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "endsWith",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "log_comment"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "-"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
+                  "type": "Identifier",
+                  "name": "key"
                 }
               ]
             }
           ],
-          "leadingComments": [
-            "-- SKIP: current_database = currentDatabase() (it will filter out non-initial queries)"
-          ]
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_10m"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_parallel_reading_from_replicas": "1",
+              "distributed_index_analysis": "1",
+              "cluster_for_parallel_replicas": "parallel_replicas"
+            }
+          }
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "initial_query_id"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "event_time_microseconds"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                }
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_10m"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_parallel_reading_from_replicas": "1",
+              "distributed_index_analysis": "1",
+              "cluster_for_parallel_replicas": "test_cluster_one_shard_two_replicas"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "q",
+              "name": "anyIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "normalizeQuery",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "query"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "is_initial_query"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "queries_with_subqueries",
+              "name": "if",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "any",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "arrayElement",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "Settings"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "allow_experimental_parallel_reading_from_replicas"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "any",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "arrayElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Settings"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "cluster_for_parallel_replicas"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "parallel_replicas"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "CAST",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "max2",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "19"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "UInt64"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "CAST",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "max2",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "3"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "UInt64"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "any",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "arrayElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Settings"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "cluster_for_parallel_replicas"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "parallel_replicas"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "CAST",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "max2",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "10"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "UInt64"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "CAST",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "max2",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "count",
+                              "arguments": []
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "2"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "UInt64"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "distributed_index_analysis_replicas",
+              "name": "anyIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayElement",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ProfileEvents"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "DistributedIndexAnalysisScheduledReplicas"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "is_initial_query"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "read_with_parallel_replicas",
+              "name": "anyIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayElement",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ProfileEvents"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "ParallelReplicasUsedCount"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "is_initial_query"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_kind"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Select"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayElement",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "Settings"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "distributed_index_analysis"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "endsWith",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "log_comment"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "concat",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "-"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "initial_query_id"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "min",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_time_microseconds"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Vertical"
+        }
+      ],
+      "format": "Vertical"
+    }
   }
 ]

@@ -1,222 +1,242 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dummy"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-fasttest, no-msan"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dummy"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dummy"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "num1",
-        "type": {
-          "name": "Int32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dummy"
       },
-      {
-        "kind": "columnDef",
-        "name": "num2",
-        "type": {
-          "name": "Enum8",
-          "args": [
-            {
-              "kind": "enumValues",
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "num1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "num2",
+            "data_type": {
+              "type": "EnumDataType",
+              "name": "Enum8",
               "values": [
                 {
                   "name": "foo",
-                  "value": "0"
+                  "value": 0
                 },
                 {
                   "name": "bar",
-                  "value": "1"
+                  "value": 1
                 },
                 {
                   "name": "tar",
-                  "value": "2"
+                  "value": 2
                 }
               ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "num1"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "bar"
+        "order_by": {
+          "type": "Identifier",
+          "name": "num1"
         }
-      ]
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "compile_aggregate_expressions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_count_to_compile_aggregate_expression",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM CLEAR COMPILED EXPRESSION CACHE",
-    "leadingComments": [
-      "-- { echoOn }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "minIf",
-        "args": [
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "num1"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "bar"
+              }
             ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "num1"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dummy"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "compile_aggregate_expressions": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_count_to_compile_aggregate_expression": "0"
+      }
+    }
+  },
+  "<AST Error>",
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "num2"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "minIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "num1"
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "num1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dummy"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "num2"
+            }
           ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "minIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "num1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "minIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "num1"
+                },
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "num1"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dummy"
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "num1"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "num2"
             }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dummy"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "num2"
           ]
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dummy"
-    },
-    "leadingComments": [
-      "-- { echoOff }"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dummy"
+      }
+    }
   }
 ]

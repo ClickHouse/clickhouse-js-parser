@@ -5,7 +5,7 @@ CREATE TABLE t_sparse_reload
     id UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.95;
 
@@ -18,7 +18,7 @@ SELECT count()
 FROM t_sparse_reload
 WHERE NOT ignore(*);
 
-ALTER TABLE t_sparse_reload MODIFY SETTING ratio_of_defaults_for_sparse_serialization = 1.0;
+ALTER TABLE t_sparse_reload MODIFY SETTING ratio_of_defaults_for_sparse_serialization = 1.;
 
 DETACH TABLE t_sparse_reload;
 

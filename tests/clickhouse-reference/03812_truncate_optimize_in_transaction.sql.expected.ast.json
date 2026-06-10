@@ -1,176 +1,190 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-encrypted-storage",
-      "-- Tag: no-encrypted-storage: not support transactions"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "merge_tree_clear_old_parts_interval_seconds",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "30"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_table"
-      }
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "throw_on_unsupported_query_inside_transaction",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "parallelWith",
-    "queries": [
-      {
-        "kind": "optimize",
-        "table": {
-          "kind": "tableRef",
-          "table": "test_table"
-        },
-        "final": true,
-        "deduplicate": true,
-        "deduplicateBy": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           },
           {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "optimize",
-        "table": {
-          "kind": "tableRef",
-          "table": "t2"
-        },
-        "settings": [
-          {
-            "name": "max_threads",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "merge_tree_clear_old_parts_interval_seconds": "30"
+          }
+        }
       }
-    ],
-    "trailingComments": [
-      "-- { serverError INVALID_TRANSACTION, NOT_IMPLEMENTED }"
-    ]
+    }
   },
   {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "throw_on_unsupported_query_inside_transaction": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ParallelWithQuery",
+      "children": [
+        {
+          "type": "OptimizeQuery",
+          "table": {
+            "type": "Identifier",
+            "name": "test_table"
+          },
+          "final": true,
+          "deduplicate": true,
+          "deduplicate_by_columns": {
+            "type": "ExpressionList",
+            "children": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Identifier",
+                "name": "value"
+              }
+            ]
+          }
+        },
+        {
+          "type": "OptimizeQuery",
+          "table": {
+            "type": "Identifier",
+            "name": "t2"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "10"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      }
     }
   }
 ]

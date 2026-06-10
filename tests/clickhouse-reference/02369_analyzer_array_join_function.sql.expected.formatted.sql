@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT arrayJoin([1, 2, 3]);
 
@@ -20,15 +20,15 @@ SELECT
     arrayJoin([1, 2, 3]) AS a,
     arrayJoin([1, 2, 3, 4]) AS b;
 
-SELECT arrayMap(x -> arrayJoin([1, 2, 3]), [1, 2, 3]);
+SELECT arrayMap((x -> arrayJoin([1, 2, 3])), [1, 2, 3]);
 
-SELECT arrayMap(x -> arrayJoin(x), [[1, 2, 3]]); -- { serverError BAD_ARGUMENTS }
+SELECT arrayMap((x -> arrayJoin(x)), [[1, 2, 3]]); -- { serverError BAD_ARGUMENTS }
 
-SELECT arrayMap(x -> arrayJoin(cast(x, 'Array(UInt8)')), [[1, 2, 3]]); -- { serverError BAD_ARGUMENTS }
+SELECT arrayMap((x -> arrayJoin(CAST(x AS Array(UInt8)))), [[1, 2, 3]]); -- { serverError BAD_ARGUMENTS }
 
 SELECT
-    arrayMap(x -> x + a, [1, 2, 3]),
-    arrayJoin([1,2,3]) AS a;
+    arrayMap((x -> x + a), [1, 2, 3]),
+    arrayJoin([1, 2, 3]) AS a;
 
 DROP TABLE IF EXISTS test_table;
 
@@ -38,7 +38,7 @@ CREATE TABLE test_table
     value_1 Array(UInt8),
     value_2 Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_table;

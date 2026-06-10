@@ -1,6 +1,6 @@
-SET insert_deduplicate = 1;
+SET insert_deduplicate = '1';
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
 SET insert_deduplication_token = 'test';
 
@@ -11,9 +11,9 @@ CREATE TABLE landing
     timestamp UInt64,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS non_replicated_deduplication_window = 1000;
+SETTINGS non_replicated_deduplication_window = '1000';
 
 DROP TABLE IF EXISTS ds_1_1;
 
@@ -22,9 +22,9 @@ CREATE TABLE ds_1_1
     t UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS non_replicated_deduplication_window = 1000;
+SETTINGS non_replicated_deduplication_window = '1000';
 
 DROP VIEW IF EXISTS mv_1_1;
 

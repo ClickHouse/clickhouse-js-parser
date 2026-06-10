@@ -4,4 +4,4 @@ CREATE TEMPORARY TABLE t_00477
 (
     x Array(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();

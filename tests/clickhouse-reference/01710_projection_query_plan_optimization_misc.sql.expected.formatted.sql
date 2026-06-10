@@ -5,11 +5,10 @@ CREATE TABLE t
     x Int32,
     codectest Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
-ALTER TABLE t ADD PROJECTION x (SELECT *
-ORDER BY codectest ASC);
+ALTER TABLE t ADD PROJECTION x (SELECT * ORDER BY codectest);
 
 INSERT INTO t;
 

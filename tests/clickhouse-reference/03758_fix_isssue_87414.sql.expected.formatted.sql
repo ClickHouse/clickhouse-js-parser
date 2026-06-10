@@ -8,7 +8,7 @@ SELECT
     sum(c0)
 FROM t0;
 
-INSERT INTO t0 (c0) SETTINGS write_full_path_in_iceberg_metadata = 1, allow_experimental_insert_into_iceberg = 1;
+INSERT INTO t0 (c0) SETTINGS write_full_path_in_iceberg_metadata = '1', allow_experimental_insert_into_iceberg = '1';
 
 DROP TABLE t0;
 

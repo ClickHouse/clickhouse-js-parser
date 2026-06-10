@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS values_template_nullable;
 
 DROP TABLE IF EXISTS values_template_fallback;
 
-SET input_format_null_as_default = 0;
+SET input_format_null_as_default = '0';
 
 CREATE TABLE type_names
 (
@@ -15,7 +15,7 @@ CREATE TABLE type_names
     s2 String,
     s3 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE values_template
 (
@@ -26,7 +26,7 @@ CREATE TABLE values_template
     f Float64,
     a Array(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE values_template_nullable
 (
@@ -35,15 +35,15 @@ CREATE TABLE values_template_nullable
     u Nullable(UInt8),
     a Array(Nullable(Float32))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE values_template_fallback
 (
     n UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET input_format_values_interpret_expressions = 0;
+SET input_format_values_interpret_expressions = '0';
 
 -- checks type deduction
 INSERT INTO type_names;
@@ -64,11 +64,11 @@ INSERT INTO values_template_fallback; -- { error ILLEGAL_TYPE_OF_ARGUMENT }
 
 INSERT INTO values_template_fallback;
 
-SET input_format_values_accurate_types_of_literals = 0;
+SET input_format_values_accurate_types_of_literals = '0';
 
 INSERT INTO type_names;
 
-SET input_format_values_interpret_expressions = 1;
+SET input_format_values_interpret_expressions = '1';
 
 INSERT INTO values_template_fallback;
 

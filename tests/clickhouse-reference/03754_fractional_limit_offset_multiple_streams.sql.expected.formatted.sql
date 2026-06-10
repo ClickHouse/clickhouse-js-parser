@@ -1,4 +1,4 @@
-SET max_block_size = 65409;
+SET max_block_size = '65409';
 
 SELECT count()
 FROM (
@@ -21,9 +21,9 @@ FROM (
         LIMIT 0.1
     );
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
-SET max_block_size = 3;
+SET max_block_size = '3';
 
 SELECT count()
 FROM (

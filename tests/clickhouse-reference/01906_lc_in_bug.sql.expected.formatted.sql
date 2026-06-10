@@ -4,7 +4,7 @@ CREATE TABLE tab
 (
     x LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab;
@@ -21,9 +21,9 @@ CREATE TABLE test
 (
     key Int32
 )
-ENGINE = MergeTree
-ORDER BY (key)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+ENGINE = MergeTree()
+ORDER BY key
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO test SELECT intDiv(number, 100)
 FROM numbers(10000000);
@@ -31,6 +31,6 @@ FROM numbers(10000000);
 SELECT COUNT()
 FROM test
 WHERE key <= 100000
-    AND (NOT toLowCardinality('') IN (
+    AND NOT toLowCardinality('') IN (
         SELECT ''
-    ));
+    );

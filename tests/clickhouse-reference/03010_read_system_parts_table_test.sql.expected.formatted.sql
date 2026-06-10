@@ -8,7 +8,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY uid
 PARTITION BY uid;
 

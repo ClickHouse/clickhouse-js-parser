@@ -9,7 +9,7 @@ ATTACH TABLE test FROM 'some/path'
 (
     n UInt8
 )
-ENGINE = Memory; -- { serverError NOT_IMPLEMENTED }
+ENGINE = Memory(); -- { serverError NOT_IMPLEMENTED }
 
 ATTACH TABLE test FROM '/etc/passwd'
 (
@@ -44,7 +44,7 @@ ATTACH TABLE mt FROM '01188_attach/file'
     n UInt8,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 SELECT *

@@ -7,7 +7,7 @@ CREATE TABLE t1
     id UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t2
@@ -15,17 +15,16 @@ CREATE TABLE t2
     id1 UInt32,
     id2 UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id1
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO t2 SELECT
     number,
     number
 FROM numbers(100);
 
-ALTER TABLE t2 ADD PROJECTION proj (SELECT id2
-ORDER BY id2 ASC);
+ALTER TABLE t2 ADD PROJECTION proj (SELECT id2 ORDER BY id2);
 
 SELECT s
 FROM

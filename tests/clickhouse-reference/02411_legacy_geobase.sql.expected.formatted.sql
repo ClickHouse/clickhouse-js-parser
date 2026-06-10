@@ -47,14 +47,14 @@ SELECT
     regionToName(id, 'en')
 FROM numbers(13);
 
-SELECT concat(regionToName(n1.number::UInt32, 'en'), (if(regionIn(n1.number::UInt32, n2.number::UInt32), ' is in ', ' is not in ')), regionToName(n2.number::UInt32, 'en'))
+SELECT regionToName(n1.number::UInt32, 'en') || (regionIn(n1.number::UInt32, n2.number::UInt32) ? ' is in ' : ' is not in ') || regionToName(n2.number::UInt32, 'en')
 FROM
     numbers(13) AS n1
 CROSS JOIN numbers(13) AS n2;
 
 SELECT
     regionHierarchy(number::UInt32) AS arr,
-    arrayMap(id -> regionToName(id, 'en'), arr)
+    arrayMap((id -> regionToName(id, 'en')), arr)
 FROM numbers(13);
 
 SELECT regionToName(number::UInt32, 'es')

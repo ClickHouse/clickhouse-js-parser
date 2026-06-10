@@ -4,7 +4,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -12,7 +12,7 @@ INSERT INTO users;
 
 INSERT INTO users;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH users AS (
     WITH t AS (

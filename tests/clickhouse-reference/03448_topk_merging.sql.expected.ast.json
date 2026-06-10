@@ -1,1061 +1,1126 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "topk_test"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "topk_test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "foo",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
       },
-      {
-        "kind": "columnDef",
-        "name": "top_items",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "topKWeighted",
-                "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "foo",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "top_items",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "topKWeighted",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "100"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "counts"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "foo"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "foo",
+                "value_type": "UInt64",
+                "value": "6"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
                   {
-                    "kind": "literal",
+                    "type": "Identifier",
+                    "name": "item"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
                     "value": "100"
                   },
                   {
-                    "kind": "literal",
+                    "type": "Literal",
+                    "value_type": "UInt64",
                     "value": "3"
                   },
                   {
-                    "kind": "literal",
-                    "value": "'counts'"
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "counts"
                   }
                 ]
               }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "foo"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "topk_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "6"
-          },
-          "alias": "foo"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "counts"
-            }
-          ],
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "item"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "item",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "Array",
+                                    "value": [
+                                      {
+                                        "value_type": "String",
+                                        "value": "a"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "a"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "a"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "b"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "b"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "b"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "c"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "c"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "c"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
                 }
               ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "a"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "a"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "a"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "b"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "b"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "b"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "c"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "c"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "c"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      }
-                    ],
-                    "source": "['a','a','a','b','b','b','c','c','c','d','d','e','e']"
-                  }
-                ]
-              },
-              "alias": "item"
-            }
-          ]
-        }
+          }
+        ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "topk_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "8"
-          },
-          "alias": "foo"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "counts"
-            }
-          ],
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "item"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      }
-                    ],
-                    "source": "['i','i','i','j','j','j','k','k','k','d','d','e','e']"
-                  }
-                ]
-              },
-              "alias": "item"
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "topk_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "9"
-          },
-          "alias": "foo"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "counts"
-            }
-          ],
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "item"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "l"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "l"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "l"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "m"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "m"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "m"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "n"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "n"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "n"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      }
-                    ],
-                    "source": "['l','l','l','m','m','m','n','n','n','d','d','e','e']"
-                  }
-                ]
-              },
-              "alias": "item"
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "topk_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          },
-          "alias": "foo"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "counts"
-            }
-          ],
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "item"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "z"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "z"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "z"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "w"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "w"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "w"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "y"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "y"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "y"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      }
-                    ],
-                    "source": "['z','z','z','w','w','w','y','y','y','d','d','e','e']"
-                  }
-                ]
-              },
-              "alias": "item"
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "topk_test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "11"
-          },
-          "alias": "foo"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "counts"
-            }
-          ],
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "item"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "i"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "j"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "k"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "d"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "e"
-                      }
-                    ],
-                    "source": "['i','i','i','j','j','j','k','k','k','d','d','e','e']"
-                  }
-                ]
-              },
-              "alias": "item"
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "foo"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "foo",
+                "value_type": "UInt64",
+                "value": "8"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "item"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "counts"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "item",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "Array",
+                                    "value": [
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "foo",
+                "value_type": "UInt64",
+                "value": "9"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "item"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "counts"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "item",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "Array",
+                                    "value": [
+                                      {
+                                        "value_type": "String",
+                                        "value": "l"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "l"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "l"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "m"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "m"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "m"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "n"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "n"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "n"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "foo",
+                "value_type": "UInt64",
+                "value": "10"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "item"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "counts"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "item",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "Array",
+                                    "value": [
+                                      {
+                                        "value_type": "String",
+                                        "value": "z"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "z"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "z"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "w"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "w"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "w"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "y"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "y"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "y"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "foo",
+                "value_type": "UInt64",
+                "value": "11"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "item"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "counts"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "item",
+                                "name": "arrayJoin",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "Array",
+                                    "value": [
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "i"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "j"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "k"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "d"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      },
+                                      {
+                                        "value_type": "String",
+                                        "value": "e"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "foo"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "top",
+                              "name": "untuple",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "arrayJoin",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "topKWeightedMerge",
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "top_items"
+                                        }
+                                      ],
+                                      "parameters": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "100"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "3"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "String",
+                                          "value": "counts"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "topk_test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "foo"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "untuple",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayJoin",
-                  "args": [
-                    {
-                      "kind": "functionCall",
-                      "name": "topKWeightedMerge",
-                      "params": [
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "100"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "3"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "String",
-                          "value": "counts"
-                        }
-                      ],
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "top_items"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            "alias": "top"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "topk_test"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
+          "order_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "foo"
-              ]
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "foo"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "top.count",
+                "name_parts": [
+                  "top",
+                  "count"
+                ]
+              },
+              "direction": "DESC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "top.item",
+                "name_parts": [
+                  "top",
+                  "item"
+                ]
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "foo"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "top",
-            "count"
-          ]
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "top",
-            "item"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "untuple",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayJoin",
-                  "args": [
-                    {
-                      "kind": "functionCall",
-                      "name": "topKWeightedMerge",
-                      "params": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "100"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "3"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "String",
-                          "value": "counts"
-                        }
-                      ],
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "top_items"
-                          ]
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "top",
+                              "name": "untuple",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "arrayJoin",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "topKWeightedMerge",
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "top_items"
+                                        }
+                                      ],
+                                      "parameters": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "100"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "3"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "String",
+                                          "value": "counts"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "topk_test"
+                                  },
+                                  "final": true
+                                }
+                              }
+                            ]
+                          }
                         }
                       ]
                     }
-                  ]
+                  }
                 }
-              ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "top.count",
+                "name_parts": [
+                  "top",
+                  "count"
+                ]
+              },
+              "direction": "DESC"
             },
-            "alias": "top"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "topk_test",
-          "final": true
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "top.item",
+                "name_parts": [
+                  "top",
+                  "item"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "top",
-            "count"
-          ]
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "top",
-            "item"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "topk_test"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "topk_test"
+      }
     }
   }
 ]

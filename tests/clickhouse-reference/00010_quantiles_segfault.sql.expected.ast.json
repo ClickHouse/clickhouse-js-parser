@@ -1,378 +1,385 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        "alias": "ym:ah:URL"
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "unaryExpr",
-                "op": "NOT",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "DontCountHits"
-                  ]
-                }
-              },
-              {
-                "kind": "unaryExpr",
-                "op": "NOT",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "Refresh"
-                  ]
-                }
-              }
-            ],
-            "parenthesized": true
-          }
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "quantilesTimingIf",
-          "params": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
+          "select": [
             {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
+              "type": "Identifier",
+              "alias": "ym:ah:URL",
+              "name": "URL"
             },
             {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.5"
-            },
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.9"
-            }
-          ],
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "DOMCompleteTiming"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "LoadEventEndTiming"
-                ]
-              },
-              "parenthesized": true
-            },
-            {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "binaryExpr",
-                  "op": "!=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "DOMCompleteTiming"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "Int64",
-                    "value": "-1"
-                  }
+                  "type": "Function",
+                  "name": "and",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "not",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "DontCountHits"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "not",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "Refresh"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "t",
+              "name": "quantilesTimingIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "plus",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "DOMCompleteTiming"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "LoadEventEndTiming"
+                    }
+                  ]
                 },
                 {
-                  "kind": "binaryExpr",
-                  "op": "!=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "LoadEventEndTiming"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "Int64",
-                    "value": "-1"
-                  }
+                  "type": "Function",
+                  "name": "and",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "notEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "DOMCompleteTiming"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "Int64",
+                          "value": "-1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "notEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "LoadEventEndTiming"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "Int64",
+                          "value": "-1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.1
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.5
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.9
                 }
               ]
             }
-          ]
-        },
-        "alias": "t"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{1,2}"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "hits"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "800784"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "naryExpr",
-              "op": "OR",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "DontCountHits"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "IsNotBounce"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "parenthesized": true
-                }
-              ],
-              "parenthesized": true
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "!=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "URL"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": ""
-              },
-              "parenthesized": true
-            }
           ],
-          "parenthesized": true
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ym:ah:URL"
-          ]
-        }
-      ]
-    },
-    "withTotals": true,
-    "having": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "functionCall",
-            "name": "sum",
-            "args": [
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
-                  {
-                    "kind": "unaryExpr",
-                    "op": "NOT",
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "DontCountHits"
-                      ]
-                    }
-                  },
-                  {
-                    "kind": "unaryExpr",
-                    "op": "NOT",
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "Refresh"
-                      ]
-                    }
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{1,2}"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "test"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "hits"
+                      }
+                    ]
                   }
-                ],
-                "parenthesized": true
+                }
               }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "CounterID"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "800784"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "or",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "DontCountHits"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "0"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "IsNotBounce"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "notEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "URL"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "ym:ah:URL"
+            }
+          ],
+          "having": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "sum",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "and",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "not",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "DontCountHits"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "not",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "Refresh"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "count",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "not",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "DontCountHits"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "not",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "Refresh"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "DESC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "offset": {
+            "type": "Literal",
+            "value_type": "UInt64",
             "value": "0"
           },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "functionCall",
-            "name": "count",
-            "args": []
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "unaryExpr",
-                  "op": "NOT",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "DontCountHits"
-                    ]
-                  }
-                },
-                {
-                  "kind": "unaryExpr",
-                  "op": "NOT",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Refresh"
-                    ]
-                  }
-                }
-              ],
-              "parenthesized": true
-            }
-          ]
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "offset": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "1"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      },
-      "commaSyntax": true
-    },
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    }
   }
 ]

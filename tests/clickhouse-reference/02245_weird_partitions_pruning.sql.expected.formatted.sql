@@ -14,7 +14,7 @@ CREATE TABLE weird_partitions_02245
     d1 DateTime DEFAULT d - toIntervalHour(8),
     id Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY (toYYYYMM(toDateTime(d)), ignore(d1));
 

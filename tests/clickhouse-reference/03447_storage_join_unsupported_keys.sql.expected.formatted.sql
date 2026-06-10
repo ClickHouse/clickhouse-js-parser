@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS segmented_ctr_cache;
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS segmented_ctr_cache
     count_in_viewport UInt64,
     count_in_viewed UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO segmented_ctr_cache;
 

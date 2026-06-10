@@ -7,7 +7,7 @@ WITH 7 AS resolution,
 
 SELECT
     h3PolygonToCells(ring, resolution),
-    arraySort(arrayMap(x -> h3ToString(x), h3PolygonToCells(ring, resolution))) = reference;
+    arraySort(arrayMap((x -> h3ToString(x)), h3PolygonToCells(ring, resolution))) = reference;
 
 WITH 7 AS resolution,
 
@@ -17,7 +17,7 @@ WITH 7 AS resolution,
 
 SELECT
     h3PolygonToCells(ring, materialize(resolution)),
-    arraySort(arrayMap(x -> h3ToString(x), h3PolygonToCells(ring, materialize(resolution)))) = reference;
+    arraySort(arrayMap((x -> h3ToString(x)), h3PolygonToCells(ring, materialize(resolution)))) = reference;
 
 WITH 7 AS resolution,
 
@@ -27,7 +27,7 @@ WITH 7 AS resolution,
 
 SELECT
     h3PolygonToCells(materialize(ring), resolution),
-    arraySort(arrayMap(x -> h3ToString(x), h3PolygonToCells(materialize(ring), resolution))) = reference;
+    arraySort(arrayMap((x -> h3ToString(x)), h3PolygonToCells(materialize(ring), resolution))) = reference;
 
 WITH 7 AS resolution,
 
@@ -37,7 +37,7 @@ WITH 7 AS resolution,
 
 SELECT
     h3PolygonToCells(materialize(ring), materialize(resolution)),
-    arraySort(arrayMap(x -> h3ToString(x), h3PolygonToCells(materialize(ring), materialize(resolution)))) = reference;
+    arraySort(arrayMap((x -> h3ToString(x)), h3PolygonToCells(materialize(ring), materialize(resolution)))) = reference;
 
 WITH range(0, 8) AS resolutions,
 
@@ -55,7 +55,7 @@ CREATE TABLE rings
     ring Ring,
     reference Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO rings SELECT
@@ -65,7 +65,7 @@ FROM numbers(10000);
 
 SELECT DISTINCT
     h3PolygonToCells(ring, 7),
-    arraySort(arrayMap(x -> h3ToString(x), h3PolygonToCells(ring, 7))) = reference
+    arraySort(arrayMap((x -> h3ToString(x)), h3PolygonToCells(ring, 7))) = reference
 FROM rings;
 
 WITH range(0, 8) AS resolutions

@@ -7,4 +7,4 @@ CREATE TABLE enum_as_num
 )
 ENGINE = Memory();
 
-INSERT INTO enum_as_num;
+INSERT INTO enum_as_num FORMAT TSV;

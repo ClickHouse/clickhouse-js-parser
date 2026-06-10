@@ -10,32 +10,32 @@ SELECT formatQuery('SELECT LAST_VALUE(number) RESPECT NULLS from numbers(1)');
 SELECT formatQuery('SELECT sum(number) RESPECT NULLS from numbers(1)');
 
 -- Normal functions should throw in the server
-SELECT toDateTimeNonExistingFunction(now()) AS b; -- { serverError UNKNOWN_FUNCTION }
+SELECT toDateTimeNonExistingFunction(now()) RESPECT NULLS AS b; -- { serverError UNKNOWN_FUNCTION }
 
-SELECT toDateTime(now()) AS b; -- { serverError SYNTAX_ERROR }
+SELECT toDateTime(now()) RESPECT NULLS AS b; -- { serverError SYNTAX_ERROR }
 
 SELECT count()
 FROM numbers(10)
-WHERE in(number, (0)); -- { serverError SYNTAX_ERROR }
+WHERE in(number, 0) RESPECT NULLS; -- { serverError SYNTAX_ERROR }
 
-SELECT if(number > 0, number, 0)
+SELECT if(number > 0, number, 0) RESPECT NULLS
 FROM numbers(0); -- { serverError SYNTAX_ERROR }
 
-WITH (x -> x + 1) AS lambda
+WITH x -> x + 1 AS lambda
 
-SELECT lambda(number)
+SELECT lambda(number) RESPECT NULLS
 FROM numbers(10)
-SETTINGS enable_analyzer = 1; -- { serverError SYNTAX_ERROR }
+SETTINGS enable_analyzer = '1'; -- { serverError SYNTAX_ERROR }
 
 SELECT *
 FROM `system`.one
-WHERE indexHint(dummy = 1); -- { serverError SYNTAX_ERROR }
+WHERE indexHint(dummy = 1) RESPECT NULLS; -- { serverError SYNTAX_ERROR }
 
-SELECT arrayJoin([[3,4,5], [6,7], [2], [1,1]]); -- { serverError SYNTAX_ERROR }
+SELECT arrayJoin([[3, 4, 5], [6, 7], [2], [1, 1]]) IGNORE NULLS; -- { serverError SYNTAX_ERROR }
 
 SELECT
     number,
-    grouping(number % 2, number) AS gr
+    grouping(number % 2, number) RESPECT NULLS AS gr
 FROM numbers(10)
 GROUP BY GROUPING SETS ((number), (number % 2))
-SETTINGS force_grouping_standard_compatibility = 0; -- { serverError SYNTAX_ERROR }
+SETTINGS force_grouping_standard_compatibility = '0'; -- { serverError SYNTAX_ERROR }

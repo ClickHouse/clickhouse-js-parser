@@ -4,8 +4,8 @@ CREATE TABLE test
 (
     time DateTime
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 PARTITION BY toYYYYMM(time);
 
 INSERT INTO test;
@@ -16,7 +16,7 @@ WHERE database = currentDatabase()
     AND table = 'test'
     AND active;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE test DELETE WHERE time >= '2000-01-01 02:00:00';
 

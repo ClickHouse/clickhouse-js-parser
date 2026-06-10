@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS optimize_final;
 
-SET optimize_skip_merged_partitions = 1;
+SET optimize_skip_merged_partitions = '1';
 
 CREATE TABLE optimize_final
 (

@@ -4,7 +4,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO users;
@@ -13,7 +13,7 @@ INSERT INTO users;
 
 INSERT INTO users;
 
-SELECT count(*)
+SELECT count(*) OVER w
 FROM users
 WINDOW
     w AS (ORDER BY uid ASC),

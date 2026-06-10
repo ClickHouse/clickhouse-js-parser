@@ -6,13 +6,13 @@ CREATE TABLE t0
     s Nullable(String),
     t Tuple(a Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9, serialization_info_version = 'with_types', nullable_serialization_version = 'allow_sparse';
 
 INSERT INTO t0 SELECT
-    if((number % 13) = 0, toString(number), NULL),
-    tuple(if((number % 11) = 0, number, NULL))
+    if(number % 13 = 0, toString(number), NULL),
+    (if(number % 11 = 0, number, NULL),)
 FROM numbers(1000);
 
 SELECT *
@@ -29,9 +29,9 @@ CREATE TABLE t0
 (
     s Tuple(a String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0, ratio_of_defaults_for_sparse_serialization = 0.1, serialization_info_version = 'with_types', string_serialization_version = 'single_stream';
+SETTINGS min_bytes_for_wide_part = '0', ratio_of_defaults_for_sparse_serialization = 0.1, serialization_info_version = 'with_types', string_serialization_version = 'single_stream';
 
 INSERT INTO t0;
 

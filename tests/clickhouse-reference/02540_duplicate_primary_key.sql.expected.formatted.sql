@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS test;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE test
 (
     coverage DateTime,
-    haunt Nullable(Float32) CODEC(Gorilla, ZSTD(1)),
-    sail Nullable(Float32) CODEC(Gorilla, ZSTD(1)),
+    haunt Nullable(Float32) CODEC(Gorilla(), ZSTD(1)),
+    sail Nullable(Float32) CODEC(Gorilla(), ZSTD(1)),
     empowerment_turnstile UInt8,
     empowerment_haversack Nullable(Int16),
     empowerment_function Nullable(Int16),
@@ -41,46 +41,8 @@ CREATE TABLE test
     DevelopmentalLigandName String,
     chard_heavy_quadrant UInt64,
     poster_effective Nullable(String),
-    PROJECTION chrysalis_trapezium_ham (    SELECT
-        empowerment_turnstile,
-        toStartOfInterval(coverage, toIntervalMonth(1)),
-        toStartOfWeek(coverage, 10),
-        toStartOfInterval(coverage, toIntervalDay(1)),
-        NAME_toe,
-        NAME_cockroach,
-        situation_name,
-        memo,
-        oeuvre,
-        crew_memo,
-        crew_oeuvre,
-        bun,
-        sum(multiIf(isNull(crew_memo), 0, 1)),
-        sum(multiIf(isNull(crew_oeuvre), 0, 1)),
-        sum(multiIf(isNull(crew_fortnight), 0, 1)),
-        max(toStartOfInterval(coverage, toIntervalDay(1))),
-        max(CAST(CAST(toStartOfInterval(coverage, toIntervalDay(1)), 'Nullable(DATE)'), 'Nullable(TIMESTAMP)')),
-        min(toStartOfInterval(coverage, toIntervalDay(1))),
-        min(CAST(CAST(toStartOfInterval(coverage, toIntervalDay(1)), 'Nullable(DATE)'), 'Nullable(TIMESTAMP)')),
-        count(),
-        sum(1)
-    GROUP BY
-        empowerment_turnstile,
-        toStartOfInterval(coverage, toIntervalMonth(1)),
-        toStartOfWeek(coverage, 10),
-        toStartOfInterval(coverage, toIntervalDay(1)),
-        empowerment_turnstile,
-        toStartOfInterval(coverage, toIntervalMonth(1)),
-        toStartOfWeek(coverage, 10),
-        toStartOfInterval(coverage, toIntervalDay(1)),
-        NAME_toe,
-        NAME_cockroach,
-        situation_name,
-        memo,
-        oeuvre,
-        crew_memo,
-        crew_oeuvre,
-        bun)
+    PROJECTION chrysalis_trapezium_ham (SELECT empowerment_turnstile, toStartOfInterval(coverage, toIntervalMonth(1)), toStartOfWeek(coverage, 10), toStartOfInterval(coverage, toIntervalDay(1)), NAME_toe, NAME_cockroach, situation_name, memo, oeuvre, crew_memo, crew_oeuvre, bun, sum(multiIf(crew_memo IS NULL, 0, 1)), sum(multiIf(crew_oeuvre IS NULL, 0, 1)), sum(multiIf(crew_fortnight IS NULL, 0, 1)), max(toStartOfInterval(coverage, toIntervalDay(1))), max(CAST(CAST(toStartOfInterval(coverage, toIntervalDay(1)) AS Nullable(DATE)) AS Nullable(TIMESTAMP))), min(toStartOfInterval(coverage, toIntervalDay(1))), min(CAST(CAST(toStartOfInterval(coverage, toIntervalDay(1)) AS Nullable(DATE)) AS Nullable(TIMESTAMP))), count(), sum(1) GROUP BY empowerment_turnstile, toStartOfInterval(coverage, toIntervalMonth(1)), toStartOfWeek(coverage, 10), toStartOfInterval(coverage, toIntervalDay(1)), empowerment_turnstile, toStartOfInterval(coverage, toIntervalMonth(1)), toStartOfWeek(coverage, 10), toStartOfInterval(coverage, toIntervalDay(1)), NAME_toe, NAME_cockroach, situation_name, memo, oeuvre, crew_memo, crew_oeuvre, bun)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (coverage, situation_name, NAME_toe, NAME_cockroach)
 PARTITION BY toYYYYMM(coverage); -- { serverError BAD_ARGUMENTS }

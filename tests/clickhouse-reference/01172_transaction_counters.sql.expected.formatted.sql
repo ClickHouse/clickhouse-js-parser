@@ -6,18 +6,18 @@ CREATE TABLE txn_counters
     n Int64,
     creation_tid DEFAULT transactionID()
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS old_parts_lifetime = 3600;
+SETTINGS old_parts_lifetime = '3600';
 
 INSERT INTO txn_counters (n);
 
 SELECT transactionID();
 
 -- stop background cleanup
-SYSTEM stop merges txn_counters;
+SYSTEM STOP MERGES txn_counters;
 
-SET throw_on_unsupported_query_inside_transaction = 0;
+SET throw_on_unsupported_query_inside_transaction = '0';
 
 BEGIN TRANSACTION;
 
@@ -75,7 +75,7 @@ ORDER BY `system`.parts.name ASC;
 
 SELECT
     5,
-    transactionID().3 == serverUUID();
+    transactionID().3 = serverUUID();
 
 COMMIT;
 
@@ -110,13 +110,13 @@ ORDER BY `system`.parts.name ASC;
 
 SELECT
     8,
-    transactionID().3 == serverUUID();
+    transactionID().3 = serverUUID();
 
 INSERT INTO txn_counters (n);
 
 ALTER TABLE txn_counters DROP PARTITION ID 'all';
 
-SYSTEM flush logs transactions_info_log;
+SYSTEM FLUSH LOGS transactions_info_log;
 
 SELECT
     indexOf((
@@ -139,11 +139,11 @@ WHERE tid IN (
         FROM `system`.transactions_info_log
         WHERE database = currentDatabase()
             AND table = 'txn_counters'
-            AND NOT(tid.1 = 1
-            AND tid.2 = 1)
+            AND NOT((tid).1 = 1
+            AND (tid).2 = 1)
     )
-    OR (database = currentDatabase()
-    AND table = 'txn_counters')
+    OR database = currentDatabase()
+    AND table = 'txn_counters'
 ORDER BY event_time ASC;
 
 DROP TABLE txn_counters;

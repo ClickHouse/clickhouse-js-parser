@@ -1,171 +1,189 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- There are no settings to enable parallel replicas explicitly, because",
-      "-- we have a separate test run with them and they will be enabled automatically."
-    ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "materialize",
-              "args": [
+              "type": "Function",
+              "alias": "num",
+              "name": "count",
+              "nulls_action": "IGNORE NULLS",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "toLowCardinality",
-                  "args": [
+                  "type": "Function",
+                  "name": "materialize",
+                  "arguments": [
                     {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
+                      "type": "Function",
+                      "name": "toLowCardinality",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
                     }
                   ]
                 }
               ]
-            }
-          ]
-        },
-        "alias": "num"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "hostName",
-          "args": []
-        },
-        "alias": "hostName"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "query_log",
-        "alias": "a"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "processes",
-        "alias": "b"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
+            },
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "type"
-                ]
+              "type": "Function",
+              "alias": "hostName",
+              "name": "hostName",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "a",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
               },
-              "right": {
-                "kind": "functionCall",
-                "name": "toFixedString",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "toNullable",
-                    "args": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "QueryStart"
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "type"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "toFixedString",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toNullable",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "QueryStart"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "10"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "greater",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "dateDiff",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "second"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "event_time"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "now",
+                                "arguments": []
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "current_database"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "currentDatabase",
+                            "arguments": []
+                          }
+                        ]
                       }
                     ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
                   }
-                ]
-              },
-              "parenthesized": true
-            },
-            {
-              "kind": "binaryExpr",
-              "op": ">",
-              "left": {
-                "kind": "functionCall",
-                "name": "dateDiff",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "second"
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "now",
-                    "args": []
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "b",
+                    "name": "processes",
+                    "database": "system"
                   }
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "5"
-              },
-              "parenthesized": true
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "current_database"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              },
-              "parenthesized": true
-            }
-          ]
+                }
+              }
+            ]
+          }
         }
-      }
-    },
-    "format": "Null"
+      ],
+      "format": "Null"
+    }
   }
 ]

@@ -5,11 +5,11 @@ SELECT
 FORMAT JSONEachRow;
 
 SELECT
-    concat('Hello', convertCharset(unhex('2028'), 'utf16be', 'utf8'), 'World', convertCharset(unhex('2029'), 'utf16be', 'utf8'), '!') AS x,
+    'Hello' || convertCharset(unhex('2028'), 'utf16be', 'utf8') || 'World' || convertCharset(unhex('2029'), 'utf16be', 'utf8') || '!' AS x,
     hex(x) AS h
 FORMAT JSONEachRow;
 
 SELECT
-    concat('Hello', convertCharset(unhex('2028'), 'utf16be', 'utf8'), 'World', convertCharset(unhex('2029'), 'utf16be', 'utf8'), '!') AS x,
+    'Hello' || convertCharset(unhex('2028'), 'utf16be', 'utf8') || 'World' || convertCharset(unhex('2029'), 'utf16be', 'utf8') || '!' AS x,
     hex(x) AS h
 FORMAT TSV;

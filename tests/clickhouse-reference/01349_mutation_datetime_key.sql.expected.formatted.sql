@@ -9,14 +9,14 @@ CREATE TABLE cdp_orders
 ENGINE = ReplacingMergeTree()
 ORDER BY (order_time, order_id)
 PARTITION BY toYYYYMMDD(order_time)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO cdp_orders;
 
 SELECT *
 FROM cdp_orders;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE cdp_orders DELETE WHERE order_time >= '2019-12-03 00:00:00';
 

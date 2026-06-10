@@ -1,7 +1,7 @@
 -- Tags: shard
 SET session_timezone = 'UTC'; -- don't randomize the session timezone
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     *,
@@ -9,7 +9,7 @@ SELECT
         SELECT toDateTime64(0, 3)
     )
 FROM remote('127.0.0.1', `system`.one)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     *,
@@ -17,7 +17,7 @@ SELECT
         SELECT toDateTime64(5, 3)
     )
 FROM remote('127.0.0.1', `system`.one)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     *,
@@ -25,7 +25,7 @@ SELECT
         SELECT toDateTime64('1970-01-01 00:45:25.456789', 6)
     )
 FROM remote('127.0.0.1', `system`.one)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     *,
@@ -33,7 +33,7 @@ SELECT
         SELECT toDateTime64('1970-01-01 00:53:25.456789123', 9)
     )
 FROM remote('127.0.0.1', `system`.one)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     *,
@@ -41,7 +41,7 @@ SELECT
         SELECT toDateTime64(NULL, 3)
     )
 FROM remote('127.0.0.1', `system`.one)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 CREATE DATABASE IF NOT EXISTS shard_0;
 
@@ -58,7 +58,7 @@ CREATE TABLE shard_0.dt64_03222
     id UInt64,
     dt DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE shard_1.dt64_03222
@@ -66,7 +66,7 @@ CREATE TABLE shard_1.dt64_03222
     id UInt64,
     dt DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE distr_03222_dt64

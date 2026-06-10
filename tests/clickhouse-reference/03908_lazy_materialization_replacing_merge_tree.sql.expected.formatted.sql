@@ -1,9 +1,9 @@
 -- Regression test for https://github.com/ClickHouse/ClickHouse/issues/88489
 -- ReplacingMergeTree with Array(Tuple) columns failed with TOO_LARGE_ARRAY_SIZE
 -- when using WHERE + ORDER BY + small LIMIT due to lazy materialization bug.
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
 DROP TABLE IF EXISTS t_lm_replacing;
 

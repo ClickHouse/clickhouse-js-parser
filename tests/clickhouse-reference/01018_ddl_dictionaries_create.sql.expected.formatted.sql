@@ -44,7 +44,7 @@ SELECT
     name
 FROM `system`.dictionaries
 WHERE database = 'db_01018'
-    AND like(name, 'dict1');
+    AND name LIKE 'dict1';
 
 DETACH DICTIONARY db_01018.dict1;
 
@@ -53,11 +53,11 @@ ATTACH DICTIONARY db_01018.dict1;
 DROP DICTIONARY IF EXISTS db_01018.dict1;
 
 CREATE DATABASE memory_db
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE DICTIONARY memory_db.dict2
 (
-    key_column UInt64 DEFAULT 0,
+    key_column UInt64 DEFAULT 0 INJECTIVE,
     second_column UInt8 DEFAULT 1 EXPRESSION rand() % 222,
     third_column String DEFAULT 'qqq'
 )
@@ -77,7 +77,7 @@ SELECT
     name
 FROM `system`.dictionaries
 WHERE database = 'memory_db'
-    AND like(name, 'dict2');
+    AND name LIKE 'dict2';
 
 CREATE DICTIONARY db_01018.dict4
 (

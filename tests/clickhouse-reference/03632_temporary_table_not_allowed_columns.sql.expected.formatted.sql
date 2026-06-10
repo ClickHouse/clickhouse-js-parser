@@ -2,7 +2,7 @@ CREATE TEMPORARY TABLE test
 (
     _row_exists UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- {serverError ILLEGAL_COLUMN}
 
 CREATE TEMPORARY TABLE test

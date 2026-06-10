@@ -241,7 +241,7 @@ FROM numbers_mt(10)
 ORDER BY number ASC;
 
 SELECT
-    negate(number) AS y,
+    -number AS y,
     toInt128(number) + y,
     toInt256(number) + y,
     toUInt256(number) + y
@@ -257,7 +257,7 @@ CREATE TABLE t
     u256 UInt256,
     d256 Decimal256(2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t SELECT
     number * number * number AS x,
@@ -274,7 +274,7 @@ SELECT
 FROM t;
 
 INSERT INTO t SELECT
-    negate(number) * number * number AS x,
+    -number * number * number AS x,
     x AS i256,
     x AS u256,
     x AS d256

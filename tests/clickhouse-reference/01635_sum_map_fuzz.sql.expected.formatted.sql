@@ -1,6 +1,6 @@
 SELECT finalizeAggregation(*)
 FROM (
-        SELECT initializeAggregation('sumMapState', [1, 2], [1, 2], [1, null])
+        SELECT initializeAggregation('sumMapState', [1, 2], [1, 2], [1, NULL])
     );
 
 DROP TABLE IF EXISTS sum_map_overflow;
@@ -10,7 +10,7 @@ CREATE TABLE sum_map_overflow
     events Array(UInt8),
     counts Array(UInt8)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 SELECT
     [NULL],

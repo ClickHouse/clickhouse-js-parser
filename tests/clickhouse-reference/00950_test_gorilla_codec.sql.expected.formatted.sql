@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS codecTest;
 
-SET cross_to_inner_join_rewrite = 1;
+SET cross_to_inner_join_rewrite = '1';
 
 CREATE TABLE codecTest
 (
@@ -8,10 +8,10 @@ CREATE TABLE codecTest
     name String,
     ref_valueF64 Float64,
     ref_valueF32 Float32,
-    valueF64 Float64 CODEC(Gorilla),
-    valueF32 Float32 CODEC(Gorilla)
+    valueF64 Float64 CODEC(Gorilla()),
+    valueF32 Float32 CODEC(Gorilla())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 -- best case - same value
@@ -23,7 +23,8 @@ INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32
     v,
     v
 FROM `system`.numbers
-LIMIT 1, 100;
+LIMIT 100
+OFFSET 1;
 
 -- good case - values that grow insignificantly
 INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32) SELECT
@@ -34,7 +35,8 @@ INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32
     v,
     v
 FROM `system`.numbers
-LIMIT 101, 100;
+LIMIT 100
+OFFSET 101;
 
 -- bad case - values differ significantly
 INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32) SELECT
@@ -45,7 +47,8 @@ INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32
     v,
     v
 FROM `system`.numbers
-LIMIT 201, 100;
+LIMIT 100
+OFFSET 201;
 
 -- worst case - almost like a random values
 INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32) SELECT
@@ -56,7 +59,8 @@ INSERT INTO codecTest (key, name, ref_valueF64, valueF64, ref_valueF32, valueF32
     v,
     v
 FROM `system`.numbers
-LIMIT 301, 100;
+LIMIT 100
+OFFSET 301;
 
 SELECT
     c1.key,
@@ -68,8 +72,8 @@ SELECT
     c2.key,
     c2.ref_valueF64
 FROM
-    codecTest AS c1
-CROSS JOIN codecTest AS c2
+    codecTest AS c1,
+    codecTest AS c2
 WHERE dF64 != 0
     AND c2.key = c1.key - 1
 LIMIT 10;
@@ -84,8 +88,8 @@ SELECT
     c2.key,
     c2.ref_valueF32
 FROM
-    codecTest AS c1
-CROSS JOIN codecTest AS c2
+    codecTest AS c1,
+    codecTest AS c2
 WHERE dF32 != 0
     AND c2.key = c1.key - 1
 LIMIT 10;

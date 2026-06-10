@@ -13,7 +13,7 @@ FROM (
     );
 
 CREATE TABLE `02713_seqt`
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n AS
 SELECT
     sequenceMatchState('(?1)(?2)')(time, number_ = 1, number_ = 0) AS seq,

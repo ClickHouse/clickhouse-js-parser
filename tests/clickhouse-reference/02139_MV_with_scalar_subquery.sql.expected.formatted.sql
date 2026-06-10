@@ -7,7 +7,7 @@ ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE source_null AS source
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE dest_a
 (
@@ -52,13 +52,13 @@ GROUP BY
     min_subquery,
     max_subquery;
 
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 INSERT INTO source SELECT number
 FROM numbers(2000)
 SETTINGS
-    min_insert_block_size_rows = 1500,
-    max_insert_block_size = 1500;
+    min_insert_block_size_rows = '1500',
+    max_insert_block_size = '1500';
 
 SELECT count()
 FROM source;

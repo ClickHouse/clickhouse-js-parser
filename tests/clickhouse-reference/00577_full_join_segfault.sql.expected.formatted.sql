@@ -1,6 +1,6 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     k,
@@ -16,7 +16,7 @@ FROM
             123 AS b1,
             a1
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             1 AS k,
             'hello' AS a2,
@@ -38,10 +38,10 @@ FROM
             123 AS b,
             a
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT 1 AS k
     )
     USING (k)
 ORDER BY k ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';

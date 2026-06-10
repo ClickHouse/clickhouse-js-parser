@@ -10,21 +10,21 @@ CREATE TABLE test1
     p DateTime,
     k int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY toDate(p)
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test1;
 
-SET max_rows_to_read = 1;
+SET max_rows_to_read = '1';
 
-SET optimize_use_implicit_projections = 1;
+SET optimize_use_implicit_projections = '1';
 
 -- non-optimized
 SELECT count()
 FROM test1
-SETTINGS max_parallel_replicas = 3;
+SETTINGS max_parallel_replicas = '3';
 
 -- optimized (toYear is monotonic and we provide the partition expr as is)
 SELECT count()
@@ -70,10 +70,10 @@ CREATE TABLE test_tuple
     i int,
     j int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY j
 PARTITION BY (toDate(p), i)
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_tuple;
 
@@ -102,29 +102,29 @@ WHERE i < 1;
 SELECT count()
 FROM
     test_tuple
-ARRAY JOIN [p,p] AS c
+ARRAY JOIN [p, p] AS c
 WHERE toDate(p) = '2020-09-01'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM
     test_tuple
-ARRAY JOIN [1,2] AS c
+ARRAY JOIN [1, 2] AS c
 WHERE toDate(p) = '2020-09-01'
-SETTINGS max_rows_to_read = 4;
+SETTINGS max_rows_to_read = '4';
 
 -- non-optimized
 SELECT count()
 FROM
     test_tuple
-ARRAY JOIN [1,2,3] AS c
+ARRAY JOIN [1, 2, 3] AS c
 WHERE toDate(p) = '2020-09-01'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM
     test_tuple
-ARRAY JOIN [1,2,3] AS c
+ARRAY JOIN [1, 2, 3] AS c
 WHERE toDate(p) = '2020-09-01'
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 CREATE TABLE test_two_args
 (
@@ -132,10 +132,10 @@ CREATE TABLE test_two_args
     j int,
     k int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY i + j
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_two_args;
 

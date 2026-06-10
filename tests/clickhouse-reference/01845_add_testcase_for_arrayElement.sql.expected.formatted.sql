@@ -6,7 +6,7 @@ CREATE TABLE test
     arr ALIAS [1, 2],
     xx MATERIALIZED arr[1]
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple();
 
@@ -18,7 +18,7 @@ CREATE TABLE test
     arr Array(UInt32) ALIAS [1, 2],
     xx MATERIALIZED arr[1]
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple();
 
@@ -28,7 +28,7 @@ CREATE TABLE test
     arr Array(UInt32) ALIAS [1, 2],
     xx UInt32 MATERIALIZED arr[1]
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple();
 
@@ -37,7 +37,7 @@ CREATE TABLE test
     key UInt32,
     arr ALIAS [1, 2]
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY tuple();
 

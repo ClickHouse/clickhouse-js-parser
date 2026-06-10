@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -12,7 +12,7 @@ CREATE TABLE test
 INSERT INTO test SELECT tuple(range(number % 1000))
 FROM numbers_mt(1000);
 
-EXPLAIN QUERY TREE dump_tree = 0, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '0', dump_ast = '1'
 SELECT count()
 FROM test
 WHERE notEmpty(a.x);

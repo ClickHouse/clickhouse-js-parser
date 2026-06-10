@@ -1,20 +1,20 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 CREATE TABLE t0
 (
     c0 Int,
     c1 Int ALIAS 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t0__fuzz_42
 (
     c0 Array(Nullable(UInt32)),
     c1 IPv4 ALIAS 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT c0
 FROM
@@ -29,25 +29,25 @@ CREATE TABLE t0
     c0 Int ALIAS 1,
     c1 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT 1
 FROM
     (
         SELECT 1 AS c0
         FROM
-            t0
-        CROSS JOIN remote('localhost:9000', currentDatabase(), 't0') AS ty
+            t0,
+            remote('localhost:9000', currentDatabase(), 't0') AS ty
     ) AS tx
 INNER JOIN t0
     ON tx.c0 = t0.c0;
 
-(SELECT
+SELECT
     1 AS x,
     x AS y
-FROM remote('localhost', currentDatabase(), t0) AS tx)
+FROM remote('localhost', currentDatabase(), t0) AS tx
 UNION ALL
-(SELECT
+SELECT
     1,
     c0
-FROM t0);
+FROM t0;

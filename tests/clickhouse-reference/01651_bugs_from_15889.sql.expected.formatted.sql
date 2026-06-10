@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS xp;
 
 DROP TABLE IF EXISTS xp_d;
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 CREATE TABLE xp
 (
@@ -10,7 +10,7 @@ CREATE TABLE xp
     B Int64,
     S String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY B
 PARTITION BY toYYYYMM(A);
 
@@ -26,7 +26,7 @@ ENGINE = Distributed(test_shard_localhost, currentDatabase(), xp);
 SELECT count(7 = (
         SELECT number
         FROM numbers(0)
-        ORDER BY number ASC
+        ORDER BY number ASC NULLS FIRST
         LIMIT 7
     ))
 FROM xp_d
@@ -35,7 +35,7 @@ PREWHERE toYYYYMM(A) GLOBAL IN (
             NULL = (
                 SELECT number
                 FROM numbers(1)
-                ORDER BY number DESC
+                ORDER BY number DESC NULLS LAST
                 LIMIT 1
             ),
             toYYYYMM(min(A))
@@ -65,14 +65,14 @@ CREATE TABLE trace_log
     trace Array(UInt64),
     size Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (event_date, event_time)
 PARTITION BY toYYYYMM(event_date)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO trace_log;
 
-SET allow_introspection_functions = 1;
+SET allow_introspection_functions = '1';
 
 -- make sure query_log exists
 SYSTEM FLUSH LOGS query_log;
@@ -81,36 +81,36 @@ WITH concat(addressToLine(arrayJoin(trace) AS addr), '#') AS symbol
 
 SELECT count() > 7
 FROM trace_log AS t
-WHERE (query_id = (
+WHERE query_id = (
         SELECT
             [NULL, NULL, NULL, NULL, 0.00009999999747378752, NULL, NULL, NULL, NULL, NULL],
             query_id
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
-            AND (like(query, '%test cpu time query profiler%'))
-            AND (notLike(query, '%system%'))
+            AND query LIKE '%test cpu time query profiler%'
+            AND query NOT LIKE '%system%'
         ORDER BY event_time DESC
         LIMIT 1
-    ))
-    AND (like(symbol, '%Source%'));
+    )
+    AND symbol LIKE '%Source%';
 
 WITH addressToSymbol(arrayJoin(trace)) AS symbol
 
 SELECT count() > 0
 FROM trace_log AS t
 WHERE greaterOrEquals(event_date, ignore(ignore(ignore(NULL, '')), 256), yesterday())
-    AND (trace_type = 'Memory')
-    AND (query_id = (
+    AND trace_type = 'Memory'
+    AND query_id = (
         SELECT
             ignore(ignore(ignore(ignore(65536)), ignore(65537), ignore(2)), ''),
             query_id
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
-            AND (event_date >= yesterday())
-            AND (like(query, '%test memory profiler%'))
+            AND event_date >= yesterday()
+            AND query LIKE '%test memory profiler%'
         ORDER BY event_time DESC
         LIMIT 1
-    )); -- { serverError INCORRECT_RESULT_OF_SCALAR_SUBQUERY, 42 }
+    ); -- { serverError INCORRECT_RESULT_OF_SCALAR_SUBQUERY, 42 }
 
 WITH (
         SELECT query_start_time_microseconds
@@ -151,7 +151,7 @@ WITH (
     ) AS t)
 
 SELECT if(dateDiff('second', toDateTime(time_with_microseconds), toDateTime(t)) = -9223372036854775808, 'ok', '')
-SETTINGS enable_analyzer = 1; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SETTINGS enable_analyzer = '1'; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 WITH (
     (
@@ -171,7 +171,7 @@ WITH (
 
 SELECT if(dateDiff('second', toDateTime(time_with_microseconds), toDateTime(t)) = -9223372036854775808, 'ok', '');
 
-SET joined_subquery_requires_alias = 0, enable_analyzer = 0; -- the query is invalid with a new analyzer
+SET joined_subquery_requires_alias = '0', enable_analyzer = '0'; -- the query is invalid with a new analyzer
 
 SELECT
     number,
@@ -180,7 +180,7 @@ SELECT
     j2
 FROM
     remote('127.0.0.{2,3}', `system`.numbers)
-LEFT JOIN (
+GLOBAL ANY LEFT JOIN (
         SELECT
             number / 3 AS n,
             number AS j1,

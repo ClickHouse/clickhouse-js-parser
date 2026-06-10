@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS tab1;
 
@@ -11,7 +11,7 @@ CREATE TABLE tab1
     a1 Int32,
     b1 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a1;
 
 CREATE TABLE tab2
@@ -19,7 +19,7 @@ CREATE TABLE tab2
     a2 Int32,
     b2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a2;
 
 CREATE TABLE tab3
@@ -27,7 +27,7 @@ CREATE TABLE tab3
     a3 Int32,
     b3 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a3;
 
 INSERT INTO tab1;
@@ -47,7 +47,7 @@ SELECT
     b2
 FROM
     tab2
-LEFT JOIN tab3
+ALL LEFT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -59,7 +59,7 @@ SELECT
     b3
 FROM
     tab2
-LEFT JOIN tab3
+ALL LEFT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -73,7 +73,7 @@ SELECT
     b3
 FROM
     tab2
-LEFT JOIN tab3
+ALL LEFT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -85,7 +85,7 @@ ORDER BY
 SELECT a1
 FROM
     tab1
-LEFT JOIN tab2
+ALL LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY a1 ASC;
@@ -95,7 +95,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ALL LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY
@@ -109,7 +109,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ALL LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY
@@ -123,7 +123,7 @@ SELECT
     b2 + 1
 FROM
     tab1
-LEFT JOIN tab2
+ALL LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY
@@ -135,7 +135,7 @@ SELECT
     b2
 FROM
     tab2
-RIGHT JOIN tab3
+ALL RIGHT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -147,7 +147,7 @@ SELECT
     b3
 FROM
     tab2
-RIGHT JOIN tab3
+ALL RIGHT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -161,7 +161,7 @@ SELECT
     b3
 FROM
     tab2
-RIGHT JOIN tab3
+ALL RIGHT JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY
@@ -173,7 +173,7 @@ ORDER BY
 SELECT a1
 FROM
     tab1
-RIGHT JOIN tab2
+ALL RIGHT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY a1 ASC;
@@ -183,7 +183,7 @@ SELECT
     b2
 FROM
     tab1
-RIGHT JOIN tab2
+ALL RIGHT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY
@@ -197,7 +197,7 @@ SELECT
     b2
 FROM
     tab1
-RIGHT JOIN tab2
+ALL RIGHT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY
@@ -211,7 +211,7 @@ SELECT
     b2 + 1
 FROM
     tab1
-RIGHT JOIN tab2
+ALL RIGHT JOIN tab2
     ON b1 + 1 = a2 + 1
     OR a1 + 4 = b2 + 2
 ORDER BY

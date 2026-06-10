@@ -1,304 +1,395 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "02863_delayed_source"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: failpoint is used which can force DelayedSource on other tests"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "02863_delayed_source"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/02863_delayed_source/{replica}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "02863_delayed_source"
+        "type": "Identifier",
+        "name": "02863_delayed_source"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "02863_delayed_source"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/02863_delayed_source/{replica}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM ENABLE FAILPOINT use_delayed_remote_source"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "02863_delayed_source"
+      },
+      "format": "Values"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.4"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "02863_delayed_source"
-        }
-      ]
-    },
-    "withTotals": true,
-    "settings": [
-      {
-        "name": "extremes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "ENABLE FAILPOINT",
+      "fail_point_name": "use_delayed_remote_source"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "like",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "%Delayed%"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "explainType": "PIPELINE",
-        "settings": [
-          {
-            "name": "graph",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
           "select": [
             {
-              "kind": "functionCall",
+              "type": "Function",
               "name": "sum",
-              "args": [
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "a"
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.4"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "02863_delayed_source"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "extremes": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "like",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "%Delayed%"
+                    }
                   ]
                 }
               ]
             }
           ],
           "from": {
-            "kind": "tableFunctionRef",
-            "name": "remote",
-            "args": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "127.0.0.4"
-              },
-              {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "02863_delayed_source"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN PIPELINE"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "graph = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "group_by_with_totals": true,
+                                              "select": [
+                                                {
+                                                  "type": "Function",
+                                                  "name": "sum",
+                                                  "arguments": [
+                                                    {
+                                                      "type": "Identifier",
+                                                      "name": "a"
+                                                    }
+                                                  ]
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "table_function": {
+                                                        "type": "Function",
+                                                        "name": "remote",
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "String",
+                                                            "value": "127.0.0.4"
+                                                          },
+                                                          {
+                                                            "type": "Function",
+                                                            "name": "currentDatabase",
+                                                            "arguments": []
+                                                          },
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "String",
+                                                            "value": "02863_delayed_source"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "settings": {
+                                                "type": "Settings",
+                                                "changes": {
+                                                  "extremes": "1"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
-          },
-          "withTotals": true,
-          "settings": [
-            {
-              "name": "extremes",
-              "value": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            }
-          ]
+          }
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "a"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.4"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "02863_delayed_source"
+                      }
+                    ]
+                  }
+                }
+              }
             ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "a"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "a"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.4"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "02863_delayed_source"
         }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "output_format_write_statistics": "0"
         }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "format": "JSON",
-    "postFormatSettings": [
-      {
-        "name": "output_format_write_statistics",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
+      },
+      "format": "JSON"
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM DISABLE FAILPOINT use_delayed_remote_source"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "DISABLE FAILPOINT",
+      "fail_point_name": "use_delayed_remote_source"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "02863_delayed_source"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "02863_delayed_source"
+      }
     }
   }
 ]

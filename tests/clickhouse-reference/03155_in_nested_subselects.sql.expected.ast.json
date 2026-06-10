@@ -1,294 +1,458 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/63833"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_local_plan",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_local_plan": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "Example"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "Example"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "alias": "id"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "Example"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Example"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "id",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "Null"
-    },
-    "engine": {
-      "name": "Null"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "table": "Example"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Null"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Null",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      },
+      "as_table": "Example"
     }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "Transform"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "Example"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "left": {
-          "kind": "tableRef",
-          "table": "Null"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "Transform"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
             "select": [
               {
-                "kind": "asterisk"
+                "type": "Asterisk"
               }
             ],
             "from": {
-              "kind": "tableRef",
-              "table": "Example"
-            },
-            "where": {
-              "kind": "inExpr",
-              "negated": false,
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "id"
-                ]
-              },
-              "values": {
-                "kind": "subqueryExpr",
-                "query": {
-                  "kind": "select",
-                  "select": [
-                    {
-                      "kind": "asterisk"
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "Null"
                     }
-                  ],
-                  "from": {
-                    "kind": "subqueryFrom",
-                    "query": {
-                      "kind": "select",
-                      "select": [
-                        {
-                          "kind": "asterisk"
-                        }
-                      ],
-                      "from": {
-                        "kind": "subqueryFrom",
-                        "query": {
-                          "kind": "select",
-                          "select": [
-                            {
-                              "kind": "asterisk"
-                            }
-                          ],
-                          "from": {
-                            "kind": "subqueryFrom",
-                            "query": {
-                              "kind": "select",
-                              "select": [
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "INNER",
+                    "using": [
+                      {
+                        "type": "Identifier",
+                        "name": "id"
+                      }
+                    ]
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "alias": "old",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Asterisk"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
                                 {
-                                  "kind": "asterisk"
-                                }
-                              ],
-                              "from": {
-                                "kind": "subqueryFrom",
-                                "query": {
-                                  "kind": "select",
-                                  "select": [
-                                    {
-                                      "kind": "asterisk"
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "Example"
                                     }
-                                  ],
-                                  "from": {
-                                    "kind": "tableRef",
-                                    "table": "Null"
                                   }
                                 }
-                              }
+                              ]
+                            },
+                            "where": {
+                              "type": "Function",
+                              "name": "in",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "id"
+                                },
+                                {
+                                  "type": "Subquery",
+                                  "query": {
+                                    "type": "SelectWithUnionQuery",
+                                    "selects": [
+                                      {
+                                        "type": "SelectQuery",
+                                        "select": [
+                                          {
+                                            "type": "Asterisk"
+                                          }
+                                        ],
+                                        "from": {
+                                          "type": "TablesInSelectQuery",
+                                          "children": [
+                                            {
+                                              "type": "TablesInSelectQueryElement",
+                                              "table_expression": {
+                                                "type": "TableExpression",
+                                                "subquery": {
+                                                  "type": "Subquery",
+                                                  "query": {
+                                                    "type": "SelectWithUnionQuery",
+                                                    "selects": [
+                                                      {
+                                                        "type": "SelectQuery",
+                                                        "select": [
+                                                          {
+                                                            "type": "Asterisk"
+                                                          }
+                                                        ],
+                                                        "from": {
+                                                          "type": "TablesInSelectQuery",
+                                                          "children": [
+                                                            {
+                                                              "type": "TablesInSelectQueryElement",
+                                                              "table_expression": {
+                                                                "type": "TableExpression",
+                                                                "subquery": {
+                                                                  "type": "Subquery",
+                                                                  "query": {
+                                                                    "type": "SelectWithUnionQuery",
+                                                                    "selects": [
+                                                                      {
+                                                                        "type": "SelectQuery",
+                                                                        "select": [
+                                                                          {
+                                                                            "type": "Asterisk"
+                                                                          }
+                                                                        ],
+                                                                        "from": {
+                                                                          "type": "TablesInSelectQuery",
+                                                                          "children": [
+                                                                            {
+                                                                              "type": "TablesInSelectQueryElement",
+                                                                              "table_expression": {
+                                                                                "type": "TableExpression",
+                                                                                "subquery": {
+                                                                                  "type": "Subquery",
+                                                                                  "query": {
+                                                                                    "type": "SelectWithUnionQuery",
+                                                                                    "selects": [
+                                                                                      {
+                                                                                        "type": "SelectQuery",
+                                                                                        "select": [
+                                                                                          {
+                                                                                            "type": "Asterisk"
+                                                                                          }
+                                                                                        ],
+                                                                                        "from": {
+                                                                                          "type": "TablesInSelectQuery",
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "type": "TablesInSelectQueryElement",
+                                                                                              "table_expression": {
+                                                                                                "type": "TableExpression",
+                                                                                                "subquery": {
+                                                                                                  "type": "Subquery",
+                                                                                                  "query": {
+                                                                                                    "type": "SelectWithUnionQuery",
+                                                                                                    "selects": [
+                                                                                                      {
+                                                                                                        "type": "SelectQuery",
+                                                                                                        "select": [
+                                                                                                          {
+                                                                                                            "type": "Asterisk"
+                                                                                                          }
+                                                                                                        ],
+                                                                                                        "from": {
+                                                                                                          "type": "TablesInSelectQuery",
+                                                                                                          "children": [
+                                                                                                            {
+                                                                                                              "type": "TablesInSelectQueryElement",
+                                                                                                              "table_expression": {
+                                                                                                                "type": "TableExpression",
+                                                                                                                "database_and_table_name": {
+                                                                                                                  "type": "TableIdentifier",
+                                                                                                                  "name": "Null"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          ]
+                                                                                                        }
+                                                                                                      }
+                                                                                                    ]
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          ]
+                                                                                        }
+                                                                                      }
+                                                                                    ]
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
                             }
                           }
-                        }
+                        ]
                       }
                     }
                   }
                 }
-              }
+              ]
             }
-          },
-          "alias": "old"
-        },
-        "constraint": {
-          "kind": "using",
-          "columns": [
-            "id"
-          ]
-        }
-      }
-    },
-    "leadingComments": [
-      "--create table Null engine=MergeTree order by id as Example ;"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "Null"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "alias": "id"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
+            "kind": "to",
+            "table": "Example"
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Null"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "id",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "Example"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "all"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "Example"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "all"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "-- should return 4 rows"
-    ]
+        }
+      ]
+    }
   }
 ]

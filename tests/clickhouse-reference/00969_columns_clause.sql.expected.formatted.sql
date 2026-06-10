@@ -6,7 +6,7 @@ CREATE TABLE ColumnsClauseTest
     product_weight Int16,
     amount Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO ColumnsClauseTest;
 

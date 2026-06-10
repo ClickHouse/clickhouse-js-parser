@@ -8,10 +8,10 @@ CREATE TABLE `02481_mergetree`
     y UInt64,
     arr Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 SAMPLE BY x
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE `02481_merge`
 (
@@ -24,7 +24,7 @@ ENGINE = Merge(currentDatabase(), '^(02481_mergetree)$');
 INSERT INTO `02481_mergetree` SELECT
     number,
     number + 1,
-    [1,2]
+    [1, 2]
 FROM `system`.numbers
 LIMIT 100000;
 

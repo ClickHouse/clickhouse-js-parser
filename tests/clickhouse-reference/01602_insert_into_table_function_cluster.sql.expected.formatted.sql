@@ -3,11 +3,11 @@ DROP TABLE IF EXISTS x;
 DROP TABLE IF EXISTS y;
 
 CREATE TABLE x AS `system`.numbers
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 CREATE TABLE y AS `system`.numbers
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 -- Just one shard, sharding key isn't necessary

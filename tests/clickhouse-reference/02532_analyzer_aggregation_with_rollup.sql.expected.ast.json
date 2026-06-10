@@ -1,316 +1,331 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_rollup": true,
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a",
+              "type": "Function",
+              "alias": "total",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a.number",
+                  "name_parts": [
+                    "a",
+                    "number"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "alias": "cn",
+              "name": "c.number",
+              "name_parts": [
+                "c",
                 "number"
               ]
-            }
-          ]
-        },
-        "alias": "total"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c",
-            "number"
-          ]
-        },
-        "alias": "cn"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "b",
-            "number"
-          ]
-        },
-        "alias": "bn"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "functionCall",
-            "name": "grouping",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "c",
-                  "number"
-                ]
-              }
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "grouping",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "b",
-                  "number"
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "l"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "rank",
-          "args": [],
-          "window": {
-            "partitionBy": [
-              {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "functionCall",
+            },
+            {
+              "type": "Identifier",
+              "alias": "bn",
+              "name": "b.number",
+              "name_parts": [
+                "b",
+                "number"
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "l",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
                   "name": "grouping",
-                  "args": [
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
+                      "type": "Identifier",
+                      "name": "c.number",
+                      "name_parts": [
                         "c",
                         "number"
                       ]
                     }
                   ]
                 },
-                "right": {
-                  "kind": "functionCall",
+                {
+                  "type": "Function",
                   "name": "grouping",
-                  "args": [
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
+                      "type": "Identifier",
+                      "name": "b.number",
+                      "name_parts": [
                         "b",
                         "number"
                       ]
                     }
                   ]
                 }
-              },
-              {
-                "kind": "functionCall",
-                "name": "multiIf",
-                "args": [
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "r",
+              "name": "rank",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "partition_by": [
                   {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "grouping",
-                      "args": [
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "grouping",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "c.number",
+                            "name_parts": [
+                              "c",
+                              "number"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "grouping",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "b.number",
+                            "name_parts": [
+                              "b",
+                              "number"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiIf",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "grouping",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "c.number",
+                                "name_parts": [
+                                  "c",
+                                  "number"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "0"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "b.number",
+                        "name_parts": [
+                          "b",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Null",
+                        "value": null
+                      }
+                    ]
+                  }
+                ],
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Function",
+                      "name": "sum",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "c",
+                          "type": "Identifier",
+                          "name": "a.number",
+                          "name_parts": [
+                            "a",
                             "number"
                           ]
                         }
                       ]
                     },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "0"
-                    }
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "b",
-                      "number"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "NULL",
-                    "value": "NULL"
+                    "direction": "DESC"
                   }
                 ]
               }
-            ],
-            "orderBy": [
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "sum",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a",
-                        "number"
-                      ]
-                    }
-                  ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "a",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
                 },
-                "direction": "DESC"
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "b",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "c",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
               }
             ]
-          }
-        },
-        "alias": "r"
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
+          },
+          "group_by": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+              "type": "Identifier",
+              "name": "cn"
+            },
+            {
+              "type": "Identifier",
+              "name": "bn"
             }
           ],
-          "alias": "a"
-        },
-        "kind": "joinExpr",
-        "joinType": "CROSS",
-        "right": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
+          "order_by": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "total"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "cn"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "bn"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "l"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "r"
+              },
+              "direction": "ASC"
             }
           ],
-          "alias": "b"
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "CROSS",
-      "right": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
             "value": "10"
           }
-        ],
-        "alias": "c"
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "cn"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "bn"
-          ]
         }
       ]
-    },
-    "withRollup": true,
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "total"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "cn"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "bn"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "l"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "r"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
     }
   }
 ]

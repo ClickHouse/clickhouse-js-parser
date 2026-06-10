@@ -9,14 +9,14 @@ CREATE TABLE insert_select_dst
     middle_b int,
     j int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE insert_select_src
 (
     i int,
     j int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO insert_select_src;
 

@@ -6,9 +6,9 @@ CREATE TABLE loans
     loan_number int,
     security_id text
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 INSERT INTO loans;
 
@@ -29,4 +29,4 @@ SELECT loan_number
 FROM block_1
 WHERE loan_number > 3
 ORDER BY loan_number ASC
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';

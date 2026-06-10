@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP DATABASE IF EXISTS `02563_db`;
 
@@ -12,7 +12,7 @@ CREATE TABLE `02563_db`.test_merge_table_1
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO `02563_db`.test_merge_table_1;
@@ -24,7 +24,7 @@ CREATE TABLE `02563_db`.test_merge_table_2
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO `02563_db`.test_merge_table_2;
@@ -58,7 +58,7 @@ CREATE TABLE `02563_db`.t_1
     a String,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (timestamp, a, b)
 PARTITION BY formatDateTime(toStartOfMinute(timestamp), '%Y%m%d%H', 'UTC');
 

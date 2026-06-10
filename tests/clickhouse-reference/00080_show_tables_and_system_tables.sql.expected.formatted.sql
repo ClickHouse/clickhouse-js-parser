@@ -1,23 +1,23 @@
 -- Tags: log-engine
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE:Identifier};
+CREATE DATABASE CLICKHOUSE_DATABASE;
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.A
+CREATE TABLE CLICKHOUSE_DATABASE.A
 (
     A UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.B
+CREATE TABLE CLICKHOUSE_DATABASE.B
 (
     A UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-SHOW TABLES FROM {CLICKHOUSE_DATABASE:Identifier};
+SHOW TABLES FROM CLICKHOUSE_DATABASE;
 
-SHOW TABLES FROM `system` WHERE like(engine, '%System%')
+SHOW TABLES FROM `system` WHERE engine LIKE '%System%'
 AND name IN ('numbers', 'one')
 AND database = 'system';
 
@@ -41,17 +41,17 @@ FROM `system`.tables
 WHERE is_temporary = 1
     AND name = 'test_temporary_table';
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.test_log
+CREATE TABLE CLICKHOUSE_DATABASE.test_log
 (
     id UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
-CREATE MATERIALIZED VIEW {CLICKHOUSE_DATABASE:Identifier}.test_materialized
-ENGINE = Log
+CREATE MATERIALIZED VIEW CLICKHOUSE_DATABASE.test_materialized
+ENGINE = Log()
 AS
 SELECT *
-FROM {CLICKHOUSE_DATABASE:Identifier}.test_log;
+FROM CLICKHOUSE_DATABASE.test_log;
 
 SELECT
     dependencies_database,
@@ -60,17 +60,17 @@ FROM `system`.tables
 WHERE name = 'test_log'
     AND database = currentDatabase();
 
-DROP DATABASE {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE CLICKHOUSE_DATABASE;
 
 -- Check that create_table_query works for system tables and unusual Databases
-CREATE DATABASE {CLICKHOUSE_DATABASE:Identifier}
-ENGINE = Memory;
+CREATE DATABASE CLICKHOUSE_DATABASE
+ENGINE = Memory();
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.A
+CREATE TABLE CLICKHOUSE_DATABASE.A
 (
     A UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 SELECT sum(ignore(*, metadata_modification_time, engine_full, create_table_query))
 FROM `system`.tables

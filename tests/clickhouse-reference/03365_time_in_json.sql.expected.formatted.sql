@@ -1,5 +1,5 @@
 -- Test Time and Time64 types in JSON
-SET enable_time_time64_type = 1;
+SET enable_time_time64_type = '1';
 
 -- Clean up
 DROP TABLE IF EXISTS json_time_test;
@@ -13,7 +13,7 @@ CREATE TABLE json_time_test
 (
     json JSON(time_value Time, id String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO json_time_test;
 
@@ -32,7 +32,7 @@ CREATE TABLE json_time64_test
 (
     json JSON(time_value Time64(3), id String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO json_time64_test;
 

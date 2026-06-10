@@ -8,9 +8,12 @@ SELECT singleValueOrNull((
 
 SELECT singleValueOrNull(toNullable(123));
 
-SELECT '' = ALL((
-        SELECT toNullable('')
-    ));
+SELECT '' IN (
+        SELECT singleValueOrNull(*)
+        FROM (
+                SELECT toNullable('')
+            )
+    );
 
 SELECT
     '',

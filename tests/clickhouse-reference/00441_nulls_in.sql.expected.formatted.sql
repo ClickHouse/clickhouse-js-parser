@@ -13,7 +13,8 @@ LIMIT 5;
 SELECT number IN (
         SELECT number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -21,7 +22,8 @@ LIMIT 5;
 SELECT number IN (
         SELECT nullIf(number, 2)
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -29,7 +31,8 @@ LIMIT 5;
 SELECT nullIf(number, 4) IN (
         SELECT nullIf(number, 2)
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -49,7 +52,8 @@ LIMIT 5;
 SELECT toString(number) IN (
         SELECT toString(number)
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -57,7 +61,8 @@ LIMIT 5;
 SELECT toString(number) IN (
         SELECT nullIf(toString(number), '2')
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -65,7 +70,8 @@ LIMIT 5;
 SELECT nullIf(toString(number), '4') IN (
         SELECT nullIf(toString(number), '2')
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -93,9 +99,10 @@ LIMIT 5;
 SELECT (number, -number) IN (
         SELECT
             number,
-            negate(number)
+            -number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -103,9 +110,10 @@ LIMIT 5;
 SELECT (number, -number) IN (
         SELECT
             nullIf(number, 2),
-            negate(number)
+            -number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -113,9 +121,10 @@ LIMIT 5;
 SELECT (nullIf(number, 4), -number) IN (
         SELECT
             nullIf(number, 2),
-            negate(number)
+            -number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -123,9 +132,10 @@ LIMIT 5;
 SELECT (number, -nullIf(number, 3)) IN (
         SELECT
             nullIf(number, 2),
-            negate(number)
+            -number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;
@@ -133,9 +143,10 @@ LIMIT 5;
 SELECT (nullIf(number, 4), -nullIf(number, 3)) IN (
         SELECT
             nullIf(number, 2),
-            negate(number)
+            -number
         FROM `system`.numbers
-        LIMIT 1, 3
+        LIMIT 3
+        OFFSET 1
     ) AS res
 FROM `system`.numbers
 LIMIT 5;

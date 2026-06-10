@@ -1,10 +1,10 @@
-SET max_threads = 1;
+SET max_threads = '1';
 
 CREATE TABLE IF NOT EXISTS functional_index_mergetree
 (
     x Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY round(x);
 
 INSERT INTO functional_index_mergetree;
@@ -71,8 +71,8 @@ WHERE NOT x < 7.42
 
 SELECT *
 FROM functional_index_mergetree
-WHERE (NOT x < 7.4)
-    AND (NOT x > 7.49);
+WHERE NOT x < 7.4
+    AND NOT x > 7.49;
 
 SELECT *
 FROM functional_index_mergetree

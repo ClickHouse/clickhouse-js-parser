@@ -12,7 +12,7 @@ SELECT REPLACE('bar', 'r', 'z');
 
 SELECT REGEXP_REPLACE('bar', '.', 'z');
 
-SELECT SUBSTRING('foo', 1, 2);
+SELECT substring('foo', 1, 2);
 
 SELECT Substr('foo', 2);
 
@@ -32,11 +32,11 @@ SELECT RIGHT('bar', 1);
 
 SELECT right('bar', 123);
 
-SELECT concat(ltrim(''), rtrim(''), trim(''));
+SELECT trimLeft('') || trimRight('') || trimBoth('');
 
-SELECT ltrim('   foo');
+SELECT trimLeft('   foo');
 
-SELECT RTRIM('   foo   ');
+SELECT trimRight('   foo   ');
 
 SELECT trimRight('xxfooxx', 'x');
 

@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 CREATE TABLE test
 (
@@ -15,7 +15,7 @@ CREATE TABLE test
     i9 Int64,
     i10 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT * * number
@@ -28,7 +28,7 @@ FROM numbers(exists((
                     materialize(toNullable(53))
                 FROM test AS t2
                 PREWHERE *
-                    OR (isNotNull(materialize(15)))
+                    OR materialize(15) IS NOT NULL
                 WHERE *
                     OR 1
             )

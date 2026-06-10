@@ -7,7 +7,7 @@ CREATE TABLE a
     id UInt32,
     val UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE j
 (
@@ -23,22 +23,22 @@ INSERT INTO j;
 SELECT *
 FROM
     a
-LEFT JOIN j
+ANY LEFT JOIN j
     USING (id)
 ORDER BY
     a.id ASC,
     a.val ASC
-SETTINGS enable_optimize_predicate_expression = 1;
+SETTINGS enable_optimize_predicate_expression = '1';
 
 SELECT *
 FROM
     a
-LEFT JOIN j
+ANY LEFT JOIN j
     USING (id)
 ORDER BY
     a.id ASC,
     a.val ASC
-SETTINGS enable_optimize_predicate_expression = 0;
+SETTINGS enable_optimize_predicate_expression = '0';
 
 DROP TABLE a;
 

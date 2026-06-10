@@ -8,7 +8,7 @@ CREATE TABLE mergetree_00609
     x UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO mergetree_00609;

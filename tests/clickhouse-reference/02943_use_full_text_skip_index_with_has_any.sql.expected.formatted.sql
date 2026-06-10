@@ -10,7 +10,7 @@ CREATE TABLE tokenbf_v1_hasany_test
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE ngrambf_v1_hasany_test
 (
@@ -20,7 +20,7 @@ CREATE TABLE ngrambf_v1_hasany_test
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO tokenbf_v1_hasany_test;
 

@@ -8,7 +8,7 @@ CREATE TABLE row_level_policy_prewhere
     x Int16,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO row_level_policy_prewhere (y, x);

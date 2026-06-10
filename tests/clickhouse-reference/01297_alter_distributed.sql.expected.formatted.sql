@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS merge_distributed;
 
 DROP TABLE IF EXISTS merge_distributed1;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE merge_distributed1
 (
@@ -45,7 +45,7 @@ SELECT
     CounterID,
     dummy
 FROM merge_distributed
-WHERE dummy <> ''
+WHERE dummy != ''
 LIMIT 10;
 
 ALTER TABLE merge_distributed DROP COLUMN dummy;
@@ -57,7 +57,7 @@ SELECT
     CounterID,
     dummy1
 FROM merge_distributed
-WHERE dummy1 <> ''
+WHERE dummy1 != ''
 LIMIT 10; -- { serverError UNKNOWN_IDENTIFIER }
 
 DROP TABLE merge_distributed;

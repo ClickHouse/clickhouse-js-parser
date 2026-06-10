@@ -5,7 +5,7 @@ CREATE TABLE test_table_for_estimate_compression_ratio
     some_column Int64,
     other_column Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY some_column;
 
 SELECT estimateCompressionRatio('lz4', 8192)(some_column, other_column)

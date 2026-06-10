@@ -1,4 +1,4 @@
-SET function_date_trunc_return_type_behavior = 1;
+SET function_date_trunc_return_type_behavior = '1';
 
 SET session_timezone = 'UTC';
 

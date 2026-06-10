@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS order_by_all;
+DROP TABLE IF EXISTS order_by_all SYNC;
 
 CREATE TABLE order_by_all
 (
@@ -11,11 +11,11 @@ ORDER BY tuple();
 
 INSERT INTO order_by_all;
 
-SET allow_experimental_parallel_reading_from_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'parallel_replicas';
+SET allow_experimental_parallel_reading_from_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'parallel_replicas';
 
-SET enable_analyzer = 1; -- fix has been done only for the analyzer
+SET enable_analyzer = '1'; -- fix has been done only for the analyzer
 
-SET enable_order_by_all = 0;
+SET enable_order_by_all = '0';
 
 -- { echoOn }
 SELECT
@@ -25,8 +25,8 @@ SELECT
 FROM order_by_all
 ORDER BY `all` ASC
 SETTINGS
-    enable_order_by_all = 0,
-    allow_experimental_parallel_reading_from_replicas = 0;
+    enable_order_by_all = '0',
+    allow_experimental_parallel_reading_from_replicas = '0';
 
 SELECT
     a,
@@ -35,7 +35,7 @@ SELECT
 FROM order_by_all
 ORDER BY `all` ASC
 SETTINGS
-    enable_order_by_all = 0,
-    allow_experimental_parallel_reading_from_replicas = 1;
+    enable_order_by_all = '0',
+    allow_experimental_parallel_reading_from_replicas = '1';
 
-DROP TABLE order_by_all;
+DROP TABLE order_by_all SYNC;

@@ -1,6 +1,6 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS series;
 
@@ -10,7 +10,7 @@ CREATE TABLE series
     x_value Float64,
     y_value Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO series (i, x_value, y_value);
 
@@ -33,7 +33,7 @@ SELECT round(abs(res1 - res2), 6)
 FROM (
         SELECT
             varSampStable(x_value) AS res1,
-            ((sum(x_value * x_value) - ((sum(x_value) * sum(x_value)) / count()))) / ((count() - 1)) AS res2
+            (sum(x_value * x_value) - sum(x_value) * sum(x_value) / count()) / (count() - 1) AS res2
         FROM series
     );
 
@@ -56,7 +56,7 @@ SELECT round(abs(res1 - res2), 6)
 FROM (
         SELECT
             stddevSampStable(x_value) AS res1,
-            sqrt(((sum(x_value * x_value) - ((sum(x_value) * sum(x_value)) / count()))) / ((count() - 1))) AS res2
+            sqrt((sum(x_value * x_value) - sum(x_value) * sum(x_value) / count()) / (count() - 1)) AS res2
         FROM series
     );
 
@@ -79,7 +79,7 @@ SELECT round(abs(res1 - res2), 6)
 FROM (
         SELECT
             varPopStable(x_value) AS res1,
-            ((sum(x_value * x_value) - ((sum(x_value) * sum(x_value)) / count()))) / count() AS res2
+            (sum(x_value * x_value) - sum(x_value) * sum(x_value) / count()) / count() AS res2
         FROM series
     );
 
@@ -102,7 +102,7 @@ SELECT round(abs(res1 - res2), 6)
 FROM (
         SELECT
             stddevPopStable(x_value) AS res1,
-            sqrt(((sum(x_value * x_value) - ((sum(x_value) * sum(x_value)) / count()))) / count()) AS res2
+            sqrt((sum(x_value * x_value) - sum(x_value) * sum(x_value) / count()) / count()) AS res2
         FROM series
     );
 
@@ -133,12 +133,12 @@ FROM
             covarSampStable(x_value, y_value) AS COVAR1
         FROM series
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
             arrayJoin([1]) AS ID2,
-            sum(VAL) / ((count() - 1)) AS COVAR2
+            sum(VAL) / (count() - 1) AS COVAR2
         FROM (
-                SELECT ((X - AVG_X)) * ((Y - AVG_Y)) AS VAL
+                SELECT (X - AVG_X) * (Y - AVG_Y) AS VAL
                 FROM
                     (
                         SELECT
@@ -147,7 +147,7 @@ INNER JOIN (
                             avg(y_value) AS AVG_Y
                         FROM series
                     )
-                INNER JOIN (
+                ANY INNER JOIN (
                         SELECT
                             i AS ID,
                             x_value AS X,
@@ -186,12 +186,12 @@ FROM
             covarPopStable(x_value, y_value) AS COVAR1
         FROM series
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
             arrayJoin([1]) AS ID2,
             sum(VAL) / count() AS COVAR2
         FROM (
-                SELECT ((X - AVG_X)) * ((Y - AVG_Y)) AS VAL
+                SELECT (X - AVG_X) * (Y - AVG_Y) AS VAL
                 FROM
                     (
                         SELECT
@@ -200,7 +200,7 @@ INNER JOIN (
                             avg(y_value) AS AVG_Y
                         FROM series
                     )
-                INNER JOIN (
+                ANY INNER JOIN (
                         SELECT
                             i AS ID,
                             x_value AS X,
@@ -231,7 +231,7 @@ FROM (
         LIMIT 1
     );
 
-SELECT round(abs(corrStable(x_value, y_value) - covarPopStable(x_value, y_value) / ((stddevPopStable(x_value) * stddevPopStable(y_value)))), 6)
+SELECT round(abs(corrStable(x_value, y_value) - covarPopStable(x_value, y_value) / (stddevPopStable(x_value) * stddevPopStable(y_value))), 6)
 FROM series;
 
 DROP TABLE series;

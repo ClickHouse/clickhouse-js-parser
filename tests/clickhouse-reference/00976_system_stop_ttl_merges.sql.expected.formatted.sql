@@ -5,12 +5,12 @@ CREATE TABLE ttl
     d Date,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY toDayOfMonth(d)
 TTL d + toIntervalDay(1);
 
-SYSTEM stop ttl merges ttl;
+SYSTEM STOP TTL MERGES ttl;
 
 INSERT INTO ttl;
 
@@ -27,4 +27,4 @@ ORDER BY
     d ASC,
     a ASC;
 
-SYSTEM start ttl merges ttl;
+SYSTEM START TTL MERGES ttl;

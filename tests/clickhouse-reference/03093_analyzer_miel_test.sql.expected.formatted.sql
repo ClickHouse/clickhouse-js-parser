@@ -7,7 +7,7 @@ CREATE TABLE test_03093
     c UInt64,
     k Map(String, String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY app;
 
 INSERT INTO test_03093;
@@ -16,7 +16,7 @@ INSERT INTO test_03093;
 
 INSERT INTO test_03093;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     app,

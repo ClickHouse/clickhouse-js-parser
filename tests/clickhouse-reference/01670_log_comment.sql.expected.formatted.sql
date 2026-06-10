@@ -1,4 +1,4 @@
-SET log_comment = 'log_comment test', log_queries = 1;
+SET log_comment = 'log_comment test', log_queries = '1';
 
 SELECT 1;
 
@@ -10,7 +10,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = 'log_comment test'
-    AND like(query, 'SELECT 1%')
+    AND query LIKE 'SELECT 1%'
     AND event_date >= yesterday()
     AND type = 1
 ORDER BY event_time_microseconds DESC
@@ -22,7 +22,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = 'log_comment test'
-    AND like(query, 'SELECT 1%')
+    AND query LIKE 'SELECT 1%'
     AND event_date >= yesterday()
     AND type = 2
 ORDER BY event_time_microseconds DESC

@@ -8,7 +8,7 @@ ORDER BY
     count() DESC,
     CounterID ASC
 LIMIT 10
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     CounterID AS k,
@@ -19,8 +19,8 @@ ORDER BY
     count() DESC,
     CounterID ASC
 LIMIT 10
-SETTINGS group_by_use_nulls = 1
+SETTINGS group_by_use_nulls = '1'
 FORMAT Null;
 
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

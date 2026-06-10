@@ -5,7 +5,7 @@ CREATE TABLE rollup_having
     a Nullable(String),
     b Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO rollup_having;
 
@@ -23,7 +23,7 @@ GROUP BY
     b
 WITH ROLLUP
 WITH TOTALS
-HAVING isNotNull(a); -- { serverError NOT_IMPLEMENTED }
+HAVING a IS NOT NULL; -- { serverError NOT_IMPLEMENTED }
 
 SELECT
     a,
@@ -35,7 +35,7 @@ GROUP BY
     b
 WITH ROLLUP
 WITH TOTALS
-HAVING isNotNull(a)
-    AND isNotNull(b); -- { serverError NOT_IMPLEMENTED }
+HAVING a IS NOT NULL
+    AND b IS NOT NULL; -- { serverError NOT_IMPLEMENTED }
 
 DROP TABLE rollup_having;

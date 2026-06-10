@@ -1,4 +1,4 @@
-SELECT arrayDistinct(arrayMap(x -> 0, range(2)))
+SELECT arrayDistinct(arrayMap((x -> 0), range(2)))
 FROM numbers(2);
 
 SELECT arrayDistinct(materialize([[0], [0]]))

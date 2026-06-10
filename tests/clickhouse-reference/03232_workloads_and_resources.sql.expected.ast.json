@@ -1,366 +1,1286 @@
 [
   {
-    "kind": "createResource",
-    "name": "03232_write",
-    "specs": [
-      {
-        "operation": "WRITE",
-        "resourceType": "DISK",
-        "resourceName": "03232_fake_disk"
+    "version": 2,
+    "ast": {
+      "type": "CreateResourceQuery",
+      "resource_name": {
+        "type": "Identifier",
+        "name": "03232_write"
+      },
+      "unit": "IOByte",
+      "operations": [
+        {
+          "mode": "WRITE",
+          "disk": "03232_fake_disk"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateResourceQuery",
+      "resource_name": {
+        "type": "Identifier",
+        "name": "03232_read"
+      },
+      "unit": "IOByte",
+      "operations": [
+        {
+          "mode": "READ",
+          "disk": "03232_fake_disk"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100"
+          },
+          "resource": "03232_write"
+        },
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "200"
+          },
+          "resource": "03232_read"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "admin"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "another_root"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Do not run this test in parallel because `all` workload might affect other queries execution process",
-      "-- Test simple resource and workload hierarchy creation"
-    ]
+    }
   },
   {
-    "kind": "createResource",
-    "name": "03232_read",
-    "specs": [
-      {
-        "operation": "READ",
-        "resourceType": "DISK",
-        "resourceName": "03232_fake_disk"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "self_ref"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "self_ref"
       }
-    ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "all"
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "all"
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "admin",
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "production",
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "development",
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "another_root",
-    "leadingComments": [
-      "-- Test that illegal actions are not allowed"
-    ],
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "self_ref",
-    "parentWorkload": "self_ref",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "drop workload all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "03232_write",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_GET}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError INVALID_SCHEDULER_NODE}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "invalid",
-    "parentWorkload": "all",
-    "trailingComments": [
-      "-- {serverError BAD_GET}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "all",
-    "orReplace": true,
-    "parentWorkload": "production",
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "all",
-    "orReplace": true,
-    "leadingComments": [
-      "-- Test CREATE OR REPLACE WORKLOAD"
-    ]
-  },
-  {
-    "kind": "createWorkload",
-    "name": "admin",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "admin",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "admin",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
-  },
-  {
-    "kind": "createResource",
-    "name": "03232_write",
-    "specs": [
-      {
-        "operation": "WRITE",
-        "resourceType": "DISK",
-        "resourceName": "03232_fake_disk_2"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "03232_write"
       }
-    ],
-    "orReplace": true,
-    "leadingComments": [
-      "-- Test CREATE OR REPLACE RESOURCE"
-    ]
+    }
   },
   {
-    "kind": "createResource",
-    "name": "03232_read",
-    "specs": [
-      {
-        "operation": "READ",
-        "resourceType": "DISK",
-        "resourceName": "03232_fake_disk_2"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          },
+          "resource": "all"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "String",
+            "value": "invalid_value"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "Int64",
+            "value": "-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "Int64",
+            "value": "-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_bytes_inflight",
+          "value": {
+            "value_type": "Int64",
+            "value": "-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "unknown_setting",
+          "value": {
+            "value_type": "UInt64",
+            "value": "42"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "Int64",
+            "value": "-1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "invalid"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "Float64",
+            "value": 1.5
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "production"
       }
-    ],
-    "orReplace": true
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all",
-    "leadingComments": [
-      "-- Test update settings with CREATE OR REPLACE WORKLOAD"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "200"
+          },
+          "resource": "03232_write"
+        },
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100"
+          },
+          "resource": "03232_read"
+        },
+        {
+          "name": "max_concurrent_threads",
+          "value": {
+            "value_type": "UInt64",
+            "value": "16"
+          }
+        },
+        {
+          "name": "max_concurrent_threads_ratio_to_cores",
+          "value": {
+            "value_type": "Float64",
+            "value": 2.5
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "admin"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "admin"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "2"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "admin"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "90"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "2"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "all",
-    "orReplace": true
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "0"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "all",
-    "orReplace": true
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "2"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateResourceQuery",
+      "or_replace": true,
+      "resource_name": {
+        "type": "Identifier",
+        "name": "03232_write"
+      },
+      "unit": "IOByte",
+      "operations": [
+        {
+          "mode": "WRITE",
+          "disk": "03232_fake_disk_2"
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateResourceQuery",
+      "or_replace": true,
+      "resource_name": {
+        "type": "Identifier",
+        "name": "03232_read"
+      },
+      "unit": "IOByte",
+      "operations": [
+        {
+          "mode": "READ",
+          "disk": "03232_fake_disk_2"
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "production",
-    "leadingComments": [
-      "-- Test change parent with CREATE OR REPLACE WORKLOAD"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        },
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "orReplace": true,
-    "parentWorkload": "admin"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop workload if exists production",
-    "leadingComments": [
-      "-- Clean up"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        },
+        {
+          "name": "max_bytes_inflight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100000"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop workload if exists development"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "max_bytes_inflight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "10000"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop workload if exists admin"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1000000"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop workload if exists all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100000"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop resource if exists 03232_write"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1000000"
+          }
+        },
+        {
+          "name": "max_burst",
+          "value": {
+            "value_type": "UInt64",
+            "value": "10000000"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "drop resource if exists 03232_read"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100000"
+          }
+        },
+        {
+          "name": "max_burst",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1000000"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_bytes_inflight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1000000"
+          }
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100000"
+          },
+          "resource": "03232_write"
+        },
+        {
+          "name": "max_speed",
+          "value": {
+            "value_type": "UInt64",
+            "value": "200000"
+          },
+          "resource": "03232_read"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "100"
+          },
+          "resource": "03232_write"
+        },
+        {
+          "name": "max_io_requests",
+          "value": {
+            "value_type": "UInt64",
+            "value": "200"
+          },
+          "resource": "03232_read"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "9"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "admin"
+      },
+      "changes": [
+        {
+          "name": "priority",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        },
+        {
+          "name": "weight",
+          "value": {
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "production",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "development",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "admin",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "all",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropResourceQuery",
+      "resource_name": "03232_write",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropResourceQuery",
+      "resource_name": "03232_read",
+      "if_exists": true
+    }
   }
 ]

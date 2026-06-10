@@ -7,7 +7,7 @@ CREATE TABLE `rollup`
     b Int32,
     s Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `rollup`;
 
@@ -21,7 +21,10 @@ SELECT
     sum(s),
     count()
 FROM `rollup`
-GROUP BY ROLLUP(a, b)
+GROUP BY
+    a,
+    b
+WITH ROLLUP
 ORDER BY
     a ASC,
     b ASC;
@@ -32,19 +35,14 @@ SELECT
     sum(s),
     count()
 FROM `rollup`
-GROUP BY ROLLUP(a, b)
+GROUP BY
+    a,
+    b
+WITH ROLLUP
 WITH TOTALS
 ORDER BY
     a ASC,
     b ASC;
-
-SELECT
-    a,
-    sum(s),
-    count()
-FROM `rollup`
-GROUP BY ROLLUP(a)
-ORDER BY a ASC;
 
 SELECT
     a,
@@ -62,10 +60,19 @@ SELECT
 FROM `rollup`
 GROUP BY a
 WITH ROLLUP
+ORDER BY a ASC;
+
+SELECT
+    a,
+    sum(s),
+    count()
+FROM `rollup`
+GROUP BY a
+WITH ROLLUP
 WITH TOTALS
 ORDER BY a ASC;
 
-SET group_by_two_level_threshold = 1;
+SET group_by_two_level_threshold = '1';
 
 SELECT
     a,

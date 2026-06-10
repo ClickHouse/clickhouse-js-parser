@@ -1,5 +1,5 @@
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH RECURSIVE recursive_cte AS (
     SELECT 1 AS n
@@ -65,7 +65,7 @@ WITH RECURSIVE recursive_cte AS (
     UNION ALL
     SELECT
         materialize(toUInt8(n + 1)),
-        concat(concat, toString(n + 1))
+        concat || toString(n + 1)
     FROM recursive_cte
     WHERE n < 10
 )
@@ -97,5 +97,5 @@ WITH RECURSIVE recursive_cte AS (
 SELECT n
 FROM recursive_cte
 FORMAT Null
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 -- { echoOff }

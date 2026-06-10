@@ -5,7 +5,7 @@ CREATE TABLE test1
     total_indirect_order_cnt Float64,
     total_indirect_gmv Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test2
 (
@@ -14,7 +14,7 @@ CREATE TABLE test2
     exposure_uv Float64,
     click_uv Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test1 (pt, brand_name, total_indirect_order_cnt, total_indirect_gmv);
 

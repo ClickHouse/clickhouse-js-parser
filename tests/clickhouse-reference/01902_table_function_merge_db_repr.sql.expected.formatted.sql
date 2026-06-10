@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP DATABASE IF EXISTS `01902_db_repr`;
 
@@ -21,28 +21,28 @@ CREATE TABLE `01902_db_repr`.t
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 CREATE TABLE `01902_db_repr1`.t1
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 CREATE TABLE `01902_db_repr2`.t2
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 CREATE TABLE `01902_db_repr3`.t3
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO `01902_db_repr`.t SELECT *
@@ -159,7 +159,7 @@ CREATE TABLE `01902_db_repr`.t4
 (
     n Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO `01902_db_repr`.t4 SELECT *

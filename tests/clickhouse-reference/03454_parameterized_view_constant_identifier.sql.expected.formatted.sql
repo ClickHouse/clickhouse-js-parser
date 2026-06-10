@@ -3,9 +3,9 @@ DROP TABLE IF EXISTS c;
 CREATE VIEW c
 AS
 SELECT 3 AS result
-WHERE {a:Int16} = 0;
+WHERE 0 = 0;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     1,

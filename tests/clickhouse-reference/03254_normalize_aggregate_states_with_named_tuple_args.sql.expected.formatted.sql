@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_named_columns_in_function_tuple = 1;
+SET enable_named_columns_in_function_tuple = '1';
 
 SELECT * APPLY(finalizeAggregation)
 FROM (
-        WITH (1, 2)::Tuple(a int, b int) AS nt
+        WITH CAST('(1, 2)' AS Tuple(a int, b int)) AS nt
 
         SELECT
             uniqState(nt)::AggregateFunction(uniq, Tuple(int, int)) AS x,
@@ -25,7 +25,7 @@ CREATE TABLE users
     city String,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE users2
 (
@@ -33,7 +33,7 @@ CREATE TABLE users2
     city_name_uniq AggregateFunction(uniq, Tuple(String, String))
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (id);
+ORDER BY id;
 
 CREATE MATERIALIZED VIEW test_mv
 TO users2

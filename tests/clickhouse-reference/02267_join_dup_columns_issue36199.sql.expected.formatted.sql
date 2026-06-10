@@ -1,4 +1,4 @@
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SET join_algorithm = 'hash';
 
@@ -107,4 +107,4 @@ RIGHT JOIN (
 
 SET join_algorithm = 'partial_merge';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

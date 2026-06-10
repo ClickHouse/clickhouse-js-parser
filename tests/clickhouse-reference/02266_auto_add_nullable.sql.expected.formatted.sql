@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS `02266_auto_add_nullable`;
 
@@ -11,7 +11,7 @@ CREATE TABLE `02266_auto_add_nullable`
     val4 LowCardinality(Int8) DEFAULT NULL,
     val5 LowCardinality(Nullable(Int8)) DEFAULT NULL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DESCRIBE TABLE `02266_auto_add_nullable`;

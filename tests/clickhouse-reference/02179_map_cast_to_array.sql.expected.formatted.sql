@@ -4,8 +4,8 @@ WITH map(1, 'Test') AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, 'Test') AS value,
 
@@ -13,8 +13,8 @@ WITH map(1, 'Test') AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type); --{serverError CANNOT_PARSE_TEXT}
+    CAST(value, type),
+    CAST(materialize(value), type); --{serverError CANNOT_PARSE_TEXT}
 
 WITH map(1, '1234') AS value,
 
@@ -22,8 +22,8 @@ WITH map(1, '1234') AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, [1, 2, 3]) AS value,
 
@@ -31,8 +31,8 @@ WITH map(1, [1, 2, 3]) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, ['1', '2', '3']) AS value,
 
@@ -40,8 +40,8 @@ WITH map(1, ['1', '2', '3']) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, map(1, '1234')) AS value,
 
@@ -49,8 +49,8 @@ WITH map(1, map(1, '1234')) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, map(1, '1234')) AS value,
 
@@ -58,8 +58,8 @@ WITH map(1, map(1, '1234')) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, map(1, '1234')) AS value,
 
@@ -67,8 +67,8 @@ WITH map(1, map(1, '1234')) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, map(1, '1234')) AS value,
 
@@ -76,11 +76,11 @@ WITH map(1, map(1, '1234')) AS value,
 
 SELECT
     value,
-    cast(value, type),
-    cast(materialize(value), type);
+    CAST(value, type),
+    CAST(materialize(value), type);
 
 WITH map(1, 'val1', 2, 'val2') AS map
 
 SELECT
-    CAST(map, 'Array(Tuple(k UInt32, v String))') AS c,
+    CAST(map AS Array(Tuple(k UInt32, v String))) AS c,
     toTypeName(c);

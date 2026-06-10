@@ -19,19 +19,18 @@ INSERT INTO test SELECT
     '22'
 FROM numbers(30);
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
-ALTER TABLE test UPDATE d = concat(d, toString(sleepEachRow(0.1))) WHERE 1;
+ALTER TABLE test UPDATE d = d || toString(sleepEachRow(0.1)) WHERE 1;
 
-ALTER TABLE test ADD PROJECTION d_order (SELECT min(c_id)
-GROUP BY d);
+ALTER TABLE test ADD PROJECTION d_order (SELECT min(c_id) GROUP BY d);
 
 ALTER TABLE test MATERIALIZE PROJECTION d_order;
 
-ALTER TABLE test DROP PROJECTION d_order SETTINGS mutations_sync = 2; --{serverError BAD_ARGUMENTS}
+ALTER TABLE test DROP PROJECTION d_order SETTINGS mutations_sync = '2'; --{serverError BAD_ARGUMENTS}
 
 -- just to wait prev mutation
-ALTER TABLE test DELETE WHERE d = 'Hello' SETTINGS mutations_sync = 2;
+ALTER TABLE test DELETE WHERE d = 'Hello' SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM test

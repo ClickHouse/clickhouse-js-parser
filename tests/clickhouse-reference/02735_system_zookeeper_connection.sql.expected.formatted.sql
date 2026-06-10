@@ -19,8 +19,9 @@ SELECT
     index,
     is_expired,
     keeper_api_version,
-    (and(greaterOrEquals(connected_time, yesterday()), lessOrEquals(connected_time, now() + toIntervalSecond(3)))),
-    (abs(session_uptime_elapsed_seconds - zookeeperSessionUptime()) < 10),
+    connected_time >= yesterday()
+    AND connected_time <= now() + toIntervalSecond(3),
+    abs(session_uptime_elapsed_seconds - zookeeperSessionUptime()) < 10,
     enabled_feature_flags
 FROM `system`.zookeeper_connection
 WHERE name = 'default';
@@ -35,6 +36,7 @@ SELECT
     index,
     is_expired,
     keeper_api_version,
-    (and(greaterOrEquals(connected_time, yesterday()), lessOrEquals(connected_time, now() + toIntervalSecond(3))))
+    connected_time >= yesterday()
+    AND connected_time <= now() + toIntervalSecond(3)
 FROM `system`.zookeeper_connection
 WHERE name != 'default';

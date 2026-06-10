@@ -4,14 +4,14 @@ CREATE TABLE test_00209
 (
     x UInt8
 )
-ENGINE = Log;
+ENGINE = Log();
 
-SET enable_positional_arguments = 0;
+SET enable_positional_arguments = '0';
 
 INSERT INTO test_00209 SELECT 1 AS x;
 
 INSERT INTO test_00209 SELECT 1 AS x
-SETTINGS extremes = 1;
+SETTINGS extremes = '1';
 
 INSERT INTO test_00209 SELECT 1 AS x
 GROUP BY 1
@@ -20,7 +20,7 @@ WITH TOTALS;
 INSERT INTO test_00209 SELECT 1 AS x
 GROUP BY 1
 WITH TOTALS
-SETTINGS extremes = 1;
+SETTINGS extremes = '1';
 
 SELECT
     count(),

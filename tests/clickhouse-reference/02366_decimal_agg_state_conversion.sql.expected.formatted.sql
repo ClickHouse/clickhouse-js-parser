@@ -1,6 +1,6 @@
 SELECT sumMerge(y)
 FROM (
-        SELECT cast(x, 'AggregateFunction(sum, Decimal(50, 10))') AS y
+        SELECT CAST(x AS AggregateFunction(sum, Decimal(50, 10))) AS y
         FROM (
                 SELECT arrayReduce('sumState', [toDecimal256('0.000001', 10), toDecimal256('1.1', 10)]) AS x
             )
@@ -8,7 +8,7 @@ FROM (
 
 SELECT minMerge(y)
 FROM (
-        SELECT cast(x, 'AggregateFunction(min, Decimal(18, 10))') AS y
+        SELECT CAST(x AS AggregateFunction(min, Decimal(18, 10))) AS y
         FROM (
                 SELECT arrayReduce('minState', [toDecimal64('0.000001', 10), toDecimal64('1.1', 10)]) AS x
             )
@@ -25,7 +25,7 @@ CREATE TABLE consumer_02366
     id UInt16,
     dec AggregateFunction(argMin, Decimal(24, 10), UInt16)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 PRIMARY KEY id
 ORDER BY id;
 
@@ -34,7 +34,7 @@ CREATE TABLE producer_02366
     id UInt16,
     dec String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY id
 ORDER BY id;
 

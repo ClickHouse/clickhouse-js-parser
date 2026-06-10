@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test1;
 
@@ -13,21 +13,21 @@ CREATE TABLE test1
     a UInt64,
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test2
 (
     a UInt64,
     c UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test3
 (
     a UInt64,
     d UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test_merge
 (

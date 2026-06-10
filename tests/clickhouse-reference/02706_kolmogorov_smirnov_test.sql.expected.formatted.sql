@@ -5,7 +5,7 @@ CREATE TABLE kstest
     `left` Float64,
     `right` Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO kstest;
 

@@ -10,12 +10,12 @@ SELECT
 
 SELECT
     ['1', '2'] AS arr1,
-    [1,2] AS arr2,
+    [1, 2] AS arr2,
     round(arrayJaccardIndex(arr1, arr2), 2); -- { serverError NO_COMMON_TYPE }
 
 SELECT
-    [1,2] AS arr1,
-    [1,2,3,4] AS arr2,
+    [1, 2] AS arr1,
+    [1, 2, 3, 4] AS arr2,
     round(arrayJaccardIndex(arr1, arr2), 2);
 
 SELECT
@@ -34,8 +34,8 @@ SELECT
     round(arrayJaccardIndex(arr1, arr2), 2);
 
 SELECT
-    [[1,2], [3,4]] AS arr1,
-    [[1,2], [3,5]] AS arr2,
+    [[1, 2], [3, 4]] AS arr1,
+    [[1, 2], [3, 5]] AS arr2,
     round(arrayJaccardIndex(arr1, arr2), 2);
 
 DROP TABLE IF EXISTS array_jaccard_index;
@@ -44,7 +44,7 @@ CREATE TABLE array_jaccard_index
 (
     arr Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY arr;
 
 INSERT INTO array_jaccard_index;
@@ -55,7 +55,7 @@ INSERT INTO array_jaccard_index;
 
 SELECT
     arr,
-    [1,2] AS other,
+    [1, 2] AS other,
     round(arrayJaccardIndex(arr, other), 2)
 FROM array_jaccard_index
 ORDER BY arr ASC;
@@ -68,7 +68,7 @@ FROM array_jaccard_index
 ORDER BY arr ASC;
 
 SELECT
-    [1,2] AS other,
+    [1, 2] AS other,
     arr,
     round(arrayJaccardIndex(other, arr), 2)
 FROM array_jaccard_index

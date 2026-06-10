@@ -5,7 +5,7 @@ CREATE TABLE polygons_test_table
     key Array(Array(Array(Tuple(Float64, Float64)))),
     name String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO polygons_test_table;
 
@@ -18,7 +18,7 @@ CREATE DICTIONARY polygons_test_dictionary_no_option
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE 'polygons_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(POLYGON());
 
 SELECT *
@@ -33,7 +33,7 @@ CREATE DICTIONARY polygons_test_dictionary
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE 'polygons_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(POLYGON(STORE_POLYGON_KEY_COLUMN 1));
 
 SELECT *

@@ -3,44 +3,46 @@
 -- Checks by the predicate evaluation order in EXPLAIN. This is quite fragile, a better approach would be helpful (maybe 'send_logs_level'?)
 DROP TABLE IF EXISTS tab;
 
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
-SET use_statistics = 1;
+SET use_statistics = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET materialize_statistics_on_insert = 0;
+SET materialize_statistics_on_insert = '0';
 
 CREATE TABLE tab
 (
-    a Int64 STATISTICS(tdigest),
-    b Int16 STATISTICS(tdigest)
+    a Int64 STATISTICS(tdigest()),
+    b Int16 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0, enable_vertical_merge_algorithm = 0; -- TODO: there is a bug in vertical merge with statistics.
+SETTINGS min_bytes_for_wide_part = '0', enable_vertical_merge_algorithm = '0'; -- TODO: there is a bug in vertical merge with statistics.
 
 INSERT INTO tab SELECT
     number,
-    negate(number)
+    -number
 FROM `system`.numbers
 LIMIT 10000;
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT count(*)
-        FROM tab
-        WHERE b < 10
-            AND a < 10
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count(*)
+                FROM tab
+                WHERE b < 10
+                    AND a < 10
+            ))
     )
-WHERE like(`explain`, '%Prewhere%'); -- checks b first, then a (statistics not used)
+WHERE `explain` LIKE '%Prewhere%'; -- checks b first, then a (statistics not used)
 
 OPTIMIZE TABLE tab FINAL;
 
 TRUNCATE TABLE tab;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE tab MATERIALIZE STATISTICS a, b;
 

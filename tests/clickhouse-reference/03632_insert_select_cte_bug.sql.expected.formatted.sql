@@ -1,10 +1,10 @@
-SET enable_analyzer = 1; -- parallel distributed insert select for replicated tables works only with analyzer
+SET enable_analyzer = '1'; -- parallel distributed insert select for replicated tables works only with analyzer
 
-SET parallel_distributed_insert_select = 2;
+SET parallel_distributed_insert_select = '2';
 
-SET enable_global_with_statement = 1;
+SET enable_global_with_statement = '1';
 
-DROP TABLE IF EXISTS test_insert;
+DROP TABLE IF EXISTS test_insert SYNC;
 
 CREATE TABLE test_insert
 (
@@ -12,7 +12,7 @@ CREATE TABLE test_insert
     c2 UInt8
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_03632/tables/test_insert', '{replica}')
-ORDER BY tuple();
+ORDER BY ();
 
 INSERT INTO test_insert WITH cte_test AS (
     SELECT

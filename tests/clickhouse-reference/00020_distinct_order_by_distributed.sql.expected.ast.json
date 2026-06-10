@@ -1,84 +1,99 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_sort",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_sort": "10000"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful, distributed"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "distinct": {
-          "kind": "distinct"
-        },
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "PredLastVisit"
-              ]
-            },
-            "alias": "x"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "remote",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "127.0.0.{1,2}"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "test"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "VisitID"
-              ]
-            },
-            "direction": "ASC"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "distinct": true,
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "alias": "x",
+                              "name": "PredLastVisit"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "remote",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "127.0.0.{1,2}"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "test"
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "visits"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "VisitID"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   }
 ]

@@ -6,7 +6,7 @@ CREATE TABLE t_02559
     b Int64,
     c Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO t_02559 SELECT
@@ -15,7 +15,7 @@ INSERT INTO t_02559 SELECT
     number
 FROM numbers(3);
 
-SET enable_multiple_prewhere_read_steps = 1;
+SET enable_multiple_prewhere_read_steps = '1';
 
 -- { echoOn }
 SELECT a
@@ -32,13 +32,13 @@ SELECT sin(a) < a
 FROM t_02559
 PREWHERE sin(a) < b
     AND sin(a) < c
-    AND sin(a) > negate(a);
+    AND sin(a) > -a;
 
 SELECT sin(a) < a
 FROM t_02559
 PREWHERE sin(a) < b
     AND a <= c
-    AND sin(a) > negate(a);
+    AND sin(a) > -a;
 
 -- {echoOff}
 DROP TABLE t_02559;

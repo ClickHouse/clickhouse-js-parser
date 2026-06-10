@@ -6,7 +6,7 @@ CREATE TABLE series__fuzz_35
     x_value Decimal(18, 14),
     y_value DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO series__fuzz_35 (i, x_value, y_value);
 

@@ -5,8 +5,8 @@ CREATE TABLE datetime64_issue
     dtn Nullable(DateTime64(3))
 )
 ENGINE = MergeTree()
-ORDER BY id
-PRIMARY KEY id;
+PRIMARY KEY id
+ORDER BY id;
 
 INSERT INTO datetime64_issue (id, dt, dtn);
 

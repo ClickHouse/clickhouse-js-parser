@@ -47,78 +47,78 @@ ENGINE = MergeTree()
 ORDER BY id;
 
 -- Set max_insert_block_size_bytes smaller than max_insert_block_size (rows)
-SET max_insert_block_size_rows = 100000000;
+SET max_insert_block_size_rows = '100000000';
 
-SET max_insert_block_size_bytes = 8;
+SET max_insert_block_size_bytes = '8';
 
 -- Turn off squashing
-SET min_insert_block_size_rows = 0;
+SET min_insert_block_size_rows = '0';
 
-SET min_insert_block_size_bytes = 0;
+SET min_insert_block_size_bytes = '0';
 
-INSERT INTO test_max_insert_bytes;
+INSERT INTO test_max_insert_bytes FORMAT CSV;
 
 -- Set min_insert_block_size_rows and min_insert_block_size_bytes to 2 and 16 so that blocks are formed by 2
-SET min_insert_block_size_rows = 2;
+SET min_insert_block_size_rows = '2';
 
-SET min_insert_block_size_bytes = 16;
+SET min_insert_block_size_bytes = '16';
 
-INSERT INTO test_min_insert_rows_bytes;
+INSERT INTO test_min_insert_rows_bytes FORMAT CSV;
 
-INSERT INTO test_min_insert_rows;
+INSERT INTO test_min_insert_rows FORMAT CSV;
 
-SET min_insert_block_size_bytes = 32;
+SET min_insert_block_size_bytes = '32';
 
-INSERT INTO test_min_insert_bytes;
+INSERT INTO test_min_insert_bytes FORMAT CSV;
 
 -- We expect to see 8 parts inserted
 SELECT count()
 FROM `system`.part_log
 WHERE table = 'test_max_insert_bytes'
     AND event_type = 'NewPart'
-    AND (query_id = (
+    AND query_id = (
         SELECT argMax(query_id, event_time)
         FROM `system`.query_log
-        WHERE like(query, '%INSERT INTO test_max_insert_bytes FORMAT CSV%')
+        WHERE query LIKE '%INSERT INTO test_max_insert_bytes FORMAT CSV%'
             AND type = 'QueryFinish'
             AND current_database = currentDatabase()
-    ));
+    );
 
 -- We expect to see 4 parts inserted
 SELECT count()
 FROM `system`.part_log
 WHERE table = 'test_min_insert_rows_bytes'
     AND event_type = 'NewPart'
-    AND (query_id = (
+    AND query_id = (
         SELECT argMax(query_id, event_time)
         FROM `system`.query_log
-        WHERE like(query, '%INSERT INTO test_min_insert_rows_bytes FORMAT CSV%')
+        WHERE query LIKE '%INSERT INTO test_min_insert_rows_bytes FORMAT CSV%'
             AND type = 'QueryFinish'
             AND current_database = currentDatabase()
-    ));
+    );
 
 -- We expect to see 2 parts inserted
 SELECT count()
 FROM `system`.part_log
 WHERE table = 'test_min_insert_rows'
     AND event_type = 'NewPart'
-    AND (query_id = (
+    AND query_id = (
         SELECT argMax(query_id, event_time)
         FROM `system`.query_log
-        WHERE like(query, '%INSERT INTO test_min_insert_rows FORMAT CSV%')
+        WHERE query LIKE '%INSERT INTO test_min_insert_rows FORMAT CSV%'
             AND type = 'QueryFinish'
             AND current_database = currentDatabase()
-    ));
+    );
 
 -- We expect to see 2 parts inserted
 SELECT count()
 FROM `system`.part_log
 WHERE table = 'test_min_insert_bytes'
     AND event_type = 'NewPart'
-    AND (query_id = (
+    AND query_id = (
         SELECT argMax(query_id, event_time)
         FROM `system`.query_log
-        WHERE like(query, '%INSERT INTO test_min_insert_bytes FORMAT CSV%')
+        WHERE query LIKE '%INSERT INTO test_min_insert_bytes FORMAT CSV%'
             AND type = 'QueryFinish'
             AND current_database = currentDatabase()
-    ));
+    );

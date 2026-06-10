@@ -3,11 +3,11 @@ CREATE TABLE test_memory
 (
     number UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_memory SELECT 42;
 
-DROP TABLE test_memory SETTINGS ignore_drop_queries_probability = 1;
+DROP TABLE test_memory SETTINGS ignore_drop_queries_probability = '1';
 
 SELECT *
 FROM test_memory;
@@ -18,12 +18,12 @@ CREATE TABLE test_merge_tree
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO test_merge_tree SELECT 42;
 
-DROP TABLE test_merge_tree SETTINGS ignore_drop_queries_probability = 1;
+DROP TABLE test_merge_tree SETTINGS ignore_drop_queries_probability = '1';
 
 SELECT *
 FROM test_merge_tree;
@@ -38,7 +38,7 @@ ENGINE = Join(`ALL`, `LEFT`, number);
 
 INSERT INTO test_join SELECT 42;
 
-DROP TABLE test_join SETTINGS ignore_drop_queries_probability = 1;
+DROP TABLE test_join SETTINGS ignore_drop_queries_probability = '1';
 
 SELECT *
 FROM test_join;

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS nested_map_multiple_values;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE nested_map_multiple_values
 (

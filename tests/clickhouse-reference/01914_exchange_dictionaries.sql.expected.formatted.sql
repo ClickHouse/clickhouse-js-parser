@@ -3,7 +3,7 @@
 DROP DATABASE IF EXISTS `01914_db`;
 
 CREATE DATABASE `01914_db`
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 DROP TABLE IF EXISTS `01914_db`.table_1;
 
@@ -12,7 +12,7 @@ CREATE TABLE `01914_db`.table_1
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS `01914_db`.table_2;
 
@@ -21,7 +21,7 @@ CREATE TABLE `01914_db`.table_2
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01914_db`.table_1;
 

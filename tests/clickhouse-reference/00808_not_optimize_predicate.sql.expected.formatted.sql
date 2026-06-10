@@ -1,8 +1,8 @@
 SET send_logs_level = 'fatal';
 
-SET convert_query_to_cnf = 0;
+SET convert_query_to_cnf = '0';
 
-SET allow_deprecated_error_prone_window_functions = 1;
+SET allow_deprecated_error_prone_window_functions = '1';
 
 DROP TABLE IF EXISTS test_00808;
 
@@ -21,7 +21,7 @@ INSERT INTO test_00808;
 
 INSERT INTO test_00808;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 SELECT '-------ENABLE OPTIMIZE PREDICATE-------';
 
@@ -50,7 +50,7 @@ FROM (
     )
 WHERE id = 1;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 SELECT *
 FROM (
@@ -76,7 +76,7 @@ FROM (
                     z
                 FROM
                     `system`.one
-                ARRAY JOIN [1,3,4,5,6] AS ts, [1,2,2,2,1] AS n, ['a', 'a', 'b', 'a', 'b'] AS z
+                ARRAY JOIN [1, 3, 4, 5, 6] AS ts, [1, 2, 2, 2, 1] AS n, ['a', 'a', 'b', 'a', 'b'] AS z
                 ORDER BY
                     n ASC,
                     ts DESC
@@ -84,7 +84,7 @@ FROM (
     )
 WHERE changed = 0;
 
-SELECT arrayJoin(arrayMap(x -> x, arraySort(groupArray((ts, n))))) AS k
+SELECT arrayJoin(arrayMap((x -> x), arraySort(groupArray((ts, n))))) AS k
 FROM (
         SELECT
             ts,
@@ -103,7 +103,7 @@ GROUP BY z;
 DROP TABLE IF EXISTS test_00808_push_down_with_finalizeAggregation;
 
 CREATE TABLE test_00808_push_down_with_finalizeAggregation
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY n AS
 SELECT
     intDiv(number, 25) AS n,
@@ -112,7 +112,7 @@ FROM numbers(2500)
 GROUP BY n
 ORDER BY n ASC;
 
-SET force_primary_key = 1, enable_optimize_predicate_expression = 1;
+SET force_primary_key = '1', enable_optimize_predicate_expression = '1';
 
 SELECT *
 FROM (
@@ -121,8 +121,8 @@ FROM (
             finalizeAggregation(s)
         FROM test_00808_push_down_with_finalizeAggregation
     )
-WHERE (n >= 2)
-    AND (n <= 5)
+WHERE n >= 2
+    AND n <= 5
 ORDER BY n ASC;
 
 EXPLAIN SYNTAX
@@ -133,5 +133,5 @@ FROM (
             finalizeAggregation(s)
         FROM test_00808_push_down_with_finalizeAggregation
     )
-WHERE (n >= 2)
-    AND (n <= 5);
+WHERE n >= 2
+    AND n <= 5;

@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS test_table;
 
 DROP TABLE IF EXISTS test_table_sharded;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_table_sharded
 (
@@ -17,7 +17,7 @@ ENGINE = Distributed(test_cluster_two_shards, currentDatabase(), test_table_shar
 
 SET distributed_product_mode = 'local';
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 INSERT INTO test_table;
 

@@ -1,176 +1,171 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "output_format_write_statistics",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "output_format_write_statistics": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "goals_alias",
-            "ID"
-          ]
-        },
-        "alias": "ym:s:goalDimension"
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "UserID"
-            ]
-          },
-          {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "!=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "UserID"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "alias": "ym:s:goalDimension",
+              "name": "goals_alias.ID",
+              "name_parts": [
+                "goals_alias",
+                "ID"
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                },
+                {
+                  "type": "Function",
+                  "name": "and",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "notEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "UserID"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "_uniq_Goals"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                },
-                "parenthesized": true
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "visits",
+                    "database": "test"
+                  }
+                }
               },
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "_uniq_Goals"
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "alias": "goals_alias",
+                      "name": "Goals"
+                    },
+                    {
+                      "type": "Function",
+                      "alias": "_uniq_Goals",
+                      "name": "arrayEnumerateUniq",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "Goals.ID",
+                          "name_parts": [
+                            "Goals",
+                            "ID"
+                          ]
+                        }
+                      ]
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "parenthesized": true
+                }
               }
             ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "visits"
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "Goals"
-            ]
           },
-          "alias": "goals_alias"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayEnumerateUniq",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "Goals",
-                  "ID"
-                ]
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "842440"
               }
             ]
           },
-          "alias": "_uniq_Goals"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "ym:s:goalDimension"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ym:s:goalDimension"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "offset": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "0"
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
         }
-      ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "842440"
-      },
-      "parenthesized": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ym:s:goalDimension"
-          ]
-        }
-      ]
-    },
-    "withTotals": true,
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ym:s:goalDimension"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "offset": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "1"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      },
-      "commaSyntax": true
-    },
-    "format": "JSONCompact"
+      ],
+      "format": "JSONCompact"
+    }
   }
 ]

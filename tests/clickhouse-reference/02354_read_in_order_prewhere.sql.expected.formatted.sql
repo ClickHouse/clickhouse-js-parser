@@ -11,13 +11,13 @@ ENGINE = MergeTree()
 ORDER BY (ID, Type, Num)
 PARTITION BY toYYYYMMDD(t);
 
-SYSTEM stop merges order;
+SYSTEM STOP MERGES `order`;
 
 INSERT INTO `order` SELECT
     number % 2000,
     1,
     number,
-    (1656700561 - intDiv(intHash32(number), 1000))
+    1656700561 - intDiv(intHash32(number), 1000)
 FROM numbers(100000);
 
 SELECT Num

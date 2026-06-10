@@ -17,8 +17,9 @@ ORDER BY
     k ASC,
     number ASC,
     k ASC
-LIMIT 1023, 1023
+LIMIT 1023
+OFFSET 1023
 SETTINGS
-    max_bytes_before_external_sort = 1000000,
-    max_bytes_ratio_before_external_sort = 0
+    max_bytes_before_external_sort = '1000000',
+    max_bytes_ratio_before_external_sort = '0'
 FORMAT Null;

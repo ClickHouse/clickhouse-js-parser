@@ -1,6 +1,6 @@
 SET join_algorithm = 'partial_merge';
 
-SET max_joined_block_size_rows = 100;
+SET max_joined_block_size_rows = '100';
 
 SELECT
     count(ignore(*)),

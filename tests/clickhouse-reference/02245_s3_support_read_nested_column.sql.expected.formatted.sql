@@ -5,9 +5,9 @@ DROP TABLE IF EXISTS test_02245_s3_nested_parquet1;
 
 DROP TABLE IF EXISTS test_02245_s3_nested_parquet2;
 
-SET input_format_parquet_import_nested = 1;
+SET input_format_parquet_import_nested = '1';
 
-SET s3_truncate_on_insert = 1;
+SET s3_truncate_on_insert = '1';
 
 CREATE TABLE test_02245_s3_nested_parquet1
 (
@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS test_02245_s3_nested_arrow1;
 
 DROP TABLE IF EXISTS test_02245_s3_nested_arrow2;
 
-SET input_format_arrow_import_nested = 1;
+SET input_format_arrow_import_nested = '1';
 
 CREATE TABLE test_02245_s3_nested_arrow1
 (
@@ -85,7 +85,7 @@ DROP TABLE IF EXISTS test_02245_s3_nested_orc1;
 
 DROP TABLE IF EXISTS test_02245_s3_nested_orc2;
 
-SET input_format_orc_import_nested = 1;
+SET input_format_orc_import_nested = '1';
 
 CREATE TABLE test_02245_s3_nested_orc1
 (

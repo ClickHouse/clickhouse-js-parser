@@ -3,13 +3,13 @@ CREATE TABLE tba
     event_id Int64,
     event_dt Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY event_id;
 
 INSERT INTO tba SELECT
     number % 500,
     20220822
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT count()
 FROM (
@@ -22,8 +22,8 @@ FROM (
                         SELECT event_dt
                         FROM tba AS tba
                         WHERE event_id = 9
-                            AND ((tba.event_dt >= 20220822
-                            AND tba.event_dt <= 20220822))
+                            AND (tba.event_dt >= 20220822
+                            AND tba.event_dt <= 20220822)
                     )
             ) AS tba
         WHERE tba.event_dt >= 20220822

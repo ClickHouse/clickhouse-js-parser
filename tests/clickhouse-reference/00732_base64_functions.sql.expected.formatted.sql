@@ -30,11 +30,11 @@ FROM (
 
 SELECT
     base64Decode(base64Encode('foo')) = 'foo',
-    base64Encode(base64Decode('Zm9v')) == 'Zm9v';
+    base64Encode(base64Decode('Zm9v')) = 'Zm9v';
 
 SELECT
     tryBase64Decode(base64Encode('foo')) = 'foo',
-    base64Encode(tryBase64Decode('Zm9v')) == 'Zm9v';
+    base64Encode(tryBase64Decode('Zm9v')) = 'Zm9v';
 
 -- test with invalid inputs
 SELECT base64Decode('Zm9vYmF=Zm9v'); -- { serverError INCORRECT_DATA }

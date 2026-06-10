@@ -1,1739 +1,3092 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_graphite"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Use DateTime('UTC') to have a common rollup window"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_graphite"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Path",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Time",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Value",
-        "type": {
-          "name": "Float64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Version",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "col",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "GraphiteMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "graphite_rollup"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "joined_subquery_requires_alias",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_graphite"
-      }
-    },
-    "selectQuery": {
-      "kind": "union",
-      "queries": [
-        {
-          "kind": "select",
-          "with": [
-            {
-              "kind": "cteSubquery",
-              "name": "dates",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "functionCall",
-                      "name": "toStartOfDay",
-                      "args": [
-                        {
-                          "kind": "functionCall",
-                          "name": "toDateTime",
-                          "args": [
-                            {
-                              "kind": "functionCall",
-                              "name": "now",
-                              "args": [
-                                {
-                                  "kind": "literal",
-                                  "type": "String",
-                                  "value": "UTC"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "literal",
-                              "type": "String",
-                              "value": "UTC"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    "alias": "today"
-                  },
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "binaryExpr",
-                      "op": "-",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "today"
-                        ]
-                      },
-                      "right": {
-                        "kind": "functionCall",
-                        "name": "toIntervalDay",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "3"
-                          }
-                        ]
-                      }
-                    },
-                    "alias": "older_date"
-                  }
-                ]
-              }
+        "type": "Identifier",
+        "name": "test_graphite"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_graphite"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
-          ],
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "key",
-              "leadingComments": [
-                "-- Newer than 2 days are kept in windows of 600 seconds"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "sum_1"
-              },
-              "alias": "s"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Path",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "today"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "300"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "key"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "sum_1"
-              },
-              "alias": "s"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
                 }
               ]
             }
           },
-          "leadingComments": [
-            "-- Older than 2 days use 6000 second windows"
+          {
+            "type": "ColumnDeclaration",
+            "name": "Value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Version",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "col",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "GraphiteMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "graphite_rollup"
+            }
           ]
         },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
         },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "10"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "joined_subquery_requires_alias": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_graphite"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
                     ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
                   }
                 }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
               }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "alias": "s",
+                "value_type": "String",
+                "value": "sum_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
             }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "today"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "300"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "alias": "s",
+                "value_type": "String",
+                "value": "sum_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sum_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_1"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "dates",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "today",
+                            "name": "toStartOfDay",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "toDateTime",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "now",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UTC"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "UTC"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "alias": "older_date",
+                            "name": "minus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "today"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "toIntervalDay",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "max_2"
+              },
+              {
+                "type": "Function",
+                "name": "minus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "older_date"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "60"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "30"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dates"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "COMMA"
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1200"
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
             }
           }
-        },
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "Identifier",
+              "name": "key"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "sum_2"
+              "type": "Identifier",
+              "name": "Path"
             },
             {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
+              "type": "Identifier",
+              "name": "Value"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "Version"
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "col"
             }
           ],
           "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_graphite"
                   },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
+                  "final": true
                 }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
               }
-            },
+            ]
+          },
+          "order_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_1"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
+              "direction": "ASC"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Path"
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
+              "direction": "ASC"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "max_2"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "-",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "-",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "older_date"
-                  ]
-                },
-                "right": {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "60"
-                  }
-                }
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Time"
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "30"
-              }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "direction": "DESC"
             }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "dates"
-            },
-            "kind": "joinExpr",
-            "joinType": "CROSS",
-            "right": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1200"
-                }
-              ]
-            }
-          }
+          ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_graphite"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Path"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Version"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "col"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_graphite",
       "final": true
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Path"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_graphite"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "Path"
+            },
+            {
+              "type": "Identifier",
+              "name": "Value"
+            },
+            {
+              "type": "Identifier",
+              "name": "Version"
+            },
+            {
+              "type": "Identifier",
+              "name": "col"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_graphite"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Path"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "Time"
+              },
+              "direction": "DESC"
+            }
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Path"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "Version"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "col"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_graphite"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_graphite"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Path"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "Time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_graphite"
     }
   }
 ]

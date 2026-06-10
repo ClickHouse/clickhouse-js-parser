@@ -4,7 +4,7 @@ CREATE TABLE t0
 (
     c0 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT 1
 FROM
@@ -14,6 +14,6 @@ INNER JOIN t0 AS t1
 RIGHT JOIN t0 AS t2
     ON false;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE t0;

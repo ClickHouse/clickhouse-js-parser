@@ -7,7 +7,7 @@ CREATE TABLE rate_test
     timestamp UInt32,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO rate_test;
 
@@ -16,7 +16,7 @@ CREATE TABLE rate_test2
     timestamp UInt32,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT boundingRatioMerge(state)
 FROM (

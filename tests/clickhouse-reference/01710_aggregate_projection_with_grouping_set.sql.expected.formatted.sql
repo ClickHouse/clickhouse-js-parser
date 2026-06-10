@@ -4,15 +4,9 @@ CREATE TABLE test
 (
     dim1 String,
     dim2 String,
-    PROJECTION p1 (    SELECT
-        dim1,
-        dim2,
-        count()
-    GROUP BY
-        dim1,
-        dim2)
+    PROJECTION p1 (SELECT dim1, dim2, count() GROUP BY dim1, dim2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dim1;
 
 INSERT INTO test;

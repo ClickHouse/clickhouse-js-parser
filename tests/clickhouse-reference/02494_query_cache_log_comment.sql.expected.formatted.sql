@@ -5,13 +5,13 @@ SYSTEM CLEAR QUERY CACHE;
 
 SELECT 1
 SETTINGS
-    use_query_cache = 1,
+    use_query_cache = '1',
     log_comment = 'aaa'
 FORMAT Null;
 
 SELECT 1
 SETTINGS
-    use_query_cache = 1,
+    use_query_cache = '1',
     log_comment = 'bbb'
 FORMAT Null;
 
@@ -25,5 +25,5 @@ FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_time > now() - 600
     AND current_database = currentDatabase()
-    AND like(query, 'SELECT 1 SETTINGS use_query_cache%')
+    AND query LIKE 'SELECT 1 SETTINGS use_query_cache%'
 ORDER BY event_time_microseconds ASC;

@@ -1,9 +1,9 @@
 -- Tags: shard
 -- Limit to 100 KB/sec
-SET max_network_bandwidth = 100000;
+SET max_network_bandwidth = '100000';
 
 -- Lower max_block_size, so we can start throttling sooner. Otherwise query will be executed too quickly.
-SET max_block_size = 100;
+SET max_block_size = '100';
 
 CREATE TEMPORARY TABLE times
 (

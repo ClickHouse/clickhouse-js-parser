@@ -3,31 +3,31 @@ CREATE TABLE bftest
     k Int64,
     y Array(Int64) DEFAULT x,
     x Array(Int64),
-    INDEX ix1 x TYPE bloom_filter GRANULARITY 3
+    INDEX ix1 x TYPE bloom_filter() GRANULARITY 3
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k;
 
 INSERT INTO bftest (k, x) SELECT
     number,
-    arrayMap(i -> rand64() % 565656, range(10))
+    arrayMap((i -> rand64() % 565656), range(10))
 FROM numbers(1000);
 
 -- index is not used, but query should still work
 SELECT count()
 FROM bftest
-WHERE hasAny(x, materialize([1,2,3]))
+WHERE hasAny(x, materialize([1, 2, 3]))
 FORMAT Null;
 
 -- verify the expression in WHERE works on non-index col the same way as on index cols
 SELECT count()
 FROM bftest
-WHERE hasAny(y, [NULL,-42])
+WHERE hasAny(y, [NULL, -42])
 FORMAT Null;
 
 SELECT count()
 FROM bftest
-WHERE hasAny(y, [0,NULL])
+WHERE hasAny(y, [0, NULL])
 FORMAT Null;
 
 SELECT count()
@@ -50,7 +50,7 @@ FORMAT Null;
 
 SELECT count()
 FROM bftest
-WHERE hasAny(x, [42,-42])
+WHERE hasAny(x, [42, -42])
 FORMAT Null;
 
 SELECT count()
@@ -66,18 +66,18 @@ FORMAT Null;
 -- can't use bloom_filter with `hasAny` on non-constant arguments (just like `has`)
 SELECT count()
 FROM bftest
-WHERE hasAny(x, [1,2,k])
+WHERE hasAny(x, [1, 2, k])
 FORMAT Null; -- { serverError INDEX_NOT_USED }
 
 -- NULLs are not Ok
 SELECT count()
 FROM bftest
-WHERE hasAny(x, [NULL,-42])
+WHERE hasAny(x, [NULL, -42])
 FORMAT Null; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM bftest
-WHERE hasAny(x, [0,NULL])
+WHERE hasAny(x, [0, NULL])
 FORMAT Null; -- { serverError INDEX_NOT_USED }
 
 -- non-compatible types

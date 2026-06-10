@@ -1,16 +1,16 @@
-SET schema_inference_make_columns_nullable = 1;
+SET schema_inference_make_columns_nullable = '1';
 
-SET input_format_json_try_infer_named_tuples_from_objects = 0;
+SET input_format_json_try_infer_named_tuples_from_objects = '0';
 
-SET input_format_json_read_objects_as_strings = 0;
+SET input_format_json_read_objects_as_strings = '0';
 
-SET input_format_json_infer_incomplete_types_as_strings = 0;
+SET input_format_json_infer_incomplete_types_as_strings = '0';
 
-SET input_format_json_read_numbers_as_strings = 0;
+SET input_format_json_read_numbers_as_strings = '0';
 
-SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = 0;
+SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = '0';
 
-DESCRIBE TABLE format(JSONEachRow, '{"x" : 1234}, {"x" : "String"}') SETTINGS input_format_json_try_infer_numbers_from_strings = 1; -- { serverError CANNOT_EXTRACT_TABLE_STRUCTURE }
+DESCRIBE TABLE format(JSONEachRow, '{"x" : 1234}, {"x" : "String"}') SETTINGS input_format_json_try_infer_numbers_from_strings = '1'; -- { serverError CANNOT_EXTRACT_TABLE_STRUCTURE }
 
 DESCRIBE TABLE format(JSONEachRow, '{"x" : [null, 1]}');
 
@@ -44,7 +44,7 @@ DESCRIBE TABLE format(JSONEachRow, '{"x" : [1, 2]}, {"x" : [3]}');
 
 DESCRIBE TABLE format(JSONEachRow, '{"x" : [1, 2]}, {"x" : [null]}');
 
-DESCRIBE TABLE format(JSONCompactEachRow, '[1234], ["String"]') SETTINGS input_format_json_try_infer_numbers_from_strings = 1; -- { serverError CANNOT_EXTRACT_TABLE_STRUCTURE }
+DESCRIBE TABLE format(JSONCompactEachRow, '[1234], ["String"]') SETTINGS input_format_json_try_infer_numbers_from_strings = '1'; -- { serverError CANNOT_EXTRACT_TABLE_STRUCTURE }
 
 DESCRIBE TABLE format(JSONCompactEachRow, '[[null, 1]]');
 
@@ -100,8 +100,8 @@ DESCRIBE TABLE format(CSV, '"[1, 2]"\n"[3]"');
 
 DESCRIBE TABLE format(CSV, '"[1, 2]"\n"[null]"');
 
-SET schema_inference_make_columns_nullable = 0;
+SET schema_inference_make_columns_nullable = '0';
 
 DESCRIBE TABLE format(CSV, '\\N,\\N,1\nb,\\N,1');
 
-SET schema_inference_make_columns_nullable = 3;
+SET schema_inference_make_columns_nullable = '3';

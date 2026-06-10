@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT 1 IN (1);
 
@@ -14,7 +14,7 @@ SELECT (1, 1) IN ((1, 1), (1, 2));
 
 SELECT (1, 1) IN ((1, 2), (1, 2));
 
-SELECT 1 IN (((1), (2)));
+SELECT 1 IN ((1), 2);
 
 SELECT '--';
 
@@ -40,6 +40,8 @@ SELECT (
         SELECT 1
     ) IN (1);
 
-SELECT in(untuple(((1), (1))));
+SELECT in(untuple(((1), 1)));
 
-SELECT in(untuple(((select 1), (1))));
+SELECT in(untuple(((
+        SELECT 1
+    ), 1)));

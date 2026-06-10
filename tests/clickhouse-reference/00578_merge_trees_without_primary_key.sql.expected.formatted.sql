@@ -5,9 +5,9 @@ CREATE TABLE unsorted
     x UInt32,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS vertical_merge_algorithm_min_rows_to_activate = 0, vertical_merge_algorithm_min_columns_to_activate = 0;
+SETTINGS vertical_merge_algorithm_min_rows_to_activate = '0', vertical_merge_algorithm_min_columns_to_activate = '0';
 
 INSERT INTO unsorted;
 

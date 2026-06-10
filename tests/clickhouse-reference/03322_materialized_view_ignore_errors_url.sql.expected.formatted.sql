@@ -8,7 +8,7 @@ CREATE TABLE src
 (
     x int
 )
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE TABLE dst
 (
@@ -21,9 +21,9 @@ AS
 SELECT *
 FROM src;
 
-INSERT INTO src SETTINGS materialized_views_ignore_errors = 0; -- { serverError POCO_EXCEPTION }
+INSERT INTO src SETTINGS materialized_views_ignore_errors = '0'; -- { serverError POCO_EXCEPTION }
 
-INSERT INTO src SETTINGS materialized_views_ignore_errors = 1;
+INSERT INTO src SETTINGS materialized_views_ignore_errors = '1';
 
 --- value 2 should be in src, value 1 could be in src
 SELECT *
@@ -37,4 +37,4 @@ DROP TABLE dst;
 DROP TABLE mv;
 
 -- Ensure this still fails
-INSERT INTO FUNCTION url('http://127.0.0.1/foo.tsv', 'TabSeparated', 'key Int') SETTINGS http_max_tries = 1, materialized_views_ignore_errors = 1; -- { serverError POCO_EXCEPTION }
+INSERT INTO FUNCTION url('http://127.0.0.1/foo.tsv', 'TabSeparated', 'key Int') SETTINGS http_max_tries = '1', materialized_views_ignore_errors = '1'; -- { serverError POCO_EXCEPTION }

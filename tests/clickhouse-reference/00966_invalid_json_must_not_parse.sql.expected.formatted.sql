@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET allow_simdjson = 1;
+SET allow_simdjson = '1';
 
 SELECT JSONLength('"HX-=');
 
@@ -11,4 +11,4 @@ SELECT JSONLength('{"success"test:"123"}');
 
 SELECT isValidJSON('{"success"test:"123"}');
 
-SET allow_simdjson = 0;
+SET allow_simdjson = '0';

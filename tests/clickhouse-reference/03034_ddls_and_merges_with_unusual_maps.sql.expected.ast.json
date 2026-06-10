@@ -1,437 +1,466 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tests maps with \"unusual\" key types (Float32, Nothing, LowCardinality(String))"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Map(Nothing, ...) is non-comparable --> not usable as primary key"
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "m1",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "AggregateFunction",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "sum"
-                    }
-                  },
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "UInt32"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "m1"
-          ]
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError DATA_TYPE_CANNOT_BE_USED_IN_KEY }"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "m3",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Nothing"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "leadingComments": [
-      "-- INSERT INTO tab VALUES (map('', 'd')); -- { serverError NOT_IMPLEMENTED } -- The client can't serialize the data and fails. The query",
-      "-- doesn't reach the server and we can't check via 'serverError' :-/"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "m1",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "m2",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "LowCardinality",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "m1"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "m2"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "mutations_sync": "2"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "final": true,
-    "leadingComments": [
-      "-- Test merge"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "m1"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "m2"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "m1",
-        "type": {
-          "name": "Map",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Map(Nothing, ...) is non-comparable --> not usable as primary key"
             }
           ]
         }
-      },
-      {
-        "kind": "columnDef",
-        "name": "m2",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "LowCardinality",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
+      ]
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "column": "m1",
-            "expr": {
-              "kind": "functionCall",
-              "name": "map",
-              "args": [
+            "type": "ColumnDeclaration",
+            "name": "m1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "3.0"
+                  "type": "DataType",
+                  "name": "String"
                 },
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "aaa"
+                  "type": "DataType",
+                  "name": "AggregateFunction",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "sum"
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "UInt32"
+                    }
+                  ]
                 }
               ]
             }
           }
-        ],
-        "where": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "m1"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "map",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "2.0"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "aa"
-              }
-            ]
-          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "m1"
         }
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "m3",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Nothing"
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "m1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "m2",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "LowCardinality",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "String"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "m1"
+            },
+            {
+              "type": "Identifier",
+              "name": "m2"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "m1"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "m2"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "m1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "m2",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "LowCardinality",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "String"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "m1"
+              },
+              {
+                "type": "Function",
+                "name": "map",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 2
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "aa"
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "m1",
+              "expression": {
+                "type": "Function",
+                "name": "map",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 3
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "aaa"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

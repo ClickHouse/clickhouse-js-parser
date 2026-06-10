@@ -16,14 +16,14 @@ CREATE TABLE t1_shard
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t2_shard
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t1_distr AS t1_shard
@@ -36,7 +36,7 @@ INSERT INTO t1_shard;
 
 INSERT INTO t2_shard;
 
-SET prefer_global_in_and_join = 1;
+SET prefer_global_in_and_join = '1';
 
 SELECT d0.id
 FROM

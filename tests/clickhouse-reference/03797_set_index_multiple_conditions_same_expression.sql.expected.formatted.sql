@@ -45,8 +45,8 @@ ORDER BY id ASC;
 -- Test with mixed AND/OR
 SELECT id
 FROM test_set_index_multiple_conditions
-WHERE (has(mapKeys(labels), 'a')
-    AND has(mapKeys(labels), 'b'))
+WHERE has(mapKeys(labels), 'a')
+    AND has(mapKeys(labels), 'b')
     OR has(mapKeys(labels), 'c')
 ORDER BY id ASC;
 

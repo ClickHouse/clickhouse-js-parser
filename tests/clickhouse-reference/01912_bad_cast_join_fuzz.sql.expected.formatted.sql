@@ -7,12 +7,12 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS s1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(number)) AS r
         FROM `system`.numbers
         LIMIT 7
     ) AS s2
-    ON (l + 1023) = (r * 3)
+    ON l + 1023 = r * 3
 ORDER BY
     l ASC,
     r ASC;

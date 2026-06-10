@@ -9,7 +9,7 @@ CREATE TABLE range_dictionary_nullable_source_table
     end_date Date,
     value Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO range_dictionary_nullable_source_table;
 

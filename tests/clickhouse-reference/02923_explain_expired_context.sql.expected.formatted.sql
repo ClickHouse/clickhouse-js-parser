@@ -6,14 +6,14 @@ FROM
         SELECT
             'bbbbbbbb',
             toTypeName(s),
-            CAST('', 'LowCardinality(String)'),
+            CAST('' AS LowCardinality(String)),
             NULL,
-            CAST('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0', 'String') AS s
+            CAST('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' AS String) AS s
     ) AS t1
 FULL JOIN (
         SELECT
-            CAST('bbbbb\0\0bbb\0bb\0bb', 'LowCardinality(String)'),
-            CAST(CAST('a', 'String'), 'LowCardinality(String)') AS s
+            CAST('bbbbb\0\0bbb\0bb\0bb' AS LowCardinality(String)),
+            CAST(CAST('a' AS String) AS LowCardinality(String)) AS s
         GROUP BY CoNnEcTiOn_Id()
     ) AS t2
     USING (s)

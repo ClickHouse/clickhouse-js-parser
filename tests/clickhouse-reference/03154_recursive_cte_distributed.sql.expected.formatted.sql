@@ -1,5 +1,5 @@
 -- Tags: shard
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_table
     id String,
     parent_id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -31,8 +31,8 @@ WITH RECURSIVE search_tree AS (
         arrayConcat(path, [t.id]) AS path,
         depth + 1
     FROM
-        test_table AS t
-    CROSS JOIN search_tree AS st
+        test_table AS t,
+        search_tree AS st
     WHERE t.parent_id = st.id
 )
 
@@ -59,8 +59,8 @@ WITH RECURSIVE search_tree AS (
         arrayConcat(path, [t.id]) AS path,
         depth + 1
     FROM
-        remote('127.0.0.1', currentDatabase(), test_table) AS t
-    CROSS JOIN search_tree AS st
+        remote('127.0.0.1', currentDatabase(), test_table) AS t,
+        search_tree AS st
     WHERE t.parent_id = st.id
 )
 
@@ -85,8 +85,8 @@ WITH RECURSIVE search_tree AS (
         arrayConcat(path, [t.id]) AS path,
         depth + 1
     FROM
-        remote('127.0.0.{1,2}', currentDatabase(), test_table) AS t
-    CROSS JOIN search_tree AS st
+        remote('127.0.0.{1,2}', currentDatabase(), test_table) AS t,
+        search_tree AS st
     WHERE t.parent_id = st.id
 )
 

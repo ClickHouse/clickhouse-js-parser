@@ -1,8 +1,8 @@
-CREATE FUNCTION unhexPrefixed AS value -> unhex(substring(value, 3));
+CREATE FUNCTION IF NOT EXISTS unhexPrefixed AS value -> unhex(substring(value, 3));
 
-CREATE FUNCTION hex2bytes AS address -> CAST(unhexPrefixed(address), 'FixedString(20)');
+CREATE FUNCTION IF NOT EXISTS hex2bytes AS address -> CAST(unhexPrefixed(address) AS FixedString(20));
 
-CREATE FUNCTION bytes2hex AS address -> concat('0x', lower(hex(address)));
+CREATE FUNCTION IF NOT EXISTS bytes2hex AS address -> concat('0x', lower(hex(address)));
 
 CREATE TABLE test
 (
@@ -12,7 +12,7 @@ CREATE TABLE test
     block_timestamp DateTime('UTC'),
     token_address FixedString(20)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (address, block_timestamp)
 ORDER BY (address, block_timestamp)
 PARTITION BY toYYYYMM(block_timestamp);
@@ -20,7 +20,7 @@ PARTITION BY toYYYYMM(block_timestamp);
 INSERT INTO test SELECT
     'token-transfer-0x758f1bbabb160683e1c80ed52dcd24a32b599d40edf1cec91b5f1199c0e392a2-56',
     hex2bytes('0xd387a6e4e84a6c86bd90c158c6028a58cc8ac459'),
-    3000000000000000000000,
+    3e21,
     '2024-01-02 16:54:59',
     'abc';
 
@@ -30,7 +30,7 @@ CREATE TABLE token_data
     chain String,
     is_blacklisted Bool
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO token_data SELECT
     bytes2hex('abc'),
@@ -44,7 +44,7 @@ CREATE DICTIONARY token_data_map
     is_blacklisted Bool
 )
 PRIMARY KEY token_address_hex, chain
-SOURCE(clickhouse(table token_data))
+SOURCE(clickhouse(TABLE token_data))
 LIFETIME(MIN 200 MAX 300)
 LAYOUT(COMPLEX_KEY_HASHED_ARRAY());
 
@@ -63,12 +63,12 @@ FROM (
                     'zksync' AS chain
                 FROM test
             )
-        WHERE (address = hex2bytes('0xd387a6e4e84a6c86bd90c158c6028a58cc8ac459'))
-            AND (notLike(transfer_id, 'gas%'))
-            AND (value > 0)
-            AND (dictGetOrDefault(token_data_map, 'is_blacklisted', (token_address_hex, 'zksync'), true))
+        WHERE address = hex2bytes('0xd387a6e4e84a6c86bd90c158c6028a58cc8ac459')
+            AND transfer_id NOT LIKE 'gas%'
+            AND value > 0
+            AND dictGetOrDefault(token_data_map, 'is_blacklisted', (token_address_hex, 'zksync'), true)
     )
 SETTINGS
-    max_threads = 1,
+    max_threads = '1',
     short_circuit_function_evaluation = 'enable',
-    enable_analyzer = 0;
+    enable_analyzer = '0';

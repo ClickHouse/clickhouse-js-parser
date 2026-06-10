@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t1;
 
@@ -40,4 +40,4 @@ INSERT INTO t1;
 SELECT *
 FROM m2
 ORDER BY key ASC
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';

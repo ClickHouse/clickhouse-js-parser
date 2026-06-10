@@ -1,10 +1,10 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET parallel_replicas_local_plan = 1; -- this setting may skip index analysis when false
+SET parallel_replicas_local_plan = '1'; -- this setting may skip index analysis when false
 
-SET use_skip_indexes_on_data_read = 0;
+SET use_skip_indexes_on_data_read = '0';
 
-SET mutations_sync = 2; -- want synchronous materialize
+SET mutations_sync = '2'; -- want synchronous materialize
 
 -- In this test we make sure that text search functions hasAny/AllTokens work correctly for
 -- tables in which only some parts have a materialized index. The expected behavior is that
@@ -19,9 +19,9 @@ CREATE TABLE tab
     id UInt32,
     message String
 )
-ENGINE = MergeTree
-ORDER BY (id)
-SETTINGS index_granularity = 2;
+ENGINE = MergeTree()
+ORDER BY id
+SETTINGS index_granularity = '2';
 
 DROP VIEW IF EXISTS explain_indexes;
 
@@ -36,11 +36,11 @@ FROM (
                 WHERE hasAnyTokens(message, ['def'])
             ))
     )
-WHERE (like(`explain`, '%Name%'))
-    OR (like(`explain`, '%Description%'))
-    OR (like(`explain`, '%Parts%'))
-    OR (like(`explain`, '%Granules%'))
-    OR (like(`explain`, '%Range%'));
+WHERE `explain` LIKE '%Name%'
+    OR `explain` LIKE '%Description%'
+    OR `explain` LIKE '%Parts%'
+    OR `explain` LIKE '%Granules%'
+    OR `explain` LIKE '%Range%';
 
 SYSTEM STOP MERGES tab;
 
@@ -48,7 +48,7 @@ SYSTEM STOP MERGES tab;
 -- we want to test that the search functions will use the same tokenizer on un-materialized column parts
 INSERT INTO tab (id, message);
 
-ALTER TABLE tab ADD INDEX idx message TYPE text(tokenizer = 'splitByString') GRANULARITY 1;
+ALTER TABLE tab ADD INDEX idx message TYPE text(tokenizer = 'splitByString') GRANULARITY 100000000;
 
 INSERT INTO tab (id, message);
 
@@ -99,7 +99,7 @@ WHERE hasAllTokens(message, ['abc', 'fo']);
 -- { echoOff }
 DROP TABLE tab;
 
-ALTER TABLE tab ADD INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha');
+ALTER TABLE tab ADD INDEX idx message TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000;
 
 SELECT arraySort(groupArray(id))
 FROM tab

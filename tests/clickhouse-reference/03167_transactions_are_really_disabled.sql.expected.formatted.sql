@@ -7,7 +7,7 @@ CREATE TABLE null_table
 (
     str String
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW mv_table
 (
@@ -19,6 +19,6 @@ AS
 SELECT str AS str
 FROM null_table;
 
-SET throw_on_unsupported_query_inside_transaction = 0;
+SET throw_on_unsupported_query_inside_transaction = '0';
 
 INSERT INTO null_table; --{serverError NOT_IMPLEMENTED}

@@ -5,7 +5,7 @@ CREATE TABLE t_temp
     a UInt32,
     timestamp DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 TTL timestamp + toIntervalSecond(2) WHERE a IN (
     SELECT number

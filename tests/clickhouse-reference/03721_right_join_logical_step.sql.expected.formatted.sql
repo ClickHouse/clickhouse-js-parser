@@ -5,7 +5,7 @@ CREATE TABLE t0
     c0 UInt32,
     c1 UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 (c0, c1);
 

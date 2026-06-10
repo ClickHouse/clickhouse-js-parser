@@ -6,7 +6,7 @@ WHERE number GLOBAL IN (
         FROM numbers(1)
     )
 SETTINGS
-    async_socket_for_remote = 1,
-    use_hedged_requests = 1,
-    sleep_in_send_data_ms = 10,
-    receive_data_timeout_ms = 1;
+    async_socket_for_remote = '1',
+    use_hedged_requests = '1',
+    sleep_in_send_data_ms = '10',
+    receive_data_timeout_ms = '1';

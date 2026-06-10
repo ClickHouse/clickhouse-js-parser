@@ -1,4 +1,4 @@
-SET enable_analyzer = 1, group_by_use_nulls = 1;
+SET enable_analyzer = '1', group_by_use_nulls = '1';
 
 SELECT tuple(tuple(number)) AS x
 FROM numbers(10)
@@ -26,20 +26,20 @@ FROM `system`.parts
 WHERE database = currentDatabase()
 GROUP BY GROUPING SETS ((2))
 FORMAT Null
-SETTINGS optimize_injective_functions_in_group_by = 1, optimize_group_by_function_keys = 1, group_by_use_nulls = 1; -- { serverError ILLEGAL_AGGREGATION }
+SETTINGS optimize_injective_functions_in_group_by = '1', optimize_group_by_function_keys = '1', group_by_use_nulls = '1'; -- { serverError ILLEGAL_AGGREGATION }
 
 SELECT
     toLowCardinality(materialize('a' AS key)),
     'b' AS value
 GROUP BY key
 WITH CUBE
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT tuple(tuple(number)) AS x
 FROM numbers(10)
 GROUP BY (number, (toString(x), number))
 WITH CUBE
-SETTINGS group_by_use_nulls = 1
+SETTINGS group_by_use_nulls = '1'
 FORMAT Null;
 
 SELECT tuple(number + 1) AS x
@@ -48,7 +48,7 @@ GROUP BY
     number + 1,
     toString(x)
 WITH CUBE
-SETTINGS group_by_use_nulls = 1
+SETTINGS group_by_use_nulls = '1'
 FORMAT Null;
 
 SELECT tuple(tuple(number)) AS x
@@ -58,7 +58,7 @@ GROUP BY
     number,
     (toString(x), number)
 WITH CUBE
-SETTINGS group_by_use_nulls = 1
+SETTINGS group_by_use_nulls = '1'
 FORMAT Null;
 
 SELECT
@@ -67,7 +67,7 @@ SELECT
 GROUP BY key
 WITH CUBE
 WITH TOTALS
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 EXPLAIN QUERY TREE
 SELECT
@@ -76,7 +76,7 @@ SELECT
 FROM numbers(3)
 GROUP BY
     number AS a,
-    (number + number) AS b
+    number + number AS b
 WITH CUBE
 ORDER BY
     a ASC,
@@ -89,7 +89,7 @@ SELECT
 FROM numbers(3)
 GROUP BY
     number AS a,
-    (number + number) AS b
+    number + number AS b
 WITH CUBE
 ORDER BY
     a ASC,
@@ -104,13 +104,13 @@ GROUP BY
     number AS a,
     number + number AS b
 WITH CUBE
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
-SELECT arrayMap(x -> '.', range(number % 10)) AS k
+SELECT arrayMap((x -> '.'), range(number % 10)) AS k
 FROM remote('127.0.0.{2,3}', numbers(10))
 GROUP BY GROUPING SETS ((k))
 ORDER BY k ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT count('Lambda as function parameter') AS c
 FROM (
@@ -127,39 +127,39 @@ FROM (
     )
 GROUP BY GROUPING SETS ((toLowCardinality(0)), (toLowCardinality(toNullable(28))), (1))
 HAVING nullIf(c, 10) < 50
-ORDER BY c ASC
-SETTINGS group_by_use_nulls = 1; -- { serverError ILLEGAL_AGGREGATION }
+ORDER BY c ASC NULLS FIRST
+SETTINGS group_by_use_nulls = '1'; -- { serverError ILLEGAL_AGGREGATION }
 
-SELECT arraySplit(x -> 0, [])
+SELECT arraySplit((x -> 0), [])
 WHERE materialize(1)
 GROUP BY (0, ignore('a'))
 WITH ROLLUP
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
-SELECT arraySplit(x -> toUInt8(number), [])
+SELECT arraySplit((x -> toUInt8(number)), [])
 FROM numbers(1)
 GROUP BY toUInt8(number)
 WITH ROLLUP
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
-SELECT arraySplit(number -> toUInt8(number), [])
+SELECT arraySplit((number -> toUInt8(number)), [])
 FROM numbers(1)
 GROUP BY toUInt8(number)
 WITH ROLLUP
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
-SELECT count(arraySplit(number -> toUInt8(number), [arraySplit(x -> toUInt8(number), [])]))
+SELECT count(arraySplit((number -> toUInt8(number)), [arraySplit((x -> toUInt8(number)), [])]))
 FROM numbers(10)
 GROUP BY
     number,
     [number]
 WITH ROLLUP
-SETTINGS group_by_use_nulls = 1; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SETTINGS group_by_use_nulls = '1'; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT count(arraySplit(x -> toUInt8(number), []))
+SELECT count(arraySplit((x -> toUInt8(number)), []))
 FROM numbers(10)
 GROUP BY
     number,
     [number]
 WITH ROLLUP
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';

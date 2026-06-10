@@ -9,7 +9,7 @@ CREATE TABLE h3_indexes
     h3_index UInt64,
     res UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Test cases taken from fixture: https://github.com/uber/h3/blob/master/src/apps/testapps/testCellToCenterChild.c
 INSERT INTO h3_indexes;

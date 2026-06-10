@@ -6,7 +6,7 @@ CREATE TABLE grop_uniq_array_date
     dt DateTime,
     id Integer
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO grop_uniq_array_date;
 

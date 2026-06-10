@@ -36,6 +36,6 @@ SELECT
 FROM numbers(16);
 
 SELECT
-    negate(number),
-    bitTest(toUInt16(1), negate(number))
+    -number,
+    bitTest(toUInt16(1), -number)
 FROM numbers(8); -- { serverError PARAMETER_OUT_OF_BOUND }

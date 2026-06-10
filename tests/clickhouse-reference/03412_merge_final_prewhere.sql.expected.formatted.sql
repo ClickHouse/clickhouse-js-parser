@@ -8,7 +8,7 @@ CREATE TABLE t
     dt DateTime,
     s String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (k, dt);
 
 CREATE TABLE tmerge AS t

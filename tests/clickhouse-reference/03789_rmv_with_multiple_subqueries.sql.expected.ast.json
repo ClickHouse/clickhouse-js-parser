@@ -1,288 +1,395 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "03789_rmv_target"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "message",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test/03789_rmv_with_multiple_subqueries"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- test that multiple refreshes of RMV with multiple subqueries do not leak memory or cause any other general issues with the instance "
-    ]
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "03789_rmv_mv"
-    },
-    "refresh": "EVERY 1 MONTH APPEND",
-    "toTable": {
-      "kind": "tableRef",
-      "table": "03789_rmv_target"
-    },
-    "asQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "lower_limit",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "03789_rmv_target"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "message",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
           }
-        },
-        {
-          "kind": "cteExpr",
-          "name": "upper_limit",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableFunctionRef",
-                "name": "numbers",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  }
-                ]
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "lower_limit"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        {
-          "kind": "cteSubquery",
-          "name": "result",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "OH NO"
-                },
-                "alias": "message"
-              }
-            ],
-            "from": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              ]
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test/03789_rmv_with_multiple_subqueries"
             },
-            "where": {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "lower_limit"
-                    ]
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "<=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "upper_limit"
-                    ]
-                  },
-                  "parenthesized": true
-                }
-              ]
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
             }
-          }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
         }
-      ],
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "result"
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM REFRESH VIEW 03789_rmv_mv"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM WAIT VIEW 03789_rmv_mv"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "03789_rmv_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "query"
-            ]
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "Subquery",
+                "alias": "lower_limit",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Subquery",
+                "alias": "upper_limit",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "table_function": {
+                                "type": "Function",
+                                "name": "numbers",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "10"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "lower_limit"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "WithElement",
+                "name": "result",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Literal",
+                            "alias": "message",
+                            "value_type": "String",
+                            "value": "OH NO"
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "table_function": {
+                                  "type": "Function",
+                                  "name": "numbers",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "10"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "where": {
+                          "type": "Function",
+                          "name": "and",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "greaterOrEquals",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "lower_limit"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "lessOrEquals",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "upper_limit"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "result"
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "03789_rmv_target"
+          }
+        ]
+      },
+      "refresh": {
+        "type": "RefreshStrategy",
+        "schedule_kind": "EVERY",
+        "append": true,
+        "period": {
+          "type": "TimeInterval",
+          "interval": [
+            {
+              "kind": "Month",
+              "value": "1"
+            }
+          ]
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "REFRESH VIEW",
+      "table": {
+        "type": "Identifier",
+        "name": "03789_rmv_mv"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "WAIT VIEW",
+      "table": {
+        "type": "Identifier",
+        "name": "03789_rmv_mv"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
         {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "databases"
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "query"
+                }
               ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%INSERT%SELECT%"
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "databases"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%INSERT%SELECT%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              }
+            ]
           }
         }
       ]

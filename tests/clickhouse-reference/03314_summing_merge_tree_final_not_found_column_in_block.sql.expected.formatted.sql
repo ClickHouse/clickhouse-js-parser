@@ -7,7 +7,7 @@ CREATE TABLE t0
 )
 ENGINE = SummingMergeTree()
 PRIMARY KEY abs(c1)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t0 (c0);
 

@@ -7,7 +7,7 @@ CREATE TABLE t_local
 (
     a Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_distr
 (
@@ -17,7 +17,7 @@ ENGINE = Distributed(test_shard_localhost, currentDatabase(), 't_local');
 
 INSERT INTO t_local;
 
-SET optimize_skip_unused_shards = 1;
+SET optimize_skip_unused_shards = '1';
 
 SELECT *
 FROM t_distr

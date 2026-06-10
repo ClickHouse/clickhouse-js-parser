@@ -19,7 +19,7 @@ ENGINE = Distributed(test_shard_localhost, currentDatabase(), 'data');
 
 INSERT INTO data;
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 SELECT a / (
         SELECT sum(number)
@@ -32,7 +32,7 @@ SELECT a < (
     )
 FROM data_distributed;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 DROP TABLE data_distributed;
 

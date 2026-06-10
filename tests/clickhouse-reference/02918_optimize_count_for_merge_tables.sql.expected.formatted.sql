@@ -10,14 +10,14 @@ CREATE TABLE mt1
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE mt2
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE merge
@@ -30,9 +30,9 @@ INSERT INTO mt1;
 
 INSERT INTO mt2;
 
-SET apply_mutations_on_fly = 0;
+SET apply_mutations_on_fly = '0';
 
-SET apply_patch_parts = 0;
+SET apply_patch_parts = '0';
 
 SELECT count()
 FROM merge;
@@ -41,13 +41,13 @@ FROM merge;
 EXPLAIN
 SELECT count()
 FROM merge
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 CREATE TABLE mt3
 (
     id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO mt2;
 

@@ -8,15 +8,15 @@ SELECT
 
 SELECT
     'UInt32',
-    blockSerializedSize(0xdeadbeaf);
+    blockSerializedSize(3735928495);
 
 SELECT
     'UInt64',
-    blockSerializedSize(0xdeadbeafdead);
+    blockSerializedSize(244837809905325);
 
 SELECT
     'Nullable(UInt64)',
-    blockSerializedSize(toNullable(0xdeadbeafdead));
+    blockSerializedSize(toNullable(244837809905325));
 
 SELECT
     'String',
@@ -24,7 +24,7 @@ SELECT
 
 SELECT
     'FixedString(32)',
-    blockSerializedSize(cast('foo', 'FixedString(32)'));
+    blockSerializedSize(CAST('foo' AS FixedString(32)));
 
 SELECT
     'Enum8',

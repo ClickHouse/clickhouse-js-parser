@@ -1,12 +1,12 @@
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET wait_for_async_insert = 0;
+SET wait_for_async_insert = '0';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
-SET async_insert_use_adaptive_busy_timeout = 0, async_insert_busy_timeout_min_ms = 1000, async_insert_busy_timeout_max_ms = 5000;
+SET async_insert_use_adaptive_busy_timeout = '0', async_insert_busy_timeout_min_ms = '1000', async_insert_busy_timeout_max_ms = '5000';
 
 CREATE TABLE src_table
 (
@@ -24,11 +24,11 @@ CREATE TABLE table_join
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/test/{database}/table_join', 'replica1')
 ORDER BY id;
 
-SET max_block_size = 30000;
+SET max_block_size = '30000';
 
-SET max_insert_block_size = 30000;
+SET max_insert_block_size = '30000';
 
-SET min_insert_block_size_rows = 30000;
+SET min_insert_block_size_rows = '30000';
 
 INSERT INTO table_join SELECT
     1 AS id,
@@ -50,7 +50,7 @@ INSERT INTO table_join SELECT
     toString(number)
 FROM numbers(10000);
 
-SYSTEM flush async insert queue 03733_table_join;
+SYSTEM FLUSH ASYNC INSERT QUEUE `03733_table_join`;
 
 SELECT count(*)
 FROM table_join; -- Expecting 400000
@@ -80,7 +80,7 @@ INSERT INTO src_table;
 
 INSERT INTO src_table;
 
-SYSTEM flush async insert queue src_table;
+SYSTEM FLUSH ASYNC INSERT QUEUE src_table;
 
 SELECT count(*)
 FROM src_table; -- Expecting 2
@@ -92,7 +92,7 @@ INSERT INTO src_table;
 
 INSERT INTO src_table;
 
-SYSTEM flush logs system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 SELECT
     query,
@@ -100,7 +100,7 @@ SELECT
     exception_code
 FROM `system`.query_log
 WHERE has(databases, currentDatabase())
-    AND has(tables, concat(currentDatabase(), '.src_table'))
+    AND has(tables, currentDatabase() || '.src_table')
     AND type != 'QueryStart'
     AND query_kind = 'AsyncInsertFlush'
 ORDER BY `all` DESC;

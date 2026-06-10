@@ -2,9 +2,9 @@ SELECT arrayResize([1, 2, 3], 10);
 
 SELECT arrayResize([1, 2, 3], -10);
 
-SELECT arrayResize([1, Null, 3], 10);
+SELECT arrayResize([1, NULL, 3], 10);
 
-SELECT arrayResize([1, Null, 3], -10);
+SELECT arrayResize([1, NULL, 3], -10);
 
 SELECT arrayResize([1, 2, 3, 4, 5, 6], 3);
 

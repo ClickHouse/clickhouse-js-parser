@@ -4,7 +4,7 @@ CREATE TABLE t1
 (
     x Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- insert several blocks with 1 or 2 rows:
 INSERT INTO t1;
@@ -15,7 +15,7 @@ INSERT INTO t1;
 
 INSERT INTO t1;
 
-SET max_rows_in_join = 111;
+SET max_rows_in_join = '111';
 
 SELECT
     x,

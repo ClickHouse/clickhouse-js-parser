@@ -5,7 +5,7 @@ CREATE TABLE welch_ttest__fuzz_7
     `left` UInt128,
     `right` UInt128
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO welch_ttest__fuzz_7;
 

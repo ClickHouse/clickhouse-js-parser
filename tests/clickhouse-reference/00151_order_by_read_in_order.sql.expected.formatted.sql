@@ -1,5 +1,5 @@
 -- Tags: stateful
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
 SELECT CounterID
 FROM test.hits

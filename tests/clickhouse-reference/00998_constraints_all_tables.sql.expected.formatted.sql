@@ -6,7 +6,7 @@ CREATE TABLE constrained
     CONSTRAINT is_censor CHECK domainWithoutWWW(URL) = 'censor.net',
     CONSTRAINT is_utf8 CHECK isValidUTF8(URL)
 )
-ENGINE = Null;
+ENGINE = Null();
 
 INSERT INTO constrained; -- { serverError VIOLATED_CONSTRAINT }
 
@@ -22,7 +22,7 @@ CREATE TABLE constrained
     CONSTRAINT is_censor CHECK domainWithoutWWW(URL) = 'censor.net',
     CONSTRAINT is_utf8 CHECK isValidUTF8(URL)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT count()
 FROM constrained;
@@ -33,7 +33,7 @@ CREATE TABLE constrained
     CONSTRAINT is_censor CHECK domainWithoutWWW(URL) = 'censor.net',
     CONSTRAINT is_utf8 CHECK isValidUTF8(URL)
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE constrained
 (
@@ -41,7 +41,7 @@ CREATE TABLE constrained
     CONSTRAINT is_censor CHECK domainWithoutWWW(URL) = 'censor.net',
     CONSTRAINT is_utf8 CHECK isValidUTF8(URL)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE constrained
 (
@@ -49,7 +49,7 @@ CREATE TABLE constrained
     CONSTRAINT is_censor CHECK domainWithoutWWW(URL) = 'censor.net',
     CONSTRAINT is_utf8 CHECK isValidUTF8(URL)
 )
-ENGINE = Log;
+ENGINE = Log();
 
 DROP TABLE IF EXISTS constrained2;
 

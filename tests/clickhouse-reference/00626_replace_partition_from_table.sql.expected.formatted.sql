@@ -8,7 +8,7 @@ CREATE TABLE src
     k String,
     d UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY p;
 
@@ -18,10 +18,10 @@ CREATE TABLE dst
     k String,
     d UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY p
-SETTINGS merge_selector_base = 1000;
+SETTINGS merge_selector_base = '1000';
 
 INSERT INTO src;
 
@@ -63,11 +63,11 @@ FROM `system`.parts
 WHERE database = currentDatabase()
     AND table = 'dst'
     AND active
-    AND like(name, '1_%');
+    AND name LIKE '1_%';
 
 ALTER TABLE dst REPLACE PARTITION 1 FROM dst;
 
-SELECT (max(m) - min(m) > 1) AS new_block_is_generated
+SELECT max(m) - min(m) > 1 AS new_block_is_generated
 FROM test_block_numbers;
 
 DROP TEMPORARY TABLE test_block_numbers;
@@ -82,9 +82,9 @@ SYSTEM STOP MERGES dst;
 
 INSERT INTO dst;
 
-ALTER TABLE dst REPLACE PARTITION 1 FROM src;
+ALTER TABLE dst ATTACH PARTITION 1 FROM src;
 
-ALTER TABLE dst REPLACE PARTITION ALL FROM src;
+ALTER TABLE dst ATTACH PARTITION ALL FROM src;
 
 SELECT
     count(),
@@ -94,7 +94,7 @@ FROM dst;
 
 SYSTEM START MERGES dst;
 
-SET optimize_throw_if_noop = 1;
+SET optimize_throw_if_noop = '1';
 
 OPTIMIZE TABLE dst;
 
@@ -102,10 +102,10 @@ DETACH TABLE dst;
 
 ATTACH TABLE dst;
 
-ALTER TABLE dst DROP PARTITION 0;
+ALTER TABLE dst DETACH PARTITION 0;
 
-ALTER TABLE dst DROP PARTITION 1;
+ALTER TABLE dst DETACH PARTITION 1;
 
-ALTER TABLE dst DROP PARTITION 2;
+ALTER TABLE dst DETACH PARTITION 2;
 
 ALTER TABLE dst ATTACH PARTITION 1;

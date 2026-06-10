@@ -32,4 +32,4 @@ FROM
 ARRAY JOIN [0] AS id
 INNER JOIN test_table
     USING (id)
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';

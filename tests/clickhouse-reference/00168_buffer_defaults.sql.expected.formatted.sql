@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS mt_00168;
 
 DROP TABLE IF EXISTS mt_00168_buffer;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE mt_00168
 (

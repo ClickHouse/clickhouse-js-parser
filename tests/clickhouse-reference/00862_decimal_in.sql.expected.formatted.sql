@@ -5,7 +5,7 @@ CREATE TABLE temp
     x Decimal(38, 2),
     y Nullable(Decimal(38, 2))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO temp;
 

@@ -6,7 +6,7 @@ CREATE TABLE test
     y String,
     z Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test (x);

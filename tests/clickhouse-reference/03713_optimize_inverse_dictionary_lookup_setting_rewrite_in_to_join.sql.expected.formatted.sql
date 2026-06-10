@@ -1,13 +1,13 @@
 -- Tags: no-replicated-database, no-parallel-replicas
 -- no-parallel, no-parallel-replicas: Dictionary is not created in parallel replicas.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_inverse_dictionary_lookup = 1;
+SET optimize_inverse_dictionary_lookup = '1';
 
-SET optimize_or_like_chain = 0;
+SET optimize_or_like_chain = '0';
 
 -- Expect no rewrite of dictGet(...) = 'constant'
-SET rewrite_in_to_join = 1;
+SET rewrite_in_to_join = '1';
 
 DROP DICTIONARY IF EXISTS colors;
 
@@ -19,7 +19,7 @@ CREATE TABLE ref_colors
     name String,
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO ref_colors;
@@ -32,7 +32,7 @@ CREATE DICTIONARY colors
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_colors'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 DROP TABLE IF EXISTS t;
@@ -42,12 +42,12 @@ CREATE TABLE t
     color_id UInt64,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY color_id;
 
 INSERT INTO t;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     color_id,
     payload

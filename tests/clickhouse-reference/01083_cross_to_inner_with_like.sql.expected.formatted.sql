@@ -1,4 +1,4 @@
-SET convert_query_to_cnf = 0;
+SET convert_query_to_cnf = '0';
 
 DROP TABLE IF EXISTS n;
 
@@ -8,40 +8,40 @@ CREATE TABLE n
 (
     k UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE r
 (
     k UInt32,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    n
-CROSS JOIN r
+    n,
+    r
 WHERE n.k = r.k
     AND r.name = 'A';
 
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    n
-CROSS JOIN r
+    n,
+    r
 WHERE n.k = r.k
-    AND like(r.name, 'A%');
+    AND r.name LIKE 'A%';
 
 EXPLAIN SYNTAX
 SELECT *
 FROM
-    n
-CROSS JOIN r
+    n,
+    r
 WHERE n.k = r.k
-    AND notLike(r.name, 'A%');
+    AND r.name NOT LIKE 'A%';
 
 DROP TABLE n;
 

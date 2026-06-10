@@ -11,20 +11,20 @@ CREATE TABLE tab
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO tab SELECT number
 FROM numbers(100);
 
-SET use_primary_key = 0;
+SET use_primary_key = '0';
 
 SELECT count()
 FROM tab
 WHERE id = 5;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM tab
 WHERE id = 5;
 
-SET use_primary_key = 1;
+SET use_primary_key = '1';

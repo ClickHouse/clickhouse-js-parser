@@ -27,7 +27,7 @@ CREATE TABLE `join`
     s String
 )
 ENGINE = Join(`ANY`, `LEFT`, k)
-SETTINGS persistent = 1;
+SETTINGS persistent = '1';
 
 CREATE TABLE `join`
 (
@@ -35,4 +35,4 @@ CREATE TABLE `join`
     s String
 )
 ENGINE = Join(`ANY`, `LEFT`, k)
-SETTINGS persistent = 0;
+SETTINGS persistent = '0';

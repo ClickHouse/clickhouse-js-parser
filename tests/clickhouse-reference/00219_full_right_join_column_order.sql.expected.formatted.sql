@@ -1,4 +1,4 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
 SELECT
     a,
@@ -9,7 +9,7 @@ FROM
             1 AS a,
             2000 AS b
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             2 AS a,
             3000 AS b
@@ -28,7 +28,7 @@ FROM
             1 AS a,
             2000 AS b
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             2 AS a,
             3000 AS b
@@ -47,7 +47,7 @@ FROM
             1 AS a,
             2000 AS b
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             2 AS a,
             3000 AS b
@@ -70,7 +70,7 @@ FROM
             1 AS a,
             2000 AS b
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             2 AS a,
             3000 AS b

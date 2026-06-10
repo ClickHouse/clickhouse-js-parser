@@ -27,6 +27,6 @@ FROM numbers(10);
 
 DROP TEMPORARY TABLE tmp;
 
-ATTACH TABLE tmp; -- { serverError SYNTAX_ERROR }
+ATTACH TEMPORARY TABLE tmp; -- { serverError SYNTAX_ERROR }
 
-DETACH TABLE tmp; -- { serverError SYNTAX_ERROR }
+DETACH TEMPORARY TABLE tmp; -- { serverError SYNTAX_ERROR }

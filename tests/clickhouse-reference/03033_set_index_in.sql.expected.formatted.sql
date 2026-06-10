@@ -1,5 +1,5 @@
 -- add_minmax_index_for_numeric_columns=0: Disable minmax index for numeric columns to avoid interference with SET index, otherwise indexHint can filter further rows.
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 CREATE TABLE a
 (
@@ -7,9 +7,9 @@ CREATE TABLE a
     v UInt64,
     INDEX i v TYPE set(100) GRANULARITY 2
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS index_granularity = 8192, index_granularity_bytes = 1000000000, min_index_granularity_bytes = 0, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '1000000000', min_index_granularity_bytes = '0', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO a SELECT
     number,

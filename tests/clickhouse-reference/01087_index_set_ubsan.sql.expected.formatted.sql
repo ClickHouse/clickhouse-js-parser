@@ -7,7 +7,7 @@ CREATE TABLE t
     s String,
     INDEX ind_s s TYPE set(1) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO t;

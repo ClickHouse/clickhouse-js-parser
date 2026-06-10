@@ -1,152 +1,178 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "z",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "z"
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "x",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "z",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "binaryExpr",
-              "op": "<",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "d"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "2018-01-01"
-              },
-              "parenthesized": true
+              "type": "Identifier",
+              "name": "d"
             },
             {
-              "kind": "binaryExpr",
-              "op": "<",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "d"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "2018-01-02"
-              },
-              "parenthesized": true
+              "type": "Identifier",
+              "name": "z"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
             }
           ]
         }
       }
-    ],
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "where": {
-      "kind": "columnRef",
-      "parts": [
-        "x"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "x",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2018-01-01"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "less",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "d"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2018-01-02"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Identifier",
+            "name": "x"
+          }
+        }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      }
     }
   }
 ]

@@ -1,4 +1,4 @@
-SET optimize_group_by_function_keys = 0;
+SET optimize_group_by_function_keys = '0';
 
 -- { echoOn }
 SELECT
@@ -6,36 +6,48 @@ SELECT
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY ROLLUP(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH ROLLUP
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     number,
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY ROLLUP(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH ROLLUP
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 0;
+SETTINGS group_by_use_nulls = '0';
 
 SELECT
     number,
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY CUBE(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH CUBE
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     number,
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY CUBE(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH CUBE
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 0;
+SETTINGS group_by_use_nulls = '0';
 
 SELECT
     number,
@@ -44,7 +56,7 @@ SELECT
 FROM numbers(10)
 GROUP BY GROUPING SETS ((number), (number % 2))
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     number,
@@ -53,27 +65,33 @@ SELECT
 FROM numbers(10)
 GROUP BY GROUPING SETS ((number), (number % 2))
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 0;
+SETTINGS group_by_use_nulls = '0';
 
 SELECT
     number,
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY ROLLUP(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH ROLLUP
 WITH TOTALS
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     number,
     number % 2,
     sum(number) AS val
 FROM numbers(10)
-GROUP BY CUBE(number, number % 2)
+GROUP BY
+    number,
+    number % 2
+WITH CUBE
 WITH TOTALS
 ORDER BY (number, number % 2, val) ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 SELECT
     number,
@@ -85,6 +103,6 @@ ORDER BY
     1 ASC,
     tuple(val) ASC
 SETTINGS
-    group_by_use_nulls = 1,
-    max_bytes_before_external_sort = 10,
-    max_bytes_ratio_before_external_sort = 0;
+    group_by_use_nulls = '1',
+    max_bytes_before_external_sort = '10',
+    max_bytes_ratio_before_external_sort = '0';

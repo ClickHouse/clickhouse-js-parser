@@ -7,7 +7,7 @@ CREATE TABLE test_table
     number UInt64,
     example String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DESCRIBE TABLE test_table FORMAT TSV;
 

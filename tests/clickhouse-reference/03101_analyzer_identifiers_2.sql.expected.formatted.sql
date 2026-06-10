@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23194
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TEMPORARY TABLE test1
 (
@@ -53,7 +53,7 @@ SELECT
 
 SELECT
     x,
-    1 + ((2 + ((3 AS x))));
+    1 + (2 + (3 AS x));
 
 SELECT '---';
 
@@ -112,8 +112,8 @@ FROM t; -- { serverError UNKNOWN_IDENTIFIER }
 SELECT x
 FROM (
         SELECT y
-        FROM VALUES('y UInt16', (2))
-        WHERE ((1 AS x)) = y
+        FROM VALUES('y UInt16', 2)
+        WHERE (1 AS x) = y
     ) AS t; -- { serverError UNKNOWN_IDENTIFIER }
 
 -- throws, because the table name `t` is not visible outside
@@ -202,11 +202,11 @@ SELECT
     1 AS x,
     2 AS x; -- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }
 
-SELECT arrayMap(x -> x + 1, [1, 2]);
+SELECT arrayMap((x -> x + 1), [1, 2]);
 
 SELECT
     x,
-    arrayMap((x, y) -> x[1] + y + arrayFirst(x -> x != y, x), arr)
+    arrayMap(((x, y) -> x[1] + y + arrayFirst((x -> x != y), x)), arr)
 FROM (
         SELECT
             1 AS x,
@@ -215,7 +215,7 @@ FROM (
 
 SELECT
     x1,
-    arrayMap((x2, y2) -> x2[1] + y2 + arrayFirst(x3 -> x3 != y2, x2), arr)
+    arrayMap(((x2, y2) -> x2[1] + y2 + arrayFirst((x3 -> x3 != y2), x2)), arr)
 FROM (
         SELECT
             1 AS x1,
@@ -223,11 +223,11 @@ FROM (
     );
 
 SELECT
-    arrayMap(x -> [y * 2, (x + 1) AS y, 1 AS z], [1, 2]),
+    arrayMap((x -> [y * 2, x + 1 AS y, 1 AS z]), [1, 2]),
     y; -- { serverError UNKNOWN_IDENTIFIER }
 
 -- TODO: this must work
 --SELECT arrayMap(x -> [y * 2, (x + 1) AS y, 1 AS z], [1, 2]), z;
 SELECT
-    arrayMap(x -> (x + 1) AS y, [3, 5]),
-    arrayMap(x -> (concat(x, 'hello')) AS y, ['qq', 'ww']); -- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }
+    arrayMap((x -> x + 1 AS y), [3, 5]),
+    arrayMap((x -> x || 'hello' AS y), ['qq', 'ww']); -- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }

@@ -6,7 +6,7 @@ CREATE TABLE group_by_all
     b int,
     c int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO group_by_all;
 
@@ -72,4 +72,4 @@ SELECT
 FROM group_by_all
 GROUP BY ALL;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

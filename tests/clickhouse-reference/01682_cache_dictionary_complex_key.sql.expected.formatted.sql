@@ -10,7 +10,7 @@ CREATE TABLE `01682_database_for_cache_dictionary`.complex_key_simple_attributes
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01682_database_for_cache_dictionary`.complex_key_simple_attributes_source_table;
 
@@ -73,7 +73,7 @@ CREATE TABLE `01682_database_for_cache_dictionary`.complex_key_complex_attribute
     value_first String,
     value_second Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01682_database_for_cache_dictionary`.complex_key_complex_attributes_source_table;
 

@@ -97,7 +97,7 @@ FROM
             1 AS x,
             2 AS y
     ) AS t1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             1 AS xx,
             2 AS yy
@@ -133,7 +133,7 @@ FROM
             1 AS x,
             2 AS y
     ) AS t1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             1 AS xx,
             2 AS yy

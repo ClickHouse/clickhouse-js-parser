@@ -7,17 +7,17 @@ CREATE TABLE t
 (
     s LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0';
 
 -- The problem was that we didn't account for dictionary size in `ColumnLowCardinality::byteSize()`.
 -- Because of that we tend to accumulate too many blocks in `SimpleSquashingChunksTransform`.
 -- To reproduce we need a column with heavy dictionaries and ideally nothing else consuming significant amount of memory.
-INSERT INTO t SELECT concat(repeat('x', 1000), toString(number)) AS s
-FROM numbers_mt(5e6)
+INSERT INTO t SELECT repeat('x', 1000) || toString(number) AS s
+FROM numbers_mt(5000000.)
 SETTINGS
-    max_insert_threads = 16,
+    max_insert_threads = '16',
     max_memory_usage = '15Gi';
 
 WITH t2 AS (
@@ -32,9 +32,9 @@ FROM
     t AS t1
 INNER JOIN t2
     ON substr(t1.s, 1, 1) = t2.s
-LIMIT 1e5
+LIMIT 100000.
 SETTINGS
-    max_threads = 32,
+    max_threads = '32',
     max_memory_usage = '2Gi',
     join_algorithm = 'parallel_hash',
     min_joined_block_size_bytes = '1Mi'

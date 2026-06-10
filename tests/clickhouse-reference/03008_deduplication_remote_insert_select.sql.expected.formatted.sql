@@ -13,11 +13,11 @@ INSERT INTO src SELECT
     number AS b
 FROM numbers(100);
 
-SET allow_experimental_parallel_reading_from_replicas = 1;
+SET allow_experimental_parallel_reading_from_replicas = '1';
 
-SET max_parallel_replicas = 3;
+SET max_parallel_replicas = '3';
 
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
 SET cluster_for_parallel_replicas = 'parallel_replicas';
 
@@ -44,7 +44,7 @@ CREATE TABLE dst_null
     a UInt64,
     b UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
 DROP TABLE IF EXISTS mv_dst;
 

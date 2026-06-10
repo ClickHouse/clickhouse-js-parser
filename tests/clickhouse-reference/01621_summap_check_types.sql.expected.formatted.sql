@@ -1,4 +1,4 @@
-SELECT initializeAggregation('sumMap', [1, 2], [1, 2], [1, null]);
+SELECT initializeAggregation('sumMap', [1, 2], [1, 2], [1, NULL]);
 
 CREATE TEMPORARY TABLE sum_map_overflow
 (

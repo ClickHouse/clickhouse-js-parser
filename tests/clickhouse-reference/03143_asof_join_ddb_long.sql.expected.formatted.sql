@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS skewed_probe;
 SET session_timezone = 'UTC';
 
 CREATE TABLE build
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key, begin) AS
 SELECT
     toDateTime('1990-03-21 13:00:00') + toIntervalMinute(number) AS begin,
@@ -16,7 +16,7 @@ SELECT
 FROM numbers(0, 4000000);
 
 CREATE TABLE skewed_probe
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key, begin) AS
 SELECT
     toDateTime('1990-04-21 13:00:01') + toIntervalMinute(number) AS begin,
@@ -38,14 +38,14 @@ SELECT
     3 AS key
 FROM numbers(0, 4000000);
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 SELECT
     SUM(value),
     COUNT(*)
 FROM
     skewed_probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (key, begin);
 
 SELECT
@@ -53,6 +53,6 @@ SELECT
     COUNT(*)
 FROM
     skewed_probe
-INNER JOIN build
+ASOF INNER JOIN build
     USING (key, begin)
 SETTINGS join_algorithm = 'full_sorting_merge';

@@ -4,7 +4,7 @@ CREATE TABLE null_issue_3767
 (
     value Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO null_issue_3767 (value);
 

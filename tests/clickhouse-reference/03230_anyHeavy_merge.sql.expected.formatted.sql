@@ -4,8 +4,8 @@ CREATE TABLE t
 (
     letter String
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 PARTITION BY letter;
 
 INSERT INTO t;

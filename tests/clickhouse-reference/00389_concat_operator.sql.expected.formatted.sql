@@ -1,1 +1,1 @@
-SELECT concat('Hello', ', ', 'World');
+SELECT 'Hello' || ', ' || 'World';

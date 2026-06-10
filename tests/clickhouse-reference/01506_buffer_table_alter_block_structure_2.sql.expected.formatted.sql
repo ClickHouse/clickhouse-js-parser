@@ -7,8 +7,8 @@ CREATE TABLE buf_dest
 (
     timestamp DateTime
 )
-ENGINE = MergeTree
-ORDER BY (timestamp)
+ENGINE = MergeTree()
+ORDER BY timestamp
 PARTITION BY toYYYYMMDD(timestamp);
 
 CREATE TABLE buf

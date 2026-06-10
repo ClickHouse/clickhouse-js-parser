@@ -6,12 +6,12 @@ CREATE TABLE nullable_00457
     ns Nullable(String),
     narr Array(Nullable(UInt64))
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO nullable_00457 SELECT
     toString(number),
-    if(number % 3 = 1, toString(number), NULL),
-    arrayMap(x -> if(x % 2 = 1, x, NULL), range(number))
+    number % 3 = 1 ? toString(number) : NULL,
+    arrayMap((x -> x % 2 = 1 ? x : NULL), range(number))
 FROM `system`.numbers
 LIMIT 10;
 
@@ -39,10 +39,11 @@ ORDER BY s ASC;
 
 INSERT INTO nullable_00457 SELECT
     toString(number),
-    if(number % 3 = 1, toString(number), NULL),
-    arrayMap(x -> if(x % 2 = 1, x, NULL), range(number))
+    number % 3 = 1 ? toString(number) : NULL,
+    arrayMap((x -> x % 2 = 1 ? x : NULL), range(number))
 FROM `system`.numbers
-LIMIT 10, 10;
+LIMIT 10
+OFFSET 10;
 
 CREATE TABLE nullable_00457
 (
@@ -50,7 +51,7 @@ CREATE TABLE nullable_00457
     ns Nullable(String),
     narr Array(Nullable(UInt64))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE nullable_00457
 (
@@ -58,6 +59,6 @@ CREATE TABLE nullable_00457
     ns Nullable(String),
     narr Array(Nullable(UInt64))
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 DROP TABLE nullable_00457;

@@ -2,7 +2,7 @@
 -- <Warning> ConnectionPoolWithFailover: Connection failed at try №1 - is not a problem
 SET send_logs_level = 'fatal';
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 DROP TABLE IF EXISTS local_01099_a;
 
@@ -12,19 +12,19 @@ DROP TABLE IF EXISTS distributed_01099_a;
 
 DROP TABLE IF EXISTS distributed_01099_b;
 
-SET parallel_distributed_insert_select = 1;
+SET parallel_distributed_insert_select = '1';
 
 CREATE TABLE local_01099_a
 (
     number UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE local_01099_b
 (
     number UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE distributed_01099_a AS local_01099_a
 ENGINE = Distributed('test_shard_localhost', currentDatabase(), local_01099_a, rand());
@@ -71,9 +71,9 @@ ENGINE = Distributed('test_cluster_two_shards', currentDatabase(), local_01099_b
 
 SYSTEM STOP DISTRIBUTED SENDS distributed_01099_b;
 
-SET prefer_localhost_replica = 0; -- to require distributed send for local replica too
+SET prefer_localhost_replica = '0'; -- to require distributed send for local replica too
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 SELECT
     number,
@@ -113,14 +113,14 @@ SET send_logs_level = 'error';
 INSERT INTO distributed_01099_b SELECT *
 FROM urlCluster('test_cluster_two_shards', 'http://localhost:8123/?query=select+{1,2,3}+format+TSV', 'TSV', 's String');
 
-SET parallel_distributed_insert_select = 2;
+SET parallel_distributed_insert_select = '2';
 
 --- https://github.com/ClickHouse/ClickHouse/issues/78464
 CREATE TABLE local_01099_c
 (
     n UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE distributed_01099_c AS local_01099_c
 ENGINE = Distributed('test_shard_localhost', currentDatabase(), local_01099_c, rand());
@@ -137,7 +137,7 @@ DROP TABLE distributed_01099_c;
 
 TRUNCATE TABLE local_01099_b;
 
-INSERT INTO distributed_01099_b WITH concat('http://localhost:8123/?query=', 'select+{1,2,3}+format+TSV') AS url
+INSERT INTO distributed_01099_b WITH 'http://localhost:8123/?query=' || 'select+{1,2,3}+format+TSV' AS url
 
 SELECT *
 FROM urlCluster('test_cluster_two_shards', (

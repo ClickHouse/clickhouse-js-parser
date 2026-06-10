@@ -8,7 +8,7 @@ CREATE TABLE src
 (
     v UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE dest
 (

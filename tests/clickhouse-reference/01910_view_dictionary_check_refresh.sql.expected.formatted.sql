@@ -11,8 +11,8 @@ CREATE TABLE TestTbl
     dt Date,
     val String
 )
-ENGINE = MergeTree
-ORDER BY (id)
+ENGINE = MergeTree()
+ORDER BY id
 PARTITION BY dt;
 
 CREATE VIEW TestTbl_view
@@ -32,7 +32,7 @@ CREATE DICTIONARY IF NOT EXISTS TestTblDict
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE TestTbl_view DB currentDatabase()))
-LIFETIME(1)
+LIFETIME(MIN 0 MAX 1)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 SELECT
@@ -49,7 +49,7 @@ INSERT INTO TestTbl;
 
 SELECT sleep(3)
 FROM numbers(4)
-SETTINGS max_block_size = 1
+SETTINGS max_block_size = '1'
 FORMAT Null;
 
 INSERT INTO TestTbl;

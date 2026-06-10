@@ -5,7 +5,7 @@ ENGINE = MergeTree()
 ORDER BY number AS
 SELECT
     number,
-    [('string',number)] AS `array`
+    [('string', number)] AS `array`
 FROM numbers(3);
 
 SELECT *

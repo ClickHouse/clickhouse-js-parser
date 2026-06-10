@@ -5,7 +5,7 @@ CREATE TABLE test_dictionary_source_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS test_dictionary_view;
 

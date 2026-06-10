@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS test_01035_avg
     i8 Int8 DEFAULT i64,
     i16 Int16 DEFAULT i64,
     i32 Int32 DEFAULT i64,
-    i64 Int64 DEFAULT if(u64 % 2 = 0, toInt64(u64), toInt64(negate(u64))),
+    i64 Int64 DEFAULT if(u64 % 2 = 0, toInt64(u64), toInt64(-u64)),
     i128 Int128 DEFAULT i64,
     i256 Int256 DEFAULT i64,
     u8 UInt8 DEFAULT u64,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS test_01035_avg
 )
 ENGINE = MergeTree()
 ORDER BY i64
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SELECT
     avg(i8),
@@ -69,8 +69,8 @@ SELECT
     avgIf(key3, key3 > 0)
 FROM (
         SELECT
-            1::Int8 AS key,
+            CAST('1' AS Int8) AS key,
             NULL::Nullable(Int8) AS key2,
-            1::Nullable(Int8) AS key3
+            CAST('1' AS Nullable(Int8)) AS key3
         FROM numbers(100000)
     );

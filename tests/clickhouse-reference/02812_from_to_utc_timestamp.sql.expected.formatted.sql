@@ -6,7 +6,7 @@ CREATE TABLE test_tbl
     y DateTime,
     z DateTime64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO test_tbl;

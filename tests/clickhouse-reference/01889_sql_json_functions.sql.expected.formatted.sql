@@ -156,7 +156,7 @@ CREATE TABLE `01889_sql_json`
     id UInt8,
     json String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO `01889_sql_json` (id, json);

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS `03611_nscmp_tbl`;
 
@@ -35,7 +35,7 @@ CREATE TABLE `03611_nscmp_tbl`
     c_variant Variant(UInt64, String, Array(UInt64)),
     c_dynamic Dynamic
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO `03611_nscmp_tbl`;
@@ -123,8 +123,8 @@ SELECT
     c_float32,
     c_float32 <=> nan AS nan_cmp,
     c_float32 IS DISTINCT FROM nan AS nan_distinct,
-    c_float32 <=> 1.0 AS cmp_with_one,
-    c_float32 IS DISTINCT FROM 1.0 AS cmp_with_one_distinct
+    c_float32 <=> 1. AS cmp_with_one,
+    c_float32 IS DISTINCT FROM 1. AS cmp_with_one_distinct
 FROM `03611_nscmp_tbl`
 ORDER BY key ASC;
 
@@ -137,12 +137,12 @@ SELECT
     c_fstring IS DISTINCT FROM 'abcd' AS fstring_vs_literal_distinct,
     c_fstring <=> NULL AS fstring_vs_null,
     c_fstring IS DISTINCT FROM NULL AS fstring_vs_null_distinct,
-    c_enum8 <=> CAST('a' AS Enum8('a'=1,'b'=2)) AS enum8_check,
-    c_enum8 IS DISTINCT FROM CAST('a' AS Enum8('a'=1,'b'=2)) AS enum8_check_distinct,
+    c_enum8 <=> CAST('a' AS Enum8('a' = 1, 'b' = 2)) AS enum8_check,
+    c_enum8 IS DISTINCT FROM CAST('a' AS Enum8('a' = 1, 'b' = 2)) AS enum8_check_distinct,
     c_enum8 <=> NULL AS enum8_vs_null,
     c_enum8 IS DISTINCT FROM NULL AS enum8_vs_null_distinct,
-    c_enum16 <=> CAST('x' AS Enum16('x'=100,'y'=200)) AS enum16_check,
-    c_enum16 IS DISTINCT FROM CAST('x' AS Enum16('x'=100,'y'=200)) AS enum16_check_distinct,
+    c_enum16 <=> CAST('x' AS Enum16('x' = 100, 'y' = 200)) AS enum16_check,
+    c_enum16 IS DISTINCT FROM CAST('x' AS Enum16('x' = 100, 'y' = 200)) AS enum16_check_distinct,
     c_enum16 <=> NULL AS enum16_vs_null,
     c_enum16 IS DISTINCT FROM NULL AS enum16_vs_null_distinct
 FROM `03611_nscmp_tbl`
@@ -229,12 +229,12 @@ SELECT
     -- =====================
     -- Variant cmp
     -- =====================
-    c_variant <=> 1::UInt64::Variant(UInt64, String, Array(UInt64)) AS variant_check_int,
-    c_variant IS DISTINCT FROM 1::UInt64::Variant(UInt64, String, Array(UInt64)) AS variant_check_int_distinct,
+    c_variant <=> CAST('1' AS UInt64)::Variant(UInt64, String, Array(UInt64)) AS variant_check_int,
+    c_variant IS DISTINCT FROM CAST('1' AS UInt64)::Variant(UInt64, String, Array(UInt64)) AS variant_check_int_distinct,
     c_variant <=> 'test variant'::String::Variant(UInt64, String, Array(UInt64)) AS variant_check_str,
     c_variant IS DISTINCT FROM 'test variant'::String::Variant(UInt64, String, Array(UInt64)) AS variant_check_str_distinct,
-    c_variant <=> [1,2,3]::Array(UInt64)::Variant(UInt64, String, Array(UInt64)) AS variant_check_array,
-    c_variant IS DISTINCT FROM [1,2,3]::Array(UInt64)::Variant(UInt64, String, Array(UInt64)) AS variant_check_array_distinct,
+    c_variant <=> CAST('[1,2,3]' AS Array(UInt64))::Variant(UInt64, String, Array(UInt64)) AS variant_check_array,
+    c_variant IS DISTINCT FROM CAST('[1,2,3]' AS Array(UInt64))::Variant(UInt64, String, Array(UInt64)) AS variant_check_array_distinct,
     c_variant <=> NULL AS variant_vs_null,
     NULL <=> c_variant AS null_vs_variant,
     c_variant IS DISTINCT FROM NULL AS variant_vs_null_distinct,
@@ -242,19 +242,19 @@ SELECT
     -- =====================
     -- Dynamic cmp
     -- =====================
-    c_dynamic <=> 1::Dynamic AS dynamic_check_int,
-    c_dynamic IS DISTINCT FROM 1::Dynamic AS dynamic_check_int_distinct,
+    c_dynamic <=> CAST('1' AS Dynamic) AS dynamic_check_int,
+    c_dynamic IS DISTINCT FROM CAST('1' AS Dynamic) AS dynamic_check_int_distinct,
     c_dynamic <=> 'test dynamic'::Dynamic AS dynamic_check_str,
     c_dynamic IS DISTINCT FROM 'test dynamic'::Dynamic AS dynamic_check_str_distinct,
-    c_dynamic <=> [1, 2, 3]::Dynamic AS dynamic_check_array,
-    c_dynamic IS DISTINCT FROM [1, 2, 3]::Dynamic AS dynamic_check_array_distinct,
+    c_dynamic <=> CAST('[1, 2, 3]' AS Dynamic) AS dynamic_check_array,
+    c_dynamic IS DISTINCT FROM CAST('[1, 2, 3]' AS Dynamic) AS dynamic_check_array_distinct,
     c_dynamic <=> NULL AS dynamic_vs_null,
     NULL <=> c_dynamic AS null_vs_dynamic,
     c_dynamic IS DISTINCT FROM NULL AS dynamic_vs_null_distinct,
     NULL IS DISTINCT FROM c_dynamic AS null_vs_dynamic_distinct
 FROM `03611_nscmp_tbl`
 ORDER BY key ASC
-SETTINGS parallel_replicas_for_non_replicated_merge_tree = 0;
+SETTINGS parallel_replicas_for_non_replicated_merge_tree = '0';
 
 SELECT
     c_uuid <=> c_uuid AS uuid_self,
@@ -419,7 +419,7 @@ CREATE TABLE IF NOT EXISTS `03611_t_nullsafe`
     b Nullable(Int32),
     txt Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `03611_t_nullsafe`;
 
@@ -427,8 +427,8 @@ SELECT
     id,
     a,
     b,
-    (a <=> b) AS null_safe_equal,
-    (a IS DISTINCT FROM b) AS null_safe_distinct
+    a <=> b AS null_safe_equal,
+    a IS DISTINCT FROM b AS null_safe_distinct
 FROM `03611_t_nullsafe`
 ORDER BY id ASC;
 
@@ -436,10 +436,10 @@ SELECT
     id,
     a,
     b,
-    (a IS DISTINCT FROM b) AS distinct_flag
+    a IS DISTINCT FROM b AS distinct_flag
 FROM `03611_t_nullsafe`
 ORDER BY
-    (a <=> b) DESC,
+    a <=> b DESC,
     distinct_flag ASC,
     id ASC;
 
@@ -465,8 +465,8 @@ SELECT
     max(a) AS max_a,
     max(b) AS max_b
 FROM `03611_t_nullsafe`
-HAVING (max_a <=> max_b)
-    OR (max_a IS DISTINCT FROM max_b)
+HAVING max_a <=> max_b
+    OR max_a IS DISTINCT FROM max_b
 ORDER BY max_a ASC;
 
 SELECT
@@ -514,7 +514,7 @@ FROM `03611_t_nullsafe`
 ORDER BY id ASC;
 
 SELECT
-    (a IS DISTINCT FROM b) AS distinct_flag,
+    a IS DISTINCT FROM b AS distinct_flag,
     count() OVER (PARTITION BY a <=> b) AS partition_by_eq,
     count() OVER (PARTITION BY a IS DISTINCT FROM b) AS partition_by_distinct,
     count() OVER (PARTITION BY a <=> b, a IS DISTINCT FROM b) AS partition_by_both
@@ -527,21 +527,21 @@ SELECT
     1 <=> 1
     OR 1 IS DISTINCT FROM 1;
 
-SELECT (null,null,null) IS DISTINCT FROM (null,null,null);
+SELECT (NULL, NULL, NULL) IS DISTINCT FROM (NULL, NULL, NULL);
 
-SELECT (null,null,null) IS DISTINCT FROM (null,null,1);
+SELECT (NULL, NULL, NULL) IS DISTINCT FROM (NULL, NULL, 1);
 
-SELECT (null,null,null) <=> (null,null,1);
+SELECT (NULL, NULL, NULL) <=> (NULL, NULL, 1);
 
-SELECT (null,null,null) <=> (null,null,null);
+SELECT (NULL, NULL, NULL) <=> (NULL, NULL, NULL);
 
-SELECT (null,null,(null,null,null)) IS DISTINCT FROM (null,null,(null,null,1));
+SELECT (NULL, NULL, (NULL, NULL, NULL)) IS DISTINCT FROM (NULL, NULL, (NULL, NULL, 1));
 
-SELECT (null,null,(null,null,null)) IS DISTINCT FROM (null,null,(null,null,null));
+SELECT (NULL, NULL, (NULL, NULL, NULL)) IS DISTINCT FROM (NULL, NULL, (NULL, NULL, NULL));
 
-SELECT (null,null,(null,null,null)) <=> (null,null,(null,null,1));
+SELECT (NULL, NULL, (NULL, NULL, NULL)) <=> (NULL, NULL, (NULL, NULL, 1));
 
-SELECT (null,null,(null,null,null)) <=> (null,null,(null,null,null));
+SELECT (NULL, NULL, (NULL, NULL, NULL)) <=> (NULL, NULL, (NULL, NULL, NULL));
 
 SELECT DISTINCT *
 WHERE 2 <=> materialize(2)

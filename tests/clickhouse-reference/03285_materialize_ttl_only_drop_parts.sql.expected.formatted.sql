@@ -8,7 +8,7 @@ CREATE TABLE test_03285_mat_ttl
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1000000000, index_granularity = 8192, index_granularity_bytes = '10Mi', ttl_only_drop_parts = 1;
+SETTINGS min_bytes_for_wide_part = '1000000000', index_granularity = '8192', index_granularity_bytes = '10Mi', ttl_only_drop_parts = '1';
 
 INSERT INTO test_03285_mat_ttl SELECT
     number,
@@ -22,9 +22,9 @@ INSERT INTO test_03285_mat_ttl SELECT
     now()
 FROM numbers(50000);
 
-OPTIMIZE TABLE test_03285_mat_ttl FINAL SETTINGS mutations_sync = 1;
+OPTIMIZE TABLE test_03285_mat_ttl FINAL SETTINGS mutations_sync = '1';
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 SELECT
     'Rows in parts',
@@ -39,8 +39,8 @@ SELECT
     count()
 FROM test_03285_mat_ttl;
 
-ALTER TABLE test_03285_mat_ttl MODIFY TTL event_time + toIntervalMonth(1) SETTINGS mutations_sync = 1;
+ALTER TABLE test_03285_mat_ttl MODIFY TTL event_time + toIntervalMonth(1) SETTINGS mutations_sync = '1';
 
-ALTER TABLE test_03285_mat_ttl MODIFY TTL event_time - toIntervalMonth(3) SETTINGS mutations_sync = 1;
+ALTER TABLE test_03285_mat_ttl MODIFY TTL event_time - toIntervalMonth(3) SETTINGS mutations_sync = '1';
 
 DROP TABLE test_03285_mat_ttl;

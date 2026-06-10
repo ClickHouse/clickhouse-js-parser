@@ -2,32 +2,32 @@
 -- Tests correctness and profile events of SYSTEM CLEAR TEXT INDEX CACHES
 DROP TABLE IF EXISTS tab;
 
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
 -- Force-enable text index caches
-SET use_text_index_header_cache = 1;
+SET use_text_index_header_cache = '1';
 
-SET use_text_index_dictionary_cache = 1;
+SET use_text_index_dictionary_cache = '1';
 
-SET use_text_index_postings_cache = 1;
+SET use_text_index_postings_cache = '1';
 
 CREATE TABLE tab
 (
     s String,
-    INDEX idx s TYPE text(tokenizer = sparseGrams(3, 10))
+    INDEX idx s TYPE text(tokenizer = sparseGrams(3, 10)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-INSERT INTO tab SELECT concat('tkn', toString(number), 'nkt')
+INSERT INTO tab SELECT 'tkn' || toString(number) || 'nkt'
 FROM numbers(200000);
 
 SELECT count()
 FROM tab
-WHERE like(s, '%888%')
-SETTINGS use_skip_indexes = 0;
+WHERE s LIKE '%888%'
+SETTINGS use_skip_indexes = '0';
 
 SELECT count()
 FROM tab
@@ -43,6 +43,6 @@ SELECT
     ProfileEvents['TextIndexPostingsCacheMisses'] > 0
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(query, '%SELECT count() FROM tab%')
+    AND query LIKE '%SELECT count() FROM tab%'
     AND type = 'QueryFinish'
 ORDER BY event_time_microseconds ASC;

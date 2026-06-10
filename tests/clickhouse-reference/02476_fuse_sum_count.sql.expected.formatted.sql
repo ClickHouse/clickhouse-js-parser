@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_syntax_fuse_functions = 1;
+SET optimize_syntax_fuse_functions = '1';
 
 DROP TABLE IF EXISTS fuse_tbl;
 
@@ -9,7 +9,7 @@ CREATE TABLE fuse_tbl
     a Nullable(Int8),
     b Int8
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO fuse_tbl;
 
@@ -79,7 +79,7 @@ SELECT
     sum(a + 2),
     count(a)
 FROM fuse_tbl
-SETTINGS optimize_syntax_fuse_functions = 0;
+SETTINGS optimize_syntax_fuse_functions = '0';
 
 SELECT
     sum(a + 1),
@@ -91,19 +91,19 @@ SELECT
     count(a)
 FROM fuse_tbl;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     sum(a),
     avg(a)
 FROM fuse_tbl;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     sum(b),
     avg(b)
 FROM fuse_tbl;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     sum(a + 1),
     sum(b),
@@ -114,7 +114,7 @@ SELECT
     count(a)
 FROM fuse_tbl;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     avg(b) * 3,
     sum(b) + 1 + count(b),
@@ -124,7 +124,7 @@ FROM (
         FROM fuse_tbl
     );
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     sum(b),
     count(b)
@@ -146,7 +146,7 @@ FROM (
         SELECT number::Decimal32(0) AS x
         FROM numbers(0)
     )
-SETTINGS optimize_syntax_fuse_functions = 0;
+SETTINGS optimize_syntax_fuse_functions = '0';
 
 SELECT
     sum(x),
@@ -168,7 +168,7 @@ FROM (
         SELECT number::Decimal32(0) AS x
         FROM numbers(10)
     )
-SETTINGS optimize_syntax_fuse_functions = 0;
+SETTINGS optimize_syntax_fuse_functions = '0';
 
 SELECT
     sum(x),

@@ -1,3 +1,3 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/86279
 SELECT '{}'::JSON AS x
-QUALIFY x.`^c0` = 1; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT, UNKNOWN_IDENTIFIER }
+QUALIFY x.^c0 = 1; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT, UNKNOWN_IDENTIFIER }

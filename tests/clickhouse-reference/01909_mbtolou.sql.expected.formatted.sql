@@ -38,7 +38,7 @@ B AS (
 
 SELECT
     joinGet('DATE_INFO_DICT', 'SHAMSI', toDate(A.TVV)) AS TV1,
-    concat(substr(TV1, 3, 8), ' : ', toString(1)) AS TV_CHAR_1
+    substr(TV1, 3, 8) || ' : ' || toString(1) AS TV_CHAR_1
 FROM
     A
 LEFT JOIN B
@@ -62,7 +62,7 @@ B AS (
 
 SELECT
     joinGetOrNull('DATE_INFO_DICT', 'SHAMSI', toDate(A.TVV)) AS TV1,
-    concat(substr(TV1, 3, 8), ' : ', toString(1)) AS TV_CHAR_1
+    substr(TV1, 3, 8) || ' : ' || toString(1) AS TV_CHAR_1
 FROM
     A
 LEFT JOIN B

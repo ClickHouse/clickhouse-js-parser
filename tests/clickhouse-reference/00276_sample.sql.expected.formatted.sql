@@ -2,11 +2,11 @@
 -- no-azure-blob-storage: too slow
 DROP TABLE IF EXISTS sample_00276;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 CREATE TABLE sample_00276
 (
@@ -41,7 +41,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 0.1;
+FROM sample_00276 SAMPLE 1/10;
 
 SELECT
     count(),
@@ -57,7 +57,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 1/1e1;
+FROM sample_00276 SAMPLE 1/10;
 
 SELECT
     count(),
@@ -65,7 +65,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 1e1/1e2;
+FROM sample_00276 SAMPLE 10/100;
 
 SELECT
     count(),
@@ -73,7 +73,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 1e-1;
+FROM sample_00276 SAMPLE 1/10;
 
 SELECT
     count(),
@@ -81,7 +81,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 2e-2;
+FROM sample_00276 SAMPLE 2/100;
 
 SELECT
     count(),
@@ -149,7 +149,7 @@ SELECT
     sum(x),
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2
-SETTINGS parallel_replicas_count = 3;
+SETTINGS parallel_replicas_count = '3';
 
 SELECT
     count(),
@@ -159,8 +159,8 @@ SELECT
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2
 SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 0;
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '0';
 
 SELECT
     count(),
@@ -170,8 +170,8 @@ SELECT
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2
 SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 1;
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '1';
 
 SELECT
     count(),
@@ -181,8 +181,8 @@ SELECT
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2
 SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 2;
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '2';
 
 SELECT
     count(),
@@ -191,18 +191,7 @@ SELECT
     sum(x),
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2 OFFSET 1/2
-SETTINGS parallel_replicas_count = 3;
-
-SELECT
-    count(),
-    min(x),
-    max(x),
-    sum(x),
-    uniqExact(x)
-FROM sample_00276 SAMPLE 1/2 OFFSET 1/2
-SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 0;
+SETTINGS parallel_replicas_count = '3';
 
 SELECT
     count(),
@@ -212,8 +201,8 @@ SELECT
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2 OFFSET 1/2
 SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 1;
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '0';
 
 SELECT
     count(),
@@ -223,8 +212,19 @@ SELECT
     uniqExact(x)
 FROM sample_00276 SAMPLE 1/2 OFFSET 1/2
 SETTINGS
-    parallel_replicas_count = 3,
-    parallel_replica_offset = 2;
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '1';
+
+SELECT
+    count(),
+    min(x),
+    max(x),
+    sum(x),
+    uniqExact(x)
+FROM sample_00276 SAMPLE 1/2 OFFSET 1/2
+SETTINGS
+    parallel_replicas_count = '3',
+    parallel_replica_offset = '2';
 
 SELECT
     count(),
@@ -234,34 +234,34 @@ SELECT
     uniqExact(x)
 FROM (
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.0
+        FROM sample_00276 SAMPLE 1/10 OFFSET 0/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.1
+        FROM sample_00276 SAMPLE 1/10 OFFSET 1/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.2
+        FROM sample_00276 SAMPLE 1/10 OFFSET 2/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.3
+        FROM sample_00276 SAMPLE 1/10 OFFSET 3/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.4
+        FROM sample_00276 SAMPLE 1/10 OFFSET 4/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.5
+        FROM sample_00276 SAMPLE 1/10 OFFSET 5/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.6
+        FROM sample_00276 SAMPLE 1/10 OFFSET 6/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.7
+        FROM sample_00276 SAMPLE 1/10 OFFSET 7/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.8
+        FROM sample_00276 SAMPLE 1/10 OFFSET 8/10
         UNION ALL
         SELECT x
-        FROM sample_00276 SAMPLE 0.1 OFFSET 0.9
+        FROM sample_00276 SAMPLE 1/10 OFFSET 9/10
     );
 
 SELECT
@@ -270,7 +270,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 0.05 OFFSET 0.35;
+FROM sample_00276 SAMPLE 5/100 OFFSET 35/100;
 
 SELECT
     count(),
@@ -278,7 +278,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM sample_00276 SAMPLE 0.05 OFFSET 0.4;
+FROM sample_00276 SAMPLE 5/100 OFFSET 4/10;
 
 SELECT count()
 FROM (
@@ -287,304 +287,304 @@ FROM (
             count() AS c
         FROM (
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.00
+                FROM sample_00276 SAMPLE 1/100 OFFSET 0/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.01
+                FROM sample_00276 SAMPLE 1/100 OFFSET 1/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.02
+                FROM sample_00276 SAMPLE 1/100 OFFSET 2/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.03
+                FROM sample_00276 SAMPLE 1/100 OFFSET 3/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.04
+                FROM sample_00276 SAMPLE 1/100 OFFSET 4/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.05
+                FROM sample_00276 SAMPLE 1/100 OFFSET 5/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.06
+                FROM sample_00276 SAMPLE 1/100 OFFSET 6/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.07
+                FROM sample_00276 SAMPLE 1/100 OFFSET 7/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.08
+                FROM sample_00276 SAMPLE 1/100 OFFSET 8/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.09
+                FROM sample_00276 SAMPLE 1/100 OFFSET 9/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.10
+                FROM sample_00276 SAMPLE 1/100 OFFSET 10/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.11
+                FROM sample_00276 SAMPLE 1/100 OFFSET 11/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.12
+                FROM sample_00276 SAMPLE 1/100 OFFSET 12/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.13
+                FROM sample_00276 SAMPLE 1/100 OFFSET 13/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.14
+                FROM sample_00276 SAMPLE 1/100 OFFSET 14/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.15
+                FROM sample_00276 SAMPLE 1/100 OFFSET 15/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.16
+                FROM sample_00276 SAMPLE 1/100 OFFSET 16/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.17
+                FROM sample_00276 SAMPLE 1/100 OFFSET 17/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.18
+                FROM sample_00276 SAMPLE 1/100 OFFSET 18/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.19
+                FROM sample_00276 SAMPLE 1/100 OFFSET 19/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.20
+                FROM sample_00276 SAMPLE 1/100 OFFSET 20/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.21
+                FROM sample_00276 SAMPLE 1/100 OFFSET 21/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.22
+                FROM sample_00276 SAMPLE 1/100 OFFSET 22/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.23
+                FROM sample_00276 SAMPLE 1/100 OFFSET 23/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.24
+                FROM sample_00276 SAMPLE 1/100 OFFSET 24/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.25
+                FROM sample_00276 SAMPLE 1/100 OFFSET 25/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.26
+                FROM sample_00276 SAMPLE 1/100 OFFSET 26/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.27
+                FROM sample_00276 SAMPLE 1/100 OFFSET 27/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.28
+                FROM sample_00276 SAMPLE 1/100 OFFSET 28/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.29
+                FROM sample_00276 SAMPLE 1/100 OFFSET 29/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.30
+                FROM sample_00276 SAMPLE 1/100 OFFSET 30/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.31
+                FROM sample_00276 SAMPLE 1/100 OFFSET 31/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.32
+                FROM sample_00276 SAMPLE 1/100 OFFSET 32/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.33
+                FROM sample_00276 SAMPLE 1/100 OFFSET 33/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.34
+                FROM sample_00276 SAMPLE 1/100 OFFSET 34/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.35
+                FROM sample_00276 SAMPLE 1/100 OFFSET 35/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.36
+                FROM sample_00276 SAMPLE 1/100 OFFSET 36/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.37
+                FROM sample_00276 SAMPLE 1/100 OFFSET 37/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.38
+                FROM sample_00276 SAMPLE 1/100 OFFSET 38/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.39
+                FROM sample_00276 SAMPLE 1/100 OFFSET 39/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.40
+                FROM sample_00276 SAMPLE 1/100 OFFSET 40/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.41
+                FROM sample_00276 SAMPLE 1/100 OFFSET 41/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.42
+                FROM sample_00276 SAMPLE 1/100 OFFSET 42/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.43
+                FROM sample_00276 SAMPLE 1/100 OFFSET 43/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.44
+                FROM sample_00276 SAMPLE 1/100 OFFSET 44/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.45
+                FROM sample_00276 SAMPLE 1/100 OFFSET 45/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.46
+                FROM sample_00276 SAMPLE 1/100 OFFSET 46/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.47
+                FROM sample_00276 SAMPLE 1/100 OFFSET 47/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.48
+                FROM sample_00276 SAMPLE 1/100 OFFSET 48/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.49
+                FROM sample_00276 SAMPLE 1/100 OFFSET 49/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.50
+                FROM sample_00276 SAMPLE 1/100 OFFSET 50/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.51
+                FROM sample_00276 SAMPLE 1/100 OFFSET 51/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.52
+                FROM sample_00276 SAMPLE 1/100 OFFSET 52/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.53
+                FROM sample_00276 SAMPLE 1/100 OFFSET 53/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.54
+                FROM sample_00276 SAMPLE 1/100 OFFSET 54/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.55
+                FROM sample_00276 SAMPLE 1/100 OFFSET 55/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.56
+                FROM sample_00276 SAMPLE 1/100 OFFSET 56/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.57
+                FROM sample_00276 SAMPLE 1/100 OFFSET 57/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.58
+                FROM sample_00276 SAMPLE 1/100 OFFSET 58/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.59
+                FROM sample_00276 SAMPLE 1/100 OFFSET 59/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.60
+                FROM sample_00276 SAMPLE 1/100 OFFSET 60/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.61
+                FROM sample_00276 SAMPLE 1/100 OFFSET 61/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.62
+                FROM sample_00276 SAMPLE 1/100 OFFSET 62/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.63
+                FROM sample_00276 SAMPLE 1/100 OFFSET 63/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.64
+                FROM sample_00276 SAMPLE 1/100 OFFSET 64/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.65
+                FROM sample_00276 SAMPLE 1/100 OFFSET 65/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.66
+                FROM sample_00276 SAMPLE 1/100 OFFSET 66/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.67
+                FROM sample_00276 SAMPLE 1/100 OFFSET 67/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.68
+                FROM sample_00276 SAMPLE 1/100 OFFSET 68/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.69
+                FROM sample_00276 SAMPLE 1/100 OFFSET 69/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.70
+                FROM sample_00276 SAMPLE 1/100 OFFSET 70/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.71
+                FROM sample_00276 SAMPLE 1/100 OFFSET 71/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.72
+                FROM sample_00276 SAMPLE 1/100 OFFSET 72/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.73
+                FROM sample_00276 SAMPLE 1/100 OFFSET 73/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.74
+                FROM sample_00276 SAMPLE 1/100 OFFSET 74/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.75
+                FROM sample_00276 SAMPLE 1/100 OFFSET 75/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.76
+                FROM sample_00276 SAMPLE 1/100 OFFSET 76/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.77
+                FROM sample_00276 SAMPLE 1/100 OFFSET 77/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.78
+                FROM sample_00276 SAMPLE 1/100 OFFSET 78/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.79
+                FROM sample_00276 SAMPLE 1/100 OFFSET 79/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.80
+                FROM sample_00276 SAMPLE 1/100 OFFSET 80/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.81
+                FROM sample_00276 SAMPLE 1/100 OFFSET 81/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.82
+                FROM sample_00276 SAMPLE 1/100 OFFSET 82/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.83
+                FROM sample_00276 SAMPLE 1/100 OFFSET 83/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.84
+                FROM sample_00276 SAMPLE 1/100 OFFSET 84/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.85
+                FROM sample_00276 SAMPLE 1/100 OFFSET 85/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.86
+                FROM sample_00276 SAMPLE 1/100 OFFSET 86/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.87
+                FROM sample_00276 SAMPLE 1/100 OFFSET 87/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.88
+                FROM sample_00276 SAMPLE 1/100 OFFSET 88/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.89
+                FROM sample_00276 SAMPLE 1/100 OFFSET 89/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.90
+                FROM sample_00276 SAMPLE 1/100 OFFSET 90/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.91
+                FROM sample_00276 SAMPLE 1/100 OFFSET 91/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.92
+                FROM sample_00276 SAMPLE 1/100 OFFSET 92/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.93
+                FROM sample_00276 SAMPLE 1/100 OFFSET 93/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.94
+                FROM sample_00276 SAMPLE 1/100 OFFSET 94/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.95
+                FROM sample_00276 SAMPLE 1/100 OFFSET 95/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.96
+                FROM sample_00276 SAMPLE 1/100 OFFSET 96/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.97
+                FROM sample_00276 SAMPLE 1/100 OFFSET 97/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.98
+                FROM sample_00276 SAMPLE 1/100 OFFSET 98/100
                 UNION ALL
                 SELECT *
-                FROM sample_00276 SAMPLE 0.01 OFFSET 0.99
+                FROM sample_00276 SAMPLE 1/100 OFFSET 99/100
             )
         GROUP BY x
         HAVING c = 1
@@ -593,7 +593,7 @@ FROM (
 
 DROP TABLE sample_00276;
 
-SET max_block_size = 8192;
+SET max_block_size = '8192';
 
 CREATE TABLE sample_00276
 (

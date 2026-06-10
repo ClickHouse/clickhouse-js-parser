@@ -1,11 +1,11 @@
 -- Tags: no-parallel-replicas, no-replicated-database
 -- no-parallel-replicas: profile events may differ with parallel replicas.
 -- no-replicated-database: fails due to additional shard.
-SET insert_keeper_fault_injection_probability = 0.0;
+SET insert_keeper_fault_injection_probability = 0.;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
-DROP TABLE IF EXISTS t_shared;
+DROP TABLE IF EXISTS t_shared SYNC;
 
 CREATE TABLE t_shared
 (
@@ -29,9 +29,9 @@ INSERT INTO t_shared SELECT
     number
 FROM numbers(100, 10);
 
-SET apply_patch_parts = 1;
+SET apply_patch_parts = '1';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 UPDATE t_shared SET c2 = c1 * c1 WHERE id % 2 = 0;
 
@@ -51,7 +51,7 @@ DETACH TABLE t_shared;
 
 ATTACH TABLE t_shared;
 
-ALTER TABLE t_shared APPLY PATCHES SETTINGS mutations_sync = 2;
+ALTER TABLE t_shared APPLY PATCHES SETTINGS mutations_sync = '2';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -62,4 +62,4 @@ WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
 ORDER BY event_time_microseconds ASC;
 
-DROP TABLE t_shared;
+DROP TABLE t_shared SYNC;

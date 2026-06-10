@@ -6,9 +6,9 @@ CREATE TABLE t_nested_modify
     `n.a` Array(UInt32),
     `n.b` Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_nested_modify;
 

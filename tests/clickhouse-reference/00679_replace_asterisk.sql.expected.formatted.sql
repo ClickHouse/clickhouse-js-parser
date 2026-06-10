@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM (
@@ -15,7 +15,7 @@ FROM
             2 AS value,
             3 AS A
     )
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             4 AS values,
@@ -32,7 +32,7 @@ FROM
             1 AS id,
             2 AS value
     )
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             3 AS values
@@ -49,7 +49,7 @@ FROM
             1 AS id,
             2 AS value
     )
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             3 AS values

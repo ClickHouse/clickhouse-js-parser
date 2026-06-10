@@ -25,7 +25,7 @@ SELECT
     id,
     val
 FROM t_skip_index_null
-WHERE isNull(val)
+WHERE val IS NULL
 ORDER BY id ASC;
 
 SELECT count()

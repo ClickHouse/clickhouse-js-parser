@@ -55,5 +55,6 @@ FROM numbers(10000);
 -- ISO week is between 1 and 53
 WITH toDateTime(1000000000 + rand64() % 1000000000) AS time
 
-SELECT DISTINCT and(greaterOrEquals(toISOWeek(time), 1), lessOrEquals(toISOWeek(time), 53))
+SELECT DISTINCT toISOWeek(time) >= 1
+    AND toISOWeek(time) <= 53
 FROM numbers(1000000);

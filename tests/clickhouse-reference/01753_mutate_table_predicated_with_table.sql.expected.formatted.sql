@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS mmm;
 
 CREATE TABLE mmm
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number AS
 SELECT
     number,
@@ -11,7 +11,7 @@ FROM numbers(1000);
 ALTER TABLE mmm DELETE WHERE a IN (
     SELECT a
     FROM mmm
-) SETTINGS mutations_sync = 1;
+) SETTINGS mutations_sync = '1';
 
 SELECT is_done
 FROM `system`.mutations

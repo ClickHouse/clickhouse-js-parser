@@ -1,7 +1,7 @@
 -- Tags: no-fasttest
 SELECT h3ToParent(641573946153969375, 1);
 
-SELECT h3ToParent(641573946153969375, arrayJoin([1,2]));
+SELECT h3ToParent(641573946153969375, arrayJoin([1, 2]));
 
 DROP TABLE IF EXISTS data_table;
 
@@ -11,7 +11,7 @@ CREATE TABLE data_table
     longitude Float64,
     latitude Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO data_table SELECT

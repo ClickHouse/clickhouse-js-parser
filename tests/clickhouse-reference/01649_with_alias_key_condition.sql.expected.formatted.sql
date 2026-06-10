@@ -5,12 +5,12 @@ CREATE TABLE alias_key_condition
     i int,
     j int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO alias_key_condition;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 WITH i AS k
 

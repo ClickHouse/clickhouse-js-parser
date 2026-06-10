@@ -1,149 +1,186 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ontime"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "ontime"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "FlightDate",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "Carrier",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "FlightNum",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "ontime"
-      }
+        "type": "Identifier",
+        "name": "ontime"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "ignore",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ontime"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "finalizeAggregation",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "Users"
-                ]
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "FlightDate",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Carrier",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "FlightNum",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "FlightDate"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "Carrier"
-            ]
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqState",
-              "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ontime"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "ignore",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "FlightNum"
+                  "type": "Function",
+                  "name": "finalizeAggregation",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "Users"
+                    }
                   ]
                 }
               ]
-            },
-            "alias": "Users"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "ontime"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "FlightDate"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Carrier"
-              ]
             }
-          ]
-        },
-        "limit": {
-          "count": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "FlightDate"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "Carrier"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "Users",
+                              "name": "uniqState",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "FlightNum"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "ontime"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "FlightDate"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "Carrier"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
         }
-      }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ontime"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "ontime"
+      }
     }
   }
 ]

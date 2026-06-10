@@ -1,296 +1,308 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "arr1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "arr2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "y"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "number"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  }
-                ]
-              },
-              "alias": "arr1"
+              "type": "Identifier",
+              "name": "arr1"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  }
-                ]
-              },
-              "alias": "arr2"
+              "type": "Identifier",
+              "name": "arr2"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "y"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "arr1",
+                              "name": "range",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "2"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "arr2",
+                              "name": "range",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "3"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "numbers",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "alias": "x",
+                      "name": "arr1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "alias": "y",
+                      "name": "arr2"
+                    }
+                  ]
+                }
+              }
+            ]
           },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_unaligned_array_join": "1"
             }
           }
         }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "arr1"
-            ]
-          },
-          "alias": "x"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "arr2"
-            ]
-          },
-          "alias": "y"
-        }
       ]
-    },
-    "settings": [
-      {
-        "name": "enable_unaligned_array_join",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "arr1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "arr2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "y"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "number"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  }
-                ]
-              },
-              "alias": "arr1"
+              "type": "Identifier",
+              "name": "arr1"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  }
-                ]
-              },
-              "alias": "arr2"
+              "type": "Identifier",
+              "name": "arr2"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "y"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "arr1",
+                              "name": "range",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "2"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "arr2",
+                              "name": "range",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "3"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "numbers",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "LEFT",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "alias": "x",
+                      "name": "arr1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "alias": "y",
+                      "name": "arr2"
+                    }
+                  ]
+                }
+              }
+            ]
           },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_unaligned_array_join": "1"
             }
           }
         }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "LEFT ARRAY",
-      "expressions": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "arr1"
-            ]
-          },
-          "alias": "x"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "arr2"
-            ]
-          },
-          "alias": "y"
-        }
       ]
-    },
-    "settings": [
-      {
-        "name": "enable_unaligned_array_join",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    }
   }
 ]

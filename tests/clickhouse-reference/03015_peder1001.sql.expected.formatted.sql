@@ -6,14 +6,14 @@ CREATE TABLE test_data
 (
     ShipmentDate Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_data (ShipmentDate);
 
 SELECT toDayOfWeek(ShipmentDate) AS c
 FROM test_data
-WHERE isNotNull(c)
-    AND like(lowerUTF8(formatDateTime(plus(toDate('2024-01-01'), toIntervalDay(toInt32(c) - 1)), '%W')), '%m%')
+WHERE c IS NOT NULL
+    AND lowerUTF8(formatDateTime(plus(toDate('2024-01-01'), toIntervalDay(toInt32(c) - 1)), '%W')) LIKE '%m%'
 GROUP BY c
 ORDER BY c ASC
 LIMIT 62

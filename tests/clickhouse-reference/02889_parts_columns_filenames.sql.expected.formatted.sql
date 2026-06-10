@@ -8,9 +8,9 @@ CREATE TABLE t_parts_columns_filenames
     long_arr_name Array(UInt64),
     arr_col Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, replace_long_file_name_to_hash = 1, max_file_name_length = 8, ratio_of_defaults_for_sparse_serialization = 0.9;
+SETTINGS min_bytes_for_wide_part = '0', replace_long_file_name_to_hash = '1', max_file_name_length = '8', ratio_of_defaults_for_sparse_serialization = 0.9;
 
 INSERT INTO t_parts_columns_filenames SELECT
     number,

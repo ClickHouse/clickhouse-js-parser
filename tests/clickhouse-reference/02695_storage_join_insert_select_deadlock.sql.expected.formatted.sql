@@ -17,7 +17,7 @@ FROM
     (
         SELECT 1 AS id
     ) AS t1
-LEFT JOIN test_table_join
+ANY LEFT JOIN test_table_join
     USING (id); -- { serverError DEADLOCK_AVOIDED }
 
 INSERT INTO test_table_join SELECT
@@ -27,7 +27,7 @@ FROM
     (
         SELECT 1 AS id
     ) AS t1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT id
         FROM test_table_join
     ) AS t2

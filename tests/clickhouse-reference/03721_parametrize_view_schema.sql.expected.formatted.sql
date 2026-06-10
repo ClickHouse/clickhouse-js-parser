@@ -1,14 +1,14 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE VIEW `03271_parametrized_v`
 AS
 SELECT number AS n
-FROM numbers({upper_bound:UInt64});
+FROM numbers(0);
 
 CREATE VIEW `03271_parametrized_v_expl` (n UInt64)
 AS
 SELECT number AS n
-FROM numbers({upper_bound:UInt64});
+FROM numbers(0);
 
 -- Should return no columns
 SHOW COLUMNS FROM `03271_parametrized_v`;
@@ -30,21 +30,21 @@ WHERE table = '03271_parametrized_v_expl'
 CREATE VIEW `03271_parametrized_v_expl_mismatch` (n UInt64, s String)
 AS
 SELECT number AS n
-FROM numbers({upper_bound:UInt64});
+FROM numbers(0);
 
 SELECT *
-FROM 03271_parametrized_v_expl_mismatch(upper_bound = 3); -- { serverError TYPE_MISMATCH }
+FROM `03271_parametrized_v_expl_mismatch`(upper_bound = 3); -- { serverError TYPE_MISMATCH }
 
 EXPLAIN AST
 SELECT *
-FROM 03271_parametrized_v_expl_mismatch(upper_bound = 3);
+FROM `03271_parametrized_v_expl_mismatch`(upper_bound = 3);
 
 EXPLAIN QUERY TREE
 SELECT *
-FROM 03271_parametrized_v_expl_mismatch(upper_bound = 3); -- { serverError TYPE_MISMATCH }
+FROM `03271_parametrized_v_expl_mismatch`(upper_bound = 3); -- { serverError TYPE_MISMATCH }
 
 SELECT *
-FROM 03271_parametrized_v_expl(upper_bound = 3);
+FROM `03271_parametrized_v_expl`(upper_bound = 3);
 
 DROP VIEW `03271_parametrized_v`;
 

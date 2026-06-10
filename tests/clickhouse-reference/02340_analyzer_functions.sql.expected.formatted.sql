@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DESCRIBE TABLE (SELECT 1 + 1);
 
@@ -17,7 +17,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -27,8 +27,8 @@ FROM test_table);
 SELECT id + length(value)
 FROM test_table;
 
-DESCRIBE TABLE (SELECT concat(concat(toString(id), '_'), (value))
+DESCRIBE TABLE (SELECT concat(concat(toString(id), '_'), value)
 FROM test_table);
 
-SELECT concat(concat(toString(id), '_'), (value))
+SELECT concat(concat(toString(id), '_'), value)
 FROM test_table;

@@ -1,1 +1,1 @@
-SELECT like('Win\\Sys', '%Win\\Sys%');
+SELECT 'Win\\Sys' LIKE '%Win\\Sys%';

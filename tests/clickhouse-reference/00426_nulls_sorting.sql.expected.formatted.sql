@@ -1,12 +1,12 @@
-SELECT arrayJoin([0,0,0,0,0,0,0,0,0,0,0,1,2,2,3,4,12,NULL]) AS x
+SELECT arrayJoin([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 4, 12, NULL]) AS x
 ORDER BY x ASC;
 
-SELECT arrayJoin([0,0,0,0,0,0,0,0,0,0,0,1,2,2,3,4,12,NULL]) AS x
+SELECT arrayJoin([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 4, 12, NULL]) AS x
 ORDER BY x DESC;
 
-SET max_block_size = 1000;
+SET max_block_size = '1000';
 
-SELECT nullIf(number, if(number % 3 = 0, number, 0)) AS x
+SELECT nullIf(number, number % 3 = 0 ? number : 0) AS x
 FROM (
         SELECT *
         FROM `system`.numbers
@@ -14,7 +14,7 @@ FROM (
     )
 ORDER BY x ASC;
 
-SELECT nullIf(number, if(number % 3 = 0, number, 0)) AS x
+SELECT nullIf(number, number % 3 = 0 ? number : 0) AS x
 FROM (
         SELECT *
         FROM `system`.numbers
@@ -22,10 +22,10 @@ FROM (
     )
 ORDER BY x DESC;
 
-SET max_block_size = 5;
+SET max_block_size = '5';
 
 SELECT
-    nullIf(number, if(number % 3 = 0, number, 0)) AS x,
+    nullIf(number, number % 3 = 0 ? number : 0) AS x,
     number AS y
 FROM (
         SELECT *
@@ -37,7 +37,7 @@ ORDER BY
     y ASC;
 
 SELECT
-    nullIf(number, if(number % 3 = 0, number, 0)) AS x,
+    nullIf(number, number % 3 = 0 ? number : 0) AS x,
     number AS y
 FROM (
         SELECT *

@@ -5,7 +5,7 @@ CREATE TABLE test
     x UInt32,
     y String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT *
 FROM generateRandom()

@@ -11,9 +11,9 @@ ORDER BY key;
 
 INSERT INTO t;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-EXPLAIN QUERY TREE passes = 1
+EXPLAIN QUERY TREE passes = '1'
 WITH merged_test AS (
     SELECT *
     FROM t FINAL

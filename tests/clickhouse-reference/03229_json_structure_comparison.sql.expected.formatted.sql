@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS test_new_json_type;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_new_json_type
 ENGINE = ReplacingMergeTree(version)
 ORDER BY id;
 
-INSERT INTO test_new_json_type;
+INSERT INTO test_new_json_type FORMAT JSONEachRow;
 
 SELECT
     a.data,

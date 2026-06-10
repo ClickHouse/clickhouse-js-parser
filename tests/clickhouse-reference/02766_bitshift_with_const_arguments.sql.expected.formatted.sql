@@ -21,13 +21,13 @@ CREATE TABLE t0
     pkey UInt32,
     c0 UInt32
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t1
 (
     vkey UInt32
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY vkey;
 
 INSERT INTO t0;
@@ -51,12 +51,12 @@ CREATE TABLE t5
     c18 Float32,
     c19 UInt32
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO t5;
 
 SELECT subq_0.pkey AS c_1_c1193_15
 FROM t5 AS subq_0
-WHERE isNotNull(sipHash128(0, subq_0.c18, bitShiftRight(multiIf(false, (sipHash128(subq_0.pkey, subq_0.c18, 'S')), '1'), 0)));
+WHERE sipHash128(0, subq_0.c18, bitShiftRight(multiIf(false, sipHash128(subq_0.pkey, subq_0.c18, 'S'), '1'), 0)) IS NOT NULL;
 
 DROP TABLE t5;

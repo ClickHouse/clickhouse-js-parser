@@ -18,15 +18,15 @@ CREATE TABLE IF NOT EXISTS defaults
     predict6 Float64,
     predict7 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
 DROP TABLE IF EXISTS model;
 
 CREATE TABLE model
-ENGINE = Memory AS
-SELECT stochasticLinearRegressionState(0.1, 0.0, 5, 'SGD')(target, param1, param2, param3, param4, param5, param6, param7) AS state
+ENGINE = Memory() AS
+SELECT stochasticLinearRegressionState(0.1, 0., 5, 'SGD')(target, param1, param2, param3, param4, param5, param6, param7) AS state
 FROM defaults;
 
 WITH (

@@ -6,7 +6,7 @@ CREATE TABLE join_test
     num UInt16
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS join_any_take_last_row = 1;
+SETTINGS join_any_take_last_row = '1';
 
 INSERT INTO join_test (id, num) SELECT
     number,

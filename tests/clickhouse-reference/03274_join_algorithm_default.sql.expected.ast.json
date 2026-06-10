@@ -1,279 +1,325 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_join_swap_table",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_join_swap_table": false
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_parallel_replicas": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_optimize_join_order_limit",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_optimize_join_order_limit": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_join_runtime_filters",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_join_runtime_filters": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "String",
-          "value": "direct,parallel_hash,hash"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "settings"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "join_algorithm"
-      }
-    },
-    "leadingComments": [
-      "-- Test that with default join_algorithm setting, we are doing a parallel hash join"
-    ]
-  },
-  {
-    "kind": "explain",
-    "explainType": "PIPELINE",
-    "query": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "asterisk"
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "numbers"
-            },
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100000"
-              }
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "direct,parallel_hash,hash"
+                }
+              ]
             }
-          },
-          "alias": "t1"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "asterisk"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "settings",
+                    "database": "system"
+                  }
+                }
               }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "numbers"
-            },
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100000"
-              }
-            }
+            ]
           },
-          "alias": "t2"
-        },
-        "constraint": {
-          "kind": "using",
-          "columns": [
-            "number"
-          ]
-        }
-      },
-      "settings": [
-        {
-          "name": "max_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "16"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "name"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "join_algorithm"
+              }
+            ]
           }
         }
       ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "default"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test that join_algorithm = default does a hash join"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "String",
-          "value": "default"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "settings"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "name"
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN PIPELINE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "alias": "t1",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Asterisk"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "numbers",
+                                      "database": "system"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "100000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "INNER",
+                    "using": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "alias": "t2",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Asterisk"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "numbers",
+                                      "database": "system"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "100000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "max_threads": "16"
+              }
+            }
+          }
         ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "join_algorithm"
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "columnRef",
-          "parts": [
-            "DEFAULT"
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "join_algorithm": "default"
       }
-    ],
-    "trailingComments": [
-      "-- reset"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "compatibility",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "24.11"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "default"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "settings",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "name"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "join_algorithm"
+              }
+            ]
+          }
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "default_settings": [
+        "join_algorithm"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "compatibility": "24.11"
       }
-    ],
-    "leadingComments": [
-      "-- Check that compat setting also achieves a hash join"
-    ]
+    }
   }
 ]

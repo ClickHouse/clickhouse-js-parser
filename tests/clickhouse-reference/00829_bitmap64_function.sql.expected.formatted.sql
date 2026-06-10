@@ -6,7 +6,7 @@ CREATE TABLE bitmap_test
     city_id UInt32,
     uid UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bitmap_test SELECT
     '2019-01-01',
@@ -85,7 +85,7 @@ FROM
         GROUP BY city_id
         ORDER BY city_id ASC
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             city_id,
             groupBitmapState(uid) AS day_before
@@ -113,7 +113,7 @@ FROM
         GROUP BY city_id
         ORDER BY city_id ASC
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             city_id,
             groupBitmapState(uid) AS day_before
@@ -148,7 +148,7 @@ WHERE 0 = bitmapHasAny((
         WHERE pickup_date = '2019-01-01'
     ), bitmapBuild([uid]));
 
-SELECT bitmapToArray(bitmapAnd(groupBitmapState(uid), bitmapBuild(CAST([4294967296, 4294967297, 4294967298], 'Array(UInt64)'))))
+SELECT bitmapToArray(bitmapAnd(groupBitmapState(uid), bitmapBuild(CAST([4294967296, 4294967297, 4294967298] AS Array(UInt64)))))
 FROM bitmap_test
 GROUP BY city_id
 ORDER BY city_id ASC;

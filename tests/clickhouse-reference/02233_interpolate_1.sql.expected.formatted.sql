@@ -129,7 +129,7 @@ FROM (
             'original' AS source,
             number AS inter
         FROM numbers(10)
-        WHERE (number % 3) = 1
+        WHERE number % 3 = 1
     )
 ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter_p AS inter_p + 1);
 
@@ -144,7 +144,7 @@ FROM (
             number AS inter,
             number + 1 AS inter2
         FROM numbers(10)
-        WHERE (number % 3) = 1
+        WHERE number % 3 = 1
     )
 ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter AS inter2 + inter);
 
@@ -166,7 +166,7 @@ FROM (
                     number AS inter,
                     number + 1 AS inter2
                 FROM numbers(10)
-                WHERE (number % 3) = 1
+                WHERE number % 3 = 1
             )
         ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter AS inter + inter2)
     );
@@ -182,7 +182,7 @@ FROM (
             'original' AS source,
             number AS inter
         FROM numbers(10)
-        WHERE (number % 3) = 1
+        WHERE number % 3 = 1
     )
 GROUP BY n
 ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter_s AS inter_s + 1);
@@ -198,7 +198,7 @@ FROM (
             'original' AS source,
             number AS inter
         FROM numbers(10)
-        WHERE (number % 3) = 1
+        WHERE number % 3 = 1
     )
 ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter_p AS inter_p + 1);
 
@@ -213,7 +213,7 @@ FROM (
             'original' AS source,
             number + NULL AS inter
         FROM numbers(10)
-        WHERE (number % 3) = 1
+        WHERE number % 3 = 1
     )
 ORDER BY n ASC WITH FILL FROM 0 TO 11.51 STEP 0.5 INTERPOLATE (inter_p AS inter_p + 1);
 
@@ -224,7 +224,7 @@ CREATE TABLE t_inter_02233
 (
     n Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO t_inter_02233;

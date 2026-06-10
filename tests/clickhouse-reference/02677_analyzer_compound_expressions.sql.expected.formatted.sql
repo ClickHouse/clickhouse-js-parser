@@ -1,25 +1,25 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-WITH ('a', 'b')::Tuple(c1 String, c2 String) AS t
-
-SELECT
-    t.c1,
-    t.c2;
-
-WITH materialize(('a', 'b')::Tuple(c1 String, c2 String)) AS t
+WITH CAST('(''a'', ''b'')' AS Tuple(c1 String, c2 String)) AS t
 
 SELECT
     t.c1,
     t.c2;
 
-WITH (1, ('a', 'b'))::Tuple(c1 UInt64, t1 Tuple(c1 String, c2 String)) AS t
+WITH materialize(CAST('(''a'', ''b'')' AS Tuple(c1 String, c2 String))) AS t
+
+SELECT
+    t.c1,
+    t.c2;
+
+WITH CAST('(1, (''a'', ''b''))' AS Tuple(c1 UInt64, t1 Tuple(c1 String, c2 String))) AS t
 
 SELECT
     t.c1,
     t.t1.c1,
     t.t1.c2;
 
-WITH materialize((1, ('a', 'b'))::Tuple(c1 UInt64, t1 Tuple(c1 String, c2 String))) AS t
+WITH materialize(CAST('(1, (''a'', ''b''))' AS Tuple(c1 UInt64, t1 Tuple(c1 String, c2 String)))) AS t
 
 SELECT
     t.c1,

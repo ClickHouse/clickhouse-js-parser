@@ -9,14 +9,14 @@ CREATE TABLE t1
 (
     Val UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Val;
 
 CREATE TABLE t2
 (
     Val UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Val;
 
 -- Create a Merge table that matches only t1
@@ -36,8 +36,8 @@ FROM viewExplain('EXPLAIN', '', (
         INNER JOIN t2
             USING (Val)
         SETTINGS
-            enable_join_runtime_filters = 1,
-            parallel_replicas_local_plan = 1
+            enable_join_runtime_filters = '1',
+            parallel_replicas_local_plan = '1'
     ));
 
 DROP TABLE foo_merge;

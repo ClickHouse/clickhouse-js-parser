@@ -22,9 +22,9 @@ INSERT INTO t1 (c1, c0);
 
 INSERT INTO t2 (c0, c1);
 
-SET enable_parallel_replicas = 1;
+SET enable_parallel_replicas = '1';
 
-SET max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = 1;
+SET max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = '1';
 
 SELECT *
 FROM
@@ -42,14 +42,14 @@ FROM
     t2
 INNER JOIN t2 AS tx
     ON true
-RIGHT JOIN t1
+GLOBAL RIGHT JOIN t1
     ON true;
 
 -- just check that simple GLOBAL JOIN works with parallel replicas
 SELECT *
 FROM
     t2
-RIGHT JOIN t1
+GLOBAL RIGHT JOIN t1
     ON true;
 
 DROP TABLE t1;

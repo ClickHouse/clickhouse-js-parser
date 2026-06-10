@@ -79,10 +79,10 @@ FROM numbers(3);
 SELECT regexpExtract(materialize('100-200'), '(\\d+)-(\\d+)', number)
 FROM numbers(3);
 
-SELECT regexpExtract(concat(number::String, '-', ((2 * number))::String), '(\\d+)-(\\d+)', 1)
+SELECT regexpExtract(number::String || '-' || (2 * number)::String, '(\\d+)-(\\d+)', 1)
 FROM numbers(3);
 
-SELECT regexpExtract(concat(number::String, '-', ((2 * number))::String), '(\\d+)-(\\d+)', number % 3)
+SELECT regexpExtract(number::String || '-' || (2 * number)::String, '(\\d+)-(\\d+)', number % 3)
 FROM numbers(5);
 
 SELECT regexpExtract('100-200100-200', '(\\d+)-(\\d+)(\\d+)-(\\d+)', materialize(3));

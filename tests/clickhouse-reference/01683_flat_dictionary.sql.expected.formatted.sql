@@ -9,7 +9,7 @@ CREATE TABLE `01681_database_for_flat_dictionary`.simple_key_simple_attributes_s
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01681_database_for_flat_dictionary`.simple_key_simple_attributes_source_table;
 
@@ -66,7 +66,7 @@ CREATE TABLE `01681_database_for_flat_dictionary`.simple_key_complex_attributes_
     value_first String,
     value_second Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01681_database_for_flat_dictionary`.simple_key_complex_attributes_source_table;
 
@@ -135,7 +135,7 @@ INSERT INTO `01681_database_for_flat_dictionary`.simple_key_hierarchy_table;
 CREATE DICTIONARY `01681_database_for_flat_dictionary`.flat_dictionary_simple_key_hierarchy
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'simple_key_hierarchy_table'))

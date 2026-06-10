@@ -1,358 +1,373 @@
 [
   {
-    "kind": "explain",
-    "explainType": "PIPELINE",
-    "query": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN PIPELINE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "sleep",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "sleep",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+              "type": "Function",
+              "name": "sleep",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
             }
-          ]
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "log_processors_profiles": true,
+              "log_queries": "1",
+              "log_queries_min_type": "QUERY_FINISH"
+            }
+          }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sleep",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "settings": [
-      {
-        "name": "log_processors_profiles",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        },
+        {
+          "table": "processors_profile_log"
         }
-      },
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "log_queries_min_type",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "QUERY_FINISH"
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log, processors_profile_log"
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "query_id_",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "query_id"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "query_id_",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Identifier",
+                        "name": "query_id"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "query_log",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "and",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "equals",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "current_database"
+                            },
+                            {
+                              "type": "Function",
+                              "name": "currentDatabase",
+                              "arguments": []
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "equals",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "arrayElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Settings"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "log_processors_profiles"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
                 ]
               }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "query_log"
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "name"
             },
-            "where": {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
+            {
+              "type": "Function",
+              "alias": "elapsed",
+              "name": "multiIf",
+              "arguments": [
                 {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "current_database"
-                    ]
-                  },
-                  "right": {
-                    "kind": "functionCall",
-                    "name": "currentDatabase",
-                    "args": []
-                  }
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "name"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "ExpressionTransform"
+                    }
+                  ]
                 },
                 {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "arrayElement",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "Settings"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "log_processors_profiles"
-                      }
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "1"
-                  }
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "greaterOrEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "elapsed_us"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 900000
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "elapsed_us"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "name"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "SourceFromSingleChunk"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "greaterOrEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "output_wait_elapsed_us"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 900000
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "output_wait_elapsed_us"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "greaterOrEquals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "input_wait_elapsed_us"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 1000000
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "input_wait_elapsed_us"
+                    }
+                  ]
                 }
               ]
+            },
+            {
+              "type": "Identifier",
+              "name": "input_rows"
+            },
+            {
+              "type": "Identifier",
+              "name": "input_bytes"
+            },
+            {
+              "type": "Identifier",
+              "name": "output_rows"
+            },
+            {
+              "type": "Identifier",
+              "name": "output_bytes"
             }
-          }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "processors_profile_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "query_id"
+              },
+              {
+                "type": "Identifier",
+                "name": "query_id_"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "name"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "multiIf",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "name"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "ExpressionTransform"
-              },
-              "leadingComments": [
-                "-- ExpressionTransform executes sleep(),",
-                "-- so IProcessor::work() will spend 1 sec.",
-                "-- We use two different timers to measure time: CLOCK_MONOTONIC for sleep and CLOCK_MONOTONIC_COARSE for profiling",
-                "-- that's why we cannot compare directly with 1,000,000 microseconds - let's compare with 900,000 microseconds."
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "elapsed_us"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "Float64",
-                    "value": "0.9e6"
-                  }
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "elapsed_us"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "name"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "SourceFromSingleChunk"
-              },
-              "leadingComments": [
-                "-- SourceFromSingleChunk, that feed data to ExpressionTransform,",
-                "-- will feed first block and then wait in PortFull."
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "output_wait_elapsed_us"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "Float64",
-                    "value": "0.9e6"
-                  }
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "output_wait_elapsed_us"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "input_wait_elapsed_us"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "Float64",
-                    "value": "1e6"
-                  }
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "input_wait_elapsed_us"
-                  ]
-                }
-              ],
-              "leadingComments": [
-                "-- LazyOutputFormatLazyOutputFormat is the output",
-                "-- so it cannot starts to execute before sleep(1) will be executed."
-              ]
-            }
-          ]
-        },
-        "alias": "elapsed"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "input_rows"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "input_bytes"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "output_rows"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "output_bytes"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "processors_profile_log"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "query_id"
-        ]
-      },
-      "right": {
-        "kind": "columnRef",
-        "parts": [
-          "query_id_"
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   }
 ]

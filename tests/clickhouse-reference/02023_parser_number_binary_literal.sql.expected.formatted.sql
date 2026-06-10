@@ -1,33 +1,33 @@
 SELECT
-    0b0001 AS number,
+    1 AS number,
     toTypeName(number);
 
 SELECT
-    0b0010 AS number,
+    2 AS number,
     toTypeName(number);
 
 SELECT
-    0b0100 AS number,
+    4 AS number,
     toTypeName(number);
 
 SELECT
-    0b1000 AS number,
+    8 AS number,
     toTypeName(number);
 
 SELECT
-    0b10000000 AS number,
+    128 AS number,
     toTypeName(number);
 
 SELECT
-    0b1000000000000000 AS number,
+    32768 AS number,
     toTypeName(number);
 
 SELECT
-    0b10000000000000000000000000000000 AS number,
+    2147483648 AS number,
     toTypeName(number);
 
 SELECT
-    0b1000000000000000000000000000000000000000000000000000000000000000 AS number,
+    9223372036854775808 AS number,
     toTypeName(number);
 
 SELECT

@@ -6,7 +6,7 @@ CREATE TABLE test_group_by_with_rollup_order
     a Nullable(Int64),
     b Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_group_by_with_rollup_order;

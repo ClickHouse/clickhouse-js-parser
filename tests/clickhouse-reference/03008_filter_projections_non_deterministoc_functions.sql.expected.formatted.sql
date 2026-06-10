@@ -2,10 +2,10 @@ CREATE TABLE test
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
-SYSTEM stop merges test;
+SYSTEM STOP MERGES test;
 
 INSERT INTO test SELECT number
 FROM numbers(100000);
@@ -36,7 +36,7 @@ FROM test
 WHERE rand(2) % 2 = 1
 GROUP BY _part
 ORDER BY _part ASC
-SETTINGS optimize_use_implicit_projections = 0;
+SETTINGS optimize_use_implicit_projections = '0';
 
 SELECT
     count() > 0
@@ -46,7 +46,7 @@ FROM test
 WHERE rand(3) % 2 = 1
 GROUP BY _part
 ORDER BY _part ASC
-SETTINGS optimize_trivial_count_query = 0;
+SETTINGS optimize_trivial_count_query = '0';
 
 SELECT
     count() > 0
@@ -57,5 +57,5 @@ WHERE rand(4) % 2 = 1
 GROUP BY _part
 ORDER BY _part ASC
 SETTINGS
-    optimize_trivial_count_query = 0,
-    optimize_use_implicit_projections = 0;
+    optimize_trivial_count_query = '0',
+    optimize_use_implicit_projections = '0';

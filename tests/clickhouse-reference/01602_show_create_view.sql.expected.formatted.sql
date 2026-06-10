@@ -12,7 +12,7 @@ CREATE TABLE test_1602.tbl
 ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE VIEW test_1602.v
 AS
@@ -43,7 +43,7 @@ CREATE MATERIALIZED VIEW test_1602.vv
 ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
-SETTINGS index_granularity = 8192
+SETTINGS index_granularity = '8192'
 AS
 SELECT *
 FROM test_1602.tbl;

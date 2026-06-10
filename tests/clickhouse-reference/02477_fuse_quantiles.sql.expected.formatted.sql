@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_syntax_fuse_functions = 1;
+SET optimize_syntax_fuse_functions = '1';
 
 DROP TABLE IF EXISTS fuse_tbl;
 
@@ -9,7 +9,7 @@ CREATE TABLE fuse_tbl
     a Nullable(Int32),
     b Int32
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO fuse_tbl SELECT
     number,
@@ -59,7 +59,7 @@ FROM (
         GROUP BY x
     );
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     quantile(0.5)(b),
     quantile(0.9)(b)

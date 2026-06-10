@@ -13,7 +13,7 @@ CREATE TABLE null_table
 (
     number UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE VIEW number_view
 AS
@@ -21,7 +21,7 @@ SELECT *
 FROM numbers(10) AS tb;
 
 CREATE MATERIALIZED VIEW null_mv
-ENGINE = Log
+ENGINE = Log()
 AS
 SELECT *
 FROM

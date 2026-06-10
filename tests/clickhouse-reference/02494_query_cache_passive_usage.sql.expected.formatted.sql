@@ -30,5 +30,5 @@ FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
     /* NOTE: client incorrectly join comments from the previous line into query, hence LIKE */
-    AND like(query, '%\nSELECT 1 SETTINGS use_query_cache = true, enable_writes_to_query_cache = false;')
+    AND query LIKE '%\nSELECT 1 SETTINGS use_query_cache = true, enable_writes_to_query_cache = false;'
 ORDER BY event_time_microseconds ASC;

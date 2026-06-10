@@ -1,5 +1,5 @@
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tree;
 
@@ -9,8 +9,8 @@ CREATE TABLE tree
     link Nullable(UInt64),
     data String
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 INSERT INTO tree;
 
@@ -27,8 +27,8 @@ WITH RECURSIVE search_tree AS (
         t.link,
         t.data
     FROM
-        tree AS t
-    CROSS JOIN search_tree AS st
+        tree AS t,
+        search_tree AS st
     WHERE t.link = st.id
 )
 
@@ -52,8 +52,8 @@ WITH RECURSIVE search_tree AS (
         t.data,
         arrayConcat(path, [t.id])
     FROM
-        tree AS t
-    CROSS JOIN search_tree AS st
+        tree AS t,
+        search_tree AS st
     WHERE t.link = st.id
 )
 
@@ -109,8 +109,8 @@ CREATE TABLE department
     parent_department UInt64,
     name String
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 INSERT INTO department;
 
@@ -142,8 +142,8 @@ WITH RECURSIVE subdepartment AS (
         sd.root_name,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -165,8 +165,8 @@ WITH RECURSIVE subdepartment AS (
         sd.level + 1,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -189,8 +189,8 @@ WITH RECURSIVE subdepartment AS (
         sd.level + 1,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -218,13 +218,13 @@ FROM (
             SELECT *
             FROM department
             UNION ALL
-(            WITH x AS (
+            WITH x AS (
                 SELECT *
                 FROM q
             )
 
             SELECT *
-            FROM x)
+            FROM x
         )
 
         SELECT *
@@ -242,19 +242,19 @@ FROM (
             SELECT *
             FROM department
             UNION ALL
-(            WITH RECURSIVE x AS (
+            WITH RECURSIVE x AS (
                 SELECT *
                 FROM department
                 UNION ALL
-(                SELECT *
+                SELECT *
                 FROM q
                 UNION ALL
                 SELECT *
-                FROM x)
+                FROM x
             )
 
             SELECT *
-            FROM x)
+            FROM x
         )
 
         SELECT *

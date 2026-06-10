@@ -10,7 +10,7 @@ CREATE TABLE data_compact
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 100, min_bytes_for_wide_part = 1e9;
+SETTINGS min_rows_for_wide_part = '100', min_bytes_for_wide_part = 1000000000.;
 
 INSERT INTO data_compact;
 
@@ -32,7 +32,7 @@ CREATE TABLE data_wide
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0;
+SETTINGS min_rows_for_wide_part = '0', min_bytes_for_wide_part = '0';
 
 INSERT INTO data_wide;
 

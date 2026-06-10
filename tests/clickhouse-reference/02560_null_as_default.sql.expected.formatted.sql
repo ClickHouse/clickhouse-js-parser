@@ -6,9 +6,9 @@ CREATE TABLE test
 )
 ENGINE = Memory();
 
-SET insert_null_as_default = 1;
+SET insert_null_as_default = '1';
 
-INSERT INTO test SELECT if(number % 2, NULL, 42) AS x
+INSERT INTO test SELECT number % 2 ? NULL : 42 AS x
 FROM numbers(2);
 
 SELECT *
@@ -23,5 +23,5 @@ CREATE TABLE test
 )
 ENGINE = Memory();
 
-INSERT INTO test SELECT (if(number % 2, NULL, 'World'))::LowCardinality(Nullable(String))
+INSERT INTO test SELECT (number % 2 ? NULL : 'World')::LowCardinality(Nullable(String))
 FROM numbers(2);

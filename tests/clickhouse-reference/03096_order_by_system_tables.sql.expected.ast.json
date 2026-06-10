@@ -1,207 +1,221 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS /* all tables */"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS"
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "known_tables",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "asynchronous_metric_log"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "asynchronous_insert_log"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "opentelemetry_span_log"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "coverage_log"
-            }
-          ],
-          "source": "['asynchronous_metric_log', 'asynchronous_insert_log', 'opentelemetry_span_log', 'coverage_log']"
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "default_sorting_key",
-        "expr": {
-          "kind": "literal",
-          "type": "String",
-          "value": "event_date, event_time"
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "concat",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "Table "
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "name"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": " has non-default sorting key: "
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "sorting_key"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "tables"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "system"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "engine"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "MergeTree"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "functionCall",
-          "name": "notLike",
-          "args": [
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "name"
+              "type": "Literal",
+              "alias": "known_tables",
+              "value_type": "Array",
+              "value": [
+                {
+                  "value_type": "String",
+                  "value": "asynchronous_metric_log"
+                },
+                {
+                  "value_type": "String",
+                  "value": "asynchronous_insert_log"
+                },
+                {
+                  "value_type": "String",
+                  "value": "opentelemetry_span_log"
+                },
+                {
+                  "value_type": "String",
+                  "value": "coverage_log"
+                }
               ]
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "minio%"
+              "type": "Literal",
+              "alias": "default_sorting_key",
+              "value_type": "String",
+              "value": "event_date, event_time"
             }
-          ]
-        },
-        {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arraySum",
-            "args": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "concat",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Table "
+                },
+                {
+                  "type": "Identifier",
+                  "name": "name"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": " has non-default sorting key: "
+                },
+                {
+                  "type": "Identifier",
+                  "name": "sorting_key"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "arrayMap",
-                "args": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tables",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "lambdaExpr",
-                    "params": [
-                      "x"
-                    ],
-                    "body": {
-                      "kind": "functionCall",
-                      "name": "position",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "name"
-                          ]
-                        },
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "x"
-                          ]
-                        }
-                      ]
-                    }
+                    "type": "Identifier",
+                    "name": "database"
                   },
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "known_tables"
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "system"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "engine"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "MergeTree"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notLike",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "name"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "minio%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arraySum",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "position",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "name"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "known_tables"
+                          }
+                        ]
+                      }
                     ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "sorting_key"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "default_sorting_key"
                   }
                 ]
               }
             ]
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "!=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "sorting_key"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "default_sorting_key"
-            ]
-          },
-          "parenthesized": true
+          }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Check for system tables which have non-default sorting key"
-    ]
+    }
   }
 ]

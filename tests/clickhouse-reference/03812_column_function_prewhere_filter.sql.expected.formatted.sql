@@ -1,4 +1,4 @@
-SET enable_multiple_prewhere_read_steps = 1;
+SET enable_multiple_prewhere_read_steps = '1';
 
 DROP TABLE IF EXISTS test_column_function_filter;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_column_function_filter
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 100;
+SETTINGS index_granularity = '100';
 
 INSERT INTO test_column_function_filter SELECT
     number,
@@ -23,17 +23,19 @@ FROM numbers(10000);
 -- Test case 1: ColumnFunction shares ColumnConst columns for ['12'] and ['key']
 SELECT count()
 FROM test_column_function_filter
-PREWHERE and(greaterOrEquals(filter_val, 20), lessOrEquals(filter_val, 80))
-    AND (((multiSearchAny(name, ['123', '456', '789']) > 0)
-    OR arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapKeys(attrs)), ['12'])
-    OR arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapValues(attrs)), ['12'])))
-    AND ((arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapKeys(attrs)), ['key'])
-    OR arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapValues(attrs)), ['key'])));
+PREWHERE (filter_val >= 20
+    AND filter_val <= 80)
+    AND (multiSearchAny(name, ['123', '456', '789']) > 0
+    OR arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapKeys(attrs))), ['12'])
+    OR arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapValues(attrs))), ['12']))
+    AND (arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapKeys(attrs))), ['key'])
+    OR arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapValues(attrs))), ['key']));
 
 -- Test case 2: ColumnFunction shares a ColumnArray column for mapKeys(attrs)
 SELECT count()
 FROM test_column_function_filter
-PREWHERE and(greaterOrEquals(filter_val, 20), lessOrEquals(filter_val, 80))
-    AND (((multiSearchAny(name, ['123', '456', '789']) > 0)
-    OR arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapKeys(attrs)), ['12'])))
-    AND arrayExists(x -> arrayExists(y -> position(y, x) > 0, mapKeys(attrs)), ['key']);
+PREWHERE (filter_val >= 20
+    AND filter_val <= 80)
+    AND (multiSearchAny(name, ['123', '456', '789']) > 0
+    OR arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapKeys(attrs))), ['12']))
+    AND arrayExists((x -> arrayExists((y -> position(y, x) > 0), mapKeys(attrs))), ['key']);

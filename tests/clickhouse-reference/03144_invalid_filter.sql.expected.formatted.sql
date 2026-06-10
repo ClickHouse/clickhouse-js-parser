@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/48049
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test_table
 (
@@ -18,7 +18,7 @@ SELECT
     id,
     test_table.* APPLY(x -> compound_value.*)
 FROM test_table
-WHERE arrayMap(x -> toString(x) AS lambda, [NULL, 256, 257, NULL, NULL])
+WHERE arrayMap((x -> toString(x) AS lambda), [NULL, 256, 257, NULL, NULL])
 SETTINGS
     convert_query_to_cnf = true,
     optimize_using_constraints = true,

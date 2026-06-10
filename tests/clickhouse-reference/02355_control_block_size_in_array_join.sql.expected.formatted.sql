@@ -1,4 +1,4 @@
-SET max_block_size = 8192;
+SET max_block_size = '8192';
 
 SELECT DISTINCT blockSize() <= 8192
 FROM (

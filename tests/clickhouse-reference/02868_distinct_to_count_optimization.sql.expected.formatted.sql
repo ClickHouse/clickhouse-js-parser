@@ -6,7 +6,7 @@ CREATE TABLE test_rewrite_uniq_to_count
     b UInt8,
     c UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_rewrite_uniq_to_count;
@@ -22,7 +22,7 @@ FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     )
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(a)
@@ -30,14 +30,14 @@ FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     )
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(a)
 FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(a)
@@ -45,14 +45,14 @@ FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(t.a)
 FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(a)
@@ -60,14 +60,14 @@ FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(t.a)
 FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(t.a)
@@ -75,14 +75,14 @@ FROM (
         SELECT DISTINCT a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(a)
 FROM (
         SELECT DISTINCT test_rewrite_uniq_to_count.a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(a)
@@ -90,14 +90,14 @@ FROM (
         SELECT DISTINCT test_rewrite_uniq_to_count.a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(a)
 FROM (
         SELECT DISTINCT test_rewrite_uniq_to_count.a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(a)
@@ -105,14 +105,14 @@ FROM (
         SELECT DISTINCT test_rewrite_uniq_to_count.a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(alias_of_a)
 FROM (
         SELECT DISTINCT a AS alias_of_a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(alias_of_a)
@@ -120,14 +120,14 @@ FROM (
         SELECT DISTINCT a AS alias_of_a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(alias_of_a)
 FROM (
         SELECT DISTINCT a AS alias_of_a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(alias_of_a)
@@ -135,7 +135,7 @@ FROM (
         SELECT DISTINCT a AS alias_of_a
         FROM test_rewrite_uniq_to_count
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(a)
 FROM (
@@ -145,7 +145,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     )
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(a)
@@ -156,7 +156,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     )
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(a)
 FROM (
@@ -166,7 +166,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(a)
@@ -177,7 +177,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(t.a)
 FROM (
@@ -187,7 +187,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(t.a)
@@ -198,7 +198,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(t.a)
 FROM (
@@ -208,7 +208,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(t.a)
@@ -219,7 +219,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(t.alias_of_a)
 FROM (
@@ -229,7 +229,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(t.alias_of_a)
@@ -240,7 +240,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(t.alias_of_a)
 FROM (
@@ -250,7 +250,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(t.alias_of_a)
@@ -261,7 +261,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT uniq(t.alias_of_a)
 FROM (
@@ -271,7 +271,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY alias_of_a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 EXPLAIN SYNTAX
 SELECT uniq(t.alias_of_a)
@@ -282,7 +282,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY alias_of_a
     ) AS t
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT uniq(t.alias_of_a)
 FROM (
@@ -292,7 +292,7 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY alias_of_a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT uniq(t.alias_of_a)
@@ -303,4 +303,4 @@ FROM (
         FROM test_rewrite_uniq_to_count
         GROUP BY alias_of_a
     ) AS t
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

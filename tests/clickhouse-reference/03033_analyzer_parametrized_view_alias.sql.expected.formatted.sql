@@ -3,7 +3,7 @@ CREATE TABLE raw_data
     id UInt8,
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO raw_data SELECT
@@ -15,8 +15,8 @@ CREATE VIEW raw_data_parameterized
 AS
 SELECT *
 FROM raw_data
-WHERE (id >= {id_from:UInt8})
-    AND (id <= {id_to:UInt8});
+WHERE id >= 0
+    AND id <= 0;
 
 SELECT t1.id
 FROM raw_data_parameterized(id_from = 0, id_to = 50000) AS t1

@@ -18,7 +18,7 @@ FROM (
                 SELECT groupBitmapState(toUInt64(2))
             )) AS has2
     )
-SETTINGS enable_analyzer = 0; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SETTINGS enable_analyzer = '0'; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT *
 FROM (
@@ -30,4 +30,4 @@ FROM (
                 SELECT groupBitmapState(toUInt64(2))
             )) AS has2
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

@@ -4,7 +4,7 @@ CREATE TABLE num_10m
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO num_10m SELECT *
@@ -19,4 +19,4 @@ FROM (
         FROM num_10m
     )
 LIMIT 1
-SETTINGS max_block_size = 1024;
+SETTINGS max_block_size = '1024';

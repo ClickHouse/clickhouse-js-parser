@@ -12,9 +12,9 @@ CREATE TABLE test_graphite
 )
 ENGINE = GraphiteMergeTree('graphite_rollup')
 ORDER BY key
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 INSERT INTO test_graphite WITH dates AS (
     SELECT
@@ -31,9 +31,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'sum_1',
@@ -42,9 +48,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'sum_2',
@@ -53,9 +65,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'sum_2',
@@ -64,9 +82,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'max_1',
@@ -75,9 +99,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'max_1',
@@ -86,9 +116,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'max_2',
@@ -97,9 +133,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'max_2',
@@ -108,10 +150,16 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(300)
+    dates,
+    numbers(300)
 UNION ALL
 -- Older than 2 days use 6000 second windows
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1 AS key,
     'sum_1' AS s,
@@ -120,9 +168,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'sum_1',
@@ -131,9 +185,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'sum_2',
@@ -142,9 +202,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'sum_2',
@@ -153,9 +219,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'max_1',
@@ -164,9 +236,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'max_1',
@@ -175,9 +253,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     1,
     'max_2',
@@ -186,9 +270,15 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200)
+    dates,
+    numbers(1200)
 UNION ALL
+WITH dates AS (
+    SELECT
+        toStartOfDay(toDateTime(now('UTC'), 'UTC')) AS today,
+        today - toIntervalDay(3) AS older_date
+)
+
 SELECT
     2,
     'max_2',
@@ -197,8 +287,8 @@ SELECT
     1,
     number
 FROM
-    dates
-CROSS JOIN numbers(1200);
+    dates,
+    numbers(1200);
 
 SELECT
     key,

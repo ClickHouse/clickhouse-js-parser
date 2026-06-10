@@ -4,5 +4,5 @@ SHOW CREATE TABLE INFORMATION_SCHEMA.`COLUMNS`;
 
 SELECT create_table_query
 FROM `system`.tables
-WHERE ilike(database, 'INFORMATION_SCHEMA')
-    AND ilike(table, 'TABLES'); -- supress style check: database = currentDatabase()
+WHERE database ILIKE 'INFORMATION_SCHEMA'
+    AND table ILIKE 'TABLES'; -- supress style check: database = currentDatabase()

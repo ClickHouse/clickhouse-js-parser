@@ -1,5 +1,5 @@
 -- Tags: no-debug, no-parallel, long, no-object-storage, no-random-settings, no-random-merge-tree-settings
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 DROP TABLE IF EXISTS table_with_single_pk;
 
@@ -8,16 +8,16 @@ CREATE TABLE table_with_single_pk
     key UInt8,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS min_compress_block_size = 65536, max_compress_block_size = 65536;
+SETTINGS min_compress_block_size = '65536', max_compress_block_size = '65536';
 
 INSERT INTO table_with_single_pk SELECT
     number,
     toString(number % 10)
 FROM numbers(10000000);
 
-ALTER TABLE table_with_single_pk DELETE WHERE key % 77 = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE table_with_single_pk DELETE WHERE key % 77 = 0 SETTINGS mutations_sync = '1';
 
 SYSTEM FLUSH LOGS part_log;
 
@@ -38,9 +38,9 @@ CREATE TABLE table_with_multi_pk
     key3 DateTime64(6, 'UTC'),
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key1, key2, key3)
-SETTINGS min_compress_block_size = 65536, max_compress_block_size = 65536;
+SETTINGS min_compress_block_size = '65536', max_compress_block_size = '65536';
 
 INSERT INTO table_with_multi_pk SELECT
     number % 32,
@@ -49,7 +49,7 @@ INSERT INTO table_with_multi_pk SELECT
     toString(number % 10)
 FROM numbers(10000000);
 
-ALTER TABLE table_with_multi_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE table_with_multi_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = '1';
 
 -- Memory usage for all mutations must be almost constant and less than
 -- read_bytes
@@ -68,9 +68,9 @@ CREATE TABLE table_with_function_pk
     key3 DateTime64(6, 'UTC'),
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (CAST(value AS UInt64), key2)
-SETTINGS min_compress_block_size = 65536, max_compress_block_size = 65536;
+SETTINGS min_compress_block_size = '65536', max_compress_block_size = '65536';
 
 INSERT INTO table_with_function_pk SELECT
     number % 32,
@@ -79,7 +79,7 @@ INSERT INTO table_with_function_pk SELECT
     toString(number % 10)
 FROM numbers(10000000);
 
-ALTER TABLE table_with_function_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE table_with_function_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = '1';
 
 -- Memory usage for all mutations must be almost constant and less than
 -- read_bytes
@@ -98,9 +98,9 @@ CREATE TABLE table_without_pk
     key3 DateTime64(6, 'UTC'),
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_compress_block_size = 65536, max_compress_block_size = 65536;
+SETTINGS min_compress_block_size = '65536', max_compress_block_size = '65536';
 
 INSERT INTO table_without_pk SELECT
     number % 32,
@@ -109,7 +109,7 @@ INSERT INTO table_without_pk SELECT
     toString(number % 10)
 FROM numbers(10000000);
 
-ALTER TABLE table_without_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE table_without_pk DELETE WHERE key1 % 77 = 0 SETTINGS mutations_sync = '1';
 
 -- Memory usage for all mutations must be almost constant and less than
 -- read_bytes

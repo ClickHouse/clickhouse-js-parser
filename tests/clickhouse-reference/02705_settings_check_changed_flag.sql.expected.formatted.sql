@@ -3,36 +3,36 @@ SELECT changed
 FROM `system`.`settings`
 WHERE name = 'mysql_max_rows_to_insert';
 
-SET mysql_max_rows_to_insert = 123123;
+SET mysql_max_rows_to_insert = '123123';
 
-SET mysql_max_rows_to_insert = 65536;
+SET mysql_max_rows_to_insert = '65536';
 
 ---SettingAutoWrapper 
 SELECT changed
 FROM `system`.`settings`
 WHERE name = 'insert_quorum';
 
-SET insert_quorum = 123123;
+SET insert_quorum = '123123';
 
-SET insert_quorum = 0;
+SET insert_quorum = '0';
 
 ---SettingFieldMaxThreads 
 SELECT changed
 FROM `system`.`settings`
 WHERE name = 'max_alter_threads';
 
-SET max_alter_threads = 123123;
+SET max_alter_threads = '123123';
 
-SET max_alter_threads = 0;
+SET max_alter_threads = '0';
 
 ---SettingFieldTimespanUnit
 SELECT changed
 FROM `system`.`settings`
 WHERE name = 'drain_timeout';
 
-SET drain_timeout = 123123;
+SET drain_timeout = '123123';
 
-SET drain_timeout = 3;
+SET drain_timeout = '3';
 
 ---SettingFieldChar
 SELECT changed

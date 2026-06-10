@@ -7,7 +7,7 @@ CREATE TABLE lwd_test
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO lwd_test SELECT
     number,
@@ -15,7 +15,7 @@ INSERT INTO lwd_test SELECT
 FROM `system`.numbers
 LIMIT 1000000;
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
 SELECT
     'Rows in parts',
@@ -41,15 +41,15 @@ LIMIT 1;
 --ALTER TABLE lwd_test UPDATE _row_exists = 0 WHERE id < 3000000;
 DELETE FROM lwd_test WHERE id < 100000;
 
-OPTIMIZE TABLE lwd_test FINAL SETTINGS mutations_sync = 2;
+OPTIMIZE TABLE lwd_test FINAL SETTINGS mutations_sync = '2';
 
 DELETE FROM lwd_test WHERE id < 200000;
 
-ALTER TABLE lwd_test UPDATE value = 'v' WHERE id % 2 == 0 SETTINGS mutations_sync = 2;
+ALTER TABLE lwd_test UPDATE value = 'v' WHERE id % 2 = 0 SETTINGS mutations_sync = '2';
 
 DELETE FROM lwd_test WHERE id < 300000;
 
-ALTER TABLE lwd_test DELETE WHERE id % 3 == 0 SETTINGS mutations_sync = 2;
+ALTER TABLE lwd_test DELETE WHERE id % 3 = 0 SETTINGS mutations_sync = '2';
 
 DELETE FROM lwd_test WHERE id >= 300000
 AND id < 400000;

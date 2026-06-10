@@ -8,9 +8,9 @@ CREATE OR REPLACE TABLE test_string
     unhexed String EPHEMERAL,
     hexed FixedString(4) DEFAULT unhex(unhexed)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS add_minmax_index_for_numeric_columns = 1, add_minmax_index_for_string_columns = 1;
+SETTINGS add_minmax_index_for_numeric_columns = '1', add_minmax_index_for_string_columns = '1';
 
 CREATE OR REPLACE TABLE test_string_alias
 (
@@ -18,9 +18,9 @@ CREATE OR REPLACE TABLE test_string_alias
     unhexed String ALIAS 'abc',
     hexed FixedString(4) DEFAULT unhex(unhexed)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS add_minmax_index_for_numeric_columns = 1, add_minmax_index_for_string_columns = 1;
+SETTINGS add_minmax_index_for_numeric_columns = '1', add_minmax_index_for_string_columns = '1';
 
 SELECT
     table,

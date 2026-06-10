@@ -17,9 +17,9 @@ CREATE TABLE t1
     a String,
     f UInt8 DEFAULT 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t1 (a);
 
@@ -28,9 +28,9 @@ CREATE TABLE t2
     a String,
     f UInt8 DEFAULT 2
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t2 (a);
 
@@ -48,9 +48,9 @@ ORDER BY a ASC; -- { serverError ILLEGAL_PREWHERE }
 SELECT *
 FROM m
 WHERE a = 'OK'
-SETTINGS optimize_move_to_prewhere = 0;
+SETTINGS optimize_move_to_prewhere = '0';
 
 SELECT *
 FROM m
 WHERE a = 'OK'
-SETTINGS optimize_move_to_prewhere = 1;
+SETTINGS optimize_move_to_prewhere = '1';

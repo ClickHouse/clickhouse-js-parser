@@ -9,8 +9,8 @@ CREATE TABLE t_c3oollc8r
     c_lfntfzg Int32,
     c_kntw50q Int32
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 SELECT (
         SELECT c_k37

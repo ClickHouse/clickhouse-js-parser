@@ -6,9 +6,9 @@ CREATE TABLE bloom_filter_sizing_pk
     value UInt64,
     INDEX key_bf key TYPE bloom_filter(0.01) GRANULARITY 2147483648
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO bloom_filter_sizing_pk SELECT
     number % 100 AS key, -- 100 unique keys
@@ -41,9 +41,9 @@ CREATE TABLE bloom_filter_sizing_sec
     value UInt64,
     INDEX key_bf key2 TYPE bloom_filter(0.01) GRANULARITY 2147483648
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key1
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO bloom_filter_sizing_sec SELECT
     number % 100 AS key1, -- 100 unique keys

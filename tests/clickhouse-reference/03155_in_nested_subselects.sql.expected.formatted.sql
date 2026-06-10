@@ -1,20 +1,20 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/63833
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 CREATE TABLE Example
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO Example SELECT number AS id
 FROM numbers(2);
 
 CREATE TABLE `Null` AS Example
-ENGINE = Null;
+ENGINE = Null();
 
 --create table Null engine=MergeTree order by id as Example ;
 CREATE MATERIALIZED VIEW Transform

@@ -8,14 +8,14 @@ CREATE TABLE IF NOT EXISTS defaults
     predict1 Float64,
     predict2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
 DROP TABLE IF EXISTS model;
 
 CREATE TABLE model
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT stochasticLinearRegressionState(0.03, 0.00001, 2, 'Nesterov')(target, param1, param2) AS state
 FROM defaults;
 
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS grouptest
     p2 Float64,
     target Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO grouptest;
 
@@ -79,7 +79,8 @@ FROM (
         FROM grouptest
         GROUP BY user_id
         ORDER BY user_id ASC
-        LIMIT 1, 1
+        LIMIT 1
+        OFFSET 1
     );
 
 SELECT ANS[1] > 1.9
@@ -93,7 +94,8 @@ FROM (
         FROM grouptest
         GROUP BY user_id
         ORDER BY user_id ASC
-        LIMIT 0, 1
+        LIMIT 1
+        OFFSET 0
     );
 
 DROP TABLE defaults;

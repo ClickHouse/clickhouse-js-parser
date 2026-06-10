@@ -1,11 +1,11 @@
 -- Tags: no-tsan, no-asan, no-ubsan, no-msan, no-debug, no-parallel, no-fasttest
-SET allow_introspection_functions = 1;
+SET allow_introspection_functions = '1';
 
-SET memory_profiler_step = 1000000;
+SET memory_profiler_step = '1000000';
 
-SET memory_profiler_sample_probability = 1;
+SET memory_profiler_sample_probability = '1';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT ignore(groupArray(number), 'test memory profiler')
 FROM numbers(10000000)
@@ -24,7 +24,7 @@ WHERE event_date >= yesterday()
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
-            AND like(query, '%test memory profiler%')
+            AND query LIKE '%test memory profiler%'
             AND has(used_table_functions, 'numbers')
             AND log_comment = '01092_memory_profiler'
         ORDER BY event_time DESC
@@ -42,7 +42,7 @@ WHERE event_date >= yesterday()
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
-            AND like(query, '%test memory profiler%')
+            AND query LIKE '%test memory profiler%'
             AND has(used_table_functions, 'numbers')
             AND log_comment = '01092_memory_profiler'
         ORDER BY event_time DESC
@@ -60,7 +60,7 @@ WHERE event_date >= yesterday()
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
-            AND like(query, '%test memory profiler%')
+            AND query LIKE '%test memory profiler%'
             AND has(used_table_functions, 'numbers')
             AND log_comment = '01092_memory_profiler'
         ORDER BY event_time DESC

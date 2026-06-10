@@ -7,7 +7,7 @@ CREATE TABLE ttl_sparse_repro
     b UInt64 TTL dt + toIntervalSecond(2),
     c UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9;
 

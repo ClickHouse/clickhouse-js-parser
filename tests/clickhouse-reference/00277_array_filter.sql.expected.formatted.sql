@@ -1,6 +1,6 @@
 SELECT sum(length(arr))
 FROM (
-        SELECT arrayMap(x -> toString(x), range(number % 10)) AS arr
+        SELECT arrayMap((x -> toString(x)), range(number % 10)) AS arr
         FROM (
                 SELECT *
                 FROM `system`.numbers

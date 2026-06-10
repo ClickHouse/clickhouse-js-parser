@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS src;
 
@@ -11,14 +11,14 @@ CREATE TABLE src
     data Array(Tuple(id UInt32)),
     dummy UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE dst
 (
     id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE MATERIALIZED VIEW mv

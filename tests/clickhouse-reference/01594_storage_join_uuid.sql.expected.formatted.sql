@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS t
     id UUID,
     d DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY toDate(d);
 
@@ -26,7 +26,7 @@ INSERT INTO t;
 SELECT id
 FROM
     t
-LEFT JOIN joint
+ANY LEFT JOIN joint
     ON t.id = joint.id;
 
 DROP TABLE joint;

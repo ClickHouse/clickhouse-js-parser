@@ -7,9 +7,9 @@ CREATE TABLE t_sparse_s3
     cond UInt8,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.01, storage_policy = 's3_cache', min_bytes_for_wide_part = 0, min_compress_block_size = 1, serialization_info_version = 'basic', index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0.01, storage_policy = 's3_cache', min_bytes_for_wide_part = '0', min_compress_block_size = '1', serialization_info_version = 'basic', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_sparse_s3 SELECT
     1,
@@ -128,7 +128,7 @@ WHERE table = 't_sparse_s3'
     AND column = 's'
     AND database = currentDatabase();
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT count()
 FROM t_sparse_s3

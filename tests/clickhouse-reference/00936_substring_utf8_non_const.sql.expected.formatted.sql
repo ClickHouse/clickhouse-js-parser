@@ -84,5 +84,5 @@ FROM numbers(1000000);
 --      hello
 --      ^-----^ - offset -10, length 7, result: "hello"
 -- SELECT DISTINCT substring(toString(range(rand(1) % 50)), -(rand(2) % 50), rand(3) % 50) = substringUTF8(toString(range(rand(1) % 50)), -(rand(2) % 50), rand(3) % 50) AS res FROM numbers(1000000);
-SELECT DISTINCT substring(toString(range(rand(1) % 50)), negate((rand(2) % 50))) = substringUTF8(toString(range(rand(1) % 50)), negate((rand(2) % 50))) AS res
+SELECT DISTINCT substring(toString(range(rand(1) % 50)), -(rand(2) % 50)) = substringUTF8(toString(range(rand(1) % 50)), -(rand(2) % 50)) AS res
 FROM numbers(1000000);

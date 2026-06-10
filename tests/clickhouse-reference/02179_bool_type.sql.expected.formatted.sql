@@ -88,9 +88,9 @@ SELECT toBool(0);
 
 SELECT toBool(-10000000000);
 
-SELECT toBool(100000000000.0000001);
+SELECT toBool(100000000000.);
 
-SELECT toBool(toDecimal32(10.10, 2));
+SELECT toBool(toDecimal32(10.1, 2));
 
 SELECT toBool(toDecimal64(100000000000.1, 2));
 

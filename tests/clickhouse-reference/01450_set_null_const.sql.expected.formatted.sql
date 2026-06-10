@@ -5,7 +5,7 @@ CREATE TABLE test_mtree
     x String,
     INDEX idx x TYPE set(10) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_mtree;

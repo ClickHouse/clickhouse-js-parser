@@ -1,12 +1,12 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/27068
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test
 (
     id String,
     create_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test;

@@ -5,7 +5,7 @@ CREATE TABLE `02188_test_dictionary_source`
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02188_test_dictionary_source`;
 
@@ -30,7 +30,7 @@ CREATE DICTIONARY `02188_test_dictionary_simple_primary_key`
     id UInt64,
     value String
 )
-PRIMARY KEY (id)
+PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02188_test_dictionary_source'))
 LAYOUT(DIRECT());
 
@@ -55,7 +55,7 @@ CREATE DICTIONARY `02188_test_dictionary_complex_primary_key`
     id UInt64,
     value String
 )
-PRIMARY KEY (id, value)
+PRIMARY KEY id, value
 SOURCE(clickhouse(TABLE '02188_test_dictionary_source'))
 LAYOUT(COMPLEX_KEY_DIRECT());
 

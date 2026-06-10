@@ -1,6 +1,6 @@
 SELECT
     number % 10000 AS k,
-    anyLastIf(1.0, 0) AS x
+    anyLastIf(1., 0) AS x
 FROM (
         SELECT *
         FROM `system`.numbers

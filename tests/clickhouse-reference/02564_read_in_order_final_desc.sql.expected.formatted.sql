@@ -1,4 +1,4 @@
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
 DROP TABLE IF EXISTS mytable;
 
@@ -22,27 +22,31 @@ FROM mytable FINAL
 WHERE key = 5
 ORDER BY timestamp DESC;
 
-SELECT if(like(`explain`, '%ReadType: InOrder%'), 'Ok', concat('Error: ', `explain`))
+SELECT if(`explain` LIKE '%ReadType: InOrder%', 'Ok', 'Error: ' || `explain`)
 FROM (
-        EXPLAIN PLAN actions = 1
-        SELECT
-            timestamp,
-            value
-        FROM mytable FINAL
-        WHERE key = 5
-        ORDER BY timestamp ASC
-        SETTINGS enable_vertical_final = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    timestamp,
+                    value
+                FROM mytable FINAL
+                WHERE key = 5
+                ORDER BY timestamp ASC
+                SETTINGS enable_vertical_final = '0'
+            ))
     )
-WHERE like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%ReadType%';
 
-SELECT if(like(`explain`, '%ReadType: Default%'), 'Ok', concat('Error: ', `explain`))
+SELECT if(`explain` LIKE '%ReadType: Default%', 'Ok', 'Error: ' || `explain`)
 FROM (
-        EXPLAIN PLAN actions = 1
-        SELECT
-            timestamp,
-            value
-        FROM mytable FINAL
-        WHERE key = 5
-        ORDER BY timestamp DESC
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    timestamp,
+                    value
+                FROM mytable FINAL
+                WHERE key = 5
+                ORDER BY timestamp DESC
+            ))
     )
-WHERE like(`explain`, '%ReadType%');
+WHERE `explain` LIKE '%ReadType%';

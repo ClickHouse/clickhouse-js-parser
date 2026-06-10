@@ -1,11 +1,11 @@
 -- Tags: no-parallel-replicas
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET query_plan_join_swap_table = false;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_filter_push_down = 1;
+SET query_plan_filter_push_down = '1';
 
 SELECT *
 FROM
@@ -130,9 +130,9 @@ SETTINGS log_comment = '03362_join_on_filterpushdown_full';
 SYSTEM FLUSH LOGS query_log;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
@@ -143,9 +143,9 @@ ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
@@ -156,9 +156,9 @@ ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
@@ -169,9 +169,9 @@ ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
@@ -182,9 +182,9 @@ ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 50, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 50, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()
@@ -195,9 +195,9 @@ ORDER BY event_time DESC
 LIMIT 1;
 
 SELECT
-    if(ProfileEvents['JoinProbeTableRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinProbeTableRowCount']))),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 100, 'ok', concat('fail: ', toString(ProfileEvents['JoinBuildTableRowCount']))),
-    if(ProfileEvents['JoinResultRowCount'] == 150, 'ok', concat('fail: ', toString(ProfileEvents['JoinResultRowCount'])))
+    if(ProfileEvents['JoinProbeTableRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinProbeTableRowCount'])),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 100, 'ok', 'fail: ' || toString(ProfileEvents['JoinBuildTableRowCount'])),
+    if(ProfileEvents['JoinResultRowCount'] = 150, 'ok', 'fail: ' || toString(ProfileEvents['JoinResultRowCount']))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND event_date >= yesterday()

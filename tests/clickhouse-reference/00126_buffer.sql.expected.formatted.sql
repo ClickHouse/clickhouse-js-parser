@@ -8,7 +8,7 @@ CREATE TABLE null_sink_00126
     b String,
     c Array(UInt32)
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE buffer_00126
 (

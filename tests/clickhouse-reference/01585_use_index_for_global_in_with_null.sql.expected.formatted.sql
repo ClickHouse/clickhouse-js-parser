@@ -8,9 +8,9 @@ CREATE TABLE xp
     i Nullable(UInt64),
     j UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 CREATE TABLE xp_d AS xp
 ENGINE = Distributed(test_shard_localhost, currentDatabase(), xp);
@@ -26,7 +26,7 @@ INSERT INTO xp SELECT
 
 OPTIMIZE TABLE xp FINAL;
 
-SET max_rows_to_read = 2;
+SET max_rows_to_read = '2';
 
 SELECT *
 FROM xp
@@ -44,7 +44,7 @@ SELECT *
 FROM xp_d
 WHERE i GLOBAL IN ([0, 1]);
 
-SET max_rows_to_read = 4; -- 2 in the subquery, 2 in the query itself
+SET max_rows_to_read = '4'; -- 2 in the subquery, 2 in the query itself
 
 SELECT *
 FROM xp
@@ -67,7 +67,7 @@ WHERE i IN (
         FROM numbers(2)
     );
 
-SET max_rows_to_read = 6; -- 2 subquery, 2 from global temp table (GLOBAL IN), 2 from local xp table
+SET max_rows_to_read = '6'; -- 2 subquery, 2 from global temp table (GLOBAL IN), 2 from local xp table
 
 SELECT *
 FROM xp_d
@@ -76,9 +76,9 @@ WHERE i GLOBAL IN (
         FROM numbers(2)
     );
 
-SET transform_null_in = 1;
+SET transform_null_in = '1';
 
-SET max_rows_to_read = 0; -- No rows should be read
+SET max_rows_to_read = '0'; -- No rows should be read
 
 SELECT *
 FROM xp

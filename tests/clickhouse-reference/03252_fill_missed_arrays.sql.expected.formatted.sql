@@ -5,9 +5,9 @@ CREATE TABLE t_fill_arrays
     id String,
     mapCol Map(String, Array(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, min_bytes_for_full_part_storage = 0;
+SETTINGS vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', min_bytes_for_full_part_storage = '0';
 
 INSERT INTO t_fill_arrays (id) SELECT hex(number)
 FROM numbers(10000);

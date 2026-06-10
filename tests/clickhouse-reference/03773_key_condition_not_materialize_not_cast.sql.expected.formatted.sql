@@ -7,9 +7,9 @@ CREATE TABLE t_cast_bug
 (
     val UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 SYSTEM STOP MERGES t_cast_bug;
 
@@ -21,13 +21,13 @@ INSERT INTO t_cast_bug;
 
 SELECT val
 FROM t_cast_bug
-WHERE NOT CAST(val = 0, 'UInt8')
+WHERE NOT CAST(val = 0 AS UInt8)
 ORDER BY val ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT val
 FROM t_cast_bug
-WHERE NOT CAST(val = 0, 'UInt8')
+WHERE NOT CAST(val = 0 AS UInt8)
 ORDER BY val ASC;
 
 DROP TABLE IF EXISTS t_materialize_bug;
@@ -36,8 +36,8 @@ CREATE TABLE t_materialize_bug
 (
     val UInt8
 )
-ORDER BY (val)
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+ORDER BY val
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 CREATE VIEW v
 AS
@@ -59,7 +59,7 @@ FROM v
 WHERE NOT is_zero
 ORDER BY val ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT val
 FROM v
 WHERE NOT is_zero

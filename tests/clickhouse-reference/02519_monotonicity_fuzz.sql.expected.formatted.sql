@@ -4,7 +4,7 @@ CREATE TABLE t
 (
     x Decimal(18, 3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO t;
@@ -19,7 +19,7 @@ CREATE TABLE t
 (
     x DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO t;

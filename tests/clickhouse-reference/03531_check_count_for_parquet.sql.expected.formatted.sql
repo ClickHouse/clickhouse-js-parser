@@ -11,8 +11,8 @@ WHERE column1 = 'meow';
 INSERT INTO FUNCTION file('03531.parquet') SELECT *
 FROM numbers(42)
 SETTINGS
-    engine_file_truncate_on_insert = 1,
-    output_format_parquet_row_group_size = 10;
+    engine_file_truncate_on_insert = '1',
+    output_format_parquet_row_group_size = '10';
 
 SELECT sleep(1); -- quirk in schema cache: cache is not used for up to 1s after file is written
 

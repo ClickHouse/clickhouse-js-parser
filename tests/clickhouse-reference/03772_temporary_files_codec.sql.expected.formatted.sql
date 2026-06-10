@@ -1,13 +1,13 @@
 -- Tags: long
 SET max_bytes_before_external_sort = '1M';
 
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
 SET max_block_size = DEFAULT;
 
 SET max_bytes_before_external_group_by = '1M';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
 SET group_by_two_level_threshold = '100K';
 
@@ -16,7 +16,7 @@ SET group_by_two_level_threshold_bytes = '50M';
 SET max_memory_usage = '1G';
 
 CREATE TEMPORARY TABLE start_ts AS
-(SELECT now() AS ts);
+SELECT now() AS ts;
 
 SELECT *
 FROM (
@@ -76,7 +76,7 @@ FORMAT Null;
 
 SET max_bytes_in_join = '1M';
 
-SET join_algorithm = 'grace_hash', grace_hash_join_initial_buckets = 32, grace_hash_join_max_buckets = 32;
+SET join_algorithm = 'grace_hash', grace_hash_join_initial_buckets = '32', grace_hash_join_max_buckets = '32';
 
 SELECT *
 FROM
@@ -152,12 +152,12 @@ SETTINGS
     temporary_files_codec = 'LZ4'
 FORMAT Null;
 
-SYSTEM FLUSH LOGS system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 SELECT
     log_comment,
-    ((sumIf(ProfileEvents['ExternalProcessingCompressedBytesTotal'], `Settings`['temporary_files_codec'] = 'LZ4') AS with_compression)) > 0,
-    ((sumIf(ProfileEvents['ExternalProcessingUncompressedBytesTotal'], `Settings`['temporary_files_codec'] = 'NONE') AS without_compression)) > 0,
+    (sumIf(ProfileEvents['ExternalProcessingCompressedBytesTotal'], `Settings`['temporary_files_codec'] = 'LZ4') AS with_compression) > 0,
+    (sumIf(ProfileEvents['ExternalProcessingUncompressedBytesTotal'], `Settings`['temporary_files_codec'] = 'NONE') AS without_compression) > 0,
     with_compression < without_compression
 FROM `system`.query_log
 WHERE event_date >= yesterday()
@@ -167,6 +167,6 @@ WHERE event_date >= yesterday()
     )
     AND current_database = currentDatabase()
     AND type != 1
-    AND like(log_comment, '03772_temporary_files_codec/%')
+    AND log_comment LIKE '03772_temporary_files_codec/%'
 GROUP BY log_comment
 ORDER BY log_comment ASC;

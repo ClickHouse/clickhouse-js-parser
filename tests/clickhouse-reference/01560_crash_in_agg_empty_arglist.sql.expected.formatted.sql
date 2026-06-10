@@ -14,8 +14,8 @@ WHERE current_database = currentDatabase()
     AND event_time >= toDateTime(1604295323)
     AND type IN (1, 2, 3, 4)
     AND initial_user IN ('')
-    AND (('all' = 'all'
-    OR (positionCaseInsensitive(query, 'all') = 1)))
+    AND ('all' = 'all'
+    OR positionCaseInsensitive(query, 'all') = 1)
 GROUP BY query
 ORDER BY usage DESC
 LIMIT 5; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }

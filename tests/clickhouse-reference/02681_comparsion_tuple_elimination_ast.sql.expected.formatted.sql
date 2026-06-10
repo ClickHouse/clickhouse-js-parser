@@ -1,4 +1,4 @@
-SET optimize_move_to_prewhere = 1; -- works only for PREWHERE
+SET optimize_move_to_prewhere = '1'; -- works only for PREWHERE
 
 CREATE TABLE t1
 (
@@ -7,7 +7,7 @@ CREATE TABLE t1
     c UInt64,
     d UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 SELECT
     number,

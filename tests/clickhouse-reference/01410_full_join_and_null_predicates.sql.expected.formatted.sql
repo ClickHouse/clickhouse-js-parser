@@ -7,20 +7,20 @@ CREATE TABLE l
     luid Nullable(Int16),
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY luid
-SETTINGS allow_nullable_key = 1 AS
+SETTINGS allow_nullable_key = '1' AS
 SELECT *
-FROM VALUES((1231, 'John'), (6666, 'Ksenia'), (Null, '---'));
+FROM VALUES((1231, 'John'), (6666, 'Ksenia'), (NULL, '---'));
 
 CREATE TABLE r
 (
     ruid Nullable(Int16),
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ruid
-SETTINGS allow_nullable_key = 1 AS
+SETTINGS allow_nullable_key = '1' AS
 SELECT *
 FROM VALUES((1231, 'John'), (1232, 'Johny'));
 
@@ -29,8 +29,8 @@ FROM
     l
 FULL JOIN r
     ON l.luid = r.ruid
-WHERE isNull(luid)
-    AND isNotNull(ruid);
+WHERE luid IS NULL
+    AND ruid IS NOT NULL;
 
 SELECT *
 FROM (
@@ -40,8 +40,8 @@ FROM (
         FULL JOIN r
             ON l.luid = r.ruid
     )
-WHERE isNull(luid)
-    AND isNotNull(ruid);
+WHERE luid IS NULL
+    AND ruid IS NOT NULL;
 
 SELECT *
 FROM (
@@ -52,8 +52,8 @@ FROM (
             ON l.luid = r.ruid
         LIMIT 100000000
     )
-WHERE isNull(luid)
-    AND isNotNull(ruid);
+WHERE luid IS NULL
+    AND ruid IS NOT NULL;
 
 DROP TABLE l;
 
@@ -64,17 +64,17 @@ CREATE TABLE l
     luid Nullable(Int16),
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT *
-FROM VALUES((1231, 'John'), (6666, 'Ksenia'), (Null, '---'));
+FROM VALUES((1231, 'John'), (6666, 'Ksenia'), (NULL, '---'));
 
 CREATE TABLE r
 (
     ruid Nullable(Int16),
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT *
 FROM VALUES((1231, 'John'), (1232, 'Johny'));

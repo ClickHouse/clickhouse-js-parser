@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET distributed_aggregation_memory_efficient = 1;
+SET distributed_aggregation_memory_efficient = '1';
 
 SELECT any(total) AS total_distinct_avg
 FROM (
@@ -36,4 +36,4 @@ FROM (
         ORDER BY ts ASC
     );
 
-SET distributed_aggregation_memory_efficient = 0;
+SET distributed_aggregation_memory_efficient = '0';

@@ -8,17 +8,17 @@ CREATE TABLE local_table_l
 (
     c Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE local_table_r
 (
     c Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE dis_table_r
 (
@@ -26,11 +26,11 @@ CREATE TABLE dis_table_r
 )
 ENGINE = Distributed(test_cluster_one_shard_three_replicas_localhost, currentDatabase(), 'local_table_r');
 
-SET parallel_replicas_only_with_analyzer = 0;
+SET parallel_replicas_only_with_analyzer = '0';
 
-SET serialize_query_plan = 0, parallel_replicas_mark_segment_size = 1, max_threads = 1;
+SET serialize_query_plan = '0', parallel_replicas_mark_segment_size = '1', max_threads = '1';
 
-SET enable_parallel_replicas = 1, parallel_replicas_local_plan = 1, max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '1', parallel_replicas_local_plan = '1', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 INSERT INTO local_table_l SELECT number AS c
 FROM numbers(10000);

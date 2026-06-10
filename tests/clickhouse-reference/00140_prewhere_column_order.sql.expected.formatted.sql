@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `prewhere`;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE `prewhere`
 (
@@ -22,7 +22,7 @@ SELECT
     a1,
     b
 FROM `prewhere`
-PREWHERE like(a, 'hello%')
+PREWHERE a LIKE 'hello%'
 ORDER BY a1 ASC;
 
 DROP TABLE `prewhere`;

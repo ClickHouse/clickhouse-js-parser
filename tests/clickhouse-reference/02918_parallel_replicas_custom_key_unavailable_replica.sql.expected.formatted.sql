@@ -5,7 +5,7 @@ CREATE TABLE `02918_parallel_replicas`
     x String,
     y Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY cityHash64(x);
 
 INSERT INTO `02918_parallel_replicas` SELECT
@@ -13,7 +13,7 @@ INSERT INTO `02918_parallel_replicas` SELECT
     number % 4
 FROM numbers(1000);
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 --- if we try to query unavaialble replica, connection will be retried
 --- but a warning log message will be printed out
@@ -27,8 +27,8 @@ FROM cluster(test_cluster_1_shard_3_replicas_1_unavailable, currentDatabase(), `
 GROUP BY y
 ORDER BY y ASC
 SETTINGS
-    max_parallel_replicas = 3,
-    enable_parallel_replicas = 1,
+    max_parallel_replicas = '3',
+    enable_parallel_replicas = '1',
     parallel_replicas_custom_key = 'cityHash64(y)',
     parallel_replicas_mode = 'custom_key_sampling';
 
@@ -39,12 +39,12 @@ FROM cluster(test_cluster_1_shard_3_replicas_1_unavailable, currentDatabase(), `
 GROUP BY y
 ORDER BY y ASC
 SETTINGS
-    max_parallel_replicas = 3,
-    enable_parallel_replicas = 1,
+    max_parallel_replicas = '3',
+    enable_parallel_replicas = '1',
     parallel_replicas_custom_key = 'cityHash64(y)',
     parallel_replicas_mode = 'custom_key_range';
 
-SET use_hedged_requests = 0;
+SET use_hedged_requests = '0';
 
 -- { echoOff }
 SET send_logs_level = 'warning';

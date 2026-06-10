@@ -1,348 +1,410 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t02006"
-    },
-    "ifExists": true,
-    "onCluster": "test_shard_localhost",
-    "format": "Null",
-    "leadingComments": [
-      "-- Tags: no-ordinary-database, no-replicated-database, distributed, zookeeper"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "m02006"
-    },
-    "ifExists": true,
-    "onCluster": "test_shard_localhost",
-    "format": "Null"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t02006"
-    },
-    "onCluster": "test_shard_localhost",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "m02006"
-    },
-    "onCluster": "test_shard_localhost",
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "i"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "t02006"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t02006"
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "m02006"
+      },
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "t02006"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "d"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "m02006"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "i"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Literal",
+                "alias": "i",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "t02006"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Identifier",
+                "name": "i"
+              }
             ]
           }
         ]
-      }
-    },
-    "format": "Null"
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Function",
+                "name": "tuple",
+                "arguments": []
+              }
+            }
+          }
+        ]
+      },
+      "format": "Null"
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "t02006"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "f",
-          "type": {
-            "name": "UInt64"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "t02006"
+      },
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "if_not_exists": true,
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "f",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           }
         }
-      }
-    ],
-    "onCluster": "test_shard_localhost",
-    "format": "Null"
+      ]
+    }
   },
   {
-    "kind": "describe",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t02006"
+    "version": 2,
+    "ast": {
+      "type": "DescribeQuery",
+      "table_expression": {
+        "type": "TableExpression",
+        "database_and_table_name": {
+          "type": "TableIdentifier",
+          "name": "t02006"
+        }
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt02006"
-    },
-    "ifExists": true,
-    "onCluster": "test_shard_localhost",
-    "format": "Null"
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t02006"
-    },
-    "onCluster": "test_shard_localhost",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tt02006"
       },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree"
-    },
-    "primaryKey": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      }
-    ],
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "format": "Null"
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt02006"
-    },
-    "onCluster": "test_shard_localhost",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "total",
-        "type": {
-          "name": "SimpleAggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "sum"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "engine": {
-      "name": "ReplicatedAggregatingMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "format": "Null"
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "m02006"
-    },
-    "onCluster": "test_shard_localhost",
-    "toTable": {
-      "kind": "tableRef",
-      "table": "tt02006"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sum",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "b"
-                ]
-              }
-            ]
-          },
-          "alias": "total"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "t02006"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "t02006"
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
         ]
       },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "direction": "ASC"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "primary_key": {
+          "type": "Identifier",
+          "name": "a"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
         }
-      ]
-    },
-    "format": "Null"
+      },
+      "format": "Null"
+    }
   },
   {
-    "kind": "describe",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "cluster": "test_shard_localhost",
       "table": {
-        "kind": "tableRef",
-        "table": "m02006"
+        "type": "Identifier",
+        "name": "tt02006"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "total",
+            "data_type": {
+              "type": "DataType",
+              "name": "SimpleAggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedAggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "m02006"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Function",
+                "alias": "total",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "b"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "t02006"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                },
+                "direction": "ASC"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "tt02006"
+          }
+        ]
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DescribeQuery",
+      "table_expression": {
+        "type": "TableExpression",
+        "database_and_table_name": {
+          "type": "TableIdentifier",
+          "name": "m02006"
+        }
       }
     }
   }

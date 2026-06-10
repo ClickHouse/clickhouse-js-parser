@@ -8,7 +8,7 @@ SYSTEM CLEAR QUERY CACHE;
 SELECT 1
 SETTINGS
     use_query_cache = true,
-    query_cache_ttl = 3;
+    query_cache_ttl = '3';
 
 -- Expect one non-stale cache entry
 SELECT COUNT(*)

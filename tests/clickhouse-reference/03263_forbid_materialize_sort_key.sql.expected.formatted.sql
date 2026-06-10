@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS tab
     x UInt32,
     y UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE DICTIONARY IF NOT EXISTS dict
@@ -30,7 +30,7 @@ CREATE DICTIONARY IF NOT EXISTS dict
     y UInt32
 )
 PRIMARY KEY x
-SOURCE(clickhouse(table 'tab'))
+SOURCE(clickhouse(TABLE 'tab'))
 LIFETIME(MIN 0 MAX 1000)
 LAYOUT(FLAT());
 
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS tab2
     x UInt32,
     y UInt32 MATERIALIZED dictGet(dict, 'y', x)
 )
-ENGINE = MergeTree
-ORDER BY (y);
+ENGINE = MergeTree()
+ORDER BY y;
 
 INSERT INTO tab2 (x);
 
@@ -52,7 +52,7 @@ TRUNCATE TABLE tab;
 
 INSERT INTO tab;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE tab2 MATERIALIZE COLUMN y; -- { serverError CANNOT_UPDATE_COLUMN }
 

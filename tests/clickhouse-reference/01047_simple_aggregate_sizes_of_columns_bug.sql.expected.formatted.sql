@@ -5,10 +5,10 @@ CREATE TABLE column_size_bug
     date_time DateTime,
     value SimpleAggregateFunction(sum, UInt64)
 )
-ENGINE = AggregatingMergeTree
-ORDER BY (date_time)
+ENGINE = AggregatingMergeTree()
+ORDER BY date_time
 PARTITION BY toStartOfInterval(date_time, toIntervalDay(1))
-SETTINGS remove_empty_parts = 0;
+SETTINGS remove_empty_parts = '0';
 
 INSERT INTO column_size_bug;
 

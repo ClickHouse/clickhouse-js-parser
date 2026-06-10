@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS pk_order;
 
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
 CREATE TABLE pk_order
 (
@@ -152,10 +152,10 @@ CREATE TABLE pk_order
     a Int32,
     b Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (d, a)
 PARTITION BY toDate(d)
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO pk_order SELECT
     toDateTime('2019-05-05 00:00:00') + toIntervalDay(number % 10),
@@ -163,7 +163,7 @@ INSERT INTO pk_order SELECT
     intHash32(number)
 FROM numbers(100);
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 -- Currently checking number of read rows while reading in pk order not working precise. TODO: fix it.
 -- SET max_rows_to_read = 10;
@@ -196,7 +196,7 @@ SELECT
 FROM pk_order
 ORDER BY
     d DESC,
-    negate(a) ASC
+    -a ASC
 LIMIT 5;
 
 SELECT toStartOfHour(d) AS d1
@@ -211,8 +211,8 @@ CREATE TABLE pk_order
     a Int,
     b Int
 )
-ENGINE = MergeTree
-ORDER BY (a / b);
+ENGINE = MergeTree()
+ORDER BY a / b;
 
 INSERT INTO pk_order SELECT
     number % 10 + 1,
@@ -222,6 +222,6 @@ FROM numbers(100);
 SELECT *
 FROM pk_order
 ORDER BY
-    (a / b) ASC,
+    a / b ASC,
     a ASC
 LIMIT 5;

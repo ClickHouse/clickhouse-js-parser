@@ -22,7 +22,7 @@ CREATE TABLE tab
     dec128 Decimal128(3),
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY (i8, i16, i32, i64, u8, u16, u32, u64, id, s, fs, a, t, d, dt, dt64, dec128, lc);
 

@@ -1,4 +1,4 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SET log_queries_min_type = 'QUERY_FINISH';
 
@@ -9,7 +9,7 @@ CREATE TABLE `02751_query_log_test_partitions`
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY b
 PARTITION BY a;
 

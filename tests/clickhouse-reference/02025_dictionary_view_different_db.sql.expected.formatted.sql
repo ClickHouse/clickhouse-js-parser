@@ -10,7 +10,7 @@ CREATE TABLE test_db_2025.test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_db_2025.test_table;
 
@@ -30,7 +30,7 @@ CREATE TABLE test_db_2025.view_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_db_2025.view_table;
 

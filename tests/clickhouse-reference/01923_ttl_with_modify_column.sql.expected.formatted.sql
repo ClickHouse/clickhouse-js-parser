@@ -3,18 +3,18 @@ DROP TABLE IF EXISTS t_ttl_modify_column;
 CREATE TABLE t_ttl_modify_column
 (
     InsertionDateTime DateTime,
-    TTLDays Int32 DEFAULT CAST(365, 'Int32')
+    TTLDays Int32 DEFAULT CAST(365 AS Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 TTL InsertionDateTime + toIntervalDay(TTLDays)
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_ttl_modify_column;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-ALTER TABLE t_ttl_modify_column MODIFY COLUMN TTLDays Int16 DEFAULT CAST(365, 'Int16');
+ALTER TABLE t_ttl_modify_column MODIFY COLUMN TTLDays Int16 DEFAULT CAST(365 AS Int16);
 
 SELECT
     sum(`rows`),
@@ -29,10 +29,10 @@ CREATE TABLE t_ttl_modify_column
 (
     InsertionDateTime DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 TTL InsertionDateTime + toIntervalDay(3)
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_ttl_modify_column;
 

@@ -7,16 +7,16 @@ CREATE TABLE test_00609
 (
     a Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_00609;
 
-SET database_replicated_allow_explicit_uuid = 3;
+SET database_replicated_allow_explicit_uuid = '3';
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
-CREATE MATERIALIZED VIEW test_mv_00609
-ENGINE = MergeTree(date, (a), 8192)
+CREATE MATERIALIZED VIEW test_mv_00609 UUID '00000609-1000-4000-8000-000000000001'
+ENGINE = MergeTree(date, a, 8192)
 POPULATE
 AS
 SELECT

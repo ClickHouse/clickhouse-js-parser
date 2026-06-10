@@ -4,9 +4,9 @@ CREATE TABLE big_array
 (
     x Array(UInt8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
 INSERT INTO big_array SELECT groupArray(number % 255) AS x
 FROM (

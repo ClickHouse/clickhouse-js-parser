@@ -1,4 +1,4 @@
-SET output_format_pretty_display_footer_column_names = 0;
+SET output_format_pretty_display_footer_column_names = '0';
 
 SELECT 123456789 AS x
 FORMAT PrettyCompact;
@@ -20,10 +20,10 @@ CREATE TEMPORARY TABLE test
     x Nullable(UInt64),
     PRIMARY KEY()
 )
-ENGINE = MergeTree
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0, serialization_info_version = 'with_types', nullable_serialization_version = 'allow_sparse';
+ENGINE = MergeTree()
+SETTINGS ratio_of_defaults_for_sparse_serialization = '0', serialization_info_version = 'with_types', nullable_serialization_version = 'allow_sparse';
 
-INSERT INTO test SELECT if(number % 2, number * 123456789, NULL)
+INSERT INTO test SELECT number % 2 ? number * 123456789 : NULL
 FROM numbers(10);
 
 SELECT DISTINCT dumpColumnStructure(*)
@@ -31,19 +31,19 @@ FROM test;
 
 SELECT *
 FROM test
-ORDER BY `ALL` DESC
+ORDER BY `ALL` DESC NULLS LAST
 LIMIT 1
 FORMAT PRETTY;
 
 SELECT *
 FROM test
-ORDER BY `ALL` ASC
+ORDER BY `ALL` ASC NULLS LAST
 LIMIT 1
 FORMAT PRETTY;
 
 SELECT *
 FROM test
-ORDER BY `ALL` ASC
+ORDER BY `ALL` ASC NULLS FIRST
 LIMIT 1
 FORMAT PrettySpace;
 
@@ -54,5 +54,5 @@ CREATE TEMPORARY TABLE test
     x UInt64,
     PRIMARY KEY()
 )
-ENGINE = MergeTree
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0, serialization_info_version = 'with_types', nullable_serialization_version = 'allow_sparse';
+ENGINE = MergeTree()
+SETTINGS ratio_of_defaults_for_sparse_serialization = '0', serialization_info_version = 'with_types', nullable_serialization_version = 'allow_sparse';

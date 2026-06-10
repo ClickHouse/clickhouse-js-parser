@@ -1,11 +1,11 @@
-SET merge_table_max_tables_to_look_for_schema_inference = 1;
+SET merge_table_max_tables_to_look_for_schema_inference = '1';
 
 CREATE TABLE test_s64_local
 (
     date Date,
     value Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE test_u64_local
@@ -13,7 +13,7 @@ CREATE TABLE test_u64_local
     date Date,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE test_s64_distributed AS test_s64_local

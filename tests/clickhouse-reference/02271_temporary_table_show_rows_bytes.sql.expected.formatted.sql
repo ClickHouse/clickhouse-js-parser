@@ -4,7 +4,7 @@ CREATE TEMPORARY TABLE `02271_temporary_table_show_rows_bytes`
 (
     A Int64
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(1000);
 

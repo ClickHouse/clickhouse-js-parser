@@ -5,9 +5,9 @@ CREATE TABLE t_tuple_sparse
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0.;
 
 INSERT INTO t_tuple_sparse;
 

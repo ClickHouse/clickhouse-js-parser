@@ -7,7 +7,7 @@ CREATE TABLE table1
     lon Float64,
     resolution UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1;
 

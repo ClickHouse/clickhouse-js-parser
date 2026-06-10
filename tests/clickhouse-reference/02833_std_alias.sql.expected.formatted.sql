@@ -6,7 +6,7 @@ CREATE TABLE series
     x Float64,
     y Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO series (i, x, y);
 

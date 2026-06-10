@@ -24,7 +24,7 @@ CREATE TABLE startsWith_test
     S2 String,
     S3 FixedString(2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO startsWith_test;
 

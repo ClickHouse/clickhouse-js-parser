@@ -1,8 +1,8 @@
-SET output_format_pretty_display_footer_column_names = 0;
+SET output_format_pretty_display_footer_column_names = '0';
 
-SET output_format_pretty_color = 1;
+SET output_format_pretty_color = '1';
 
-SET output_format_pretty_squash_consecutive_ms = 0;
+SET output_format_pretty_squash_consecutive_ms = '0';
 
 SELECT
     number AS hello,
@@ -11,7 +11,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT Pretty;
 
 SELECT
@@ -21,7 +21,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettyCompact;
 
 SELECT
@@ -31,7 +31,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettySpace;
 
 SELECT
@@ -41,7 +41,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettyCompactMonoBlock;
 
 SELECT
@@ -51,7 +51,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettyNoEscapes;
 
 SELECT
@@ -61,7 +61,7 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettyCompactNoEscapes;
 
 SELECT
@@ -71,9 +71,9 @@ SELECT
     nullIf(hello % 3, 0) AS sometimes_nulls
 FROM `system`.numbers
 LIMIT 10
-SETTINGS max_block_size = 5
+SETTINGS max_block_size = '5'
 FORMAT PrettySpaceNoEscapes;
 
-SET output_format_pretty_max_rows = 6;
+SET output_format_pretty_max_rows = '6';
 
 SET output_format_pretty_grid_charset = 'ASCII';

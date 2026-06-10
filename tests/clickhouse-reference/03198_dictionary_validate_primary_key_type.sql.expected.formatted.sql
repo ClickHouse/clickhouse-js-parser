@@ -8,7 +8,7 @@ SOURCE(clickhouse(HOST 'localhost' PORT 9000 DB 'test_db' TABLE 'table_01' USER 
 LIFETIME(MIN 1 MAX 10)
 LAYOUT(FLAT());
 
-SET dictionary_validate_primary_key_type = 1;
+SET dictionary_validate_primary_key_type = '1';
 
 CREATE DICTIONARY test_dictionary1
 (

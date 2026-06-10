@@ -10,7 +10,7 @@ CREATE TABLE test
 ENGINE = MergeTree()
 ORDER BY b
 PARTITION BY a
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test (a, b, c, p.at1, p.at2);
 

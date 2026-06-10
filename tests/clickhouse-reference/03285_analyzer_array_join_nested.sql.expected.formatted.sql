@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE hourly
 (
@@ -6,20 +6,20 @@ CREATE TABLE hourly
     `metric.names` Array(String),
     `metric.values` Array(Int64)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     '2020-01-01',
     ['a', 'b'],
-    [1,2];
+    [1, 2];
 
 -- { echoOn }
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT `metric.names`
 FROM
     hourly
 ARRAY JOIN metric;
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT metric.names
 FROM
     hourly
@@ -32,7 +32,7 @@ CREATE TABLE tab
     `x.b.first` Array(Array(UInt32)),
     `x.b.second` Array(Array(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab SELECT
@@ -56,7 +56,7 @@ SELECT
     toTypeName(n)
 FROM tab; -- {serverError BAD_ARGUMENTS}
 
-SET analyzer_compatibility_allow_compound_identifiers_in_unflatten_nested = 0;
+SET analyzer_compatibility_allow_compound_identifiers_in_unflatten_nested = '0';
 
 SELECT x
 FROM tab;
@@ -69,4 +69,4 @@ FROM
     tab
 ARRAY JOIN x AS y; -- { serverError UNKNOWN_IDENTIFIER }
 
-SET analyzer_compatibility_allow_compound_identifiers_in_unflatten_nested = 1;
+SET analyzer_compatibility_allow_compound_identifiers_in_unflatten_nested = '1';

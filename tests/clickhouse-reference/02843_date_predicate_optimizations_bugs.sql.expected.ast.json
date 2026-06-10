@@ -1,123 +1,133 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toYYYYMM",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "date"
-              ]
-            }
-          ]
-        },
-        "alias": "date_"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "toDate",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "20230815"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "toDate",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "20230816"
-                      }
-                    ]
-                  }
-                ],
-                "source": "[toDate('20230815'), toDate('20230816')]"
-              },
-              "alias": "date"
+              "type": "Function",
+              "alias": "date_",
+              "name": "toYYYYMM",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "date"
+                }
+              ]
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                ],
-                "source": "[1, 2]"
-              },
-              "alias": "n"
+              "type": "Identifier",
+              "name": "n"
             }
-          ]
-        },
-        "alias": "data"
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "date"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "data",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "date",
+                              "name": "array",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "toDate",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "String",
+                                      "value": "20230815"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "toDate",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "String",
+                                      "value": "20230816"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "n",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "name": "date"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "n"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "greaterOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "date_"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "202303"
+              }
+            ]
+          }
         }
       ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": ">=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "date_"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "202303"
-      }
     }
   }
 ]

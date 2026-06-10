@@ -7,7 +7,7 @@ CREATE TABLE source_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 -- There is no "CLICKHOUSEX" dictionary source, so the next query must fail even if `dictionaries_lazy_load` is enabled.
@@ -23,7 +23,7 @@ LAYOUT(FLAT()); -- { serverError UNKNOWN_ELEMENT_IN_CONFIG }
 
 SELECT count()
 FROM `system`.dictionaries
-WHERE name == 'id_value_dictionary'
-    AND database == currentDatabase();
+WHERE name = 'id_value_dictionary'
+    AND database = currentDatabase();
 
 DROP TABLE source_table;

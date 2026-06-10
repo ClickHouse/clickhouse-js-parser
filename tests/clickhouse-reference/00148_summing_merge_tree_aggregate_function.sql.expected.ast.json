@@ -1,2416 +1,503 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_null"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "---- partition merge"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "u",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "uniq"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ]
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
+        "type": "Identifier",
+        "name": "summing_merge_tree_null"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "today",
-            "args": []
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
           },
-          "alias": "d"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           },
-          "alias": "k"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "u",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
                 {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "500"
-                  }
+                  "type": "Identifier",
+                  "name": "uniq"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
                 }
               ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5000"
           }
         ]
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "k"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "today",
-            "args": []
-          },
-          "alias": "d"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5000"
-            }
-          },
-          "alias": "k"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "500"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5000"
-          }
-        ]
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "k"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "u",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "uniq"
-              }
+              "type": "Identifier",
+              "name": "d"
             },
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "ue",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "uniqExact"
-              }
+              "type": "Identifier",
+              "name": "k"
             },
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqExactState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
+              "type": "Literal",
+              "value_type": "UInt64",
               "value": "1"
             }
           ]
         }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqExactState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqExactState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "uniqExactState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqMerge",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqExactMerge",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ue"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "topK",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "value": "2"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "leadingComments": [
-      "---- sum + topK"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "topKMerge",
-        "params": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ],
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "topKWeighted",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "value": "2"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "leadingComments": [
-      "---- sum + topKWeighted"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "topKWeightedState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "topKWeightedMerge",
-        "params": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ],
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "avg"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "leadingComments": [
-      "---- avg"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.0"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.125"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.25"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.375"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.4375"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.5"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.5625"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.625"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.75"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.875"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "avgState",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "1.0"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "avgMerge",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "quantile",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "value": "0.1"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "leadingComments": [
-      "---- quantile"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.0"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.2"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.3"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.4"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.5"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.6"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.7"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.8"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.9"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_aggregate_function"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "quantileState",
-          "params": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.1"
-            }
-          ],
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "1.0"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "round",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "quantileMerge",
-            "params": [
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.1"
+                "type": "Function",
+                "alias": "d",
+                "name": "today",
+                "arguments": []
+              },
+              {
+                "type": "Identifier",
+                "alias": "k",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "500"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ],
-            "args": [
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "x"
-                ]
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Identifier",
+                "name": "k"
               }
             ]
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "today",
+                "arguments": []
+              },
+              {
+                "type": "Function",
+                "alias": "k",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5000"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toUInt64",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "500"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Identifier",
+                "name": "k"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_null"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "today",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "u",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       }
-    ],
-    "engine": {
-      "name": "Null"
-    },
-    "leadingComments": [
-      "---- sum + uniq with more data"
-    ]
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       },
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "u",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "uniq"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "ue",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "uniqExact"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                }
+              ]
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "u",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "type",
-              "type": {
-                "name": "uniq"
-              }
+              "type": "Identifier",
+              "name": "d"
             },
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
             }
           ]
         }
       }
-    ],
-    "engine": {
-      "name": "SummingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      ]
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sum",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "c"
-                ]
-              }
-            ]
-          },
-          "alias": "c"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "uniqState",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "u"
-                ]
-              }
-            ]
-          },
-          "alias": "u"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "d"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "k"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "uniqExactState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -2418,137 +505,2350 @@
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "summing_merge_tree_null"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "3"
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "53"
-          }
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "999999"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "uniqExactState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
-    },
-    "leadingComments": [
-      "-- prime number 53 to avoid resonanse between %3 and %53"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
       },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "uniqMerge",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "uniqExactState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
             ]
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_aggregate_function"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "uniqExactState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "k"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqExactMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ue"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "summing_merge_tree_null"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "topK",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "topKMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "topKWeighted",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "topKWeightedState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "topKWeightedMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "avg"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.125
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.25
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.375
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.4375
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.5625
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.625
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.75
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.875
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "avgState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "avgMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "quantile",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.1
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.2
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.3
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.4
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.5
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.6
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.7
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.8
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.9
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "quantileState",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 1
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "round",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "quantileMerge",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
+                  ],
+                  "parameters": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.1
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_null"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "today",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "u",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Null",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_aggregate_function"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "u",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "uniq"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Identifier",
+                "name": "k"
+              },
+              {
+                "type": "Function",
+                "alias": "c",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "c"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "u",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "u"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "summing_merge_tree_null"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "d"
+              },
+              {
+                "type": "Identifier",
+                "name": "k"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "SummingMergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "k"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "8192"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_null"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "3"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "53"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "999999"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "summing_merge_tree_aggregate_function"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "summing_merge_tree_null"
+      }
     }
   }
 ]

@@ -4,7 +4,7 @@ CREATE TABLE t_str
 (
     creation_time String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY creation_time
 PARTITION BY creation_time;
 

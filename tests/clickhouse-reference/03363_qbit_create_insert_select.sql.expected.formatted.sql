@@ -5,7 +5,7 @@ CREATE TABLE qbits_16
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_16;
 
@@ -28,7 +28,7 @@ CREATE TABLE qbits_32
     id UInt32,
     vec QBit(Float32, 16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_32;
 
@@ -51,7 +51,7 @@ CREATE TABLE qbits_64
     id UInt32,
     vec QBit(Float64, 16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_64;
 
@@ -72,7 +72,7 @@ CREATE TABLE qbits_16
     id UInt32,
     vec QBit(BFloat16, 9)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_16;
 
@@ -85,7 +85,7 @@ CREATE TABLE qbits_32
     id UInt32,
     vec QBit(Float32, 9)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_32;
 
@@ -98,7 +98,7 @@ CREATE TABLE qbits_64
     id UInt32,
     vec QBit(Float64, 9)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits_64;
 
@@ -111,7 +111,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits;
 
@@ -125,7 +125,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(Float64, 1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbits;
 
@@ -146,21 +146,21 @@ CREATE TABLE array_64
     id UInt32,
     vec Array(Float64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE array_32
 (
     id UInt32,
     vec Array(Float32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE array_16
 (
     id UInt32,
     vec Array(BFloat16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_64;
 
@@ -181,21 +181,21 @@ CREATE TABLE qbit_64
     id UInt32,
     vec QBit(Float64, 28)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE qbit_32
 (
     id UInt32,
     vec QBit(Float32, 28)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE qbit_16
 (
     id UInt32,
     vec QBit(BFloat16, 28)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbit_64 SELECT
     id,

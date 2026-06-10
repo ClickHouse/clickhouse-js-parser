@@ -15,7 +15,7 @@ INSERT INTO replacing_mt;
 SELECT count()
 FROM replacing_mt;
 
-SET final = 1;
+SET final = '1';
 
 -- JOIN test cases
 CREATE TABLE IF NOT EXISTS lhs
@@ -36,7 +36,7 @@ INSERT INTO lhs;
 
 INSERT INTO rhs;
 
-SET final = 0;
+SET final = '0';
 
 -- expected output is 4 because select_final == 0
 SELECT count()
@@ -70,7 +70,7 @@ AS
 SELECT *
 FROM mv_regular_mt_table;
 
-SET final = 1;
+SET final = '1';
 
 SELECT count()
 FROM nv_regular_mt_table;
@@ -200,7 +200,7 @@ INSERT INTO right_table_local;
 
 INSERT INTO right_table_local;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 -- expected output:
 -- 1 c 1 a 1 c
@@ -221,7 +221,7 @@ ORDER BY
     val_middle ASC,
     val_right ASC;
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 -- Quite exotic with Merge engine
 DROP TABLE IF EXISTS table_to_merge_a;

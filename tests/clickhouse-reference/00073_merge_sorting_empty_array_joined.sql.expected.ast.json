@@ -1,124 +1,157 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "arr"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "number"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayFilter",
-                "args": [
-                  {
-                    "kind": "lambdaExpr",
-                    "params": [
-                      "x"
-                    ],
-                    "body": {
-                      "kind": "binaryExpr",
-                      "op": "=",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "x"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "0"
-                      }
-                    }
-                  },
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "1"
-                      }
-                    ],
-                    "source": "[1]"
-                  }
-                ]
-              },
-              "alias": "arr"
+              "type": "Identifier",
+              "name": "arr"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "arr",
+                              "name": "arrayFilter",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "lambda",
+                                  "is_operator": true,
+                                  "is_lambda_function": true,
+                                  "kind": "LAMBDA_FUNCTION",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "tuple",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "x"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "equals",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "x"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "Array",
+                                  "value": [
+                                    {
+                                      "value_type": "UInt64",
+                                      "value": "1"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "numbers",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "name": "arr"
+                    }
+                  ]
+                }
+              }
+            ]
           },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "ASC"
             }
-          }
-        }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "arr"
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

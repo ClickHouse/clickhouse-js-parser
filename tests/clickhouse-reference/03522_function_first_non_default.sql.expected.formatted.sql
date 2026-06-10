@@ -1,57 +1,57 @@
 SELECT firstNonDefault(NULL, 0, 43, 256) AS result;
 
-SELECT firstNonDefault(NULL::Nullable(UInt8), 0::Nullable(UInt8), 42::UInt8) AS result;
+SELECT firstNonDefault(NULL::Nullable(UInt8), CAST('0' AS Nullable(UInt8)), CAST('42' AS UInt8)) AS result;
 
 SELECT firstNonDefault('', '0', 'hello') AS result;
 
-SELECT firstNonDefault(NULL::Nullable(UInt8), 0::UInt8) AS result;
+SELECT firstNonDefault(NULL::Nullable(UInt8), CAST('0' AS UInt8)) AS result;
 
 SELECT firstNonDefault(false, true) AS result;
 
-SELECT firstNonDefault([]::Array(UInt8), [1, 2, 3]::Array(UInt8)) AS result;
+SELECT firstNonDefault(CAST('[]' AS Array(UInt8)), CAST('[1, 2, 3]' AS Array(UInt8))) AS result;
 
 SELECT
     firstNonDefault(NULL::Nullable(String), ''::String, 'foo') AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::UInt8, 0::UInt16, 42::UInt32) AS result,
+    firstNonDefault(CAST('0' AS UInt8), CAST('0' AS UInt16), CAST('42' AS UInt32)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::Int8, 0::Int16, 42::Int32) AS result,
+    firstNonDefault(CAST('0' AS Int8), CAST('0' AS Int16), CAST('42' AS Int32)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::UInt32, 0::UInt64, 42::UInt128) AS result,
+    firstNonDefault(CAST('0' AS UInt32), CAST('0' AS UInt64), CAST('42' AS UInt128)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::Int128, 0::Int128, 42::Int128) AS result,
+    firstNonDefault(CAST('0' AS Int128), CAST('0' AS Int128), CAST('42' AS Int128)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::UInt8, 0::Int8, 42::Int16) AS result,
+    firstNonDefault(CAST('0' AS UInt8), CAST('0' AS Int8), CAST('42' AS Int16)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::Int64, 0::Int64, 42::Int64) AS result,
+    firstNonDefault(CAST('0' AS Int64), CAST('0' AS Int64), CAST('42' AS Int64)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0.0::Float32, 0.0::Float64, 42.5::Float64) AS result,
+    firstNonDefault(CAST('0.0' AS Float32), CAST('0.0' AS Float64), CAST('42.5' AS Float64)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(0::Float64, 0.0::Float64, 42.0::Float64) AS result,
+    firstNonDefault(CAST('0' AS Float64), CAST('0.0' AS Float64), CAST('42.0' AS Float64)) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(NULL::Nullable(Int32), 0::Nullable(Int32), 42::Nullable(Int32)) AS result,
+    firstNonDefault(NULL::Nullable(Int32), CAST('0' AS Nullable(Int32)), CAST('42' AS Nullable(Int32))) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(NULL, 0::Int32, 42::Nullable(Int32)) AS result,
+    firstNonDefault(NULL, CAST('0' AS Int32), CAST('42' AS Nullable(Int32))) AS result,
     toTypeName(result);
 
 SELECT
@@ -63,15 +63,15 @@ SELECT
     toTypeName(result);
 
 SELECT
-    firstNonDefault([]::Array(Int32), [0]::Array(Int32), [1, 2, 3]::Array(Int32)) AS result,
+    firstNonDefault(CAST('[]' AS Array(Int32)), CAST('[0]' AS Array(Int32)), CAST('[1, 2, 3]' AS Array(Int32))) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault([]::Array(String), ['']::Array(String), ['hello']::Array(String)) AS result,
+    firstNonDefault(CAST('[]' AS Array(String)), CAST('['''']' AS Array(String)), CAST('[''hello'']' AS Array(String))) AS result,
     toTypeName(result);
 
 SELECT
-    firstNonDefault(NULL::Nullable(UInt8), 0::UInt8, 42::UInt8, 100::UInt8) AS result,
+    firstNonDefault(NULL::Nullable(UInt8), CAST('0' AS UInt8), CAST('42' AS UInt8), CAST('100' AS UInt8)) AS result,
     toTypeName(result);
 
 SELECT
@@ -91,20 +91,20 @@ SELECT
     toTypeName(result);
 
 SELECT
-    firstNonDefault([]::Array(UInt8)) AS result,
+    firstNonDefault(CAST('[]' AS Array(UInt8))) AS result,
     toTypeName(result);
 
 SELECT firstNonDefault(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT firstNonDefault(0, 'hello'); -- { serverError NO_COMMON_TYPE }
 
-SELECT firstNonDefault([]::Array(UInt8), 42); -- { serverError NO_COMMON_TYPE }
+SELECT firstNonDefault(CAST('[]' AS Array(UInt8)), 42); -- { serverError NO_COMMON_TYPE }
 
-SELECT firstNonDefault([]::Array(UInt8), 'hello'); -- { serverError NO_COMMON_TYPE }
+SELECT firstNonDefault(CAST('[]' AS Array(UInt8)), 'hello'); -- { serverError NO_COMMON_TYPE }
 
-SELECT firstNonDefault(0::UInt64, 1::Int64); -- { serverError NO_COMMON_TYPE }
+SELECT firstNonDefault(CAST('0' AS UInt64), CAST('1' AS Int64)); -- { serverError NO_COMMON_TYPE }
 
-SELECT firstNonDefault(NULL::Nullable(Array(UInt8)), []::Array(UInt8)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT firstNonDefault(NULL::Nullable(Array(UInt8)), CAST('[]' AS Array(UInt8))); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT firstNonDefault(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, number)
 FROM numbers(3);
@@ -118,7 +118,7 @@ CREATE TABLE test_first_truthy
     c Nullable(String),
     d Array(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_first_truthy;
 
@@ -139,8 +139,8 @@ ORDER BY `ALL` ASC;
 
 SELECT
     d,
-    firstNonDefault(d, [99, 100]::Array(Int32)) AS result,
-    toTypeName(firstNonDefault(d, [99, 100]::Array(Int32))) AS type
+    firstNonDefault(d, CAST('[99, 100]' AS Array(Int32))) AS result,
+    toTypeName(firstNonDefault(d, CAST('[99, 100]' AS Array(Int32)))) AS type
 FROM test_first_truthy
 ORDER BY length(result) ASC;
 

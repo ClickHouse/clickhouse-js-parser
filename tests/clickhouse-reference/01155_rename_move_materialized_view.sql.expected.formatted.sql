@@ -1,22 +1,22 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET send_logs_level = 'fatal';
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 DROP DATABASE IF EXISTS test_01155_ordinary;
 
 DROP DATABASE IF EXISTS test_01155_atomic;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test_01155_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE DATABASE test_01155_atomic
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 USE test_01155_ordinary;
 
@@ -38,7 +38,7 @@ ENGINE = MergeTree()
 ORDER BY s
 PARTITION BY tuple()
 AS
-SELECT concat(tuple(*).1, 'mv1') AS s
+SELECT (*,).1 || 'mv1' AS s
 FROM src;
 
 CREATE TABLE dst
@@ -57,7 +57,7 @@ TO dst
     x String DEFAULT 'd'
 )
 AS
-SELECT concat(tuple(*).1, 'mv2') AS s
+SELECT (*,).1 || 'mv2' AS s
 FROM src;
 
 CREATE TABLE dist
@@ -69,7 +69,7 @@ ENGINE = Distributed(test_shard_localhost, test_01155_ordinary, src);
 
 INSERT INTO dist (s);
 
-SYSTEM FLUSH DISTRIBUTED  dist;
+SYSTEM FLUSH DISTRIBUTED dist;
 
 CREATE DICTIONARY dict
 (
@@ -119,11 +119,11 @@ RENAME TABLE test_01155_ordinary.dst TO test_01155_atomic.dst;
 
 RENAME TABLE test_01155_ordinary.src TO test_01155_atomic.src;
 
-SET check_table_dependencies = 0; -- Otherwise we'll get error "test_01155_ordinary.dict depends on test_01155_ordinary.dist" in the next line.
+SET check_table_dependencies = '0'; -- Otherwise we'll get error "test_01155_ordinary.dict depends on test_01155_ordinary.dist" in the next line.
 
 RENAME TABLE test_01155_ordinary.dist TO test_01155_atomic.dist;
 
-SET check_table_dependencies = 1;
+SET check_table_dependencies = '1';
 
 RENAME DICTIONARY test_01155_ordinary.dict TO test_01155_atomic.dict;
 
@@ -174,7 +174,7 @@ SELECT
     database,
     substr(name, 1, 10)
 FROM `system`.tables
-WHERE like(database, 'test_01155_%');
+WHERE database LIKE 'test_01155_%';
 
 RENAME DATABASE test_01155_ordinary TO test_01155_atomic;
 

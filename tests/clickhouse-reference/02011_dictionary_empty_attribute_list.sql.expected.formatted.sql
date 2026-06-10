@@ -5,7 +5,7 @@ CREATE TABLE test_table
 (
     id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 

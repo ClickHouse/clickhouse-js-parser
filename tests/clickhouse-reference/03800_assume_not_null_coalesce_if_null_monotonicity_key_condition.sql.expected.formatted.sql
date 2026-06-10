@@ -16,11 +16,11 @@ CREATE TABLE test
 (
     id UInt64,
     ts Nullable(DateTime64(3)),
-    INDEX idx_ts ts TYPE minmax GRANULARITY 1
+    INDEX idx_ts ts TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test;
 
@@ -50,7 +50,7 @@ FROM test
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY id ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3);
@@ -60,7 +60,7 @@ FROM view_assume
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY id ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM view_assume
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3);
@@ -70,7 +70,7 @@ FROM view_coalesce
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY id ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM view_coalesce
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3);
@@ -80,7 +80,7 @@ FROM view_ifnull
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY id ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM view_ifnull
 WHERE ts >= toDateTime64('2025-01-01 00:00:00', 3);
@@ -94,7 +94,7 @@ CREATE TABLE test_non_null
 )
 ENGINE = MergeTree()
 ORDER BY ts
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO test_non_null;
 
@@ -103,7 +103,7 @@ FROM test_non_null
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_non_null
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -113,7 +113,7 @@ FROM test_non_null
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_non_null
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -123,7 +123,7 @@ FROM test_non_null
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_non_null
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -137,7 +137,7 @@ CREATE TABLE test_null
 )
 ENGINE = MergeTree()
 ORDER BY ts
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO test_null;
 
@@ -146,7 +146,7 @@ FROM test_null
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -156,7 +156,7 @@ FROM test_null
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -166,7 +166,7 @@ FROM test_null
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -179,7 +179,7 @@ CREATE TABLE test_null_rev
 )
 ENGINE = MergeTree()
 ORDER BY (ts DESC)
-SETTINGS index_granularity = 1, allow_nullable_key = 1, allow_experimental_reverse_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1', allow_experimental_reverse_key = '1';
 
 INSERT INTO test_null_rev;
 
@@ -188,7 +188,7 @@ FROM test_null_rev
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null_rev
 WHERE assumeNotNull(ts) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -198,7 +198,7 @@ FROM test_null_rev
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null_rev
 WHERE coalesce(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
@@ -208,16 +208,16 @@ FROM test_null_rev
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3)
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_null_rev
 WHERE ifNull(ts, toDateTime64('1970-01-01 00:00:00', 3)) <= toDateTime64('2025-01-01 00:00:00', 3);
 
 DROP TABLE IF EXISTS test_lc_left_inf;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
-SET optimize_use_projections = 0;
+SET optimize_use_projections = '0';
 
 CREATE TABLE test_lc_left_inf
 (
@@ -226,7 +226,7 @@ CREATE TABLE test_lc_left_inf
 )
 ENGINE = MergeTree()
 ORDER BY (a, ts)
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO test_lc_left_inf;
 
@@ -235,7 +235,7 @@ FROM test_lc_left_inf
 WHERE assumeNotNull(ts) >= 1000
 ORDER BY `ALL` ASC;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM test_lc_left_inf
 WHERE assumeNotNull(ts) >= 1000;

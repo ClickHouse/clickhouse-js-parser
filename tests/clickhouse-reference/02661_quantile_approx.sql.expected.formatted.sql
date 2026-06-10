@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- { echoOn }
 WITH arrayJoin([0, 1, 2, 10]) AS x
@@ -9,7 +9,7 @@ WITH arrayJoin([0, 6, 7, 9, 10]) AS x
 
 SELECT quantileGK(100, 0.5)(x);
 
-SELECT quantilesGK(10000, 0.25, 0.5, 0.75, 0.0, 1.0, 0, 1)(number + 1)
+SELECT quantilesGK(10000, 0.25, 0.5, 0.75, 0., 1., 0, 1)(number + 1)
 FROM numbers(1000);
 
 SELECT quantilesGK(10000, 0.01, 0.1, 0.11)(number + 1)
@@ -20,7 +20,7 @@ WITH number + 1 AS col
 SELECT
     quantilesGK(10000, 0.25, 0.5, 0.75)(col),
     count(col),
-    quantilesGK(10000, 0.0, 1.0)(col),
+    quantilesGK(10000, 0., 1.)(col),
     sum(col)
 FROM numbers(1000);
 
@@ -53,19 +53,19 @@ FROM (
 
 SELECT medianGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS enable_analyzer = '0'; -- { serverError BAD_ARGUMENTS }
 
 SELECT medianGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 1; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
+SETTINGS enable_analyzer = '1'; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT quantileGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS enable_analyzer = '0'; -- { serverError BAD_ARGUMENTS }
 
 SELECT quantileGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 1; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
+SETTINGS enable_analyzer = '1'; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT medianGK(100)(number)
 FROM numbers(10);
@@ -90,11 +90,11 @@ FROM numbers(10); -- { serverError BAD_ARGUMENTS }
 
 SELECT quantilesGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS enable_analyzer = '0'; -- { serverError BAD_ARGUMENTS }
 
 SELECT quantilesGK()(number)
 FROM numbers(10)
-SETTINGS enable_analyzer = 1; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
+SETTINGS enable_analyzer = '1'; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT quantilesGK(100)(number)
 FROM numbers(10); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }

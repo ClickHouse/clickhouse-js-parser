@@ -14,7 +14,7 @@ CREATE TABLE src_products
     category String,
     brand String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO src_products;
 
@@ -25,7 +25,7 @@ CREATE TABLE src_geo
     timezone String,
     code UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO src_geo;
 
@@ -58,7 +58,7 @@ CREATE TABLE inputs
     target_brand String,
     target_timezone String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO inputs;
 
@@ -88,4 +88,4 @@ ORDER BY
     target_brand ASC,
     target_timezone ASC;
 
-SET max_reverse_dictionary_lookup_cache_size_bytes = 0;
+SET max_reverse_dictionary_lookup_cache_size_bytes = '0';

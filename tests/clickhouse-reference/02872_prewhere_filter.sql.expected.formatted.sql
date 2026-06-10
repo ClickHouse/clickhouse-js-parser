@@ -9,7 +9,7 @@ CREATE TABLE data
 ENGINE = AggregatingMergeTree()
 ORDER BY key;
 
-SYSTEM stop merges data;
+SYSTEM STOP MERGES data;
 
 INSERT INTO data;
 
@@ -24,4 +24,4 @@ SELECT
 FROM data FINAL
 PREWHERE assumeNotNull(val1) > 0
 WHERE x1 != x2
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';

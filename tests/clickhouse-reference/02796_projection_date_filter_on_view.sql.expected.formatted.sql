@@ -5,34 +5,24 @@ DROP TABLE IF EXISTS fx_5m;
 -- create source table
 CREATE TABLE fx_1m
 (
-    symbol LowCardinality(String) CODEC(ZSTD),
-    dt_close DateTime64(3, 'UTC') CODEC(DoubleDelta, ZSTD),
-    open Float32 CODEC(Delta, ZSTD),
-    high Float32 CODEC(Delta, ZSTD),
-    low Float32 CODEC(Delta, ZSTD),
-    close Float32 CODEC(Delta, ZSTD),
-    volume Float32 CODEC(Delta, ZSTD)
+    symbol LowCardinality(String) CODEC(ZSTD()),
+    dt_close DateTime64(3, 'UTC') CODEC(DoubleDelta(), ZSTD()),
+    open Float32 CODEC(Delta(), ZSTD()),
+    high Float32 CODEC(Delta(), ZSTD()),
+    low Float32 CODEC(Delta(), ZSTD()),
+    close Float32 CODEC(Delta(), ZSTD()),
+    volume Float32 CODEC(Delta(), ZSTD())
 )
 ENGINE = MergeTree()
 ORDER BY (symbol, dt_close)
 PARTITION BY toYear(dt_close)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 -- add projection
-ALTER TABLE fx_1m ADD PROJECTION fx_5m (SELECT
-    symbol,
-    toStartOfInterval(dt_close, toIntervalSecond(300)) AS dt_close,
-    argMin(open, dt_close),
-    max(high),
-    min(low),
-    argMax(close, dt_close),
-    sum(volume) AS volume
-GROUP BY
-    symbol,
-    dt_close);
+ALTER TABLE fx_1m ADD PROJECTION fx_5m (SELECT symbol, toStartOfInterval(dt_close, toIntervalSecond(300)) AS dt_close, argMin(open, dt_close), max(high), min(low), argMax(close, dt_close), sum(volume) AS volume GROUP BY symbol, dt_close);
 
 -- materialize projection
-ALTER TABLE fx_1m MATERIALIZE PROJECTION fx_5m SETTINGS mutations_sync = 2;
+ALTER TABLE fx_1m MATERIALIZE PROJECTION fx_5m SETTINGS mutations_sync = '2';
 
 -- create view using projection
 CREATE VIEW fx_5m
@@ -67,7 +57,8 @@ SELECT
     close
 FROM fx_5m
 WHERE symbol = 'EURUSD'
-    AND and(greaterOrEquals(dt_close, '2022-12-11'), lessOrEquals(dt_close, '2022-12-13'))
+    AND (dt_close >= '2022-12-11'
+    AND dt_close <= '2022-12-13')
 ORDER BY dt_close ASC
 FORMAT Null;
 

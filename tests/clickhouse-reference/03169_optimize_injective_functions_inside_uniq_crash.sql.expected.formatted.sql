@@ -7,8 +7,8 @@ FROM (
         GROUP BY k
     )
 SETTINGS
-    enable_analyzer = 1,
-    optimize_injective_functions_inside_uniq = 0;
+    enable_analyzer = '1',
+    optimize_injective_functions_inside_uniq = '0';
 
 SELECT sum(u)
 FROM (
@@ -19,5 +19,5 @@ FROM (
         GROUP BY k
     )
 SETTINGS
-    enable_analyzer = 1,
-    optimize_injective_functions_inside_uniq = 1;
+    enable_analyzer = '1',
+    optimize_injective_functions_inside_uniq = '1';

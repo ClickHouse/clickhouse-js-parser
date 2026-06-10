@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS numbers_10_00223;
 
 CREATE TABLE numbers_10_00223
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT *
 FROM `system`.numbers
 LIMIT 10000;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT *
 FROM (

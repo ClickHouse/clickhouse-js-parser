@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database, no-parallel-replicas
 -- no-parallel, no-parallel-replicas: Dictionary is not created in parallel replicas.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_inverse_dictionary_lookup = 1;
+SET optimize_inverse_dictionary_lookup = '1';
 
-SET optimize_or_like_chain = 0;
+SET optimize_or_like_chain = '0';
 
 DROP DICTIONARY IF EXISTS dictionary_all;
 
@@ -32,7 +32,7 @@ CREATE TABLE ref_table_all
     ip4 String,
     ip6 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO ref_table_all;
@@ -59,7 +59,7 @@ CREATE DICTIONARY dictionary_all
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_table_all'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 CREATE TABLE tab
@@ -67,12 +67,12 @@ CREATE TABLE tab
     id UInt64,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -91,7 +91,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -110,7 +110,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -129,7 +129,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -148,12 +148,12 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
 FROM tab
-WHERE dictGetFloat64('dictionary_all', 'f64', id) = 20.0
+WHERE dictGetFloat64('dictionary_all', 'f64', id) = 20.
 ORDER BY
     id ASC,
     payload ASC;
@@ -162,21 +162,12 @@ SELECT
     id,
     payload
 FROM tab
-WHERE dictGetFloat64('dictionary_all', 'f64', id) = 20.0
+WHERE dictGetFloat64('dictionary_all', 'f64', id) = 20.
 ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
-SELECT
-    id,
-    payload
-FROM tab
-WHERE dictGetDate('dictionary_all', 'd', id) = toDate('2025-01-01')
-ORDER BY
-    id ASC,
-    payload ASC;
-
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -186,7 +177,16 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+SELECT
+    id,
+    payload
+FROM tab
+WHERE dictGetDate('dictionary_all', 'd', id) = toDate('2025-01-01')
+ORDER BY
+    id ASC,
+    payload ASC;
+
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -205,7 +205,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -224,7 +224,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -243,7 +243,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -262,7 +262,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -281,7 +281,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload

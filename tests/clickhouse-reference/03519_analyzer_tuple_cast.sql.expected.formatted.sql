@@ -1,17 +1,17 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test, src;
 
 SELECT
     count(),
-    plus((-9, 0), (number,  number)) AS k
+    plus((-9, 0), (number, number)) AS k
 FROM remote('127.0.0.{3,2}', numbers(2))
 GROUP BY k
 ORDER BY k ASC;
 
 SELECT
     count(),
-    mapAdd(map(1::UInt128, 1), map(1::UInt128, number)) AS k
+    mapAdd(map(CAST('1' AS UInt128), 1), map(CAST('1' AS UInt128), number)) AS k
 FROM remote('127.0.0.{3,2}', numbers(2))
 GROUP BY k
 ORDER BY k ASC;
@@ -20,7 +20,7 @@ CREATE TABLE test
 (
     s String
 )
-ORDER BY tuple();
+ORDER BY ();
 
 INSERT INTO test;
 
@@ -28,7 +28,7 @@ SELECT transform(s, ['a', 'b'], [(1, 2), (3, 4)], (0, 0)) AS k
 FROM test
 ORDER BY k ASC;
 
-SELECT if(s != '', (1,2), (0,0)) AS k
+SELECT s != '' ? (1, 2) : (0, 0) AS k
 FROM test
 ORDER BY k ASC;
 
@@ -38,7 +38,7 @@ CREATE TABLE src
     type String,
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO src;

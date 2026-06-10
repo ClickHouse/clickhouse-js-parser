@@ -1,7 +1,7 @@
 -- Tags: no-shared-merge-tree
 -- Tag no-shared-merge-tree - in SMT this works differently
 -- Test for MergeTreeData::checkDropCommandDoesntAffectInProgressMutations() basically
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS test SYNC;
 
 CREATE TABLE test
 (
@@ -18,18 +18,18 @@ INSERT INTO test SELECT
     '111'
 FROM numbers(5);
 
-ALTER TABLE test UPDATE d = d + throwIf(1) WHERE 1 SETTINGS mutations_sync = 0;
+ALTER TABLE test UPDATE d = d + throwIf(1) WHERE 1 SETTINGS mutations_sync = '0';
 
-ALTER TABLE test ADD COLUMN x UInt32 DEFAULT 0 SETTINGS mutations_sync = 0;
+ALTER TABLE test ADD COLUMN x UInt32 DEFAULT 0 SETTINGS mutations_sync = '0';
 
-ALTER TABLE test UPDATE d = x + 1 WHERE 1 SETTINGS mutations_sync = 0;
+ALTER TABLE test UPDATE d = x + 1 WHERE 1 SETTINGS mutations_sync = '0';
 
-ALTER TABLE test DROP COLUMN x SETTINGS mutations_sync = 2; -- { serverError BAD_ARGUMENTS }
+ALTER TABLE test DROP COLUMN x SETTINGS mutations_sync = '2'; -- { serverError BAD_ARGUMENTS }
 
 KILL MUTATION WHERE database = currentDatabase()
-AND like(command, '%throwIf%') SYNC FORMAT Null;
+AND command LIKE '%throwIf%' SYNC FORMAT Null;
 
-ALTER TABLE test UPDATE x = x + 1 WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE test UPDATE x = x + 1 WHERE 1 SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM test

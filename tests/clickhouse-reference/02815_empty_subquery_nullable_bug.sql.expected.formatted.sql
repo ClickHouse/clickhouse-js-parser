@@ -17,10 +17,10 @@ FROM (
     )
 FORMAT Null;
 
-SELECT (x IN (111)) == 1
+SELECT x IN (111) = 1
 FROM (
         SELECT (
-                SELECT 3::Nullable(UInt8)
+                SELECT CAST('3' AS Nullable(UInt8))
                 WHERE 0
             ) AS x
         FROM (
@@ -29,10 +29,10 @@ FROM (
     )
 FORMAT Null;
 
-SELECT (x IN (111)) == 1
+SELECT x IN (111) = 1
 FROM (
         SELECT (
-                SELECT 3::Nullable(UInt8)
+                SELECT CAST('3' AS Nullable(UInt8))
                 WHERE 1
             ) AS x
         FROM (
@@ -41,7 +41,7 @@ FROM (
     )
 FORMAT Null;
 
-SELECT (x IN (111)) == 1
+SELECT x IN (111) = 1
 FROM (
         SELECT (
                 SELECT 3

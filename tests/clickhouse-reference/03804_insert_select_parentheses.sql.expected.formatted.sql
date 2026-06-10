@@ -6,10 +6,10 @@ CREATE TABLE t_insert_select_parens
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Basic case: INSERT SELECT with parentheses
-INSERT INTO t_insert_select_parens (x) (SELECT 1);
+INSERT INTO t_insert_select_parens (x) SELECT 1;
 
 SELECT *
 FROM t_insert_select_parens
@@ -18,13 +18,13 @@ ORDER BY x ASC;
 TRUNCATE TABLE t_insert_select_parens;
 
 -- INSERT SELECT with UNION and parentheses
-INSERT INTO t_insert_select_parens (x) (SELECT 2
+INSERT INTO t_insert_select_parens (x) SELECT 2
 UNION ALL
-SELECT 3);
+SELECT 3;
 
 -- INSERT SELECT with EXCEPT and parentheses
-INSERT INTO t_insert_select_parens (x) (SELECT *
-FROM numbers(5))
+INSERT INTO t_insert_select_parens (x) SELECT *
+FROM numbers(5)
 EXCEPT
 (SELECT *
 FROM numbers(3));
@@ -37,14 +37,14 @@ INTERSECT
 FROM numbers(3, 5));
 
 -- Nested parentheses
-INSERT INTO t_insert_select_parens (x) (SELECT 10);
+INSERT INTO t_insert_select_parens (x) SELECT 10;
 
 -- INSERT SELECT with CTE inside parentheses
-INSERT INTO t_insert_select_parens (x) (WITH cte AS (
+INSERT INTO t_insert_select_parens (x) WITH cte AS (
     SELECT 100 AS val
 )
 
 SELECT val
-FROM cte);
+FROM cte;
 
 DROP TABLE t_insert_select_parens;

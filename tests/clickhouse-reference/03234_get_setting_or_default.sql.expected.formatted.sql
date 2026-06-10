@@ -4,7 +4,7 @@ SET custom_b = 'value_b';
 
 SET custom_c = NULL;
 
-SET custom_d = 5;
+SET custom_d = '5';
 
 SELECT getSettingOrDefault('custom_a', 'default_a');
 

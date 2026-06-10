@@ -3,13 +3,12 @@ DROP TABLE IF EXISTS proj;
 CREATE TABLE proj
 (
     date Date,
-    PROJECTION maxdate (    SELECT max(date)
-    GROUP BY date)
+    PROJECTION maxdate (SELECT max(date) GROUP BY date)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT toDate('2012-10-24') - number % 100
-FROM numbers(1e2);
+FROM numbers(100.);
 
 SELECT max(date)
 FROM proj

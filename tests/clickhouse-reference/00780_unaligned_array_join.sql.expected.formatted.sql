@@ -14,7 +14,7 @@ FROM
         LIMIT 10
     )
 ARRAY JOIN arr1 AS x, arr2 AS y
-SETTINGS enable_unaligned_array_join = 1;
+SETTINGS enable_unaligned_array_join = '1';
 
 SELECT
     number,
@@ -32,4 +32,4 @@ FROM
         LIMIT 10
     )
 LEFT ARRAY JOIN arr1 AS x, arr2 AS y
-SETTINGS enable_unaligned_array_join = 1;
+SETTINGS enable_unaligned_array_join = '1';

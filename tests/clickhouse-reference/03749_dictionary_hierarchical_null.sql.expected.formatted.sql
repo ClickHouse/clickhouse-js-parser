@@ -5,9 +5,9 @@ CREATE DICTIONARY d0
 (
     c0 Int
 )
-PRIMARY KEY (c0)
+PRIMARY KEY c0
 SOURCE(null())
-LIFETIME(1)
+LIFETIME(MIN 0 MAX 1)
 LAYOUT(FLAT());
 
 SELECT dictGetDescendants('d0', 'c0', 1); -- { serverError UNSUPPORTED_METHOD }
@@ -32,19 +32,19 @@ CREATE TABLE hierarchy_source
     parent_id UInt64,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO hierarchy_source;
 
 CREATE DICTIONARY hierarchical_dictionary
 (
     id UInt64,
-    parent_id UInt64,
+    parent_id UInt64 HIERARCHICAL,
     name String
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'hierarchy_source'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetDescendants('hierarchical_dictionary', 1, 1);

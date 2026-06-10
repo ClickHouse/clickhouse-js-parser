@@ -6,10 +6,7 @@ CREATE TABLE projections
 (
     key String,
     d1 Int,
-    PROJECTION improved_sorting_key (    SELECT *
-    ORDER BY
-        d1 ASC,
-        key ASC)
+    PROJECTION improved_sorting_key (SELECT * ORDER BY d1, key)
 )
 ENGINE = MergeTree()
 ORDER BY key;
@@ -18,11 +15,8 @@ CREATE TABLE projections_2
 (
     name String,
     frequency UInt64,
-    PROJECTION agg (    SELECT
-        name,
-        max(frequency) AS max_frequency
-    GROUP BY name),
-    PROJECTION agg_no_key (    SELECT max(frequency) AS max_frequency)
+    PROJECTION agg (SELECT name, max(frequency) AS max_frequency GROUP BY name),
+    PROJECTION agg_no_key (SELECT max(frequency) AS max_frequency)
 )
 ENGINE = MergeTree()
 ORDER BY name;

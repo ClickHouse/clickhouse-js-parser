@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     number,
@@ -16,19 +16,19 @@ FORMAT Pretty;
 
 SELECT
     number,
-    lead(number, 1, 8472) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS lead
+    lead(number, 1, 8472) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS lead
 FROM numbers(5)
 ORDER BY number ASC
 FORMAT Pretty; -- { serverError BAD_ARGUMENTS }
 
 SELECT
     number,
-    lag(number, 1, 8472) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED PRECEDING) AS lag
+    lag(number, 1, 8472) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS lag
 FROM numbers(5)
 ORDER BY number ASC
 FORMAT Pretty; -- { serverError BAD_ARGUMENTS }
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT
     number,

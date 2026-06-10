@@ -8,11 +8,11 @@ CREATE TABLE t_index
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 CREATE INDEX i_a ON t_index (a) TYPE minmax GRANULARITY 4;
 
-CREATE INDEX i_a ON t_index (a) TYPE minmax GRANULARITY 2;
+CREATE INDEX IF NOT EXISTS i_a ON t_index (a) TYPE minmax GRANULARITY 2;
 
 CREATE INDEX i_b ON t_index (b) TYPE bloom_filter GRANULARITY 2;
 
@@ -30,7 +30,7 @@ WHERE database = currentDatabase()
 
 DROP INDEX i_a ON t_index;
 
-DROP INDEX i_a ON t_index;
+DROP INDEX IF EXISTS i_a ON t_index;
 
 DROP TABLE t_index;
 
@@ -41,7 +41,7 @@ CREATE TABLE t_index
 )
 ENGINE = ReplicatedMergeTree('/test/2319/{database}', '1')
 ORDER BY a
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 CREATE TABLE t_index_replica
 (
@@ -50,9 +50,9 @@ CREATE TABLE t_index_replica
 )
 ENGINE = ReplicatedMergeTree('/test/2319/{database}', '2')
 ORDER BY a
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SYSTEM sync replica t_index_replica;
+SYSTEM SYNC REPLICA t_index_replica;
 
 SHOW CREATE TABLE t_index_replica;
 

@@ -1,515 +1,553 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Test for a bug where multiple conditions using the same indexed expression caused",
-      "-- \"Not found column in block\" error. The issue was that MergeTreeIndexConditionSet",
-      "-- created duplicate INPUT nodes with the same name, and ExpressionActions only",
-      "-- mapped the first one, leaving subsequent ones unmapped."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
       },
-      {
-        "kind": "columnDef",
-        "name": "labels",
-        "type": {
-          "name": "Map",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
       },
-      {
-        "kind": "indexDef",
-        "name": "idx_labels",
-        "expr": {
-          "kind": "functionCall",
-          "name": "mapKeys",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "labels"
-              ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
             }
-          ]
-        },
-        "indexType": {
-          "name": "SET",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "granularity": 1
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_set_index_multiple_conditions"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_set_index_multiple_conditions"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_set_index_multiple_conditions"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "labels",
+            "data_type": {
+              "type": "DataType",
+              "name": "Map",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "a"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "b"
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- This query previously failed with:",
-      "-- \"Not found column mapKeys(labels) in block\""
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "a"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "c"
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Test with OR"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "a"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "b"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "c"
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Test with three conditions"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "functionCall",
-              "name": "has",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "mapKeys",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "labels"
-                      ]
-                    }
-                  ]
+                  "type": "DataType",
+                  "name": "String"
                 },
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx_labels",
+            "expression": {
+              "type": "Function",
+              "name": "mapKeys",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "labels"
                 }
               ]
             },
-            {
-              "kind": "functionCall",
-              "name": "has",
-              "args": [
+            "index_type": {
+              "type": "Function",
+              "name": "SET",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "mapKeys",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "labels"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
                 }
               ]
+            },
+            "granularity": 1
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
             }
           ],
-          "parenthesized": true
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "mapKeys",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "labels"
-                  ]
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_set_index_multiple_conditions"
+                  }
                 }
-              ]
-            },
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "b"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "c"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Test with mixed AND/OR"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_set_index_multiple_conditions"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_set_index_multiple_conditions"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "c"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_set_index_multiple_conditions"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "b"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "c"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_set_index_multiple_conditions"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "has",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "mapKeys",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "labels"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "has",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "mapKeys",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "labels"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "b"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "mapKeys",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "labels"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "c"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_set_index_multiple_conditions"
+      }
     }
   }
 ]

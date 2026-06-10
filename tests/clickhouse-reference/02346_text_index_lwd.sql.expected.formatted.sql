@@ -1,4 +1,4 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 -- Some tests for lightweight deleted on a column with text index
 DROP TABLE IF EXISTS tab;
@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS tab;
 CREATE TABLE tab
 (
     s FixedString(37),
-    INDEX idx s TYPE text(tokenizer = array())
+    INDEX idx s TYPE text(tokenizer = array()) GRANULARITY 100000000
 )
 ENGINE = MergeTree()
 ORDER BY tuple();

@@ -12,7 +12,7 @@ INNER JOIN (
     ON a.x = b.y
 SETTINGS
     join_algorithm = 'hash',
-    query_plan_join_swap_table = 0;
+    query_plan_join_swap_table = '0';
 
 SELECT count()
 FROM
@@ -28,7 +28,7 @@ INNER JOIN (
     ON a.x = b.y
 SETTINGS
     join_algorithm = 'parallel_hash',
-    query_plan_join_swap_table = 0;
+    query_plan_join_swap_table = '0';
 
 SELECT count()
 FROM
@@ -42,8 +42,8 @@ INNER JOIN (
     ) AS b
     ON a.x = b.y
 SETTINGS
-    enable_join_runtime_filters = 1,
-    query_plan_join_swap_table = 0;
+    enable_join_runtime_filters = '1',
+    query_plan_join_swap_table = '0';
 
 SELECT count()
 FROM
@@ -58,7 +58,7 @@ INNER JOIN (
     ON a.x = b.y
 SETTINGS
     join_algorithm = 'parallel_hash',
-    query_plan_join_swap_table = 0;
+    query_plan_join_swap_table = '0';
 
 -- CROSS JOIN
 SELECT count()
@@ -71,7 +71,7 @@ CROSS JOIN (
         SELECT toUInt64(1) AS y
         WHERE 0
     ) AS b
-SETTINGS query_plan_join_swap_table = 0;
+SETTINGS query_plan_join_swap_table = '0';
 
 -- COMMA CROSS JOIN
 SELECT count()
@@ -79,28 +79,28 @@ FROM
     (
         SELECT sum(number) AS x
         FROM `system`.numbers
-    ) AS a
-CROSS JOIN (
+    ) AS a,
+    (
         SELECT toUInt64(1) AS y
         WHERE 0
     ) AS b
-SETTINGS query_plan_join_swap_table = 0;
+SETTINGS query_plan_join_swap_table = '0';
 
 SELECT count()
 FROM
-    numbers(1e12) AS t1
-CROSS JOIN null('x UInt8') AS t2
+    numbers(1000000000000.) AS t1,
+    null('x UInt8') AS t2
 SETTINGS
-    query_plan_join_swap_table = 0,
-    max_rows_to_read = 1e13;
+    query_plan_join_swap_table = '0',
+    max_rows_to_read = 10000000000000.;
 
 SELECT count()
 FROM
-    numbers(1e12) AS t1
-CROSS JOIN numbers(1e12) AS t2
-CROSS JOIN numbers(1e12) AS t3
-CROSS JOIN numbers(1e12) AS t4
-CROSS JOIN null('x UInt8') AS t5
+    numbers(1000000000000.) AS t1,
+    numbers(1000000000000.) AS t2,
+    numbers(1000000000000.) AS t3,
+    numbers(1000000000000.) AS t4,
+    null('x UInt8') AS t5
 SETTINGS
-    query_plan_join_swap_table = 0,
-    max_rows_to_read = 1e13;
+    query_plan_join_swap_table = '0',
+    max_rows_to_read = 10000000000000.;

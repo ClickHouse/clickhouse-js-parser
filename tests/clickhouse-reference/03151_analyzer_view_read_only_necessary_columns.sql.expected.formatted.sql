@@ -5,7 +5,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 DROP VIEW IF EXISTS test_view;
@@ -17,10 +17,10 @@ SELECT
     value
 FROM test_table;
 
-EXPLAIN header = 1
+EXPLAIN header = '1'
 SELECT sum(id)
 FROM test_view
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP VIEW test_view;
 

@@ -98,7 +98,7 @@ RIGHT JOIN (
     ON y = x;
 
 -- other cases with joins and constants
-SELECT cast(1, 'UInt8')
+SELECT CAST(1 AS UInt8)
 FROM
     (
         SELECT arrayJoin([1, 2]) AS a
@@ -107,9 +107,9 @@ LEFT JOIN (
         SELECT 1 AS b
     ) AS t2
     ON b = ignore('UInt8')
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
 
-SELECT cast(1, 'UInt8')
+SELECT CAST(1 AS UInt8)
 FROM
     (
         SELECT arrayJoin([1, 2]) AS a
@@ -118,20 +118,7 @@ LEFT JOIN (
         SELECT 1 AS b
     ) AS t2
     ON b = ignore('UInt8')
-SETTINGS enable_analyzer = 1;
-
-SELECT
-    isConstant('UInt8'),
-    toFixedString('hello', toUInt8(substring('UInt8', 5, 1)))
-FROM
-    (
-        SELECT arrayJoin([1, 2]) AS a
-    ) AS t1
-LEFT JOIN (
-        SELECT 1 AS b
-    ) AS t2
-    ON b = ignore('UInt8')
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+SETTINGS enable_analyzer = '1';
 
 SELECT
     isConstant('UInt8'),
@@ -144,7 +131,20 @@ LEFT JOIN (
         SELECT 1 AS b
     ) AS t2
     ON b = ignore('UInt8')
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+
+SELECT
+    isConstant('UInt8'),
+    toFixedString('hello', toUInt8(substring('UInt8', 5, 1)))
+FROM
+    (
+        SELECT arrayJoin([1, 2]) AS a
+    ) AS t1
+LEFT JOIN (
+        SELECT 1 AS b
+    ) AS t2
+    ON b = ignore('UInt8')
+SETTINGS enable_analyzer = '1';
 
 -- https://github.com/ClickHouse/ClickHouse/issues/20624
 SELECT

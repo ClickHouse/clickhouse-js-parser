@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     toTypeName(key),
@@ -37,7 +37,7 @@ FROM
             'v2' AS c1,
             '' AS c2
     )
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             'v1' AS c1,
             'w1' AS c2
@@ -57,7 +57,7 @@ FROM
             'key1' AS key,
             'value1' AS value
     ) AS s1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             'key1' AS key,
             '' AS value

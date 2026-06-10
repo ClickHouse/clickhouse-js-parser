@@ -1,253 +1,268 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
       },
-      {
-        "kind": "columnDef",
-        "name": "created_at",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "projectionDef",
-        "name": "xxx",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "created_at"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "sum",
-              "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "created_at",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ],
+        "projections": [
+          {
+            "type": "Projection",
+            "name": "xxx",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "value"
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "created_at"
+                },
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "value"
+                    }
                   ]
+                }
+              ],
+              "group_by": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "created_at"
                 }
               ]
             }
-          ],
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "created_at"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "key"
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "today",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "30"
+                      }
+                    ]
+                  }
                 ]
               },
               {
-                "kind": "columnRef",
-                "parts": [
-                  "created_at"
-                ]
+                "type": "Identifier",
+                "name": "number"
               }
-            ]
-          }
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "created_at"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "functionCall",
-            "name": "today",
-            "args": []
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "30"
-            },
-            "parenthesized": true
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "value",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        ],
-        "where": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": ">",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "value"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "optimize_use_projections": "1"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "value"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
                 ]
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "created_at"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-12-21"
+                  }
+                ]
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "value",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
                 "value": "0"
-              },
-              "parenthesized": true
-            },
-            {
-              "kind": "binaryExpr",
-              "op": ">=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "created_at"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "2021-12-21"
-              },
-              "parenthesized": true
+              }
             }
           ]
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "optimize_use_projections",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+      ]
+    }
   }
 ]

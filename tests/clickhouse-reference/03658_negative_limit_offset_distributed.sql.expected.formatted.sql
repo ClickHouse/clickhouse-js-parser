@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT number
 FROM remote('127.0.0.{1,2,3}', numbers_mt(20))
@@ -25,4 +25,4 @@ ORDER BY number ASC
 LIMIT -5
 OFFSET 20;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

@@ -4,7 +4,7 @@ CREATE TABLE datetime64_index_tbl
 (
     ts DateTime64(3, 'UTC')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ts;
 
 INSERT INTO datetime64_index_tbl (ts);

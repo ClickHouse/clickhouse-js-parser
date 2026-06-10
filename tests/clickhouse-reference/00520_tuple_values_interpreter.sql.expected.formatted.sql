@@ -4,11 +4,11 @@ CREATE TABLE tuple
 (
     t Tuple(Date, UInt32, UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tuple;
 
-SET input_format_values_interpret_expressions = 0;
+SET input_format_values_interpret_expressions = '0';
 
 INSERT INTO tuple;
 

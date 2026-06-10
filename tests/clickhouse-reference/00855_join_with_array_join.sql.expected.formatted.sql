@@ -1,6 +1,6 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     ax,
@@ -8,7 +8,7 @@ SELECT
 FROM
     (
         SELECT
-            [1,2] AS ax,
+            [1, 2] AS ax,
             0 AS c
     )
 ARRAY JOIN ax
@@ -23,7 +23,7 @@ SELECT
 FROM
     (
         SELECT
-            [3,4] AS ax,
+            [3, 4] AS ax,
             0 AS c
     )
 INNER JOIN (
@@ -38,7 +38,7 @@ SELECT
 FROM
     (
         SELECT
-            [5,6] AS ax,
+            [5, 6] AS ax,
             0 AS c
     ) AS s1
 INNER JOIN `system`.one AS s2
@@ -52,7 +52,7 @@ SELECT
 FROM
     (
         SELECT
-            [7,8] AS ax,
+            [7, 8] AS ax,
             1 AS c,
             0 AS d
     ) AS s1
@@ -67,7 +67,7 @@ SELECT
 FROM
     (
         SELECT
-            [101,102] AS ax,
+            [101, 102] AS ax,
             0 AS c
     ) AS s1
 INNER JOIN `system`.one AS s2
@@ -76,7 +76,7 @@ INNER JOIN `system`.one AS s3
     ON s1.c = s3.dummy
 ARRAY JOIN ax;
 
-SET joined_subquery_requires_alias = 1;
+SET joined_subquery_requires_alias = '1';
 
 DROP TABLE IF EXISTS f;
 
@@ -86,7 +86,7 @@ CREATE TABLE f
 (
     d_ids Array(Int64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO f;
 
@@ -95,7 +95,7 @@ CREATE TABLE d
     id Int64,
     name String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO d;
 
@@ -139,7 +139,7 @@ FROM
     ) AS x
 ARRAY JOIN dummy
 INNER JOIN `system`.one AS y
-    ON x.dummy == y.dummy;
+    ON x.dummy = y.dummy;
 
 SELECT *
 FROM
@@ -149,7 +149,7 @@ FROM
     ) AS x
 ARRAY JOIN dummy
 INNER JOIN `system`.one AS y
-    ON x.dummy + 1 == y.dummy + 1;
+    ON x.dummy + 1 = y.dummy + 1;
 
 SELECT *
 FROM
@@ -189,4 +189,4 @@ INNER JOIN (
         FROM `system`.one
     ) AS y
     USING (dummy)
-GROUP BY (dummy > 0);
+GROUP BY dummy > 0;

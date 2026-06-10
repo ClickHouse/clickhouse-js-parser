@@ -25,10 +25,10 @@ ORDER BY key ASC;
 SELECT *
 FROM
     (
-        SELECT 1::UInt32 AS key
+        SELECT CAST('1' AS UInt32) AS key
     ) AS t1
 FULL JOIN (
-        SELECT 1::Nullable(UInt32) AS key
+        SELECT CAST('1' AS Nullable(UInt32)) AS key
     ) AS t2
     USING (key)
 ORDER BY key ASC;
@@ -36,7 +36,7 @@ ORDER BY key ASC;
 SELECT *
 FROM
     (
-        SELECT 1::UInt32 AS key
+        SELECT CAST('1' AS UInt32) AS key
     ) AS t1
 FULL JOIN (
         SELECT NULL::Nullable(UInt32) AS key
@@ -47,10 +47,10 @@ ORDER BY key ASC;
 SELECT *
 FROM
     (
-        SELECT 1::Int32 AS key
+        SELECT CAST('1' AS Int32) AS key
     ) AS t1
 INNER JOIN (
-        SELECT 1::UInt32 AS key
+        SELECT CAST('1' AS UInt32) AS key
     ) AS t2
     ON t1.key = t2.key
 ORDER BY key ASC;
@@ -58,10 +58,10 @@ ORDER BY key ASC;
 SELECT *
 FROM
     (
-        SELECT -1::Nullable(Int32) AS key
+        SELECT CAST('-1' AS Nullable(Int32)) AS key
     ) AS t1
 FULL JOIN (
-        SELECT 4294967295::UInt32 AS key
+        SELECT CAST('4294967295' AS UInt32) AS key
     ) AS t2
     ON t1.key = t2.key
 ORDER BY key ASC;
@@ -110,7 +110,7 @@ INNER JOIN (
     ON t1.key = t2.key
 ORDER BY key ASC;
 
-SELECT 5 == count()
+SELECT 5 = count()
 FROM
     (
         SELECT number AS a
@@ -124,7 +124,7 @@ LEFT JOIN (
     ON t1.a = t2.b
 ORDER BY 1 ASC;
 
-SELECT 5 == count()
+SELECT 5 = count()
 FROM
     (
         SELECT number AS a

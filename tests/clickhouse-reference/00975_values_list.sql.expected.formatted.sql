@@ -14,7 +14,7 @@ SELECT
 FROM VALUES('date Date, date_time DateTime', (toDate('2019-01-01'), toDateTime('2019-01-01 00:00:00')));
 
 SELECT *
-FROM VALUES('s String', ('abra'), ('cadabra'), ('abracadabra'));
+FROM VALUES('s String', 'abra', 'cadabra', 'abracadabra');
 
 SELECT *
 FROM VALUES('n UInt64, s String, ss String', (1 + 22, '23', toString(23)), (toUInt64('24'), '24', concat('2', '4')));

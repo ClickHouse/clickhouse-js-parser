@@ -7,7 +7,7 @@ CREATE TABLE test_vertical_json
     data JSON,
     nullableData Nullable(JSON)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_vertical_json;
 

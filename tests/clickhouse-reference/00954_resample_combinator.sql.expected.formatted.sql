@@ -4,7 +4,7 @@ SELECT arrayReduce('sumResample(3, 8, 2)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 
 
 SELECT arrayReduce('sumResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-SELECT arrayReduce('sumResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+SELECT arrayReduce('sumResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 SELECT arrayReduce('stddevPopResample(1, 7, 1)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
@@ -12,7 +12,7 @@ SELECT arrayReduce('stddevPopResample(3, 8, 2)', [10, 11, 12, 13, 14, 15, 16, 17
 
 SELECT arrayReduce('stddevPopResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-SELECT arrayReduce('stddevPopResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+SELECT arrayReduce('stddevPopResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 SELECT arrayReduce('groupArrayResample(1, 7, 1)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
@@ -20,7 +20,7 @@ SELECT arrayReduce('groupArrayResample(3, 8, 2)', [10, 11, 12, 13, 14, 15, 16, 1
 
 SELECT arrayReduce('groupArrayResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-SELECT arrayReduce('groupArrayResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+SELECT arrayReduce('groupArrayResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 SELECT arrayReduce('uniqResample(1, 7, 1)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
@@ -28,4 +28,4 @@ SELECT arrayReduce('uniqResample(3, 8, 2)', [10, 11, 12, 13, 14, 15, 16, 17, 18,
 
 SELECT arrayReduce('uniqResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-SELECT arrayReduce('uniqResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+SELECT arrayReduce('uniqResample(2, 9, 3)', [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);

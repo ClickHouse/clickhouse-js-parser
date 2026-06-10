@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     s.a AS a,
@@ -116,7 +116,7 @@ CREATE TABLE test_00818
     field String,
     not_field String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_00818 (field, not_field);
 

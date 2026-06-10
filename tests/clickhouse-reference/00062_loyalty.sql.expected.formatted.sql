@@ -6,7 +6,7 @@ SELECT
 FROM (
         SELECT
             UserID,
-            toInt8((if(yandex > google, yandex / ((yandex + google)), negate(google) / ((yandex + google)))) * 10) AS loyalty
+            toInt8((yandex > google ? yandex / (yandex + google) : -google / (yandex + google)) * 10) AS loyalty
         FROM (
                 SELECT
                     UserID,

@@ -4,7 +4,7 @@ CREATE TABLE table1
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO table1 SELECT number
@@ -24,7 +24,7 @@ FROM (
     )
 SETTINGS
     cluster_for_parallel_replicas = 'parallel_replicas',
-    enable_parallel_replicas = 1,
-    max_parallel_replicas = 2;
+    enable_parallel_replicas = '1',
+    max_parallel_replicas = '2';
 
 DROP TABLE table1;

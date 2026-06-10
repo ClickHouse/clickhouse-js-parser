@@ -7,7 +7,7 @@ CREATE TABLE t
     x int
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 DELETE FROM t WHERE y IN (
     SELECT x
@@ -37,7 +37,7 @@ ALTER TABLE t UPDATE x = 1 WHERE x IN (
 DELETE FROM t WHERE x IN (
     SELECT foo
     FROM bar
-) SETTINGS validate_mutation_query = 0;
+) SETTINGS validate_mutation_query = '0';
 
 ALTER TABLE t ADD COLUMN y int;
 
@@ -51,7 +51,7 @@ CREATE TABLE t2
     x int
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 DROP TABLE t;
 

@@ -11,28 +11,28 @@ CREATE TABLE t1
     key UInt32,
     s String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE tn1
 (
     key Nullable(UInt32),
     s String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t2
 (
     key UInt32,
     s String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE tn2
 (
     key Nullable(UInt32),
     s String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t1;
 
@@ -42,7 +42,7 @@ INSERT INTO t2;
 
 INSERT INTO tn2;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -54,7 +54,7 @@ SELECT
     length(t2.s)
 FROM
     t1 AS t1
-FULL JOIN tn2 AS t2
+ALL FULL JOIN tn2 AS t2
     USING (key)
 ORDER BY
     key ASC,
@@ -63,7 +63,7 @@ ORDER BY
 
 SET join_algorithm = 'full_sorting_merge';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = true;
 
 DROP TABLE t1;
 

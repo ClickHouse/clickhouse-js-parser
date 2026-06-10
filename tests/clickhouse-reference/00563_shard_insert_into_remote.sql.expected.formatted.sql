@@ -5,7 +5,7 @@ CREATE TABLE tab
 (
     val UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val;
 
 INSERT INTO FUNCTION remote('127.0.0.2', currentDatabase(), tab);

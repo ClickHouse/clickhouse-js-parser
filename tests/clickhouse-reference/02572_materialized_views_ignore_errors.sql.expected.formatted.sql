@@ -1,4 +1,4 @@
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 DROP TABLE IF EXISTS data_02572;
 
@@ -35,10 +35,10 @@ SELECT *
 FROM data_02572
 ORDER BY key ASC;
 
-INSERT INTO data_02572 SETTINGS materialized_views_ignore_errors = 1;
+INSERT INTO data_02572 SETTINGS materialized_views_ignore_errors = '1';
 
 -- check system.query_views_log
-SYSTEM flush logs query_views_log;
+SYSTEM FLUSH LOGS query_views_log;
 
 -- lower(status) to pass through clickhouse-test "exception" check
 SELECT

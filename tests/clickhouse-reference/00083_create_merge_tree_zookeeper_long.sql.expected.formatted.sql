@@ -1,7 +1,7 @@
 -- Tags: long, zookeeper, no-replicated-database, no-shared-merge-tree
 -- Tag no-replicated-database: Old syntax is not allowed
 -- no-shared-merge-tree implemented another test
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS merge_tree;
 
@@ -51,7 +51,7 @@ DROP TABLE IF EXISTS replicated_summing_merge_tree_with_sampling_with_list_of_co
 
 DROP TABLE IF EXISTS replicated_aggregating_merge_tree_with_sampling;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE merge_tree
 (

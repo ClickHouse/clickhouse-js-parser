@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS t1;
+DROP TABLE IF EXISTS t1 SYNC;
 
-DROP TABLE IF EXISTS t2;
+DROP TABLE IF EXISTS t2 SYNC;
 
-DROP TABLE IF EXISTS t3;
+DROP TABLE IF EXISTS t3 SYNC;
 
 CREATE TABLE t1
 (
@@ -43,11 +43,11 @@ INSERT INTO t3 SELECT
     toString(number)
 FROM numbers(3000, 1000);
 
-SYSTEM sync replica t1;
+SYSTEM SYNC REPLICA t1;
 
-SYSTEM sync replica t2;
+SYSTEM SYNC REPLICA t2;
 
-SYSTEM sync replica t3;
+SYSTEM SYNC REPLICA t3;
 
 -- w/o parallel replicas
 SELECT
@@ -58,11 +58,11 @@ WHERE k > 0
 GROUP BY k
 ORDER BY k ASC
 SETTINGS
-    force_primary_key = 1,
-    enable_parallel_replicas = 0;
+    force_primary_key = '1',
+    enable_parallel_replicas = '0';
 
 -- parallel replicas, primary key is used
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT
     k,
@@ -71,7 +71,7 @@ FROM t1
 WHERE k > 0
 GROUP BY k
 ORDER BY k ASC
-SETTINGS force_primary_key = 1;
+SETTINGS force_primary_key = '1';
 
 -- parallel replicas, primary key is NOT used
 SELECT
@@ -80,10 +80,10 @@ SELECT
 FROM t1
 GROUP BY k
 ORDER BY k ASC
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
-DROP TABLE t1;
+DROP TABLE t1 SYNC;
 
-DROP TABLE t2;
+DROP TABLE t2 SYNC;
 
-DROP TABLE t3;
+DROP TABLE t3 SYNC;

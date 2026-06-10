@@ -1,2274 +1,2448 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_ts_to_grid_aggregate_function",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_ts_to_grid_aggregate_function": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_raw_timeseries"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "metric_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "timestamp",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "Float64"
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          }
-        ]
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Table for raw data"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "step",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "metric_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "grid_timestamp",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "samples",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "timeSeriesLastTwoSamples"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "DateTime64",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "value": "'UTC'"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "step"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "grid_timestamp"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Table with data resmapled to bigger time steps"
-    ]
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_resampled_timeseries"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "step",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "metric_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "grid_timestamp",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "samples",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "timeSeriesLastTwoSamples"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "DateTime64",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "value": "'UTC'"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  },
-                  "alias": "step"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "metric_id"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "ceil",
-                      "args": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "/",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "toUnixTimestamp",
-                            "args": [
-                              {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "timestamp"
-                                  ]
-                                },
-                                "right": {
-                                  "kind": "functionCall",
-                                  "name": "toIntervalMillisecond",
-                                  "args": [
-                                    {
-                                      "kind": "literal",
-                                      "type": "UInt64",
-                                      "value": "999"
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "step"
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "0"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "step"
-                      ]
-                    }
-                  },
-                  "alias": "grid_timestamp",
-                  "trailingComments": [
-                    "-- Round timestamp up to the next grid point"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "initializeAggregation",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "timeSeriesLastTwoSamplesState"
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "timestamp"
-                        ]
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "value"
-                        ]
-                      }
-                    ]
-                  },
-                  "alias": "samples"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "t_raw_timeseries"
-              },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "metric_id"
-                    ]
-                  },
-                  "direction": "ASC"
-                },
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "grid_timestamp"
-                    ]
-                  },
-                  "direction": "ASC"
-                }
-              ]
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "30"
-                  },
-                  "alias": "step"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "metric_id"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "ceil",
-                      "args": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "/",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "toUnixTimestamp",
-                            "args": [
-                              {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "timestamp"
-                                  ]
-                                },
-                                "right": {
-                                  "kind": "functionCall",
-                                  "name": "toIntervalMillisecond",
-                                  "args": [
-                                    {
-                                      "kind": "literal",
-                                      "type": "UInt64",
-                                      "value": "999"
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "step"
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "0"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "step"
-                      ]
-                    }
-                  },
-                  "alias": "grid_timestamp",
-                  "trailingComments": [
-                    "-- Round timestamp up to the next grid point"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "initializeAggregation",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "timeSeriesLastTwoSamplesState"
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "timestamp"
-                        ]
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "value"
-                        ]
-                      }
-                    ]
-                  },
-                  "alias": "samples"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "t_raw_timeseries"
-              },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "metric_id"
-                    ]
-                  },
-                  "direction": "ASC"
-                },
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "grid_timestamp"
-                    ]
-                  },
-                  "direction": "ASC"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "step"
-            ]
-          },
-          "direction": "ASC"
-        },
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
-            ]
-          },
-          "direction": "ASC"
-        },
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "grid_timestamp"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ],
-      "settings": [
-        {
-          "name": "query_plan_remove_redundant_sorting",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- MV for populating resampled table"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries_delta"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "step",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "metric_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "grid_timestamp",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "samples",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "timeSeriesLastTwoSamples"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Int16"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "step"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "grid_timestamp"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Table with data resmapled to bigger time steps",
-      "-- The difference from t_resampled_timeseries is that we store diff between timestamp and grid_timestamp to improve compression"
-    ]
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_resampled_timeseries_delta"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries_delta"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "step",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "metric_id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "grid_timestamp",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "samples",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "timeSeriesLastTwoSamples"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Int16"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  },
-                  "alias": "step"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "metric_id"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "ceil",
-                      "args": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "/",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "toUnixTimestamp",
-                            "args": [
-                              {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "timestamp"
-                                  ]
-                                },
-                                "right": {
-                                  "kind": "functionCall",
-                                  "name": "toIntervalMillisecond",
-                                  "args": [
-                                    {
-                                      "kind": "literal",
-                                      "type": "UInt64",
-                                      "value": "999"
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "step"
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "0"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "step"
-                      ]
-                    }
-                  },
-                  "alias": "grid_timestamp",
-                  "trailingComments": [
-                    "-- Round timestamp up to the next grid point"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "initializeAggregation",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "timeSeriesLastTwoSamplesState"
-                      },
-                      {
-                        "kind": "castExpr",
-                        "expr": {
-                          "kind": "functionCall",
-                          "name": "dateDiff",
-                          "args": [
-                            {
-                              "kind": "literal",
-                              "type": "String",
-                              "value": "ms"
-                            },
-                            {
-                              "kind": "castExpr",
-                              "expr": {
-                                "kind": "columnRef",
-                                "parts": [
-                                  "grid_timestamp"
-                                ]
-                              },
-                              "type": "DateTime64(3, 'UTC')",
-                              "operator": true
-                            },
-                            {
-                              "kind": "columnRef",
-                              "parts": [
-                                "timestamp"
-                              ]
-                            }
-                          ]
-                        },
-                        "type": "Int16",
-                        "operator": true
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "value"
-                        ]
-                      }
-                    ]
-                  },
-                  "alias": "samples"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "t_raw_timeseries"
-              },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "metric_id"
-                    ]
-                  },
-                  "direction": "ASC"
-                },
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "grid_timestamp"
-                    ]
-                  },
-                  "direction": "ASC"
-                }
-              ]
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "30"
-                  },
-                  "alias": "step"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "metric_id"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "binaryExpr",
-                    "op": "*",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "ceil",
-                      "args": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "/",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "toUnixTimestamp",
-                            "args": [
-                              {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "timestamp"
-                                  ]
-                                },
-                                "right": {
-                                  "kind": "functionCall",
-                                  "name": "toIntervalMillisecond",
-                                  "args": [
-                                    {
-                                      "kind": "literal",
-                                      "type": "UInt64",
-                                      "value": "999"
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "step"
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "0"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "step"
-                      ]
-                    }
-                  },
-                  "alias": "grid_timestamp",
-                  "trailingComments": [
-                    "-- Round timestamp up to the next grid point"
-                  ]
-                },
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "functionCall",
-                    "name": "initializeAggregation",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "timeSeriesLastTwoSamplesState"
-                      },
-                      {
-                        "kind": "castExpr",
-                        "expr": {
-                          "kind": "functionCall",
-                          "name": "dateDiff",
-                          "args": [
-                            {
-                              "kind": "literal",
-                              "type": "String",
-                              "value": "ms"
-                            },
-                            {
-                              "kind": "castExpr",
-                              "expr": {
-                                "kind": "columnRef",
-                                "parts": [
-                                  "grid_timestamp"
-                                ]
-                              },
-                              "type": "DateTime64(3, 'UTC')",
-                              "operator": true
-                            },
-                            {
-                              "kind": "columnRef",
-                              "parts": [
-                                "timestamp"
-                              ]
-                            }
-                          ]
-                        },
-                        "type": "Int16",
-                        "operator": true
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "value"
-                        ]
-                      }
-                    ]
-                  },
-                  "alias": "samples"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "t_raw_timeseries"
-              },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "metric_id"
-                    ]
-                  },
-                  "direction": "ASC"
-                },
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "grid_timestamp"
-                    ]
-                  },
-                  "direction": "ASC"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "step"
-            ]
-          },
-          "direction": "ASC"
-        },
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
-            ]
-          },
-          "direction": "ASC"
-        },
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "grid_timestamp"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ],
-      "settings": [
-        {
-          "name": "query_plan_remove_redundant_sorting",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- MV for populating resampled table"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_raw_timeseries"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "metric_id"
-        ]
+        "type": "Identifier",
+        "name": "t_raw_timeseries"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "timestamp"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
             }
           },
-          "alias": "metric_id"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "castExpr",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "2024-12-12 12:00:00"
-              },
-              "type": "DateTime64(3, 'UTC')",
-              "operator": true
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMillisecond",
-              "args": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
                 {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "binaryExpr",
-                      "op": "/",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "10"
-                      },
-                      "parenthesized": true
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "100"
-                    },
-                    "parenthesized": true
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "900"
-                  }
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "3"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
                 }
               ]
             }
           },
-          "alias": "timestamp"
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "metric_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "timestamp"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "step",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "grid_timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "samples",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "timeSeriesLastTwoSamples"
+                },
+                {
+                  "type": "DataType",
+                  "name": "DateTime64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "UTC"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            },
+            {
+              "type": "Identifier",
+              "name": "metric_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "grid_timestamp"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_resampled_timeseries"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "step",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "grid_timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "samples",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "timeSeriesLastTwoSamples"
+                },
+                {
+                  "type": "DataType",
+                  "name": "DateTime64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "UTC"
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "alias": "step",
+                                "value_type": "UInt64",
+                                "value": "10"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "metric_id"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "grid_timestamp",
+                                "name": "multiply",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "ceil",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "divide",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "toUnixTimestamp",
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "timestamp"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "toIntervalMillisecond",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "999"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "step"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "0"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "step"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "samples",
+                                "name": "initializeAggregation",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "timeSeriesLastTwoSamplesState"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "timestamp"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "t_raw_timeseries"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "order_by": [
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "metric_id"
+                                },
+                                "direction": "ASC"
+                              },
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "grid_timestamp"
+                                },
+                                "direction": "ASC"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "alias": "step",
+                                "value_type": "UInt64",
+                                "value": "30"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "metric_id"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "grid_timestamp",
+                                "name": "multiply",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "ceil",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "divide",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "toUnixTimestamp",
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "timestamp"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "toIntervalMillisecond",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "999"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "step"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "0"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "step"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "samples",
+                                "name": "initializeAggregation",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "timeSeriesLastTwoSamplesState"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "timestamp"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "t_raw_timeseries"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "order_by": [
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "metric_id"
+                                },
+                                "direction": "ASC"
+                              },
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "grid_timestamp"
+                                },
+                                "direction": "ASC"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "step"
+                },
+                "direction": "ASC"
+              },
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "metric_id"
+                },
+                "direction": "ASC"
+              },
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "grid_timestamp"
+                },
+                "direction": "ASC"
+              }
+            ],
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "query_plan_remove_redundant_sorting": "0"
+              }
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "t_resampled_timeseries"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries_delta"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "step",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "grid_timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "samples",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "timeSeriesLastTwoSamples"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Int16"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            },
+            {
+              "type": "Identifier",
+              "name": "metric_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "grid_timestamp"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_resampled_timeseries_delta"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "step",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "grid_timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "samples",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "timeSeriesLastTwoSamples"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Int16"
+                },
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "alias": "step",
+                                "value_type": "UInt64",
+                                "value": "10"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "metric_id"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "grid_timestamp",
+                                "name": "multiply",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "ceil",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "divide",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "toUnixTimestamp",
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "timestamp"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "toIntervalMillisecond",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "999"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "step"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "0"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "step"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "samples",
+                                "name": "initializeAggregation",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "timeSeriesLastTwoSamplesState"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "CAST",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "dateDiff",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "String",
+                                            "value": "ms"
+                                          },
+                                          {
+                                            "type": "Function",
+                                            "name": "CAST",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "grid_timestamp"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "String",
+                                                "value": "DateTime64(3, 'UTC')"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "timestamp"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "Int16"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "t_raw_timeseries"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "order_by": [
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "metric_id"
+                                },
+                                "direction": "ASC"
+                              },
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "grid_timestamp"
+                                },
+                                "direction": "ASC"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "alias": "step",
+                                "value_type": "UInt64",
+                                "value": "30"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "metric_id"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "grid_timestamp",
+                                "name": "multiply",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "ceil",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "divide",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "toUnixTimestamp",
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "timestamp"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "toIntervalMillisecond",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "999"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "step"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "0"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "step"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "samples",
+                                "name": "initializeAggregation",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "timeSeriesLastTwoSamplesState"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "CAST",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "dateDiff",
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "String",
+                                            "value": "ms"
+                                          },
+                                          {
+                                            "type": "Function",
+                                            "name": "CAST",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "grid_timestamp"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "String",
+                                                "value": "DateTime64(3, 'UTC')"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "timestamp"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "Int16"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "value"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "t_raw_timeseries"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "order_by": [
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "metric_id"
+                                },
+                                "direction": "ASC"
+                              },
+                              {
+                                "type": "OrderByElement",
+                                "expression": {
+                                  "type": "Identifier",
+                                  "name": "grid_timestamp"
+                                },
+                                "direction": "ASC"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "step"
+                },
+                "direction": "ASC"
+              },
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "metric_id"
+                },
+                "direction": "ASC"
+              },
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "grid_timestamp"
+                },
+                "direction": "ASC"
+              }
+            ],
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "query_plan_remove_redundant_sorting": "0"
+              }
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "t_resampled_timeseries_delta"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_raw_timeseries"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "metric_id"
         },
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "alias": "value"
+          "type": "Identifier",
+          "name": "timestamp"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
         }
       ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    },
-    "leadingComments": [
-      "-- Insert some data"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_raw_timeseries"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "7"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:00:07"
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:00:13"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries"
-    },
-    "leadingComments": [
-      "-- Reload table to test serialization/deserialization of state"
-    ]
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "metric_id"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "grid_timestamp"
-        ]
-      },
-      {
-        "kind": "tupleLiteral",
-        "elements": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "tupleElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "finalizeAggregation",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "samples"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            "alias": "timestamp"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "tupleElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "finalizeAggregation",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "samples"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            },
-            "alias": "value"
-          }
-        ],
-        "source": "(finalizeAggregation(samples).1 as timestamp, finalizeAggregation(samples).2 as value)"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "step"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "7"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "grid_timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:00:00"
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "grid_timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:02:00"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "grid_timestamp"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Check resampled data"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "metric_id"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "grid_timestamp"
-        ]
-      },
-      {
-        "kind": "tupleLiteral",
-        "elements": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "tupleElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "finalizeAggregation",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "samples"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            "alias": "timestamp"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "tupleElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "finalizeAggregation",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "samples"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            },
-            "alias": "value"
-          }
-        ],
-        "source": "(finalizeAggregation(samples).1 as timestamp, finalizeAggregation(samples).2 as value)"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayMap",
-          "args": [
-            {
-              "kind": "lambdaExpr",
-              "params": [
-                "x"
-              ],
-              "body": {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "grid_timestamp"
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "toIntervalMillisecond",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "x"
-                      ]
-                    }
-                  ]
-                }
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "metric_id",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "timestamp",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "CAST",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:00:00"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "DateTime64(3, 'UTC')"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMillisecond",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "modulo",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "divide",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "number"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "10"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "100"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "900"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "alias": "value",
+                "name": "number"
               }
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "timestamp"
-              ]
-            }
-          ]
-        },
-        "alias": "ts"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "clusterAllReplicas",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_shard_localhost"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t_resampled_timeseries_delta"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "step"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "7"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "and",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "greaterOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "grid_timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:00:00"
-                }
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "lessOrEquals",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "grid_timestamp"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-12-12 12:02:00"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "metric_id"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "grid_timestamp"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries_delta"
-    },
-    "leadingComments": [
-      "-- Reload table to test serialization/deserialization of state"
-    ]
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries_delta"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "step"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "countDistinct",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "metric_id"
             ],
-            "parenthesized": true
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "grid_timestamp"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "grid_timestamp"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_resampled_timeseries",
-      "final": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "step"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "step"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "step"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "==",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "ts1"
-              ]
-            },
-            "right": {
-              "kind": "columnRef",
-              "parts": [
-                "ts2"
-              ]
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "t",
-                "step"
-              ]
-            },
-            "alias": "step"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "tupleElement",
-              "args": [
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "functionCall",
-                  "name": "finalizeAggregation",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t",
-                        "samples"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            "alias": "ts1"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "arrayMap",
-              "args": [
-                {
-                  "kind": "lambdaExpr",
-                  "params": [
-                    "x"
-                  ],
-                  "body": {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t_delta",
-                        "grid_timestamp"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "toIntervalMillisecond",
-                      "args": [
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "x"
-                          ]
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
                         }
                       ]
                     }
                   }
-                },
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_raw_timeseries"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "metric_id"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "3"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "7"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "greaterOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:00:07"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "lessOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:00:13"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "metric_id"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "timestamp"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "metric_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "grid_timestamp"
+            },
+            {
+              "type": "Function",
+              "name": "tuple",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "functionCall",
+                  "type": "Function",
+                  "alias": "timestamp",
                   "name": "tupleElement",
-                  "args": [
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "functionCall",
+                      "type": "Function",
                       "name": "finalizeAggregation",
-                      "args": [
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "t_delta",
-                            "samples"
-                          ]
+                          "type": "Identifier",
+                          "name": "samples"
                         }
                       ]
                     },
                     {
-                      "kind": "literal",
-                      "type": "UInt64",
+                      "type": "Literal",
+                      "value_type": "UInt64",
                       "value": "1"
                     }
                   ]
-                }
-              ]
-            },
-            "alias": "ts2"
-          }
-        ],
-        "from": {
-          "left": {
-            "kind": "tableRef",
-            "table": "t_resampled_timeseries",
-            "final": true,
-            "alias": "t"
-          },
-          "kind": "joinExpr",
-          "joinType": "INNER",
-          "right": {
-            "kind": "tableRef",
-            "table": "t_resampled_timeseries_delta",
-            "final": true,
-            "alias": "t_delta"
-          },
-          "constraint": {
-            "kind": "on",
-            "expr": {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "==",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t",
-                      "step"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t_delta",
-                      "step"
-                    ]
-                  }
                 },
                 {
-                  "kind": "binaryExpr",
-                  "op": "==",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t",
-                      "metric_id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t_delta",
-                      "metric_id"
-                    ]
-                  }
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "==",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t",
-                      "grid_timestamp"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "t_delta",
-                      "grid_timestamp"
-                    ]
-                  }
+                  "type": "Function",
+                  "alias": "value",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "finalizeAggregation",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "samples"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
                 }
               ]
             }
-          }
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "step"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_resampled_timeseries"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "step"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "metric_id"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "3"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "7"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "greaterOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "grid_timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:00:00"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "lessOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "grid_timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:02:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "metric_id"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "grid_timestamp"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "step"
-          ]
-        },
-        "direction": "ASC"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "metric_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "grid_timestamp"
+            },
+            {
+              "type": "Function",
+              "name": "tuple",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "alias": "timestamp",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "finalizeAggregation",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "samples"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "alias": "value",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "finalizeAggregation",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "samples"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "ts",
+              "name": "arrayMap",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "lambda",
+                  "is_operator": true,
+                  "is_lambda_function": true,
+                  "kind": "LAMBDA_FUNCTION",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "plus",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "grid_timestamp"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toIntervalMillisecond",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "x"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "timestamp"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "clusterAllReplicas",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "test_shard_localhost"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t_resampled_timeseries_delta"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "step"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "metric_id"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "3"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "7"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "greaterOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "grid_timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:00:00"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "lessOrEquals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "grid_timestamp"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2024-12-12 12:02:00"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "metric_id"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "grid_timestamp"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "1",
+              "max_parallel_replicas": "3",
+              "parallel_replicas_for_non_replicated_merge_tree": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries_delta"
       }
-    ],
-    "leadingComments": [
-      "-- Compare aggregated table with timestamps and aggregated table with timestamp deltas"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t_resampled_timeseries_delta"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            },
+            {
+              "type": "Function",
+              "name": "countDistinct",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "metric_id"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "grid_timestamp"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "grid_timestamp"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_resampled_timeseries"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "step"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "ts1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "ts2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "alias": "step",
+                              "name": "t.step",
+                              "name_parts": [
+                                "t",
+                                "step"
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "ts1",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "finalizeAggregation",
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "t.samples",
+                                      "name_parts": [
+                                        "t",
+                                        "samples"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "ts2",
+                              "name": "arrayMap",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "lambda",
+                                  "is_operator": true,
+                                  "is_lambda_function": true,
+                                  "kind": "LAMBDA_FUNCTION",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "tuple",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "x"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "plus",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "t_delta.grid_timestamp",
+                                          "name_parts": [
+                                            "t_delta",
+                                            "grid_timestamp"
+                                          ]
+                                        },
+                                        {
+                                          "type": "Function",
+                                          "name": "toIntervalMillisecond",
+                                          "arguments": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "x"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "tupleElement",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "finalizeAggregation",
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "t_delta.samples",
+                                          "name_parts": [
+                                            "t_delta",
+                                            "samples"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "1"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "alias": "t",
+                                    "name": "t_resampled_timeseries"
+                                  },
+                                  "final": true
+                                }
+                              },
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_join": {
+                                  "type": "TableJoin",
+                                  "kind": "INNER",
+                                  "on": {
+                                    "type": "Function",
+                                    "name": "and",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "equals",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t.step",
+                                            "name_parts": [
+                                              "t",
+                                              "step"
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t_delta.step",
+                                            "name_parts": [
+                                              "t_delta",
+                                              "step"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "equals",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t.metric_id",
+                                            "name_parts": [
+                                              "t",
+                                              "metric_id"
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t_delta.metric_id",
+                                            "name_parts": [
+                                              "t_delta",
+                                              "metric_id"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "equals",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t.grid_timestamp",
+                                            "name_parts": [
+                                              "t",
+                                              "grid_timestamp"
+                                            ]
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "t_delta.grid_timestamp",
+                                            "name_parts": [
+                                              "t_delta",
+                                              "grid_timestamp"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "alias": "t_delta",
+                                    "name": "t_resampled_timeseries_delta"
+                                  },
+                                  "final": true
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "step"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "step"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

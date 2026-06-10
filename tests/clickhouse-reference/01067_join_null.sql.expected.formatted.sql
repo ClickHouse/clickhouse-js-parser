@@ -7,7 +7,7 @@ FROM
         UNION ALL
         SELECT NULL
     ) AS js1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT 1 AS id
         UNION ALL
         SELECT NULL

@@ -20,14 +20,14 @@ CREATE TABLE tt_null
 (
     p String
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE tt
 (
     p String,
     tmin AggregateFunction(min, DateTime)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY p;
 
 CREATE MATERIALIZED VIEW tt_mv

@@ -5,7 +5,7 @@ CREATE TABLE t
     id UInt32,
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t;

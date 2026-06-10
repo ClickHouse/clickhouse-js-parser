@@ -6,11 +6,11 @@ CREATE TABLE t
     id UInt8
 )
 ENGINE = MergeTree()
-ORDER BY (id);
+ORDER BY id;
 
 INSERT INTO t;
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 SELECT 1
 FROM
@@ -58,7 +58,7 @@ INNER JOIN t AS r
 WHERE l.x
     AND r.x;
 
-SET optimize_move_to_prewhere = 0;
+SET optimize_move_to_prewhere = '0';
 
 SELECT 7
 FROM

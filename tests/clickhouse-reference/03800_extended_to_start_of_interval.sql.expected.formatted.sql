@@ -1,4 +1,4 @@
-SET enable_extended_results_for_datetime_functions = 1;
+SET enable_extended_results_for_datetime_functions = '1';
 
 -- We want toStartOfInterval to give exactly the same results as toStartOfX, where X is any type of interval
 -- Nanoseconds
@@ -10,7 +10,7 @@ SELECT
     toStartOfNanosecond(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 8, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 8, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalNanosecond(1)) AS a,
@@ -31,7 +31,7 @@ SELECT
     toStartOfMicrosecond(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 6, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 6, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalMicrosecond(1)) AS a,
@@ -52,7 +52,7 @@ SELECT
     toStartOfMillisecond(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalMillisecond(1)) AS a,
@@ -74,7 +74,7 @@ SELECT
     toStartOfSecond(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalSecond(1)) AS a,
@@ -103,7 +103,7 @@ SELECT
     toStartOfMinute(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalMinute(1)) AS a,
@@ -132,7 +132,7 @@ SELECT
     toStartOfHour(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalHour(1)) AS a,
@@ -161,7 +161,7 @@ SELECT
     toStartOfDay(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalDay(1)) AS a,
@@ -205,7 +205,7 @@ SELECT
     toStartOfWeek(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalWeek(1)) AS a,
@@ -248,7 +248,7 @@ SELECT
     toStartOfMonth(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalMonth(1)) AS a,
@@ -291,7 +291,7 @@ SELECT
     toStartOfQuarter(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalQuarter(1)) AS a,
@@ -355,7 +355,7 @@ SELECT
     toStartOfYear(dt) AS b;
 
 -- Extended Out of Bounds
-WITH toDateTime64(7999999999.9761238, 3, 'UTC') AS dt
+WITH toDateTime64(7999999999.976124, 3, 'UTC') AS dt
 
 SELECT
     toStartOfInterval(dt, toIntervalYear(1)) AS a,

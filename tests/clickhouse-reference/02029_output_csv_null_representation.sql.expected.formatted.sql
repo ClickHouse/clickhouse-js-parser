@@ -6,7 +6,7 @@ CREATE TABLE test_data
     col2 Nullable(String),
     col3 Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_data;
 

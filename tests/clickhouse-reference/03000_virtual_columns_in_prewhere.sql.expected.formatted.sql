@@ -1,4 +1,4 @@
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 DROP TABLE IF EXISTS x;
 
@@ -8,9 +8,9 @@ CREATE TABLE x
     j int,
     k int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi', min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0, ratio_of_defaults_for_sparse_serialization = 1;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi', min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0', ratio_of_defaults_for_sparse_serialization = '1';
 
 INSERT INTO x SELECT
     number,
@@ -22,6 +22,6 @@ FROM numbers(100000);
 SELECT *
 FROM x
 PREWHERE _part_offset = 0
-SETTINGS max_bytes_to_read = 98312;
+SETTINGS max_bytes_to_read = '98312';
 
 DROP TABLE x;

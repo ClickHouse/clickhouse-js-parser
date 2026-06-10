@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS t_lwu_deletes_3;
+DROP TABLE IF EXISTS t_lwu_deletes_3 SYNC;
 
 CREATE TABLE t_lwu_deletes_3
 (
@@ -9,11 +9,11 @@ CREATE TABLE t_lwu_deletes_3
 )
 ENGINE = ReplicatedMergeTree('/zookeeper/{database}/t_lwu_deletes_3/', '1')
 ORDER BY (id, dt)
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
-SET apply_patch_parts = 1;
+SET apply_patch_parts = '1';
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 SET lightweight_delete_mode = 'lightweight_update_force';
 
@@ -82,16 +82,16 @@ WHERE database = currentDatabase()
 
 SYSTEM START MERGES t_lwu_deletes_3;
 
-OPTIMIZE TABLE t_lwu_deletes_3 PARTITION ID 'patch-f18f7271629a324b0d26b6ad0b83a6c2-all' FINAL SETTINGS optimize_throw_if_noop = 1;
+OPTIMIZE TABLE t_lwu_deletes_3 PARTITION ID 'patch-f18f7271629a324b0d26b6ad0b83a6c2-all' FINAL SETTINGS optimize_throw_if_noop = '1';
 
-OPTIMIZE TABLE t_lwu_deletes_3 PARTITION ID 'all' FINAL SETTINGS optimize_throw_if_noop = 1;
+OPTIMIZE TABLE t_lwu_deletes_3 PARTITION ID 'all' FINAL SETTINGS optimize_throw_if_noop = '1';
 
 SELECT
     count(),
     sum(v1),
     sum(notEmpty(v2))
 FROM t_lwu_deletes_3
-SETTINGS apply_patch_parts = 0;
+SETTINGS apply_patch_parts = '0';
 
 SELECT sum(`rows`)
 FROM `system`.parts
@@ -100,4 +100,4 @@ WHERE database = currentDatabase()
     AND NOT startsWith(name, 'patch')
     AND active;
 
-DROP TABLE t_lwu_deletes_3;
+DROP TABLE t_lwu_deletes_3 SYNC;

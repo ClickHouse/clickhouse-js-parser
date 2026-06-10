@@ -4,8 +4,8 @@ FROM
         SELECT toBool(value) AS val
         FROM `system`.server_settings
         WHERE name = 'allow_use_jemalloc_memory'
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT getServerSetting('allow_use_jemalloc_memory') AS val
     ) AS t2;
 
@@ -15,12 +15,12 @@ FROM
         SELECT value AS val
         FROM `system`.server_settings
         WHERE name = 'mark_cache_policy'
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT getServerSetting('mark_cache_policy') AS val
     ) AS t2;
 
-SELECT ('TEST INVALID ARGUMENTS');
+SELECT 'TEST INVALID ARGUMENTS';
 
 SELECT getServerSetting(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 

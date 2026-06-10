@@ -5,7 +5,7 @@ CREATE TABLE t_lwd_mutations
     id UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_lwd_mutations SELECT
@@ -13,7 +13,7 @@ INSERT INTO t_lwd_mutations SELECT
     0
 FROM numbers(1000);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DELETE FROM t_lwd_mutations WHERE id % 10 = 0;
 

@@ -8,7 +8,7 @@ FROM
         SELECT toFloat64(dummy + 2) AS n
         FROM remote('127.0.0.{2,3}', `system`.one)
     ) AS jr1
-LEFT JOIN (
+GLOBAL ANY LEFT JOIN (
         SELECT
             number / 3 AS n,
             number AS j1,

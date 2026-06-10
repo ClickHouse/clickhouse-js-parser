@@ -5,15 +5,11 @@ CREATE TABLE test
 (
     a Int32,
     b Int32,
-    PROJECTION p (    SELECT
-        a,
-        b,
-        _part_offset
-    ORDER BY b ASC)
+    PROJECTION p (SELECT a, b, _part_offset ORDER BY b)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity_bytes = 10485760, index_granularity = 8192;
+SETTINGS index_granularity_bytes = '10485760', index_granularity = '8192';
 
 -- Insert enough rows so that future projection materialization test will trigger level 1 merge
 INSERT INTO test SELECT
@@ -36,24 +32,20 @@ FROM
     test AS l
 INNER JOIN mergeTreeProjection(currentDatabase(), test, p) AS r
     USING (a)
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 OPTIMIZE TABLE test FINAL;
 
-ALTER TABLE test ADD PROJECTION p2 (SELECT
-    a,
-    b,
-    _part_offset
-ORDER BY b ASC);
+ALTER TABLE test ADD PROJECTION p2 (SELECT a, b, _part_offset ORDER BY b);
 
-ALTER TABLE test MATERIALIZE PROJECTION p2 SETTINGS mutations_sync = 2;
+ALTER TABLE test MATERIALIZE PROJECTION p2 SETTINGS mutations_sync = '2';
 
 SELECT sum(l._part_offset = r._parent_part_offset)
 FROM
     test AS l
 INNER JOIN mergeTreeProjection(currentDatabase(), test, p2) AS r
     USING (a)
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- Cannot add physical _part_offset, _part_index and _parent_part_offset when there exists projection that refers to its parent `_part_offset`.
 ALTER TABLE test ADD COLUMN _part_offset int; -- { serverError BAD_ARGUMENTS }
@@ -69,28 +61,20 @@ CREATE TABLE test
     a Int32,
     b Int32,
     _part_offset Int32,
-    PROJECTION p (    SELECT
-        a,
-        b,
-        _part_offset
-    ORDER BY b ASC)
+    PROJECTION p (SELECT a, b, _part_offset ORDER BY b)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE test
 (
     a Int32,
     b Int32,
-    PROJECTION p (    SELECT
-        a,
-        b,
-        _part_offset
-    ORDER BY b ASC)
+    PROJECTION p (SELECT a, b, _part_offset ORDER BY b)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test SELECT
     number,

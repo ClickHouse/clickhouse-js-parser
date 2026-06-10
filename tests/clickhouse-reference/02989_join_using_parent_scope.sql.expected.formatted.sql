@@ -7,12 +7,12 @@ CREATE TABLE tabc
     c UInt32 ALIAS b + 1,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO tabc (a, s) SELECT
     number,
-    concat('abc', toString(number))
+    'abc' || toString(number)
 FROM numbers(4);
 
 DROP TABLE IF EXISTS ta;
@@ -21,7 +21,7 @@ CREATE TABLE ta
 (
     a Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO ta SELECT number
@@ -33,15 +33,15 @@ CREATE TABLE tb
 (
     b Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tb SELECT number
 FROM numbers(4);
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
-SET analyzer_compatibility_join_using_top_level_identifier = 1;
+SET analyzer_compatibility_join_using_top_level_identifier = '1';
 
 -- { echoOn }
 SELECT 1 AS c0
@@ -117,7 +117,7 @@ FROM
 FULL JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -127,7 +127,7 @@ FROM
 INNER JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -137,7 +137,7 @@ FROM
 LEFT JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -147,7 +147,7 @@ FROM
 RIGHT JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -157,7 +157,7 @@ FROM
 FULL JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -168,8 +168,8 @@ FULL JOIN tabc
     USING (a)
 ORDER BY `ALL` ASC
 SETTINGS
-    asterisk_include_alias_columns = 1,
-    enable_analyzer = 1;
+    asterisk_include_alias_columns = '1',
+    enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -187,7 +187,7 @@ INNER JOIN (
     ) AS t2
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -205,7 +205,7 @@ LEFT JOIN (
     ) AS t2
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -223,7 +223,7 @@ RIGHT JOIN (
     ) AS t2
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -241,7 +241,7 @@ FULL JOIN (
     ) AS t2
     USING (a)
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     b + 1 AS a,
@@ -252,7 +252,7 @@ FULL JOIN tabc
     USING (a)
 PREWHERE a > 2
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN PIPELINE
 SELECT (
@@ -271,7 +271,7 @@ INNER JOIN (
     ) AS ty
     USING (c0, c1)
 FORMAT Null
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- It's a default behavior for old analyzer and new with analyzer_compatibility_join_using_top_level_identifier
 -- Column `b` actually exists in left table, but `b` from USING is resoled to `a + 2` and `a` is not in left table
@@ -282,7 +282,7 @@ FROM
 INNER JOIN tabc
     USING (b)
 ORDER BY `ALL` ASC
-SETTINGS analyzer_compatibility_join_using_top_level_identifier = 1; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS analyzer_compatibility_join_using_top_level_identifier = '1'; -- { serverError UNKNOWN_IDENTIFIER }
 
 -- In new analyzer with `analyzer_compatibility_join_using_top_level_identifier = 0` we get `b` from left table
 SELECT a + 2 AS b
@@ -292,8 +292,8 @@ INNER JOIN tabc
     USING (b)
 ORDER BY `ALL` ASC
 SETTINGS
-    analyzer_compatibility_join_using_top_level_identifier = 0,
-    enable_analyzer = 1;
+    analyzer_compatibility_join_using_top_level_identifier = '0',
+    enable_analyzer = '1';
 
 -- This is example where query may return different results with different `analyzer_compatibility_join_using_top_level_identifier`
 DROP TABLE IF EXISTS users;
@@ -304,7 +304,7 @@ CREATE TABLE users
     name String,
     spouse_name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -321,7 +321,7 @@ INNER JOIN users AS u2
     USING (name)
 ORDER BY u1.uid ASC
 FORMAT TSVWithNamesAndTypes
-SETTINGS enable_analyzer = 1, analyzer_compatibility_join_using_top_level_identifier = 1;
+SETTINGS enable_analyzer = '1', analyzer_compatibility_join_using_top_level_identifier = '1';
 
 SELECT
     u1.uid,
@@ -334,7 +334,7 @@ INNER JOIN users AS u2
     USING (name)
 ORDER BY u1.uid ASC
 FORMAT TSVWithNamesAndTypes
-SETTINGS enable_analyzer = 1, analyzer_compatibility_join_using_top_level_identifier = 0;
+SETTINGS enable_analyzer = '1', analyzer_compatibility_join_using_top_level_identifier = '0';
 
 SELECT
     u1.uid,
@@ -347,6 +347,6 @@ INNER JOIN users AS u2
     USING (name)
 ORDER BY u1.uid ASC
 FORMAT TSVWithNamesAndTypes
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 DROP TABLE IF EXISTS tc;

@@ -1,10 +1,10 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 CREATE TABLE test
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 
@@ -19,16 +19,16 @@ CREATE TABLE test
 (
     json JSON(a UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test
 (
     json JSON(max_dynamic_paths = 1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test
 (
     json JSON(max_dynamic_paths = 0)
 )
-ENGINE = Memory;
+ENGINE = Memory();

@@ -152,120 +152,90 @@ CREATE TABLE background_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('background_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('background_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE ddlworker_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('ddlworker_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('ddlworker_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE distrcache_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('distrcache_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('distrcache_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE drop_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('drop_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('drop_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE filesystem_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('filesystem_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('filesystem_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE kafka_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('kafka_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('kafka_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE mergetree_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('mergetree_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('mergetree_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE parts_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('parts_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('parts_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE storages3_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('storages3_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('storages3_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 CREATE TABLE temporaryfiles_metrics
 (
     metric String,
     value Int64,
-    PROJECTION values (    SELECT
-        metric,
-        dictGet('temporaryfiles_dict', 'value', metric) AS value
-    ORDER BY value ASC)
+    PROJECTION values (SELECT metric, dictGet('temporaryfiles_dict', 'value', metric) AS value ORDER BY value)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY metric;
 
 INSERT INTO background_metrics SELECT

@@ -9,7 +9,7 @@ CREATE TABLE `01759_db`.dictionary_source_table
     value1 UInt64,
     value2 UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01759_db`.dictionary_source_table;
 

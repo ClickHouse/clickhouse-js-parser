@@ -6,11 +6,11 @@ DROP TABLE IF EXISTS t_mt;
 
 DROP TABLE IF EXISTS mv;
 
-SET max_threads = 1;
+SET max_threads = '1';
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
-SET deduplicate_blocks_in_dependent_materialized_views = 0;
+SET deduplicate_blocks_in_dependent_materialized_views = '0';
 
 -- { echo }
 -- Log does not support sparse columns - RemovingSparseTransform added
@@ -18,7 +18,7 @@ CREATE TABLE t_log
 (
     key Int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 EXPLAIN PIPELINE
 INSERT INTO t_log SELECT *
@@ -29,8 +29,8 @@ CREATE TABLE t_mt
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 EXPLAIN PIPELINE
 INSERT INTO t_mt SELECT *

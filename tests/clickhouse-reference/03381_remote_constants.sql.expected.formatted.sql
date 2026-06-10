@@ -1,11 +1,11 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET session_timezone = 'UTC';
 
 SELECT '1970-01-01 00:00:01.000'::DateTime64(3)
 FROM remote('127.0.0.{1,2}', 'system.one');
 
-SELECT ['1970-01-01 00:00:01.000']::Array(DateTime64(3))
+SELECT CAST('[''1970-01-01 00:00:01.000'']' AS Array(DateTime64(3)))
 FROM remote('127.0.0.{1,2}', 'system.one');
 
 SELECT map('a', '1970-01-01 00:00:01.000')::Map(String, DateTime64(3))
@@ -67,20 +67,20 @@ FROM remote('127.0.0.{1,2}', 'system.one');
 
 SELECT
     '{"a" : [{"aa" : [42]}]}'::JSON AS json,
-    JSONAllPathsWithTypes(arrayJoin(json.`a[]`))
+    JSONAllPathsWithTypes(arrayJoin(json.a.:`Array(JSON)`))
 FROM remote('127.0.0.{1,2}', 'system.one');
 
 SELECT
     '{"a" : [{"aa" : ["1970-01-01"]}]}'::JSON AS json,
-    JSONAllPathsWithTypes(arrayJoin(json.`a[]`))
+    JSONAllPathsWithTypes(arrayJoin(json.a.:`Array(JSON)`))
 FROM remote('127.0.0.{1,2}', 'system.one');
 
 SELECT
     '{"a" : [{"aa" : ["1970-01-01 00:00:01"]}]}'::JSON AS json,
-    JSONAllPathsWithTypes(arrayJoin(json.`a[]`))
+    JSONAllPathsWithTypes(arrayJoin(json.a.:`Array(JSON)`))
 FROM remote('127.0.0.{1,2}', 'system.one');
 
 SELECT
     '{"a" : [{"aa" : ["1970-01-01 00:00:01.000"]}]}'::JSON AS json,
-    JSONAllPathsWithTypes(arrayJoin(json.`a[]`))
+    JSONAllPathsWithTypes(arrayJoin(json.a.:`Array(JSON)`))
 FROM remote('127.0.0.{1,2}', 'system.one');

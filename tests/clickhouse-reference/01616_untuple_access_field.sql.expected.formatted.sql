@@ -1,4 +1,4 @@
 SELECT *
 FROM (
-        SELECT untuple((1,2))
+        SELECT untuple((1, 2))
     );

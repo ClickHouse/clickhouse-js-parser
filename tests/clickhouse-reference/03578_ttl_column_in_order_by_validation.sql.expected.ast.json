@@ -1,207 +1,214 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_break_ddl"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test_break_ddl"
       },
-      {
-        "kind": "columnDef",
-        "name": "event_date",
-        "type": {
-          "name": "Date"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "event_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "event_time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "message",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "event_time",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "message",
-        "type": {
-          "name": "String"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "event_date"
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "event_date"
+            },
+            {
+              "type": "Identifier",
+              "name": "event_time"
+            }
+          ]
         }
       }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "event_date"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_break_ddl"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "source_address",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "ttl": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "event_time"
+                },
+                {
+                  "type": "Function",
+                  "name": "toIntervalDay",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": {
+            "type": "Identifier",
+            "name": "event_time"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "destination_address",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "ttl": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "event_time"
+                },
+                {
+                  "type": "Function",
+                  "name": "toIntervalDay",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": {
+            "type": "Identifier",
+            "name": "source_address"
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_ORDER_BY",
+          "order_by": {
+            "type": "Function",
+            "name": "tuple",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Identifier",
+                "name": "event_date"
+              },
+              {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              {
+                "type": "Identifier",
+                "name": "source_address"
+              },
+              {
+                "type": "Identifier",
+                "name": "destination_address"
+              }
+            ]
+          }
+        }
       ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_date"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test for issue #84442: ALTER MODIFY ORDER BY does not check if the new column has TTL",
-      "-- This test verifies that ALTER TABLE properly validates TTL columns in ORDER BY clauses"
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_break_ddl"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "source_address",
-          "type": {
-            "name": "String"
-          },
-          "ttl": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "event_time"
-              ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalDay",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "30"
-                }
-              ]
-            }
-          }
-        },
-        "afterColumn": "event_time"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_break_ddl"
       },
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "destination_address",
-          "type": {
-            "name": "String"
-          },
-          "ttl": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "event_time"
-              ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalDay",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "30"
-                }
-              ]
-            }
-          }
-        },
-        "afterColumn": "source_address"
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_ORDER_BY",
-        "expr": {
-          "kind": "tupleLiteral",
-          "elements": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "id"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "event_date"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "event_time"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "source_address"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "destination_address"
-              ]
-            }
-          ],
-          "source": "(id, event_date, event_time, source_address, destination_address)"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError ILLEGAL_COLUMN }"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_break_ddl"
-    },
-    "ifExists": true
+      "if_exists": true
+    }
   }
 ]

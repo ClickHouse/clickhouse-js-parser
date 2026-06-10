@@ -5,7 +5,7 @@ CREATE TABLE `02176_test_simple_key_table`
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02176_test_simple_key_table`;
 
@@ -48,7 +48,7 @@ CREATE TABLE `02176_test_complex_key_table`
     id_key String,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02176_test_complex_key_table`;
 

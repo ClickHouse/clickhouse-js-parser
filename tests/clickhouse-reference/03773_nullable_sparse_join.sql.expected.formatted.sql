@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS t1;
 
 DROP TABLE IF EXISTS t2;
 
-SET max_partitions_per_insert_block = 99999999;
+SET max_partitions_per_insert_block = '99999999';
 
 SET compatibility = '23.3';
 
@@ -12,7 +12,7 @@ CREATE TABLE t1
     c3 String,
     c2 DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c1
 PARTITION BY toYYYYMM(c2);
 
@@ -20,7 +20,7 @@ CREATE TABLE t2
 (
     c4 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c4;
 
 INSERT INTO t1 SELECT *

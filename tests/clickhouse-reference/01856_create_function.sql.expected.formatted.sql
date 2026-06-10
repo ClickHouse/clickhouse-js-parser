@@ -15,7 +15,7 @@ CREATE FUNCTION sum AS (a, b) -> a + b; --{serverError FUNCTION_ALREADY_EXISTS}
 
 CREATE FUNCTION `01856_test_function_2` AS (a, b) -> a + b;
 
-CREATE FUNCTION `01856_test_function_2` AS a -> concat(a, '!!!'); --{serverError FUNCTION_ALREADY_EXISTS}
+CREATE FUNCTION `01856_test_function_2` AS a -> a || '!!!'; --{serverError FUNCTION_ALREADY_EXISTS}
 
 DROP FUNCTION `01856_test_function_2`;
 

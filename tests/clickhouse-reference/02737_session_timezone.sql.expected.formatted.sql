@@ -42,7 +42,7 @@ CREATE TABLE test_tz_setting
 (
     d DateTime('UTC')
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT toDateTime('2000-01-01 00:00:00');
 
 INSERT INTO test_tz_setting; -- this is parsed using timezone from `d` column
@@ -52,11 +52,11 @@ INSERT INTO test_tz_setting; -- this is parsed using `session_timezone`
 -- Test parsing in WHERE filter, shall have the same logic as insert
 SELECT d
 FROM test_tz_setting
-WHERE d == '2000-01-01 01:00:00'; -- 1 row expected
+WHERE d = '2000-01-01 01:00:00'; -- 1 row expected
 
 SELECT d
 FROM test_tz_setting
-WHERE d == toDateTime('2000-01-01 02:00:00'); -- 0 rows expected
+WHERE d = toDateTime('2000-01-01 02:00:00'); -- 0 rows expected
 
 -- Cleanup table
-DROP TABLE test_tz_setting;
+DROP TABLE test_tz_setting SYNC;

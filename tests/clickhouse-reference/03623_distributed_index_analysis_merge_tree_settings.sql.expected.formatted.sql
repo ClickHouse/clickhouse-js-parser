@@ -1,5 +1,5 @@
 -- Tags: long, no-parallel
-SET allow_experimental_parallel_reading_from_replicas = 0;
+SET allow_experimental_parallel_reading_from_replicas = '0';
 
 SET cluster_for_parallel_replicas = 'test_cluster_one_shard_two_replicas';
 
@@ -12,16 +12,16 @@ CREATE TABLE dist_idx
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = '0';
 
 INSERT INTO dist_idx SELECT
     number,
     number * 100
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT sum(key)
 FROM dist_idx
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE dist_idx;
@@ -35,16 +35,16 @@ CREATE TABLE no_dist_idx_not_enough_indexes
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 1e12;
+SETTINGS distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = 1000000000000.;
 
 INSERT INTO no_dist_idx_not_enough_indexes SELECT
     number,
     number * 100
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT sum(key)
 FROM no_dist_idx_not_enough_indexes
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE no_dist_idx_not_enough_indexes;
@@ -58,16 +58,16 @@ CREATE TABLE no_dist_idx_min_not_enough_parts
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS distributed_index_analysis_min_parts_to_activate = 1e9, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS distributed_index_analysis_min_parts_to_activate = 1000000000., distributed_index_analysis_min_indexes_size_to_activate = '0';
 
 INSERT INTO no_dist_idx_min_not_enough_parts SELECT
     number,
     number * 100
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT sum(key)
 FROM no_dist_idx_min_not_enough_parts
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE no_dist_idx_min_not_enough_parts;
@@ -81,16 +81,16 @@ CREATE TABLE no_dist_idx
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS distributed_index_analysis_min_parts_to_activate = 1e9, distributed_index_analysis_min_indexes_size_to_activate = 1e12;
+SETTINGS distributed_index_analysis_min_parts_to_activate = 1000000000., distributed_index_analysis_min_indexes_size_to_activate = 1000000000000.;
 
 INSERT INTO no_dist_idx SELECT
     number,
     number * 100
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT sum(key)
 FROM no_dist_idx
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE no_dist_idx;
@@ -104,22 +104,22 @@ CREATE TABLE dist_idx_parts
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS merge_selector_base = 1000, index_granularity = 8192, min_bytes_for_wide_part = 1e9, index_granularity_bytes = 10e6, distributed_index_analysis_min_parts_to_activate = 10, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS merge_selector_base = '1000', index_granularity = '8192', min_bytes_for_wide_part = 1000000000., index_granularity_bytes = 10000000., distributed_index_analysis_min_parts_to_activate = '10', distributed_index_analysis_min_indexes_size_to_activate = '0';
 
-SYSTEM stop merges dist_idx_parts;
+SYSTEM STOP MERGES dist_idx_parts;
 
 INSERT INTO dist_idx_parts SELECT
     number,
     number * 100
-FROM numbers(1e6)
+FROM numbers(1000000.)
 SETTINGS
-    max_block_size = 10000,
-    min_insert_block_size_rows = 10000,
-    max_insert_threads = 1;
+    max_block_size = '10000',
+    min_insert_block_size_rows = '10000',
+    max_insert_threads = '1';
 
 SELECT sum(key)
 FROM dist_idx_parts
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE dist_idx_parts;
@@ -133,14 +133,14 @@ CREATE TABLE dist_idx_pk_size
 )
 ENGINE = MergeTree()
 ORDER BY (key, value)
-SETTINGS index_granularity = 200, min_bytes_for_wide_part = 0, index_granularity_bytes = 10e6, distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 500e3, compress_primary_key = 0;
+SETTINGS index_granularity = '200', min_bytes_for_wide_part = '0', index_granularity_bytes = 10000000., distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = 500000., compress_primary_key = '0';
 
-SYSTEM stop merges dist_idx_pk_size;
+SYSTEM STOP MERGES dist_idx_pk_size;
 
 INSERT INTO dist_idx_pk_size SELECT
     number::String,
     repeat('a', 100)
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT
     table,
@@ -152,7 +152,7 @@ GROUP BY 1;
 
 SELECT key
 FROM dist_idx_pk_size
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE dist_idx_pk_size;
@@ -163,17 +163,17 @@ CREATE TABLE dist_idx_skipping_idx_size
 (
     key String,
     value String,
-    INDEX key_val_idx tuple(key, value) TYPE set(100000)
+    INDEX key_val_idx (key, value) TYPE set(100000) GRANULARITY 1
 )
 ENGINE = MergeTree()
-SETTINGS index_granularity = 100000, min_bytes_for_wide_part = 0, index_granularity_bytes = 10e6, distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = '10M';
+SETTINGS index_granularity = '100000', min_bytes_for_wide_part = '0', index_granularity_bytes = 10000000., distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = '10M';
 
-SYSTEM stop merges dist_idx_skipping_idx_size;
+SYSTEM STOP MERGES dist_idx_skipping_idx_size;
 
 INSERT INTO dist_idx_skipping_idx_size SELECT
     number::String,
     repeat('a', 100)
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 SELECT
     table,
@@ -185,12 +185,12 @@ GROUP BY 1;
 
 SELECT key
 FROM dist_idx_skipping_idx_size
-SETTINGS distributed_index_analysis = 1
+SETTINGS distributed_index_analysis = '1'
 FORMAT Null;
 
 DROP TABLE dist_idx_skipping_idx_size;
 
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     tables,
@@ -202,5 +202,5 @@ WHERE current_database = currentDatabase()
     AND query_kind = 'Select'
     AND is_initial_query
     AND has(`Settings`, 'distributed_index_analysis')
-    AND endsWith(log_comment, concat('-', currentDatabase()))
+    AND endsWith(log_comment, '-' || currentDatabase())
 ORDER BY event_time_microseconds ASC;

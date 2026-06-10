@@ -4,43 +4,43 @@ CREATE TABLE `02131_rqtable`
 (
     x UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO `02131_rqtable`;
 
-DROP ROW POLICY IF EXISTS 02131_filter_1 ON 02131_rqtable;
+DROP ROW POLICY IF EXISTS `02131_filter_1` ON `02131_rqtable`;
 
-DROP ROW POLICY IF EXISTS 02131_filter_2 ON 02131_rqtable;
+DROP ROW POLICY IF EXISTS `02131_filter_2` ON `02131_rqtable`;
 
-DROP ROW POLICY IF EXISTS 02131_filter_3 ON 02131_rqtable;
+DROP ROW POLICY IF EXISTS `02131_filter_3` ON `02131_rqtable`;
 
-DROP ROW POLICY IF EXISTS 02131_filter_4 ON 02131_rqtable;
+DROP ROW POLICY IF EXISTS `02131_filter_4` ON `02131_rqtable`;
 
-DROP ROW POLICY IF EXISTS 02131_filter_5 ON 02131_rqtable;
+DROP ROW POLICY IF EXISTS `02131_filter_5` ON `02131_rqtable`;
 
 SELECT *
 FROM `02131_rqtable`;
 
-CREATE ROW POLICY 02131_filter_1 ON `02131_rqtable` USING x = 1 AS permissive TO ALL;
+CREATE ROW POLICY 02131_filter_1 ON `02131_rqtable` USING x = 1 AS PERMISSIVE TO ALL;
 
-CREATE ROW POLICY 02131_filter_2 ON `02131_rqtable` USING x = 2 AS permissive TO ALL;
+CREATE ROW POLICY 02131_filter_2 ON `02131_rqtable` USING x = 2 AS PERMISSIVE TO ALL;
 
-CREATE ROW POLICY 02131_filter_3 ON `02131_rqtable` USING x = 3 AS permissive TO ALL;
+CREATE ROW POLICY 02131_filter_3 ON `02131_rqtable` USING x = 3 AS PERMISSIVE TO ALL;
 
-CREATE ROW POLICY 02131_filter_4 ON `02131_rqtable` USING x <= 2 AS restrictive TO ALL;
+CREATE ROW POLICY 02131_filter_4 ON `02131_rqtable` USING x <= 2 AS RESTRICTIVE TO ALL;
 
-CREATE ROW POLICY 02131_filter_5 ON `02131_rqtable` USING x >= 2 AS restrictive TO ALL;
+CREATE ROW POLICY 02131_filter_5 ON `02131_rqtable` USING x >= 2 AS RESTRICTIVE TO ALL;
 
-DROP ROW POLICY 02131_filter_1 ON 02131_rqtable;
+DROP ROW POLICY `02131_filter_1` ON `02131_rqtable`;
 
-DROP ROW POLICY 02131_filter_2 ON 02131_rqtable;
+DROP ROW POLICY `02131_filter_2` ON `02131_rqtable`;
 
-DROP ROW POLICY 02131_filter_3 ON 02131_rqtable;
+DROP ROW POLICY `02131_filter_3` ON `02131_rqtable`;
 
-DROP ROW POLICY 02131_filter_4 ON 02131_rqtable;
+DROP ROW POLICY `02131_filter_4` ON `02131_rqtable`;
 
-DROP ROW POLICY 02131_filter_5 ON 02131_rqtable;
+DROP ROW POLICY `02131_filter_5` ON `02131_rqtable`;
 
 DROP TABLE `02131_rqtable`;
 
@@ -50,7 +50,7 @@ SELECT
     query,
     used_row_policies
 FROM `system`.query_log
-WHERE current_database == currentDatabase()
-    AND type == 'QueryStart'
-    AND query_kind == 'Select'
+WHERE current_database = currentDatabase()
+    AND type = 'QueryStart'
+    AND query_kind = 'Select'
 ORDER BY event_time_microseconds ASC;

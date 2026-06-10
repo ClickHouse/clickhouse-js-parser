@@ -5,8 +5,8 @@ CREATE TABLE t_ttl_move_if_exists
     d DateTime,
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-TTL d;
+TTL d TO DISK IF EXISTS 'non_existing_disk';
 
 SHOW CREATE TABLE t_ttl_move_if_exists;

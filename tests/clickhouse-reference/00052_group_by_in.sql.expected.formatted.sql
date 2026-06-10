@@ -2,7 +2,7 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/74716
 SELECT
     StartDate,
-    if(TraficSourceID IN (0), 'type_in', 'other') AS traf_type,
+    TraficSourceID IN (0) ? 'type_in' : 'other' AS traf_type,
     sum(Sign)
 FROM test.visits
 WHERE CounterID = 842440

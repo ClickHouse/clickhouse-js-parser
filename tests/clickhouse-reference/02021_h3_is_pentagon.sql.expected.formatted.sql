@@ -5,7 +5,7 @@ CREATE TABLE h3_indexes
 (
     h3_index UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- test H3 indexes from: https://github.com/uber/h3-java/blob/master/src/test/java/com/uber/h3core/TestInspection.java#L78
 INSERT INTO h3_indexes;

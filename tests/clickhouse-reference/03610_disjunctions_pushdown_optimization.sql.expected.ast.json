@@ -1,2265 +1,2922 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test: Disjunctions pushdown into JOIN branches",
-      "-- This test exercises the optimizer controlled by the setting `use_join_disjunctions_push_down`.",
-      "-- It checks that disjunctions (OR) over conjunctions can be split and pushed as per-side",
-      "-- pre-join filters without changing query results, and that when the optimization is disabled",
-      "-- such pre-join filters are not produced. It also validates join-order-dependent pushdown"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_join_runtime_filters",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tp1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tp2"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_join_runtime_filters": "0"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "--- CASE A: plan (enabled) ---"
-      }
-    ],
-    "leadingComments": [
-      "-- We need to make sure that query plan creates the JOIN filter only with the optimization enabled, and WHERE filter in both cases",
-      "---------- CASE A ----------"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tp1"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_join_disjunctions_push_down",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tp2"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "REGEXP_REPLACE",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tp1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "trimLeft",
-            "args": [
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tp2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tp1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tp2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "--- CASE A: plan (enabled) ---"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_join_disjunctions_push_down": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "trimLeft",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_\\d+_\\d+"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_UNIQ_ID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "actions = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.k",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "k"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.a",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "a"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t2.x",
+                                                  "name_parts": [
+                                                    "t2",
+                                                    "x"
+                                                  ]
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t1",
+                                                        "name": "tp1"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_join": {
+                                                      "type": "TableJoin",
+                                                      "kind": "INNER",
+                                                      "on": {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t1.k",
+                                                            "name_parts": [
+                                                              "t1",
+                                                              "k"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t2.k",
+                                                            "name_parts": [
+                                                              "t2",
+                                                              "k"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t2",
+                                                        "name": "tp2"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "or",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "and",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "in",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t1.k",
+                                                            "name_parts": [
+                                                              "t1",
+                                                              "k"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "Tuple",
+                                                            "value": [
+                                                              {
+                                                                "value_type": "UInt64",
+                                                                "value": "1"
+                                                              },
+                                                              {
+                                                                "value_type": "UInt64",
+                                                                "value": "2"
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t2.x",
+                                                            "name_parts": [
+                                                              "t2",
+                                                              "x"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "UInt64",
+                                                            "value": "100"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "and",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "in",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t1.k",
+                                                            "name_parts": [
+                                                              "t1",
+                                                              "k"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "Tuple",
+                                                            "value": [
+                                                              {
+                                                                "value_type": "UInt64",
+                                                                "value": "3"
+                                                              },
+                                                              {
+                                                                "value_type": "UInt64",
+                                                                "value": "4"
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t2.x",
+                                                            "name_parts": [
+                                                              "t2",
+                                                              "x"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "UInt64",
+                                                            "value": "200"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "t1.k",
+                                                    "name_parts": [
+                                                      "t1",
+                                                      "k"
+                                                    ]
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_\\\\d+_\\\\d+"
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%Filter column: %"
+              }
+            ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_UNIQ_ID"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
-          {
-            "name": "actions",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "0"
             }
           }
-        ],
-        "query": {
-          "kind": "select",
+        }
+      ],
+      "format": "TSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_join_disjunctions_push_down": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "t1.k",
+              "name_parts": [
                 "t1",
                 "k"
               ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "t1.a",
+              "name_parts": [
                 "t1",
                 "a"
               ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "t2.x",
+              "name_parts": [
                 "t2",
                 "x"
               ]
             }
           ],
           "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "tp1",
-              "alias": "t1"
-            },
-            "kind": "joinExpr",
-            "joinType": "INNER",
-            "right": {
-              "kind": "tableRef",
-              "table": "tp2",
-              "alias": "t2"
-            },
-            "constraint": {
-              "kind": "on",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "k"
-                  ]
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t1",
+                    "name": "tp1"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t2.k",
+                        "name_parts": [
+                          "t2",
+                          "k"
+                        ]
+                      }
+                    ]
+                  }
                 },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t2",
-                    "k"
-                  ]
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t2",
+                    "name": "tp2"
+                  }
                 }
               }
-            }
+            ]
           },
           "where": {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "inExpr",
-                    "negated": false,
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t1",
-                        "k"
-                      ]
-                    },
-                    "values": [
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "literal",
-                        "type": "UInt64",
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "1"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t2.x",
+                        "name_parts": [
+                          "t2",
+                          "x"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "100"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "3"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "4"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t2.x",
+                        "name_parts": [
+                          "t2",
+                          "x"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "200"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "t1.k",
+                "name_parts": [
+                  "t1",
+                  "k"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "trimLeft",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_\\d+_\\d+"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_UNIQ_ID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "actions = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.k",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "k"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.a",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "a"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t2.x",
+                                                  "name_parts": [
+                                                    "t2",
+                                                    "x"
+                                                  ]
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t1",
+                                                        "name": "tp1"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_join": {
+                                                      "type": "TableJoin",
+                                                      "kind": "INNER",
+                                                      "on": {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t1.k",
+                                                            "name_parts": [
+                                                              "t1",
+                                                              "k"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t2.k",
+                                                            "name_parts": [
+                                                              "t2",
+                                                              "k"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t2",
+                                                        "name": "tp2"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "or",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "equals",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "t2.x",
+                                                        "name_parts": [
+                                                          "t2",
+                                                          "x"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "100"
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "equals",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "t2.x",
+                                                        "name_parts": [
+                                                          "t2",
+                                                          "x"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "200"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "t1.k",
+                                                    "name_parts": [
+                                                      "t1",
+                                                      "k"
+                                                    ]
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%Filter column: %"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "0"
+            }
+          }
+        }
+      ],
+      "format": "TSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "t1.k",
+              "name_parts": [
+                "t1",
+                "k"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "t1.a",
+              "name_parts": [
+                "t1",
+                "a"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "t2.x",
+              "name_parts": [
+                "t2",
+                "x"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t1",
+                    "name": "tp1"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t2.k",
+                        "name_parts": [
+                          "t2",
+                          "k"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t2",
+                    "name": "tp2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t2.x",
+                    "name_parts": [
+                      "t2",
+                      "x"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t2.x",
+                    "name_parts": [
+                      "t2",
+                      "x"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "200"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "t1.k",
+                "name_parts": [
+                  "t1",
+                  "k"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "trimLeft",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_\\d+_\\d+"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_UNIQ_ID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "actions = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.k",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "k"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t1.a",
+                                                  "name_parts": [
+                                                    "t1",
+                                                    "a"
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "t2.x",
+                                                  "name_parts": [
+                                                    "t2",
+                                                    "x"
+                                                  ]
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t1",
+                                                        "name": "tp1"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_join": {
+                                                      "type": "TableJoin",
+                                                      "kind": "INNER",
+                                                      "on": {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t1.k",
+                                                            "name_parts": [
+                                                              "t1",
+                                                              "k"
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "t2.k",
+                                                            "name_parts": [
+                                                              "t2",
+                                                              "k"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "alias": "t2",
+                                                        "name": "tp2"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "or",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "in",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "t1.k",
+                                                        "name_parts": [
+                                                          "t1",
+                                                          "k"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "Tuple",
+                                                        "value": [
+                                                          {
+                                                            "value_type": "UInt64",
+                                                            "value": "1"
+                                                          },
+                                                          {
+                                                            "value_type": "UInt64",
+                                                            "value": "2"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "in",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "t1.k",
+                                                        "name_parts": [
+                                                          "t1",
+                                                          "k"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "Tuple",
+                                                        "value": [
+                                                          {
+                                                            "value_type": "UInt64",
+                                                            "value": "3"
+                                                          },
+                                                          {
+                                                            "value_type": "UInt64",
+                                                            "value": "4"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "t1.k",
+                                                    "name_parts": [
+                                                      "t1",
+                                                      "k"
+                                                    ]
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%Filter column: %"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "0"
+            }
+          }
+        }
+      ],
+      "format": "TSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "t1.k",
+              "name_parts": [
+                "t1",
+                "k"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "t1.a",
+              "name_parts": [
+                "t1",
+                "a"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "t2.x",
+              "name_parts": [
+                "t2",
+                "x"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t1",
+                    "name": "tp1"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t2.k",
+                        "name_parts": [
+                          "t2",
+                          "k"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "t2",
+                    "name": "tp2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t1.k",
+                    "name_parts": [
+                      "t1",
+                      "k"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
                         "value": "1"
                       },
                       {
-                        "kind": "literal",
-                        "type": "UInt64",
+                        "value_type": "UInt64",
                         "value": "2"
                       }
                     ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t2",
-                        "x"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "100"
-                    }
                   }
-                ],
-                "parenthesized": true
+                ]
               },
               {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "inExpr",
-                    "negated": false,
-                    "expr": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t1",
-                        "k"
-                      ]
-                    },
-                    "values": [
+                    "type": "Identifier",
+                    "name": "t1.k",
+                    "name_parts": [
+                      "t1",
+                      "k"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
                       {
-                        "kind": "literal",
-                        "type": "UInt64",
+                        "value_type": "UInt64",
                         "value": "3"
                       },
                       {
-                        "kind": "literal",
-                        "type": "UInt64",
+                        "value_type": "UInt64",
                         "value": "4"
                       }
                     ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t2",
-                        "x"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "t1.k",
+                "name_parts": [
+                  "t1",
+                  "k"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tp1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tp2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "table1"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "table2"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "table1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "table2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "table1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "table2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "trimLeft",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_\\d+_\\d+"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_UNIQ_ID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "actions = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "table1"
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_join": {
+                                                      "type": "TableJoin",
+                                                      "kind": "INNER",
+                                                      "on": {
+                                                        "type": "Function",
+                                                        "name": "equals",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "b"
+                                                          },
+                                                          {
+                                                            "type": "Identifier",
+                                                            "name": "d"
+                                                          }
+                                                        ]
+                                                      }
+                                                    },
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "table2"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "and",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "greater",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "a"
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "0"
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "greater",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "c"
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "UInt64",
+                                                        "value": "0"
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "or",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "and",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Function",
+                                                            "name": "greater",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "a"
+                                                              },
+                                                              {
+                                                                "type": "Literal",
+                                                                "value_type": "UInt64",
+                                                                "value": "5"
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Function",
+                                                            "name": "less",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "c"
+                                                              },
+                                                              {
+                                                                "type": "Literal",
+                                                                "value_type": "UInt64",
+                                                                "value": "10"
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "and",
+                                                        "is_operator": true,
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Function",
+                                                            "name": "greater",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "a"
+                                                              },
+                                                              {
+                                                                "type": "Literal",
+                                                                "value_type": "UInt64",
+                                                                "value": "6"
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "type": "Function",
+                                                            "name": "less",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Identifier",
+                                                                "name": "c"
+                                                              },
+                                                              {
+                                                                "type": "Literal",
+                                                                "value_type": "UInt64",
+                                                                "value": "11"
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "a"
+                                                  },
+                                                  "direction": "ASC"
+                                                },
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "c"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
                       ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "200"
                     }
                   }
-                ],
-                "parenthesized": true
-              }
-            ]
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "t1",
-                  "k"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%Filter column: %"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "format": "TSV"
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_join_disjunctions_push_down",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "k"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t2",
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "tp1",
-        "alias": "t1"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "tp2",
-        "alias": "t2"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "k"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "inExpr",
-              "negated": false,
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "t1",
-                  "k"
-                ]
-              },
-              "values": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "t2",
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            }
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "inExpr",
-              "negated": false,
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "t1",
-                  "k"
-                ]
-              },
-              "values": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                }
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "t2",
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "200"
-              }
-            }
-          ],
-          "parenthesized": true
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "t1",
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "REGEXP_REPLACE",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "trimLeft",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_\\\\d+_\\\\d+"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_UNIQ_ID"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
-          {
-            "name": "actions",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t1",
-                "k"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t1",
-                "a"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t2",
-                "x"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "tp1",
-              "alias": "t1"
-            },
-            "kind": "joinExpr",
-            "joinType": "INNER",
-            "right": {
-              "kind": "tableRef",
-              "table": "tp2",
-              "alias": "t2"
-            },
-            "constraint": {
-              "kind": "on",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "k"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t2",
-                    "k"
-                  ]
                 }
               }
-            }
+            ]
           },
           "where": {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t2",
-                    "x"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
-                },
-                "parenthesized": true
+                "type": "Identifier",
+                "name": "explain"
               },
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t2",
-                    "x"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "200"
-                },
-                "parenthesized": true
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%Filter column: %"
               }
             ]
           },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "t1",
-                  "k"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%Filter column: %"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "format": "TSV"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "k"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t2",
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "tp1",
-        "alias": "t1"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "tp2",
-        "alias": "t2"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "k"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "200"
-          },
-          "parenthesized": true
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "t1",
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "REGEXP_REPLACE",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "trimLeft",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_\\\\d+_\\\\d+"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_UNIQ_ID"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
-          {
-            "name": "actions",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "0"
             }
           }
-        ],
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t1",
-                "k"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t1",
-                "a"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "t2",
-                "x"
-              ]
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "tp1",
-              "alias": "t1"
-            },
-            "kind": "joinExpr",
-            "joinType": "INNER",
-            "right": {
-              "kind": "tableRef",
-              "table": "tp2",
-              "alias": "t2"
-            },
-            "constraint": {
-              "kind": "on",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "k"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t2",
-                    "k"
-                  ]
-                }
-              }
-            }
-          },
-          "where": {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "k"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  }
-                ],
-                "parenthesized": true
-              },
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "k"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4"
-                  }
-                ],
-                "parenthesized": true
-              }
-            ]
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "t1",
-                  "k"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%Filter column: %"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "format": "TSV"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "k"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t1",
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "t2",
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "tp1",
-        "alias": "t1"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "tp2",
-        "alias": "t2"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "k"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4"
-            }
-          ],
-          "parenthesized": true
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "t1",
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp1"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tp2"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "table1"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "---------- CASE D ----------"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "table2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "table1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "table2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "table1"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "table2"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "REGEXP_REPLACE",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "trimLeft",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_\\\\d+_\\\\d+"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_UNIQ_ID"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
-          {
-            "name": "actions",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "left": {
-              "kind": "tableRef",
-              "table": "table1"
-            },
-            "kind": "joinExpr",
-            "joinType": "INNER",
-            "right": {
-              "kind": "tableRef",
-              "table": "table2"
-            },
-            "constraint": {
-              "kind": "on",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "b"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "d"
-                  ]
-                }
-              }
-            }
-          },
-          "where": {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": ">",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "a"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                },
-                "parenthesized": true
-              },
-              {
-                "kind": "binaryExpr",
-                "op": ">",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "c"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                },
-                "parenthesized": true
-              },
-              {
-                "kind": "naryExpr",
-                "op": "OR",
-                "operands": [
-                  {
-                    "kind": "naryExpr",
-                    "op": "AND",
-                    "operands": [
-                      {
-                        "kind": "binaryExpr",
-                        "op": ">",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "a"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "5"
-                        },
-                        "parenthesized": true
-                      },
-                      {
-                        "kind": "binaryExpr",
-                        "op": "<",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "c"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "10"
-                        },
-                        "parenthesized": true
-                      }
-                    ],
-                    "parenthesized": true
-                  },
-                  {
-                    "kind": "naryExpr",
-                    "op": "AND",
-                    "operands": [
-                      {
-                        "kind": "binaryExpr",
-                        "op": ">",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "a"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "6"
-                        },
-                        "parenthesized": true
-                      },
-                      {
-                        "kind": "binaryExpr",
-                        "op": "<",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "c"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "11"
-                        },
-                        "parenthesized": true
-                      }
-                    ],
-                    "parenthesized": true
-                  }
-                ],
-                "parenthesized": true
-              }
-            ]
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "a"
-                ]
-              },
-              "direction": "ASC"
-            },
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "c"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ]
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%Filter column: %"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "format": "TSV"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "table1"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "table2"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          },
-          "parenthesized": true
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "c"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "naryExpr",
-          "op": "OR",
-          "operands": [
-            {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "a"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "5"
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "<",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "c"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  },
-                  "parenthesized": true
-                }
-              ],
-              "parenthesized": true
-            },
-            {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "a"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "6"
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "<",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "c"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "11"
-                  },
-                  "parenthesized": true
-                }
-              ],
-              "parenthesized": true
-            }
-          ],
-          "parenthesized": true
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "TSV"
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "table1"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "table2"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n1",
-          "number"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n2",
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "6"
-          }
-        ],
-        "alias": "n1"
-      },
-      "kind": "joinExpr",
-      "joinType": "CROSS",
-      "right": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "6"
-          }
-        ],
-        "alias": "n2"
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "n1",
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "n2",
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
-            }
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "n1",
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "n2",
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              }
-            }
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "n1",
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
-          },
-          "parenthesized": true
         }
       ],
-      "parenthesized": true
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n1",
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n2",
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "TSV"
+      "format": "TSV"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "REGEXP_REPLACE",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "trimLeft",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_\\\\d+_\\\\d+"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "__set_Int32_UNIQ_ID"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "explain"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "explain",
-            "settings": [
-              {
-                "name": "actions",
-                "value": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              }
-            ],
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "n1",
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "n2",
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "n3",
-                    "number"
-                  ]
-                }
-              ],
-              "from": {
-                "left": {
-                  "left": {
-                    "kind": "tableFunctionRef",
-                    "name": "numbers",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "3"
-                      }
-                    ],
-                    "alias": "n2"
-                  },
-                  "kind": "joinExpr",
-                  "joinType": "CROSS",
-                  "right": {
-                    "kind": "tableFunctionRef",
-                    "name": "numbers",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "3"
-                      }
-                    ],
-                    "alias": "n3"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "table1"
                   }
-                },
-                "kind": "joinExpr",
-                "joinType": "CROSS",
-                "right": {
-                  "kind": "tableFunctionRef",
-                  "name": "numbers",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  ],
-                  "alias": "n1"
                 }
               },
-              "where": {
-                "kind": "naryExpr",
-                "op": "OR",
-                "operands": [
-                  {
-                    "kind": "naryExpr",
-                    "op": "AND",
-                    "operands": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "binaryExpr",
-                        "op": "=",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "n1",
-                            "number"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
-                        },
-                        "parenthesized": true
+                        "type": "Identifier",
+                        "name": "a"
                       },
                       {
-                        "kind": "binaryExpr",
-                        "op": "=",
-                        "left": {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "n2",
-                              "number"
-                            ]
-                          },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "n3",
-                              "number"
-                            ]
-                          },
-                          "parenthesized": true
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "3"
-                        },
-                        "parenthesized": true
+                        "type": "Identifier",
+                        "name": "c"
                       }
-                    ],
-                    "parenthesized": true
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "table2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
                   },
                   {
-                    "kind": "naryExpr",
-                    "op": "AND",
-                    "operands": [
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "c"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "or",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "binaryExpr",
-                        "op": "=",
-                        "left": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "n1",
-                            "number"
-                          ]
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        },
-                        "parenthesized": true
+                        "type": "Function",
+                        "name": "greater",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "a"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
                       },
                       {
-                        "kind": "binaryExpr",
-                        "op": "=",
-                        "left": {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "n2",
-                              "number"
-                            ]
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "c"
                           },
-                          "right": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "n3",
-                              "number"
-                            ]
-                          },
-                          "parenthesized": true
-                        },
-                        "right": {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        },
-                        "parenthesized": true
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
                       }
-                    ],
-                    "parenthesized": true
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "greater",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "a"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "6"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "c"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "11"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "a"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "TSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "table1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "table2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "n1.number",
+              "name_parts": [
+                "n1",
+                "number"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "n2.number",
+              "name_parts": [
+                "n2",
+                "number"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "n1",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "6"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "n2",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "6"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "n1.number",
+                        "name_parts": [
+                          "n1",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "n2.number",
+                        "name_parts": [
+                          "n2",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "n1.number",
+                        "name_parts": [
+                          "n1",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "3"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "n2.number",
+                        "name_parts": [
+                          "n2",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "4"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "n1.number",
+                    "name_parts": [
+                      "n1",
+                      "number"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "n1.number",
+                "name_parts": [
+                  "n1",
+                  "number"
+                ]
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "n2.number",
+                "name_parts": [
+                  "n2",
+                  "number"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "TSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "trimLeft",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_\\d+_\\d+"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "__set_Int32_UNIQ_ID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "explain"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "subquery": {
+                                    "type": "Subquery",
+                                    "query": {
+                                      "type": "SelectWithUnionQuery",
+                                      "selects": [
+                                        {
+                                          "type": "SelectQuery",
+                                          "select": [
+                                            {
+                                              "type": "Asterisk"
+                                            }
+                                          ],
+                                          "from": {
+                                            "type": "TablesInSelectQuery",
+                                            "children": [
+                                              {
+                                                "type": "TablesInSelectQueryElement",
+                                                "table_expression": {
+                                                  "type": "TableExpression",
+                                                  "table_function": {
+                                                    "type": "Function",
+                                                    "name": "viewExplain",
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "String",
+                                                        "value": "EXPLAIN"
+                                                      },
+                                                      {
+                                                        "type": "Literal",
+                                                        "value_type": "String",
+                                                        "value": "actions = 1"
+                                                      },
+                                                      {
+                                                        "type": "Subquery",
+                                                        "query": {
+                                                          "type": "SelectWithUnionQuery",
+                                                          "selects": [
+                                                            {
+                                                              "type": "SelectQuery",
+                                                              "select": [
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "n1.number",
+                                                                  "name_parts": [
+                                                                    "n1",
+                                                                    "number"
+                                                                  ]
+                                                                },
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "n2.number",
+                                                                  "name_parts": [
+                                                                    "n2",
+                                                                    "number"
+                                                                  ]
+                                                                },
+                                                                {
+                                                                  "type": "Identifier",
+                                                                  "name": "n3.number",
+                                                                  "name_parts": [
+                                                                    "n3",
+                                                                    "number"
+                                                                  ]
+                                                                }
+                                                              ],
+                                                              "from": {
+                                                                "type": "TablesInSelectQuery",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "TablesInSelectQueryElement",
+                                                                    "table_expression": {
+                                                                      "type": "TableExpression",
+                                                                      "table_function": {
+                                                                        "type": "Function",
+                                                                        "alias": "n2",
+                                                                        "name": "numbers",
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "3"
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  {
+                                                                    "type": "TablesInSelectQueryElement",
+                                                                    "table_join": {
+                                                                      "type": "TableJoin",
+                                                                      "kind": "COMMA"
+                                                                    },
+                                                                    "table_expression": {
+                                                                      "type": "TableExpression",
+                                                                      "table_function": {
+                                                                        "type": "Function",
+                                                                        "alias": "n3",
+                                                                        "name": "numbers",
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "3"
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  {
+                                                                    "type": "TablesInSelectQueryElement",
+                                                                    "table_join": {
+                                                                      "type": "TableJoin",
+                                                                      "kind": "COMMA"
+                                                                    },
+                                                                    "table_expression": {
+                                                                      "type": "TableExpression",
+                                                                      "table_function": {
+                                                                        "type": "Function",
+                                                                        "alias": "n1",
+                                                                        "name": "numbers",
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "3"
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              },
+                                                              "where": {
+                                                                "type": "Function",
+                                                                "name": "or",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "and",
+                                                                    "is_operator": true,
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Function",
+                                                                        "name": "equals",
+                                                                        "is_operator": true,
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Identifier",
+                                                                            "name": "n1.number",
+                                                                            "name_parts": [
+                                                                              "n1",
+                                                                              "number"
+                                                                            ]
+                                                                          },
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "1"
+                                                                          }
+                                                                        ]
+                                                                      },
+                                                                      {
+                                                                        "type": "Function",
+                                                                        "name": "equals",
+                                                                        "is_operator": true,
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Function",
+                                                                            "name": "plus",
+                                                                            "is_operator": true,
+                                                                            "arguments": [
+                                                                              {
+                                                                                "type": "Identifier",
+                                                                                "name": "n2.number",
+                                                                                "name_parts": [
+                                                                                  "n2",
+                                                                                  "number"
+                                                                                ]
+                                                                              },
+                                                                              {
+                                                                                "type": "Identifier",
+                                                                                "name": "n3.number",
+                                                                                "name_parts": [
+                                                                                  "n3",
+                                                                                  "number"
+                                                                                ]
+                                                                              }
+                                                                            ]
+                                                                          },
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "3"
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  },
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "and",
+                                                                    "is_operator": true,
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Function",
+                                                                        "name": "equals",
+                                                                        "is_operator": true,
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Identifier",
+                                                                            "name": "n1.number",
+                                                                            "name_parts": [
+                                                                              "n1",
+                                                                              "number"
+                                                                            ]
+                                                                          },
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "2"
+                                                                          }
+                                                                        ]
+                                                                      },
+                                                                      {
+                                                                        "type": "Function",
+                                                                        "name": "equals",
+                                                                        "is_operator": true,
+                                                                        "arguments": [
+                                                                          {
+                                                                            "type": "Function",
+                                                                            "name": "plus",
+                                                                            "is_operator": true,
+                                                                            "arguments": [
+                                                                              {
+                                                                                "type": "Identifier",
+                                                                                "name": "n2.number",
+                                                                                "name_parts": [
+                                                                                  "n2",
+                                                                                  "number"
+                                                                                ]
+                                                                              },
+                                                                              {
+                                                                                "type": "Identifier",
+                                                                                "name": "n3.number",
+                                                                                "name_parts": [
+                                                                                  "n3",
+                                                                                  "number"
+                                                                                ]
+                                                                              }
+                                                                            ]
+                                                                          },
+                                                                          {
+                                                                            "type": "Literal",
+                                                                            "value_type": "UInt64",
+                                                                            "value": "2"
+                                                                          }
+                                                                        ]
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "explain"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%Filter column: %"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_parallel_replicas": "0"
             }
           }
         }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "explain"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%Filter column: %"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "format": "TSV"
+      ],
+      "format": "TSV"
+    }
   }
 ]

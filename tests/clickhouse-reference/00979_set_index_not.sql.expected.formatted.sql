@@ -8,7 +8,7 @@ CREATE TABLE set_index_not
 )
 ENGINE = MergeTree()
 ORDER BY name
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO set_index_not;
 

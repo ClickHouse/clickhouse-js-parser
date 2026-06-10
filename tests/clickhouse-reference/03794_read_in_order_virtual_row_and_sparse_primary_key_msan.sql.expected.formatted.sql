@@ -7,7 +7,7 @@ CREATE TABLE tbl
 )
 ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO tbl SELECT
     number,
@@ -19,7 +19,7 @@ SELECT
     b
 FROM tbl
 ORDER BY (a, b) ASC
-SETTINGS read_in_order_use_virtual_row = 1
+SETTINGS read_in_order_use_virtual_row = '1'
 FORMAT Hash;
 
 DROP TABLE tbl;

@@ -20,7 +20,7 @@ CREATE TABLE user
     user_type String
 )
 ENGINE = MergeTree()
-ORDER BY (user_id);
+ORDER BY user_id;
 
 INSERT INTO event;
 

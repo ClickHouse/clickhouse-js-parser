@@ -21,7 +21,7 @@ INSERT INTO `03400_users`;
 CREATE TABLE `03400_dist_users` AS `03400_users`
 ENGINE = Distributed(test_cluster_two_shards, currentDatabase(), `03400_users`);
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT *
 FROM

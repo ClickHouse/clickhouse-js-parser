@@ -6,9 +6,9 @@ CREATE TABLE test_collation
     v String,
     v2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY v
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_collation;
 

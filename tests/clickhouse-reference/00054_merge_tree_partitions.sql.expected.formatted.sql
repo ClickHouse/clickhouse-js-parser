@@ -1,7 +1,7 @@
 -- Tags: stateful
 DROP TABLE IF EXISTS partitions;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE partitions
 (
@@ -29,11 +29,11 @@ FROM partitions
 WHERE EventDate < toDate('2015-01-01')
     OR EventDate >= toDate('2015-02-01');
 
-ALTER TABLE partitions DROP PARTITION 201501;
+ALTER TABLE partitions DETACH PARTITION 201501;
 
 ALTER TABLE partitions ATTACH PARTITION 201501;
 
-ALTER TABLE partitions DROP PARTITION 201403;
+ALTER TABLE partitions DETACH PARTITION 201403;
 
 INSERT INTO partitions SELECT
     EventDate + UserID % 365 AS EventDate,

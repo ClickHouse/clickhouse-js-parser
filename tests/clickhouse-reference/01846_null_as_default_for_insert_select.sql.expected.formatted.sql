@@ -4,7 +4,7 @@ CREATE TABLE test_null_as_default
 (
     a String DEFAULT 'WORLD'
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_null_as_default SELECT 'HELLO'
 UNION ALL
@@ -21,7 +21,7 @@ CREATE TABLE test_null_as_default
     a String DEFAULT 'WORLD',
     b String DEFAULT 'PEOPLE'
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_null_as_default (a) SELECT 'HELLO'
 UNION ALL
@@ -32,7 +32,7 @@ CREATE TABLE test_null_as_default
     a Int8,
     b Int64 DEFAULT a + 1000
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_null_as_default SELECT
     1,
@@ -48,7 +48,7 @@ CREATE TABLE test_null_as_default
     b Int64 DEFAULT c - 500,
     c Int32 DEFAULT a + 1000
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_null_as_default (a, c) SELECT
     1,

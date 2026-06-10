@@ -5,7 +5,7 @@
 --- Tag no-async-insert: async inserts are not supported with non-parallel quorum inserts
 SET insert_quorum_parallel = false;
 
-SET select_sequential_consistency = 1;
+SET select_sequential_consistency = '1';
 
 DROP TABLE IF EXISTS quorum1;
 
@@ -34,7 +34,7 @@ PARTITION BY y;
 -- insert_quorum = n/2 + 1 , so insert will be written to both replica
 SET insert_quorum = 'auto';
 
-SET insert_keeper_fault_injection_probability = 0;
+SET insert_keeper_fault_injection_probability = '0';
 
 INSERT INTO quorum1;
 
@@ -98,14 +98,14 @@ SYSTEM SYNC REPLICA quorum3;
 -- Stop 2 replicas , so insert wont be successful
 SYSTEM STOP FETCHES quorum2;
 
-SET insert_quorum_timeout = 5000;
+SET insert_quorum_timeout = '5000';
 
 -- Sync replica 2 and 3
 SYSTEM START FETCHES quorum2;
 
 SYSTEM SYNC REPLICA quorum2;
 
-SET insert_quorum_timeout = 600000; -- set default value back
+SET insert_quorum_timeout = '600000'; -- set default value back
 
 INSERT INTO quorum1;
 

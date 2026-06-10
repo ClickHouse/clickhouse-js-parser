@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET single_join_prefer_left_table = 0;
+SET single_join_prefer_left_table = '0';
 
-SET optimize_move_to_prewhere = 0;
+SET optimize_move_to_prewhere = '0';
 
-SET query_plan_optimize_join_order_limit = 0;
+SET query_plan_optimize_join_order_limit = '0';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -13,7 +13,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -29,7 +29,7 @@ ENGINE = Join(`All`, `inner`, id);
 
 INSERT INTO test_table_join;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT
     t1.id,
     t1.value,

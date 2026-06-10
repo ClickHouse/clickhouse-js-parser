@@ -19,9 +19,9 @@ CREATE TABLE t1
     date Date,
     f UInt8 ALIAS 0
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t1 (a);
 
@@ -38,12 +38,12 @@ PREWHERE f = 0; -- { serverError ILLEGAL_PREWHERE }
 SELECT *
 FROM m
 WHERE f = 0
-SETTINGS optimize_move_to_prewhere = 0;
+SETTINGS optimize_move_to_prewhere = '0';
 
 SELECT *
 FROM m
 WHERE f = 0
-SETTINGS optimize_move_to_prewhere = 1;
+SETTINGS optimize_move_to_prewhere = '1';
 
 -- { echoOff }
 CREATE TABLE t2
@@ -52,8 +52,8 @@ CREATE TABLE t2
     date Date,
     f UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t2 (a); -- { echoOff }
