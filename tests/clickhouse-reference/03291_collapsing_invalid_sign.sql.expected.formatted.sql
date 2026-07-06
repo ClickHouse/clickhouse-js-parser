@@ -12,7 +12,7 @@ ORDER BY x;
 
 INSERT INTO t_03291_collapsing_invalid_sign; -- { serverError INCORRECT_DATA }
 
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 -- Invalid sign does not show up in result of SELECT ... FINAL
 SELECT *
@@ -69,7 +69,7 @@ CREATE TABLE t_03291_collapsing_invalid_sign_vertical_merge
 )
 ENGINE = CollapsingMergeTree(c1)
 ORDER BY tuple()
-SETTINGS enable_vertical_merge_algorithm = 1, vertical_merge_algorithm_min_rows_to_activate = 0, vertical_merge_algorithm_min_bytes_to_activate = 0, vertical_merge_algorithm_min_columns_to_activate = 0, min_bytes_for_wide_part = 0;
+SETTINGS enable_vertical_merge_algorithm = '1', vertical_merge_algorithm_min_rows_to_activate = '0', vertical_merge_algorithm_min_bytes_to_activate = '0', vertical_merge_algorithm_min_columns_to_activate = '0', min_bytes_for_wide_part = '0';
 
 INSERT INTO t_03291_collapsing_invalid_sign_vertical_merge;
 
@@ -83,7 +83,7 @@ CREATE TABLE t0
     c1 Int
 )
 ENGINE = CollapsingMergeTree(c0)
-ORDER BY (c1);
+ORDER BY c1;
 
 INSERT INTO t0 (c1, c0);
 

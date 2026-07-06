@@ -8,7 +8,7 @@ CREATE TABLE `03173_single_function`
 (
     dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toMonth(dt);
 
@@ -39,7 +39,7 @@ CREATE TABLE `03173_nested_function`
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3;
 
@@ -70,7 +70,7 @@ WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
     AND log_comment = '03173_nested_function_subexpr';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS `03173_nested_function_lc`;
 
@@ -78,7 +78,7 @@ CREATE TABLE `03173_nested_function_lc`
 (
     id LowCardinality(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3;
 
@@ -115,10 +115,10 @@ CREATE TABLE `03173_nested_function_null`
 (
     id Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO `03173_nested_function_null` SELECT number
 FROM numbers(100);
@@ -153,10 +153,10 @@ CREATE TABLE `03173_nested_function_lc_null`
 (
     id LowCardinality(Nullable(Int32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO `03173_nested_function_lc_null` SELECT number
 FROM numbers(100);
@@ -191,7 +191,7 @@ CREATE TABLE `03173_nonsafe_cast`
 (
     id Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3;
 
@@ -222,7 +222,7 @@ CREATE TABLE `03173_multiple_partition_cols`
     key1 Int32,
     key2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY (intDiv(key1, 50), xxHash32(key2) % 3);
 
@@ -264,7 +264,7 @@ CREATE TABLE `03173_base_data_source`
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3;
 
@@ -279,7 +279,7 @@ CREATE TABLE `03173_low_cardinality_set`
 (
     id LowCardinality(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT 10;
 
 SELECT count()
@@ -302,7 +302,7 @@ CREATE TABLE `03173_nullable_set`
 (
     id Nullable(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT 10;
 
 SELECT count()
@@ -325,7 +325,7 @@ CREATE TABLE `03173_lc_nullable_set`
 (
     id LowCardinality(Nullable(Int32))
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT 10
 UNION ALL
 SELECT NULL;
@@ -350,7 +350,7 @@ CREATE TABLE `03173_date_parsing`
 (
     id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDate(id);
 
@@ -371,7 +371,7 @@ CREATE TABLE `03173_nested_date_parsing`
 (
     id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toMonth(toDate(id));
 
@@ -404,7 +404,7 @@ CREATE TABLE `03173_empty_transform`
 (
     id Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY xxHash32(id) % 3;
 
@@ -415,7 +415,7 @@ OPTIMIZE TABLE `03173_empty_transform` FINAL;
 
 SELECT id
 FROM `03173_empty_transform`
-WHERE xxHash32(id) % 3 IN (xxHash32(2::Int32) % 3)
+WHERE xxHash32(id) % 3 IN (xxHash32(CAST('2' AS Int32)) % 3)
 SETTINGS log_comment = '03173_empty_transform';
 
 SELECT ProfileEvents['SelectedParts']

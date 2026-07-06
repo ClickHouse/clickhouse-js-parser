@@ -1,4 +1,4 @@
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE old_syntax_01071_test
 (
@@ -7,7 +7,7 @@ CREATE TABLE old_syntax_01071_test
 )
 ENGINE = MergeTree(date, id, 8192);
 
-ALTER TABLE old_syntax_01071_test ADD INDEX id_minmax id TYPE minmax GRANULARITY 1; -- { serverError BAD_ARGUMENTS }
+ALTER TABLE old_syntax_01071_test ADD INDEX id_minmax id TYPE minmax() GRANULARITY 1; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE new_syntax_01071_test
 (
@@ -17,7 +17,7 @@ CREATE TABLE new_syntax_01071_test
 ENGINE = MergeTree()
 ORDER BY id;
 
-ALTER TABLE new_syntax_01071_test ADD INDEX id_minmax id TYPE minmax GRANULARITY 1;
+ALTER TABLE new_syntax_01071_test ADD INDEX id_minmax id TYPE minmax() GRANULARITY 1;
 
 DETACH TABLE new_syntax_01071_test;
 

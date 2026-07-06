@@ -22,7 +22,7 @@ CREATE TABLE out_01277
 ENGINE = Null();
 
 CREATE TABLE buffer_01277 AS out_01277
-ENGINE = Buffer(currentDatabase(), out_01277, 1, 86400, 86400, 1e5, 1e6, 10e6, 100e6);
+ENGINE = Buffer(currentDatabase(), out_01277, 1, 86400, 86400, 100000., 1000000., 10000000., 100000000.);
 
 CREATE TABLE in_01277 AS out_01277
 ENGINE = Null();

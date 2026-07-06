@@ -1,3 +1,3 @@
-SET max_parser_depth = 10000;
+SET max_parser_depth = '10000';
 
-(SELECT (1));
+SELECT 1;

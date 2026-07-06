@@ -12,7 +12,7 @@ CREATE TABLE dictionary_source_en
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_source_en;
 
@@ -21,7 +21,7 @@ CREATE TABLE dictionary_source_ru
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_source_ru;
 

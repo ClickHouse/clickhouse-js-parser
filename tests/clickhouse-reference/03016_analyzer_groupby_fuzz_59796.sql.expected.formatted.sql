@@ -2,4 +2,4 @@ SELECT concat(concat(unhex('00'), concat(unhex('00'), concat(unhex(toFixedString
 GROUP BY
     concat(unhex('00'), toFixedString(materialize(toFixedString(' key="v" ', 9)), 9), toFixedString(toFixedString('00', 2), toNullable(2)), toFixedString(toFixedString(toFixedString(' key="v" ', 9), 9), 9)),
     concat(' key="v" ')
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

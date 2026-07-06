@@ -2,10 +2,10 @@
 SELECT arrayDifference([65536, -9223372036854775808]);
 
 -- Diff of unsigned int -> int
-SELECT arrayDifference(cast([10, 1], 'Array(UInt8)'));
+SELECT arrayDifference(CAST([10, 1] AS Array(UInt8)));
 
-SELECT arrayDifference(cast([10, 1], 'Array(UInt16)'));
+SELECT arrayDifference(CAST([10, 1] AS Array(UInt16)));
 
-SELECT arrayDifference(cast([10, 1], 'Array(UInt32)'));
+SELECT arrayDifference(CAST([10, 1] AS Array(UInt32)));
 
-SELECT arrayDifference(cast([10, 1], 'Array(UInt64)'));
+SELECT arrayDifference(CAST([10, 1] AS Array(UInt64)));

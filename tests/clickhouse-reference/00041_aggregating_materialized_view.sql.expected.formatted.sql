@@ -10,9 +10,9 @@ CREATE TABLE visits_null
     Sign Int8,
     UserID UInt64
 )
-ENGINE = Null;
+ENGINE = Null();
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE MATERIALIZED VIEW basic
 ENGINE = AggregatingMergeTree(StartDate, (CounterID, StartDate), 8192)

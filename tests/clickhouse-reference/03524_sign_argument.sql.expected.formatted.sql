@@ -1,35 +1,35 @@
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;
 
-CREATE DATABASE IF NOT EXISTS {CLICKHOUSE_DATABASE:Identifier};
+CREATE DATABASE IF NOT EXISTS CLICKHOUSE_DATABASE;
 
-USE {CLICKHOUSE_DATABASE:Identifier};
+USE CLICKHOUSE_DATABASE;
 
-CREATE TABLE IF NOT EXISTS {CLICKHOUSE_DATABASE:Identifier}.t0
+CREATE TABLE IF NOT EXISTS CLICKHOUSE_DATABASE.t0
 (
     c0 String
 )
 ENGINE = Memory();
 
-CREATE TABLE IF NOT EXISTS {CLICKHOUSE_DATABASE:Identifier}.t1
+CREATE TABLE IF NOT EXISTS CLICKHOUSE_DATABASE.t1
 (
     c0 String,
     c1 Int32,
-    c2 Int32 CODEC(ZSTD)
+    c2 Int32 CODEC(ZSTD())
 )
 ENGINE = Memory();
 
-CREATE TABLE IF NOT EXISTS {CLICKHOUSE_DATABASE:Identifier}.t2
+CREATE TABLE IF NOT EXISTS CLICKHOUSE_DATABASE.t2
 (
     c0 Int32,
     c1 Int32,
     c2 String
 )
 ENGINE = MergeTree()
-ORDER BY ((c1) / (c0))
-PARTITION BY (negate((c1)))
-SETTINGS allow_suspicious_indices = 1;
+ORDER BY c1 / c0
+PARTITION BY -c1
+SETTINGS allow_suspicious_indices = '1';
 
-CREATE TABLE IF NOT EXISTS {CLICKHOUSE_DATABASE:Identifier}.t3
+CREATE TABLE IF NOT EXISTS CLICKHOUSE_DATABASE.t3
 (
     c0 Int32,
     c1 Int32,
@@ -51,16 +51,16 @@ INSERT INTO t3 (c0, c2);
 
 SELECT
     right_0.c0,
-    ((pow(pow(right_1.c1, t1.c2), (sign(t1.c2)))) * (negate(((t1.c2) / (t1.c2))))),
+    pow(pow(right_1.c1, t1.c2), sign(t1.c2)) * -(t1.c2 / t1.c2),
     t1.c1
 FROM
     t1
 RIGHT JOIN t0 AS right_0
-    ON (('.D') = ('m''X'))
+    ON '.D' = 'm''X'
 RIGHT JOIN t3 AS right_1
-    ON ((t1.c1) = (right_1.c1))
+    ON t1.c1 = right_1.c1
 ORDER BY `ALL` ASC;
 
 USE default;
 
-DROP DATABASE {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE CLICKHOUSE_DATABASE;

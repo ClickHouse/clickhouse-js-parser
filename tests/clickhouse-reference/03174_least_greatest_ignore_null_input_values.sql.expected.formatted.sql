@@ -1,4 +1,4 @@
-SET least_greatest_legacy_null_behavior = default;
+SET least_greatest_legacy_null_behavior = DEFAULT;
 
 SELECT
     greatest(NULL),

@@ -4,13 +4,13 @@ CREATE TABLE table_00653
 (
     val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val;
 
 INSERT INTO table_00653;
 
 SELECT count()
 FROM table_00653
-WHERE toUInt64(val) == 0;
+WHERE toUInt64(val) = 0;
 
 DROP TABLE table_00653;

@@ -1,262 +1,306 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_hash"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Regression test for https://github.com/ClickHouse/ClickHouse/issues/75247",
-      "-- GROUP BY with parallel_hash join on LowCardinality(String) and a 64-bit type",
-      "-- should produce deterministic and correct results."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_a"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_b"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_a"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_b"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_lc_join_a"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "join_algorithm": "parallel_hash"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_lc_join_b"
+        "type": "Identifier",
+        "name": "t_lc_join_a"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_b"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_a"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a",
-          "key"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_b"
       },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "a",
-              "value"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           }
         ]
       },
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "b",
-              "id"
-            ]
-          }
-        ]
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        }
       }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "t_lc_join_a",
-        "alias": "a"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_a"
       },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "t_lc_join_b",
-        "alias": "b"
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_b"
       },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a",
-              "key"
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "a.key",
+              "name_parts": [
+                "a",
+                "key"
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a.value",
+                  "name_parts": [
+                    "a",
+                    "value"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "b.id",
+                  "name_parts": [
+                    "b",
+                    "id"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "a",
+                    "name": "t_lc_join_a"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "a.key",
+                        "name_parts": [
+                          "a",
+                          "key"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "b.key",
+                        "name_parts": [
+                          "b",
+                          "key"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "b",
+                    "name": "t_lc_join_b"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "b",
-              "key"
-            ]
-          }
-        }
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "a",
-            "key"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "a.key",
+              "name_parts": [
+                "a",
+                "key"
+              ]
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "a.key",
+                "name_parts": [
+                  "a",
+                  "key"
+                ]
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a",
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_a"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_lc_join_b"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_a"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_lc_join_b"
+      }
     }
   }
 ]

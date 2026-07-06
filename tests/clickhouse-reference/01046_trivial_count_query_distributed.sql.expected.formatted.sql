@@ -5,10 +5,10 @@ CREATE TABLE test_count
 (
     pt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY pt
 PARTITION BY pt
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_count;
 

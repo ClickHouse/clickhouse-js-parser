@@ -8,7 +8,7 @@ CREATE TABLE locations
     city_id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY location_id;
 
 CREATE TABLE location_tags
@@ -17,16 +17,16 @@ CREATE TABLE location_tags
     name String,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name;
 
 INSERT INTO locations;
 
 INSERT INTO location_tags;
 
-SET query_plan_optimize_join_order_limit = 0;
+SET query_plan_optimize_join_order_limit = '0';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
 SET join_algorithm = 'hash';
 

@@ -5,10 +5,10 @@ CREATE TABLE xy
     x int,
     y int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y
 PARTITION BY intHash64(x) % 2
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 -- intHash64(0) % 2 = 0
 -- intHash64(2) % 2 = 1
@@ -19,7 +19,7 @@ INSERT INTO xy;
 -- Now we have two partitions: 0 and 1, each of which contains 2 values.
 -- minmax index for the first partition is 0 <= x <= 8
 -- minmax index for the second partition is 2 <= x <= 9
-SET max_rows_to_read = 2;
+SET max_rows_to_read = '2';
 
 SELECT *
 FROM xy
@@ -40,10 +40,10 @@ CREATE TABLE xyz
     y int,
     z int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY if(toUInt8(x), y, z)
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO xyz;
 
@@ -60,9 +60,9 @@ CREATE TABLE test
     k Int64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (d, k)
-PARTITION BY (toYYYYMM(d),k);
+PARTITION BY (toYYYYMM(d), k);
 
 INSERT INTO test;
 
@@ -83,8 +83,8 @@ CREATE TABLE myTable
     myOrder Int32,
     someData String
 )
-ENGINE = ReplacingMergeTree
-ORDER BY (myOrder)
+ENGINE = ReplacingMergeTree()
+ORDER BY myOrder
 PARTITION BY floor(toYYYYMMDD(myDay), -1);
 
 INSERT INTO myTable (myDay, myOrder);

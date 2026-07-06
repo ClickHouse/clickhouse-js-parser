@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- https://github.com/ClickHouse/ClickHouse/issues/45804
 CREATE TABLE myRMT

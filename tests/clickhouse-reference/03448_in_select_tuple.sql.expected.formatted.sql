@@ -7,8 +7,8 @@ CREATE TABLE table1
     id1 UInt64,
     id2 UInt8
 )
-ENGINE = MergeTree
-ORDER BY (id1) AS
+ENGINE = MergeTree()
+ORDER BY id1 AS
 SELECT
     1,
     1;
@@ -18,7 +18,7 @@ CREATE TABLE table2
     id1 UInt64,
     id2 UInt8
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     1,
     1;

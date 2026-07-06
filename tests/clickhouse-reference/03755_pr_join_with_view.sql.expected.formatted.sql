@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS v;
 
-DROP TABLE IF EXISTS t0;
+DROP TABLE IF EXISTS t0 SYNC;
 
-DROP TABLE IF EXISTS t1;
+DROP TABLE IF EXISTS t1 SYNC;
 
 CREATE TABLE t0
 (
@@ -35,15 +35,15 @@ INSERT INTO t1 SELECT
     toString(number + 100)
 FROM numbers(10);
 
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 -- inner join
-(SELECT *
+SELECT *
 FROM
     v
 INNER JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT *
 FROM
@@ -51,9 +51,9 @@ FROM
 INNER JOIN t1
     USING (k)
 ORDER BY `all` ASC
-SETTINGS enable_parallel_replicas = 0);
+SETTINGS enable_parallel_replicas = '0');
 
-(SELECT
+SELECT
     v.k,
     v.v,
     t1.k,
@@ -62,7 +62,7 @@ FROM
     v
 INNER JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT
     v.k,
@@ -76,12 +76,12 @@ INNER JOIN v
 ORDER BY `all` ASC);
 
 -- right join
-(SELECT *
+SELECT *
 FROM
     v
 RIGHT JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT *
 FROM
@@ -89,9 +89,9 @@ FROM
 RIGHT JOIN t1
     USING (k)
 ORDER BY `all` ASC
-SETTINGS enable_parallel_replicas = 0);
+SETTINGS enable_parallel_replicas = '0');
 
-(SELECT
+SELECT
     v.k,
     v.v,
     t1.k,
@@ -100,7 +100,7 @@ FROM
     v
 RIGHT JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT
     v.k,
@@ -114,12 +114,12 @@ RIGHT JOIN v
 ORDER BY `all` ASC);
 
 -- left join
-(SELECT *
+SELECT *
 FROM
     v
 LEFT JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT *
 FROM
@@ -127,9 +127,9 @@ FROM
 LEFT JOIN t1
     USING (k)
 ORDER BY `all` ASC
-SETTINGS enable_parallel_replicas = 0);
+SETTINGS enable_parallel_replicas = '0');
 
-(SELECT
+SELECT
     v.k,
     v.v,
     t1.k,
@@ -138,7 +138,7 @@ FROM
     v
 LEFT JOIN t1
     USING (k)
-ORDER BY `all` ASC)
+ORDER BY `all` ASC
 EXCEPT
 (SELECT
     v.k,

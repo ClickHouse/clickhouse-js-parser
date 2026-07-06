@@ -7,7 +7,7 @@ CREATE TABLE `01902_db_params`.t
 (
     n Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 INSERT INTO `01902_db_params`.t SELECT *

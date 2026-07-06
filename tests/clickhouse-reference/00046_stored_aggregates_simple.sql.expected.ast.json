@@ -1,181 +1,227 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "stored_aggregates"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_syntax_for_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "stored_aggregates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "stored_aggregates"
       },
-      {
-        "kind": "columnDef",
-        "name": "Uniq",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_syntax_for_merge_tree": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "stored_aggregates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "Uniq",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "uniq"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "type",
-              "type": {
-                "name": "uniq"
-              }
+              "type": "Identifier",
+              "name": "d"
             },
             {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8192"
             }
           ]
         }
       }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "stored_aggregates"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2014-06-01"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "Uniq",
+                "name": "uniqState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Asterisk"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "numbers",
+                                      "database": "system"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "uniqMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Uniq"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "stored_aggregates"
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "stored_aggregates"
+        "type": "Identifier",
+        "name": "stored_aggregates"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "2014-06-01"
-              }
-            ]
-          },
-          "alias": "d"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "uniqState",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              }
-            ]
-          },
-          "alias": "Uniq"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
-          },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1000"
-            }
-          }
-        }
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqMerge",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "Uniq"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "stored_aggregates"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "stored_aggregates"
     }
   }
 ]

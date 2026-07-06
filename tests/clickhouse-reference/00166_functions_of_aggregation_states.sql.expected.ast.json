@@ -1,173 +1,182 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_before_external_group_by": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Disable external aggregation because the state is reset for each new block of data in 'runningAccumulate' function."
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_ratio_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_ratio_before_external_group_by": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_error_prone_window_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_error_prone_window_functions": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "finalizeAggregation",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "sum_state"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "runningAccumulate",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "sum_state"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "50000"
-                }
-              ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "sumState",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            "alias": "sum_state"
-          }
-        ],
-        "from": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "numbers"
-            },
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1000000"
-              }
-            }
-          }
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "k"
+              "type": "Identifier",
+              "name": "k"
+            },
+            {
+              "type": "Function",
+              "name": "finalizeAggregation",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum_state"
+                }
               ]
             },
-            "direction": "ASC"
+            {
+              "type": "Function",
+              "name": "runningAccumulate",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum_state"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "50000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "sum_state",
+                              "name": "sumState",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "subquery": {
+                                    "type": "Subquery",
+                                    "query": {
+                                      "type": "SelectWithUnionQuery",
+                                      "selects": [
+                                        {
+                                          "type": "SelectQuery",
+                                          "select": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "number"
+                                            }
+                                          ],
+                                          "from": {
+                                            "type": "TablesInSelectQuery",
+                                            "children": [
+                                              {
+                                                "type": "TablesInSelectQueryElement",
+                                                "table_expression": {
+                                                  "type": "TableExpression",
+                                                  "database_and_table_name": {
+                                                    "type": "TableIdentifier",
+                                                    "name": "numbers",
+                                                    "database": "system"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "limit": {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1000000"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ],
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "k"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   }
 ]

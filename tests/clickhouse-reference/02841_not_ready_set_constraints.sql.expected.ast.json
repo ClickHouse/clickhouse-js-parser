@@ -1,175 +1,235 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t1"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ]
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "conversation",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
       },
-      {
-        "kind": "constraintDef",
-        "name": "constraint_conversation",
-        "constraintType": "CHECK",
-        "expr": {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "conversation"
-            ]
-          },
-          "values": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "t1"
-              }
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
             }
           }
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "conversation"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t2"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "conversation"
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
       }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t2"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "id"
+        }
+      ],
+      "format": "Values"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "conversation",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "type": "Constraint",
+            "name": "constraint_conversation",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "in",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "conversation"
+                },
+                {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "t1"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "conversation"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "conversation"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      }
     }
   }
 ]

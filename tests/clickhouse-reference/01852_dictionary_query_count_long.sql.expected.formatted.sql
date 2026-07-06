@@ -397,7 +397,7 @@ CREATE TABLE polygons_01862
     key Array(Array(Array(Tuple(Float64, Float64)))),
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO polygons_01862;
 
@@ -414,7 +414,7 @@ CREATE TABLE points_01862
     x Float64,
     y Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO points_01862;
 
@@ -435,7 +435,7 @@ CREATE DICTIONARY polygon_dictionary_01862
 )
 PRIMARY KEY key
 SOURCE(clickhouse(USER 'default' TABLE 'polygons_01862'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(POLYGON());
 
 SELECT

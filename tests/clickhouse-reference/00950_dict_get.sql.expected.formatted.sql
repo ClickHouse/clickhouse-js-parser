@@ -20,14 +20,14 @@ CREATE TABLE ints
     u32 UInt32,
     u64 UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE strings
 (
     key UInt64,
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE decimals
 (
@@ -36,7 +36,7 @@ CREATE TABLE decimals
     d64 Decimal64(6),
     d128 Decimal128(1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ints;
 
@@ -303,105 +303,105 @@ SELECT
     'flat_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGet(dict_name, 'str', k),
-    dictGet(dict_name, ('str'), k);
+    dictGet(dict_name, 'str', k);
 
 SELECT
     'dictGetOrDefault',
     'flat_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGetOrDefault',
     'flat_strings' AS dict_name,
     toUInt64(0) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGet',
     'hashed_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGet(dict_name, 'str', k),
-    dictGet(dict_name, ('str'), k);
+    dictGet(dict_name, 'str', k);
 
 SELECT
     'dictGetOrDefault',
     'hashed_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGetOrDefault',
     'hashed_strings' AS dict_name,
     toUInt64(0) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGet',
     'cache_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGet(dict_name, 'str', k),
-    dictGet(dict_name, ('str'), k);
+    dictGet(dict_name, 'str', k);
 
 SELECT
     'dictGetOrDefault',
     'cache_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGetOrDefault',
     'cache_strings' AS dict_name,
     toUInt64(0) AS k,
     dictGetOrDefault(dict_name, 'str', k, '*'),
-    dictGetOrDefault(dict_name, ('str'), k, ('*'));
+    dictGetOrDefault(dict_name, 'str', k, '*');
 
 SELECT
     'dictGet',
     'complex_hashed_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGet(dict_name, 'str', tuple(k)),
-    dictGet(dict_name, ('str'), tuple(k));
+    dictGet(dict_name, 'str', tuple(k));
 
 SELECT
     'dictGetOrDefault',
     'complex_hashed_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGetOrDefault(dict_name, 'str', tuple(k), '*'),
-    dictGetOrDefault(dict_name, ('str'), tuple(k), ('*'));
+    dictGetOrDefault(dict_name, 'str', tuple(k), '*');
 
 SELECT
     'dictGetOrDefault',
     'complex_hashed_strings' AS dict_name,
     toUInt64(0) AS k,
     dictGetOrDefault(dict_name, 'str', tuple(k), '*'),
-    dictGetOrDefault(dict_name, ('str'), tuple(k), ('*'));
+    dictGetOrDefault(dict_name, 'str', tuple(k), '*');
 
 SELECT
     'dictGet',
     'complex_cache_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGet(dict_name, 'str', tuple(k)),
-    dictGet(dict_name, ('str'), tuple(k));
+    dictGet(dict_name, 'str', tuple(k));
 
 SELECT
     'dictGetOrDefault',
     'complex_cache_strings' AS dict_name,
     toUInt64(1) AS k,
     dictGetOrDefault(dict_name, 'str', tuple(k), '*'),
-    dictGetOrDefault(dict_name, ('str'), tuple(k), ('*'));
+    dictGetOrDefault(dict_name, 'str', tuple(k), '*');
 
 SELECT
     'dictGetOrDefault',
     'complex_cache_strings' AS dict_name,
     toUInt64(0) AS k,
     dictGetOrDefault(dict_name, 'str', tuple(k), '*'),
-    dictGetOrDefault(dict_name, ('str'), tuple(k), ('*'));
+    dictGetOrDefault(dict_name, 'str', tuple(k), '*');
 
 --
 SELECT

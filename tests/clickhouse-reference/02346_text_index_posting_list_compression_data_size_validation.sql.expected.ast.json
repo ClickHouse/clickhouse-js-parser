@@ -1,1390 +1,1374 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-mergetree-settings, no-random-settings",
-      "-- ^^ Prevent the data sizes from varying with random parameters.",
-      "-- This test validates the storage size of the text index without and with posting list compression."
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes_on_data_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes_on_data_read": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_query_condition_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_query_condition_cache": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_insert_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_insert_threads": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "65536"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_insert_block_size_rows",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_insert_block_size_rows": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_insert_block_size_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_insert_block_size_bytes": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_bitpacking"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_uncompressed"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_bitpacking"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        },
-        "codec": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "LZ4"
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "inv_idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "str"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "posting_list_codec"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "bitpacking"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
           }
         ]
       },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "codec": [
+        "order_by": {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "min_rows_for_wide_part": "0",
+            "min_bytes_for_wide_part": "0",
+            "index_granularity": "8192",
+            "index_granularity_bytes": "0",
+            "enable_block_offset_column": "0",
+            "enable_block_number_column": "0",
+            "string_serialization_version": "with_size_stream",
+            "primary_key_compress_block_size": "65536",
+            "marks_compress_block_size": "65536",
+            "min_compress_block_size": "65536",
+            "max_compress_block_size": "1048576",
+            "ratio_of_defaults_for_sparse_serialization": 0.95,
+            "serialization_info_version": "basic",
+            "auto_statistics_types": "minmax"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "LZ4"
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "inv_idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "str"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
           }
         ]
       },
-      {
-        "kind": "indexDef",
-        "name": "inv_idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "str"
-          ]
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "indexType": {
-          "name": "text",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
+        "order_by": {
+          "type": "Identifier",
+          "name": "ts"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "min_rows_for_wide_part": "0",
+            "min_bytes_for_wide_part": "0",
+            "index_granularity": "8192",
+            "index_granularity_bytes": "0",
+            "enable_block_offset_column": "0",
+            "enable_block_number_column": "0",
+            "string_serialization_version": "with_size_stream",
+            "primary_key_compress_block_size": "65536",
+            "marks_compress_block_size": "65536",
+            "min_compress_block_size": "65536",
+            "max_compress_block_size": "1048576",
+            "ratio_of_defaults_for_sparse_serialization": 0.95,
+            "serialization_info_version": "basic",
+            "auto_statistics_types": "minmax"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 10:00:00"
               },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "splitByNonAlpha"
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "aa"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "bb"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "cc"
+                  }
+                ]
               }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1024000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 11:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "aa"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "bb"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "cc"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1024000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 12:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "less",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "129"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "tail129"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "129"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "single"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "512"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 13:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "less",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "129"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "tail129"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "129"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "single"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "512"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 14:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "if",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "less",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1003"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "mid1003"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1500"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 15:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "if",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "less",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1003"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "mid1003"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1500"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 16:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "0"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "777"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "rare2"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "1"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "2"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "3"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "4"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "rare5"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2026-01-09 17:00:00"
+              },
+              {
+                "type": "Function",
+                "alias": "str",
+                "name": "multiIf",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "0"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "777"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "rare2"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "in",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "Tuple",
+                        "value": [
+                          {
+                            "value_type": "UInt64",
+                            "value": "1"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "2"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "3"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "4"
+                          },
+                          {
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "rare5"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "noise"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "table"
             },
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "posting_list_codec"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "bitpacking"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "min_rows_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      },
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "enable_block_offset_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "enable_block_number_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "string_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "with_size_stream"
-        }
-      },
-      {
-        "name": "primary_key_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "marks_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "min_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "max_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1048576"
-        }
-      },
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "0.95"
-        }
-      },
-      {
-        "name": "serialization_info_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "basic"
-        }
-      },
-      {
-        "name": "auto_statistics_types",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "minmax"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_uncompressed"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        },
-        "codec": [
-          {
-            "name": "LZ4"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
-          {
-            "name": "LZ4"
-          }
-        ]
-      },
-      {
-        "kind": "indexDef",
-        "name": "inv_idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "str"
-          ]
-        },
-        "indexType": {
-          "name": "text",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "splitByNonAlpha"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "min_rows_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      },
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "enable_block_offset_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "enable_block_number_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "string_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "with_size_stream"
-        }
-      },
-      {
-        "name": "primary_key_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "marks_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "min_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      },
-      {
-        "name": "max_compress_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1048576"
-        }
-      },
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "0.95"
-        }
-      },
-      {
-        "name": "serialization_info_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "basic"
-        }
-      },
-      {
-        "name": "auto_statistics_types",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "minmax"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_bitpacking"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 10:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "rows"
                 }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "aa"
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "bb"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "cc"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1024000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_uncompressed"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 11:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "aa"
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "bb"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "cc"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1024000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_bitpacking"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 12:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "129"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "tail129"
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "129"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "single"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "512"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_uncompressed"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 13:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "129"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "tail129"
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "129"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "single"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "512"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_bitpacking"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 14:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1003"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "mid1003"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1500"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_uncompressed"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 15:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1003"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "mid1003"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1500"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_bitpacking"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 16:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "777"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "rare2"
-              },
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "5"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "rare5"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab_uncompressed"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2026-01-09 17:00:00"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "multiIf",
-            "args": [
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "777"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "rare2"
-              },
-              {
-                "kind": "inExpr",
-                "negated": false,
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "values": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "5"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "rare5"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "noise"
-              }
-            ]
-          },
-          "alias": "str"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_bitpacking"
-    },
-    "final": true
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_uncompressed"
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "table"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "rows"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "secondary_indices_compressed_bytes"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "active"
-          ]
-        },
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "values": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "tab_bitpacking"
+              ]
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "tab_uncompressed"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "secondary_indices_compressed_bytes"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "active"
+              },
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "tab_bitpacking"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "tab_uncompressed"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "table"
             }
           ]
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "table"
-          ]
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- Compare the size of the text index for the same dataset with vs. without compression."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_bitpacking"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab_uncompressed"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_bitpacking"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab_uncompressed"
+      }
     }
   }
 ]

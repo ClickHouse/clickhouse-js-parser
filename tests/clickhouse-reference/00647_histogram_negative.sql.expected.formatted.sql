@@ -4,7 +4,7 @@ CREATE TABLE histogram
 (
     num Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO histogram;
 

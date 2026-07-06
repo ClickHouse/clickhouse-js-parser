@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/55803
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS broken_table;
 
@@ -11,7 +11,7 @@ CREATE TABLE broken_table
     `end` DateTime64(6)
 )
 ENGINE = ReplacingMergeTree(start)
-ORDER BY (start);
+ORDER BY start;
 
 CREATE VIEW broken_view
 AS
@@ -30,4 +30,4 @@ SELECT
     v.start,
     v.total_sec
 FROM broken_view AS v FINAL
-WHERE isNotNull(v.start);
+WHERE v.start IS NOT NULL;

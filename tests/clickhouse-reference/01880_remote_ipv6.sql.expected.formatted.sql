@@ -1,4 +1,4 @@
-SET connections_with_failover_max_tries = 0;
+SET connections_with_failover_max_tries = '0';
 
 SELECT *
 FROM remote('[::1]', `system`.one)

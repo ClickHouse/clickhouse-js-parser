@@ -29,14 +29,14 @@ SELECT bech32Encode('', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'));
 SELECT bech32Encode('', unhex('751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d45494a'));
 
 -- test with explicit witver = 1, should be same as default
-SELECT bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'), 1) == bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'));
+SELECT bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'), 1) = bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'));
 
 -- testing old bech32 algo
 SELECT bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'), 0);
 
 -- different witvers will not match perfectly, but the encoded data should match, so we strip off the first 4 chars (hrp and prepended witver)
 -- as well as the last 6 chars (checksum)
-SELECT substring(s1, 5, -6) == substring(s2, 5, -6)
+SELECT substring(s1, 5, -6) = substring(s2, 5, -6)
 FROM (
         SELECT
             bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'), 1) AS s1,
@@ -45,8 +45,8 @@ FROM (
 
 -- roundtrip
 SELECT
-    tup.1 AS hrp,
-    hex(tup.2) AS data
+    (tup).1 AS hrp,
+    hex((tup).2) AS data
 FROM (
         SELECT bech32Decode(bech32Encode('bc', unhex('751e76e8199196d454941c45d1b3a323f1433bd6'))) AS tup
     );
@@ -59,7 +59,7 @@ CREATE TABLE hex_data
     data String,
     witver UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO hex_data;
 
@@ -90,13 +90,13 @@ CREATE TABLE bech32_test
     data_fixed FixedString(50),
     witver UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bech32_test SELECT
     hrp,
     data,
-    CAST(hrp, 'FixedString(4)'),
-    CAST(data, 'FixedString(50)'),
+    CAST(hrp AS FixedString(4)),
+    CAST(data AS FixedString(50)),
     witver
 FROM hex_data;
 
@@ -110,8 +110,8 @@ FROM bech32_test;
 
 -- sanity check, should return hrp and data used to create it
 SELECT
-    tup.1,
-    hex(tup.2)
+    (tup).1,
+    hex((tup).2)
 FROM (
         SELECT bech32Decode('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq') AS tup
     );
@@ -119,8 +119,8 @@ FROM (
 SELECT
     hrp,
     data,
-    hrp = tup.1 AS match_hrp,
-    data = lower(hex(tup.2)) AS match_data
+    hrp = (tup).1 AS match_hrp,
+    data = lower(hex((tup).2)) AS match_data
 FROM (
         SELECT
             hrp,
@@ -140,25 +140,25 @@ SELECT bech32Decode('foo');
 
 -- decode valid string, witver 0, hrp=bc
 SELECT
-    tup.1 AS hrp,
-    hex(tup.2) AS data
+    (tup).1 AS hrp,
+    hex((tup).2) AS data
 FROM (
         SELECT bech32Decode('bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kj9wkru') AS tup
     );
 
 -- decode valid string, witver 1, hrp=tb
 SELECT
-    tup.1 AS hrp,
-    hex(tup.2) AS data
+    (tup).1 AS hrp,
+    hex((tup).2) AS data
 FROM (
         SELECT bech32Decode('tb1pw508d6qejxtdg4y5r3zarvary0c5xw7kcr49c0') AS tup
     );
 
 -- decoding address created with same data but different witvers should be same
 SELECT
-    t1.1 != '',
-    t1.1 == t2.1,
-    t1.2 == t2.2
+    (t1).1 != '',
+    (t1).1 = (t2).1,
+    (t1).2 = (t2).2
 FROM (
         SELECT
             bech32Decode('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4') AS t1,
@@ -167,9 +167,9 @@ FROM (
 
 -- decoding address created with same data but different witvers should be same
 SELECT
-    t1.1 != '',
-    t1.1 == t2.1,
-    t1.2 == t2.2
+    (t1).1 != '',
+    (t1).1 = (t2).1,
+    (t1).2 = (t2).2
 FROM (
         SELECT
             bech32Decode('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx') AS t1,
@@ -178,16 +178,16 @@ FROM (
 
 -- testing max length, this should work
 SELECT
-    tup.1 AS hrp,
-    hex(tup.2) AS data
+    (tup).1 AS hrp,
+    hex((tup).2) AS data
 FROM (
         SELECT bech32Decode('b1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y565gdg8') AS tup
     );
 
 -- testing max length, this should return nothing
 SELECT
-    tup.1 AS hrp,
-    hex(tup.2) AS data
+    (tup).1 AS hrp,
+    hex((tup).2) AS data
 FROM (
         SELECT bech32Decode('b1w508dfqejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5xgqsaanm') AS tup
     );
@@ -199,7 +199,7 @@ CREATE TABLE addresses
 (
     address String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO addresses;
 
@@ -208,11 +208,11 @@ CREATE TABLE bech32_test
     address String,
     address_fixed FixedString(45)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bech32_test SELECT
     address,
-    CAST(address, 'FixedString(45)')
+    CAST(address AS FixedString(45))
 FROM addresses;
 
 SELECT

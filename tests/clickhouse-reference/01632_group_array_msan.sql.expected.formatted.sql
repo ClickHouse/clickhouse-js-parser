@@ -27,6 +27,6 @@ FORMAT Null;
 
 SELECT quantileResampleMerge(0.5, 257, 65536, 1)(tuple(*).1)
 FROM (
-        SELECT quantileResampleState(0.10, 1, 2, 42)(number, number)
+        SELECT quantileResampleState(0.1, 1, 2, 42)(number, number)
         FROM numbers(100)
     ); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }

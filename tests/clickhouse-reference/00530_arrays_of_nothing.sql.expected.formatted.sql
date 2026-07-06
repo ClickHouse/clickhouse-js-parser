@@ -1,8 +1,8 @@
-SELECT [[[[],[]]]];
+SELECT [[[[], []]]];
 
 SELECT [[1], []];
 
-SELECT [[[[],['']]]];
+SELECT [[[[], ['']]]];
 
 SELECT concat([], ['Hello'], []);
 
@@ -18,7 +18,7 @@ CREATE TABLE arr
     y Nullable(String),
     z Array(Array(Nullable(String)))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO arr SELECT
     [],

@@ -1,6 +1,6 @@
 -- Tags: no-fasttest
 -- no-fasttest - collations support is disabled for fasttest build
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT rank() OVER (ORDER BY c0 ASC)
 FROM (

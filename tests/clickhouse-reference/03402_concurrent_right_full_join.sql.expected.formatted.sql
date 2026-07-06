@@ -1,10 +1,10 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'parallel_hash';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
 -- 1) Small dataset: RIGHT OUTER ALL
 DROP TABLE IF EXISTS t_l_small;
@@ -16,14 +16,14 @@ CREATE TABLE t_l_small
     id UInt32,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_r_small
 (
     id UInt32,
     description String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_l_small;
 
@@ -41,7 +41,7 @@ ORDER BY
     r.id ASC,
     l.id ASC;
 
-EXPLAIN actions = 1, keep_logical_steps = 0
+EXPLAIN actions = '1', keep_logical_steps = '0'
 SELECT
     l.id,
     l.value,
@@ -76,14 +76,14 @@ CREATE TABLE t_l_any
     id UInt32,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_r_any
 (
     id UInt32,
     description String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_l_any;
 
@@ -94,7 +94,7 @@ SELECT
     countIf(isNull(l.value))
 FROM
     t_l_any AS l
-RIGHT JOIN t_r_any AS r
+ANY RIGHT JOIN t_r_any AS r
     ON l.id = r.id;
 
 -- 4) RIGHT OUTER with additional ON filter
@@ -107,14 +107,14 @@ CREATE TABLE t_l_filter
     id UInt32,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_r_filter
 (
     id UInt32,
     description String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_l_filter;
 
@@ -128,7 +128,7 @@ FROM
     t_l_filter AS l
 RIGHT JOIN t_r_filter AS r
     ON l.id = r.id
-    AND like(r.description, 'F%')
+    AND r.description LIKE 'F%'
 ORDER BY r.id ASC;
 
 -- 5) RIGHT OUTER with null keys on right
@@ -141,14 +141,14 @@ CREATE TABLE t_l_null
     id UInt32,
     v String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_r_null
 (
     id Nullable(UInt32),
     d String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_l_null;
 
@@ -175,7 +175,7 @@ CREATE TABLE t_l_cmp
     grp UInt8,
     val String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_r_cmp
 (
@@ -183,7 +183,7 @@ CREATE TABLE t_r_cmp
     grp UInt8,
     descr String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_l_cmp;
 
@@ -197,8 +197,8 @@ SELECT
 FROM
     t_l_cmp AS l
 RIGHT JOIN t_r_cmp AS r
-    ON (l.id = r.id)
-    AND (l.grp = r.grp)
+    ON l.id = r.id
+    AND l.grp = r.grp
 ORDER BY
     r.id ASC,
     r.grp ASC;
@@ -234,7 +234,7 @@ FULL JOIN (
     ) AS r
     ON l.id = r.id;
 
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS l;
 
@@ -245,14 +245,14 @@ CREATE TABLE l
     k UInt8,
     v UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE r
 (
     k UInt8,
     v UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO l SELECT
     toUInt8(number),
@@ -264,7 +264,7 @@ INSERT INTO r SELECT
     toUInt8(number)
 FROM numbers(200);
 
-SET max_threads = 8;
+SET max_threads = '8';
 
 SET join_algorithm = 'hash';
 
@@ -288,7 +288,7 @@ RIGHT JOIN r
 
 SELECT
     'hash right-only',
-    countIf(isNull(l.k))
+    countIf(l.k IS NULL)
 FROM
     l
 RIGHT JOIN r
@@ -297,7 +297,7 @@ RIGHT JOIN r
 
 SELECT
     'parallel right-only',
-    countIf(isNull(l.k))
+    countIf(l.k IS NULL)
 FROM
     l
 RIGHT JOIN r

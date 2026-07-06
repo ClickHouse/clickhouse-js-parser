@@ -5,7 +5,7 @@ CREATE TABLE nation
     n_regionkey Int32,
     n_comment String
 )
-ORDER BY (n_nationkey);
+ORDER BY n_nationkey;
 
 CREATE TABLE region
 (
@@ -13,7 +13,7 @@ CREATE TABLE region
     r_name String,
     r_comment String
 )
-ORDER BY (r_regionkey);
+ORDER BY r_regionkey;
 
 CREATE TABLE part
 (
@@ -27,7 +27,7 @@ CREATE TABLE part
     p_retailprice Decimal(15, 2),
     p_comment String
 )
-ORDER BY (p_partkey);
+ORDER BY p_partkey;
 
 CREATE TABLE supplier
 (
@@ -39,7 +39,7 @@ CREATE TABLE supplier
     s_acctbal Decimal(15, 2),
     s_comment String
 )
-ORDER BY (s_suppkey);
+ORDER BY s_suppkey;
 
 CREATE TABLE partsupp
 (
@@ -62,7 +62,7 @@ CREATE TABLE customer
     c_mktsegment String,
     c_comment String
 )
-ORDER BY (c_custkey);
+ORDER BY c_custkey;
 
 CREATE TABLE orders
 (
@@ -76,7 +76,7 @@ CREATE TABLE orders
     o_shippriority Int32,
     o_comment String
 )
-ORDER BY (o_orderkey);
+ORDER BY o_orderkey;
 
 -- The following is an alternative order key which is not compliant with the official TPC-H rules but recommended by sec. 4.5 in
 -- "Quantifying TPC-H Choke Points and Their Optimizations":
@@ -137,11 +137,11 @@ INSERT INTO lineitem SELECT *
 FROM generateRandom()
 LIMIT 1;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 -- Q2
 SELECT
@@ -154,25 +154,25 @@ SELECT
     s_phone,
     s_comment
 FROM
-    part
-CROSS JOIN supplier
-CROSS JOIN partsupp
-CROSS JOIN nation
-CROSS JOIN region
+    part,
+    supplier,
+    partsupp,
+    nation,
+    region
 WHERE p_partkey = ps_partkey
     AND s_suppkey = ps_suppkey
     AND p_size = 15
-    AND like(p_type, '%BRASS')
+    AND p_type LIKE '%BRASS'
     AND s_nationkey = n_nationkey
     AND n_regionkey = r_regionkey
     AND r_name = 'EUROPE'
     AND ps_supplycost = (
         SELECT min(ps_supplycost)
         FROM
-            partsupp
-        CROSS JOIN supplier
-        CROSS JOIN nation
-        CROSS JOIN region
+            partsupp,
+            supplier,
+            nation,
+            region
         WHERE p_partkey = ps_partkey
             AND s_suppkey = ps_suppkey
             AND s_nationkey = n_nationkey
@@ -193,7 +193,7 @@ SELECT
 FROM orders
 WHERE o_orderdate >= toDate('1993-07-01')
     AND o_orderdate < toDate('1993-07-01') + toIntervalMonth('3')
-    AND EXISTS((
+    AND exists((
         SELECT *
         FROM lineitem
         WHERE l_orderkey = o_orderkey
@@ -204,10 +204,10 @@ ORDER BY o_orderpriority ASC
 FORMAT Null;
 
 -- Q17
-SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
+SELECT sum(l_extendedprice) / 7. AS avg_yearly
 FROM
-    lineitem
-CROSS JOIN part
+    lineitem,
+    part
 WHERE p_partkey = l_partkey
     AND p_brand = 'Brand#23'
     AND p_container = 'MED BOX'
@@ -223,15 +223,15 @@ SELECT
     s_name,
     s_address
 FROM
-    supplier
-CROSS JOIN nation
+    supplier,
+    nation
 WHERE s_suppkey IN (
         SELECT ps_suppkey
         FROM partsupp
         WHERE ps_partkey IN (
                 SELECT p_partkey
                 FROM part
-                WHERE like(p_name, 'forest%')
+                WHERE p_name LIKE 'forest%'
             )
             AND ps_availqty > (
                 SELECT 0.5 * sum(l_quantity)
@@ -252,25 +252,25 @@ SELECT
     s_name,
     count(*) AS numwait
 FROM
-    supplier
-CROSS JOIN lineitem AS l1
-CROSS JOIN orders
-CROSS JOIN nation
+    supplier,
+    lineitem AS l1,
+    orders,
+    nation
 WHERE s_suppkey = l1.l_suppkey
     AND o_orderkey = l1.l_orderkey
     AND o_orderstatus = 'F'
     AND l1.l_receiptdate > l1.l_commitdate
-    AND EXISTS((
+    AND exists((
         SELECT *
         FROM lineitem AS l2
         WHERE l2.l_orderkey = l1.l_orderkey
-            AND l2.l_suppkey <> l1.l_suppkey
+            AND l2.l_suppkey != l1.l_suppkey
     ))
-    AND NOT EXISTS((
+    AND NOT exists((
         SELECT *
         FROM lineitem AS l3
         WHERE l3.l_orderkey = l1.l_orderkey
-            AND l3.l_suppkey <> l1.l_suppkey
+            AND l3.l_suppkey != l1.l_suppkey
             AND l3.l_receiptdate > l3.l_commitdate
     ))
     AND s_nationkey = n_nationkey
@@ -295,10 +295,10 @@ FROM (
             AND c_acctbal > (
                 SELECT avg(c_acctbal)
                 FROM customer
-                WHERE c_acctbal > 0.00
+                WHERE c_acctbal > 0.
                     AND substring(c_phone, 1, 2) IN ('13', '31', '23', '29', '30', '18', '17')
             )
-            AND NOT EXISTS((
+            AND NOT exists((
                 SELECT *
                 FROM orders
                 WHERE o_custkey = c_custkey

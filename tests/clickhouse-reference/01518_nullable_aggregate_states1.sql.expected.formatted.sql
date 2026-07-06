@@ -7,7 +7,7 @@ SELECT
     sum(a),
     any(a)
 FROM (
-        SELECT cast(NULL, 'Nullable(Float64)') AS a
+        SELECT CAST(NULL AS Nullable(Float64)) AS a
     );
 
 SELECT
@@ -28,7 +28,7 @@ FROM (
             sumState(a) AS sums,
             anyState(a) AS anys
         FROM (
-                SELECT cast(NULL, 'Nullable(Float64)') AS a
+                SELECT CAST(NULL AS Nullable(Float64)) AS a
             )
     );
 
@@ -43,7 +43,7 @@ SELECT
     sum(a),
     any(a)
 FROM (
-        SELECT cast(1, 'Nullable(Float64)') AS a
+        SELECT CAST(1 AS Nullable(Float64)) AS a
     )
 WHERE a = 0;
 
@@ -65,7 +65,7 @@ FROM (
             sumState(a) AS sums,
             anyState(a) AS anys
         FROM (
-                SELECT cast(1, 'Nullable(Float64)') AS a
+                SELECT CAST(1 AS Nullable(Float64)) AS a
             )
         WHERE a = 0
     );

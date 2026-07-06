@@ -5,7 +5,7 @@ CREATE TABLE `02181_test_table`
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02181_test_table`;
 
@@ -18,7 +18,7 @@ CREATE DICTIONARY `02181_test_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02181_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 DETACH TABLE `02181_test_dictionary`; --{serverError CANNOT_DETACH_DICTIONARY_AS_TABLE}

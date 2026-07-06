@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE table_f32
 (

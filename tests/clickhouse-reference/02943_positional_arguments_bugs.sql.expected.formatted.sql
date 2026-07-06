@@ -6,7 +6,7 @@ CREATE TABLE t
     n int,
     __unused_group_by_column int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n AS
 SELECT
     number,

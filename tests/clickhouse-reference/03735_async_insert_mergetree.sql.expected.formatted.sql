@@ -1,21 +1,21 @@
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET wait_for_async_insert = 0;
+SET wait_for_async_insert = '0';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
-SET async_insert_use_adaptive_busy_timeout = 0, async_insert_busy_timeout_min_ms = 1000, async_insert_busy_timeout_max_ms = 5000;
+SET async_insert_use_adaptive_busy_timeout = '0', async_insert_busy_timeout_min_ms = '1000', async_insert_busy_timeout_max_ms = '5000';
 
 CREATE TABLE src_table
 (
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS non_replicated_deduplication_window = 10000;
+SETTINGS non_replicated_deduplication_window = '10000';
 
 INSERT INTO src_table;
 
@@ -23,7 +23,7 @@ INSERT INTO src_table;
 
 INSERT INTO src_table;
 
-SYSTEM flush async insert queue src_table;
+SYSTEM FLUSH ASYNC INSERT QUEUE src_table;
 
 -- Expecting 2
 SELECT
@@ -36,9 +36,9 @@ CREATE TABLE dst_1_0
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS non_replicated_deduplication_window = 10000;
+SETTINGS non_replicated_deduplication_window = '10000';
 
 CREATE MATERIALIZED VIEW mv_1_0
 TO dst_1_0
@@ -52,9 +52,9 @@ CREATE TABLE dst_1_1
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS non_replicated_deduplication_window = 10000;
+SETTINGS non_replicated_deduplication_window = '10000';
 
 CREATE MATERIALIZED VIEW mv_1_1
 TO dst_1_1
@@ -68,9 +68,9 @@ CREATE TABLE dst_1_2
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS non_replicated_deduplication_window = 10000;
+SETTINGS non_replicated_deduplication_window = '10000';
 
 CREATE MATERIALIZED VIEW mv_1_2
 TO dst_1_2
@@ -83,9 +83,9 @@ CREATE TABLE dst_2_01
     id UInt32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS non_replicated_deduplication_window = 10000;
+SETTINGS non_replicated_deduplication_window = '10000';
 
 CREATE MATERIALIZED VIEW mv_2_00
 TO dst_2_01
@@ -145,7 +145,7 @@ SELECT *
 FROM dst_2_01
 ORDER BY `all` ASC;
 
-SYSTEM flush logs system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 SELECT
     query,
@@ -160,7 +160,7 @@ SELECT
     ProfileEvents['DuplicatedAsyncInserts'] AS DuplicatedAsyncInserts
 FROM `system`.query_log
 WHERE has(databases, currentDatabase())
-    AND has(tables, concat(currentDatabase(), '.src_table'))
+    AND has(tables, currentDatabase() || '.src_table')
     AND type != 'QueryStart'
     AND query_kind = 'AsyncInsertFlush'
 ORDER BY `all` DESC

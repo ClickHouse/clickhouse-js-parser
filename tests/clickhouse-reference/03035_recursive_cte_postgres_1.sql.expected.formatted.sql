@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- WITH RECURSIVE
 -- sum of 1..100
@@ -70,7 +70,7 @@ LIMIT 10;
 WITH RECURSIVE t AS (
     SELECT 'foo' AS n
     UNION ALL
-    SELECT concat(n, ' bar')
+    SELECT n || ' bar'
     FROM t
     WHERE length(n) < 20
 )

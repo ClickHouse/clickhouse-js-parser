@@ -1,146 +1,183 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_03812"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-parallel-replicas",
-      "-- ^ at this moment, EXPLAIN with parallel replicas may run the subqueries,",
-      "-- while this behavior is incorrect, the test focuses on a different thing,",
-      "-- so we disable it under parallel replicas.",
-      "-- Test for UBSan issue in join order optimization when estimated row count overflows UInt64",
-      "-- The issue occurs when converting a very large double to UInt64 in estimateJoinCardinality",
-      "-- https://github.com/ClickHouse/ClickHouse/pull/94704"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_03812"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "data_03812"
+        "type": "Identifier",
+        "name": "data_03812"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "data_03812"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        }
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "data_03812"
+      },
+      "format": "Values"
+    }
   },
   {
-    "kind": "explain",
-    "explainType": "PLAN",
-    "query": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "left": {
-          "kind": "tableRef",
-          "table": "data_03812",
-          "alias": "t1"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
             "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
               }
             ],
             "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "numbers"
-            },
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "9223372036854775806"
-              }
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "alias": "t1",
+                      "name": "data_03812"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "INNER",
+                    "strictness": "ALL",
+                    "on": {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "alias": "t2",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "numbers",
+                                      "database": "system"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "9223372036854775806"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
             }
-          },
-          "alias": "t2"
-        },
-        "constraint": {
-          "kind": "on",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
           }
-        }
-      }
-    },
-    "format": "Null"
+        ]
+      },
+      "format": "Null"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_03812"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "data_03812"
+      }
     }
   }
 ]

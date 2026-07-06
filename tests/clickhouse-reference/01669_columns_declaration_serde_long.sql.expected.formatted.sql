@@ -1,8 +1,7 @@
 -- Tags: long
 CREATE TEMPORARY TABLE test
 (
-    `\\` String DEFAULT concat('\r\n\t\\', '
-')
+    `\\` String DEFAULT '\r\n\t\\' || '\n'
 );
 
 INSERT INTO test;
@@ -19,10 +18,9 @@ DROP TABLE IF EXISTS test;
 CREATE TABLE test
 (
     x UInt64,
-    `\\` String DEFAULT concat('\r\n\t\\', '
-')
+    `\\` String DEFAULT '\r\n\t\\' || '\n'
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO test (x);
@@ -36,24 +34,22 @@ DROP TABLE IF EXISTS test_r2;
 CREATE TABLE test_r1
 (
     x UInt64,
-    `\\` String DEFAULT concat('\r\n\t\\', '
-')
+    `\\` String DEFAULT '\r\n\t\\' || '\n'
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/{database}/test_01669', 'r1')
 ORDER BY `\\`
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.;
 
 INSERT INTO test_r1 (`\\`);
 
 CREATE TABLE test_r2
 (
     x UInt64,
-    `\\` String DEFAULT concat('\r\n\t\\', '
-')
+    `\\` String DEFAULT '\r\n\t\\' || '\n'
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/{database}/test_01669', 'r2')
 ORDER BY `\\`
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.;
 
 SYSTEM SYNC REPLICA test_r2;
 

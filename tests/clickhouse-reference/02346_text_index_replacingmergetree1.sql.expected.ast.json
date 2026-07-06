@@ -1,436 +1,533 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx_key",
+            "expression": {
+              "type": "Identifier",
+              "name": "key"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
         }
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tests text index with the 'ReplacingMergeTree' engine"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
       },
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "String"
-        }
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx_key",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "indexType": {
-          "name": "text",
-          "args": [
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "splitByNonAlpha"
-              }
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-- direct read disabled"
             }
           ]
         }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES tab"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes_on_data_read": "0"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "foo"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "foo"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes_on_data_read": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-- direct read disabled"
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes_on_data_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "key"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "bar"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "foo"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab",
-      "final": true
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "foo"
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes_on_data_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "key"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "bar"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "bar"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab",
-      "final": true
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "bar"
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "key"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "baz"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "baz"
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab",
-      "final": true
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "key"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "baz"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "value"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "baz"
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "value"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
     }
   }
 ]

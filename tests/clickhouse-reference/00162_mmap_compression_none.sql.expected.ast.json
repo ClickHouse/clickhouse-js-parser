@@ -1,158 +1,188 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_none"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_none"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_none"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "Title",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_none"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "NONE"
+            "type": "ColumnDeclaration",
+            "name": "Title",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "NONE",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "8192",
+            "index_granularity_bytes": "10Mi"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_none"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "enable_filesystem_cache_on_write_operations": "0",
+          "max_insert_threads": "16"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "Title"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "hits",
+                      "database": "test"
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "enable_filesystem_cache_on_write_operations": "0",
+                "max_insert_threads": "16"
+              }
+            }
           }
         ]
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      },
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "10Mi"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "hits_none"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_bytes_to_use_mmap_io": "1"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "Title"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "hits"
-      },
-      "settings": [
-        {
-          "name": "enable_filesystem_cache_on_write_operations",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "name": "max_insert_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "16"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "length",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "Title"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_none"
+                  }
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_bytes_to_use_mmap_io",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_none"
       }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "length",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "Title"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_none"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_none"
     }
   }
 ]

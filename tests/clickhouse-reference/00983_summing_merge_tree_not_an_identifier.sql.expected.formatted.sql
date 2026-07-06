@@ -10,4 +10,4 @@ ENGINE = SummingMergeTree([price, spend])
 ORDER BY id
 PARTITION BY toYYYYMM(date)
 SAMPLE BY id
-SETTINGS index_granularity = 8192; -- { serverError UNEXPECTED_AST_STRUCTURE }
+SETTINGS index_granularity = '8192'; -- { serverError UNEXPECTED_AST_STRUCTURE }

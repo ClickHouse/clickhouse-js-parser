@@ -103,17 +103,8 @@ grouped_scores AS (
 
 partial_aucs AS (
     SELECT
-        arrayAUCPR(scores, labels, [
-        COALESCE(prev_group_tp, 0), 
-        COALESCE(prev_group_fp, 0), 
-        COALESCE(SUM(group_tp) OVER(), 0)
-      ]) AS partial_pr_auc,
-        arrayROCAUC(scores, labels, true, [
-        COALESCE(prev_group_tp, 0), 
-        COALESCE(prev_group_fp, 0),  
-        COALESCE(SUM(group_tp) OVER (), 0),
-        COALESCE(SUM(group_fp) OVER (), 0)
-      ]) AS partial_roc_auc
+        arrayAUCPR(scores, labels, [COALESCE(prev_group_tp, 0), COALESCE(prev_group_fp, 0), COALESCE(SUM(group_tp) OVER (), 0)]) AS partial_pr_auc,
+        arrayROCAUC(scores, labels, true, [COALESCE(prev_group_tp, 0), COALESCE(prev_group_fp, 0), COALESCE(SUM(group_tp) OVER (), 0), COALESCE(SUM(group_fp) OVER (), 0)]) AS partial_roc_auc
     FROM grouped_scores
 )
 

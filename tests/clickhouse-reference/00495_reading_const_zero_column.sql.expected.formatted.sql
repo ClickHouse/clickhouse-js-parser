@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS one_table;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE one_table
 (
@@ -15,7 +15,7 @@ INSERT INTO one_table SELECT
 FROM `system`.numbers
 LIMIT 100000;
 
-SET preferred_block_size_bytes = 8192;
+SET preferred_block_size_bytes = '8192';
 
 SELECT isNull(one)
 FROM one_table

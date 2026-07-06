@@ -1,4 +1,4 @@
-SET allow_experimental_nullable_tuple_type = 1;
+SET allow_experimental_nullable_tuple_type = '1';
 
 DROP TABLE IF EXISTS tuple_test;
 
@@ -8,7 +8,7 @@ CREATE TABLE tuple_test
     tup Nullable(Tuple(u UInt64, s String)),
     n Nullable(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tuple_test (id, tup, n);
@@ -40,8 +40,8 @@ ORDER BY id ASC;
 
 SELECT
     id,
-    tup.1 AS `first`,
-    tup.2 AS second
+    tupleElement(tup, 1) AS `first`,
+    tupleElement(tup, 2) AS second
 FROM tuple_test
 ORDER BY id ASC;
 
@@ -49,14 +49,14 @@ SELECT
     id,
     tup
 FROM tuple_test
-WHERE isNull(tup)
+WHERE tup IS NULL
 ORDER BY id ASC;
 
 SELECT
     id,
     tup
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
 ORDER BY id ASC;
 
 SELECT
@@ -70,14 +70,14 @@ SELECT
     id,
     tup
 FROM tuple_test
-WHERE isNull(tup.u)
+WHERE tup.u IS NULL
 ORDER BY id ASC;
 
 SELECT
     id,
     tup
 FROM tuple_test
-WHERE isNotNull(tup.u)
+WHERE tup.u IS NOT NULL
 ORDER BY id ASC;
 
 SELECT
@@ -91,9 +91,9 @@ SELECT
     id,
     tup
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
     AND tup.u > 20
-    AND like(tup.s, '%a%')
+    AND tup.s LIKE '%a%'
 ORDER BY id ASC;
 
 SELECT
@@ -101,8 +101,8 @@ SELECT
     tup,
     n
 FROM tuple_test
-WHERE isNotNull(tup)
-    OR isNotNull(n)
+WHERE tup IS NOT NULL
+    OR n IS NOT NULL
 ORDER BY id ASC;
 
 SELECT
@@ -126,7 +126,7 @@ SELECT
     tup
 FROM tuple_test
 ORDER BY
-    tup ASC,
+    tup ASC NULLS FIRST,
     id ASC;
 
 SELECT
@@ -134,7 +134,7 @@ SELECT
     tup
 FROM tuple_test
 ORDER BY
-    tup ASC,
+    tup ASC NULLS LAST,
     id ASC;
 
 SELECT
@@ -158,7 +158,7 @@ SELECT
     tup.u
 FROM tuple_test
 ORDER BY
-    tup.u ASC,
+    tup.u ASC NULLS FIRST,
     id ASC;
 
 SELECT
@@ -166,7 +166,7 @@ SELECT
     tup.u
 FROM tuple_test
 ORDER BY
-    tup.u ASC,
+    tup.u ASC NULLS LAST,
     id ASC;
 
 SELECT
@@ -174,7 +174,7 @@ SELECT
     tup.s
 FROM tuple_test
 ORDER BY
-    tup.s ASC,
+    tup.s ASC NULLS LAST,
     id ASC;
 
 SELECT
@@ -183,7 +183,7 @@ SELECT
     tup.s
 FROM tuple_test
 ORDER BY
-    tup.u ASC,
+    tup.u ASC NULLS LAST,
     tup.s ASC,
     id ASC;
 
@@ -193,7 +193,7 @@ SELECT
     n
 FROM tuple_test
 ORDER BY
-    n ASC,
+    n ASC NULLS LAST,
     tup.u ASC;
 
 SELECT
@@ -201,7 +201,7 @@ SELECT
     count() AS cnt
 FROM tuple_test
 GROUP BY tup
-ORDER BY tup ASC;
+ORDER BY tup ASC NULLS LAST;
 
 SELECT
     tup.u,
@@ -209,14 +209,14 @@ SELECT
     sum(n) AS sum_n
 FROM tuple_test
 GROUP BY tup.u
-ORDER BY tup.u ASC;
+ORDER BY tup.u ASC NULLS LAST;
 
 SELECT
     tup.s,
     count() AS cnt
 FROM tuple_test
 GROUP BY tup.s
-ORDER BY tup.s ASC;
+ORDER BY tup.s ASC NULLS LAST;
 
 SELECT
     tup.u,
@@ -227,7 +227,7 @@ GROUP BY
     tup.u,
     tup.s
 ORDER BY
-    tup.u ASC,
+    tup.u ASC NULLS LAST,
     tup.s ASC;
 
 SELECT
@@ -250,7 +250,7 @@ SELECT
 FROM tuple_test
 GROUP BY tup.u
 HAVING cnt > 1
-ORDER BY tup.u ASC;
+ORDER BY tup.u ASC NULLS LAST;
 
 SELECT
     tup.u,
@@ -258,7 +258,7 @@ SELECT
 FROM tuple_test
 GROUP BY tup.u
 HAVING sum_n > 400
-ORDER BY tup.u ASC;
+ORDER BY tup.u ASC NULLS LAST;
 
 SELECT
     tup.u,
@@ -302,7 +302,7 @@ SELECT
 FROM tuple_test;
 
 SELECT
-    countIf(isNull(tup)) AS null_count,
+    countIf(tup IS NULL) AS null_count,
     countIf(tup.u > 20) AS u_gt_20_count
 FROM tuple_test;
 
@@ -331,7 +331,7 @@ WHERE t1.id < t2.id
 ORDER BY
     id1 ASC,
     id2 ASC
-SETTINGS enable_analyzer = 1; -- t1.tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- t1.tup.u notation is not recognized in old analyzer
 
 SELECT
     t1.id,
@@ -344,8 +344,8 @@ LEFT JOIN tuple_test AS t2
     AND t1.id != t2.id
 ORDER BY
     t1.id ASC,
-    t2.id ASC
-SETTINGS enable_analyzer = 1; -- t1.tup.u notation is not recognized in old analyzer
+    t2.id ASC NULLS LAST
+SETTINGS enable_analyzer = '1'; -- t1.tup.u notation is not recognized in old analyzer
 
 SELECT
     t1.id AS id1,
@@ -354,25 +354,25 @@ FROM
     tuple_test AS t1
 INNER JOIN tuple_test AS t2
     ON t1.tup = t2.tup
-WHERE isNotNull(t1.tup)
+WHERE t1.tup IS NOT NULL
 ORDER BY
     id1 ASC,
     id2 ASC;
 
 SELECT DISTINCT tup
 FROM tuple_test
-ORDER BY tup ASC;
+ORDER BY tup ASC NULLS LAST;
 
 SELECT DISTINCT tup.u
 FROM tuple_test
-ORDER BY tup.u ASC;
+ORDER BY tup.u ASC NULLS LAST;
 
 SELECT DISTINCT
     tup.u,
     tup.s
 FROM tuple_test
 ORDER BY
-    tup.u ASC,
+    tup.u ASC NULLS LAST,
     tup.s ASC;
 
 SELECT tup
@@ -385,7 +385,7 @@ FROM (
         FROM tuple_test
         WHERE id >= 3
     )
-ORDER BY tup ASC;
+ORDER BY tup ASC NULLS LAST;
 
 SELECT value
 FROM (
@@ -395,24 +395,24 @@ FROM (
         SELECT n AS value
         FROM tuple_test
     )
-ORDER BY value ASC;
+ORDER BY value ASC NULLS LAST;
 
 SELECT tup.u
 FROM tuple_test
-WHERE isNotNull(tup.u)
+WHERE tup.u IS NOT NULL
 INTERSECT
 SELECT n
 FROM tuple_test
-WHERE isNotNull(n)
+WHERE n IS NOT NULL
 ORDER BY tup.u ASC;
 
 SELECT tup.u
 FROM tuple_test
-WHERE isNotNull(tup.u)
+WHERE tup.u IS NOT NULL
 EXCEPT
 SELECT n
 FROM tuple_test
-WHERE isNotNull(n)
+WHERE n IS NOT NULL
 ORDER BY tup.u ASC;
 
 SELECT
@@ -422,7 +422,7 @@ FROM tuple_test
 WHERE tup.u IN (
         SELECT tup.u
         FROM tuple_test
-        WHERE like(tup.s, '%a%')
+        WHERE tup.s LIKE '%a%'
     )
 ORDER BY id ASC;
 
@@ -430,14 +430,14 @@ SELECT
     id,
     tup
 FROM tuple_test AS t1
-WHERE EXISTS((
+WHERE exists((
         SELECT 1
         FROM tuple_test AS t2
         WHERE t1.tup.u = t2.tup.u
             AND t1.id != t2.id
     ))
 ORDER BY id ASC
-SETTINGS enable_analyzer = 1; -- t1.tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- t1.tup.u notation is not recognized in old analyzer
 
 SELECT
     id,
@@ -459,11 +459,11 @@ SELECT
     ) AS count_same_u
 FROM tuple_test AS t1
 ORDER BY id ASC
-SETTINGS enable_analyzer = 1; -- t1.tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- t1.tup.u notation is not recognized in old analyzer
 
 SELECT
     id,
-    multiIf(isNull(tup), 'null tuple', tup.u > 30, 'high', 'low') AS category
+    multiIf(tup IS NULL, 'null tuple', tup.u > 30, 'high', 'low') AS category
 FROM tuple_test
 ORDER BY id ASC;
 
@@ -476,20 +476,20 @@ ORDER BY id ASC;
 
 SELECT
     id,
-    if(isNull(tup), 'NULL', concat('u=', toString(tup.u))) AS result
+    if(tup IS NULL, 'NULL', concat('u=', toString(tup.u))) AS result
 FROM tuple_test
 ORDER BY id ASC;
 
 SELECT
     id,
-    multiIf(isNull(tup), 'null', tup.u < 20, 'small', tup.u < 40, 'medium', 'large') AS size_category
+    multiIf(tup IS NULL, 'null', tup.u < 20, 'small', tup.u < 40, 'medium', 'large') AS size_category
 FROM tuple_test
 ORDER BY id ASC;
 
 SELECT
     id,
     tup.u,
-    row_number() OVER (ORDER BY tup.u ASC, id ASC) AS rn
+    row_number() OVER (ORDER BY tup.u ASC, id ASC NULLS LAST) AS rn
 FROM tuple_test
 ORDER BY
     rn ASC,
@@ -498,8 +498,8 @@ ORDER BY
 SELECT
     id,
     tup.u,
-    rank() OVER (ORDER BY tup.u ASC) AS rnk,
-    dense_rank() OVER (ORDER BY tup.u ASC) AS dense_rnk
+    rank() OVER (ORDER BY tup.u ASC NULLS LAST) AS rnk,
+    dense_rank() OVER (ORDER BY tup.u ASC NULLS LAST) AS dense_rnk
 FROM tuple_test
 ORDER BY id ASC;
 
@@ -507,7 +507,7 @@ SELECT
     id,
     tup.u,
     isNull(tup),
-    row_number() OVER (PARTITION BY isNull(tup) ORDER BY tup.u ASC, id ASC) AS rn_in_partition
+    row_number() OVER (PARTITION BY isNull(tup) ORDER BY tup.u ASC, id ASC NULLS LAST) AS rn_in_partition
 FROM tuple_test
 ORDER BY
     isNull(tup) ASC,
@@ -528,8 +528,8 @@ SELECT
     t1.tup = t2.tup AS is_equal,
     t1.tup != t2.tup AS is_not_equal
 FROM
-    tuple_test AS t1
-CROSS JOIN tuple_test AS t2
+    tuple_test AS t1,
+    tuple_test AS t2
 WHERE t1.id = 1
     AND t2.id IN (1, 2, 3)
 ORDER BY
@@ -547,13 +547,14 @@ SELECT
     id,
     tup.u > 20 AS u_gt_20,
     tup.u < 50 AS u_lt_50,
-    and(greaterOrEquals(tup.u, 10), lessOrEquals(tup.u, 40)) AS u_between
+    tup.u >= 10
+    AND tup.u <= 40 AS u_between
 FROM tuple_test
 ORDER BY id ASC;
 
 SELECT
     id,
-    like(tup.s, '%a%') AS has_a,
+    tup.s LIKE '%a%' AS has_a,
     tup.s IN ('alpha', 'beta') AS is_alpha_or_beta
 FROM tuple_test
 ORDER BY id ASC;
@@ -570,7 +571,7 @@ SELECT
     CAST(tup.u AS Float64) AS u_float,
     CAST(tup.s AS FixedString(10)) AS s_fixed
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
 ORDER BY id ASC;
 
 SELECT
@@ -592,7 +593,7 @@ SELECT
     assumeNotNull(tup.u) AS u_not_null,
     toTypeName(assumeNotNull(tup.u)) AS type
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
 ORDER BY id ASC;
 
 SELECT
@@ -608,7 +609,7 @@ WITH filtered AS (
         id,
         tup
     FROM tuple_test
-    WHERE isNotNull(tup)
+    WHERE tup IS NOT NULL
 )
 
 SELECT
@@ -617,7 +618,7 @@ SELECT
     tup.s
 FROM filtered
 ORDER BY id ASC
-SETTINGS enable_analyzer = 1; -- CTE tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- CTE tup.u notation is not recognized in old analyzer
 
 WITH stats AS (
     SELECT
@@ -634,7 +635,7 @@ SELECT
         FROM stats
     ) AS diff_from_avg
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
 ORDER BY id ASC;
 
 SELECT groupArray(tup) AS tuple_array
@@ -643,15 +644,15 @@ FROM tuple_test;
 SELECT
     groupArray(tup) AS tuple_array,
     tuple_array[1] AS first_tuple,
-    tupleElement(tuple_array[1], 'u') AS first_u
+    tuple_array[1].u AS first_u
 FROM tuple_test;
 
-SELECT arrayFilter(x -> isNotNull(x), groupArray(tup)) AS non_null_tuples
+SELECT arrayFilter((x -> isNotNull(x)), groupArray(tup)) AS non_null_tuples
 FROM tuple_test;
 
-SELECT arrayMap(x -> x.u, arrayFilter(x -> isNotNull(x), groupArray(tup))) AS all_u_values
+SELECT arrayMap((x -> x.u), arrayFilter((x -> isNotNull(x)), groupArray(tup))) AS all_u_values
 FROM tuple_test
-SETTINGS enable_analyzer = 1; -- Lambda tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- Lambda tup.u notation is not recognized in old analyzer
 
 SELECT
     tup.u AS u_value,
@@ -660,7 +661,7 @@ SELECT
     avg(n) AS avg_n,
     groupArray(id) AS ids
 FROM tuple_test
-WHERE isNotNull(tup)
+WHERE tup IS NOT NULL
 GROUP BY tup.u
 HAVING cnt > 0
     AND avg_n > 200
@@ -676,11 +677,11 @@ FROM (
             tup,
             multiIf(tup.u < 30, 'low', 'high') AS category
         FROM tuple_test
-        WHERE isNotNull(tup)
+        WHERE tup IS NOT NULL
     )
 GROUP BY category
 ORDER BY category ASC
-SETTINGS enable_analyzer = 1; -- Here, tup.u notation is not recognized in old analyzer
+SETTINGS enable_analyzer = '1'; -- Here, tup.u notation is not recognized in old analyzer
 
 DROP TABLE IF EXISTS test_nullable_tuple;
 
@@ -688,13 +689,13 @@ CREATE TABLE test_nullable_tuple
 (
     data Nullable(Tuple(String, UInt64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_nullable_tuple;
 
 SELECT
-    data.1,
-    data.1,
-    data.2
+    tupleElement(data, 1),
+    tupleElement(data, 1),
+    tupleElement(data, 2)
 FROM test_nullable_tuple;

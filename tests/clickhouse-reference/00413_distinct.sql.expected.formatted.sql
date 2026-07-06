@@ -5,7 +5,7 @@ CREATE TABLE `distinct`
     Num UInt32,
     Name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `distinct` (Num, Name);
 

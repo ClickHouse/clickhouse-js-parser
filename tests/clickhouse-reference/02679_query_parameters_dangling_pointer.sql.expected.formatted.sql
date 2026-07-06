@@ -5,5 +5,5 @@ CREATE TABLE test.xxx
 (
     a Int64
 )
-ENGINE = MergeTree
-ORDER BY ({o:String}); -- { serverError ILLEGAL_COLUMN }
+ENGINE = MergeTree()
+ORDER BY 'placeholder'; -- { serverError ILLEGAL_COLUMN }

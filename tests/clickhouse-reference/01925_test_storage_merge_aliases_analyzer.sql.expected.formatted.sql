@@ -1,7 +1,7 @@
 -- Tags: no-parallel
 DROP TABLE IF EXISTS merge;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE merge
 (
@@ -31,7 +31,7 @@ CREATE TABLE alias_1
     colAlias3 Int32 ALIAS colAlias2 + colAlias1 + col3
 )
 ENGINE = MergeTree()
-ORDER BY (dt);
+ORDER BY dt;
 
 INSERT INTO alias_1 (dt, col, col2, col3);
 
@@ -64,7 +64,7 @@ CREATE TABLE alias_2
     col3 Int32
 )
 ENGINE = MergeTree()
-ORDER BY (dt);
+ORDER BY dt;
 
 INSERT INTO alias_2 (dt, col, col2, col3);
 

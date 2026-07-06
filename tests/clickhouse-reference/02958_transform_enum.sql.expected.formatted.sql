@@ -14,4 +14,4 @@ WITH arrayJoin(['Hello', 'world'])::Enum('Hello', 'world') AS x
 
 SELECT
     x,
-    transform(x, ['Hello', 'world'], ['test', 'best']::Array(Enum('test' = 123, 'best' = 456, '' = 0)), ''::Enum('test' = 123, 'best' = 456, '' = 0)) AS y;
+    transform(x, ['Hello', 'world'], CAST('[''test'', ''best'']' AS Array(Enum('test' = 123, 'best' = 456, '' = 0))), ''::Enum('test' = 123, 'best' = 456, '' = 0)) AS y;

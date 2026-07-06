@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t0
 (
@@ -6,13 +6,13 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-PARTITION BY (c0)
-SETTINGS allow_nullable_key = 1;
+PARTITION BY c0
+SETTINGS allow_nullable_key = '1';
 
-SET optimize_functions_to_subcolumns = 0;
+SET optimize_functions_to_subcolumns = '0';
 
 INSERT INTO t0 (c0);
 
 SELECT count()
 FROM t0
-WHERE (isNull(t0.c0)) = true;
+WHERE (t0.c0 IS NULL) = true;

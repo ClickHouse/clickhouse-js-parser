@@ -1,10 +1,10 @@
-SET readonly = 2;
+SET readonly = '2';
 
 CREATE TEMPORARY TABLE readonly00542
 (
     ID Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO readonly00542 (ID);

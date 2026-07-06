@@ -5,20 +5,20 @@ CREATE TABLE tbl
     s String,
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO tbl;
 
-drop row policy if exists filter on tbl;
+DROP ROW POLICY IF EXISTS filter ON tbl;
 
 CREATE ROW POLICY filter ON tbl USING 0 TO ALL;
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 SELECT *
 FROM tbl;
 
-drop row policy filter on tbl;
+DROP ROW POLICY filter ON tbl;
 
 DROP TABLE tbl;

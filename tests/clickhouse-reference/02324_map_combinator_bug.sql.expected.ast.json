@@ -1,339 +1,411 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "segfault"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "segfault"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "segfault_mv"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "segfault_mv"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "segfault"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "segfault"
       },
-      {
-        "kind": "columnDef",
-        "name": "uuid",
-        "type": {
-          "name": "UUID"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "tags_ids",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt32"
-              }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
-          ]
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "uuid",
+            "data_type": {
+              "type": "DataType",
+              "name": "UUID"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "tags_ids",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt32"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "segfault_mv"
-    },
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "uniqState",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "segfault_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "uuid"
-                ]
-              }
-            ]
-          },
-          "alias": "uniq_uuids"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "uniqMapState",
-            "args": [
+                "type": "Identifier",
+                "name": "id"
+              },
               {
-                "kind": "functionCall",
-                "name": "CAST",
-                "args": [
+                "type": "Function",
+                "alias": "uniq_uuids",
+                "name": "uniqState",
+                "arguments": [
                   {
-                    "kind": "tupleLiteral",
-                    "elements": [
+                    "type": "Identifier",
+                    "name": "uuid"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "uniq_tags_ids",
+                "name": "uniqMapState",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "CAST",
+                    "arguments": [
                       {
-                        "kind": "columnRef",
-                        "parts": [
-                          "tags_ids"
-                        ]
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "arrayMap",
-                        "args": [
+                        "type": "Function",
+                        "name": "tuple",
+                        "is_operator": true,
+                        "arguments": [
                           {
-                            "kind": "lambdaExpr",
-                            "params": [
-                              "_"
-                            ],
-                            "body": {
-                              "kind": "functionCall",
-                              "name": "toString",
-                              "args": [
-                                {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "uuid"
-                                  ]
-                                }
-                              ]
-                            }
+                            "type": "Identifier",
+                            "name": "tags_ids"
                           },
                           {
-                            "kind": "columnRef",
-                            "parts": [
-                              "tags_ids"
+                            "type": "Function",
+                            "name": "arrayMap",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "lambda",
+                                "is_operator": true,
+                                "is_lambda_function": true,
+                                "kind": "LAMBDA_FUNCTION",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "tuple",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "_"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "toString",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "uuid"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "tags_ids"
+                              }
                             ]
                           }
                         ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "Map(UInt32, String)"
                       }
-                    ],
-                    "source": "(tags_ids, arrayMap(_ -> toString(uuid), tags_ids))"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "Map(UInt32, String)"
+                    ]
                   }
                 ]
               }
-            ]
-          },
-          "alias": "uniq_tags_ids"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "segfault"
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "id"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "segfault"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "generateRandom",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "id UInt32, uuid UUID, c Array(UInt32)"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
-          }
-        ]
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "ignore",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "CAST",
-            "args": [
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "segfault"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
               {
-                "kind": "tupleLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayMap",
-                    "args": [
-                      {
-                        "kind": "lambdaExpr",
-                        "params": [
-                          "k"
-                        ],
-                        "body": {
-                          "kind": "functionCall",
-                          "name": "toString",
-                          "args": [
-                            {
-                              "kind": "columnRef",
-                              "parts": [
-                                "k"
-                              ]
-                            }
-                          ]
+                "type": "Identifier",
+                "name": "id"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "AggregatingMergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Identifier",
+                "name": "id"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "segfault"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "generateRandom",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "id UInt32, uuid UUID, c Array(UInt32)"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5"
                         }
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "mapKeys",
-                        "args": [
-                          {
-                            "kind": "alias",
-                            "expr": {
-                              "kind": "functionCall",
-                              "name": "uniqMapMerge",
-                              "args": [
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "100"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "ignore",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "CAST",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "arrayMap",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "lambda",
+                              "is_operator": true,
+                              "is_lambda_function": true,
+                              "kind": "LAMBDA_FUNCTION",
+                              "arguments": [
                                 {
-                                  "kind": "columnRef",
-                                  "parts": [
-                                    "uniq_tags_ids"
+                                  "type": "Function",
+                                  "name": "tuple",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "k"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "toString",
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "k"
+                                    }
                                   ]
                                 }
                               ]
                             },
-                            "alias": "m"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "mapValues",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "m"
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "source": "(arrayMap(k -> toString(k), mapKeys(uniqMapMerge(uniq_tags_ids) AS m)), mapValues(m))"
-              },
+                            {
+                              "type": "Function",
+                              "name": "mapKeys",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "alias": "m",
+                                  "name": "uniqMapMerge",
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "uniq_tags_ids"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "mapValues",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "m"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Map(String, UInt32)"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "Map(String, UInt32)"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "segfault_mv"
+                  }
+                }
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "segfault_mv"
+        }
+      ]
     }
   }
 ]

@@ -1,5 +1,5 @@
 -- Specific value doesn't matter, we just need it to be fixed, because it is a part of `EXPLAIN PIPELINE` output.
-SET max_threads = 8;
+SET max_threads = '8';
 
 DROP TABLE IF EXISTS grouping_sets;
 
@@ -11,7 +11,7 @@ CREATE TABLE grouping_sets
     fact_4_id Int32,
     sales_value Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     fact_1_id,
@@ -129,7 +129,7 @@ GROUP BY GROUPING SETS ((number % 10), (number % 100))
 ORDER BY
     sum_value ASC,
     count_value ASC
-SETTINGS max_threads = 3;
+SETTINGS max_threads = '3';
 
 SELECT
     SUM(number) AS sum_value,
@@ -139,4 +139,4 @@ GROUP BY GROUPING SETS ((number % 10), (number % 100))
 ORDER BY
     sum_value ASC,
     count_value ASC
-SETTINGS max_threads = 3;
+SETTINGS max_threads = '3';

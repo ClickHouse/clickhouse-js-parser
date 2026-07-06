@@ -1,118 +1,166 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "temporary": true,
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "temporary": true,
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
       },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "bb",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "bb"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t2"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t2"
       },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Identifier",
+              "alias": "bb",
+              "name": "b"
+            }
+          ],
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
+              "type": "Identifier",
+              "name": "bb"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "t1"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "a"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "t1"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
-      }
+      ]
     }
   }
 ]

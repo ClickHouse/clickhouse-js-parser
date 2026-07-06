@@ -17,7 +17,7 @@ SELECT toStartOfInterval(toDateTime64('2023-01-02 14:45:50', 2), toIntervalMinut
 SELECT toStartOfInterval(toDateTime('2023-01-02 14:42:50'), toIntervalMinute(1), toDateTime('2023-01-02 14:44:30')); -- { serverError BAD_ARGUMENTS }
 
 -- the origin must be constant
-SELECT toStartOfInterval(toDateTime('2023-01-02 14:45:50'), toIntervalMinute(1), if(number % 2 == 0, toDateTime('2023-02-01 15:55:00'), toDateTime('2023-01-01 15:55:00')))
+SELECT toStartOfInterval(toDateTime('2023-01-02 14:45:50'), toIntervalMinute(1), number % 2 = 0 ? toDateTime('2023-02-01 15:55:00') : toDateTime('2023-01-01 15:55:00'))
 FROM numbers(1); -- { serverError ILLEGAL_COLUMN }
 
 SELECT toStartOfInterval(toDateTime('2023-01-02 14:45:50'), toIntervalHour(1), materialize(toDateTime('2023-01-02 14:44:30')), 'Europe/Amsterdam'); -- { serverError ILLEGAL_COLUMN }
@@ -140,10 +140,10 @@ SELECT toStartOfInterval(toDateTime64('2023-10-09 10:11:12.987', 3), toIntervalM
 
 SELECT toStartOfInterval(toDateTime64('2023-10-09 10:11:12.987', 3), toIntervalNanosecond(1), toDateTime64('2023-10-09 10:11:12.123', 3));
 
-SELECT toStartOfInterval(if(number % 2 == 0, toDateTime64('2023-03-01 15:55:00', 2), toDateTime64('2023-02-01 15:55:00', 2)), toIntervalMinute(1), toDateTime64('2023-01-01 13:55:00', 2), 'Europe/Amsterdam')
+SELECT toStartOfInterval(number % 2 = 0 ? toDateTime64('2023-03-01 15:55:00', 2) : toDateTime64('2023-02-01 15:55:00', 2), toIntervalMinute(1), toDateTime64('2023-01-01 13:55:00', 2), 'Europe/Amsterdam')
 FROM numbers(5);
 
-SELECT toStartOfInterval(if(number % 2 == 0, toDateTime('2023-03-01 15:55:00'), toDateTime('2023-02-01 15:55:00')), toIntervalHour(1), toDateTime('2023-01-01 13:55:00'), 'Europe/Amsterdam')
+SELECT toStartOfInterval(number % 2 = 0 ? toDateTime('2023-03-01 15:55:00') : toDateTime('2023-02-01 15:55:00'), toIntervalHour(1), toDateTime('2023-01-01 13:55:00'), 'Europe/Amsterdam')
 FROM numbers(5);
 
 SELECT toStartOfInterval(materialize(toDateTime('2023-01-02 14:45:50')), toIntervalHour(1), toDateTime('2023-01-02 14:44:30'), 'Europe/Amsterdam');

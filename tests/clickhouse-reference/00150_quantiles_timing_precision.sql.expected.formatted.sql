@@ -22,4 +22,4 @@ WHERE SendTiming != -1
 GROUP BY CounterID
 HAVING diff != 0
 ORDER BY diff DESC
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';

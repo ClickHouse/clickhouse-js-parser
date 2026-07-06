@@ -1,24 +1,24 @@
 -- Tags: stateful
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     loyalty,
     count()
 FROM
     test.hits
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             UserID,
             sum(SearchEngineID = 2) AS yandex,
             sum(SearchEngineID = 3) AS google,
-            toInt8(if(yandex > google, yandex / ((yandex + google)), negate(google) / ((yandex + google))) * 10) AS loyalty
+            toInt8(if(yandex > google, yandex / (yandex + google), -google / (yandex + google)) * 10) AS loyalty
         FROM test.hits
-        WHERE (SearchEngineID = 2)
-            OR (SearchEngineID = 3)
+        WHERE SearchEngineID = 2
+            OR SearchEngineID = 3
         GROUP BY UserID
-        HAVING (yandex + google) > 10
+        HAVING yandex + google > 10
     )
     USING (UserID)
 GROUP BY loyalty
@@ -32,17 +32,17 @@ FROM
         SELECT UserID
         FROM test.hits
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             UserID,
             sum(SearchEngineID = 2) AS yandex,
             sum(SearchEngineID = 3) AS google,
-            toInt8(if(yandex > google, yandex / ((yandex + google)), negate(google) / ((yandex + google))) * 10) AS loyalty
+            toInt8(if(yandex > google, yandex / (yandex + google), -google / (yandex + google)) * 10) AS loyalty
         FROM test.hits
-        WHERE (SearchEngineID = 2)
-            OR (SearchEngineID = 3)
+        WHERE SearchEngineID = 2
+            OR SearchEngineID = 3
         GROUP BY UserID
-        HAVING (yandex + google) > 10
+        HAVING yandex + google > 10
     )
     USING (UserID)
 GROUP BY loyalty
@@ -60,17 +60,17 @@ FROM (
                 SELECT UserID
                 FROM test.hits
             )
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT
                     UserID,
                     sum(SearchEngineID = 2) AS yandex,
                     sum(SearchEngineID = 3) AS google,
-                    toInt8(if(yandex > google, yandex / ((yandex + google)), negate(google) / ((yandex + google))) * 10) AS loyalty
+                    toInt8(if(yandex > google, yandex / (yandex + google), -google / (yandex + google)) * 10) AS loyalty
                 FROM test.hits
-                WHERE (SearchEngineID = 2)
-                    OR (SearchEngineID = 3)
+                WHERE SearchEngineID = 2
+                    OR SearchEngineID = 3
                 GROUP BY UserID
-                HAVING (yandex + google) > 10
+                HAVING yandex + google > 10
             )
             USING (UserID)
     )
@@ -83,20 +83,20 @@ SELECT
     bar(log(c + 1) * 1000, 0, log(3000000) * 1000, 80)
 FROM
     test.hits
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
             UserID,
-            toInt8(if(yandex > google, yandex / ((yandex + google)), negate(google) / ((yandex + google))) * 10) AS loyalty
+            toInt8(if(yandex > google, yandex / (yandex + google), -google / (yandex + google)) * 10) AS loyalty
         FROM (
                 SELECT
                     UserID,
                     sum(SearchEngineID = 2) AS yandex,
                     sum(SearchEngineID = 3) AS google
                 FROM test.hits
-                WHERE (SearchEngineID = 2)
-                    OR (SearchEngineID = 3)
+                WHERE SearchEngineID = 2
+                    OR SearchEngineID = 3
                 GROUP BY UserID
-                HAVING (yandex + google) > 10
+                HAVING yandex + google > 10
             )
     )
     USING (UserID)

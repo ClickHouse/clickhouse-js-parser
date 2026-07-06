@@ -5,7 +5,7 @@ CREATE TABLE non_ascii
     `привет` String,
     `мир` String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO non_ascii;
 

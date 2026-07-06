@@ -1,457 +1,533 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_keeper_fault_injection_probability",
-        "value": {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "0.0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_keeper_fault_injection_probability": 0
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel-replicas, no-replicated-database, long",
-      "-- no-parallel-replicas: profile events may differ with parallel replicas.",
-      "-- no-replicated-database: fails due to additional shard."
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_lightweight_update",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_lightweight_update": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c1",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/zookeeper/{database}/t_shared/"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "enable_block_number_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "enable_block_offset_column",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "apply_patches_on_merge",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_shared"
-      }
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "if_exists": true,
+      "sync": true
     }
   },
   {
-    "kind": "update",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "assignments": [
-      {
-        "column": "c1",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      }
-    ],
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "rows"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "t_shared"
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "active"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_shared"
-      }
-    }
-  },
-  {
-    "kind": "update",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "assignments": [
-      {
-        "column": "c1",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "200"
-        }
-      }
-    ],
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
+        "type": "Identifier",
+        "name": "t_shared"
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    },
-    "partition": {
-      "kind": "id",
-      "id": "all"
-    },
-    "final": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_shared"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "mapSort",
-        "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "mapFilter",
-            "args": [
-              {
-                "kind": "lambdaExpr",
-                "params": [
-                  "k",
-                  "v"
-                ],
-                "body": {
-                  "kind": "inExpr",
-                  "negated": false,
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "k"
-                    ]
-                  },
-                  "values": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "ReadTasksWithAppliedPatches"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "PatchesAppliedInAllReadTasks"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "PatchesMergeAppliedInAllReadTasks"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "PatchesJoinAppliedInAllReadTasks"
-                    }
-                  ]
-                }
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ProfileEvents"
-                ]
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c1",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/zookeeper/{database}/t_shared/"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%SELECT * FROM t_shared ORDER BY id%"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
             }
           ]
         },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "enable_block_number_column": "1",
+            "enable_block_offset_column": "1",
+            "apply_patches_on_merge": "0"
           }
         }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "ASC"
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "UpdateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "assignments": [
+        {
+          "type": "Assignment",
+          "column": "c1",
+          "expression": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
+          }
+        }
+      ],
+      "predicate": {
+        "type": "Function",
+        "name": "equals",
+        "is_operator": true,
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "id"
+          },
+          {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "rows"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "t_shared"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "active"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "name"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_shared"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "UpdateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "assignments": [
+        {
+          "type": "Assignment",
+          "column": "c1",
+          "expression": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "200"
+          }
+        }
+      ],
+      "predicate": {
+        "type": "Function",
+        "name": "equals",
+        "is_operator": true,
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "id"
+          },
+          {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "partition": {
+        "type": "Partition_ID",
+        "id": {
+          "type": "Literal",
+          "value_type": "String",
+          "value": "all"
+        }
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_shared"
+      },
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "mapSort",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "mapFilter",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "lambda",
+                      "is_operator": true,
+                      "is_lambda_function": true,
+                      "kind": "LAMBDA_FUNCTION",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "tuple",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "v"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "in",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "Tuple",
+                              "value": [
+                                {
+                                  "value_type": "String",
+                                  "value": "ReadTasksWithAppliedPatches"
+                                },
+                                {
+                                  "value_type": "String",
+                                  "value": "PatchesAppliedInAllReadTasks"
+                                },
+                                {
+                                  "value_type": "String",
+                                  "value": "PatchesMergeAppliedInAllReadTasks"
+                                },
+                                {
+                                  "value_type": "String",
+                                  "value": "PatchesJoinAppliedInAllReadTasks"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "ProfileEvents"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%SELECT * FROM t_shared ORDER BY id%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

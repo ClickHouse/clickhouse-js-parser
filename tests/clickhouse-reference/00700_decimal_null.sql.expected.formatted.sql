@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS decimal
     e Nullable(DEC(18, 8)),
     f Nullable(DEC(38, 8))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     toNullable(toDecimal32(32, 0)) AS x,
@@ -142,39 +142,39 @@ WHERE a = toDecimal32(5.5, 1);
 
 SELECT count()
 FROM decimal
-WHERE isNotNull(a);
+WHERE a IS NOT NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNotNull(b);
+WHERE b IS NOT NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNotNull(c);
+WHERE c IS NOT NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(d);
+WHERE d IS NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(e);
+WHERE e IS NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(f);
+WHERE f IS NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(d)
-    AND isNull(e);
+WHERE d IS NULL
+    AND e IS NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(d)
-    AND isNull(f);
+WHERE d IS NULL
+    AND f IS NULL;
 
 SELECT count()
 FROM decimal
-WHERE isNull(e)
-    AND isNull(f);
+WHERE e IS NULL
+    AND f IS NULL;

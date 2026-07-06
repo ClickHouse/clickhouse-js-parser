@@ -15,9 +15,9 @@ SELECT
     a
 FROM test;
 
-ALTER TABLE test UPDATE t = tuple(2) WHERE 1 SETTINGS mutations_sync = 1;
+ALTER TABLE test UPDATE t = tuple(2) WHERE 1 SETTINGS mutations_sync = '1';
 
-ALTER TABLE test UPDATE t = tuple(3) WHERE 1 SETTINGS mutations_sync = 1;
+ALTER TABLE test UPDATE t = tuple(3) WHERE 1 SETTINGS mutations_sync = '1';
 
 DROP TABLE test;
 
@@ -52,9 +52,9 @@ SELECT
     a
 FROM test;
 
-ALTER TABLE test UPDATE json = '{"a" : 2}' WHERE 1 SETTINGS mutations_sync = 1;
+ALTER TABLE test UPDATE json = '{"a" : 2}' WHERE 1 SETTINGS mutations_sync = '1';
 
-ALTER TABLE test UPDATE json = '{"a" : 3}' WHERE 1 SETTINGS mutations_sync = 1;
+ALTER TABLE test UPDATE json = '{"a" : 3}' WHERE 1 SETTINGS mutations_sync = '1';
 
 CREATE TABLE test
 (

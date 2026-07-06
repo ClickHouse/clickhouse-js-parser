@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS projection_test__fuzz_0;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE projection_test__fuzz_0
 (
@@ -21,45 +21,23 @@ CREATE TABLE projection_test__fuzz_0
     completed_bytes Nullable(UInt64),
     fixed_bytes LowCardinality(Nullable(UInt64)),
     force_bytes Int256,
-    PROJECTION p (    SELECT
-        toStartOfMinute(datetime) AS dt_m,
-        countIf(first_time = 0) / count(),
-        avg((kbytes * 8) / duration),
-        count(),
-        sum(block_count) / sum(duration),
-        avg(block_count / duration),
-        sum(buffer_time) / sum(duration),
-        avg(buffer_time / duration),
-        sum(valid_bytes) / sum(total_bytes),
-        sum(completed_bytes) / sum(total_bytes),
-        sum(fixed_bytes) / sum(total_bytes),
-        sum(force_bytes) / sum(total_bytes),
-        sum(valid_bytes) / sum(total_bytes),
-        sum(retry_count) / sum(duration),
-        avg(retry_count / duration),
-        countIf(block_count > 0) / count(),
-        countIf(first_time = 0) / count(),
-        uniqHLL12(x_id),
-        uniqHLL12(y_id)
-    GROUP BY
-        dt_m,
-        domain)
+    PROJECTION p (SELECT toStartOfMinute(datetime) AS dt_m, countIf(first_time = 0) / count(), avg(kbytes * 8 / duration), count(), sum(block_count) / sum(duration), avg(block_count / duration), sum(buffer_time) / sum(duration), avg(buffer_time / duration), sum(valid_bytes) / sum(total_bytes), sum(completed_bytes) / sum(total_bytes), sum(fixed_bytes) / sum(total_bytes), sum(force_bytes) / sum(total_bytes), sum(valid_bytes) / sum(total_bytes), sum(retry_count) / sum(duration), avg(retry_count / duration), countIf(block_count > 0) / count(), countIf(first_time = 0) / count(), uniqHLL12(x_id), uniqHLL12(y_id) GROUP BY dt_m, domain)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (toStartOfTenMinutes(datetime), domain)
 PARTITION BY toDate(datetime)
-SETTINGS index_granularity_bytes = 10000000;
+SETTINGS index_granularity_bytes = '10000000';
 
-INSERT INTO projection_test__fuzz_0 SETTINGS max_threads = 1 WITH rowNumberInAllBlocks() AS id
+INSERT INTO projection_test__fuzz_0 WITH rowNumberInAllBlocks() AS id
 
 SELECT
     1,
-    toDateTime('2020-10-24 00:00:00') + (id / 20),
+    toDateTime('2020-10-24 00:00:00') + id / 20,
     toString(id % 100),
     *
 FROM generateRandom('x_id String, y_id String, block_count Int64, retry_count Int64, duration Int64, kbytes Int64, buffer_time Int64, first_time Int64, total_bytes Nullable(UInt64), valid_bytes Nullable(UInt64), completed_bytes Nullable(UInt64), fixed_bytes Nullable(UInt64), force_bytes Nullable(UInt64)', 10, 10, 1)
 LIMIT 1000
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SELECT
     '-21474836.48',
@@ -76,8 +54,8 @@ GROUP BY dt_m
 WITH ROLLUP
 WITH TOTALS
 ORDER BY
-    count(retry_count / duration) ASC,
-    100000000000000000000. ASC
+    count(retry_count / duration) ASC NULLS LAST,
+    100000000000000000000. ASC NULLS FIRST
 FORMAT Null;
 
 DROP TABLE projection_test__fuzz_0;

@@ -5,11 +5,11 @@ CREATE TABLE test_table
 (
     key UInt64,
     value String,
-    INDEX value_index value TYPE minmax GRANULARITY 1
+    INDEX value_index value TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS compress_marks = false, add_minmax_index_for_numeric_columns = 0;
+SETTINGS compress_marks = false, add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO test_table;
 
@@ -19,8 +19,8 @@ WHERE database = currentDatabase();
 
 ALTER TABLE test_table DROP INDEX value_index;
 
-ALTER TABLE test_table ADD INDEX value_index value TYPE minmax GRANULARITY 1;
+ALTER TABLE test_table ADD INDEX value_index value TYPE minmax() GRANULARITY 1;
 
-ALTER TABLE test_table MATERIALIZE INDEX value_index SETTINGS mutations_sync = 1;
+ALTER TABLE test_table MATERIALIZE INDEX value_index SETTINGS mutations_sync = '1';
 
 DROP TABLE test_table;

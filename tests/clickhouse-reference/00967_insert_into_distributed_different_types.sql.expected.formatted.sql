@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 DROP TABLE IF EXISTS dist_00967;
 

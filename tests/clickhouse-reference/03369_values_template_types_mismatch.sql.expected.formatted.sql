@@ -2,6 +2,6 @@ CREATE TABLE t0
 (
     c0 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 (c0);

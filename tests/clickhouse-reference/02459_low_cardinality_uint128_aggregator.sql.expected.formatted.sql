@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 -- LC UInt128
 CREATE TABLE group_by_pk_lc_uint128
@@ -6,7 +6,7 @@ CREATE TABLE group_by_pk_lc_uint128
     k LowCardinality(UInt128),
     v UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY v % 50;
 
@@ -22,7 +22,7 @@ FROM group_by_pk_lc_uint128
 GROUP BY k
 ORDER BY k ASC
 LIMIT 1024
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 -- LC UInt256
 CREATE TABLE group_by_pk_lc_uint256
@@ -30,7 +30,7 @@ CREATE TABLE group_by_pk_lc_uint256
     k LowCardinality(UInt256),
     v UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY v % 50;
 
@@ -46,4 +46,4 @@ FROM group_by_pk_lc_uint256
 GROUP BY k
 ORDER BY k ASC
 LIMIT 1024
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';

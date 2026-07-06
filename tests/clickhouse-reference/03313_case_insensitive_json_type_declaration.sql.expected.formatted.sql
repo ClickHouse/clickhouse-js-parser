@@ -1,1 +1,1 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';

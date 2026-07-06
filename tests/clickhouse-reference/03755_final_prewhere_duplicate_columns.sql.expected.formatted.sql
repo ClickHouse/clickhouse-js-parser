@@ -3,7 +3,7 @@ CREATE TABLE `03755_final_prewhere_duplicate_columns`
     c0 UInt8
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (c0);
+ORDER BY c0;
 
 INSERT INTO `03755_final_prewhere_duplicate_columns` (c0) SELECT 2
 FROM numbers(3);

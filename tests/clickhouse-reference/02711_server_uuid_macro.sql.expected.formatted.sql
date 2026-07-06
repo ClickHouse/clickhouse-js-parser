@@ -9,15 +9,15 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test/{shard}', 'repl
 ORDER BY x;
 
 -- The server UUID is correctly substituted.
-SELECT like(engine_full, ('%replica-{server_uuid}%'))
+SELECT engine_full LIKE '%replica-{server_uuid}%'
 FROM `system`.tables
 WHERE database = currentDatabase()
     AND name = 'test';
 
 SELECT count() > 0
 FROM `system`.zookeeper
-WHERE path = concat('/clickhouse/tables/', currentDatabase(), '/test/s1/replicas/')
-    AND like(name, concat('replica-', serverUUID()::String, '%'));
+WHERE path = '/clickhouse/tables/' || currentDatabase() || '/test/s1/replicas/'
+    AND name LIKE 'replica-' || serverUUID()::String || '%';
 
 -- An attempt to create a second table with the same UUID results in error.
 CREATE TABLE test2
@@ -30,4 +30,4 @@ ORDER BY x; -- { serverError REPLICA_ALREADY_EXISTS }
 -- The macro {server_uuid} is special, not a configuration-type macro. It's normal that it is inaccessible with the getMacro function.
 SELECT getMacro('server_uuid'); -- { serverError NO_ELEMENTS_IN_CONFIG }
 
-DROP TABLE test;
+DROP TABLE test SYNC;

@@ -1,6 +1,6 @@
 SELECT
     a,
-    concat(b, b)
+    b || b
 FROM (
         SELECT
             [number] AS a,

@@ -6,7 +6,7 @@ CREATE TABLE smta
     a AggregateFunction(max, Int64),
     city SimpleAggregateFunction(max, LowCardinality(String))
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY k;
 
 INSERT INTO smta (k, city);

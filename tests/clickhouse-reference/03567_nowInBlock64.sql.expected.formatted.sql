@@ -1,4 +1,4 @@
-SET max_rows_to_read = 0, max_bytes_to_read = 0;
+SET max_rows_to_read = '0', max_bytes_to_read = '0';
 
 SELECT nowInBlock64(3, 'America/Sao_Paulo', 3); --{ serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
@@ -22,7 +22,7 @@ FROM (
         LIMIT 3
     );
 
-SELECT isNull(nowInBlock64(NULL));
+SELECT nowInBlock64(NULL) IS NULL;
 
 -- Bug 85534
 SELECT nowInBlock64(materialize(toUInt128(3)), 'America/Sao_Paulo')

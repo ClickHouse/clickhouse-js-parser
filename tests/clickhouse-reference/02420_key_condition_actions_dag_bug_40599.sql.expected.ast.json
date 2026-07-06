@@ -1,264 +1,367 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tba"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "event_id",
-        "type": {
-          "name": "Int64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tba"
       },
-      {
-        "kind": "columnDef",
-        "name": "event_dt",
-        "type": {
-          "name": "Int64"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "event_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "event_dt",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "event_id"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_id"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tba"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "500"
-          }
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "20220822"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "tba"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "1e6"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "500"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "20220822"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 1000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "event_dt"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "event_dt"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "403"
-                },
-                "alias": "event_id"
-              }
-            ],
-            "from": {
-              "kind": "subqueryFrom",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_dt"
-                    ]
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "tba",
-                  "alias": "tba"
-                },
-                "where": {
-                  "kind": "naryExpr",
-                  "op": "AND",
-                  "operands": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "=",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "event_id"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "9"
-                      }
-                    },
-                    {
-                      "kind": "naryExpr",
-                      "op": "AND",
-                      "operands": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
                         {
-                          "kind": "binaryExpr",
-                          "op": ">=",
-                          "left": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "tba",
-                              "event_dt"
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "event_dt"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "subquery": {
+                                    "type": "Subquery",
+                                    "alias": "tba",
+                                    "query": {
+                                      "type": "SelectWithUnionQuery",
+                                      "selects": [
+                                        {
+                                          "type": "SelectQuery",
+                                          "select": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "event_dt"
+                                            },
+                                            {
+                                              "type": "Literal",
+                                              "alias": "event_id",
+                                              "value_type": "UInt64",
+                                              "value": "403"
+                                            }
+                                          ],
+                                          "from": {
+                                            "type": "TablesInSelectQuery",
+                                            "children": [
+                                              {
+                                                "type": "TablesInSelectQueryElement",
+                                                "table_expression": {
+                                                  "type": "TableExpression",
+                                                  "subquery": {
+                                                    "type": "Subquery",
+                                                    "query": {
+                                                      "type": "SelectWithUnionQuery",
+                                                      "selects": [
+                                                        {
+                                                          "type": "SelectQuery",
+                                                          "select": [
+                                                            {
+                                                              "type": "Identifier",
+                                                              "name": "event_dt"
+                                                            }
+                                                          ],
+                                                          "from": {
+                                                            "type": "TablesInSelectQuery",
+                                                            "children": [
+                                                              {
+                                                                "type": "TablesInSelectQueryElement",
+                                                                "table_expression": {
+                                                                  "type": "TableExpression",
+                                                                  "database_and_table_name": {
+                                                                    "type": "TableIdentifier",
+                                                                    "alias": "tba",
+                                                                    "name": "tba"
+                                                                  }
+                                                                }
+                                                              }
+                                                            ]
+                                                          },
+                                                          "where": {
+                                                            "type": "Function",
+                                                            "name": "and",
+                                                            "is_operator": true,
+                                                            "arguments": [
+                                                              {
+                                                                "type": "Function",
+                                                                "name": "equals",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "name": "event_id"
+                                                                  },
+                                                                  {
+                                                                    "type": "Literal",
+                                                                    "value_type": "UInt64",
+                                                                    "value": "9"
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "type": "Function",
+                                                                "name": "and",
+                                                                "is_operator": true,
+                                                                "arguments": [
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "greaterOrEquals",
+                                                                    "is_operator": true,
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Identifier",
+                                                                        "name": "tba.event_dt",
+                                                                        "name_parts": [
+                                                                          "tba",
+                                                                          "event_dt"
+                                                                        ]
+                                                                      },
+                                                                      {
+                                                                        "type": "Literal",
+                                                                        "value_type": "UInt64",
+                                                                        "value": "20220822"
+                                                                      }
+                                                                    ]
+                                                                  },
+                                                                  {
+                                                                    "type": "Function",
+                                                                    "name": "lessOrEquals",
+                                                                    "is_operator": true,
+                                                                    "arguments": [
+                                                                      {
+                                                                        "type": "Identifier",
+                                                                        "name": "tba.event_dt",
+                                                                        "name_parts": [
+                                                                          "tba",
+                                                                          "event_dt"
+                                                                        ]
+                                                                      },
+                                                                      {
+                                                                        "type": "Literal",
+                                                                        "value_type": "UInt64",
+                                                                        "value": "20220822"
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
                             ]
                           },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "20220822"
-                          }
-                        },
-                        {
-                          "kind": "binaryExpr",
-                          "op": "<=",
-                          "left": {
-                            "kind": "columnRef",
-                            "parts": [
-                              "tba",
-                              "event_dt"
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "tba.event_dt",
+                                    "name_parts": [
+                                      "tba",
+                                      "event_dt"
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "20220822"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "lessOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "tba.event_dt",
+                                    "name_parts": [
+                                      "tba",
+                                      "event_dt"
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "20220822"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "event_id"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "403"
+                                  }
+                                ]
+                              }
                             ]
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "20220822"
                           }
                         }
-                      ],
-                      "parenthesized": true
+                      ]
                     }
-                  ]
+                  }
                 }
               }
-            }
-          },
-          "alias": "tba"
-        },
-        "where": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": ">=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tba",
-                  "event_dt"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "20220822"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "<=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tba",
-                  "event_dt"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "20220822"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "event_id"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "403"
-              }
-            }
-          ]
+            ]
+          }
         }
-      }
+      ]
     }
   }
 ]

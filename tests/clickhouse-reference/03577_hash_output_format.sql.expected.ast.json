@@ -1,146 +1,175 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "numbers"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "format": "Hash"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "numbers"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
-      }
-    },
-    "format": "Hash"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "alias": "hello"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Identifier",
+              "name": "number"
             }
-          ]
-        },
-        "alias": "world"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "tupleLiteral",
-          "elements": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "numbers",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ],
+      "format": "Hash"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "hello"
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "numbers",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
+          }
+        }
+      ],
+      "format": "Hash"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "alias": "hello",
+              "name": "number"
+            },
+            {
+              "type": "Function",
+              "alias": "world",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
               ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "world"
+              "type": "Function",
+              "alias": "tuple",
+              "name": "tuple",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "hello"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "world"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "sometimes_nulls",
+              "name": "nullIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "modulo",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "hello"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
               ]
             }
           ],
-          "source": "(hello, world)"
-        },
-        "alias": "tuple"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "nullIf",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "hello"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "numbers",
+                    "database": "system"
+                  }
+                }
               }
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "alias": "sometimes_nulls"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "numbers"
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
-      }
-    },
-    "format": "Hash"
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
+          }
+        }
+      ],
+      "format": "Hash"
+    }
   }
 ]

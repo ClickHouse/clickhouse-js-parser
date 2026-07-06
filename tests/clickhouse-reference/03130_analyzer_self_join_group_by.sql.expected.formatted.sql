@@ -4,12 +4,12 @@ CREATE TABLE t1
 (
     x Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO t1;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT t2.x
 FROM
@@ -63,7 +63,7 @@ FROM
 INNER JOIN numbers(10) AS t2
     ON number = t2.number
 GROUP BY number
-SETTINGS joined_subquery_requires_alias = 0; -- { serverError NOT_AN_AGGREGATE }
+SETTINGS joined_subquery_requires_alias = '0'; -- { serverError NOT_AN_AGGREGATE }
 
 SELECT t2.x
 FROM

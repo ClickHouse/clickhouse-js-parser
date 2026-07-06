@@ -7,10 +7,10 @@ CREATE TABLE max_length_alias_14053
     `c.d` Array(Date),
     dcount UInt16 ALIAS length(c.d)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toMonday(a)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO max_length_alias_14053;
 

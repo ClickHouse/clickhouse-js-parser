@@ -8,24 +8,24 @@ CREATE TABLE data_01917
     key Int,
     d1 Int,
     d1_null Nullable(Int),
-    INDEX d1_idx d1 TYPE minmax GRANULARITY 1,
-    INDEX d1_null_idx assumeNotNull(d1_null) TYPE minmax GRANULARITY 1
+    INDEX d1_idx d1 TYPE minmax() GRANULARITY 1,
+    INDEX d1_null_idx assumeNotNull(d1_null) TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 CREATE TABLE data_01917_2
 (
     name String,
     frequency UInt64,
     INDEX memory frequency * length(name) TYPE set(1000) GRANULARITY 5,
-    INDEX sample_index1 tuple(length(name), name) TYPE minmax GRANULARITY 4,
-    INDEX sample_index2 tuple(lower(name), name) TYPE ngrambf_v1(3, 256, 2, 0) GRANULARITY 4
+    INDEX sample_index1 (length(name), name) TYPE minmax() GRANULARITY 4,
+    INDEX sample_index2 (lower(name), name) TYPE ngrambf_v1(3, 256, 2, 0) GRANULARITY 4
 )
 ENGINE = MergeTree()
 ORDER BY name
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 SELECT *
 FROM `system`.data_skipping_indices

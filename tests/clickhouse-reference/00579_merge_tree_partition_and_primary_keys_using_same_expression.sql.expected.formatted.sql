@@ -4,7 +4,7 @@ CREATE TABLE partition_and_primary_keys_using_same_expression
 (
     dt DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toDayOfWeek(toDate(dt))
 PARTITION BY toDate(dt);
 

@@ -1,224 +1,251 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-parallel, no-fasttest, no-flaky-check, no-encrypted-storage",
-      "-- Because we are creating a backup with fixed path."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c1",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c1"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "6451"
-      },
-      "parenthesized": true
+      "if_exists": true,
+      "sync": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_insert_block_size_rows",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
       },
-      {
-        "name": "optimize_trivial_insert_select",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
+      "if_exists": true,
+      "sync": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t0"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
         ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "c1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "6451"
+            }
           ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "c1"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_insert_block_size_rows": "64",
+        "optimize_trivial_insert_select": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "c1"
         }
       ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "500"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "500"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "backup",
-    "operation": "BACKUP",
-    "elements": [
-      {
-        "kind": "table",
-        "table": {
-          "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "BackupQuery",
+      "kind": "BACKUP",
+      "elements": [
+        {
+          "element_type": "TABLE",
           "table": "t0"
         }
-      }
-    ],
-    "destination": {
-      "name": "Disk",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "backups"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "03760_backup_tar_archive.tar"
-        }
-      ]
-    },
-    "format": "Null"
+      ],
+      "backup_name": {
+        "type": "Function",
+        "name": "Disk",
+        "kind": "BACKUP_NAME",
+        "arguments": [
+          {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "backups"
+          },
+          {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "03760_backup_tar_archive.tar"
+          }
+        ]
+      },
+      "format": "Null"
+    }
   },
   {
-    "kind": "backup",
-    "operation": "RESTORE",
-    "elements": [
-      {
-        "kind": "table",
-        "table": {
-          "kind": "tableRef",
-          "table": "t0"
-        },
-        "as": {
-          "kind": "tableRef",
-          "table": "t1"
-        }
-      }
-    ],
-    "destination": {
-      "name": "Disk",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "RestoreQuery",
+      "kind": "RESTORE",
+      "elements": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "backups"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "03760_backup_tar_archive.tar"
+          "element_type": "TABLE",
+          "table": "t0",
+          "new_table": "t1"
         }
-      ]
-    },
-    "format": "Null"
+      ],
+      "backup_name": {
+        "type": "Function",
+        "name": "Disk",
+        "kind": "BACKUP_NAME",
+        "arguments": [
+          {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "backups"
+          },
+          {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "03760_backup_tar_archive.tar"
+          }
+        ]
+      },
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c1"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t1"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c1"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
     }
   }
 ]

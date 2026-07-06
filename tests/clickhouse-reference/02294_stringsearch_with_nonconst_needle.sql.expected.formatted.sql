@@ -55,7 +55,7 @@ ORDER BY id ASC;
 
 SELECT multiSearchAny(materialize('Hello World'), materialize([])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT 0 = multiSearchAny('Hello World', CAST([], 'Array(String)'));
+SELECT 0 = multiSearchAny('Hello World', CAST([] AS Array(String)));
 
 SELECT 1 = multiSearchAny(materialize('Hello World'), materialize(['orld']));
 
@@ -71,7 +71,7 @@ SELECT 1 = multiSearchAnyCaseInsensitiveUTF8(materialize('Hello World £'), mate
 
 SELECT multiSearchFirstIndex(materialize('Hello World'), materialize([])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT 0 = multiSearchFirstIndex('Hello World', CAST([], 'Array(String)'));
+SELECT 0 = multiSearchFirstIndex('Hello World', CAST([] AS Array(String)));
 
 SELECT 1 = multiSearchFirstIndex(materialize('Hello World'), materialize(['orld']));
 
@@ -87,7 +87,7 @@ SELECT 1 = multiSearchFirstIndexCaseInsensitiveUTF8(materialize('Hello World £'
 
 SELECT multiSearchFirstPosition(materialize('Hello World'), materialize([])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT 0 = multiSearchFirstPosition('Hello World', CAST([], 'Array(String)'));
+SELECT 0 = multiSearchFirstPosition('Hello World', CAST([] AS Array(String)));
 
 SELECT 8 = multiSearchFirstPosition(materialize('Hello World'), materialize(['orld']));
 

@@ -10,7 +10,7 @@ CREATE TABLE source
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE TABLE dest
@@ -18,7 +18,7 @@ CREATE TABLE dest
     x UInt64,
     y UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 -- Materialized view that uses a table function in a JOIN.
@@ -35,11 +35,11 @@ FROM
 CROSS JOIN numbers(10) AS n;
 
 -- Use small block size and parallel view processing to trigger the race.
-SET max_block_size = 100, min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET max_block_size = '100', min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET parallel_view_processing = 1;
+SET parallel_view_processing = '1';
 
-SET max_threads = 8, max_insert_threads = 8;
+SET max_threads = '8', max_insert_threads = '8';
 
 -- Insert enough data to trigger parallel processing.
 -- This should cause multiple threads to call executeTableFunction concurrently.

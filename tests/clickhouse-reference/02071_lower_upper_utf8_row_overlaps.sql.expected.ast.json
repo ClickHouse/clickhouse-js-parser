@@ -1,425 +1,477 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "utf8_overlap"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-fasttest",
-      "-- no-fasttest: upper/lowerUTF8 use ICU"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "utf8_overlap"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory",
-      "args": []
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "utf8_overlap"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "utf8_overlap"
+        "type": "Identifier",
+        "name": "utf8_overlap"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    },
-    "leadingComments": [
-      "-- { echoOn }",
-      "-- NOTE: total string size should be > 16 (sizeof(__m128i))"
-    ]
+    }
   },
+  "<AST Error>",
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "l_",
-        "expr": {
-          "kind": "functionCall",
-          "name": "lowerUTF8",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "str"
+              "type": "Function",
+              "alias": "l_",
+              "name": "lowerUTF8",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                }
               ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "u_",
-        "expr": {
-          "kind": "functionCall",
-          "name": "upperUTF8",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "str"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "h_",
-        "expr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "0x"
             },
             {
-              "kind": "functionCall",
-              "name": "hex",
-              "args": [
+              "type": "Function",
+              "alias": "u_",
+              "name": "upperUTF8",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "str"
+                  "type": "Identifier",
+                  "name": "str"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "h_",
+              "name": "concat",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "0x"
+                },
+                {
+                  "type": "Function",
+                  "name": "hex",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "str"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "l_"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "�"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "h_"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "l_"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "u_"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "�"
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "h_"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "u_"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "utf8_overlap"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "CSV"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "lowerUTF8",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "КВ АМ И СЖ"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "upperUTF8",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "кв ам и сж"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "lowerUTF8",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "КВ АМ И СЖ КВ АМ И СЖ"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "upperUTF8",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "кв ам и сж кв ам и сж"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "lowerUTF8",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "concat",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "repeat",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "16"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "КВ АМ И СЖ"
+                    }
                   ]
                 }
               ]
             }
           ]
         }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "==",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "l_"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "upperUTF8",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "concat",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "repeat",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "16"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "кв ам и сж"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "�"
             }
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "h_"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "l_"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "==",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "u_"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "lowerUTF8",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "concat",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "repeat",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "48"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "КВ АМ И СЖ"
+                    }
+                  ]
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "�"
             }
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "h_"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u_"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "utf8_overlap"
-    },
-    "format": "CSV",
-    "leadingComments": [
-      "--                                             ^",
-      "--                                             MONOGRAM FOR YANG"
-    ]
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "lowerUTF8",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "КВ АМ И СЖ"
-          }
-        ]
-      }
-    ],
-    "leadingComments": [
-      "-- NOTE: regression test for introduced bug",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/42756"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "upperUTF8",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "кв ам и сж"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "lowerUTF8",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "КВ АМ И СЖ КВ АМ И СЖ"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "upperUTF8",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "кв ам и сж кв ам и сж"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "lowerUTF8",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "repeat",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "16"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "КВ АМ И СЖ"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "leadingComments": [
-      "-- Test at 32 and 64 byte boundaries"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "upperUTF8",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "repeat",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "16"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "кв ам и сж"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "lowerUTF8",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "repeat",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "48"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "КВ АМ И СЖ"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "upperUTF8",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "repeat",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "0"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "48"
-                  }
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "кв ам и сж"
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "upperUTF8",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "concat",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "repeat",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "48"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "кв ам и сж"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

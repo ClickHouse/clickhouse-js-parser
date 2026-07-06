@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS mass_table_312;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE mass_table_312
 (

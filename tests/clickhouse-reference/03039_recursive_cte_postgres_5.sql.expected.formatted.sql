@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 --
 -- test multiple WITH queries

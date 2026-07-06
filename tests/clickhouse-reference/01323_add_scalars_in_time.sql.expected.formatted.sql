@@ -1,4 +1,4 @@
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS tags;
 
@@ -9,7 +9,7 @@ CREATE TABLE tags
     create_time DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree()
-ORDER BY (id);
+ORDER BY id;
 
 INSERT INTO tags (id, seqs);
 
@@ -21,7 +21,7 @@ SELECT
     arraySort(arrayIntersect(argMax(seqs, create_time), arr1)) AS common,
     id
 FROM tags
-WHERE like(id, 'id%')
+WHERE id LIKE 'id%'
 GROUP BY id
 ORDER BY id ASC;
 
@@ -36,7 +36,7 @@ CREATE TABLE TestTable
     start DateTime,
     `end` DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY start;
 
 INSERT INTO TestTable (column, start, `end`);
@@ -50,7 +50,7 @@ SELECT
             )
     ) AS d
 FROM TestTable
-WHERE column == 'test'
+WHERE column = 'test'
 GROUP BY column;
 
 DROP TABLE TestTable;

@@ -26,7 +26,7 @@ CREATE TABLE tab
     dec256 Decimal256(4),
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY (i8, i16, i32, i64, i128, i256, u8, u16, u32, u64, u128, u256, id, s, fs, a, t, d, dt, dt64, dec128, dec256, lc);
 

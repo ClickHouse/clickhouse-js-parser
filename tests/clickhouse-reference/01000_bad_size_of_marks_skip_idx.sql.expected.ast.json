@@ -1,285 +1,307 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_skip_idx"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_skip_idx"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "64"
-        }
-      },
-      {
-        "name": "min_index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      },
-      {
-        "name": "vertical_merge_algorithm_min_rows_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "vertical_merge_algorithm_min_columns_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true,
-    "trailingComments": [
-      "-- actually vertical merge is not required condition for this bug, but it's more easy to reproduce (becuse we don't recalc granularities)"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "bad_skip_idx"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "x"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
-    },
-    "leadingComments": [
-      "-- 7 rows per granule"
-    ]
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "bad_skip_idx"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "xxxxxxxxxx"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           },
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
-        ]
-      }
-    },
-    "leadingComments": [
-      "-- 3 rows per granule"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "bad_skip_idx"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "value"
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "xxxxxxxxxx1015"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity_bytes": "64",
+            "min_index_granularity_bytes": "10",
+            "vertical_merge_algorithm_min_rows_to_activate": "0",
+            "vertical_merge_algorithm_min_columns_to_activate": "0"
+          }
+        }
       }
-    },
-    "trailingComments": [
-      "-- check no exception"
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_skip_idx"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "idx",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          "indexType": {
-            "name": "bloom_filter",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.01"
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "x"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "xxxxxxxxxx"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bad_skip_idx"
+                  }
+                }
               }
             ]
           },
-          "granularity": 4
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "value"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "xxxxxxxxxx1015"
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "bad_skip_idx"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "value"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "bloom_filter",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.01
+                }
+              ]
+            },
+            "granularity": 4
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bad_skip_idx"
+      },
+      "final": true
+    }
   }
 ]

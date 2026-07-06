@@ -4,7 +4,7 @@ SELECT
 FROM (
         SELECT
             number % 10 AS k,
-            arrayMap(x -> arrayMap(x -> if(x = 0, NULL, toString(x)), range(x)), range(intDiv(number, 13))) AS v
+            arrayMap((x -> arrayMap((x -> x = 0 ? NULL : toString(x)), range(x))), range(intDiv(number, 13))) AS v
         FROM `system`.numbers
         LIMIT 100
     )

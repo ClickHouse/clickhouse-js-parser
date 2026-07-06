@@ -1,4 +1,4 @@
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 SELECT '-- SummingMergeTree with Nullable column without duplicates.';
 
@@ -9,8 +9,8 @@ CREATE TABLE tst
     timestamp DateTime,
     val Nullable(Int8)
 )
-ENGINE = SummingMergeTree
-ORDER BY (timestamp)
+ENGINE = SummingMergeTree()
+ORDER BY timestamp
 PARTITION BY toYYYYMM(timestamp);
 
 INSERT INTO tst;
@@ -27,19 +27,19 @@ FROM tst FINAL;
 
 SELECT count()
 FROM tst
-WHERE isNotNull(timestamp);
+WHERE timestamp IS NOT NULL;
 
 SELECT count()
 FROM tst FINAL
-WHERE isNotNull(timestamp);
+WHERE timestamp IS NOT NULL;
 
 SELECT count()
 FROM tst
-WHERE isNotNull(val);
+WHERE val IS NOT NULL;
 
 SELECT count()
 FROM tst FINAL
-WHERE isNotNull(val);
+WHERE val IS NOT NULL;
 
 SELECT count()
 FROM tst FINAL
@@ -72,8 +72,8 @@ CREATE TABLE tst
     timestamp DateTime,
     val Int8
 )
-ENGINE = SummingMergeTree
-ORDER BY (timestamp)
+ENGINE = SummingMergeTree()
+ORDER BY timestamp
 PARTITION BY toYYYYMM(timestamp);
 
 DROP TABLE tst;

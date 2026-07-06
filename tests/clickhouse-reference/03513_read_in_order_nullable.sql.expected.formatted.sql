@@ -1,6 +1,6 @@
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 CREATE TABLE t0
 (
@@ -8,7 +8,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY c0
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t0;
 
@@ -18,19 +18,19 @@ SELECT '--- table asc, query desc, last';
 
 SELECT *
 FROM t0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS LAST;
 
 SELECT *
 FROM t0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS FIRST;
 
 SELECT *
 FROM t0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS LAST;
 
 SELECT *
 FROM t0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS FIRST;
 
 CREATE TABLE t1
 (
@@ -38,7 +38,7 @@ CREATE TABLE t1
 )
 ENGINE = MergeTree()
 ORDER BY c0 DESC
-SETTINGS allow_nullable_key = 1, allow_experimental_reverse_key = 1;
+SETTINGS allow_nullable_key = '1', allow_experimental_reverse_key = '1';
 
 INSERT INTO t1;
 
@@ -46,19 +46,19 @@ INSERT INTO t1;
 
 SELECT *
 FROM t1
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS LAST;
 
 SELECT *
 FROM t1
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS FIRST;
 
 SELECT *
 FROM t1
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS LAST;
 
 SELECT *
 FROM t1
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS FIRST;
 
 CREATE TABLE f0
 (
@@ -73,19 +73,19 @@ INSERT INTO f0;
 
 SELECT *
 FROM f0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS LAST;
 
 SELECT *
 FROM f0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS FIRST;
 
 SELECT *
 FROM f0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS LAST;
 
 SELECT *
 FROM f0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS FIRST;
 
 CREATE TABLE f1
 (
@@ -93,7 +93,7 @@ CREATE TABLE f1
 )
 ENGINE = MergeTree()
 ORDER BY c0 DESC
-SETTINGS allow_experimental_reverse_key = 1;
+SETTINGS allow_experimental_reverse_key = '1';
 
 INSERT INTO f1;
 
@@ -101,21 +101,21 @@ INSERT INTO f1;
 
 SELECT *
 FROM f1
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS LAST;
 
 SELECT *
 FROM f1
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS FIRST;
 
 SELECT *
 FROM f1
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS LAST;
 
 SELECT *
 FROM f1
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS FIRST;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE lct0
 (
@@ -123,7 +123,7 @@ CREATE TABLE lct0
 )
 ENGINE = MergeTree()
 ORDER BY c0
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO lct0;
 
@@ -131,16 +131,16 @@ INSERT INTO lct0;
 
 SELECT *
 FROM lct0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS LAST;
 
 SELECT *
 FROM lct0
-ORDER BY c0 DESC;
+ORDER BY c0 DESC NULLS FIRST;
 
 SELECT *
 FROM lct0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS LAST;
 
 SELECT *
 FROM lct0
-ORDER BY c0 ASC;
+ORDER BY c0 ASC NULLS FIRST;

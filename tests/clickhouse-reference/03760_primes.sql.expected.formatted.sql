@@ -1,5 +1,5 @@
 -- { echoOn }
-SET max_block_size = 16;
+SET max_block_size = '16';
 
 SELECT
     database,
@@ -58,32 +58,38 @@ SELECT
     min(prime),
     max(prime)
 FROM `system`.primes
-WHERE and(greaterOrEquals(prime, 100), lessOrEquals(prime, 200));
+WHERE prime >= 100
+    AND prime <= 200;
 
 SELECT prime
 FROM `system`.primes
-WHERE and(greaterOrEquals(prime, 100), lessOrEquals(prime, 110));
+WHERE prime >= 100
+    AND prime <= 110;
 
 SELECT prime
 FROM `system`.primes
-WHERE (prime > 50)
-    AND (prime < 30);
+WHERE prime > 50
+    AND prime < 30;
 
 SELECT prime
 FROM `system`.primes
-WHERE (and(greaterOrEquals(prime, 200), lessOrEquals(prime, 220)))
-    OR (and(greaterOrEquals(prime, 100), lessOrEquals(prime, 120)))
-    OR (and(greaterOrEquals(prime, 110), lessOrEquals(prime, 130)))
-    OR (prime IN (97, 101, 109));
+WHERE prime >= 200
+    AND prime <= 220
+    OR prime >= 100
+    AND prime <= 120
+    OR prime >= 110
+    AND prime <= 130
+    OR prime IN (97, 101, 109);
 
 SELECT prime
 FROM `system`.primes
-WHERE (prime > 10
-    AND prime < 20)
-    OR (prime >= 17
-    AND prime <= 23)
-    OR (prime IN (19, 23, 29))
-    OR (and(greaterOrEquals(prime, 30), lessOrEquals(prime, 40)));
+WHERE prime > 10
+    AND prime < 20
+    OR prime >= 17
+    AND prime <= 23
+    OR prime IN (19, 23, 29)
+    OR prime >= 30
+    AND prime <= 40;
 
 SELECT prime
 FROM `system`.primes
@@ -95,8 +101,9 @@ WHERE prime IN (17, 19, 21);
 
 SELECT prime
 FROM `system`.primes
-WHERE (prime < 10)
-    OR (and(greaterOrEquals(prime, 100), lessOrEquals(prime, 110)));
+WHERE prime < 10
+    OR prime >= 100
+    AND prime <= 110;
 
 SELECT prime
 FROM `system`.primes
@@ -114,7 +121,8 @@ LIMIT 10;
 
 SELECT count()
 FROM `system`.primes
-WHERE and(greaterOrEquals(prime, 14), lessOrEquals(prime, 16));
+WHERE prime >= 14
+    AND prime <= 16;
 
 SELECT prime
 FROM `system`.primes
@@ -186,7 +194,8 @@ WHERE prime = 3000017;
 
 SELECT prime
 FROM `system`.primes
-WHERE and(greaterOrEquals(prime, 3000000), lessOrEquals(prime, 3000100));
+WHERE prime >= 3000000
+    AND prime <= 3000100;
 
 SELECT prime
 FROM `system`.primes
@@ -215,7 +224,7 @@ SELECT *
 FROM primes(-1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT *
-FROM primes(18446744073709551616); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+FROM primes(18446744073709552000.); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT *
 FROM primes(rand()); -- { serverError BAD_ARGUMENTS }
@@ -225,37 +234,53 @@ FROM primes(10, -5); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT *
 FROM `system`.primes
-WHERE (((prime + 10)) % 5) = 1
+WHERE (prime + 10) % 5 = 1
 LIMIT 10;
 
 SELECT prime
 FROM `system`.primes
-WHERE and(greaterOrEquals(prime, toUInt64(1e14)), lessOrEquals(prime, toUInt64(1e14) + 100));
+WHERE prime >= toUInt64(100000000000000.)
+    AND prime <= toUInt64(100000000000000.) + 100;
 
 SELECT prime
 FROM `system`.primes
-WHERE prime > toUInt64(1e15)
+WHERE prime > toUInt64(1000000000000000.)
 LIMIT 1;
 
 SELECT prime
 FROM `system`.primes
-WHERE (and(greaterOrEquals(prime, toUInt64(1e5)), lessOrEquals(prime, toUInt64(1e5) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e6)), lessOrEquals(prime, toUInt64(1e6) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e7)), lessOrEquals(prime, toUInt64(1e7) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e8)), lessOrEquals(prime, toUInt64(1e8) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e9)), lessOrEquals(prime, toUInt64(1e9) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e11)), lessOrEquals(prime, toUInt64(1e11) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e12)), lessOrEquals(prime, toUInt64(1e12) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e13)), lessOrEquals(prime, toUInt64(1e13) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14)), lessOrEquals(prime, toUInt64(1e14) + 100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 1000), lessOrEquals(prime, toUInt64(1e14) + 1100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 100000), lessOrEquals(prime, toUInt64(1e14) + 100100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 100000000), lessOrEquals(prime, toUInt64(1e14) + 100000100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 10000000000), lessOrEquals(prime, toUInt64(1e14) + 10000000100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 1000000000000), lessOrEquals(prime, toUInt64(1e14) + 1000000000100)))
-    OR (and(greaterOrEquals(prime, toUInt64(1e14) + 100000000000000), lessOrEquals(prime, toUInt64(1e14) + 100000000000100)))
-    OR (prime IN ([2]))
-    OR prime == 3;
+WHERE prime >= toUInt64(100000.)
+    AND prime <= toUInt64(100000.) + 100
+    OR prime >= toUInt64(1000000.)
+    AND prime <= toUInt64(1000000.) + 100
+    OR prime >= toUInt64(10000000.)
+    AND prime <= toUInt64(10000000.) + 100
+    OR prime >= toUInt64(100000000.)
+    AND prime <= toUInt64(100000000.) + 100
+    OR prime >= toUInt64(1000000000.)
+    AND prime <= toUInt64(1000000000.) + 100
+    OR prime >= toUInt64(100000000000.)
+    AND prime <= toUInt64(100000000000.) + 100
+    OR prime >= toUInt64(1000000000000.)
+    AND prime <= toUInt64(1000000000000.) + 100
+    OR prime >= toUInt64(10000000000000.)
+    AND prime <= toUInt64(10000000000000.) + 100
+    OR prime >= toUInt64(100000000000000.)
+    AND prime <= toUInt64(100000000000000.) + 100
+    OR prime >= toUInt64(100000000000000.) + 1000
+    AND prime <= toUInt64(100000000000000.) + 1100
+    OR prime >= toUInt64(100000000000000.) + 100000
+    AND prime <= toUInt64(100000000000000.) + 100100
+    OR prime >= toUInt64(100000000000000.) + 100000000
+    AND prime <= toUInt64(100000000000000.) + 100000100
+    OR prime >= toUInt64(100000000000000.) + 10000000000
+    AND prime <= toUInt64(100000000000000.) + 10000000100
+    OR prime >= toUInt64(100000000000000.) + 1000000000000
+    AND prime <= toUInt64(100000000000000.) + 1000000000100
+    OR prime >= toUInt64(100000000000000.) + 100000000000000
+    AND prime <= toUInt64(100000000000000.) + 100000000000100
+    OR prime IN ([2])
+    OR prime = 3;
 
 SELECT prime
 FROM `system`.primes

@@ -1,152 +1,188 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_json_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_json_type": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Test that format settings are respected during internal CAST for JSON type"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "castExpr",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "{\"d\" : \"2024 April 4\"}"
-          },
-          "type": "JSON",
-          "operator": true
-        },
-        "alias": "json"
-      },
-      {
-        "kind": "functionCall",
-        "name": "JSONAllPathsWithTypes",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "json"
-            ]
-          }
-        ]
-      }
-    ],
-    "settings": [
-      {
-        "name": "date_time_input_format",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "best_effort"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Direct CAST should respect date_time_input_format setting"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_json_datetime"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- INSERT SELECT should also respect date_time_input_format setting"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_json_datetime"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "json",
-        "type": {
-          "name": "JSON"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_json_datetime"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "{\"a\" : \"2024 April 4\"}"
-        }
-      ],
-      "settings": [
-        {
-          "name": "date_time_input_format",
-          "value": {
-            "kind": "literal",
-            "type": "String",
-            "value": "best_effort"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "json",
+              "name": "CAST",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "{\"d\" : \"2024 April 4\"}"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "JSON"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "JSONAllPathsWithTypes",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "json"
+                }
+              ]
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "date_time_input_format": "best_effort"
+            }
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "JSONAllPathsWithTypes",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "json"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_json_datetime"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_json_datetime"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_json_datetime"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_json_datetime"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "json",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_json_datetime"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "date_time_input_format": "best_effort"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "{\"a\" : \"2024 April 4\"}"
+              }
+            ],
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "date_time_input_format": "best_effort"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "JSONAllPathsWithTypes",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "json"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_json_datetime"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_json_datetime"
+      }
     }
   }
 ]

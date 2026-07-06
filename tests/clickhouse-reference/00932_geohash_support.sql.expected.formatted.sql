@@ -6,15 +6,15 @@ CREATE TABLE geohash_test_data
     longitude Float64,
     encoded String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (latitude, longitude, encoded);
 
 -- data obtained from geohash.com
 INSERT INTO geohash_test_data;
 
-SELECT geohashEncode(181.0, 91.0);
+SELECT geohashEncode(181., 91.);
 
-SELECT geohashEncode(-181.0, -91.0);
+SELECT geohashEncode(-181., -91.);
 
 SELECT count(geohashDecode('abcdefghijklmnopqrstuvwxyz'));
 
@@ -145,8 +145,8 @@ SELECT
     'max lon error:',
     360 / power(2, 2.5 * length(encoded)) AS longitude_max_error,
     'err:',
-    (actual.2 - latitude) AS lat_error,
-    (actual.1 - longitude) AS lon_error,
+    (actual).2 - latitude AS lat_error,
+    (actual).1 - longitude AS lon_error,
     'derr:',
     abs(lat_error) - latitude_max_error,
     abs(lon_error) - longitude_max_error

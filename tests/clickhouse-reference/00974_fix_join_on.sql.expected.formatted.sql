@@ -9,20 +9,20 @@ CREATE TABLE t1
     a UInt32,
     b String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     c UInt32,
     d String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t3
 (
     a UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -30,7 +30,7 @@ INSERT INTO t2;
 
 INSERT INTO t3;
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 SELECT *
 FROM
@@ -212,7 +212,7 @@ FROM
 INNER JOIN t3 AS table3
     ON t1_a = t3_a;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 DROP TABLE t1;
 

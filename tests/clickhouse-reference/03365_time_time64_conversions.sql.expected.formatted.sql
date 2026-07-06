@@ -1,9 +1,9 @@
 -- echoOn
 SET session_timezone = 'UTC';
 
-SET allow_experimental_time_time64_type = 1;
+SET allow_experimental_time_time64_type = '1';
 
-SET use_legacy_to_time = 0;
+SET use_legacy_to_time = '0';
 
 -- Conversion from Time to String 
 SELECT toTime(0)::String;
@@ -48,174 +48,174 @@ SELECT toTime(-360000.1);
 SELECT toTime(999999999.1);
 
 -- UInt16
-SELECT 0::UInt16::Time;
+SELECT CAST('0' AS UInt16)::Time;
 
-SELECT 12::UInt16::Time;
+SELECT CAST('12' AS UInt16)::Time;
 
-SELECT 3600::UInt16::Time;
+SELECT CAST('3600' AS UInt16)::Time;
 
 -- UInt32
-SELECT 0::UInt32::Time;
+SELECT CAST('0' AS UInt32)::Time;
 
-SELECT 12::UInt32::Time;
+SELECT CAST('12' AS UInt32)::Time;
 
-SELECT 3600::UInt32::Time;
+SELECT CAST('3600' AS UInt32)::Time;
 
-SELECT 360000::UInt32::Time;
+SELECT CAST('360000' AS UInt32)::Time;
 
 -- UInt64
-SELECT 0::UInt64::Time;
+SELECT CAST('0' AS UInt64)::Time;
 
-SELECT 12::UInt64::Time;
+SELECT CAST('12' AS UInt64)::Time;
 
-SELECT 3600::UInt64::Time;
+SELECT CAST('3600' AS UInt64)::Time;
 
-SELECT 360000::UInt64::Time;
+SELECT CAST('360000' AS UInt64)::Time;
 
-SELECT 999999999::UInt64::Time;
+SELECT CAST('999999999' AS UInt64)::Time;
 
 -- UInt128
-SELECT 0::UInt128::Time;
+SELECT CAST('0' AS UInt128)::Time;
 
-SELECT 12::UInt128::Time;
+SELECT CAST('12' AS UInt128)::Time;
 
-SELECT 3600::UInt128::Time;
+SELECT CAST('3600' AS UInt128)::Time;
 
-SELECT 360000::UInt128::Time;
+SELECT CAST('360000' AS UInt128)::Time;
 
-SELECT 999999999::UInt128::Time;
+SELECT CAST('999999999' AS UInt128)::Time;
 
 -- UInt256
-SELECT 0::UInt256::Time;
+SELECT CAST('0' AS UInt256)::Time;
 
-SELECT 12::UInt256::Time;
+SELECT CAST('12' AS UInt256)::Time;
 
-SELECT 3600::UInt256::Time;
+SELECT CAST('3600' AS UInt256)::Time;
 
-SELECT 360000::UInt256::Time;
+SELECT CAST('360000' AS UInt256)::Time;
 
-SELECT 999999999::UInt256::Time;
+SELECT CAST('999999999' AS UInt256)::Time;
 
 -- Int16
-SELECT 0::Int16::Time;
+SELECT CAST('0' AS Int16)::Time;
 
-SELECT 12::Int16::Time;
+SELECT CAST('12' AS Int16)::Time;
 
-SELECT 3600::Int16::Time;
+SELECT CAST('3600' AS Int16)::Time;
 
-SELECT -0::Int16::Time;
+SELECT CAST('-0' AS Int16)::Time;
 
-SELECT -12::Int16::Time;
+SELECT CAST('-12' AS Int16)::Time;
 
-SELECT -3600::Int16::Time;
+SELECT CAST('-3600' AS Int16)::Time;
 
 -- Int32
-SELECT 0::Int32::Time;
+SELECT CAST('0' AS Int32)::Time;
 
-SELECT 12::Int32::Time;
+SELECT CAST('12' AS Int32)::Time;
 
-SELECT 3600::Int32::Time;
+SELECT CAST('3600' AS Int32)::Time;
 
-SELECT 360000::Int32::Time;
+SELECT CAST('360000' AS Int32)::Time;
 
-SELECT -0::Int32::Time;
+SELECT CAST('-0' AS Int32)::Time;
 
-SELECT -12::Int32::Time;
+SELECT CAST('-12' AS Int32)::Time;
 
-SELECT -3600::Int32::Time;
+SELECT CAST('-3600' AS Int32)::Time;
 
-SELECT -360000::Int32::Time;
+SELECT CAST('-360000' AS Int32)::Time;
 
 -- Int64
-SELECT 0::Int64::Time;
+SELECT CAST('0' AS Int64)::Time;
 
-SELECT 12::Int64::Time;
+SELECT CAST('12' AS Int64)::Time;
 
-SELECT 3600::Int64::Time;
+SELECT CAST('3600' AS Int64)::Time;
 
-SELECT 360000::Int64::Time;
+SELECT CAST('360000' AS Int64)::Time;
 
-SELECT 999999999::Int64::Time;
+SELECT CAST('999999999' AS Int64)::Time;
 
-SELECT -0::Int64::Time;
+SELECT CAST('-0' AS Int64)::Time;
 
-SELECT -12::Int64::Time;
+SELECT CAST('-12' AS Int64)::Time;
 
-SELECT -3600::Int64::Time;
+SELECT CAST('-3600' AS Int64)::Time;
 
-SELECT -360000::Int64::Time;
+SELECT CAST('-360000' AS Int64)::Time;
 
 -- Int128
-SELECT 0::Int128::Time;
+SELECT CAST('0' AS Int128)::Time;
 
-SELECT 12::Int128::Time;
+SELECT CAST('12' AS Int128)::Time;
 
-SELECT 3600::Int128::Time;
+SELECT CAST('3600' AS Int128)::Time;
 
-SELECT 360000::Int128::Time;
+SELECT CAST('360000' AS Int128)::Time;
 
-SELECT 999999999::Int128::Time;
+SELECT CAST('999999999' AS Int128)::Time;
 
-SELECT -0::Int128::Time;
+SELECT CAST('-0' AS Int128)::Time;
 
-SELECT -12::Int128::Time;
+SELECT CAST('-12' AS Int128)::Time;
 
-SELECT -3600::Int128::Time;
+SELECT CAST('-3600' AS Int128)::Time;
 
-SELECT -360000::Int128::Time;
+SELECT CAST('-360000' AS Int128)::Time;
 
 -- Int256
-SELECT 0::Int256::Time;
+SELECT CAST('0' AS Int256)::Time;
 
-SELECT 12::Int256::Time;
+SELECT CAST('12' AS Int256)::Time;
 
-SELECT 3600::Int256::Time;
+SELECT CAST('3600' AS Int256)::Time;
 
-SELECT 360000::Int256::Time;
+SELECT CAST('360000' AS Int256)::Time;
 
-SELECT 999999999::Int256::Time;
+SELECT CAST('999999999' AS Int256)::Time;
 
-SELECT -0::Int256::Time;
+SELECT CAST('-0' AS Int256)::Time;
 
-SELECT -12::Int256::Time;
+SELECT CAST('-12' AS Int256)::Time;
 
-SELECT -3600::Int256::Time;
+SELECT CAST('-3600' AS Int256)::Time;
 
-SELECT -360000::Int256::Time;
+SELECT CAST('-360000' AS Int256)::Time;
 
 -- Float32
-SELECT 0::Float32::Time;
+SELECT CAST('0' AS Float32)::Time;
 
-SELECT 12::Float32::Time;
+SELECT CAST('12' AS Float32)::Time;
 
-SELECT 3600::Float32::Time;
+SELECT CAST('3600' AS Float32)::Time;
 
-SELECT 360000::Float32::Time;
+SELECT CAST('360000' AS Float32)::Time;
 
-SELECT -0::Float32::Time;
+SELECT CAST('-0' AS Float32)::Time;
 
-SELECT -12::Float32::Time;
+SELECT CAST('-12' AS Float32)::Time;
 
-SELECT -3600::Float32::Time;
+SELECT CAST('-3600' AS Float32)::Time;
 
-SELECT -360000::Float32::Time;
+SELECT CAST('-360000' AS Float32)::Time;
 
 -- Float64
-SELECT 0::Float64::Time;
+SELECT CAST('0' AS Float64)::Time;
 
-SELECT 12::Float64::Time;
+SELECT CAST('12' AS Float64)::Time;
 
-SELECT 3600::Float64::Time;
+SELECT CAST('3600' AS Float64)::Time;
 
-SELECT 360000::Float64::Time;
+SELECT CAST('360000' AS Float64)::Time;
 
-SELECT -0::Float64::Time;
+SELECT CAST('-0' AS Float64)::Time;
 
-SELECT -12::Float64::Time;
+SELECT CAST('-12' AS Float64)::Time;
 
-SELECT -3600::Float64::Time;
+SELECT CAST('-3600' AS Float64)::Time;
 
-SELECT -360000::Float64::Time;
+SELECT CAST('-360000' AS Float64)::Time;
 
 -- Conversion from numeric to Time64
 -- Int, using toTime64
@@ -249,112 +249,112 @@ SELECT toTime64(-3600.1, 2);
 SELECT toTime64(-360000.1, 2);
 
 -- UInt16
-SELECT 0::UInt16::Time64;
+SELECT CAST('0' AS UInt16)::Time64;
 
-SELECT 12::UInt16::Time64;
+SELECT CAST('12' AS UInt16)::Time64;
 
-SELECT 3600::UInt16::Time64;
+SELECT CAST('3600' AS UInt16)::Time64;
 
 -- UInt32
-SELECT 0::UInt32::Time64;
+SELECT CAST('0' AS UInt32)::Time64;
 
-SELECT 12::UInt32::Time64;
+SELECT CAST('12' AS UInt32)::Time64;
 
-SELECT 3600::UInt32::Time64;
+SELECT CAST('3600' AS UInt32)::Time64;
 
-SELECT 360000::UInt32::Time64;
+SELECT CAST('360000' AS UInt32)::Time64;
 
 -- UInt64
-SELECT 0::UInt64::Time64;
+SELECT CAST('0' AS UInt64)::Time64;
 
-SELECT 12::UInt64::Time64;
+SELECT CAST('12' AS UInt64)::Time64;
 
-SELECT 3600::UInt64::Time64;
+SELECT CAST('3600' AS UInt64)::Time64;
 
-SELECT 360000::UInt64::Time64;
+SELECT CAST('360000' AS UInt64)::Time64;
 
 -- Int16
-SELECT 0::Int16::Time64;
+SELECT CAST('0' AS Int16)::Time64;
 
-SELECT 12::Int16::Time64;
+SELECT CAST('12' AS Int16)::Time64;
 
-SELECT 3600::Int16::Time64;
+SELECT CAST('3600' AS Int16)::Time64;
 
-SELECT -0::Int16::Time64;
+SELECT CAST('-0' AS Int16)::Time64;
 
-SELECT -12::Int16::Time64;
+SELECT CAST('-12' AS Int16)::Time64;
 
-SELECT -3600::Int16::Time64;
+SELECT CAST('-3600' AS Int16)::Time64;
 
 -- Int32
-SELECT 0::Int32::Time64;
+SELECT CAST('0' AS Int32)::Time64;
 
-SELECT 12::Int32::Time64;
+SELECT CAST('12' AS Int32)::Time64;
 
-SELECT 3600::Int32::Time64;
+SELECT CAST('3600' AS Int32)::Time64;
 
-SELECT 360000::Int32::Time64;
+SELECT CAST('360000' AS Int32)::Time64;
 
-SELECT -0::Int32::Time64;
+SELECT CAST('-0' AS Int32)::Time64;
 
-SELECT -12::Int32::Time64;
+SELECT CAST('-12' AS Int32)::Time64;
 
-SELECT -3600::Int32::Time64;
+SELECT CAST('-3600' AS Int32)::Time64;
 
-SELECT -360000::Int32::Time64;
+SELECT CAST('-360000' AS Int32)::Time64;
 
 -- Int64
-SELECT 0::Int64::Time64;
+SELECT CAST('0' AS Int64)::Time64;
 
-SELECT 12::Int64::Time64;
+SELECT CAST('12' AS Int64)::Time64;
 
-SELECT 3600::Int64::Time64;
+SELECT CAST('3600' AS Int64)::Time64;
 
-SELECT 360000::Int64::Time64;
+SELECT CAST('360000' AS Int64)::Time64;
 
-SELECT 999999999::Int64::Time64;
+SELECT CAST('999999999' AS Int64)::Time64;
 
-SELECT -0::Int64::Time64;
+SELECT CAST('-0' AS Int64)::Time64;
 
-SELECT -12::Int64::Time64;
+SELECT CAST('-12' AS Int64)::Time64;
 
-SELECT -3600::Int64::Time64;
+SELECT CAST('-3600' AS Int64)::Time64;
 
-SELECT -360000::Int64::Time64;
+SELECT CAST('-360000' AS Int64)::Time64;
 
 -- Float32
-SELECT 0::Float32::Time64;
+SELECT CAST('0' AS Float32)::Time64;
 
-SELECT 12::Float32::Time64;
+SELECT CAST('12' AS Float32)::Time64;
 
-SELECT 3600::Float32::Time64;
+SELECT CAST('3600' AS Float32)::Time64;
 
-SELECT 360000::Float32::Time64;
+SELECT CAST('360000' AS Float32)::Time64;
 
-SELECT -0::Float32::Time64;
+SELECT CAST('-0' AS Float32)::Time64;
 
-SELECT -12::Float32::Time64;
+SELECT CAST('-12' AS Float32)::Time64;
 
-SELECT -3600::Float32::Time64;
+SELECT CAST('-3600' AS Float32)::Time64;
 
-SELECT -360000::Float32::Time64;
+SELECT CAST('-360000' AS Float32)::Time64;
 
 -- Float64
-SELECT 0::Float64::Time64;
+SELECT CAST('0' AS Float64)::Time64;
 
-SELECT 12::Float64::Time64;
+SELECT CAST('12' AS Float64)::Time64;
 
-SELECT 3600::Float64::Time64;
+SELECT CAST('3600' AS Float64)::Time64;
 
-SELECT 360000::Float64::Time64;
+SELECT CAST('360000' AS Float64)::Time64;
 
-SELECT -0::Float64::Time64;
+SELECT CAST('-0' AS Float64)::Time64;
 
-SELECT -12::Float64::Time64;
+SELECT CAST('-12' AS Float64)::Time64;
 
-SELECT -3600::Float64::Time64;
+SELECT CAST('-3600' AS Float64)::Time64;
 
-SELECT -360000::Float64::Time64;
+SELECT CAST('-360000' AS Float64)::Time64;
 
 -- Conversion from DateTime to Time
 SELECT toTime(toDateTime('2022-01-01 12:12:12'));

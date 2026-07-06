@@ -5,7 +5,7 @@ CREATE TABLE tlb
 (
     k UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k;
 
 INSERT INTO tlb (k) SELECT 0

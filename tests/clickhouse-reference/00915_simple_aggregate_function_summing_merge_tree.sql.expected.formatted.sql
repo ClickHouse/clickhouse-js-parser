@@ -1,4 +1,4 @@
-SET optimize_throw_if_noop = 1;
+SET optimize_throw_if_noop = '1';
 
 -- basic test
 DROP TABLE IF EXISTS simple;
@@ -8,7 +8,7 @@ CREATE TABLE simple
     id UInt64,
     val SimpleAggregateFunction(sum, Double)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id;
 
 INSERT INTO simple SELECT
@@ -45,7 +45,7 @@ CREATE TABLE simple
     uniq_arr SimpleAggregateFunction(groupUniqArrayArray, Array(Int32)),
     map_uniq_arr SimpleAggregateFunction(groupUniqArrayArrayMap, Map(Int32, Array(Int64)))
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id;
 
 INSERT INTO simple;
@@ -81,7 +81,7 @@ CREATE TABLE with_overflow
     id UInt64,
     s SimpleAggregateFunction(sumWithOverflow, UInt8)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id;
 
 INSERT INTO with_overflow SELECT

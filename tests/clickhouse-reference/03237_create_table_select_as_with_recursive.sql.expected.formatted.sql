@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS t;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t1
 (
@@ -12,7 +12,7 @@ ORDER BY a;
 
 CREATE VIEW t
 AS
-(WITH RECURSIVE 42 AS ttt,
+WITH RECURSIVE 42 AS ttt,
 
 toDate(s) AS start_date,
 
@@ -31,6 +31,6 @@ FROM
     t1
 INNER JOIN _table
     ON t1.a = _table.number
-    AND start_date = '2024-09-23');
+    AND start_date = '2024-09-23';
 
 DROP TABLE t;

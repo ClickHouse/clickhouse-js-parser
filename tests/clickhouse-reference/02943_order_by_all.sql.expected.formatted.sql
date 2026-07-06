@@ -6,13 +6,13 @@ CREATE TABLE order_by_all
     a String,
     b Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO order_by_all;
 
 SELECT '-- no modifiers';
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT
     a,
@@ -26,7 +26,7 @@ SELECT
 FROM order_by_all
 ORDER BY `ALL` ASC;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     a,
@@ -44,13 +44,13 @@ SELECT
     b,
     a
 FROM order_by_all
-ORDER BY `ALL` ASC;
+ORDER BY `ALL` ASC NULLS FIRST;
 
 SELECT
     b,
     a
 FROM order_by_all
-ORDER BY `ALL` ASC;
+ORDER BY `ALL` ASC NULLS LAST;
 
 SELECT *
 FROM order_by_all
@@ -64,7 +64,7 @@ CREATE TABLE order_by_all
     b Nullable(Int32),
     `all` UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO order_by_all;
 

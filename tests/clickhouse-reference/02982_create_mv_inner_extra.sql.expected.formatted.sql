@@ -15,15 +15,15 @@ CREATE TABLE data
 (
     key String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE MATERIALIZED VIEW mv_indexes
 (
     key String,
-    INDEX idx key TYPE bloom_filter GRANULARITY 1
+    INDEX idx key TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
 AS
 SELECT *
@@ -32,9 +32,9 @@ FROM data;
 CREATE MATERIALIZED VIEW mv_no_indexes
 (
     key String,
-    INDEX idx key TYPE bloom_filter GRANULARITY 1
+    INDEX idx key TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT *
 FROM data;
@@ -42,9 +42,9 @@ FROM data;
 CREATE MATERIALIZED VIEW mv_projections
 (
     key String,
-    PROJECTION p (    SELECT uniqCombined(key))
+    PROJECTION p (SELECT uniqCombined(key))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
 AS
 SELECT *
@@ -55,7 +55,7 @@ CREATE MATERIALIZED VIEW mv_primary_key
     key String,
     PRIMARY KEY(key)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 AS
 SELECT *
 FROM data;
@@ -64,7 +64,7 @@ CREATE MATERIALIZED VIEW mv_primary_key_from_column
 (
     key String PRIMARY KEY
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 AS
 SELECT *
 FROM data;
@@ -72,6 +72,6 @@ FROM data;
 SELECT replaceRegexpOne(create_table_query, 'CREATE TABLE [^ ]*', 'CREATE TABLE x')
 FROM `system`.tables
 WHERE database = currentDatabase()
-    AND like(table, '.inner%')
+    AND table LIKE '.inner%'
 ORDER BY 1 ASC
 FORMAT LineAsString;

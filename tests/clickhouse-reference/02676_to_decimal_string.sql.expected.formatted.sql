@@ -16,20 +16,20 @@ SELECT toDecimalString(-2.9876, 60); -- more digits required than exist
 SELECT toDecimalString(-2.1456, 2); -- rounding
 
 -- Float32 and Float64 tests. No sense to test big float precision -- the result will be a mess anyway.
-SELECT toDecimalString(64.123::Float32, 10);
+SELECT toDecimalString(CAST('64.123' AS Float32), 10);
 
-SELECT toDecimalString(64.234::Float64, 10);
+SELECT toDecimalString(CAST('64.234' AS Float64), 10);
 
-SELECT toDecimalString(-64.123::Float32, 10);
+SELECT toDecimalString(CAST('-64.123' AS Float32), 10);
 
-SELECT toDecimalString(-64.234::Float64, 10);
+SELECT toDecimalString(CAST('-64.234' AS Float64), 10);
 
 -- Decimals
-SELECT toDecimalString(-32.345::Decimal32(3), 3);
+SELECT toDecimalString(CAST('-32.345' AS Decimal32(3)), 3);
 
-SELECT toDecimalString(32.345::Decimal32(3), 77); -- more digits required than exist
+SELECT toDecimalString(CAST('32.345' AS Decimal32(3)), 77); -- more digits required than exist
 
-SELECT toDecimalString(32.456::Decimal32(3), 2); -- rounding
+SELECT toDecimalString(CAST('32.456' AS Decimal32(3)), 2); -- rounding
 
 SELECT toDecimalString('-64.5671232345'::Decimal64(10), 10);
 

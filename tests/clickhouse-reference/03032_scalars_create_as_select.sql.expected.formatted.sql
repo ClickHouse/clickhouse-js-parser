@@ -1,5 +1,5 @@
 CREATE TABLE query_run_metric_arrays
-ENGINE = Memory AS
+ENGINE = Memory() AS
 WITH (
         WITH (
                 SELECT groupUniqArrayArray(['a', 'b'])

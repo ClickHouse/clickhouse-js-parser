@@ -6,7 +6,7 @@ CREATE TABLE t1
 (
     key UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO t1;
@@ -15,7 +15,7 @@ CREATE TABLE t2
 (
     key UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO t2;
@@ -33,7 +33,7 @@ FORMAT Null;
 
 SET join_algorithm = 'full_sorting_merge';
 
-SET max_rows_in_set_to_optimize_join = 0;
+SET max_rows_in_set_to_optimize_join = '0';
 
 SELECT key
 FROM

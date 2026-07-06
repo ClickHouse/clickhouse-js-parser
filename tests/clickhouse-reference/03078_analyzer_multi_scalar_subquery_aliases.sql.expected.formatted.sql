@@ -1,12 +1,12 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/33825
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t2
 (
     first_column Int64,
     second_column Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2 SELECT
     number,

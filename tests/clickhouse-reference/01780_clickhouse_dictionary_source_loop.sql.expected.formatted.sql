@@ -42,7 +42,7 @@ CREATE TABLE `01780_db`.dict3_source
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01780_db`.dict3_source;
 

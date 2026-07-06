@@ -1,6 +1,6 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 SELECT *
 FROM
@@ -8,7 +8,7 @@ FROM
         SELECT toUInt64(1) AS s
         LIMIT 1
     ) AS js1
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             number AS s,
             s AS x

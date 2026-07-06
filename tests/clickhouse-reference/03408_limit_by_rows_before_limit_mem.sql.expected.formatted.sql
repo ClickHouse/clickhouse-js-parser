@@ -1,5 +1,5 @@
 -- Tags: no-parallel-replicas
-SET output_format_write_statistics = 0;
+SET output_format_write_statistics = '0';
 
 DROP TABLE IF EXISTS `03408_memory`;
 
@@ -8,7 +8,7 @@ CREATE TABLE `03408_memory`
     id Int32,
     val String
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     number % 10,
     leftPad(toString(number), 2, '0')
@@ -31,7 +31,7 @@ ORDER BY
 LIMIT 1 BY id
 LIMIT 3
 FORMAT JsonCompact
-SETTINGS exact_rows_before_limit = 1;
+SETTINGS exact_rows_before_limit = '1';
 
 SELECT
     id,
@@ -47,6 +47,6 @@ ORDER BY
 LIMIT 1 BY id
 LIMIT 3
 FORMAT JsonCompact
-SETTINGS exact_rows_before_limit = 1;
+SETTINGS exact_rows_before_limit = '1';
 
 DROP TABLE `03408_memory`;

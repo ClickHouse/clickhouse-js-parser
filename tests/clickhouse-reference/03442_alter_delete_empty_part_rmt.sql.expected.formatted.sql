@@ -11,7 +11,7 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_delete_empty_part_
 ORDER BY b
 PARTITION BY a;
 
-SET insert_keeper_fault_injection_probability = 0.0;
+SET insert_keeper_fault_injection_probability = 0.;
 
 INSERT INTO t_delete_empty_part_rmt SELECT
     1,
@@ -28,7 +28,7 @@ INSERT INTO t_delete_empty_part_rmt SELECT
     number
 FROM numbers(2000, 1000);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE t_delete_empty_part_rmt DELETE WHERE a = 2
 OR b < 500;

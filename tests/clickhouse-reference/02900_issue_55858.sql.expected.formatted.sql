@@ -1,4 +1,4 @@
-SET precise_float_parsing = 1;
+SET precise_float_parsing = '1';
 
 SELECT CAST('2023-01-01' AS Float64); -- { serverError CANNOT_PARSE_TEXT }
 

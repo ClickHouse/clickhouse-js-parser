@@ -9,7 +9,7 @@ CREATE TABLE t
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 INSERT INTO t SELECT multiIf(n = 0, 'abc', n = 1, 'def', n = 2, 'abc', n = 3, 'jkl', '<unused>')

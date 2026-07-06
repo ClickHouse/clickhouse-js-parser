@@ -4,7 +4,7 @@ CREATE TABLE lc_test
 (
     id LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY tuple();
 

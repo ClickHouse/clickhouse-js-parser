@@ -8,27 +8,27 @@ CREATE TABLE src_00726
 (
     x UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW mv1_00726
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT x
 FROM src_00726
 WHERE x % 2 = 0;
 
 CREATE MATERIALIZED VIEW mv2_00726
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT x
 FROM src_00726
 WHERE x % 2 = 1;
 
-SET parallel_view_processing = 1;
+SET parallel_view_processing = '1';
 
 INSERT INTO src_00726;
 
-SET parallel_view_processing = 0;
+SET parallel_view_processing = '0';
 
 INSERT INTO src_00726;
 

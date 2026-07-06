@@ -1,152 +1,187 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_sort",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_sort": "100"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "numbers"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS_OR_BYTES }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "sort_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "break"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_remove_redundant_sorting",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- to keep sorting in the query below"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
-          {
-            "kind": "binaryExpr",
-            "op": ">=",
-            "left": {
-              "kind": "functionCall",
-              "name": "count",
-              "args": []
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "numbers",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
           },
-          {
-            "kind": "binaryExpr",
-            "op": "<=",
-            "left": {
-              "kind": "functionCall",
-              "name": "count",
-              "args": []
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1000"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "ASC"
             }
-          }
-        ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "sort_overflow_mode": "break"
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "database": "system",
-          "table": "numbers"
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "1000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_remove_redundant_sorting": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "greaterOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "count",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "100"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "lessOrEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "count",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1000"
+                    }
+                  ]
+                }
               ]
-            },
-            "direction": "ASC"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "numbers",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   }
 ]

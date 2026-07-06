@@ -8,7 +8,7 @@ SELECT getTypeSerializationStreams('LowCardinality(String)');
 
 SELECT getTypeSerializationStreams('Nullable(String)');
 
-SELECT getTypeSerializationStreams([1,2,3]);
+SELECT getTypeSerializationStreams([1, 2, 3]);
 
 SELECT getTypeSerializationStreams(map('a', 1, 'b', 2));
 

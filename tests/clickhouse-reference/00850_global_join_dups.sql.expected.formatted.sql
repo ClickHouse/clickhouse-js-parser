@@ -9,7 +9,7 @@ CREATE TABLE t_local
 (
     dummy UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t1_00850
 (
@@ -25,12 +25,12 @@ ENGINE = Distributed(test_shard_localhost, currentDatabase(), 't_local');
 
 INSERT INTO t_local;
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
     t1_00850
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT *
         FROM
             (
@@ -49,7 +49,7 @@ INNER JOIN (
 SELECT toDateTime64(toString(toString('0000-00-00 00:00:000000-00-00 00:00:00', toDateTime64(toDateTime64('655.36', -2, NULL)))), NULL)
 FROM
     t1_00850
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             toDateTime64(toDateTime64('6553.6', '', NULL), NULL),
             *
@@ -79,14 +79,14 @@ DROP TABLE t2_00850;
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT *
         FROM
             (
                 SELECT dummy
                 FROM remote('127.0.0.2', `system`.one)
             ) AS t1_00850
-        INNER JOIN (
+        GLOBAL INNER JOIN (
                 SELECT dummy
                 FROM remote('127.0.0.3', `system`.one)
             ) AS t2_00850
@@ -97,7 +97,7 @@ INNER JOIN (
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             *,
             dummy
@@ -106,7 +106,7 @@ INNER JOIN (
                 SELECT dummy
                 FROM remote('127.0.0.2', `system`.one)
             ) AS t1_00850
-        INNER JOIN (
+        GLOBAL INNER JOIN (
                 SELECT dummy
                 FROM remote('127.0.0.3', `system`.one)
             ) AS t2_00850
@@ -117,7 +117,7 @@ INNER JOIN (
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             *,
             t1_00850.*,
@@ -136,7 +136,7 @@ INNER JOIN (
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             *,
             dummy
@@ -154,7 +154,7 @@ INNER JOIN (
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             *,
             dummy AS other
@@ -163,7 +163,7 @@ INNER JOIN (
                 SELECT dummy
                 FROM remote('127.0.0.3', `system`.one)
             ) AS t1_00850
-        INNER JOIN (
+        GLOBAL INNER JOIN (
                 SELECT toUInt8(0) AS dummy
             ) AS t2_00850
             USING (dummy)
@@ -173,7 +173,7 @@ INNER JOIN (
 SELECT *
 FROM
     remote('127.0.0.2', `system`.one)
-INNER JOIN (
+GLOBAL INNER JOIN (
         SELECT
             *,
             dummy,
@@ -182,7 +182,7 @@ INNER JOIN (
             (
                 SELECT toUInt8(0) AS dummy
             ) AS t1_00850
-        INNER JOIN (
+        GLOBAL INNER JOIN (
                 SELECT dummy
                 FROM remote('127.0.0.3', `system`.one)
             ) AS t2_00850

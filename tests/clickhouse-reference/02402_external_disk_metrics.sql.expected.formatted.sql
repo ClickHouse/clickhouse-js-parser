@@ -1,9 +1,9 @@
 -- Tags: no-parallel, no-fasttest, long, no-random-settings
-SET max_bytes_before_external_sort = 33554432;
+SET max_bytes_before_external_sort = '33554432';
 
-SET max_bytes_ratio_before_external_sort = 0;
+SET max_bytes_ratio_before_external_sort = '0';
 
-SET max_block_size = 1048576;
+SET max_block_size = '1048576';
 
 SELECT number
 FROM (
@@ -11,13 +11,14 @@ FROM (
         FROM numbers(2097152)
     )
 ORDER BY number * 1234567890123456789 ASC
-LIMIT 2097142, 10
+LIMIT 10
+OFFSET 2097142
 SETTINGS log_comment = '02402_external_disk_mertrics/sort'
 FORMAT Null;
 
 SET max_bytes_before_external_group_by = '100M';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
 SET max_memory_usage = '410M';
 
@@ -44,7 +45,7 @@ FORMAT Null;
 
 SET join_algorithm = 'partial_merge';
 
-SET default_max_bytes_in_join = 0;
+SET default_max_bytes_in_join = '0';
 
 SET max_bytes_in_join = '10M';
 
@@ -56,7 +57,7 @@ FROM
         SELECT number * 200000 AS n
         FROM numbers(5)
     ) AS nums
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number * 2 AS n,
             number AS j
@@ -67,7 +68,7 @@ ORDER BY n ASC
 SETTINGS log_comment = '02402_external_disk_mertrics/partial_merge_join'
 FORMAT Null;
 
-SET join_algorithm = 'grace_hash', grace_hash_join_initial_buckets = 32, grace_hash_join_max_buckets = 32;
+SET join_algorithm = 'grace_hash', grace_hash_join_initial_buckets = '32', grace_hash_join_max_buckets = '32';
 
 SELECT
     n,
@@ -77,7 +78,7 @@ FROM
         SELECT number * 200000 AS n
         FROM numbers(5)
     ) AS nums
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number * 2 AS n,
             number AS j
@@ -97,11 +98,11 @@ SELECT if(any(ProfileEvents['ExternalProcessingFilesTotal']) >= 1
     AND any(ProfileEvents['ExternalSortMerge']) >= 1
     AND any(ProfileEvents['ExternalSortCompressedBytes']) >= 100000
     AND any(ProfileEvents['ExternalSortUncompressedBytes']) >= 100000
-    AND count() == 1, 'ok', concat('fail: ', toString(count()), ' ', toString(any(ProfileEvents))))
+    AND count() = 1, 'ok', 'fail: ' || toString(count()) || ' ' || toString(any(ProfileEvents)))
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = '02402_external_disk_mertrics/sort'
-    AND ilike(query, 'SELECT%2097152%')
+    AND query ILIKE 'SELECT%2097152%'
     AND type = 'QueryFinish';
 
 SELECT if(any(ProfileEvents['ExternalProcessingFilesTotal']) >= 1
@@ -111,11 +112,11 @@ SELECT if(any(ProfileEvents['ExternalProcessingFilesTotal']) >= 1
     AND any(ProfileEvents['ExternalAggregationMerge']) >= 1
     AND any(ProfileEvents['ExternalAggregationCompressedBytes']) >= 100000
     AND any(ProfileEvents['ExternalAggregationUncompressedBytes']) >= 100000
-    AND count() == 1, 'ok', concat('fail: ', toString(count()), ' ', toString(any(ProfileEvents))))
+    AND count() = 1, 'ok', 'fail: ' || toString(count()) || ' ' || toString(any(ProfileEvents)))
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND log_comment = '02402_external_disk_mertrics/aggregation'
-    AND ilike(query, 'SELECT%2097152%')
+    AND query ILIKE 'SELECT%2097152%'
     AND type = 'QueryFinish';
 
 SELECT if(ProfileEvents['ExternalProcessingFilesTotal'] >= 1
@@ -124,11 +125,11 @@ SELECT if(ProfileEvents['ExternalProcessingFilesTotal'] >= 1
     AND ProfileEvents['ExternalJoinWritePart'] >= 1
     AND ProfileEvents['ExternalJoinMerge'] >= 0
     AND ProfileEvents['ExternalJoinCompressedBytes'] >= 100000
-    AND ProfileEvents['ExternalJoinUncompressedBytes'] >= 100000, 'ok', concat('fail: ', toString(ProfileEvents), ' ', log_comment))
+    AND ProfileEvents['ExternalJoinUncompressedBytes'] >= 100000, 'ok', 'fail: ' || toString(ProfileEvents) || ' ' || log_comment)
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(log_comment, '02402_external_disk_mertrics/%join')
-    AND ilike(query, 'SELECT%2097152%')
+    AND log_comment LIKE '02402_external_disk_mertrics/%join'
+    AND query ILIKE 'SELECT%2097152%'
     AND type = 'QueryFinish';
 
 -- Do not check values because they can be not recorded, just existence

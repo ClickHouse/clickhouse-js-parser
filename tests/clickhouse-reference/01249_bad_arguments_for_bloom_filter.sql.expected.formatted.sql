@@ -3,11 +3,11 @@ SET send_logs_level = 'fatal';
 
 DROP DATABASE IF EXISTS test_01249;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test_01249
-ENGINE = Ordinary; -- Full ATTACH requires UUID with Atomic
+ENGINE = Ordinary(); -- Full ATTACH requires UUID with Atomic
 
 USE test_01249;
 
@@ -24,7 +24,7 @@ CREATE TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
+SETTINGS index_granularity = '8192'; -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 CREATE TABLE bloom_filter_idx_good
 (
@@ -39,7 +39,7 @@ CREATE TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192; -- { serverError BAD_ARGUMENTS }
+SETTINGS index_granularity = '8192'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE bloom_filter_idx_good
 (
@@ -54,7 +54,7 @@ CREATE TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192; -- { serverError BAD_ARGUMENTS }
+SETTINGS index_granularity = '8192'; -- { serverError BAD_ARGUMENTS }
 
 DROP TABLE IF EXISTS bloom_filter_idx_good;
 
@@ -71,7 +71,7 @@ ATTACH TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 SHOW CREATE TABLE bloom_filter_idx_good;
 
@@ -88,7 +88,7 @@ ATTACH TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 ATTACH TABLE bloom_filter_idx_good
 (
@@ -103,6 +103,6 @@ ATTACH TABLE bloom_filter_idx_good
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 DROP DATABASE test_01249;

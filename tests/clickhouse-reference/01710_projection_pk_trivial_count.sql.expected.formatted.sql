@@ -1,34 +1,36 @@
 DROP TABLE IF EXISTS x;
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 CREATE TABLE x
 (
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS index_granularity = 3;
+SETTINGS index_granularity = '3';
 
 INSERT INTO x SELECT *
 FROM numbers(10);
 
 SELECT trimLeft(*)
 FROM (
-        EXPLAIN
-        SELECT count()
-        FROM x
-        WHERE (i >= 3
-            AND i <= 6)
-            OR i = 7
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT count()
+                FROM x
+                WHERE i >= 3
+                    AND i <= 6
+                    OR i = 7
+            ))
     )
-WHERE like(`explain`, '%ReadFromPreparedSource%')
-    OR like(`explain`, '%ReadFromMergeTree%');
+WHERE `explain` LIKE '%ReadFromPreparedSource%'
+    OR `explain` LIKE '%ReadFromMergeTree%';
 
 SELECT count()
 FROM x
-WHERE (i >= 3
-    AND i <= 6)
+WHERE i >= 3
+    AND i <= 6
     OR i = 7;
 
 DROP TABLE x;

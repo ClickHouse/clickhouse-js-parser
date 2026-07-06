@@ -21,6 +21,6 @@ SELECT
     arraySort(groupArrayArray(grp_simple)) AS grs
 FROM data_02293
 GROUP BY a
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 DROP TABLE data_02293;

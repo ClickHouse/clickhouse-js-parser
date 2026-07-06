@@ -1,4 +1,4 @@
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT *
 FROM (
@@ -48,7 +48,7 @@ FROM (
         UNION ALL
         SELECT NULL
         UNION ALL
-        SELECT 1.0
+        SELECT 1.
     )
 ORDER BY x DESC;
 
@@ -63,7 +63,7 @@ FROM (
                 UNION ALL
                 SELECT NULL
                 UNION ALL
-                SELECT 1.0
+                SELECT 1.
             )
         GROUP BY x
     )

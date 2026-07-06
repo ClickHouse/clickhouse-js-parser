@@ -12,10 +12,10 @@ CREATE TABLE address
     esp UInt8,
     list_import_sid LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (list_import_sid, country, esp, domain, email_address)
 ORDER BY (list_import_sid, country, esp, domain, email_address)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE fact_click
 (
@@ -24,11 +24,11 @@ CREATE TABLE fact_click
     campaign_batch_sid LowCardinality(String),
     email_address String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (campaign_sid, campaign_batch_sid, sid)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH records AS (
     SELECT address.email_address

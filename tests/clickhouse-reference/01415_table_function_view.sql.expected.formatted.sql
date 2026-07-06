@@ -1,21 +1,13 @@
 SELECT *
-FROM view((
-        SELECT 1
-    ));
+FROM view(    SELECT 1);
 
 SELECT *
-FROM remote('127.0.0.1', view((
-        SELECT 1
-    )));
+FROM remote('127.0.0.1', view(    SELECT 1));
 
 EXPLAIN SYNTAX
 SELECT *
-FROM view((
-        SELECT 1
-    ));
+FROM view(    SELECT 1);
 
 EXPLAIN SYNTAX
 SELECT *
-FROM remote('127.0.0.1', view((
-        SELECT 1
-    )));
+FROM remote('127.0.0.1', view(    SELECT 1));

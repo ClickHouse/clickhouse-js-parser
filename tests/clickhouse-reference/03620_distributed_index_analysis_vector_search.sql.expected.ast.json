@@ -1,867 +1,938 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_parallel_reading_from_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_parallel_reading_from_replicas": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_vec"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dist_vec"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx_vec",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "vec"
-          ]
-        },
-        "indexType": {
-          "name": "vector_similarity",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "hnsw"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "L2Distance"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8"
-        }
-      },
-      {
-        "name": "distributed_index_analysis_min_parts_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "distributed_index_analysis_min_indexes_size_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES dist_vec"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dist_vec"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "binaryExpr",
-              "op": "/",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "/",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            }
-          ],
-          "source": "[number/100, number/100]"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "dist_vec"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_vec"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx_vec",
+            "expression": {
+              "type": "Identifier",
+              "name": "vec"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "vector_similarity",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "hnsw"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "L2Distance"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "8",
+            "distributed_index_analysis_min_parts_to_activate": "0",
+            "distributed_index_analysis_min_indexes_size_to_activate": "10"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_vec"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dist_vec"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "array",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "divide",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "100"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "divide",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "100"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dist_vec"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "L2Distance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                }
-              ],
-              "source": "[0.3, 0.3]"
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    },
-    "settings": [
-      {
-        "name": "use_skip_indexes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dist_vec"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "L2Distance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                }
-              ],
-              "source": "[0.3, 0.3]"
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dist_vec"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "L2Distance",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.3"
-                }
-              ],
-              "source": "[0.3, 0.3]"
-            }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    },
-    "settings": [
-      {
-        "name": "distributed_index_analysis_for_non_shared_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "distributed_index_analysis",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_replicas"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM flush logs query_log",
-    "leadingComments": [
-      "-- Common from 03620_distributed_index_analysis.sql"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "format",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "distributed_index_analysis={}, DistributedIndexAnalysisMicroseconds>0={}, DistributedIndexAnalysisMissingParts={}, DistributedIndexAnalysisScheduledReplicas={}, DistributedIndexAnalysisFailedReplicas>0={}"
-          },
-          {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "Settings"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "distributed_index_analysis"
-              }
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ProfileEvents"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "DistributedIndexAnalysisMicroseconds"
-                }
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          },
-          {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ProfileEvents"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "DistributedIndexAnalysisMissingParts"
-              }
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "arrayElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "ProfileEvents"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "DistributedIndexAnalysisScheduledReplicas"
-              }
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ProfileEvents"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "DistributedIndexAnalysisFailedReplicas"
-                }
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_kind"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "Select"
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "is_initial_query"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Settings"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "distributed_index_analysis"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "endsWith",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "log_comment"
-              ]
-            },
-            {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "-"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ProfileEvents"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "USearchSearchCount"
-                }
-              ]
-            }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "initial_query_id"
-        ]
-      },
-      "right": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query_id"
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dist_vec"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "L2Distance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_skip_indexes": "0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dist_vec"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "L2Distance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dist_vec"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "L2Distance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      },
+                      {
+                        "value_type": "Float64",
+                        "value": 0.3
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "distributed_index_analysis_for_non_shared_merge_tree": "1",
+              "distributed_index_analysis": "1",
+              "max_parallel_replicas": "3",
+              "cluster_for_parallel_replicas": "parallel_replicas"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "format",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "distributed_index_analysis={}, DistributedIndexAnalysisMicroseconds>0={}, DistributedIndexAnalysisMissingParts={}, DistributedIndexAnalysisScheduledReplicas={}, DistributedIndexAnalysisFailedReplicas>0={}"
+                },
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "Settings"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "distributed_index_analysis"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayElement",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ProfileEvents"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "DistributedIndexAnalysisMicroseconds"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "ProfileEvents"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "DistributedIndexAnalysisMissingParts"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "ProfileEvents"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "DistributedIndexAnalysisScheduledReplicas"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayElement",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ProfileEvents"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "DistributedIndexAnalysisFailedReplicas"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    }
+                  ]
+                }
               ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "query_log"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
           },
           "where": {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "current_database"
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": ">=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_date"
-                  ]
-                },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "yesterday",
-                  "args": []
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "type"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "QueryFinish"
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_kind"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "Select"
-                }
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "is_initial_query"
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
                 ]
               },
               {
-                "kind": "functionCall",
-                "name": "has",
-                "args": [
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Settings"
-                    ]
+                    "type": "Identifier",
+                    "name": "event_date"
                   },
                   {
-                    "kind": "literal",
-                    "type": "String",
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_kind"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Select"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "is_initial_query"
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "Settings"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
                     "value": "distributed_index_analysis"
                   }
                 ]
               },
               {
-                "kind": "functionCall",
+                "type": "Function",
                 "name": "endsWith",
-                "args": [
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "log_comment"
-                    ]
+                    "type": "Identifier",
+                    "name": "log_comment"
                   },
                   {
-                    "kind": "functionCall",
+                    "type": "Function",
                     "name": "concat",
-                    "args": [
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "literal",
-                        "type": "String",
+                        "type": "Literal",
+                        "value_type": "String",
                         "value": "-"
                       },
                       {
-                        "kind": "functionCall",
+                        "type": "Function",
                         "name": "currentDatabase",
-                        "args": []
+                        "arguments": []
                       }
                     ]
                   }
                 ]
               }
             ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayElement",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ProfileEvents"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "USearchSearchCount"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "initial_query_id"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "query_id"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "query_log",
+                                "database": "system"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "and",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "current_database"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "currentDatabase",
+                                "arguments": []
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "greaterOrEquals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "event_date"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "yesterday",
+                                "arguments": []
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "type"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "QueryFinish"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "equals",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "query_kind"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "Select"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "is_initial_query"
+                          },
+                          {
+                            "type": "Function",
+                            "name": "has",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "Settings"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "distributed_index_analysis"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "endsWith",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "log_comment"
+                              },
+                              {
+                                "type": "Function",
+                                "name": "concat",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "-"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
-      }
-    },
-    "leadingComments": [
-      "-- Presence of this metric confirms vector index was used after index analysis"
-    ]
+      ]
+    }
   }
 ]

@@ -1,7 +1,7 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
-    if(false, c, '') AS c,
+    false ? c : '' AS c,
     count()
 FROM (
         SELECT '' AS c
@@ -25,7 +25,7 @@ FROM (
 GROUP BY _c;
 
 SELECT
-    if(materialize(false), c, 'x') AS c,
+    materialize(false) ? c : 'x' AS c,
     count()
 FROM (
         SELECT 'o' AS c
@@ -46,15 +46,15 @@ CREATE TABLE f
 (
     c String
 )
-ENGINE = Null;
+ENGINE = Null();
 
 DROP TABLE IF EXISTS v;
 
 CREATE MATERIALIZED VIEW v
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT
-    if(false, c, '') AS c,
+    false ? c : '' AS c,
     countState() AS t
 FROM f
 GROUP BY c;

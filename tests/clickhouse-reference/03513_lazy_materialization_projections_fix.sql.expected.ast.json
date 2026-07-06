@@ -1,1091 +1,1506 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_optimize_lazy_materialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_optimize_lazy_materialization": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-merge-tree-settings"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_max_limit_for_lazy_materialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_max_limit_for_lazy_materialization": "10"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_local_plan",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "parallel_replicas_support_projection",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "optimize_aggregation_in_order",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_local_plan": "1",
+        "parallel_replicas_support_projection": "1",
+        "optimize_aggregation_in_order": "0"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt0"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt0"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "blob",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "projectionDef",
-        "name": "proj_v",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tt0"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "blob_"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-- no projection"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "s"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "tt0"
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "k"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ],
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "LazilyRead%"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tt0"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "s"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "tt0"
-          },
-          "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "v"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "3"
-            }
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ],
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "ReadFromMergeTree (proj_v)"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "s"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "tt0"
-          },
-          "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "v"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "3"
-            }
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ],
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "LazilyRead%"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tt0"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "v"
-        ]
+        "type": "Identifier",
+        "name": "tt0"
       },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "3"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "blob",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES tt1"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tt1"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+        "type": "Identifier",
+        "name": "tt0"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "blob",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ],
+        "projections": [
+          {
+            "type": "Projection",
+            "name": "proj_v",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
+                {
+                  "type": "Asterisk"
+                }
+              ],
+              "order_by": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                }
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "blob_"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt1"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_PROJECTION",
-        "projection": {
-          "kind": "projectionDef",
-          "name": "proj_v",
-          "query": {
-            "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tt0"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
             "select": [
               {
-                "kind": "asterisk"
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "repeat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "blob_"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
               }
             ],
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "v"
-                  ]
-                },
-                "direction": "ASC"
-              }
-            ]
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tt1"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "blob_"
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "%",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-- no projection"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "s",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "tt0"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "k"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "LazilyRead%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tt0"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "s",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "tt0"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "3"
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "ReadFromMergeTree (proj_v)"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "s",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "tt0"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "3"
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "LazilyRead%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tt0"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "v"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "3"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "blob",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
         ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "projections"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "tt1"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
         },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- check that table has 2 parts without and with projection"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "concat",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "Reading steps: "
-          },
-          {
-            "kind": "functionCall",
-            "name": "count",
-            "args": []
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "tt1"
-          },
-          "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "v"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "1001"
-            }
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ],
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "10"
           }
         }
       }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "ReadFromMergeTree%"
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- reading using projection from the table should have 2 reading steps, - one for part w/o proj and one for part with proj"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "s"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "tt1"
-          },
-          "where": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "v"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "1001"
-            }
-          },
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              },
-              "direction": "ASC"
-            }
-          ],
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "ilike",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "LazilyRead%"
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- currently lazy materialization doesn't support such mixed reading"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt1"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tt0"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "repeat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "blob_"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_PROJECTION",
+          "projection_declaration": {
+            "type": "Projection",
+            "name": "proj_v",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
+                {
+                  "type": "Asterisk"
+                }
+              ],
+              "order_by": [
+                {
+                  "type": "Identifier",
+                  "name": "v"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "repeat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "blob_"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "projections"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "tt1"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "name"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "concat",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Reading steps: "
+                },
+                {
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "tt1"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "1001"
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "trimLeft",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "ReadFromMergeTree%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "s",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Asterisk"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "tt1"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "1001"
+                                                  }
+                                                ]
+                                              },
+                                              "order_by": [
+                                                {
+                                                  "type": "OrderByElement",
+                                                  "expression": {
+                                                    "type": "Identifier",
+                                                    "name": "v"
+                                                  },
+                                                  "direction": "ASC"
+                                                }
+                                              ],
+                                              "limit": {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "10"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "ilike",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "LazilyRead%"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tt0"
+      }
     }
   }
 ]

@@ -9,7 +9,7 @@ SELECT
 FROM (
         SELECT
             1 AS Carrier,
-            count(CAST(1, 'Nullable(Int32)')) AS C1,
+            count(CAST(1 AS Nullable(Int32))) AS C1,
             max(number) AS C2,
             min(number) AS C3
         FROM numbers(10)
@@ -17,4 +17,4 @@ FROM (
     ) AS ITBL
 GROUP BY Carrier
 LIMIT 1000001
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';

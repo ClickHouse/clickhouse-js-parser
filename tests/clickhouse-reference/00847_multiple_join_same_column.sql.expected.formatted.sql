@@ -9,21 +9,21 @@ CREATE TABLE t
     a Int64,
     b Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE s
 (
     a Int64,
     b Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE y
 (
     a Int64,
     b Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t;
 
@@ -41,11 +41,11 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (t.a = s.a
-    AND t.b = s.b)
+    ON t.a = s.a
+    AND t.b = s.b
 LEFT JOIN y
-    ON (y.a = s.a
-    AND y.b = s.b)
+    ON y.a = s.a
+    AND y.b = s.b
 ORDER BY t.a ASC
 FORMAT Vertical;
 
@@ -59,11 +59,11 @@ SELECT
 FROM
     t
 LEFT JOIN s
-    ON (t.a = s.a
-    AND s.b = t.b)
+    ON t.a = s.a
+    AND s.b = t.b
 LEFT JOIN y
-    ON (y.a = s.a
-    AND y.b = s.b)
+    ON y.a = s.a
+    AND y.b = s.b
 ORDER BY t.a ASC
 FORMAT PrettyCompactMonoBlock;
 

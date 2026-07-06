@@ -10,16 +10,16 @@ CREATE TABLE test_materialize
 ENGINE = MergeTree()
 ORDER BY key
 PARTITION BY part
-SETTINGS index_granularity = 100, use_const_adaptive_granularity = false, enable_index_granularity_compression = false, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '100', use_const_adaptive_granularity = false, enable_index_granularity_compression = false, min_bytes_for_wide_part = '0';
 
 INSERT INTO test_materialize SELECT
     intDiv(number, 5000),
     number,
     repeat('a', number)
-FROM numbers(10e3)
+FROM numbers(10000.)
 SETTINGS
-    max_block_size = 10,
-    min_insert_block_size_rows = 10000;
+    max_block_size = '10',
+    min_insert_block_size_rows = '10000';
 
 -- { echo }
 -- 25 is the size of marks in case constant index granularity
@@ -36,11 +36,11 @@ WHERE database = currentDatabase()
     AND active
 ORDER BY 1 ASC;
 
-ALTER TABLE test_materialize MODIFY SETTING use_const_adaptive_granularity = 1;
+ALTER TABLE test_materialize MODIFY SETTING use_const_adaptive_granularity = true;
 
-ALTER TABLE test_materialize REWRITE PARTS IN PARTITION 1 SETTINGS mutations_sync = 2;
+ALTER TABLE test_materialize REWRITE PARTS IN PARTITION 1 SETTINGS mutations_sync = '2';
 
-ALTER TABLE test_materialize REWRITE PARTS SETTINGS mutations_sync = 2;
+ALTER TABLE test_materialize REWRITE PARTS SETTINGS mutations_sync = '2';
 
 SELECT
     partition_id,

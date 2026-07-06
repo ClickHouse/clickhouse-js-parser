@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE range_key_dictionary_source_table__fuzz_323
 (
@@ -8,7 +8,7 @@ CREATE TABLE range_key_dictionary_source_table__fuzz_323
     value Tuple(UInt8, Array(DateTime), Decimal(9, 1), Array(Int16), Array(UInt8)),
     value_nullable UUID
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO range_key_dictionary_source_table__fuzz_323; -- { error CANNOT_PARSE_INPUT_ASSERTION_FAILED }
 
@@ -19,6 +19,6 @@ CREATE TABLE complex_key_dictionary_source_table__fuzz_267
     value Array(Nullable(DateTime64(3))),
     value_nullable Nullable(UUID)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO complex_key_dictionary_source_table__fuzz_267; -- { error CANNOT_READ_ARRAY_FROM_TEXT }

@@ -2,11 +2,12 @@
 
 /**
  * For each .sql file in clickhouse-tests/, generates:
- *   - <file>.expected.ast.json       — JSON-serialized AST from parse()
+ *   - <file>.expected.ast.json       — EXPLAIN AST json=1 output from clickhouse
  *   - <file>.expected.formatted.sql  — re-formatted SQL from format()
  *   - <file>.expected.explain.txt    — EXPLAIN AST output from a ClickHouse server
  *
- * If the library parser fails, writes "<Parse Error>" to the ast and formatted files.
+ * If the library parser fails, writes "<Parse Error>" to the formatted file.
+ * If ClickHouse fails for a statement, writes "<AST Error>" into the JSON array.
  * If ClickHouse fails for a statement, writes "<Parse Error>" to the explain file.
  *
  * When explain outputs need to be (re)generated, this script will start a
@@ -15,37 +16,50 @@
  * already running at CLICKHOUSE_URL, it is reused and left running.
  *
  * Usage:
- *   tsx scripts/generate-expected-outputs.ts [<file>] [--regenerate-explains | --regenerate-changed-explains]
+ *   tsx scripts/generate-expected-outputs.ts [<file>] \
+ *     [--regenerate-all-references | --regenerate-changed-references] [--ast | --explain]
  *
- *   <file>                          Optional .sql filename to limit processing to a single input.
- *   --regenerate-explains           Regenerate the explain output for every input, overwriting
- *                                   any existing .expected.explain.txt files. By default, inputs
- *                                   that already have an explain file are skipped (since the
- *                                   explain output is a reference from ClickHouse itself and
- *                                   does not change with library changes).
- *   --regenerate-changed-explains   Regenerate the explain output only for input .sql files
- *                                   that have uncommitted changes (staged, working-tree, or
- *                                   untracked) according to `git status`. Useful when adding
- *                                   or editing a handful of test cases.
+ *   <file>                           Optional .sql filename to limit processing to a single input.
+ *   --regenerate-all-references      Regenerate the reference output for every input, overwriting
+ *                                    any existing .expected.ast.json and .expected.explain.txt
+ *                                    files. By default, inputs that already have these files are
+ *                                    skipped (since they are references from ClickHouse itself and
+ *                                    do not change with library changes).
+ *   --regenerate-changed-references  Regenerate the reference output only for input .sql files that
+ *                                    have uncommitted changes (staged, working-tree, or untracked)
+ *                                    according to `git status`. Useful when adding or editing a
+ *                                    handful of test cases.
+ *   --ast                            Limit reference (re)generation to the AST output
+ *                                    (.expected.ast.json). The explain output is left untouched.
+ *   --explain                        Limit reference (re)generation to the explain output
+ *                                    (.expected.explain.txt). The AST output is left untouched.
+ *
+ *   The --ast / --explain target selectors scope which references the scope flags above (and the
+ *   default "generate if missing" behavior) apply to. If neither is passed, both targets are
+ *   processed. Passing both is equivalent to passing neither.
  */
 
-import { spawnSync } from 'child_process';
+import { spawnSync, spawn } from 'child_process';
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
-import { parse, format, Statement } from '../src/index.js';
+import { parse, format } from '../src/index.js';
+import { substituteQueryParameters } from '../src/query-parameters.js';
 import { splitStatements } from './split-statements.js';
 
 const PARSE_ERROR = '<Parse Error>';
+const AST_ERROR = '<AST Error>';
 const EXPLAIN_ERROR = '<Explain Error>';
-const QUERY_PARAMS = '<Query Parameters>';
 
 const dir = new URL('../tests/clickhouse-reference', import.meta.url).pathname;
 const projectRoot = new URL('..', import.meta.url).pathname;
 
+// Path to the local clickhouse binary (project root).
+const CLICKHOUSE_LOCAL_AST_PATH = join(projectRoot, 'clickhouse');
+
 // ClickHouse HTTP endpoint (matches the port mapping in docker-compose.yml).
 const CLICKHOUSE_URL = 'http://localhost:8125';
 
-// Maximum number of concurrent HTTP requests to the ClickHouse server.
+// Maximum number of concurrent requests.
 const CONCURRENCY = 20;
 
 // How long to wait for the ClickHouse container to start accepting connections.
@@ -162,15 +176,7 @@ function getChangedInputFiles(): Set<string> {
 
 const pool = new Pool(CONCURRENCY);
 
-// ClickHouse query parameter syntax: {name:Type}
-const QUERY_PARAM_RE = /\{\w+:[^}]+\}/;
-
 function runExplain(sql: string): Promise<string> {
-  // EXPLAIN AST fails when query parameters are present, so skip explaining these inputs.
-  // Strip single-quoted strings before testing to avoid false matches on string literals.
-  const sqlOutsideStrings = sql.replace(/'(?:[^']|'')*'/g, "''");
-  if (QUERY_PARAM_RE.test(sqlOutsideStrings)) return Promise.resolve(QUERY_PARAMS);
-
   return pool.run(async () => {
     const query = `EXPLAIN AST ${sql.trim()}`;
     try {
@@ -196,14 +202,180 @@ function runExplain(sql: string): Promise<string> {
   });
 }
 
+// ── AST via clickhouse ──────────────────────────────────────────────
+
+/**
+ * Spawns clickhouse and feeds `query` on stdin rather than via
+ * `-q`/`--query`. The `--query` argument path rewrites some Unicode punctuation
+ * (e.g. the Unicode minus U+2212 becomes `--`, which SQL reads as a line comment),
+ * silently corrupting queries; the stdin path preserves the bytes verbatim.
+ *
+ * Resolves with the raw stdout/stderr and exit code (it never rejects on a
+ * non-zero exit; callers decide what to do with `stderr`/`code`).
+ */
+function spawnClickhouse(
+  query: string,
+  extraArgs: string[] = [],
+): Promise<{ stdout: string; stderr: string; code: number | null }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(CLICKHOUSE_LOCAL_AST_PATH, ['local', '--format', 'TSVRaw', ...extraArgs], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const stdoutChunks: Buffer[] = [];
+    const stderrChunks: Buffer[] = [];
+    child.stdout.on('data', (c) => stdoutChunks.push(c));
+    child.stderr.on('data', (c) => stderrChunks.push(c));
+    child.on('error', reject);
+    child.on('close', (code) => {
+      resolve({
+        stdout: Buffer.concat(stdoutChunks).toString('utf8'),
+        stderr: Buffer.concat(stderrChunks).toString('utf8'),
+        code,
+      });
+    });
+    child.stdin.end(query, 'utf8');
+  });
+}
+
+function runClickhouse(query: string): Promise<string> {
+  return spawnClickhouse(query).then(({ stdout, stderr, code }) => {
+    if (code === 0) return stdout.trimEnd();
+    throw new Error(stderr.trim());
+  });
+}
+
+function runAst(sql: string): Promise<string> {
+  return pool.run(async () => {
+    const query = `EXPLAIN AST json = 1 ${sql.trim()}`;
+    try {
+      return await runClickhouse(query);
+    } catch (e) {
+      const err = e as { stderr?: string; message?: string };
+      console.log(`  AST error:`, err.stderr || err.message || e);
+      return AST_ERROR;
+    }
+  });
+}
+
+/**
+ * Builds a single multi-query batch that explains every statement. No
+ * delimiters are inserted: each `EXPLAIN AST json = 1` emits exactly one
+ * top-level JSON object, so the concatenated stdout is split back apart by
+ * `splitJsonObjects` on object boundaries.
+ */
+function buildAstBatchQuery(statements: string[]): string {
+  return statements
+    .map((s) => `EXPLAIN AST json = 1 ${s.trim().replace(/;+\s*$/, '')};`)
+    .join('\n');
+}
+
+/**
+ * Splits a concatenation of top-level JSON objects into their individual texts
+ * by tracking brace depth, ignoring braces inside strings (with escape
+ * handling). Returns null on any structural anomaly (a `}` at depth 0, or
+ * trailing input that never closes), which signals the caller to fall back.
+ */
+function splitJsonObjects(stdout: string): string[] | null {
+  const objects: string[] = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < stdout.length; i++) {
+    const c = stdout[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (c === '\\') escaped = true;
+      else if (c === '"') inString = false;
+      continue;
+    }
+    if (c === '"') {
+      inString = true;
+    } else if (c === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (c === '}') {
+      if (depth === 0) return null;
+      depth--;
+      if (depth === 0) {
+        objects.push(stdout.slice(start, i + 1));
+        start = -1;
+      }
+    }
+  }
+  if (depth !== 0 || inString) return null;
+  return objects;
+}
+
+/**
+ * Splits batched stdout into one JSON text per statement. Returns null
+ * (signalling the caller to fall back to per-statement runs) when the output
+ * cannot be cleanly realigned: an object count that differs from the number of
+ * statements, or a chunk that is not valid JSON. A failed statement produces no
+ * object (and stderr), so any error makes the object count drop below `n` and
+ * triggers the fallback — `clickhouse-local` cannot resync statement boundaries
+ * after a syntax error even with `--ignore-error`.
+ */
+function splitAstBatch(stdout: string, n: number): string[] | null {
+  const objects = splitJsonObjects(stdout);
+  if (objects === null || objects.length !== n) return null;
+
+  const results: string[] = [];
+  for (const object of objects) {
+    const trimmed = object.trim();
+    try {
+      JSON.parse(trimmed);
+    } catch {
+      return null;
+    }
+    results.push(trimmed);
+  }
+  return results;
+}
+
+/**
+ * Explains all statements of a file in one `--multiquery --ignore-error` batch.
+ * Returns an array of raw JSON texts (same shape as `statements.map(runAst)`
+ * before parsing), or null when the batch could not be cleanly realigned (the
+ * caller then falls back to per-statement runs).
+ */
+function runAstBatch(statements: string[]): Promise<string[] | null> {
+  return pool.run(async () => {
+    try {
+      const { stdout, stderr, code } = await spawnClickhouse(buildAstBatchQuery(statements), [
+        '--multiquery',
+        '--ignore-error',
+      ]);
+      // Any stderr output means at least one statement errored, after which the
+      // batch can no longer be trusted to realign — fall back.
+      if (code !== 0 || stderr.trim() !== '') return null;
+      return splitAstBatch(stdout, statements.length);
+    } catch {
+      return null;
+    }
+  });
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 
-const KNOWN_FLAGS = new Set(['--regenerate-explains', '--regenerate-changed-explains']);
+const KNOWN_FLAGS = new Set([
+  '--regenerate-all-references',
+  '--regenerate-changed-references',
+  '--ast',
+  '--explain',
+]);
 
 const args = process.argv.slice(2);
-const regenerateExplains = args.includes('--regenerate-explains');
-const regenerateChangedExplains = args.includes('--regenerate-changed-explains');
+const regenerateAllReferences = args.includes('--regenerate-all-references');
+const regenerateChangedReferences = args.includes('--regenerate-changed-references');
 const filterArg = args.find((a) => !a.startsWith('--'));
+
+// Target selectors. If neither --ast nor --explain is passed (or both are),
+// process both targets. Otherwise limit (re)generation to the chosen target.
+const onlyAst = args.includes('--ast');
+const onlyExplain = args.includes('--explain');
+const targetAst = onlyAst || !onlyExplain;
+const targetExplain = onlyExplain || !onlyAst;
 
 const unknownFlags = args.filter((a) => a.startsWith('--') && !KNOWN_FLAGS.has(a));
 if (unknownFlags.length > 0) {
@@ -211,24 +383,35 @@ if (unknownFlags.length > 0) {
   process.exit(1);
 }
 
-if (regenerateExplains && regenerateChangedExplains) {
-  console.error(`--regenerate-explains and --regenerate-changed-explains are mutually exclusive.`);
+if (regenerateAllReferences && regenerateChangedReferences) {
+  console.error(
+    `--regenerate-all-references and --regenerate-changed-references are mutually exclusive.`,
+  );
   process.exit(1);
 }
 
 // Compute the set of input files with uncommitted changes once up front.
-// Empty if --regenerate-changed-explains was not passed.
-const changedInputs = regenerateChangedExplains ? getChangedInputFiles() : new Set<string>();
-if (regenerateChangedExplains) {
+// Empty if --regenerate-changed-references was not passed.
+const changedInputs = regenerateChangedReferences ? getChangedInputFiles() : new Set<string>();
+if (regenerateChangedReferences) {
   console.log(
-    `--regenerate-changed-explains: ${changedInputs.size} input file(s) changed per \`git status\`.`,
+    `--regenerate-changed-references: ${changedInputs.size} input file(s) changed per \`git status\`.`,
   );
+}
+
+/** True when the AST file for this input should be (re)generated. */
+function shouldRegenerateAst(file: string, astPath: string): boolean {
+  if (!targetAst) return false;
+  if (regenerateAllReferences) return true;
+  if (regenerateChangedReferences && changedInputs.has(file)) return true;
+  return !existsSync(astPath);
 }
 
 /** True when the explain file for this input should be (re)generated. */
 function shouldRegenerateExplain(file: string, explainPath: string): boolean {
-  if (regenerateExplains) return true;
-  if (regenerateChangedExplains && changedInputs.has(file)) return true;
+  if (!targetExplain) return false;
+  if (regenerateAllReferences) return true;
+  if (regenerateChangedReferences && changedInputs.has(file)) return true;
   return !existsSync(explainPath);
 }
 
@@ -239,25 +422,59 @@ const sqlFiles = readdirSync(dir)
 
 let processed = 0;
 let parseErrors = 0;
+let astErrors = 0;
+let astsWritten = 0;
 let explainErrors = 0;
 let explainsWritten = 0;
 
 async function processFile(file: string): Promise<void> {
   const filePath = join(dir, file);
-  const content = readFileSync(filePath, 'utf8');
+  // Substitute query parameters (`{name:Type}`) with placeholder literals so the
+  // statements parse in ClickHouse and this library alike. The reference tests apply
+  // the same transform, so all outputs are derived from byte-identical SQL.
+  const content = substituteQueryParameters(readFileSync(filePath, 'utf8'));
   const statements = splitStatements(content)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  // ── AST + formatted SQL ──────────────────────────────────────────────────────
+  // ── AST via clickhouse ─────────────────────────────────────────────
+  // By default, skip if the AST file already exists. Pass --regenerate-all-references
+  // to overwrite every existing AST file, or --regenerate-changed-references to
+  // overwrite only those whose input has uncommitted git changes.
 
-  let ast: Statement[];
-  let astOutput: string;
+  const astPath = `${filePath}.expected.ast.json`;
+  if (shouldRegenerateAst(file, astPath)) {
+    // Fast path: explain every statement in one batch. Falls back to one run
+    // per statement when the batch can't be cleanly realigned (e.g. the file
+    // contains a statement that fails to parse).
+    const astParts =
+      (await runAstBatch(statements)) ?? (await Promise.all(statements.map(runAst)));
+
+    let hadAstError = false;
+    const astItems = astParts.map((out) => {
+      if (out === AST_ERROR) {
+        hadAstError = true;
+        return '<AST Error>';
+      }
+      try {
+        return JSON.parse(out);
+      } catch {
+        hadAstError = true;
+        return '<AST Error>';
+      }
+    });
+
+    if (hadAstError) astErrors++;
+
+    writeFileSync(astPath, JSON.stringify(astItems, null, 2) + '\n', 'utf8');
+    astsWritten++;
+  }
+
+  // ── Formatted SQL ────────────────────────────────────────────────────────────
+
   let formattedOutput: string;
-
   try {
-    ast = parse(content);
-    astOutput = JSON.stringify(ast, (key, value) => (key === 'location' || key === 'parent' ? undefined : value), 2);
+    const ast = parse(content);
     try {
       formattedOutput = format(ast);
     } catch (e) {
@@ -265,27 +482,24 @@ async function processFile(file: string): Promise<void> {
       parseErrors++;
     }
   } catch (e) {
-    astOutput = JSON.stringify(e);
     formattedOutput = PARSE_ERROR;
     parseErrors++;
   }
 
-  writeFileSync(`${filePath}.expected.ast.json`, astOutput, 'utf8');
   writeFileSync(`${filePath}.expected.formatted.sql`, formattedOutput, 'utf8');
 
-  // ── Explain AST via clickhouse local ─────────────────────────────────────────
+  // ── Explain AST via ClickHouse HTTP interface ─────────────────────────────────
   // By default, skip if the explain file already exists. Pass
-  // --regenerate-explains to overwrite every existing explain file, or
-  // --regenerate-changed-explains to overwrite only those whose input has
+  // --regenerate-all-references to overwrite every existing explain file, or
+  // --regenerate-changed-references to overwrite only those whose input has
   // uncommitted git changes.
 
   const explainPath = `${filePath}.expected.explain.txt`;
   if (shouldRegenerateExplain(file, explainPath)) {
-    // Run all statements for this file concurrently (throttled by the pool).
     const explainParts = await Promise.all(statements.map(runExplain));
 
     let hadExplainError = false;
-    const trimmedParts = explainParts.map((out) => {
+    const trimmedExplainParts = explainParts.map((out) => {
       if (out === PARSE_ERROR) {
         hadExplainError = true;
         return PARSE_ERROR;
@@ -295,7 +509,8 @@ async function processFile(file: string): Promise<void> {
 
     if (hadExplainError) explainErrors++;
 
-    const explainOutput = trimmedParts.join('\n\n') + (trimmedParts.length > 0 ? '\n' : '');
+    const explainOutput =
+      trimmedExplainParts.join('\n\n') + (trimmedExplainParts.length > 0 ? '\n' : '');
     writeFileSync(explainPath, explainOutput, 'utf8');
     explainsWritten++;
   }
@@ -307,6 +522,15 @@ async function processFile(file: string): Promise<void> {
 }
 
 void (async () => {
+  const needsClickhouseLocalAst = sqlFiles.some((f) =>
+    shouldRegenerateAst(f, `${join(dir, f)}.expected.ast.json`),
+  );
+
+  if (needsClickhouseLocalAst && !existsSync(CLICKHOUSE_LOCAL_AST_PATH)) {
+    console.error(`clickhouse binary not found at ${CLICKHOUSE_LOCAL_AST_PATH}`);
+    process.exit(1);
+  }
+
   // Decide whether we need ClickHouse at all. If every input already has an
   // explain file and nothing forces a regeneration, we can skip docker entirely.
   const needsClickHouse = sqlFiles.some((f) =>
@@ -333,8 +557,6 @@ void (async () => {
       runDocker(['compose', 'up', '-d']);
       weStartedDocker = true;
 
-      // Make sure we tear the container down on Ctrl+C or kill so we don't
-      // leave it running after an interrupted run.
       const onSignal = (signal: NodeJS.Signals, exitCode: number) => {
         console.log(`\nCaught ${signal}, stopping ClickHouse...`);
         stopDocker();
@@ -356,7 +578,9 @@ void (async () => {
   }
 
   console.log(`Done. Processed ${processed} files.`);
+  console.log(`  AST files written: ${astsWritten}`);
   console.log(`  Explain files written: ${explainsWritten}`);
   console.log(`  Parse errors: ${parseErrors}`);
+  console.log(`  AST errors: ${astErrors}`);
   console.log(`  Explain errors: ${explainErrors}`);
 })();

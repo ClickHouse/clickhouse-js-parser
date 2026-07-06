@@ -1,26 +1,26 @@
 -- Tags: no-fasttest, long
 -- no-fasttest: 'countmin' sketches need a 3rd party library
 -- Tests that DDL statements which create / drop / materialize statistics
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 DROP TABLE IF EXISTS tab;
 
-SET allow_experimental_statistics = 0;
+SET allow_experimental_statistics = '0';
 
 -- Error case: Can't create statistics when allow_experimental_statistics = 0
 CREATE TABLE tab
 (
-    col Float64 STATISTICS(tdigest)
+    col Float64 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
 
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
 -- Error case: Unknown statistics types are rejected
 CREATE TABLE tab
 (
-    col Float64 STATISTICS(no_statistics_type)
+    col Float64 STATISTICS(no_statistics_type())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
@@ -28,19 +28,19 @@ ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
 -- Error case: The same statistics type can't exist more than once on a column
 CREATE TABLE tab
 (
-    col Float64 STATISTICS(tdigest, tdigest)
+    col Float64 STATISTICS(tdigest(), tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 -- Statistics can only be created on columns of specific data types (depending on the statistics kind), (*)
 --   tdigest requires data_type.isValueRepresentedByInteger
 --     These types work:
 CREATE TABLE tab
 (
-    col UInt8 STATISTICS(tdigest)
+    col UInt8 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -49,77 +49,77 @@ DROP TABLE tab;
 
 CREATE TABLE tab
 (
-    col UInt256 STATISTICS(tdigest)
+    col UInt256 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Float32 STATISTICS(tdigest)
+    col Float32 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Decimal32(3) STATISTICS(tdigest)
+    col Decimal32(3) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date STATISTICS(tdigest)
+    col Date STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date32 STATISTICS(tdigest)
+    col Date32 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime STATISTICS(tdigest)
+    col DateTime STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime64 STATISTICS(tdigest)
+    col DateTime64 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Enum('hello', 'world') STATISTICS(tdigest)
+    col Enum('hello', 'world') STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Nullable(UInt8) STATISTICS(tdigest)
+    col Nullable(UInt8) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(UInt8) STATISTICS(tdigest)
+    col LowCardinality(UInt8) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(Nullable(UInt8)) STATISTICS(tdigest)
+    col LowCardinality(Nullable(UInt8)) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -127,56 +127,56 @@ ORDER BY tuple();
 --     These types don't work:
 CREATE TABLE tab
 (
-    col String STATISTICS(tdigest)
+    col String STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col FixedString(1) STATISTICS(tdigest)
+    col FixedString(1) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Array(Float64) STATISTICS(tdigest)
+    col Array(Float64) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Tuple(Float64, Float64) STATISTICS(tdigest)
+    col Tuple(Float64, Float64) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Map(UInt64, UInt64) STATISTICS(tdigest)
+    col Map(UInt64, UInt64) STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col UUID STATISTICS(tdigest)
+    col UUID STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col IPv4 STATISTICS(tdigest)
+    col IPv4 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col IPv6 STATISTICS(tdigest)
+    col IPv6 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
@@ -185,105 +185,105 @@ ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 --     These types work:
 CREATE TABLE tab
 (
-    col UInt8 STATISTICS(uniq)
+    col UInt8 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col UInt256 STATISTICS(uniq)
+    col UInt256 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Float32 STATISTICS(uniq)
+    col Float32 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Decimal32(3) STATISTICS(uniq)
+    col Decimal32(3) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date STATISTICS(uniq)
+    col Date STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date32 STATISTICS(uniq)
+    col Date32 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime STATISTICS(uniq)
+    col DateTime STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime64 STATISTICS(uniq)
+    col DateTime64 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Enum('hello', 'world') STATISTICS(uniq)
+    col Enum('hello', 'world') STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col IPv4 STATISTICS(uniq)
+    col IPv4 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Nullable(UInt8) STATISTICS(uniq)
+    col Nullable(UInt8) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(UInt8) STATISTICS(uniq)
+    col LowCardinality(UInt8) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(Nullable(UInt8)) STATISTICS(uniq)
+    col LowCardinality(Nullable(UInt8)) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col String STATISTICS(uniq)
+    col String STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col FixedString(1) STATISTICS(uniq)
+    col FixedString(1) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -291,35 +291,35 @@ ORDER BY tuple();
 --     These types don't work:
 CREATE TABLE tab
 (
-    col Array(Float64) STATISTICS(uniq)
+    col Array(Float64) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Tuple(Float64, Float64) STATISTICS(uniq)
+    col Tuple(Float64, Float64) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Map(UInt64, UInt64) STATISTICS(uniq)
+    col Map(UInt64, UInt64) STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col UUID STATISTICS(uniq)
+    col UUID STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col IPv6 STATISTICS(uniq)
+    col IPv6 STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
@@ -328,105 +328,105 @@ ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 --     These types work:
 CREATE TABLE tab
 (
-    col UInt8 STATISTICS(countmin)
+    col UInt8 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col UInt256 STATISTICS(countmin)
+    col UInt256 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Float32 STATISTICS(countmin)
+    col Float32 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Decimal32(3) STATISTICS(countmin)
+    col Decimal32(3) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date STATISTICS(countmin)
+    col Date STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date32 STATISTICS(countmin)
+    col Date32 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime STATISTICS(countmin)
+    col DateTime STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime64 STATISTICS(countmin)
+    col DateTime64 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Enum('hello', 'world') STATISTICS(countmin)
+    col Enum('hello', 'world') STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col IPv4 STATISTICS(countmin)
+    col IPv4 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Nullable(UInt8) STATISTICS(countmin)
+    col Nullable(UInt8) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(UInt8) STATISTICS(countmin)
+    col LowCardinality(UInt8) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(Nullable(UInt8)) STATISTICS(countmin)
+    col LowCardinality(Nullable(UInt8)) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col String STATISTICS(countmin)
+    col String STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col FixedString(1) STATISTICS(countmin)
+    col FixedString(1) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -434,35 +434,35 @@ ORDER BY tuple();
 --     These types don't work:
 CREATE TABLE tab
 (
-    col Array(Float64) STATISTICS(countmin)
+    col Array(Float64) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Tuple(Float64, Float64) STATISTICS(countmin)
+    col Tuple(Float64, Float64) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Map(UInt64, UInt64) STATISTICS(countmin)
+    col Map(UInt64, UInt64) STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col UUID STATISTICS(countmin)
+    col UUID STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col IPv6 STATISTICS(countmin)
+    col IPv6 STATISTICS(countmin())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
@@ -471,91 +471,91 @@ ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 --     These types work:
 CREATE TABLE tab
 (
-    col UInt8 STATISTICS(minmax)
+    col UInt8 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col UInt256 STATISTICS(minmax)
+    col UInt256 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Float32 STATISTICS(minmax)
+    col Float32 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Decimal32(3) STATISTICS(minmax)
+    col Decimal32(3) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date STATISTICS(minmax)
+    col Date STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Date32 STATISTICS(minmax)
+    col Date32 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime STATISTICS(minmax)
+    col DateTime STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col DateTime64 STATISTICS(minmax)
+    col DateTime64 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Enum('hello', 'world') STATISTICS(minmax)
+    col Enum('hello', 'world') STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col IPv4 STATISTICS(minmax)
+    col IPv4 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col Nullable(UInt8) STATISTICS(minmax)
+    col Nullable(UInt8) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(UInt8) STATISTICS(minmax)
+    col LowCardinality(UInt8) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
-    col LowCardinality(Nullable(UInt8)) STATISTICS(minmax)
+    col LowCardinality(Nullable(UInt8)) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -563,49 +563,49 @@ ORDER BY tuple();
 --     These types don't work:
 CREATE TABLE tab
 (
-    col String STATISTICS(minmax)
+    col String STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col FixedString(1) STATISTICS(minmax)
+    col FixedString(1) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Array(Float64) STATISTICS(minmax)
+    col Array(Float64) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Tuple(Float64, Float64) STATISTICS(minmax)
+    col Tuple(Float64, Float64) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col Map(UInt64, UInt64) STATISTICS(minmax)
+    col Map(UInt64, UInt64) STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col UUID STATISTICS(minmax)
+    col UUID STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 
 CREATE TABLE tab
 (
-    col IPv6 STATISTICS(minmax)
+    col IPv6 STATISTICS(minmax())
 )
 ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
@@ -614,7 +614,7 @@ ORDER BY tuple(); -- { serverError ILLEGAL_STATISTICS }
 CREATE TABLE tab
 (
     f64 Float64,
-    f64_tdigest Float64 STATISTICS(tdigest),
+    f64_tdigest Float64 STATISTICS(tdigest()),
     f32 Float32,
     s String,
     a Array(Float64)
@@ -626,7 +626,7 @@ ORDER BY tuple();
 -- (relevant for ADD and MODIFY)
 ALTER TABLE tab ADD STATISTICS f64 TYPE no_statistics_type; -- { serverError INCORRECT_QUERY }
 
-ALTER TABLE tab ADD STATISTICS f64 TYPE no_statistics_type; -- { serverError INCORRECT_QUERY }
+ALTER TABLE tab ADD STATISTICS IF NOT EXISTS f64 TYPE no_statistics_type; -- { serverError INCORRECT_QUERY }
 
 ALTER TABLE tab MODIFY STATISTICS f64 TYPE no_statistics_type; -- { serverError INCORRECT_QUERY }
 
@@ -636,14 +636,14 @@ ALTER TABLE tab MODIFY STATISTICS f64 TYPE no_statistics_type; -- { serverError 
 --   Create the same statistics object twice
 ALTER TABLE tab ADD STATISTICS f64 TYPE tdigest, tdigest; -- { serverError INCORRECT_QUERY }
 
-ALTER TABLE tab ADD STATISTICS f64 TYPE tdigest, tdigest; -- { serverError INCORRECT_QUERY }
+ALTER TABLE tab ADD STATISTICS IF NOT EXISTS f64 TYPE tdigest, tdigest; -- { serverError INCORRECT_QUERY }
 
 ALTER TABLE tab MODIFY STATISTICS f64 TYPE tdigest, tdigest; -- { serverError INCORRECT_QUERY }
 
 --   Create an statistics which exists already
 ALTER TABLE tab ADD STATISTICS f64_tdigest TYPE tdigest; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab ADD STATISTICS f64_tdigest TYPE tdigest; -- no-op
+ALTER TABLE tab ADD STATISTICS IF NOT EXISTS f64_tdigest TYPE tdigest; -- no-op
 
 ALTER TABLE tab MODIFY STATISTICS f64_tdigest TYPE tdigest; -- no-op
 
@@ -652,21 +652,21 @@ ALTER TABLE tab MODIFY STATISTICS f64_tdigest TYPE tdigest; -- no-op
 -- Note that the results are unfortunately quite inconsistent ...
 ALTER TABLE tab ADD STATISTICS no_such_column TYPE tdigest; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab ADD STATISTICS no_such_column TYPE tdigest; -- { serverError ILLEGAL_STATISTICS }
+ALTER TABLE tab ADD STATISTICS IF NOT EXISTS no_such_column TYPE tdigest; -- { serverError ILLEGAL_STATISTICS }
 
 ALTER TABLE tab MODIFY STATISTICS no_such_column TYPE tdigest; -- { serverError ILLEGAL_STATISTICS }
 
 ALTER TABLE tab DROP STATISTICS no_such_column; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab DROP STATISTICS no_such_column; -- no-op
+ALTER TABLE tab DROP STATISTICS IF EXISTS no_such_column; -- no-op
 
-ALTER TABLE tab DROP STATISTICS no_such_column; -- { serverError ILLEGAL_STATISTICS }
+ALTER TABLE tab CLEAR STATISTICS no_such_column; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab DROP STATISTICS no_such_column; -- no-op
-
-ALTER TABLE tab MATERIALIZE STATISTICS no_such_column; -- { serverError ILLEGAL_STATISTICS }
+ALTER TABLE tab CLEAR STATISTICS IF EXISTS no_such_column; -- no-op
 
 ALTER TABLE tab MATERIALIZE STATISTICS no_such_column; -- { serverError ILLEGAL_STATISTICS }
+
+ALTER TABLE tab MATERIALIZE STATISTICS IF EXISTS no_such_column; -- { serverError ILLEGAL_STATISTICS }
 
 -- Error case: Column exists but has no statistics
 -- (relevant for MODIFY, DROP, CLEAR, and MATERIALIZE)
@@ -675,11 +675,11 @@ ALTER TABLE tab MODIFY STATISTICS s TYPE tdigest; -- { serverError ILLEGAL_STATI
 
 ALTER TABLE tab DROP STATISTICS s; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab DROP STATISTICS s; -- no-op
+ALTER TABLE tab DROP STATISTICS IF EXISTS s; -- no-op
 
-ALTER TABLE tab DROP STATISTICS s; -- { serverError ILLEGAL_STATISTICS }
+ALTER TABLE tab CLEAR STATISTICS s; -- { serverError ILLEGAL_STATISTICS }
 
-ALTER TABLE tab DROP STATISTICS s; -- no-op
+ALTER TABLE tab CLEAR STATISTICS IF EXISTS s; -- no-op
 
 -- We don't check systematically that that statistics can only be created via ALTER ADD STATISTICS on columns of specific data types (the
 -- internal type validation code is tested already above, (*)). Only do a rudimentary check for each statistics type with a data type that
@@ -738,7 +738,7 @@ ALTER TABLE tab ADD STATISTICS f64, f32 TYPE tdigest, uniq;
 
 ALTER TABLE tab MODIFY STATISTICS f64, f32 TYPE tdigest, uniq;
 
-ALTER TABLE tab DROP STATISTICS f64, f32;
+ALTER TABLE tab CLEAR STATISTICS f64, f32;
 
 ALTER TABLE tab MATERIALIZE STATISTICS f64, f32;
 

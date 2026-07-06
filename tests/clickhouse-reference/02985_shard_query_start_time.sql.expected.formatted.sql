@@ -7,7 +7,7 @@ CREATE TABLE sharded_table
 )
 ENGINE = Distributed('test_cluster_two_shards', 'system', 'one');
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 SELECT *
 FROM sharded_table
@@ -32,9 +32,9 @@ SELECT
     type,
     countIf(query_start_time >= initial_query_start_time), -- Using >= because it's comparing seconds
     countIf(query_start_time_microseconds > initial_query_start_time_microseconds),
-    countIf(initial_query_start_time = id_and_start_tuple.2),
-    countIf(initial_query_start_time_microseconds = id_and_start_tuple.3)
+    countIf(initial_query_start_time = (id_and_start_tuple).2),
+    countIf(initial_query_start_time_microseconds = (id_and_start_tuple).3)
 FROM `system`.query_log
 WHERE NOT is_initial_query
-    AND initial_query_id = id_and_start_tuple.1
+    AND initial_query_id = (id_and_start_tuple).1
 GROUP BY type;

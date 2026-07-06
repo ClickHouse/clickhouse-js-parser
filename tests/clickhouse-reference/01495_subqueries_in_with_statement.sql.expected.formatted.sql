@@ -5,7 +5,7 @@ CREATE TABLE test1
     i int,
     j int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test1;
 
@@ -51,8 +51,8 @@ FROM
         SELECT *
         FROM test1
     ) AS l
-INNER JOIN test1 AS r
-    ON (l.i == r.i);
+ANY INNER JOIN test1 AS r
+    ON l.i = r.i;
 
 WITH test1 AS (
     SELECT
@@ -69,7 +69,7 @@ WHERE (i, j) IN (test1);
 
 SELECT '---------------------------';
 
-SET empty_result_for_aggregation_by_empty_set = 0;
+SET empty_result_for_aggregation_by_empty_set = '0';
 
 WITH test1 AS (
     SELECT number - 1 AS n
@@ -119,7 +119,7 @@ WHERE n = 42;
 DROP TABLE IF EXISTS with_test;
 
 CREATE TABLE with_test
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT CAST(number - 1 AS Nullable(Int64)) AS n
 FROM numbers(10000);
 
@@ -208,7 +208,7 @@ WITH test1 AS (
         NULL AS b
     FROM with_test
     WHERE n = 42
-        OR isNull(b)
+        OR b IS NULL
     ORDER BY n ASC
     LIMIT 100
 )
@@ -222,7 +222,7 @@ WITH test1 AS (
         n,
         NULL AS b
     FROM with_test
-    WHERE isNull(b)
+    WHERE b IS NULL
 )
 
 SELECT max(n)
@@ -234,7 +234,7 @@ WITH test1 AS (
         n,
         NULL AS b
     FROM with_test
-    WHERE isNull(b)
+    WHERE b IS NULL
         OR 1 = 1
 )
 
@@ -247,7 +247,7 @@ WITH test1 AS (
         n,
         NULL AS b
     FROM with_test
-    WHERE isNull(b)
+    WHERE b IS NULL
         AND n = 42
 )
 
@@ -299,7 +299,7 @@ WITH test1 AS (
 
 SELECT max(n) AS m
 FROM test1
-WHERE isNull(b)
+WHERE b IS NULL
     AND test1.m = 43
 HAVING m = 42
 LIMIT 4;

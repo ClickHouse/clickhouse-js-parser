@@ -1,15 +1,15 @@
 -- Tags: no-random-merge-tree-settings
-SET convert_query_to_cnf = 1;
+SET convert_query_to_cnf = '1';
 
-SET optimize_using_constraints = 1;
+SET optimize_using_constraints = '1';
 
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET optimize_substitute_columns = 1;
+SET optimize_substitute_columns = '1';
 
-SET optimize_append_index = 1;
+SET optimize_append_index = '1';
 
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 DROP TABLE IF EXISTS column_swap_test_test;
 
@@ -22,7 +22,7 @@ CREATE TABLE column_swap_test_test
 )
 ENGINE = MergeTree()
 ORDER BY i
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO column_swap_test_test;
 
@@ -46,7 +46,7 @@ SELECT
     b + 3
 FROM column_swap_test_test
 WHERE cityHash64(a) = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -61,7 +61,7 @@ SELECT
     b + 3
 FROM column_swap_test_test
 PREWHERE cityHash64(a) = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -76,7 +76,7 @@ SELECT
     b + 3
 FROM column_swap_test_test
 WHERE cityHash64(a) = 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -91,7 +91,7 @@ SELECT
     b + 3
 FROM column_swap_test_test
 WHERE b = 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -106,7 +106,7 @@ SELECT
     b + 3
 FROM column_swap_test_test
 WHERE b = 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT cityHash64(a) + 10
@@ -117,7 +117,7 @@ EXPLAIN QUERY TREE
 SELECT cityHash64(a) + 10
 FROM column_swap_test_test
 WHERE cityHash64(a) = 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -132,7 +132,7 @@ SELECT
     a
 FROM column_swap_test_test
 WHERE cityHash64(a) = 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -147,7 +147,7 @@ SELECT
     a
 FROM column_swap_test_test
 WHERE b = 0
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE column_swap_test_test;
 
@@ -160,7 +160,7 @@ CREATE TABLE column_swap_test_test
 )
 ENGINE = MergeTree()
 ORDER BY i
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO column_swap_test_test SELECT
     number AS i,
@@ -182,7 +182,7 @@ SELECT
     a
 FROM column_swap_test_test
 WHERE a = 'c'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -197,7 +197,7 @@ SELECT
     a
 FROM column_swap_test_test
 WHERE substring(reverse(b), 1, 1) = 'c'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -212,7 +212,7 @@ SELECT
     a AS t2
 FROM column_swap_test_test
 WHERE substring(reverse(b), 1, 1) = 'c'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT substring(reverse(b), 1, 1)
@@ -223,7 +223,7 @@ EXPLAIN QUERY TREE
 SELECT substring(reverse(b), 1, 1)
 FROM column_swap_test_test
 WHERE substring(reverse(b), 1, 1) = 'c'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t_bad_constraint;
 
@@ -233,7 +233,7 @@ CREATE TABLE t_bad_constraint
     s String,
     CONSTRAINT c1 ASSUME a = toUInt32(s)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_bad_constraint SELECT
@@ -248,6 +248,6 @@ FROM t_bad_constraint;
 EXPLAIN QUERY TREE
 SELECT a
 FROM t_bad_constraint
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE t_bad_constraint;

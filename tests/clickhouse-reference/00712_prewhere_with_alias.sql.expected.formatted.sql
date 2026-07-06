@@ -8,7 +8,7 @@ CREATE TABLE prewhere_alias
     d Int64 ALIAS b + 1,
     e Int32 ALIAS a + b
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO prewhere_alias;

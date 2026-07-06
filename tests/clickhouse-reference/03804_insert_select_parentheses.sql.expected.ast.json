@@ -1,377 +1,481 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_insert_select_parens"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Test that INSERT SELECT with parentheses around the SELECT part is supported",
-      "-- This was previously rejected by the parser"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_insert_select_parens"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
         ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
-      ],
-      "parenthesized": true
-    },
-    "leadingComments": [
-      "-- Basic case: INSERT SELECT with parentheses"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_insert_select_parens"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_insert_select_parens"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "union",
-      "queries": [
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
         {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          ]
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
+          "type": "Identifier",
+          "name": "x"
         }
       ],
-      "parenthesized": true
-    },
-    "leadingComments": [
-      "-- INSERT SELECT with UNION and parentheses"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "intersect",
-      "op": "EXCEPT",
-      "left": {
-        "kind": "select",
-        "select": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          ]
-        },
-        "parenthesized": true
-      },
-      "right": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        },
-        "parenthesized": true
-      }
-    },
-    "leadingComments": [
-      "-- INSERT SELECT with EXCEPT and parentheses"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "intersect",
-      "op": "INTERSECT",
-      "left": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          ]
-        },
-        "parenthesized": true
-      },
-      "right": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
-            }
-          ]
-        },
-        "parenthesized": true
-      }
-    },
-    "leadingComments": [
-      "-- INSERT SELECT with INTERSECT and parentheses"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      ],
-      "parenthesized": true
-    },
-    "leadingComments": [
-      "-- Nested parentheses"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t_insert_select_parens"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteSubquery",
-          "name": "cte",
-          "query": {
-            "kind": "select",
+            "type": "SelectQuery",
             "select": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
-                },
-                "alias": "val"
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
               }
             ]
           }
-        }
-      ],
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "cte"
-      },
-      "parenthesized": true
-    },
-    "leadingComments": [
-      "-- INSERT SELECT with CTE inside parentheses"
-    ]
+        ]
+      }
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_insert_select_parens"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_insert_select_parens"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              }
+            ]
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "3"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectIntersectExceptQuery",
+            "operator": "EXCEPT ALL",
+            "selects": [
+              {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Asterisk"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "table_function": {
+                              "type": "Function",
+                              "name": "numbers",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "5"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Asterisk"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "table_function": {
+                              "type": "Function",
+                              "name": "numbers",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectIntersectExceptQuery",
+            "operator": "INTERSECT ALL",
+            "selects": [
+              {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Asterisk"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "table_function": {
+                              "type": "Function",
+                              "name": "numbers",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "5"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Asterisk"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "table_function": {
+                              "type": "Function",
+                              "name": "numbers",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "5"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "WithElement",
+                "name": "cte",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Literal",
+                            "alias": "val",
+                            "value_type": "UInt64",
+                            "value": "100"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "val"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "cte"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_insert_select_parens"
+      }
     }
   }
 ]

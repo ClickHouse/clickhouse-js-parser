@@ -6,7 +6,7 @@ CREATE TABLE test
     b UInt8,
     c UInt16 ALIAS a + b
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 SELECT b
@@ -35,10 +35,10 @@ CREATE TABLE audience_local
     Sum Int64,
     Release String ALIAS splitByChar('-', AppVersion)[1]
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY (AudienceType, UMA, APIKey, Date, TrialNameID, TrialGroupID, AppVersion, Arch, UserID, GroupID, OSName, Channel)
 PARTITION BY (toISOYear(Date), toISOWeek(Date))
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 SELECT DISTINCT UserID
 FROM audience_local

@@ -7,9 +7,9 @@ CREATE TABLE t
     k UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS old_parts_lifetime = 600;
+SETTINGS old_parts_lifetime = '600';
 
 INSERT INTO t;
 
@@ -27,7 +27,7 @@ SELECT '---';
 
 ALTER TABLE t FREEZE;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE t UPDATE s = 'goodbye' WHERE k = 1;
 

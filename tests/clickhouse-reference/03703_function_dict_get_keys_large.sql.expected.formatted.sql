@@ -8,7 +8,7 @@ CREATE TABLE dict_src_big
     grp String,
     grp_round String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_big SELECT
     number AS id,
@@ -24,7 +24,7 @@ CREATE DICTIONARY dict_big
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_big'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT length(dictGetKeys('dict_big', 'grp', '123'));

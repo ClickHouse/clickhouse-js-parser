@@ -34,7 +34,7 @@ INSERT INTO quorum1;
 
 SYSTEM SYNC REPLICA quorum2;
 
-SET select_sequential_consistency = 1;
+SET select_sequential_consistency = '1';
 
 SELECT x
 FROM quorum1
@@ -44,7 +44,7 @@ SELECT x
 FROM quorum2
 ORDER BY x ASC;
 
-SET insert_quorum = 2, insert_quorum_parallel = 0;
+SET insert_quorum = '2', insert_quorum_parallel = '0';
 
 INSERT INTO quorum1;
 

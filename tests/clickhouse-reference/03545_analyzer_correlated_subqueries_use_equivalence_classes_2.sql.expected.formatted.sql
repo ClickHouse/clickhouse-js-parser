@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET correlated_subqueries_substitute_equivalent_expressions = 1;
+SET correlated_subqueries_substitute_equivalent_expressions = '1';
 
 SET query_plan_join_swap_table = false;
 
@@ -18,7 +18,7 @@ CREATE TABLE a
     c4 Int64
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE TABLE b
 (
@@ -28,7 +28,7 @@ CREATE TABLE b
     c4 Int64
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 INSERT INTO a;
 

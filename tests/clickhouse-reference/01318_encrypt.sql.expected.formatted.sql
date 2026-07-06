@@ -75,7 +75,7 @@ CREATE TABLE encryption_test
     key24 String DEFAULT substring(key, 1, 24),
     key16 String DEFAULT substring(key, 1, 16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO encryption_test (input);
 

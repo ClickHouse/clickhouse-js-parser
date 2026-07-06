@@ -1,8 +1,8 @@
-SET convert_query_to_cnf = 1;
+SET convert_query_to_cnf = '1';
 
-SET optimize_using_constraints = 1;
+SET optimize_using_constraints = '1';
 
-SET optimize_append_index = 0;
+SET optimize_append_index = '0';
 
 DROP TABLE IF EXISTS t_constraints_where;
 
@@ -13,7 +13,7 @@ CREATE TABLE t_constraints_where
     CONSTRAINT c1 ASSUME b >= 5,
     CONSTRAINT c2 ASSUME b <= 10
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_constraints_where;
 
@@ -26,7 +26,7 @@ EXPLAIN QUERY TREE
 SELECT count()
 FROM t_constraints_where
 WHERE b > 15
-SETTINGS enable_analyzer = 1; -- assumption -> 0
+SETTINGS enable_analyzer = '1'; -- assumption -> 0
 
 EXPLAIN SYNTAX
 SELECT count()
@@ -37,7 +37,7 @@ EXPLAIN QUERY TREE
 SELECT count()
 FROM t_constraints_where
 WHERE b = 20
-SETTINGS enable_analyzer = 1; -- assumption -> 0
+SETTINGS enable_analyzer = '1'; -- assumption -> 0
 
 EXPLAIN SYNTAX
 SELECT count()
@@ -48,7 +48,7 @@ EXPLAIN QUERY TREE
 SELECT count()
 FROM t_constraints_where
 WHERE b < 2
-SETTINGS enable_analyzer = 1; -- assumption -> 0
+SETTINGS enable_analyzer = '1'; -- assumption -> 0
 
 EXPLAIN SYNTAX
 SELECT count()
@@ -61,7 +61,7 @@ SELECT count()
 FROM t_constraints_where
 WHERE b > 20
     OR b < 8
-SETTINGS enable_analyzer = 1; -- assumption -> remove (b < 20)
+SETTINGS enable_analyzer = '1'; -- assumption -> remove (b < 20)
 
 EXPLAIN SYNTAX
 SELECT count()
@@ -74,7 +74,7 @@ SELECT count()
 FROM t_constraints_where
 PREWHERE b > 20
     OR b < 8
-SETTINGS enable_analyzer = 1; -- assumption -> remove (b < 20)
+SETTINGS enable_analyzer = '1'; -- assumption -> remove (b < 20)
 
 DROP TABLE t_constraints_where;
 
@@ -84,7 +84,7 @@ CREATE TABLE t_constraints_where
     b UInt32,
     CONSTRAINT c1 ASSUME b < 10
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 EXPLAIN SYNTAX
 SELECT count()
@@ -99,4 +99,4 @@ FROM t_constraints_where
 WHERE b = 1
     OR b < 18
     OR b > 5
-SETTINGS enable_analyzer = 1; -- assumption -> (b < 20) -> 0;
+SETTINGS enable_analyzer = '1'; -- assumption -> (b < 20) -> 0;

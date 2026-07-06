@@ -8,7 +8,7 @@ CREATE TABLE tab1
 (
     id Int32,
     vec Array(Float32),
-    INDEX vec_idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1),
+    INDEX vec_idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1) GRANULARITY 100000000,
     PRIMARY KEY(id)
 );
 
@@ -16,7 +16,7 @@ CREATE TABLE tab2
 (
     id Int32,
     vec Array(Float32),
-    INDEX vec_idx vec TYPE vector_similarity(hnsw, L2Distance, 1),
+    INDEX vec_idx vec TYPE vector_similarity(hnsw, L2Distance, 1) GRANULARITY 100000000,
     PRIMARY KEY(id)
 );
 
@@ -38,6 +38,6 @@ CREATE TABLE tab2
     PRIMARY KEY(id)
 );
 
-ALTER TABLE tab1 ADD INDEX idx1 vec TYPE vector_similarity('hnsw', 'L2Distance', 1);
+ALTER TABLE tab1 ADD INDEX idx1 vec TYPE vector_similarity('hnsw', 'L2Distance', 1) GRANULARITY 100000000;
 
-ALTER TABLE tab2 ADD INDEX idx2 vec TYPE vector_similarity(hnsw, L2Distance, 1);
+ALTER TABLE tab2 ADD INDEX idx2 vec TYPE vector_similarity(hnsw, L2Distance, 1) GRANULARITY 100000000;

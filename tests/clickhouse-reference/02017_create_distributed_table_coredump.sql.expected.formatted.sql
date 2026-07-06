@@ -11,7 +11,7 @@ CREATE TABLE t
 (
     val UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val;
 
 CREATE TABLE td1 AS t

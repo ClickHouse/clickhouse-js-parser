@@ -3,24 +3,26 @@ CREATE TABLE test
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b);
 
 INSERT INTO test SELECT
     number,
     number
-FROM numbers_mt(1e6);
+FROM numbers_mt(1000000.);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT trimBoth(replaceRegexpAll(`explain`, '__table1.', ''))
 FROM (
-        EXPLAIN actions = 1
-        SELECT count(*)
-        FROM test
-        GROUP BY
-            b,
-            a
-        SETTINGS optimize_aggregation_in_order = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT count(*)
+                FROM test
+                GROUP BY
+                    b,
+                    a
+                SETTINGS optimize_aggregation_in_order = '1'
+            ))
     )
-WHERE like(`explain`, '%Order%');
+WHERE `explain` LIKE '%Order%';

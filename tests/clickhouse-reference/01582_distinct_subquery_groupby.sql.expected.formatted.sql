@@ -7,7 +7,7 @@ CREATE TABLE t
     a String,
     b Int
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t;
 

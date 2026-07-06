@@ -10,7 +10,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -33,10 +33,10 @@ SET param_a4 = '40';
 
 --check
 SELECT
-    {a1:Int32},
-    {a2:Int32},
-    {a3:Int32},
-    {a4:Int32};
+    0,
+    0,
+    0,
+    0;
 
 -- using 4 param in the select of the view work here.
 CREATE OR REPLACE VIEW V_DELTA
@@ -48,10 +48,10 @@ FROM (
             name,
             age
         FROM users
-        WHERE age >= {a1:Int32}
-            OR age >= {a2:Int32}
-            OR age >= {a3:Int32}
-            OR age >= {a4:Int32}
+        WHERE age >= 0
+            OR age >= 0
+            OR age >= 0
+            OR age >= 0
     )
 ORDER BY uid ASC;
 
@@ -66,16 +66,16 @@ FROM (
             name,
             age
         FROM users
-        WHERE age >= {a1:Int32}
-            AND age <= {a2:Int32}
+        WHERE age >= 0
+            AND age <= 0
 EXCEPT
         SELECT
             uid,
             name,
             age
         FROM users
-        WHERE age >= {a3:Int32}
-            AND age <= {a4:Int32}
+        WHERE age >= 0
+            AND age <= 0
     )
 ORDER BY uid ASC;
 
@@ -89,16 +89,16 @@ FROM (
             name,
             age
         FROM users
-        WHERE age >= {a1:Int32}
-            AND age <= {a2:Int32}
+        WHERE age >= 0
+            AND age <= 0
 EXCEPT
         SELECT
             uid,
             name,
             age
         FROM users
-        WHERE age >= {a3:Int32}
-            AND age <= {a4:Int32}
+        WHERE age >= 0
+            AND age <= 0
     )
 ORDER BY uid ASC;
 

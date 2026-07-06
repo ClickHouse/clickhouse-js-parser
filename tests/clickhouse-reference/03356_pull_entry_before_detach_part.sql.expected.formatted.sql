@@ -1,8 +1,8 @@
 -- Tags: no-fasttest, no-parallel
 -- Forbid fault injection to avoid part name randomization, since we rely on it
-SET insert_keeper_fault_injection_probability = 0;
+SET insert_keeper_fault_injection_probability = '0';
 
-DROP TABLE IF EXISTS t1;
+DROP TABLE IF EXISTS t1 SYNC;
 
 CREATE TABLE t1
 (
@@ -17,4 +17,4 @@ INSERT INTO t1;
 
 SYSTEM START PULLING REPLICATION LOG t1;
 
-ALTER TABLE t1 DROP PART 'all_0_0_0';
+ALTER TABLE t1 DETACH PART 'all_0_0_0';

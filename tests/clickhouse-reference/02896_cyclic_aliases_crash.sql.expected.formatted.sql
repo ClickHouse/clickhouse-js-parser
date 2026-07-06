@@ -1,4 +1,4 @@
-SET max_ast_depth = 10000000;
+SET max_ast_depth = '10000000';
 
 SELECT
     val,
@@ -30,7 +30,7 @@ CREATE TABLE test_table
     clicks UInt32,
     revenue Float32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY time_stamp_utc;
 
 SELECT
@@ -39,8 +39,8 @@ SELECT
     sum(clicks) AS Clicks,
     sum(revenue) AS Revenue
 FROM test_table
-WHERE (time_stamp_utc >= toDateTime('2024-04-25 00:00:00'))
-    AND (time_stamp_utc < toDateTime('2024-05-02 00:00:00'))
+WHERE time_stamp_utc >= toDateTime('2024-04-25 00:00:00')
+    AND time_stamp_utc < toDateTime('2024-05-02 00:00:00')
 GROUP BY time_stamp_utc
 ORDER BY Impressions DESC
 LIMIT 1000;
@@ -48,7 +48,7 @@ LIMIT 1000;
 DROP TABLE test_table;
 
 CREATE TABLE test_table
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY sum AS
 SELECT 100 AS sum
 UNION ALL

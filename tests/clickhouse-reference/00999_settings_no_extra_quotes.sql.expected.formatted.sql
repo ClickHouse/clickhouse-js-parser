@@ -1,2 +1,2 @@
-SELECT DISTINCT like(description, '"%"')
+SELECT DISTINCT description LIKE '"%"'
 FROM `system`.`settings`;

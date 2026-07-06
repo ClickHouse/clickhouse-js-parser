@@ -1,5 +1,5 @@
 -- add_minmax_index_for_numeric_columns=0: Different plan
-SET use_statistics = 0;
+SET use_statistics = '0';
 
 SELECT *
 FROM (
@@ -56,12 +56,12 @@ CREATE TABLE Test
 ENGINE = MergeTree()
 PRIMARY KEY (String1, String2)
 ORDER BY (String1, String2)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = 0 AS
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = '0' AS
 SELECT
-    concat('String1_', toString(number)) AS String1,
-    concat('String2_', toString(number)) AS String2,
-    concat('String3_', toString(number)) AS String3,
-    concat('String4_', toString(number % 4)) AS String4
+    'String1_' || toString(number) AS String1,
+    'String2_' || toString(number) AS String2,
+    'String3_' || toString(number) AS String3,
+    'String4_' || toString(number % 4) AS String4
 FROM numbers(1);
 
 SELECT *
@@ -110,8 +110,8 @@ FROM
 ARRAY JOIN y AS x
 WHERE a = 1
     AND b = 2
-    AND ((x = 1
-    OR x != 1))
+    AND (x = 1
+    OR x != 1)
     AND x = 1;
 
 DROP TABLE IF EXISTS t;
@@ -120,9 +120,9 @@ CREATE TABLE t
 (
     a UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO t SELECT *
 FROM numbers(2);
@@ -143,23 +143,23 @@ CREATE TABLE t1
     id Int64,
     create_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = '0';
 
 CREATE TABLE t2
 (
     delete_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY delete_time
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO t1;
 
 INSERT INTO t2;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT
     id,
     delete_time
@@ -171,9 +171,9 @@ CROSS JOIN (
     ) AS d
 WHERE create_time < delete_time
     AND id = 101
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT
     id,
     delete_time
@@ -185,7 +185,7 @@ CROSS JOIN (
     ) AS d
 WHERE create_time < delete_time
     AND id = 101
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 -- expected to get row (1, 3, 1, 4) from JOIN and empty result from the query
 SELECT *
@@ -194,10 +194,10 @@ FROM
         SELECT *
         FROM Values('id UInt64, t UInt64', (1, 3))
     ) AS t1
-INNER JOIN (
+ASOF INNER JOIN (
         SELECT *
         FROM Values('id UInt64, t UInt64', (1, 1), (1, 2), (1, 3), (1, 4), (1, 5))
     ) AS t2
-    ON (t1.id = t2.id)
-    AND (t1.t < t2.t)
+    ON t1.id = t2.id
+    AND t1.t < t2.t
 WHERE t2.t != 4;

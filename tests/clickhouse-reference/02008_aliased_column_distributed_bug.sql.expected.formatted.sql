@@ -21,9 +21,9 @@ CREATE TABLE click_storage_dst
 )
 ENGINE = Distributed(test_shard_localhost, currentDatabase(), 'click_storage');
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 SELECT materialize(PhraseProcessedID)
 FROM click_storage_dst;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';

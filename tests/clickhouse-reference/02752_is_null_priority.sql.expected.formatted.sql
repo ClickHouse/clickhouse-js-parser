@@ -1,4 +1,4 @@
 EXPLAIN AST
 SELECT
-    isNull(a * b),
-    isNotNull(a * b);
+    a * b IS NULL,
+    a * b IS NOT NULL;

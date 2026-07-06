@@ -5,7 +5,7 @@ CREATE TABLE test_00562
     s String,
     i Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_00562;
 

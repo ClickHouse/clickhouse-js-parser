@@ -8,7 +8,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -17,11 +17,11 @@ CREATE TABLE users_ext
     uid Int16,
     nullableStringCol Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users_ext;
 
-SELECT isNotNull(nullableStringCol)
+SELECT nullableStringCol IS NOT NULL
 FROM
     users
 LEFT JOIN users_ext
@@ -33,13 +33,13 @@ FROM
 LEFT JOIN users_ext
     ON users_ext.uid = users.uid;
 
-SELECT isNull(nullableStringCol)
+SELECT nullableStringCol IS NULL
 FROM
     users
 LEFT JOIN users_ext
     ON users_ext.uid = users.uid;
 
-SELECT isNull(nullableStringCol)
+SELECT nullableStringCol IS NULL
 FROM
     users
 INNER JOIN users AS users2
@@ -47,7 +47,7 @@ INNER JOIN users AS users2
 LEFT JOIN users_ext
     ON users_ext.uid = users.uid;
 
-SELECT isNull(nullableStringCol)
+SELECT nullableStringCol IS NULL
 FROM
     users_ext
 RIGHT JOIN users AS users2
@@ -55,7 +55,7 @@ RIGHT JOIN users AS users2
 LEFT JOIN users
     ON users2.uid = users.uid;
 
-SELECT isNull(nullableStringCol)
+SELECT nullableStringCol IS NULL
 FROM
     users_ext
 INNER JOIN users AS users2
@@ -64,9 +64,9 @@ FULL JOIN users
     ON users2.uid = users.uid;
 
 SELECT
-    isNull(t1.nullableStringCol),
-    isNull(t2.nullableStringCol),
-    isNull(t3.nullableStringCol)
+    t1.nullableStringCol IS NULL,
+    t2.nullableStringCol IS NULL,
+    t3.nullableStringCol IS NULL
 FROM
     users_ext AS t1
 FULL JOIN users_ext AS t2

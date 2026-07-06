@@ -5,7 +5,7 @@ CREATE TABLE test
     Printer LowCardinality(String),
     IntervalStart DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (Printer, IntervalStart)
 PARTITION BY (hiveHash(Printer), toYear(IntervalStart));
 

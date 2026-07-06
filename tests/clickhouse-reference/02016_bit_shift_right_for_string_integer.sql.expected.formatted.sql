@@ -1,4 +1,4 @@
-SELECT bin('Hello') == bin(bitShiftRight('Hello', 0));
+SELECT bin('Hello') = bin(bitShiftRight('Hello', 0));
 
 SELECT
     0,
@@ -205,7 +205,7 @@ SELECT
     'Hello',
     bin(bitShiftRight('Hello', 40));
 
-SELECT bin(toFixedString('Hello', 10)) == bin(bitShiftRight(toFixedString('Hello', 10), 0));
+SELECT bin(toFixedString('Hello', 10)) = bin(bitShiftRight(toFixedString('Hello', 10), 0));
 
 SELECT
     0,
@@ -450,7 +450,7 @@ CREATE TABLE test_bit_shift_right_string_integer
     fixedStr FixedString(10),
     id Int64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test_bit_shift_right_string_integer;
 
@@ -467,14 +467,14 @@ SELECT
     str AS arg,
     bin(bitShiftRight(str, id)) AS string_res
 FROM test_bit_shift_right_string_integer
-WHERE (str = 'Hello'
-    AND ((id = 23
+WHERE str = 'Hello'
+    AND (id = 23
     OR id = 24
-    OR id = 25)))
-    OR (str = 'Hel'
-    AND ((id = 7
+    OR id = 25)
+    OR str = 'Hel'
+    AND (id = 7
     OR id = 8
-    OR id = 9)));
+    OR id = 9);
 
 SELECT
     id AS shift_right_bit,
@@ -487,14 +487,14 @@ SELECT
     fixedStr AS arg,
     bin(bitShiftRight(fixedStr, id)) AS fixed_string_res
 FROM test_bit_shift_right_string_integer
-WHERE (str = 'Hello'
-    AND ((id = 23
+WHERE str = 'Hello'
+    AND (id = 23
     OR id = 24
-    OR id = 25)))
-    OR (str = 'Hel'
-    AND ((id = 7
+    OR id = 25)
+    OR str = 'Hel'
+    AND (id = 7
     OR id = 8
-    OR id = 9)));
+    OR id = 9);
 
 SELECT
     7 AS shift_right_bit,

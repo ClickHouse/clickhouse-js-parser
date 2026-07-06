@@ -1,7 +1,7 @@
 -- Tags: no-parallel
 -- Tag no-parallel: Messes with internal cache
 -- Tests that the query condition cache rejects conditions with non-deterministic functions
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -10,7 +10,7 @@ CREATE TABLE tab
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO tab SELECT

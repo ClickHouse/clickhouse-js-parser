@@ -1,10 +1,10 @@
-SET output_format_pretty_display_footer_column_names = 0;
+SET output_format_pretty_display_footer_column_names = '0';
 
-SET output_format_pretty_color = 1;
+SET output_format_pretty_color = '1';
 
-SET output_format_pretty_highlight_trailing_spaces = 1;
+SET output_format_pretty_highlight_trailing_spaces = '1';
 
-SET output_format_pretty_fallback_to_vertical = 0;
+SET output_format_pretty_fallback_to_vertical = '0';
 
 DROP TABLE IF EXISTS strings_whitespace;
 
@@ -12,7 +12,7 @@ CREATE TABLE strings_whitespace
 (
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO strings_whitespace;
 

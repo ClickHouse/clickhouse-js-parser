@@ -7,7 +7,7 @@ CREATE TABLE `right`
     Id String,
     INDEX index_document_udm_type_names array_in_index TYPE set(100) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `right` SELECT

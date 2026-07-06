@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS t_nested_tuple;
 
@@ -6,12 +6,12 @@ CREATE TABLE t_nested_tuple
 (
     endUserIDs Tuple(_experience Tuple(aaid Tuple(id Nullable(String), namespace Tuple(code LowCardinality(Nullable(String))), primary LowCardinality(Nullable(UInt8))), mcid Tuple(id Nullable(String), namespace Tuple(code LowCardinality(Nullable(String))), primary LowCardinality(Nullable(UInt8)))))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-SET output_format_json_named_tuples_as_objects = 1;
+SET output_format_json_named_tuples_as_objects = '1';
 
-INSERT INTO t_nested_tuple;
+INSERT INTO t_nested_tuple FORMAT JSONEachRow;
 
 SELECT *
 FROM t_nested_tuple

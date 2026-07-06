@@ -10,7 +10,7 @@ CREATE TABLE json
 )
 ENGINE = File(JSONEachRow, 'data1622.json');
 
-SET input_format_defaults_for_omitted_fields = 1;
+SET input_format_defaults_for_omitted_fields = '1';
 
 SELECT *
 FROM json;

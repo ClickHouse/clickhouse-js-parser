@@ -1,11 +1,11 @@
-DROP TABLE IF EXISTS a;
+DROP TABLE IF EXISTS a SYNC;
 
 CREATE TABLE a
 (
     x Int64,
-    y Int64 MATERIALIZED 1 SETTINGS(max_compress_block_size = 30000)
+    y Int64 MATERIALIZED 1 SETTINGS(max_compress_block_size = '30000')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 SELECT formatQuery('ALTER TABLE a MODIFY COLUMN y Int64 REMOVE MATERIALIZED'); -- { serverError SYNTAX_ERROR }

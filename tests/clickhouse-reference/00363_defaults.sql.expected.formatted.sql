@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS prewhere_defaults;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE prewhere_defaults
 (
@@ -12,7 +12,7 @@ ENGINE = MergeTree(d, k, 1);
 
 INSERT INTO prewhere_defaults (x);
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 SELECT *
 FROM prewhere_defaults

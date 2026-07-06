@@ -14,9 +14,9 @@ SELECT tuple(1) + tuple(2);
 
 SELECT tupleNegate((1, 0, 3.5));
 
-SELECT negate(materialize((1, 2, 3)));
+SELECT -materialize((1, 2, 3));
 
-SELECT negate(tuple(1));
+SELECT -tuple(1);
 
 SELECT tupleMultiplyByNumber((1, 2, 3), 0.5);
 
@@ -26,7 +26,7 @@ SELECT tupleMultiplyByNumber(tuple(1), 1);
 
 SELECT tupleDivideByNumber(tuple(1), materialize(1));
 
-SELECT materialize((1, 2.0, 3.1)) * 3;
+SELECT materialize((1, 2., 3.1)) * 3;
 
 SELECT 5.5 * (2, 4);
 
@@ -44,9 +44,9 @@ SELECT L1Norm((-1, 2, -3));
 
 SELECT L1Norm((-1, 2.5, -3.6));
 
-SELECT L2Norm((1, 1.0));
+SELECT L2Norm((1, 1.));
 
-SELECT L2SquaredNorm((1, 1.0));
+SELECT L2SquaredNorm((1, 1.));
 
 SELECT L2Norm(materialize((-12, 5)));
 
@@ -90,13 +90,13 @@ SELECT L1Normalize(materialize((1, -4)));
 
 SELECT L2Normalize((3, 4));
 
-SELECT LinfNormalize((5, -5, 5.0));
+SELECT LinfNormalize((5, -5, 5.));
 
 SELECT LpNormalize((1, pow(31, 1 / 5)), 5.);
 
 SELECT cosineDistance(materialize((1, 1)), (2, 2));
 
-SELECT cosineDistance((1, 1), materialize((-3, 3.0)));
+SELECT cosineDistance((1, 1), materialize((-3, 3.)));
 
 SELECT cosineDistance((1, 1), (-1, -1));
 
@@ -112,11 +112,11 @@ SELECT L2SquaredNorm((NULL, 3, 4));
 
 SELECT 2 * (1, 2, NULL);
 
-SELECT (1, 1.0, NULL) / NULL;
+SELECT (1, 1., NULL) / NULL;
 
-SELECT (1, 1.0, NULL) / materialize(NULL);
+SELECT (1, 1., NULL) / materialize(NULL);
 
-SELECT negate((NULL, NULL, 1));
+SELECT -(NULL, NULL, 1);
 
 SELECT (NULL, NULL) * NULL;
 
@@ -130,7 +130,7 @@ SELECT L1Norm(1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT (1, 1) / toString(1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT negate((1, toString(1))); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT -(1, toString(1)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT LpNorm((1, 2), toDecimal32(2, 4)); -- { serverError ILLEGAL_COLUMN }
 
@@ -179,7 +179,7 @@ FROM numbers(3, 2); -- { serverError ILLEGAL_COLUMN }
 SELECT cosineDistance(tuple(*, * + 1), tuple(1, 2))
 FROM numbers(1, 3);
 
-SELECT negate(tuple(NULL, * * 2, *))
+SELECT -tuple(NULL, * * 2, *)
 FROM numbers(2);
 
 SELECT
@@ -221,4 +221,4 @@ SELECT cosineDistance(materialize((NULL, -2147483648)), (1048577, 1048575));
 
 -- not extra parentheses
 EXPLAIN SYNTAX
-SELECT negate(((3, 7, 3), 100));
+SELECT -((3, 7, 3), 100);

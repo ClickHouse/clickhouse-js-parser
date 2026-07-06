@@ -1,132 +1,163 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "const_node"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "const_node"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt8"
-              }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt8"
+                }
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES const_node"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "const_node"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "const_node"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "const_node"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v"
+          }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "const_node"
-    },
-    "prewhere": {
-      "kind": "functionCall",
-      "name": "and",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "const_node"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "materialize",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "255"
+              "type": "Identifier",
+              "name": "v"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "const_node"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "and",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "materialize",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "255"
+                  }
+                ]
+              },
+              {
+                "type": "Asterisk"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v"
+              },
+              "direction": "ASC"
             }
           ]
-        },
-        {
-          "kind": "asterisk"
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Here we have condition with a constant \"materialize(255)\", for which convertToFullColumnIfConst() will return underlying column w/o copying,",
-      "-- and later shrinkToFit() will be called from multiple threads on this column, and leads to UB"
-    ]
+    }
   }
 ]

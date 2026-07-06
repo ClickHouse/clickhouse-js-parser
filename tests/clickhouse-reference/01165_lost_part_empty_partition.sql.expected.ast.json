@@ -1,674 +1,765 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: zookeeper, no-shared-merge-tree",
-      "-- no-shared-merge-tree: shared merge tree doesn't loose data parts"
-    ],
-    "trailingComments": [
-      "-- system.text_log can be really big"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMMDD",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMMDD",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop replicated sends rmt1"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "rmt1"
-      }
-    },
-    "trailingComments": [
-      "-- { error BAD_ARGUMENTS }"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt1"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
+        "type": "Identifier",
+        "name": "rmt1"
       },
-      "limit": {
-        "count": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              ],
-              "source": "[1, 2]"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
             }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError BAD_ARGUMENTS, INVALID_LIMIT_EXPRESSION }"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt1"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt2"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "lost_part_count"
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "replicas"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "rmt2"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt2"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS text_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "text_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "logger_name"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
             },
             {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMMDD",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMMDD",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP REPLICATED SENDS",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "%"
-                },
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Function",
+              "name": "arrayJoin",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "%"
+                  "type": "Literal",
+                  "value_type": "Array",
+                  "value": [
+                    {
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
                 }
               ]
             }
-          ]
-        },
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "ilike",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "message"
-              ]
+              "type": "Identifier",
+              "name": "lost_part_count"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicas",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "rmt2"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "text_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "text_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "logger_name"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "concat",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "%"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "%"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "ilike",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "message"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%table with non-zero lost_part_count equal to%"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%table with non-zero lost_part_count equal to%"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
             }
           ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
         }
-      ]
+      }
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "tuple",
-      "args": []
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "tuple",
-      "args": []
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "UInt8"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "m",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "t",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "m"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t"
-          ]
-        }
-      ],
-      "source": "(n, m, d, t)"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "UInt8"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "m",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "t",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/01165/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "m"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t"
-          ]
-        }
-      ],
-      "source": "(n, m, d, t)"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "rmt1"
+        "type": "Identifier",
+        "name": "rmt2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        }
       }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "m",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "t",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Identifier",
+              "name": "m"
+            },
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "t"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "m",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "t",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/01165/{database}/rmt"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Identifier",
+              "name": "m"
+            },
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "t"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "format": "Values"
     }
   }
 ]

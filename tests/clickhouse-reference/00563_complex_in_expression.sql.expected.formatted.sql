@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS test_00563;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_00563
 (
@@ -27,16 +27,16 @@ CREATE TABLE join_with_index
     key UInt32,
     data UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO join_with_index;
 
 SELECT key + 1
 FROM
     join_with_index
-INNER JOIN (
+ALL INNER JOIN (
         SELECT
             key,
             data

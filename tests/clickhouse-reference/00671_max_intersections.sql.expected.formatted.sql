@@ -7,14 +7,14 @@ CREATE TABLE test1_00671
     start Integer,
     `end` Integer
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test2_00671
 (
     start Integer,
     `end` Integer
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test1_00671 (start, `end`);
 

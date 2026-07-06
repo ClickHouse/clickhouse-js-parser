@@ -1,41 +1,41 @@
 -- Tags: no-fasttest
 -- no-fasttest: 'countmin' sketches need a 3rd party library
 -- Tests the cross product of all predicates with all right-hand sides on all data types and all statistics types.
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
-SET use_statistics = 1;
+SET use_statistics = '1';
 
 DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 (
     u64 UInt64,
-    u64_tdigest UInt64 STATISTICS(tdigest),
-    u64_minmax UInt64 STATISTICS(minmax),
-    u64_countmin UInt64 STATISTICS(countmin),
-    u64_uniq UInt64 STATISTICS(uniq),
+    u64_tdigest UInt64 STATISTICS(tdigest()),
+    u64_minmax UInt64 STATISTICS(minmax()),
+    u64_countmin UInt64 STATISTICS(countmin()),
+    u64_uniq UInt64 STATISTICS(uniq()),
     f64 Float64,
-    f64_tdigest Float64 STATISTICS(tdigest),
-    f64_minmax Float64 STATISTICS(minmax),
-    f64_countmin Float64 STATISTICS(countmin),
-    f64_uniq Float64 STATISTICS(uniq),
+    f64_tdigest Float64 STATISTICS(tdigest()),
+    f64_minmax Float64 STATISTICS(minmax()),
+    f64_countmin Float64 STATISTICS(countmin()),
+    f64_uniq Float64 STATISTICS(uniq()),
     dt DateTime,
-    dt_tdigest DateTime STATISTICS(tdigest),
-    dt_minmax DateTime STATISTICS(minmax),
-    dt_countmin DateTime STATISTICS(countmin),
-    dt_uniq DateTime STATISTICS(uniq),
+    dt_tdigest DateTime STATISTICS(tdigest()),
+    dt_minmax DateTime STATISTICS(minmax()),
+    dt_countmin DateTime STATISTICS(countmin()),
+    dt_uniq DateTime STATISTICS(uniq()),
     b Bool,
-    b_tdigest Bool STATISTICS(tdigest),
-    b_minmax Bool STATISTICS(minmax),
-    b_countmin Bool STATISTICS(countmin),
-    b_uniq Bool STATISTICS(uniq),
+    b_tdigest Bool STATISTICS(tdigest()),
+    b_minmax Bool STATISTICS(minmax()),
+    b_countmin Bool STATISTICS(countmin()),
+    b_uniq Bool STATISTICS(uniq()),
     s String,
-    s_countmin String STATISTICS(countmin),
-    s_uniq String STATISTICS(uniq)
+    s_countmin String STATISTICS(countmin()),
+    s_uniq String STATISTICS(uniq())
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO tab SELECT
     number % 1000, -- u64

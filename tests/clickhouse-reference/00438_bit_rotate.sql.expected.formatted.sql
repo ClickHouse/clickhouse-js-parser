@@ -1,3 +1,3 @@
-SELECT hex(bitRotateLeft(0x8000000000000001, 1));
+SELECT hex(bitRotateLeft(9223372036854775809, 1));
 
-SELECT hex(bitRotateRight(0x8000000000000001, 1));
+SELECT hex(bitRotateRight(9223372036854775809, 1));

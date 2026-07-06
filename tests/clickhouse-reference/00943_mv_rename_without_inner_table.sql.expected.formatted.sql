@@ -10,13 +10,13 @@ CREATE TABLE src
 (
     x UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE dst
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW original_mv
 TO dst

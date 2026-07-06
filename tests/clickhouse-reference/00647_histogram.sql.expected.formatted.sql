@@ -15,9 +15,9 @@ FROM (
 WITH arrayJoin(histogram(3)(sin(number))) AS res
 
 SELECT
-    round(res.1, 2),
-    round(res.2, 2),
-    round(res.3, 2)
+    round((res).1, 2),
+    round((res).2, 2),
+    round((res).3, 2)
 FROM (
         SELECT *
         FROM `system`.numbers
@@ -27,9 +27,9 @@ FROM (
 WITH arrayJoin(histogram(1)(sin(number - 40))) AS res
 
 SELECT
-    round(res.1, 2),
-    round(res.2, 2),
-    round(res.3, 2)
+    round((res).1, 2),
+    round((res).2, 2),
+    round((res).3, 2)
 FROM (
         SELECT *
         FROM `system`.numbers

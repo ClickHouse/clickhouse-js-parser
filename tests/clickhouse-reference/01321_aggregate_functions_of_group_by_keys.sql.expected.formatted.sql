@@ -1,4 +1,4 @@
-SET optimize_aggregators_of_group_by_keys = 1;
+SET optimize_aggregators_of_group_by_keys = '1';
 
 SELECT
     min(number % 2) AS a,
@@ -22,7 +22,7 @@ ORDER BY
     a ASC,
     b ASC;
 
-SELECT max((number % 5) * ((number % 7))) AS a
+SELECT max(number % 5 * (number % 7)) AS a
 FROM numbers(10000000)
 GROUP BY
     number % 7,
@@ -65,7 +65,7 @@ ORDER BY
     b ASC;
 
 EXPLAIN SYNTAX
-SELECT max((number % 5) * ((number % 7))) AS a
+SELECT max(number % 5 * (number % 7)) AS a
 FROM numbers(10000000)
 GROUP BY
     number % 7,
@@ -80,4 +80,4 @@ FROM (
         GROUP BY number
     );
 
-SET optimize_aggregators_of_group_by_keys = 0;
+SET optimize_aggregators_of_group_by_keys = '0';

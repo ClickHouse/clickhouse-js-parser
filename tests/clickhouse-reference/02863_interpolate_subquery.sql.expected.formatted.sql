@@ -6,7 +6,7 @@ CREATE TABLE tab
     i UInt32,
     a UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     i,
@@ -17,7 +17,7 @@ FROM (
             a AS col1,
             a AS col2
         FROM tab
-        ORDER BY i ASC WITH FILL INTERPOLATE (col1 AS col1 + col2, col2)
+        ORDER BY i ASC WITH FILL INTERPOLATE (col1 AS col1 + col2, col2 AS col2)
     );
 
 DROP TABLE tab;

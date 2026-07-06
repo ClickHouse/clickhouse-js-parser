@@ -8,10 +8,10 @@ CREATE TABLE table1
     id Int32,
     arr Array(LowCardinality(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (dt, id)
 PARTITION BY toMonday(dt)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE table2
 (
@@ -19,10 +19,10 @@ CREATE TABLE table2
     id Int32,
     arr Array(LowCardinality(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (dt, id)
 PARTITION BY toMonday(dt)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO table1 (dt, id, arr);
 

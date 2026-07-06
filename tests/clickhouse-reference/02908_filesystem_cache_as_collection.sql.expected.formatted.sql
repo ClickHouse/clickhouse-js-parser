@@ -10,7 +10,7 @@ CREATE TABLE test
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS disk = disk(type = cache, disk = 'local_disk', name = 'cache_with_sql_collection', cache_name = 'cache_collection_sql', load_metadata_asynchronously = 0);
+SETTINGS disk = 'disk(type = cache, disk = ''local_disk'', name = ''cache_with_sql_collection'', cache_name = ''cache_collection_sql'', load_metadata_asynchronously = 0)';
 
 SELECT path
 FROM `system`.filesystem_cache_settings
@@ -23,7 +23,7 @@ CREATE TABLE test2
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS disk = disk(type = cache, disk = 'local_disk', name = 'cache_with_collection', cache_name = 'cache_collection', load_metadata_asynchronously = 0);
+SETTINGS disk = 'disk(type = cache, disk = ''local_disk'', name = ''cache_with_collection'', cache_name = ''cache_collection'', load_metadata_asynchronously = 0)';
 
 SELECT path
 FROM `system`.filesystem_cache_settings

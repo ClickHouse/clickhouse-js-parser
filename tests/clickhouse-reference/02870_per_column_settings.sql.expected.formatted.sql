@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS tab;
 CREATE TABLE tab
 (
     id UInt64,
-    long_string String SETTINGS(min_compress_block_size = 163840, max_compress_block_size = 163840),
+    long_string String SETTINGS(min_compress_block_size = '163840', max_compress_block_size = '163840'),
     v1 String,
     v2 UInt64,
     v3 Float32,
@@ -15,7 +15,7 @@ CREATE TABLE tab
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/tab/2870', 'r1')
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '1';
 
 SHOW CREATE TABLE tab;
 
@@ -33,7 +33,7 @@ FROM tab;
 
 SELECT formatQuery('ALTER TABLE tab MODIFY COLUMN long_string MODIFY SETTING min_compress_block_size = 8192;');
 
-ALTER TABLE tab MODIFY COLUMN long_string MODIFY SETTING min_compress_block_size = 8192;
+ALTER TABLE tab MODIFY COLUMN long_string MODIFY SETTING min_compress_block_size = '8192';
 
 SELECT formatQuery('ALTER TABLE tab MODIFY COLUMN long_string RESET SETTING min_compress_block_size;');
 
@@ -41,11 +41,11 @@ ALTER TABLE tab MODIFY COLUMN long_string RESET SETTING min_compress_block_size;
 
 SELECT formatQuery('ALTER TABLE tab MODIFY COLUMN long_string REMOVE SETTINGS;');
 
-ALTER TABLE tab MODIFY COLUMN long_string;
+ALTER TABLE tab MODIFY COLUMN long_string REMOVE SETTINGS;
 
 SELECT formatQuery('ALTER TABLE tab MODIFY COLUMN long_string String SETTINGS (min_compress_block_size = 163840, max_compress_block_size = 163840);');
 
-ALTER TABLE tab MODIFY COLUMN long_string String SETTINGS(min_compress_block_size = 163840, max_compress_block_size = 163840);
+ALTER TABLE tab MODIFY COLUMN long_string String SETTINGS(min_compress_block_size = '163840', max_compress_block_size = '163840');
 
 DROP TABLE tab;
 
@@ -54,11 +54,11 @@ SELECT '---';
 CREATE TABLE tab
 (
     id UInt64,
-    tup Tuple(UInt64, UInt64) SETTINGS(min_compress_block_size = 81920, max_compress_block_size = 163840)
+    tup Tuple(UInt64, UInt64) SETTINGS(min_compress_block_size = '81920', max_compress_block_size = '163840')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '1';
 
 INSERT INTO tab SELECT
     number,
@@ -74,8 +74,8 @@ LIMIT 10;
 CREATE TABLE tab
 (
     id UInt64,
-    long_string String SETTINGS(min_block_size = 81920, max_compress_block_size = 163840)
+    long_string String SETTINGS(min_block_size = '81920', max_compress_block_size = '163840')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 1; -- {serverError UNKNOWN_SETTING}
+SETTINGS min_bytes_for_wide_part = '1'; -- {serverError UNKNOWN_SETTING}

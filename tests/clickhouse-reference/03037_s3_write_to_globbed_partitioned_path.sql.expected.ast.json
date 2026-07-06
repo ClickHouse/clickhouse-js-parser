@@ -1,59 +1,70 @@
 [
   {
-    "kind": "insert",
-    "target": {
-      "kind": "function",
-      "func": {
-        "kind": "tableFunctionRef",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table_function": {
+        "type": "Function",
         "name": "s3",
-        "args": [
+        "arguments": [
           {
-            "kind": "literal",
-            "type": "String",
+            "type": "Literal",
+            "value_type": "String",
             "value": "http://localhost:11111/test/data_*_{_partition_id}.csv"
           }
         ]
-      }
-    },
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "number"
+      },
+      "partition_by": {
+        "type": "Function",
+        "name": "modulo",
+        "is_operator": true,
+        "arguments": [
+          {
+            "type": "Identifier",
+            "name": "number"
+          },
+          {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    },
-    "leadingComments": [
-      "-- Tags: no-fasttest"
-    ],
-    "trailingComments": [
-      "-- {serverError DATABASE_ACCESS_DENIED}"
-    ]
+    }
   }
 ]

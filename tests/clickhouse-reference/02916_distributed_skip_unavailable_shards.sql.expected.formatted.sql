@@ -8,7 +8,7 @@ CREATE TABLE table_02916
     ID UInt32,
     Name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ID;
 
 INSERT INTO table_02916;
@@ -19,7 +19,7 @@ CREATE TABLE table_02916_distributed
     Name String
 )
 ENGINE = Distributed(test_unavailable_shard, currentDatabase(), table_02916, rand())
-SETTINGS skip_unavailable_shards = 1;
+SETTINGS skip_unavailable_shards = '1';
 
 SET send_logs_level = 'fatal';
 

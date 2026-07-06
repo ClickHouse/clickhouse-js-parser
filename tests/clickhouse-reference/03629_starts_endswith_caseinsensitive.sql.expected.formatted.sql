@@ -65,7 +65,7 @@ CREATE TABLE tab
     S2 String,
     S3 FixedString(4)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab;
 

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -7,7 +7,7 @@ CREATE TABLE t0
     c0 Int,
     c1 Int ALIAS 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0;
 

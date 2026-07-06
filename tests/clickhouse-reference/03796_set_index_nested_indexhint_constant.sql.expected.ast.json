@@ -1,308 +1,366 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_low_cardinality_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_low_cardinality_types": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Test for a bug where nested indexHint with non-UInt8 constant caused a logical error",
-      "-- \"ColumnUInt8 is expected as a Set index condition result\"",
-      "-- The issue was that constant columns of non-UInt8 type weren't being wrapped with __bitWrapperFunc"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Nullable",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "UInt16"
                     }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt256"
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "i",
+            "expression": {
+              "type": "Identifier",
+              "name": "v"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "set",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "100"
+                }
+              ]
+            },
+            "granularity": 2
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "allow_nullable_key": "1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "intDiv",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "4096"
                   }
                 ]
               }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt256"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "i",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v"
-          ]
-        },
-        "indexType": {
-          "name": "set",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            }
-          ]
-        },
-        "granularity": 2
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "allow_nullable_key",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "intDiv",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "4096"
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000000"
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "materialize",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Function",
+              "name": "materialize",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "toUInt256",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "toUInt256",
-                "args": [
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "indexHint",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "indexHint",
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
+                    "type": "Function",
+                    "name": "toUInt128",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "indexHint",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toUInt256",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
                     "value": "1"
                   }
                 ]
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "indexHint",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "indexHint",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toUInt128",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- This query would previously crash with LOGICAL_ERROR",
-      "-- because toUInt128(0) constant wasn't wrapped with __bitWrapperFunc"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "indexHint",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "toUInt256",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "indexHint",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "indexHint",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "toInt64",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "indexHint",
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "indexHint",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toInt64",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
     }
   }
 ]

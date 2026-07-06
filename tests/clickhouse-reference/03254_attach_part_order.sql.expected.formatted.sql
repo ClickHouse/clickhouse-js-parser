@@ -5,11 +5,11 @@ CREATE TABLE test_table
     url String,
     visits UInt32
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (dt, id)
 PARTITION BY toYYYYMM(dt);
 
-SYSTEM STOP merges test_table;
+SYSTEM STOP MERGES test_table;
 
 INSERT INTO test_table;
 
@@ -43,7 +43,7 @@ INSERT INTO test_table;
 
 INSERT INTO test_table;
 
-ALTER TABLE test_table DROP PARTITION 202410;
+ALTER TABLE test_table DETACH PARTITION 202410;
 
 ALTER TABLE test_table ATTACH PARTITION 202410;
 

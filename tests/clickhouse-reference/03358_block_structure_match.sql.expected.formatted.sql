@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT *
 FROM (
@@ -33,7 +33,7 @@ FROM (
         GROUP BY 2
     )
 WHERE materialize(4)
-ORDER BY materialize(4) ASC;
+ORDER BY materialize(4) ASC NULLS LAST;
 
 SELECT *
 FROM (

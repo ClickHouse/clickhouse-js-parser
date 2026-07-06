@@ -11,6 +11,6 @@ CROSS JOIN (
     ) AS b
 SETTINGS
     join_algorithm = 'hash',
-    allow_experimental_join_right_table_sorting = 1,
-    join_to_sort_minimum_perkey_rows = 0,
-    join_to_sort_maximum_table_rows = 1000;
+    allow_experimental_join_right_table_sorting = '1',
+    join_to_sort_minimum_perkey_rows = '0',
+    join_to_sort_maximum_table_rows = '1000';

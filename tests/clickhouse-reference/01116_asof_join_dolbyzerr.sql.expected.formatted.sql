@@ -22,9 +22,9 @@ SELECT
     groupUniqArray(sessionId)
 FROM
     sessions
-INNER JOIN orders
-    ON (sessions.visitorId = orders.visitorId)
-    AND (sessions.date <= orders.date)
+ASOF INNER JOIN orders
+    ON sessions.visitorId = orders.visitorId
+    AND sessions.date <= orders.date
 GROUP BY
     visitorId,
     orderId
@@ -38,9 +38,9 @@ SELECT
     groupUniqArray(sessionId)
 FROM
     sessions
-INNER JOIN orders
-    ON (sessions.visitorId = orders.visitorId)
-    AND (sessions.date <= orders.date)
+ASOF INNER JOIN orders
+    ON sessions.visitorId = orders.visitorId
+    AND sessions.date <= orders.date
 GROUP BY
     visitorId,
     orderId

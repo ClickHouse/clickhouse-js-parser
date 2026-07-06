@@ -1,4 +1,4 @@
-SET enable_lazy_columns_replication = 0;
+SET enable_lazy_columns_replication = '0';
 
 DROP TABLE IF EXISTS t1;
 
@@ -10,13 +10,13 @@ CREATE TABLE t1
     key Int32,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t1 SELECT
     rand(),
     1,
-    concat('a', if(number = 99, repeat(toString(number), 1000), toString(number)))
+    'a' || if(number = 99, repeat(toString(number), 1000), toString(number))
 FROM numbers(100);
 
 CREATE TABLE t2
@@ -25,20 +25,20 @@ CREATE TABLE t2
     key Int32,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t2 SELECT
     rand(),
     1,
-    concat('b', toString(number))
+    'b' || toString(number)
 FROM numbers(100000);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET query_plan_optimize_join_order_limit = 1;
+SET query_plan_optimize_join_order_limit = '1';
 
 SELECT
     -- blocks with much of data are small in rows:
@@ -58,9 +58,9 @@ FROM (
         GROUP BY bn
     )
 SETTINGS
-    joined_block_split_single_row = 1,
+    joined_block_split_single_row = '1',
     max_joined_block_size_bytes = '4M',
-    max_joined_block_size_rows = 65000;
+    max_joined_block_size_rows = '65000';
 
 -- add 3Mb match
 INSERT INTO t1 SELECT
@@ -90,5 +90,5 @@ FROM (
         GROUP BY bn
     )
 SETTINGS
-    joined_block_split_single_row = 1,
+    joined_block_split_single_row = '1',
     max_joined_block_size_bytes = '4M';

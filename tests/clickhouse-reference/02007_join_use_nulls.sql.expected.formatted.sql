@@ -1,4 +1,4 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     *,
@@ -9,7 +9,7 @@ FROM
             1 AS id,
             2 AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             3 AS values
@@ -29,7 +29,7 @@ FROM
             1 AS id,
             2 AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             3 AS values
@@ -49,7 +49,7 @@ FROM
             toLowCardinality(1) AS id,
             toLowCardinality(2) AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             toLowCardinality(1) AS id,
             toLowCardinality(3) AS values
@@ -69,7 +69,7 @@ FROM
             toLowCardinality(1) AS id,
             toLowCardinality(2) AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             toLowCardinality(1) AS id,
             toLowCardinality(3) AS values
@@ -91,7 +91,7 @@ FROM
             1 AS id,
             2 AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             1 AS id,
             3 AS values
@@ -113,7 +113,7 @@ FROM
             toLowCardinality(1) AS id,
             toLowCardinality(2) AS value
     ) AS a
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             toLowCardinality(1) AS id,
             toLowCardinality(3) AS values

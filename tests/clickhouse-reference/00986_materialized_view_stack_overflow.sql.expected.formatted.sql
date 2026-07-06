@@ -10,14 +10,14 @@ CREATE TABLE test1
 (
     a UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE test2
 (
     a UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE MATERIALIZED VIEW mv1

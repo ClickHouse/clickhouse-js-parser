@@ -1,166 +1,246 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "fingerprint",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt16"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "fields",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nested",
+              "arguments": [
+                {
+                  "type": "NameTypePair",
+                  "name": "name",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "Array",
+                    "arguments": [
+                      {
+                        "type": "DataType",
+                        "name": "UInt32"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "NameTypePair",
+                  "name": "value",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "String"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "fingerprint"
         }
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "fingerprint",
-        "type": {
-          "name": "UInt16"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
       },
-      {
-        "kind": "columnDef",
-        "name": "fields",
-        "type": {
-          "name": "Nested",
-          "args": [
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "namedField",
-              "name": "name",
-              "type": {
-                "name": "Array",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "UInt32"
+              "type": "Identifier",
+              "name": "fields.name",
+              "name_parts": [
+                "fields",
+                "name"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "fields.name",
+                              "name_parts": [
+                                "fields",
+                                "name"
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_table"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
                     }
                   }
-                ]
+                }
               }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "fields.name",
+              "name_parts": [
+                "fields",
+                "name"
+              ]
             },
             {
-              "kind": "namedField",
-              "name": "value",
-              "type": {
-                "name": "String"
-              }
+              "type": "Identifier",
+              "name": "fields.value",
+              "name_parts": [
+                "fields",
+                "value"
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "fingerprint"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_table"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "fields",
-          "name"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "fields",
-              "name"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "fields.name",
+                              "name_parts": [
+                                "fields",
+                                "name"
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "test_table"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_table"
         }
-      }
+      ]
     }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "fields",
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "fields",
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "fields",
-              "name"
-            ]
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "test_table"
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError UNKNOWN_IDENTIFIER }"
-    ]
   }
 ]

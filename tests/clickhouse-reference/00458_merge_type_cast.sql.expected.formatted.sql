@@ -9,14 +9,14 @@ CREATE TABLE u32
     x UInt32,
     y UInt32 DEFAULT x
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE u64
 (
     x UInt64,
     y UInt64 DEFAULT x
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE merge_32_64
 (
@@ -68,13 +68,13 @@ CREATE TABLE s64
 (
     x Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE u64
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE merge_s64_u64
 (
@@ -110,13 +110,13 @@ CREATE TABLE one_00458
 (
     x Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE two_00458
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE merge_one_two
 (
@@ -148,13 +148,13 @@ CREATE TABLE one_00458
 (
     x String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE two_00458
 (
     x FixedString(16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE merge_one_two
 (
@@ -174,7 +174,7 @@ CREATE TABLE one_00458
 (
     x DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE one_00458
 (
@@ -182,7 +182,7 @@ CREATE TABLE one_00458
     z String DEFAULT '',
     y Array(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE two_00458
 (
@@ -190,7 +190,7 @@ CREATE TABLE two_00458
     z String DEFAULT '',
     y Array(UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE merge_one_two
 (
@@ -216,16 +216,16 @@ SELECT
     x,
     y
 FROM merge_one_two
-WHERE arrayExists(_ -> _ IN (1), x);
+WHERE arrayExists((_ -> _ IN (1)), x);
 
 SELECT
     x,
     y
 FROM merge_one_two
-WHERE arrayExists(_ -> _ IN (4294967290), x);
+WHERE arrayExists((_ -> _ IN (4294967290)), x);
 
 SELECT
     x,
     y
 FROM merge_one_two
-WHERE arrayExists(_ -> _ IN (4294967299), x);
+WHERE arrayExists((_ -> _ IN (4294967299)), x);

@@ -1,71 +1,90 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "topKWeightedState",
-        "params": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "65535"
-          }
-        ],
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "now",
-            "args": []
-          },
-          {
-            "kind": "literal",
-            "type": "Int64",
-            "value": "-2"
-          }
-        ]
-      }
-    ],
-    "format": "Null",
-    "leadingComments": [
-      "-- 64-bit integers with MSB set (i.e. values > (1ULL<<63) - 1) could for historical/compat reasons not be serialized as var-ints (issue #51486).",
-      "-- These two queries internally produce such big values, run them to be sure no bad things happen."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "toUInt64",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "Int64",
-              "value": "-1"
+              "type": "Function",
+              "name": "topKWeightedState",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "now",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "Int64",
+                  "value": "-2"
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "65535"
+                }
+              ]
             }
           ]
         }
-      ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null"
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toUInt64",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "Int64",
+                            "value": "-1"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

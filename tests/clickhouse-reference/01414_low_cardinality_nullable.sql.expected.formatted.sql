@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS lc_nullable;
 
@@ -22,7 +22,7 @@ CREATE TABLE lc_nullable
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO lc_nullable SELECT
     groupArray(number) AS order_key,

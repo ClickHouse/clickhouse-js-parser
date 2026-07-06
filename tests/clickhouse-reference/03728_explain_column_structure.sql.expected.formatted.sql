@@ -1,13 +1,17 @@
 SELECT *
 FROM (
-        EXPLAIN PLAN header = 1, input_headers = 1
-        SELECT 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'header = 1, input_headers = 1', (
+                SELECT 1
+            ))
     )
-WHERE notLike(`explain`, 'Expression%');
+WHERE `explain` NOT LIKE 'Expression%';
 
 SELECT *
 FROM (
-        EXPLAIN PLAN header = 1, input_headers = 1, column_structure = 1
-        SELECT 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'header = 1, input_headers = 1, column_structure = 1', (
+                SELECT 1
+            ))
     )
-WHERE notLike(`explain`, 'Expression%');
+WHERE `explain` NOT LIKE 'Expression%';

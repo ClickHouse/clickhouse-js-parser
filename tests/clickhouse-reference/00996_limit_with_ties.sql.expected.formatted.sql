@@ -4,7 +4,7 @@ CREATE TABLE `ties`
 (
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `ties`;
@@ -24,17 +24,19 @@ FROM `ties`
 ORDER BY a ASC
 LIMIT 5 WITH TIES;
 
-SET max_block_size = 2;
+SET max_block_size = '2';
 
 SELECT a
 FROM `ties`
 ORDER BY a ASC
-LIMIT 1, 1 WITH TIES;
+LIMIT 1 WITH TIES
+OFFSET 1;
 
 SELECT a
 FROM `ties`
 ORDER BY a ASC
-LIMIT 1, 2 WITH TIES;
+LIMIT 2 WITH TIES
+OFFSET 1;
 
 SELECT a
 FROM `ties`
@@ -44,26 +46,29 @@ LIMIT 2 WITH TIES;
 SELECT a
 FROM `ties`
 ORDER BY a ASC
-LIMIT 2, 3 WITH TIES;
+LIMIT 3 WITH TIES
+OFFSET 2;
 
 SELECT a
 FROM `ties`
 ORDER BY a ASC
 LIMIT 4 WITH TIES;
 
-SET max_block_size = 3;
+SET max_block_size = '3';
 
 SELECT a
 FROM `ties`
 ORDER BY a ASC
-LIMIT 3, 2 WITH TIES;
+LIMIT 2 WITH TIES
+OFFSET 3;
 
 SELECT count()
 FROM (
         SELECT number > 100
         FROM numbers(2000)
         ORDER BY number > 100 ASC
-        LIMIT 1, 7 WITH TIES
+        LIMIT 7 WITH TIES
+        OFFSET 1
     ); --TODO replace "number > 100" with "number > 100 as n"
 
 SELECT count()
@@ -76,7 +81,7 @@ FROM (
         LIMIT 10 WITH TIES
     );
 
-SET max_block_size = 5;
+SET max_block_size = '5';
 
 SELECT count()
 FROM (
@@ -103,7 +108,8 @@ FROM (
             number
         FROM data
         ORDER BY ten ASC
-        LIMIT 8, 6 WITH TIES
+        LIMIT 6 WITH TIES
+        OFFSET 8
     );
 
 SELECT count()
@@ -121,7 +127,8 @@ FROM (
             number
         FROM data
         ORDER BY eleven ASC
-        LIMIT 8, 6 WITH TIES
+        LIMIT 6 WITH TIES
+        OFFSET 8
     );
 
 DROP TABLE `ties`;

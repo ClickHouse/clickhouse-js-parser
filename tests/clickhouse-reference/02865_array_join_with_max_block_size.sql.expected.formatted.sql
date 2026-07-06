@@ -1,5 +1,5 @@
 -- { echoOn }
-SET max_block_size = 10, enable_unaligned_array_join = true;
+SET max_block_size = '10', enable_unaligned_array_join = true;
 
 SELECT
     n,
@@ -27,7 +27,7 @@ LEFT ARRAY JOIN x AS n
 GROUP BY n % 10;
 
 SELECT
-    ((m + n)) % 10,
+    (m + n) % 10,
     count(1)
 FROM
     (
@@ -37,8 +37,8 @@ FROM
         FROM numbers(100)
     )
 ARRAY JOIN x AS m, y AS n
-GROUP BY ((m + n)) % 10;
+GROUP BY (m + n) % 10;
 
-SET max_block_size = 1000, enable_unaligned_array_join = true;
+SET max_block_size = '1000', enable_unaligned_array_join = true;
 
-SET max_block_size = 100000, enable_unaligned_array_join = true; -- { echoOff }
+SET max_block_size = '100000', enable_unaligned_array_join = true; -- { echoOff }

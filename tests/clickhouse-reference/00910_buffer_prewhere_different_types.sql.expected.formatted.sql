@@ -6,7 +6,7 @@ CREATE TABLE merge_tree_table1
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE TABLE buffer_table1__fuzz_24

@@ -7,14 +7,14 @@ CREATE TABLE src_table
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE MATERIALIZED VIEW mv
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 AS
 SELECT a
@@ -25,7 +25,7 @@ INSERT INTO src_table (a, b);
 SELECT *
 FROM mv;
 
-SET allow_experimental_alter_materialized_view_structure = 1;
+SET allow_experimental_alter_materialized_view_structure = '1';
 
 ALTER TABLE mv MODIFY QUERY SELECT
     a,

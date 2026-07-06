@@ -8,11 +8,11 @@ SELECT
 
 SELECT
     '00000000-0000-03f8-9cb8-cb1b82fb3900' AS str,
-    CAST(str, 'UUID');
+    CAST(str AS UUID);
 
 SELECT
     toFixedString('00000000-0000-04f8-9cb8-cb1b82fb3900', 36) AS str,
-    CAST(str, 'UUID');
+    CAST(str AS UUID);
 
 DROP TABLE IF EXISTS uuid;
 
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS uuid
     id0 String,
     id1 FixedString(36)
 )
-ENGINE = MergeTree
-ORDER BY (created_at)
+ENGINE = MergeTree()
+ORDER BY created_at
 PARTITION BY toDate(created_at);
 
 INSERT INTO uuid;
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS uuid
     id0 String,
     id1 FixedString(36)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (created_at, id0, id1)
 PARTITION BY toDate(created_at);
 

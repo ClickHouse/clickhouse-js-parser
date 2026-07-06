@@ -6,13 +6,13 @@ CREATE TABLE t_enum
 (
     x Enum8('hello' = 1, 'world' = 2)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t_source
 (
     x Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t_source (x);
 

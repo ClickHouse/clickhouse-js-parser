@@ -1,11 +1,11 @@
 -- Tags: no-random-merge-tree-settings
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tt0;
 
@@ -14,8 +14,7 @@ CREATE TABLE tt0
     k UInt64,
     v String,
     blob String,
-    PROJECTION proj_v (    SELECT *
-    ORDER BY v ASC)
+    PROJECTION proj_v (SELECT * ORDER BY v)
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -30,13 +29,15 @@ SELECT '-- no projection';
 
 SELECT trimLeft(`explain`) AS s
 FROM (
-        EXPLAIN
         SELECT *
-        FROM tt0
-        ORDER BY k ASC
-        LIMIT 10
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT *
+                FROM tt0
+                ORDER BY k ASC
+                LIMIT 10
+            ))
     )
-WHERE ilike(s, 'LazilyRead%');
+WHERE s ILIKE 'LazilyRead%';
 
 SELECT *
 FROM tt0
@@ -45,25 +46,29 @@ LIMIT 10;
 
 SELECT trimLeft(`explain`) AS s
 FROM (
-        EXPLAIN
         SELECT *
-        FROM tt0
-        WHERE v = '3'
-        ORDER BY v ASC
-        LIMIT 10
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT *
+                FROM tt0
+                WHERE v = '3'
+                ORDER BY v ASC
+                LIMIT 10
+            ))
     )
-WHERE ilike(s, 'ReadFromMergeTree (proj_v)');
+WHERE s ILIKE 'ReadFromMergeTree (proj_v)';
 
 SELECT trimLeft(`explain`) AS s
 FROM (
-        EXPLAIN
         SELECT *
-        FROM tt0
-        WHERE v = '3'
-        ORDER BY v ASC
-        LIMIT 10
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT *
+                FROM tt0
+                WHERE v = '3'
+                ORDER BY v ASC
+                LIMIT 10
+            ))
     )
-WHERE ilike(s, 'LazilyRead%');
+WHERE s ILIKE 'LazilyRead%';
 
 SELECT *
 FROM tt0
@@ -81,7 +86,7 @@ CREATE TABLE tt1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 SYSTEM STOP MERGES tt1;
 
@@ -91,8 +96,7 @@ INSERT INTO tt1 SELECT
     repeat('blob_', number % 10)
 FROM numbers(1000);
 
-ALTER TABLE tt1 ADD PROJECTION proj_v (SELECT *
-ORDER BY v ASC);
+ALTER TABLE tt1 ADD PROJECTION proj_v (SELECT * ORDER BY v);
 
 INSERT INTO tt1 SELECT
     number,
@@ -110,28 +114,32 @@ WHERE database = currentDatabase()
 ORDER BY name ASC;
 
 -- reading using projection from the table should have 2 reading steps, - one for part w/o proj and one for part with proj
-SELECT concat('Reading steps: ', count())
+SELECT 'Reading steps: ' || count()
 FROM (
-        EXPLAIN
         SELECT *
-        FROM tt1
-        WHERE v = '1001'
-        ORDER BY v ASC
-        LIMIT 10
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT *
+                FROM tt1
+                WHERE v = '1001'
+                ORDER BY v ASC
+                LIMIT 10
+            ))
     )
-WHERE ilike(trimLeft(`explain`), 'ReadFromMergeTree%');
+WHERE trimLeft(`explain`) ILIKE 'ReadFromMergeTree%';
 
 -- currently lazy materialization doesn't support such mixed reading
 SELECT trimLeft(`explain`) AS s
 FROM (
-        EXPLAIN
         SELECT *
-        FROM tt1
-        WHERE v = '1001'
-        ORDER BY v ASC
-        LIMIT 10
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT *
+                FROM tt1
+                WHERE v = '1001'
+                ORDER BY v ASC
+                LIMIT 10
+            ))
     )
-WHERE ilike(s, 'LazilyRead%');
+WHERE s ILIKE 'LazilyRead%';
 
 DROP TABLE tt1;
 

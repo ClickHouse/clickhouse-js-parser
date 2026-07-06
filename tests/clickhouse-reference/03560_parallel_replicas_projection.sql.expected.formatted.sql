@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS normal
     key UInt32,
     value UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 SYSTEM STOP MERGES normal;
 
@@ -17,35 +17,34 @@ INSERT INTO normal SELECT
     number AS value
 FROM numbers(10000);
 
-ALTER TABLE normal ADD PROJECTION p_normal (SELECT
-    key,
-    value
-ORDER BY key ASC);
+ALTER TABLE normal ADD PROJECTION p_normal (SELECT key, value ORDER BY key);
 
 INSERT INTO normal SELECT
     number AS key,
     number AS value
 FROM numbers(10000, 100);
 
-SET parallel_replicas_only_with_analyzer = 0;
+SET parallel_replicas_only_with_analyzer = '0';
 
-SET optimize_use_projections = 1, optimize_aggregation_in_order = 0;
+SET optimize_use_projections = '1', optimize_aggregation_in_order = '0';
 
-SET enable_parallel_replicas = 2, parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '2', parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT '---normal : contains both projections and parts ---';
 
 SELECT trimLeft(replaceRegexpAll(`explain`, 'ReadFromRemoteParallelReplicas.*', 'ReadFromRemoteParallelReplicas'))
 FROM (
-        EXPLAIN
-        SELECT sum(key)
-        FROM normal
-        WHERE key > 9999
-            AND key < 10010
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT sum(key)
+                FROM normal
+                WHERE key > 9999
+                    AND key < 10010
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
-    OR like(`explain`, '%ReadFromRemoteParallelReplicas%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%ReadFromMergeTree%'
+    OR `explain` LIKE '%ReadFromRemoteParallelReplicas%'
+SETTINGS enable_analyzer = '1';
 
 SELECT sum(key)
 FROM normal
@@ -68,9 +67,9 @@ CREATE TABLE agg
     key UInt32,
     value UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 SYSTEM STOP MERGES agg;
 
@@ -79,10 +78,7 @@ INSERT INTO agg SELECT
     number AS value
 FROM numbers(100);
 
-ALTER TABLE agg ADD PROJECTION p_agg (SELECT
-    key,
-    sum(value)
-GROUP BY key);
+ALTER TABLE agg ADD PROJECTION p_agg (SELECT key, sum(value) GROUP BY key);
 
 INSERT INTO agg SELECT
     number AS key,
@@ -91,15 +87,17 @@ FROM numbers(100, 100);
 
 SELECT trimLeft(replaceRegexpAll(`explain`, 'ReadFromRemoteParallelReplicas.*', 'ReadFromRemoteParallelReplicas'))
 FROM (
-        EXPLAIN
-        SELECT sum(value) AS v
-        FROM agg
-        WHERE key > 90
-            AND key < 110
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT sum(value) AS v
+                FROM agg
+                WHERE key > 90
+                    AND key < 110
+            ))
     )
-WHERE like(`explain`, '%ReadFromMergeTree%')
-    OR like(`explain`, '%ReadFromRemoteParallelReplicas%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%ReadFromMergeTree%'
+    OR `explain` LIKE '%ReadFromRemoteParallelReplicas%'
+SETTINGS enable_analyzer = '1';
 
 SELECT sum(value) AS v
 FROM agg
@@ -121,47 +119,51 @@ CREATE TABLE x
 (
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
-SETTINGS index_granularity = 3;
+SETTINGS index_granularity = '3';
 
 INSERT INTO x SELECT *
 FROM numbers(10);
 
 SELECT trimLeft(replaceRegexpAll(`explain`, 'ReadFromRemoteParallelReplicas.*', 'ReadFromRemoteParallelReplicas'))
 FROM (
-        EXPLAIN
-        SELECT max(i)
-        FROM x
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT max(i)
+                FROM x
+            ))
     )
-WHERE like(`explain`, '%ReadFromPreparedSource%')
-    OR like(`explain`, '%ReadFromRemoteParallelReplicas%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%ReadFromPreparedSource%'
+    OR `explain` LIKE '%ReadFromRemoteParallelReplicas%'
+SETTINGS enable_analyzer = '1';
 
 SELECT max(i)
 FROM x
 SETTINGS
-    enable_analyzer = 1,
-    max_rows_to_read = 2,
-    optimize_use_implicit_projections = 1,
-    optimize_use_projection_filtering = 1;
+    enable_analyzer = '1',
+    max_rows_to_read = '2',
+    optimize_use_implicit_projections = '1',
+    optimize_use_projection_filtering = '1';
 
 SELECT trimLeft(replaceRegexpAll(`explain`, 'ReadFromRemoteParallelReplicas.*', 'ReadFromRemoteParallelReplicas'))
 FROM (
-        EXPLAIN
-        SELECT count()
-        FROM x
-        WHERE (i >= 3
-            AND i <= 6)
-            OR i = 7
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT count()
+                FROM x
+                WHERE i >= 3
+                    AND i <= 6
+                    OR i = 7
+            ))
     )
-WHERE like(`explain`, '%ReadFromPreparedSource%')
-    OR like(`explain`, '%ReadFromMergeTree%')
-    OR like(`explain`, '%ReadFromRemoteParallelReplicas%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%ReadFromPreparedSource%'
+    OR `explain` LIKE '%ReadFromMergeTree%'
+    OR `explain` LIKE '%ReadFromRemoteParallelReplicas%'
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM x
-WHERE (i >= 3
-    AND i <= 6)
+WHERE i >= 3
+    AND i <= 6
     OR i = 7;

@@ -23,4 +23,4 @@ WHERE number IN (
     )
 GROUP BY number
 ORDER BY number ASC
-SETTINGS optimize_syntax_fuse_functions = 1;
+SETTINGS optimize_syntax_fuse_functions = '1';

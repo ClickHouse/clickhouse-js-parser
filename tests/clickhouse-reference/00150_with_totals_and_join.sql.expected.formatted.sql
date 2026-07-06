@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     k,
@@ -16,7 +16,7 @@ FROM
             )
         GROUP BY k
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             intDiv(number, 4) AS k,
             sum(number) AS s2
@@ -47,7 +47,7 @@ FROM
         GROUP BY k
         WITH TOTALS
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             intDiv(number, 4) AS k,
             sum(number) AS s2
@@ -77,7 +77,7 @@ FROM
             )
         GROUP BY k
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             intDiv(number, 4) AS k,
             sum(number) AS s2
@@ -109,7 +109,7 @@ FROM
         GROUP BY k
         WITH TOTALS
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             intDiv(number, 4) AS k,
             sum(number) AS s2

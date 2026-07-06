@@ -10,16 +10,16 @@ CREATE TABLE t0
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 SETTINGS auto_statistics_types = '';
 
 CREATE TABLE t1
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple()
+ENGINE = MergeTree()
+ORDER BY ()
 SETTINGS auto_statistics_types = '';
 
 INSERT INTO t0;
@@ -31,4 +31,4 @@ OR NOT NOT exists((
     SELECT key
     FROM t0
     WHERE key > 0
-)) SETTINGS mutations_sync = 2, allow_experimental_analyzer = 0, query_plan_optimize_prewhere = 0, query_plan_enable_optimizations = 0, use_statistics = 1;
+)) SETTINGS mutations_sync = '2', allow_experimental_analyzer = '0', query_plan_optimize_prewhere = '0', query_plan_enable_optimizations = '0', use_statistics = '1';

@@ -8,11 +8,11 @@ CREATE TABLE ttl_group_by__fuzz_13
     i LowCardinality(Float32),
     v LowCardinality(Nullable(UInt64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (toStartOfMonth(d), i % 10)
-TTL d + toIntervalYear(10),
-    d + toIntervalYear(40)
-SETTINGS allow_suspicious_low_cardinality_types = 1;
+TTL d + toIntervalYear(10) GROUP BY toStartOfMonth(d), i % 10 SET d = any(toStartOfMonth(d)), i = any(i % 10), v = sum(v),
+    d + toIntervalYear(40) GROUP BY toStartOfMonth(d) SET d = any(toStartOfMonth(d)), v = sum(v)
+SETTINGS allow_suspicious_low_cardinality_types = '1';
 
 INSERT INTO ttl_group_by__fuzz_13 SELECT
     toDate('2000-10-10'),

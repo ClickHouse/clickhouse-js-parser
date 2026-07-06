@@ -7,7 +7,7 @@ CREATE TABLE `02577_keepermap_delete_update`
     value String,
     value2 UInt64
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test02577_keepermap_delete_update'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test02577_keepermap_delete_update')
 PRIMARY KEY key;
 
 INSERT INTO `02577_keepermap_delete_update`;
@@ -20,7 +20,7 @@ ORDER BY key ASC;
 
 SELECT '-----------';
 
-DELETE FROM `02577_keepermap_delete_update` WHERE like(value, 'Some%string');
+DELETE FROM `02577_keepermap_delete_update` WHERE value LIKE 'Some%string';
 
 ALTER TABLE `02577_keepermap_delete_update` DELETE WHERE key >= 4;
 

@@ -1,6 +1,6 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS test_distr;
 
@@ -11,7 +11,7 @@ CREATE TABLE test
     id Int64,
     data JSON(arr1 Array(String), arr2 Array(Int32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE test_distr
@@ -26,20 +26,20 @@ INSERT INTO test;
 SELECT count()
 FROM
     test_distr AS `left`
-INNER JOIN test_distr AS `right`
+GLOBAL INNER JOIN test_distr AS `right`
     ON `left`.id = `right`.id
 WHERE has(`right`.data.arr1, 's3')
     AND has(`right`.data.arr2, 42)
-SETTINGS serialize_query_plan = 0;
+SETTINGS serialize_query_plan = '0';
 
 SELECT count()
 FROM
     test_distr AS `left`
-INNER JOIN test_distr AS `right`
+GLOBAL INNER JOIN test_distr AS `right`
     ON `left`.id = `right`.id
 WHERE has(`right`.data.arr1, 's3')
     AND has(`right`.data.arr2, 42)
-SETTINGS enable_parallel_replicas = 0;
+SETTINGS enable_parallel_replicas = '0';
 
 DROP TABLE test_distr;
 

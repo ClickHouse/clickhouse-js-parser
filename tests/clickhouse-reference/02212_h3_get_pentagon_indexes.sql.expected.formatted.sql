@@ -5,7 +5,7 @@ CREATE TABLE table1
 (
     resolution UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table1;
 
@@ -50,4 +50,4 @@ DROP TABLE table1;
 -- tests for const cols
 SELECT '-- test for const cols';
 
-SELECT h3GetPentagonIndexes(arrayJoin([0,1,2,3,4,5,6,7,8,9,10]));
+SELECT h3GetPentagonIndexes(arrayJoin([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));

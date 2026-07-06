@@ -6,7 +6,7 @@ CREATE TABLE lc_00752
 (
     str LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO lc_00752;

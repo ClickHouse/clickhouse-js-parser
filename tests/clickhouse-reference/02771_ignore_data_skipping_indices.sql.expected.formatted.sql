@@ -6,9 +6,9 @@ CREATE TABLE data_02771
     key Int,
     x Int,
     y Int,
-    INDEX x_idx x TYPE minmax GRANULARITY 1,
-    INDEX y_idx y TYPE minmax GRANULARITY 1,
-    INDEX xy_idx tuple(x, y) TYPE minmax GRANULARITY 1
+    INDEX x_idx x TYPE minmax() GRANULARITY 1,
+    INDEX y_idx y TYPE minmax() GRANULARITY 1,
+    INDEX xy_idx (x, y) TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key;
@@ -44,31 +44,35 @@ WHERE x = 1
     AND y = 2
 SETTINGS ignore_data_skipping_indices = 'xy_idx';
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT *
 FROM (
-        EXPLAIN indexes = 1
         SELECT *
-        FROM data_02771
-        WHERE x = 1
-            AND y = 2
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM data_02771
+                WHERE x = 1
+                    AND y = 2
+            ))
     )
-WHERE notLike(`explain`, '%Expression%')
-    AND notLike(`explain`, '%Filter%');
+WHERE `explain` NOT LIKE '%Expression%'
+    AND `explain` NOT LIKE '%Filter%';
 
 SELECT *
 FROM (
-        EXPLAIN indexes = 1
         SELECT *
-        FROM data_02771
-        WHERE x = 1
-            AND y = 2
-        SETTINGS ignore_data_skipping_indices = 'xy_idx'
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM data_02771
+                WHERE x = 1
+                    AND y = 2
+                SETTINGS ignore_data_skipping_indices = 'xy_idx'
+            ))
     )
-WHERE notLike(`explain`, '%Expression%')
-    AND notLike(`explain`, '%Filter%');
+WHERE `explain` NOT LIKE '%Expression%'
+    AND `explain` NOT LIKE '%Filter%';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE data_02771;

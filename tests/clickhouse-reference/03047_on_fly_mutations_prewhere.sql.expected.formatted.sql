@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS t_update_prewhere;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-SET apply_mutations_on_fly = 0;
+SET apply_mutations_on_fly = '0';
 
 CREATE TABLE t_update_prewhere
 (
@@ -11,9 +11,9 @@ CREATE TABLE t_update_prewhere
     c2 UInt64,
     c3 UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t_update_prewhere SELECT
     number,
@@ -43,8 +43,8 @@ FROM t_update_prewhere
 PREWHERE c1 != 0
 WHERE c2 % 5 = 1;
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
 SYSTEM STOP MERGES t_update_prewhere;

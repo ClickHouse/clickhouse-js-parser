@@ -1,1118 +1,1302 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Test for issue #86540: Out of bounds access with duplicate partition keys",
-      "-- This test verifies that duplicate partition field names don't cause crashes"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c0",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys"
       },
-      {
-        "kind": "columnDef",
-        "name": "c1",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "c1"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "c1"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sipHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "c0"
-              ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c0",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
-          ]
-        }
-      ],
-      "source": "(c1, c1, sipHash64(c0))"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c0"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 1: Duplicate column names in partition expression"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_duplicate_partition_keys"
-      }
-    },
-    "leadingComments": [
-      "-- Insert some test data"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "leadingComments": [
-      "-- This SELECT should not crash (was causing segfault before fix)"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c0"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Test the SELECT with different conditions"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sipHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            }
-          ]
-        }
-      ],
-      "source": "(b, c, b, sipHash64(a))"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 2: More complex duplicate partition expression"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_duplicate_partition_keys2"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys2"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "leadingComments": [
-      "-- This should also work without crashing"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_duplicate_partition_keys2"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_triple_duplicate"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      ],
-      "source": "(x, x, x)"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "y"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 3: Simple table with duplicate keys in different positions"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_triple_duplicate"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_triple_duplicate"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    },
-    "leadingComments": [
-      "-- Test SELECT with triple duplicate partition keys"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_triple_duplicate"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mixed_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "name",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "create_date",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toYYYYMM",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "create_date"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sipHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "name"
-              ]
-            }
-          ]
-        }
-      ],
-      "source": "(id, toYYYYMM(create_date), id, sipHash64(name))"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 4: Mixed expression duplicates with date functions"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_mixed_duplicates"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_mixed_duplicates"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mixed_duplicates"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_type_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "uint_col",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "int_col",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "str_col",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "uint_col"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "int_col"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "uint_col"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "str_col"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "uint_col"
-          ]
-        }
-      ],
-      "source": "(uint_col, int_col, uint_col, str_col, uint_col)"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "str_col"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 5: Different data types with duplicates"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_type_duplicates"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_type_duplicates"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "uint_col"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_type_duplicates"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_hash_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "data",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "functionCall",
-          "name": "sipHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "data"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "cityHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "data"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sipHash64",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "data"
-              ]
-            }
-          ]
-        }
-      ],
-      "source": "(sipHash64(data), cityHash64(data), sipHash64(data))"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 6: Complex hash function duplicates"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_hash_duplicates"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_hash_duplicates"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "data"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "sample1"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_hash_duplicates"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_extreme_repeats"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      ],
-      "source": "(x, x, x, x, x, x)"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 7: Extreme case - single field repeated many times"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_extreme_repeats"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_extreme_repeats"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_extreme_repeats"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_performance_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "category",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "name",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "tupleLiteral",
-      "elements": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "category"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "category"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "category"
-          ]
-        }
-      ],
-      "source": "(category, category, category)"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test case 8: Performance test with moderate data"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_performance_duplicates"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+          {
+            "type": "ColumnDeclaration",
+            "name": "c1",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
           }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "name"
+              "type": "Identifier",
+              "name": "c1"
             },
             {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
+              "type": "Identifier",
+              "name": "c1"
+            },
+            {
+              "type": "Function",
+              "name": "sipHash64",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
+                  "type": "Identifier",
+                  "name": "c0"
                 }
               ]
             }
           ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "c0"
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_duplicate_partition_keys"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "c1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "c0"
+            },
+            {
+              "type": "Identifier",
+              "name": "c1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_duplicate_partition_keys"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "c1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c0"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "b"
+            },
+            {
+              "type": "Identifier",
+              "name": "c"
+            },
+            {
+              "type": "Identifier",
+              "name": "b"
+            },
+            {
+              "type": "Function",
+              "name": "sipHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ]
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_duplicate_partition_keys2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "b"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_duplicate_partition_keys2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_triple_duplicate"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "y"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_triple_duplicate"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_triple_duplicate"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_triple_duplicate"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_mixed_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "create_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Function",
+              "name": "toYYYYMM",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "create_date"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Function",
+              "name": "sipHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "name"
+                }
+              ]
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "name"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_mixed_duplicates"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_mixed_duplicates"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_mixed_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_type_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "uint_col",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "int_col",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str_col",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "uint_col"
+            },
+            {
+              "type": "Identifier",
+              "name": "int_col"
+            },
+            {
+              "type": "Identifier",
+              "name": "uint_col"
+            },
+            {
+              "type": "Identifier",
+              "name": "str_col"
+            },
+            {
+              "type": "Identifier",
+              "name": "uint_col"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "str_col"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_type_duplicates"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_type_duplicates"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "uint_col"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "100"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_type_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_hash_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "data",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Function",
+              "name": "sipHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "data"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "cityHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "data"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "sipHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "data"
+                }
+              ]
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_hash_duplicates"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_hash_duplicates"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "data"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sample1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_hash_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_extreme_repeats"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_extreme_repeats"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_extreme_repeats"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_extreme_repeats"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_performance_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "category",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "name",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "category"
+            },
+            {
+              "type": "Identifier",
+              "name": "category"
+            },
+            {
+              "type": "Identifier",
+              "name": "category"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "name"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_performance_duplicates"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "name"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_performance_duplicates"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "category"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_performance_duplicates"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "category"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_performance_duplicates"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_performance_duplicates"
+      }
     }
   }
 ]

@@ -7,7 +7,7 @@ CREATE TABLE test
     a String,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d
 PARTITION BY toDate(d);
 
@@ -17,9 +17,10 @@ FROM (
             a,
             max((d, b)).2 AS value
         FROM test
-        GROUP BY rollup(a)
+        GROUP BY a
+        WITH ROLLUP
     )
-WHERE a <> '';
+WHERE a != '';
 
 -- the same query, but after syntax optimization
 SELECT

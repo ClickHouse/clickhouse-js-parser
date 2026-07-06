@@ -4,13 +4,13 @@ SET send_logs_level = 'fatal';
 DROP DATABASE IF EXISTS test1601_detach_permanently_atomic;
 
 CREATE DATABASE test1601_detach_permanently_atomic
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE test1601_detach_permanently_atomic.test_name_reuse
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test1601_detach_permanently_atomic.test_name_reuse SELECT *
@@ -26,7 +26,7 @@ CREATE TABLE test1601_detach_permanently_atomic.test_name_rename_attempt
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 RENAME TABLE test1601_detach_permanently_atomic.test_name_rename_attempt TO test1601_detach_permanently_atomic.test_name_reuse; -- { serverError TABLE_ALREADY_EXISTS }
@@ -36,13 +36,13 @@ EXCHANGE TABLE test1601_detach_permanently_atomic.test_name_rename_attempt AND t
 SHOW CREATE TABLE test1601_detach_permanently_atomic.test_name_reuse FORMAT Vertical;
 
 -- STD_EXCEPTION occured when running flaky test, the table directory's access right was removed. Refer `DatabaseCatalog::maybeRemoveDirectory`.
-ATTACH TABLE test1601_detach_permanently_atomic.test_name_reuse
+ATTACH TABLE test1601_detach_permanently_atomic.test_name_reuse UUID '00000000-0000-0000-0000-000000001601'
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192; -- { serverError TABLE_ALREADY_EXISTS, STD_EXCEPTION }
+SETTINGS index_granularity = '8192'; -- { serverError TABLE_ALREADY_EXISTS, STD_EXCEPTION }
 
 ATTACH TABLE test1601_detach_permanently_atomic.test_name_reuse;
 
@@ -53,23 +53,23 @@ DETACH DATABASE test1601_detach_permanently_atomic;
 
 ATTACH DATABASE test1601_detach_permanently_atomic;
 
-DROP DATABASE test1601_detach_permanently_atomic;
+DROP DATABASE test1601_detach_permanently_atomic SYNC;
 
 SELECT '-----------------------';
 
 DROP DATABASE IF EXISTS test1601_detach_permanently_ordinary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test1601_detach_permanently_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE TABLE test1601_detach_permanently_ordinary.test_name_reuse
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test1601_detach_permanently_ordinary.test_name_reuse SELECT *
@@ -85,7 +85,7 @@ CREATE TABLE test1601_detach_permanently_ordinary.test_name_rename_attempt
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 RENAME TABLE test1601_detach_permanently_ordinary.test_name_rename_attempt TO test1601_detach_permanently_ordinary.test_name_reuse; -- { serverError TABLE_ALREADY_EXISTS }
@@ -96,9 +96,9 @@ ATTACH TABLE test1601_detach_permanently_ordinary.test_name_reuse
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 ATTACH TABLE test1601_detach_permanently_ordinary.test_name_reuse;
 

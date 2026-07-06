@@ -1,8 +1,8 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT d.String
 FROM (

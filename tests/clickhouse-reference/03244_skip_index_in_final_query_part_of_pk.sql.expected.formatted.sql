@@ -1,9 +1,9 @@
 -- Testcase for bug #85897
 -- If skip index is part of primary key, then optimization 'use_skip_indexes_if_final_exact_mode' should
 -- not perform additional primary key intersection expand step.
-SET use_skip_indexes_if_final = 1;
+SET use_skip_indexes_if_final = '1';
 
-SET use_skip_indexes_if_final_exact_mode = 1;
+SET use_skip_indexes_if_final_exact_mode = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -12,12 +12,12 @@ CREATE TABLE tab
     id1 UInt32,
     id2 UInt32,
     v UInt32,
-    INDEX id2_idx id2 TYPE minmax,
-    INDEX v_idx v TYPE minmax
+    INDEX id2_idx id2 TYPE minmax() GRANULARITY 1,
+    INDEX v_idx v TYPE minmax() GRANULARITY 1
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (id1, id2)
-SETTINGS index_granularity = 4;
+SETTINGS index_granularity = '4';
 
 SYSTEM STOP MERGES tab;
 
@@ -35,21 +35,25 @@ FROM numbers(1000);
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count(*)
-        FROM tab FINAL
-        WHERE v = 222
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count(*)
+                FROM tab FINAL
+                WHERE v = 222
+            ))
     )
-WHERE ilike(`explain`, '%PrimaryKeyExpand%');
+WHERE `explain` ILIKE '%PrimaryKeyExpand%';
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count(*)
-        FROM tab FINAL
-        WHERE id2 = 222
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count(*)
+                FROM tab FINAL
+                WHERE id2 = 222
+            ))
     )
-WHERE ilike(`explain`, '%PrimaryKeyExpand%');
+WHERE `explain` ILIKE '%PrimaryKeyExpand%';
 
 DROP TABLE tab;
 
@@ -59,11 +63,11 @@ DROP TABLE IF EXISTS t0;
 CREATE TABLE t0
 (
     c0 Int64,
-    INDEX i1 c0 TYPE set(0)
+    INDEX i1 c0 TYPE set(0) GRANULARITY 1
 )
 ENGINE = SummingMergeTree()
-ORDER BY (c0)
-PARTITION BY (c0);
+ORDER BY c0
+PARTITION BY c0;
 
 INSERT INTO t0 (c0) SELECT number
 FROM numbers(10);

@@ -6,23 +6,23 @@ SELECT arrayRemove([1], 1);
 
 SELECT arrayRemove([2], 2);
 
-SELECT arrayRemove([1,1], 1);
+SELECT arrayRemove([1, 1], 1);
 
-SELECT arrayRemove([1,2], 1);
+SELECT arrayRemove([1, 2], 1);
 
-SELECT arrayRemove([1,1,2], 1);
+SELECT arrayRemove([1, 1, 2], 1);
 
-SELECT arrayRemove([1,2,1], 1);
+SELECT arrayRemove([1, 2, 1], 1);
 
-SELECT arrayRemove([2,1,1], 1);
+SELECT arrayRemove([2, 1, 1], 1);
 
-SELECT arrayRemove([1,2,2,3,3,3,4,4,4,4,5,5,5,5,5], 2);
+SELECT arrayRemove([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5], 2);
 
-SELECT arrayRemove([1,2,2,3,3,3,4,4,4,4,5,5,5,5,5], 3);
+SELECT arrayRemove([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5], 3);
 
-SELECT arrayRemove([1,2,2,3,3,3,4,4,4,4,5,5,5,5,5], 6);
+SELECT arrayRemove([1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5], 6);
 
-SELECT arrayRemove([1,2,3,2], 2 * 1);
+SELECT arrayRemove([1, 2, 3, 2], 2 * 1);
 
 SELECT arrayRemove([NULL], NULL);
 
@@ -42,45 +42,45 @@ SELECT arrayRemove([1, 1, NULL, NULL, nan, nan, 2, 2, 2], nan);
 
 SELECT arrayRemove([1, 1, NULL, NULL, nan, nan, 2, 2, 2], 2);
 
-SELECT arrayRemove(arrayMap(x -> 0, [NULL]), 0);
+SELECT arrayRemove(arrayMap((x -> 0), [NULL]), 0);
 
-SELECT toString(arrayRemove(arrayMap(x -> 0, [NULL]), 0));
+SELECT toString(arrayRemove(arrayMap((x -> 0), [NULL]), 0));
 
-SELECT arrayRemove(['a','b','a'], 'a');
+SELECT arrayRemove(['a', 'b', 'a'], 'a');
 
 SELECT arrayRemove(['hello', 'world'], concat('wor', 'ld'));
 
-SELECT arrayRemove(['foo', 'bar', 'foo'], concat(repeat('f', 1), 'oo'));
+SELECT arrayRemove(['foo', 'bar', 'foo'], repeat('f', 1) || 'oo');
 
 SELECT arrayRemove([[[]], [[], []], [[], []], [[]]], [[]]);
 
-SELECT arrayRemove([[1], [1,2], [2,3], [1,2]], [1,2]);
+SELECT arrayRemove([[1], [1, 2], [2, 3], [1, 2]], [1, 2]);
 
-SELECT arrayRemove([[1], [1,2], [2,3], [1,2]], [3]);
+SELECT arrayRemove([[1], [1, 2], [2, 3], [1, 2]], [3]);
 
 CREATE TABLE test
 (
     `array` Array(UInt32),
     element UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test;
 
 SELECT arrayRemove(`array`, element)
 FROM test;
 
-SELECT arrayRemove([(1,2), (3,4)], (1,2));
+SELECT arrayRemove([(1, 2), (3, 4)], (1, 2));
 
-SELECT arrayRemove([1,2,3]); -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH}
+SELECT arrayRemove([1, 2, 3]); -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH}
 
-SELECT arrayRemove([1,2,3], 2, 3); -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH}
+SELECT arrayRemove([1, 2, 3], 2, 3); -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH}
 
 SELECT arrayRemove(1, 1); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT arrayRemove([1,2,3], [1]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT arrayRemove([1, 2, 3], [1]); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT arrayRemove([1,2,3], '1'); -- {serverError NO_COMMON_TYPE}
+SELECT arrayRemove([1, 2, 3], '1'); -- {serverError NO_COMMON_TYPE}
 
 SELECT arrayRemove(['a', 'b', 'c'], 1); -- {serverError NO_COMMON_TYPE}
 
@@ -93,24 +93,16 @@ SELECT arrayRemove([CAST(1 AS Dynamic), CAST(NULL AS Dynamic), CAST(2 AS Dynamic
 SELECT arrayRemove([CAST(1 AS Dynamic), CAST(NULL AS Dynamic), CAST(2 AS Dynamic)], NULL);
 
 -- Variant with incompatible types throws on comparison (strict behavior like Dynamic)
-SELECT arrayRemove([
-        1::Variant(UInt8, String),
-        'x'::Variant(UInt8, String),
-        NULL::Variant(UInt8, String)
-    ], 'x'::Variant(UInt8, String)); -- {serverError NO_COMMON_TYPE}
+SELECT arrayRemove([CAST('1' AS Variant(UInt8, String)), 'x'::Variant(UInt8, String), NULL::Variant(UInt8, String)], 'x'::Variant(UInt8, String)); -- {serverError NO_COMMON_TYPE}
 
 -- NULL comparison works (doesn't require type compatibility)
-SELECT arrayRemove([
-        1::Variant(UInt8, String),
-        'x'::Variant(UInt8, String),
-        NULL::Variant(UInt8, String)
-    ], NULL);
+SELECT arrayRemove([CAST('1' AS Variant(UInt8, String)), 'x'::Variant(UInt8, String), NULL::Variant(UInt8, String)], NULL);
 
 CREATE TABLE arr_test
 (
     arr Array(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO arr_test;
 
@@ -122,7 +114,7 @@ CREATE TABLE elem_test
     arr Array(Int32),
     elem Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO elem_test;
 
@@ -133,7 +125,7 @@ CREATE TABLE nullable_arr
 (
     arr Array(Nullable(Int32))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO nullable_arr;
 
@@ -146,7 +138,7 @@ FROM nullable_arr;
 SELECT arrayRemove(arr, elem)
 FROM (
         SELECT
-            [1,2,3] AS arr,
+            [1, 2, 3] AS arr,
             number AS elem
         FROM numbers(3)
     );

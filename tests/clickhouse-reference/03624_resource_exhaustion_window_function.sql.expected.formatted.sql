@@ -6,9 +6,9 @@ CREATE TABLE table_test
     c4 Nullable(Date32),
     c5 Nullable(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY c1
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO table_test SELECT *
 FROM generateRandom()

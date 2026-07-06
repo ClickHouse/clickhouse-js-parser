@@ -5,16 +5,16 @@ CREATE TABLE t_skip_index_insert
 (
     a UInt64,
     b UInt64,
-    INDEX idx_a a TYPE minmax,
-    INDEX idx_b b TYPE set(3)
+    INDEX idx_a a TYPE minmax() GRANULARITY 1,
+    INDEX idx_b b TYPE set(3) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 4, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '4', add_minmax_index_for_numeric_columns = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET materialize_skip_indexes_on_insert = 0;
+SET materialize_skip_indexes_on_insert = '0';
 
 SYSTEM STOP MERGES t_skip_index_insert;
 
@@ -34,7 +34,7 @@ WHERE a >= 110
     AND a < 130
     AND b = 2;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT count()
 FROM t_skip_index_insert
 WHERE a >= 110
@@ -47,7 +47,7 @@ OPTIMIZE TABLE t_skip_index_insert FINAL;
 
 TRUNCATE TABLE t_skip_index_insert;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE t_skip_index_insert MATERIALIZE INDEX idx_a;
 
@@ -60,5 +60,5 @@ SELECT
     sum(ProfileEvents['MergeTreeDataWriterSkipIndicesCalculationMicroseconds'])
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(query, 'INSERT INTO t_skip_index_insert SELECT%')
+    AND query LIKE 'INSERT INTO t_skip_index_insert SELECT%'
     AND type = 'QueryFinish';

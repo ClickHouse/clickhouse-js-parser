@@ -1,24 +1,24 @@
-SELECT 1.5::Decimal32(5) + 1.5;
+SELECT CAST('1.5' AS Decimal32(5)) + 1.5;
 
-SELECT 1.5::Decimal32(5) - 1.5;
+SELECT CAST('1.5' AS Decimal32(5)) - 1.5;
 
-SELECT 1.5::Decimal32(5) * 1.5;
+SELECT CAST('1.5' AS Decimal32(5)) * 1.5;
 
-SELECT 1.5::Decimal32(5) / 1.5;
+SELECT CAST('1.5' AS Decimal32(5)) / 1.5;
 
-SELECT 1.5 + 1.5::Decimal32(5);
+SELECT 1.5 + CAST('1.5' AS Decimal32(5));
 
-SELECT 1.5 - 1.5::Decimal32(5);
+SELECT 1.5 - CAST('1.5' AS Decimal32(5));
 
-SELECT 1.5 * 1.5::Decimal32(5);
+SELECT 1.5 * CAST('1.5' AS Decimal32(5));
 
-SELECT 1.5 / 1.5::Decimal32(5);
+SELECT 1.5 / CAST('1.5' AS Decimal32(5));
 
-SELECT 1.0::Decimal32(5) / 0.0;
+SELECT CAST('1.0' AS Decimal32(5)) / 0.;
 
-SELECT least(1.5, 1.0::Decimal32(5));
+SELECT least(1.5, CAST('1.0' AS Decimal32(5)));
 
-SELECT greatest(1.5, 1.0::Decimal32(5));
+SELECT greatest(1.5, CAST('1.0' AS Decimal32(5)));
 
 DROP TABLE IF EXISTS t;
 
@@ -31,7 +31,7 @@ CREATE TABLE t
     f1 Float32,
     f2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 

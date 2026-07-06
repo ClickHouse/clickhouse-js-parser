@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -76,7 +76,7 @@ FROM test_table; -- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }
 
 SELECT
     id AS value,
-    (id + 1) AS value
+    id + 1 AS value
 FROM test_table; -- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }
 
 DROP TABLE test_table;

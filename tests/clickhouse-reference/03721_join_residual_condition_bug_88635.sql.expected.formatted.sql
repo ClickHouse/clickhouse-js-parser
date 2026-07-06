@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT 1
 FROM
@@ -7,5 +7,5 @@ INNER JOIN numbers(3) AS ty
     ON tx.number = ty.number
 INNER JOIN numbers(3) AS tz
     ON tz.number = ty.number
-    AND if(tx.number % 2 == 0, 1, 2) != if(tz.number % 2 == 0, 1, 3)
-SETTINGS query_plan_use_logical_join_step = 0;
+    AND if(tx.number % 2 = 0, 1, 2) != if(tz.number % 2 = 0, 1, 3)
+SETTINGS query_plan_use_logical_join_step = '0';

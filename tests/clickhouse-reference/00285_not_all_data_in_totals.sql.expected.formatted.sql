@@ -1,6 +1,6 @@
-SET output_format_write_statistics = 0;
+SET output_format_write_statistics = '0';
 
-SET group_by_two_level_threshold = 1;
+SET group_by_two_level_threshold = '1';
 
 SELECT
     ignore(x),

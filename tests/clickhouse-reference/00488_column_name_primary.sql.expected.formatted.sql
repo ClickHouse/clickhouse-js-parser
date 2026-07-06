@@ -4,9 +4,9 @@ CREATE TABLE primary
 (
     primary String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY primary
-SETTINGS min_bytes_for_wide_part = 0, min_bytes_for_wide_part = 0 AS
+SETTINGS min_bytes_for_wide_part = '0' AS
 SELECT *
 FROM numbers(1000);
 

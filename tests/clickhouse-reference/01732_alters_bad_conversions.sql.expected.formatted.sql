@@ -6,7 +6,7 @@ CREATE TABLE bad_conversions
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO bad_conversions;
@@ -24,7 +24,7 @@ CREATE TABLE bad_conversions_2
 (
     e Enum('foo' = 1, 'bar' = 2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO bad_conversions_2;

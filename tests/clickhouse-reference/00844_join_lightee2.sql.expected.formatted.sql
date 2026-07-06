@@ -7,16 +7,16 @@ CREATE TABLE IF NOT EXISTS t1_00844
     f1 UInt32,
     f2 String
 )
-ENGINE = MergeTree
-ORDER BY (f1);
+ENGINE = MergeTree()
+ORDER BY f1;
 
 CREATE TABLE IF NOT EXISTS t2_00844
 (
     f1 String,
     f3 String
 )
-ENGINE = MergeTree
-ORDER BY (f1);
+ENGINE = MergeTree()
+ORDER BY f1;
 
 INSERT INTO t1_00844;
 
@@ -27,7 +27,7 @@ SELECT
     t2_00844.f3
 FROM
     t1_00844
-INNER JOIN t2_00844
+ALL INNER JOIN t2_00844
     ON t1_00844.f2 = t2_00844.f1
 WHERE t2_00844.f1 = '1';
 

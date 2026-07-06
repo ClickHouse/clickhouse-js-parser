@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS map_test;
 
 CREATE TABLE map_test
 ENGINE = TinyLog() AS
-(SELECT
-    (number + 1) AS n,
+SELECT
+    number + 1 AS n,
     map(1, 1, number, 2) AS m
-FROM numbers(1, 5));
+FROM numbers(1, 5);
 
 SELECT mapPopulateSeries(m)
 FROM map_test;

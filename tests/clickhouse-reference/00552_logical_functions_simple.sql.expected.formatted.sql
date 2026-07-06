@@ -20,8 +20,8 @@ FROM (
         FROM numbers(16)
     )
 WHERE xor1 != xor2
-    OR ((and1 != and2
-    OR or1 != or2));
+    OR (and1 != and2
+    OR or1 != or2);
 
 -- Test simple logic over multiple batches of columns (currently batch spans over 10 columns)
 SELECT
@@ -31,15 +31,15 @@ SELECT
     or(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) AS or1,
     or(x1, or(or(or(x2, x3), or(x4, x5)), or(or(x6, x7), or(x8, or(x9, or(x10, x11)))))) AS or2,
     and(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) AS and1,
-    and(x1, and(((x2
-    AND x3))
-    AND ((x4
-    AND x5)), ((x6
-    AND x7))
-    AND ((x8
-    AND ((x9
-    AND ((x10
-    AND x11)))))))) AS and2
+    and(x1, and((x2
+    AND x3)
+    AND (x4
+    AND x5), (x6
+    AND x7)
+    AND (x8
+    AND (x9
+    AND (x10
+    AND x11))))) AS and2
 FROM (
         SELECT
             toUInt8(number % 2) AS x1,
@@ -56,5 +56,5 @@ FROM (
         FROM numbers(2048)
     )
 WHERE xor1 != xor2
-    OR ((and1 != and2
-    OR or1 != or2));
+    OR (and1 != and2
+    OR or1 != or2);

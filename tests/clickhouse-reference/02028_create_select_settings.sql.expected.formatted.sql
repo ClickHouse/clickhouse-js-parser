@@ -1,6 +1,6 @@
 -- Tags: no-ordinary-database
 CREATE TABLE test_table
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a AS
 SELECT
     a_table.a,
@@ -12,4 +12,4 @@ FROM
 CROSS JOIN (
         SELECT range(10000) AS b_arr
     ) AS b_table
-SETTINGS max_memory_usage = 1; -- { serverError MEMORY_LIMIT_EXCEEDED }
+SETTINGS max_memory_usage = '1'; -- { serverError MEMORY_LIMIT_EXCEEDED }

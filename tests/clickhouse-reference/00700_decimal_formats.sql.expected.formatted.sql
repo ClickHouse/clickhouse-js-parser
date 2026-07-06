@@ -6,13 +6,13 @@ CREATE TABLE IF NOT EXISTS decimal
     b DEC(18, 9),
     c DEC(38, 18)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c);
 
-INSERT INTO decimal (a, b, c);
+INSERT INTO decimal (a, b, c) FORMAT JSONEachRow;
 
-INSERT INTO decimal (a, b, c);
+INSERT INTO decimal (a, b, c) FORMAT CSV;
 
 SELECT *
 FROM decimal

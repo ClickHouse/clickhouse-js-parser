@@ -1,5 +1,5 @@
 -- Tests that text indexes can be created and used on subcolumns
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -7,18 +7,18 @@ CREATE TABLE tab
 (
     data JSON(a String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab (data);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-ALTER TABLE tab ADD INDEX a_idx data.a TYPE text(tokenizer = splitByNonAlpha);
+ALTER TABLE tab ADD INDEX a_idx data.a TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000;
 
 ALTER TABLE tab MATERIALIZE INDEX a_idx;
 
-ALTER TABLE tab ADD INDEX b_idx data.b::String TYPE text(tokenizer = splitByNonAlpha);
+ALTER TABLE tab ADD INDEX b_idx data.b::String TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000;
 
 ALTER TABLE tab MATERIALIZE INDEX b_idx;
 
@@ -45,9 +45,9 @@ CREATE TABLE tab
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 100000000;
+SETTINGS min_bytes_for_wide_part = '100000000';
 
 INSERT INTO tab (id);
 

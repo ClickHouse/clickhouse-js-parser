@@ -1,399 +1,404 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM flush logs system.metric_log",
-    "leadingComments": [
-      "-- Tags: no-fasttest, long, no-parallel, no-flaky-check, no-msan",
-      "-- - no-fasttest -- S3 is required",
-      "-- - no-flaky-check -- not compatible with ThreadFuzzer",
-      "-- The real example with metric_log with 1200+ columns!"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "metric_log"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "metric_log"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "tuple",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "storage_policy",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "s3_no_cache"
-        }
-      },
-      {
-        "name": "min_rows_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "vertical_merge_algorithm_min_rows_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "vertical_merge_algorithm_min_columns_to_activate",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "min_bytes_for_full_part_storage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_merge_delayed_streams_for_parallel_write",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      },
-      {
-        "name": "merge_selector_base",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      },
-      {
-        "name": "min_columns_to_activate_adaptive_write_buffer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "auto_statistics_types",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": ""
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "metric_log"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
         {
-          "kind": "asterisk"
+          "database": "system",
+          "table": "metric_log"
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "generateRandom",
-        "args": []
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
+      ]
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "metric_log"
-    },
-    "final": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM flush logs part_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "literal",
-          "type": "String",
-          "value": "max_merge_delayed_streams_for_parallel_write=100"
-        },
-        "alias": "test"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "metric_log"
       },
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "part_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "metric_log"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
         },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
         },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "MergeParts"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "peak_memory_usage"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000000000"
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "storage_policy": "s3_no_cache",
+            "min_rows_for_wide_part": "0",
+            "min_bytes_for_wide_part": "0",
+            "vertical_merge_algorithm_min_rows_to_activate": "0",
+            "vertical_merge_algorithm_min_columns_to_activate": "1",
+            "min_bytes_for_full_part_storage": "0",
+            "max_merge_delayed_streams_for_parallel_write": "100",
+            "merge_selector_base": "1000",
+            "min_columns_to_activate_adaptive_write_buffer": "0",
+            "auto_statistics_types": ""
           }
         }
-      ]
-    },
-    "format": "Vertical"
+      },
+      "as_database": "system",
+      "as_table": "metric_log"
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "metric_log"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "metric_log"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "name": "max_merge_delayed_streams_for_parallel_write",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10000"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "generateRandom",
+                      "arguments": []
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
             }
           }
         ]
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "literal",
-          "type": "String",
-          "value": "max_merge_delayed_streams_for_parallel_write=1000"
-        },
-        "alias": "test"
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "metric_log"
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "alias": "count"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "part_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
+          "table": "part_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "alias": "test",
+              "value_type": "String",
+              "value": "max_merge_delayed_streams_for_parallel_write=100"
+            },
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "part_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "metric_log"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "metric_log"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "MergeParts"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "peak_memory_usage"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1000000000"
+                  }
+                ]
+              }
+            ]
           }
-        },
+        }
+      ],
+      "format": "Vertical"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "metric_log"
+      },
+      "commands": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "max_merge_delayed_streams_for_parallel_write": "10000"
+            }
           }
-        },
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "alias": "test",
+              "value_type": "String",
+              "value": "max_merge_delayed_streams_for_parallel_write=1000"
+            },
+            {
+              "type": "Function",
+              "alias": "count",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "part_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_type"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "metric_log"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "MergeParts"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "peak_memory_usage"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1000000000"
+                  }
+                ]
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "MergeParts"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "peak_memory_usage"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000000000"
           }
         }
       ]

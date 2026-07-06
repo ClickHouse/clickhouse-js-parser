@@ -5,9 +5,9 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 WITH 1 AS compound_value
 
 SELECT * APPLY(x -> compound_value.*)

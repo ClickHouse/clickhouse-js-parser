@@ -4,7 +4,7 @@ CREATE TABLE orin_test
 (
     c1 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO orin_test;
 

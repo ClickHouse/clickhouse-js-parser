@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS trailing_comma_1;
+DROP TABLE IF EXISTS trailing_comma_1 SYNC;
 
 CREATE TABLE trailing_comma_1
 (
@@ -11,7 +11,7 @@ DESCRIBE TABLE trailing_comma_1;
 
 DROP TABLE trailing_comma_1;
 
-DROP TABLE IF EXISTS trailing_comma_2;
+DROP TABLE IF EXISTS trailing_comma_2 SYNC;
 
 CREATE TABLE trailing_comma_2
 (
@@ -24,7 +24,7 @@ DESCRIBE TABLE trailing_comma_2;
 
 DROP TABLE trailing_comma_2;
 
-DROP TABLE IF EXISTS trailing_comma_3;
+DROP TABLE IF EXISTS trailing_comma_3 SYNC;
 
 CREATE TABLE trailing_comma_3
 (

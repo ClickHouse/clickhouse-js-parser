@@ -11,42 +11,42 @@ ORDER BY tuple();
 
 SELECT name
 FROM `system`.zookeeper
-WHERE path = concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard'))
-    AND like(name, 'block%')
+WHERE path = '/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard')
+    AND name LIKE 'block%'
 ORDER BY name ASC;
 
 SELECT 'r1'
 FROM `system`.zookeeper
-WHERE path = concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard'), '/replicas')
-    AND like(name, concat('%', getMacro('replica'), '%'))
+WHERE path = '/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard') || '/replicas'
+    AND name LIKE '%' || getMacro('replica') || '%'
 ORDER BY name ASC;
 
 SELECT name
 FROM `system`.zookeeper
-WHERE path IN (concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard')))
-    AND like(name, 'block%')
+WHERE path IN ('/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard'))
+    AND name LIKE 'block%'
 ORDER BY name ASC;
 
 SELECT 'r1'
 FROM `system`.zookeeper
-WHERE path IN (concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard'), '/replicas'))
-    AND like(name, concat('%', getMacro('replica'), '%'))
+WHERE path IN ('/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard') || '/replicas')
+    AND name LIKE '%' || getMacro('replica') || '%'
 ORDER BY name ASC;
 
 SELECT name
 FROM `system`.zookeeper
-WHERE path IN (concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard')), concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard'), '/replicas'))
-    AND like(name, 'block%')
+WHERE path IN ('/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard'), '/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard') || '/replicas')
+    AND name LIKE 'block%'
 ORDER BY name ASC;
 
 SELECT name
 FROM `system`.zookeeper
 WHERE path IN (
-        SELECT concat(concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard'), '/'), name)
+        SELECT concat('/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard') || '/', name)
         FROM `system`.zookeeper
-        WHERE (name != 'replicas'
-            AND notLike(name, 'leader_election%')
-            AND notLike(name, 'zero_copy_%')
-            AND path = concat('/clickhouse/', currentDatabase(), '/01700_system_zookeeper_path_in/', getMacro('shard')))
+        WHERE name != 'replicas'
+            AND name NOT LIKE 'leader_election%'
+            AND name NOT LIKE 'zero_copy_%'
+            AND path = '/clickhouse/' || currentDatabase() || '/01700_system_zookeeper_path_in/' || getMacro('shard')
     )
 ORDER BY name ASC;

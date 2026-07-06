@@ -1,74 +1,79 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "alias": "t0"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "EXISTS",
-      "args": [
-        {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "t0",
-                  "_table"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "t0",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                }
               }
             ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "exists",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "t0._table",
+                          "name_parts": [
+                            "t0",
+                            "_table"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_join_runtime_filters": "1",
+              "allow_experimental_correlated_subqueries": "1",
+              "enable_analyzer": "1"
+            }
           }
         }
       ]
-    },
-    "settings": [
-      {
-        "name": "enable_join_runtime_filters",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "allow_experimental_correlated_subqueries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Repro for https://github.com/ClickHouse/ClickHouse/issues/89062"
-    ]
+    }
   }
 ]

@@ -1,4 +1,4 @@
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 DROP TABLE IF EXISTS bloom_filter_has_const_array;
 
@@ -9,34 +9,38 @@ CREATE TABLE bloom_filter_has_const_array
     INDEX idx_bf bf TYPE ngrambf_v1(1, 512, 3, 0) GRANULARITY 1,
     INDEX idx_abf abf TYPE ngrambf_v1(1, 512, 3, 0) GRANULARITY 1
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS index_granularity = 1;
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS index_granularity = '1';
 
 INSERT INTO bloom_filter_has_const_array;
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT bf
-        FROM bloom_filter_has_const_array
-        WHERE hasAny(['a','c','d'], abf)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT bf
+                FROM bloom_filter_has_const_array
+                WHERE hasAny(['a', 'c', 'd'], abf)
+            ))
     )
-WHERE like(`explain`, 'Description%')
-    OR like(`explain`, 'Granules%');
+WHERE `explain` LIKE 'Description%'
+    OR `explain` LIKE 'Granules%';
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT bf
-        FROM bloom_filter_has_const_array
-        WHERE has(['a','d'], bf)
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT bf
+                FROM bloom_filter_has_const_array
+                WHERE has(['a', 'd'], bf)
+            ))
     )
-WHERE like(`explain`, 'Description%')
-    OR like(`explain`, 'Granules%');
+WHERE `explain` LIKE 'Description%'
+    OR `explain` LIKE 'Granules%';
 
 SELECT bf
 FROM bloom_filter_has_const_array
-WHERE hasAny(['a','c','d'], abf)
-    AND has(['a','d'], bf)
-    AND hasAll(['d','e'], abf);
+WHERE hasAny(['a', 'c', 'd'], abf)
+    AND has(['a', 'd'], bf)
+    AND hasAll(['d', 'e'], abf);

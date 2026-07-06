@@ -1,4 +1,4 @@
-SET cast_keep_nullable = 0;
+SET cast_keep_nullable = '0';
 
 SELECT
     CAST(toNullable(toInt32(0)) AS Int32) AS x,
@@ -8,7 +8,7 @@ SELECT
     CAST(toNullable(toInt8(0)) AS Int32) AS x,
     toTypeName(x);
 
-SET cast_keep_nullable = 1;
+SET cast_keep_nullable = '1';
 
 SELECT
     CAST(toNullable(toInt32(1)) AS Int32) AS x,
@@ -19,11 +19,11 @@ SELECT
     toTypeName(x);
 
 SELECT
-    CAST(toNullable(toFloat32(2)), 'Float32') AS x,
+    CAST(toNullable(toFloat32(2)) AS Float32) AS x,
     toTypeName(x);
 
 SELECT
-    CAST(toNullable(toFloat32(2)), 'UInt8') AS x,
+    CAST(toNullable(toFloat32(2)) AS UInt8) AS x,
     toTypeName(x);
 
 SELECT
@@ -35,15 +35,15 @@ SELECT
     toTypeName(x);
 
 SELECT
-    CAST(a, 'Int32') AS x,
+    CAST(a AS Int32) AS x,
     toTypeName(x)
 FROM (
-        SELECT materialize(CAST(42, 'Nullable(UInt8)')) AS a
+        SELECT materialize(CAST(42 AS Nullable(UInt8))) AS a
     );
 
 SELECT
-    CAST(a, 'Int32') AS x,
+    CAST(a AS Int32) AS x,
     toTypeName(x)
 FROM (
-        SELECT materialize(CAST(NULL, 'Nullable(UInt8)')) AS a
+        SELECT materialize(CAST(NULL AS Nullable(UInt8))) AS a
     );

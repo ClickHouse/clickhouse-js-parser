@@ -5,7 +5,7 @@ CREATE TABLE arrays_test
     s String,
     arr Array(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO arrays_test;
 
@@ -53,7 +53,7 @@ SELECT
     mapped
 FROM
     arrays_test
-ARRAY JOIN arr AS a, arrayMap(x -> x + 1, arr) AS mapped;
+ARRAY JOIN arr AS a, arrayMap((x -> x + 1), arr) AS mapped;
 
 SELECT
     s,
@@ -63,12 +63,12 @@ SELECT
     mapped
 FROM
     arrays_test
-ARRAY JOIN arr AS a, arrayEnumerate(arr) AS num, arrayMap(x -> x + 1, arr) AS mapped;
+ARRAY JOIN arr AS a, arrayEnumerate(arr) AS num, arrayMap((x -> x + 1), arr) AS mapped;
 
 SELECT
     sumArray(arr),
-    sumArrayIf(arr, like(s, '%l%')),
-    sumArrayIf(arr, like(s, '%e%'))
+    sumArrayIf(arr, s LIKE '%l%'),
+    sumArrayIf(arr, s LIKE '%e%')
 FROM arrays_test;
 
 DROP TABLE arrays_test;

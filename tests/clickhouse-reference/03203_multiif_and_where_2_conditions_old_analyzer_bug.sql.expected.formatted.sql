@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS bugcheck1;
 
 CREATE TABLE bugcheck1
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple() AS
 SELECT
     'c1' AS column_a,
@@ -19,9 +19,9 @@ FROM (
             column_b
         FROM bugcheck1
     )
-WHERE (condition_1 IN ('yes'))
-    AND (condition_2 IN ('true'))
-SETTINGS enable_analyzer = 0;
+WHERE condition_1 IN ('yes')
+    AND condition_2 IN ('true')
+SETTINGS enable_analyzer = '0';
 
 SELECT
     multiIf(column_b IN (
@@ -34,9 +34,9 @@ FROM (
             column_b
         FROM bugcheck1
     )
-WHERE (condition_1 IN ('yes'))
-    AND (condition_2 IN ('true'))
-SETTINGS enable_analyzer = 0;
+WHERE condition_1 IN ('yes')
+    AND condition_2 IN ('true')
+SETTINGS enable_analyzer = '0';
 
 SELECT
     *,
@@ -50,8 +50,8 @@ FROM (
             column_b
         FROM bugcheck1
     )
-WHERE (condition_1 IN ('yes'))
-    AND (condition_2 IN ('true'))
-SETTINGS enable_analyzer = 1;
+WHERE condition_1 IN ('yes')
+    AND condition_2 IN ('true')
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE bugcheck1;

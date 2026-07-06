@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT number
 FROM numbers_mt(10)
@@ -20,4 +20,4 @@ FROM (
         WITH TOTALS
         HAVING t = initialQueryID()
     )
-SETTINGS prefer_localhost_replica = 1; -- { serverError NOT_IMPLEMENTED }
+SETTINGS prefer_localhost_replica = '1'; -- { serverError NOT_IMPLEMENTED }

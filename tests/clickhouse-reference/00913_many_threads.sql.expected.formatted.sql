@@ -1,6 +1,6 @@
 -- Tags: no-parallel
 -- This test creates many threads to test a case when ThreadPool will remove some threads from pool after job is done.
-SET max_block_size = 1, min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET max_block_size = '1', min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
 CREATE TEMPORARY TABLE t
 (
@@ -14,7 +14,7 @@ LIMIT 1500;
 SELECT DISTINCT blockSize()
 FROM t;
 
-SET max_threads = 1500;
+SET max_threads = '1500';
 
 SELECT count()
 FROM t;

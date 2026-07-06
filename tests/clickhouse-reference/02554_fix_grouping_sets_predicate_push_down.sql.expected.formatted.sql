@@ -1,6 +1,6 @@
 -- Tags: no-object-storage
 -- Specific value doesn't matter, we just need it to be fixed, because it is a part of `EXPLAIN PIPELINE` output.
-SET max_threads = 8;
+SET max_threads = '8';
 
 DROP TABLE IF EXISTS test_grouping_sets_predicate;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_grouping_sets_predicate
     day_ Date,
     type_1 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY day_;
 
 INSERT INTO test_grouping_sets_predicate SELECT
@@ -52,7 +52,7 @@ FROM (
             ) AS t
     )
 WHERE type_1 = 'all'
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 -- Query plan with analyzer has less Filter steps (which is more optimal)
 EXPLAIN PIPELINE
@@ -71,7 +71,7 @@ FROM (
             ) AS t
     )
 WHERE type_1 = 'all'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM (
@@ -104,7 +104,7 @@ FROM (
             ) AS t
     )
 WHERE day_ = '2023-01-05'
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 -- Query plan with analyzer has less Filter steps (which is more optimal)
 EXPLAIN PIPELINE
@@ -122,6 +122,6 @@ FROM (
             ) AS t
     )
 WHERE day_ = '2023-01-05'
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE test_grouping_sets_predicate;

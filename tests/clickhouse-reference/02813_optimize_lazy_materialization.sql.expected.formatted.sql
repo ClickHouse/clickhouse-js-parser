@@ -1,12 +1,12 @@
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET use_variant_as_common_type = 1;
+SET use_variant_as_common_type = '1';
 
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 DROP TABLE IF EXISTS optimize_lazy_materialization;
 
@@ -80,13 +80,13 @@ LIMIT 3;
 SELECT *
 FROM optimize_lazy_materialization
 WHERE d > 1
-ORDER BY negate(c) ASC
+ORDER BY -c ASC
 LIMIT 3;
 
 SELECT *
 FROM optimize_lazy_materialization
 WHERE d > 1
-ORDER BY negate(toFloat64(c)) ASC
+ORDER BY -toFloat64(c) ASC
 LIMIT 3;
 
 SELECT *
@@ -157,7 +157,7 @@ CREATE TABLE optimize_lazy_materialization_with_compact_mt
 ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY b
-SETTINGS min_rows_for_wide_part = 10000;
+SETTINGS min_rows_for_wide_part = '10000';
 
 INSERT INTO optimize_lazy_materialization_with_compact_mt SELECT
     number,
@@ -237,7 +237,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_int_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number + 3
 FROM numbers(0, 1000);
 
@@ -262,7 +262,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_float_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number + 3.1
 FROM numbers(0, 1000);
 
@@ -287,7 +287,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_decimal_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number + 4.12
 FROM numbers(0, 1000);
 
@@ -312,7 +312,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_string_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     repeat('a', number)
 FROM numbers(0, 1000);
 
@@ -337,7 +337,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_fixed_string_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     repeat('a', number % 10)
 FROM numbers(0, 1000);
 
@@ -362,7 +362,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_date_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number
 FROM numbers(0, 1000);
 
@@ -387,7 +387,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_date32_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number
 FROM numbers(0, 1000);
 
@@ -412,7 +412,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_datetime_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number
 FROM numbers(0, 1000);
 
@@ -440,7 +440,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_datetime64_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number
 FROM numbers(0, 1000);
 
@@ -468,8 +468,8 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_enum_data_type SELECT
     number,
-    if(number % 2, 2000, number),
-    if(number % 2, 'world', 'hello')
+    number % 2 ? 2000 : number,
+    number % 2 ? 'world' : 'hello'
 FROM numbers(0, 1000);
 
 -- { echoOn }
@@ -493,7 +493,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_bool_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     number % 2
 FROM numbers(0, 1000);
 
@@ -518,7 +518,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_uuid_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     generateUUIDv4()
 FROM numbers(0, 1000);
 
@@ -546,7 +546,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_ipv4_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     concat('1.2.3.', toString(number % 256))
 FROM numbers(0, 1000);
 
@@ -571,7 +571,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_ipv6_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     concat('1:2:3:4:5:6:7:', toString(number % 256))
 FROM numbers(0, 1000);
 
@@ -596,7 +596,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_array_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     [(number, toString(number + 2)), (number + 1, toString(number + 4))]
 FROM numbers(0, 1000);
 
@@ -633,7 +633,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_tuple_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     (number, toString(number * 2))
 FROM numbers(0, 1000);
 
@@ -658,7 +658,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_map_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     map('key1', number + 1, 'key2', number + 2)
 FROM numbers(0, 1000);
 
@@ -691,8 +691,8 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_variant_data_type SELECT
     number,
-    if(number % 2, 2000, number),
-    multiIf(number % 5 = 0, 666::Variant(UInt64, String, Array(UInt64)), number % 5 = 1, number::Variant(UInt64, String, Array(UInt64)), number % 5 = 2, [4, 4, 4]::Variant(UInt64, String, Array(UInt64)), NULL)
+    number % 2 ? 2000 : number,
+    multiIf(number % 5 = 0, CAST('666' AS Variant(UInt64, String, Array(UInt64))), number % 5 = 1, number::Variant(UInt64, String, Array(UInt64)), number % 5 = 2, CAST('[4, 4, 4]' AS Variant(UInt64, String, Array(UInt64))), NULL)
 FROM numbers(0, 1000);
 
 -- { echoOn }
@@ -733,7 +733,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_low_cardinality_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     multiIf(number % 3 = 0, 'aa', number % 3 = 1, 'bbb', 'cccc')
 FROM numbers(0, 1000);
 
@@ -758,7 +758,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_nullable_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     multiIf(number % 3 = 0, 'aa', NULL)
 FROM numbers(0, 1000);
 
@@ -783,7 +783,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_nested_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     multiIf(number % 3 = 0, [1, 2, 3], [4, 5]),
     multiIf(number % 3 = 0, ['1', '2', '3'], ['4', '5'])
 FROM numbers(0, 1000);
@@ -813,7 +813,7 @@ ORDER BY a;
 
 INSERT INTO optimize_lazy_materialization_with_dynamic_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     multiIf(number % 5 = 0, 1, number % 5 = 1, [2, 3], number % 5 = 2, '555', NULL)
 FROM numbers(0, 1000);
 
@@ -854,7 +854,7 @@ SETTINGS ratio_of_defaults_for_sparse_serialization = 0.01;
 
 INSERT INTO optimize_lazy_materialization_with_sparse_data_type SELECT
     number,
-    if(number % 2, 2000, number),
+    number % 2 ? 2000 : number,
     multiIf(number % 3 = 0, '', number % 3 = 1, 'aa', 'bb')
 FROM numbers(0, 1000);
 

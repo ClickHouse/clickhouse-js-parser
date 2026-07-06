@@ -4,7 +4,7 @@ CREATE TABLE test1
 (
     i Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO test1;

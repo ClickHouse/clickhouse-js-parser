@@ -11,5 +11,5 @@ SELECT
 FROM numbers(360)
 WHERE abs(err) > 0.01;
 
-SELECT bar(((greatCircleAngle(0, 0, number, number) - number)) * 100, 0, 2000, 100)
+SELECT bar((greatCircleAngle(0, 0, number, number) - number) * 100, 0, 2000, 100)
 FROM numbers(90);

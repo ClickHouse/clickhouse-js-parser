@@ -1,8 +1,8 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     x,
@@ -78,7 +78,7 @@ FROM
             b,
             c
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT 1 AS a
     )
     USING (a);
@@ -95,7 +95,7 @@ FROM
             1 AS b,
             1 AS c
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT 1 AS a
     )
     USING (a);
@@ -113,7 +113,7 @@ FROM
             1 AS b,
             2 AS c
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             42 AS a,
             3 AS d
@@ -133,7 +133,7 @@ FROM
             1 AS b,
             2 AS c
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             42 AS a,
             3 AS d
@@ -155,7 +155,7 @@ FROM
             'world' AS b1,
             a1
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             1 AS k,
             'hello' AS a2,

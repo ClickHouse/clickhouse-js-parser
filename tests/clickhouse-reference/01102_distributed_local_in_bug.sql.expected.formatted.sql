@@ -11,16 +11,16 @@ CREATE TABLE visits
 (
     StartDate Date
 )
-ENGINE = MergeTree
-ORDER BY (StartDate);
+ENGINE = MergeTree()
+ORDER BY StartDate;
 
 CREATE TABLE hits
 (
     EventDate Date,
     WatchID UInt8
 )
-ENGINE = MergeTree
-ORDER BY (EventDate);
+ENGINE = MergeTree()
+ORDER BY EventDate;
 
 CREATE TABLE visits_layer
 (

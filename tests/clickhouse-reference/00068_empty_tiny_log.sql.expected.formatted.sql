@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS empty_tiny_log
 (
     A UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 SELECT A
 FROM empty_tiny_log;

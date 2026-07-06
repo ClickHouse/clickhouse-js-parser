@@ -1,14 +1,14 @@
 -- This functions should not be called directly, only for internal use.
 -- However, we cannot completely forbid it (becasue query can came from another server, for example)
 -- Check that usage of these functions does not lead to crash or logical error
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT __actionName(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT __actionName('aaa', 'aaa', 'aaa'); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
 
 SELECT __actionName('aaa', '')
-SETTINGS enable_analyzer = 1; -- { serverError BAD_ARGUMENTS }
+SETTINGS enable_analyzer = '1'; -- { serverError BAD_ARGUMENTS }
 
 SELECT __actionName('aaa', materialize('aaa')); -- { serverError BAD_ARGUMENTS,ILLEGAL_COLUMN }
 
@@ -32,7 +32,7 @@ SELECT __getScalar(concat(toNullable(materialize(1))) - NULL); -- { serverError 
 SELECT __scalarSubqueryResult('1');
 
 SELECT
-    concat('a', __scalarSubqueryResult(a)),
+    'a' || __scalarSubqueryResult(a),
     materialize('1') AS a;
 
 SELECT

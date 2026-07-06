@@ -1,7 +1,7 @@
 -- Tags: no-ordinary-database, no-replicated-database, distributed, zookeeper
-SET database_atomic_wait_for_drop_and_detach_synchronously = 0;
+SET database_atomic_wait_for_drop_and_detach_synchronously = '0';
 
-DROP TABLE IF EXISTS `02681_undrop_mergetree`;
+DROP TABLE IF EXISTS `02681_undrop_mergetree` SYNC;
 
 CREATE TABLE `02681_undrop_mergetree`
 (
@@ -25,9 +25,9 @@ SELECT *
 FROM `02681_undrop_mergetree`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_mergetree`;
+DROP TABLE `02681_undrop_mergetree` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_detach`;
+DROP TABLE IF EXISTS `02681_undrop_detach` SYNC;
 
 CREATE TABLE `02681_undrop_detach`
 (
@@ -53,9 +53,9 @@ WHERE table = '02681_undrop_detach'
     AND database = currentDatabase()
 LIMIT 1;
 
-DROP TABLE `02681_undrop_detach`;
+DROP TABLE `02681_undrop_detach` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_uuid_on_cluster` ON CLUSTER test_shard_localhost FORMAT Null;
+DROP TABLE IF EXISTS `02681_undrop_uuid_on_cluster` ON CLUSTER test_shard_localhost SYNC FORMAT Null;
 
 CREATE TABLE `02681_undrop_uuid_on_cluster` ON CLUSTER test_shard_localhost
 (
@@ -80,9 +80,9 @@ SELECT *
 FROM `02681_undrop_uuid_on_cluster`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_uuid_on_cluster`;
+DROP TABLE `02681_undrop_uuid_on_cluster` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_no_uuid_on_cluster` ON CLUSTER test_shard_localhost FORMAT Null;
+DROP TABLE IF EXISTS `02681_undrop_no_uuid_on_cluster` ON CLUSTER test_shard_localhost SYNC FORMAT Null;
 
 CREATE TABLE `02681_undrop_no_uuid_on_cluster` ON CLUSTER test_shard_localhost
 (
@@ -107,9 +107,9 @@ SELECT *
 FROM `02681_undrop_no_uuid_on_cluster`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_no_uuid_on_cluster` ON CLUSTER test_shard_localhost FORMAT Null;
+DROP TABLE `02681_undrop_no_uuid_on_cluster` ON CLUSTER test_shard_localhost SYNC FORMAT Null;
 
-DROP TABLE IF EXISTS `02681_undrop_replicatedmergetree`;
+DROP TABLE IF EXISTS `02681_undrop_replicatedmergetree` SYNC;
 
 CREATE TABLE `02681_undrop_replicatedmergetree`
 (
@@ -133,9 +133,9 @@ SELECT *
 FROM `02681_undrop_replicatedmergetree`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_replicatedmergetree`;
+DROP TABLE `02681_undrop_replicatedmergetree` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_log`;
+DROP TABLE IF EXISTS `02681_undrop_log` SYNC;
 
 CREATE TABLE `02681_undrop_log`
 (
@@ -158,9 +158,9 @@ SELECT *
 FROM `02681_undrop_log`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_log`;
+DROP TABLE `02681_undrop_log` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_distributed`;
+DROP TABLE IF EXISTS `02681_undrop_distributed` SYNC;
 
 CREATE TABLE `02681_undrop_distributed`
 (
@@ -177,9 +177,9 @@ LIMIT 1;
 
 UNDROP TABLE `02681_undrop_distributed`;
 
-DROP TABLE `02681_undrop_distributed`;
+DROP TABLE `02681_undrop_distributed` SYNC;
 
-DROP TABLE IF EXISTS `02681_undrop_multiple`;
+DROP TABLE IF EXISTS `02681_undrop_multiple` SYNC;
 
 CREATE TABLE `02681_undrop_multiple`
 (
@@ -207,4 +207,4 @@ SELECT *
 FROM `02681_undrop_multiple`
 ORDER BY id ASC;
 
-DROP TABLE `02681_undrop_multiple`;
+DROP TABLE `02681_undrop_multiple` SYNC;

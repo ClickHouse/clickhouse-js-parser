@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET correlated_subqueries_substitute_equivalent_expressions = 0;
+SET correlated_subqueries_substitute_equivalent_expressions = '0';
 
 CREATE TABLE lineitem
 (
@@ -41,19 +41,19 @@ CREATE TABLE part
     p_retailprice Decimal(15, 2),
     p_comment String
 )
-ORDER BY (p_partkey);
+ORDER BY p_partkey;
 
 INSERT INTO part SELECT *
 FROM generateRandom()
 LIMIT 1;
 
 EXPLAIN QUERY TREE
-SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
+SELECT sum(l_extendedprice) / 7. AS avg_yearly
 FROM (
         SELECT *
         FROM
-            lineitem
-        CROSS JOIN part
+            lineitem,
+            part
         WHERE p_partkey = l_partkey
     ) AS lp
 WHERE l_quantity < (
@@ -62,12 +62,12 @@ WHERE l_quantity < (
         WHERE l_partkey = lp.p_partkey
     );
 
-SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
+SELECT sum(l_extendedprice) / 7. AS avg_yearly
 FROM (
         SELECT *
         FROM
-            lineitem
-        CROSS JOIN part
+            lineitem,
+            part
         WHERE p_partkey = l_partkey
     ) AS lp
 WHERE l_quantity < (

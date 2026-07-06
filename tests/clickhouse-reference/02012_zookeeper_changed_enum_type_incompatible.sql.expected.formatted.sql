@@ -12,7 +12,7 @@ ORDER BY b;
 
 INSERT INTO enum_alter_issue;
 
-ALTER TABLE enum_alter_issue DROP PARTITION ID 'all';
+ALTER TABLE enum_alter_issue DETACH PARTITION ID 'all';
 
 ALTER TABLE enum_alter_issue MODIFY COLUMN a Enum8('one' = 1, 'two' = 2, 'three' = 3);
 

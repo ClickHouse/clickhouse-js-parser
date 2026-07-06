@@ -26,7 +26,7 @@ REVOKE SELECT(col1, col2) ON db.table FROM test_user_01074;
 SELECT *
 FROM `system`.grants
 WHERE user_name = 'test_user_01074'
-SETTINGS output_format_pretty_color = 1
+SETTINGS output_format_pretty_color = '1'
 FORMAT Pretty;
 
 GRANT SELECT ON *.* TO test_user_01074 WITH GRANT OPTION;

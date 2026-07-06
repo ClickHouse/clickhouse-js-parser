@@ -7,9 +7,9 @@ CREATE TABLE test_01344
     x String,
     INDEX idx x TYPE set(10) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO test_01344;
 

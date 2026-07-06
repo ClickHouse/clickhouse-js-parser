@@ -1,6 +1,6 @@
 -- Tags: no-random-merge-tree-settings
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 DROP TABLE IF EXISTS set_array;
 
@@ -11,7 +11,7 @@ CREATE TABLE set_array
     INDEX additional_index_array index_array TYPE set(10000) GRANULARITY 1
 )
 ENGINE = MergeTree()
-ORDER BY (primary_key);
+ORDER BY primary_key;
 
 INSERT INTO set_array SELECT
     toString(intDiv(number, 100000)) AS primary_key,
@@ -21,7 +21,7 @@ LIMIT 1000000;
 
 OPTIMIZE TABLE set_array FINAL;
 
-SET max_rows_to_read = 8192;
+SET max_rows_to_read = '8192';
 
 SELECT count()
 FROM set_array

@@ -1,643 +1,670 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "r"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "finalizeAggregation",
-        "args": [
-          {
-            "kind": "castExpr",
-            "expr": {
-              "kind": "functionCall",
-              "name": "quantileState",
-              "params": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "finalizeAggregation",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayJoin",
-                  "args": [
+                  "type": "Function",
+                  "name": "CAST",
+                  "arguments": [
                     {
-                      "kind": "arrayLiteral",
-                      "elements": [
+                      "type": "Function",
+                      "name": "quantileState",
+                      "arguments": [
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "3"
+                          "type": "Function",
+                          "name": "arrayJoin",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ],
-                      "source": "[1,2,3]"
+                      "parameters": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "AggregateFunction(quantile(1), UInt8)"
                     }
                   ]
                 }
               ]
-            },
-            "type": "AggregateFunction(quantile(1), UInt8)"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "r"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
             }
           ]
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r"
       },
-      {
-        "kind": "columnDef",
-        "name": "q",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "q",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "quantilesTiming",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.5
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.95
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.99
+                    }
+                  ]
+                },
+                {
+                  "type": "DataType",
+                  "name": "Int64"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ],
+        "projections": [
+          {
+            "type": "Projection",
+            "name": "p",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Function",
+                  "name": "quantilesTimingMerge",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "q"
+                    }
+                  ],
+                  "parameters": [
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.5
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.95
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "Float64",
+                      "value": 0.99
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "s"
+                    }
+                  ]
+                }
+              ],
+              "group_by": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "SummingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
             {
-              "kind": "type",
-              "type": {
-                "name": "quantilesTiming",
-                "args": [
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "a"
+            }
+          ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "deduplicate_merge_projection_mode": "drop"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "x",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "value": "0.5"
+                    "type": "Identifier",
+                    "name": "number"
                   },
                   {
-                    "kind": "literal",
-                    "value": "0.95"
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "alias": "a",
+                "value_type": "String",
+                "value": "x"
+              },
+              {
+                "type": "Function",
+                "alias": "q",
+                "name": "quantilesTimingState",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "CAST",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "Int64"
+                      }
+                    ]
+                  }
+                ],
+                "parameters": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.5
                   },
                   {
-                    "kind": "literal",
-                    "value": "0.99"
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.95
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 0.99
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "s",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
                   }
                 ]
               }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
             },
-            {
-              "kind": "type",
-              "type": {
-                "name": "Int64"
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Identifier",
+                "name": "a"
               }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "projectionDef",
-        "name": "p",
-        "query": {
-          "kind": "select",
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
+              "type": "Function",
+              "alias": "d1",
+              "name": "ifNotFinite",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "quantilesTimingMerge",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "q"
+                        }
+                      ],
+                      "parameters": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 0.95
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
               ]
             },
             {
-              "kind": "functionCall",
+              "type": "Function",
+              "alias": "d2",
+              "name": "ifNotFinite",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "quantilesTimingMerge",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "q"
+                        }
+                      ],
+                      "parameters": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 0.99
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "d3",
+              "name": "ifNotFinite",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "quantilesTimingMerge",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "q"
+                        }
+                      ],
+                      "parameters": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 0.5
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "s"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "cluster",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "test_cluster_two_shards"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "r"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "x"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "prefer_localhost_replica": "0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
               "name": "quantilesTimingMerge",
-              "params": [
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.5"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.95"
-                },
-                {
-                  "kind": "literal",
-                  "type": "Float64",
-                  "value": "0.99"
+                  "type": "Identifier",
+                  "name": "q"
                 }
               ],
-              "args": [
+              "parameters": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "q"
-                  ]
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.95
                 }
               ]
             },
             {
-              "kind": "functionCall",
-              "name": "sum",
-              "args": [
+              "type": "Function",
+              "name": "quantilesTimingMerge",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "s"
+                  "type": "Identifier",
+                  "name": "q"
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Function",
+                  "name": "toInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
                   ]
                 }
               ]
             }
           ],
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "a"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{1,2}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "r"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           }
         }
-      }
-    ],
-    "engine": {
-      "name": "SummingMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "deduplicate_merge_projection_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "drop"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true,
-    "trailingComments": [
-      "-- should set it to rebuild once projection is supported with SummingMergeTree"
-    ]
+      ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "r"
+        "type": "Identifier",
+        "name": "r"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            }
-          },
-          "alias": "x"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "x"
-          },
-          "alias": "a"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "quantilesTimingState",
-            "params": [
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.5"
-              },
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.95"
-              },
-              {
-                "kind": "literal",
-                "type": "Float64",
-                "value": "0.99"
-              }
-            ],
-            "args": [
-              {
-                "kind": "castExpr",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "type": "Int64",
-                "operator": true
-              }
-            ]
-          },
-          "alias": "q"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sum",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          },
-          "alias": "s"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "ifNotFinite",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "quantilesTimingMerge",
-                  "params": [
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "0.95"
-                    }
-                  ],
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "q"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "alias": "d1"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "ifNotFinite",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "quantilesTimingMerge",
-                  "params": [
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "0.99"
-                    }
-                  ],
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "q"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "alias": "d2"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "ifNotFinite",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayElement",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "quantilesTimingMerge",
-                  "params": [
-                    {
-                      "kind": "literal",
-                      "type": "Float64",
-                      "value": "0.50"
-                    }
-                  ],
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "q"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "alias": "d3"
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "s"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "cluster",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_cluster_two_shards"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "r"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "x"
-      }
-    },
-    "settings": [
-      {
-        "name": "prefer_localhost_replica",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "quantilesTimingMerge",
-        "params": [
-          {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "0.95"
-          }
-        ],
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "q"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "quantilesTimingMerge",
-        "params": [
-          {
-            "kind": "functionCall",
-            "name": "toInt64",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          }
-        ],
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "q"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{1,2}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "r"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r"
     }
   }
 ]

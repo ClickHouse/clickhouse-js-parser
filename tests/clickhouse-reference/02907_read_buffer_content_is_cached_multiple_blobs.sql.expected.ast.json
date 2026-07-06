@@ -1,85 +1,118 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Log",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "disk": "s3_cache"
+          }
         }
       }
-    ],
-    "engine": {
-      "name": "Log"
-    },
-    "settings": [
-      {
-        "name": "disk",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "s3_cache"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest",
-      "-- We want to test `isContentCached(offset, size)` method implementation in ReadBufferFromRemoteFSGather and CachedOnDiskReadBufferFromFile",
-      "-- Specifically, how they handle `offset` parameter when we have multiple S3 objects representing a single ClickHouse file",
-      "-- Log englie table files will be represented by multiple objects on S3"
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers_mt",
-        "args": [
+        "type": "Identifier",
+        "name": "t"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "1e6"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers_mt",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 1000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- First of all the cache should be warmed up"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

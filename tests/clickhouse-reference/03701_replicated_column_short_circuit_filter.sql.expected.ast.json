@@ -1,105 +1,111 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "intDiv",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
-          }
-        ]
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "range",
-            "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            },
+            {
+              "type": "Function",
+              "name": "intDiv",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                },
+                {
+                  "type": "Function",
+                  "name": "minus",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "4"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Function",
+                      "alias": "x",
+                      "name": "range",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  ]
+                }
               }
             ]
           },
-          "alias": "x"
+          "where": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "enable_lazy_columns_replication": "1",
+              "query_plan_filter_push_down": "0"
+            }
+          }
         }
       ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "!=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "settings": [
-      {
-        "name": "enable_lazy_columns_replication",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "query_plan_filter_push_down",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
+    }
   }
 ]

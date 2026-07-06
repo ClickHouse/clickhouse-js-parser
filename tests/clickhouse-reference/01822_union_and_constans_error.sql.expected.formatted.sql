@@ -24,6 +24,6 @@ FROM t0
 GROUP BY t0.c0
 HAVING isNull(isNull(t0.c0))
 SETTINGS
-    aggregate_functions_null_for_empty = 1,
-    enable_optimize_predicate_expression = 0
+    aggregate_functions_null_for_empty = '1',
+    enable_optimize_predicate_expression = '0'
 FORMAT Null;

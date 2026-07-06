@@ -1,49 +1,49 @@
-SELECT like('\\w', '%\\w%');
+SELECT '\\w' LIKE '%\\w%';
 
-SELECT like('\\w', '\\w%');
+SELECT '\\w' LIKE '\\w%';
 
-SELECT like('\\w', '%\\w');
+SELECT '\\w' LIKE '%\\w';
 
-SELECT like('\\w', '\\w');
+SELECT '\\w' LIKE '\\w';
 
-SELECT like('\\w', '%\\w%');
+SELECT '\\w' LIKE '%\\w%';
 
-SELECT like('\\w', '\\w%');
+SELECT '\\w' LIKE '\\w%';
 
-SELECT like('\\w', '%\\w');
+SELECT '\\w' LIKE '%\\w';
 
-SELECT like('\\w', '\\w');
+SELECT '\\w' LIKE '\\w';
 
-SELECT like('\\i', '%\\i%');
+SELECT '\\i' LIKE '%\\i%';
 
-SELECT like('\\i', '\\i%');
+SELECT '\\i' LIKE '\\i%';
 
-SELECT like('\\i', '%\\i');
+SELECT '\\i' LIKE '%\\i';
 
-SELECT like('\\i', '\\i');
+SELECT '\\i' LIKE '\\i';
 
-SELECT like('\\i', '%\\i%');
+SELECT '\\i' LIKE '%\\i%';
 
-SELECT like('\\i', '\\i%');
+SELECT '\\i' LIKE '\\i%';
 
-SELECT like('\\i', '%\\i');
+SELECT '\\i' LIKE '%\\i';
 
-SELECT like('\\i', '\\i');
+SELECT '\\i' LIKE '\\i';
 
-SELECT like('\\', '%\\\\%');
+SELECT '\\' LIKE '%\\\\%';
 
-SELECT like('\\', '\\\\%');
+SELECT '\\' LIKE '\\\\%';
 
-SELECT like('\\', '%\\\\');
+SELECT '\\' LIKE '%\\\\';
 
-SELECT like('\\', '\\\\');
+SELECT '\\' LIKE '\\\\';
 
-SELECT like('\\', '\\'); -- { serverError CANNOT_PARSE_ESCAPE_SEQUENCE }
+SELECT '\\' LIKE '\\'; -- { serverError CANNOT_PARSE_ESCAPE_SEQUENCE }
 
-SELECT like('\\xyz\\', '\\\\%\\\\');
+SELECT '\\xyz\\' LIKE '\\\\%\\\\';
 
-SELECT like('\\xyz\\', '\\\\___\\\\');
+SELECT '\\xyz\\' LIKE '\\\\___\\\\';
 
-SELECT like('\\xyz\\', '\\\\_%_\\\\');
+SELECT '\\xyz\\' LIKE '\\\\_%_\\\\';
 
-SELECT like('\\xyz\\', '\\\\%_%\\\\');
+SELECT '\\xyz\\' LIKE '\\\\%_%\\\\';

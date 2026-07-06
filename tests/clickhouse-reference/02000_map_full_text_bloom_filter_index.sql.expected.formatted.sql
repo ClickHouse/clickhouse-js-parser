@@ -12,7 +12,7 @@ CREATE TABLE bf_tokenbf_map_keys_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bf_tokenbf_map_keys_test;
 
@@ -84,7 +84,7 @@ CREATE TABLE bf_tokenbf_map_values_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bf_tokenbf_map_values_test;
 
@@ -196,7 +196,7 @@ CREATE TABLE bf_ngrambf_map_keys_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bf_ngrambf_map_keys_test;
 
@@ -268,7 +268,7 @@ CREATE TABLE bf_ngrambf_map_values_test
 )
 ENGINE = MergeTree()
 ORDER BY row_id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO bf_ngrambf_map_values_test;
 

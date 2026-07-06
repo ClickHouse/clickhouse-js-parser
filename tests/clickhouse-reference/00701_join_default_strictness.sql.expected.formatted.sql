@@ -9,14 +9,14 @@ CREATE TABLE a1
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE a2
 (
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO a1;
 

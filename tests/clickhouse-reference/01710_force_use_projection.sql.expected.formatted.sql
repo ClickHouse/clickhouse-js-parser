@@ -5,15 +5,14 @@ CREATE TABLE tp
     d1 Int32,
     d2 Int32,
     eventcnt Int64,
-    PROJECTION p (    SELECT sum(eventcnt)
-    GROUP BY d1)
+    PROJECTION p (SELECT sum(eventcnt) GROUP BY d1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (d1, d2);
 
-SET optimize_use_projections = 1, force_optimize_projection = 1;
+SET optimize_use_projections = '1', force_optimize_projection = '1';
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 SELECT
     sum(eventcnt) AS eventcnt,

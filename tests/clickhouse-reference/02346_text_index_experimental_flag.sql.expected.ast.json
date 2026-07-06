@@ -1,208 +1,225 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tests that CREATE TABLE and ADD INDEX respect settings 'enable_full_text_index'"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test CREATE TABLE"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
       },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "str"
-          ]
-        },
-        "indexType": {
-          "name": "text",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "splitByNonAlpha"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError SUPPORT_IS_DISABLED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab1"
+      "if_exists": true
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "0"
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "idx1",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           },
-          "indexType": {
-            "name": "text",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "tokenizer"
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "str"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "splitByNonAlpha"
                 }
-              }
-            ]
+              ]
+            },
+            "granularity": 100000000
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "idx1",
+            "expression": {
+              "type": "Identifier",
+              "name": "str"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
           }
         }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError SUPPORT_IS_DISABLED }"
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
     }
   }
 ]

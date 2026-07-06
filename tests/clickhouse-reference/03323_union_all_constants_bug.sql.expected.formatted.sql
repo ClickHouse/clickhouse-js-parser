@@ -2,7 +2,7 @@ WITH transactions_data AS (
     SELECT
         42 AS grade_name_id,
         42 AS today_flow_transaction_count,
-        CAST('good', 'Nullable(String)') AS status
+        CAST('good' AS Nullable(String)) AS status
     FROM
         (
             SELECT 42 AS dispenser_id

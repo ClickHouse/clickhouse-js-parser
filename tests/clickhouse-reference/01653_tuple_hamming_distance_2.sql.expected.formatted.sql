@@ -20,11 +20,11 @@ SELECT tupleHammingDistance((1, 2), (1, 257));
 
 SELECT tupleHammingDistance((1, 2, 3), (1, 257, 65537));
 
-SELECT tupleHammingDistance((1, 2), (1, Null));
+SELECT tupleHammingDistance((1, 2), (1, NULL));
 
-SELECT tupleHammingDistance((1, Null), (1, Null));
+SELECT tupleHammingDistance((1, NULL), (1, NULL));
 
-SELECT tupleHammingDistance((Null, Null), (Null, Null));
+SELECT tupleHammingDistance((NULL, NULL), (NULL, NULL));
 
 SELECT tupleHammingDistance(('abc', 2), ('abc', 257));
 

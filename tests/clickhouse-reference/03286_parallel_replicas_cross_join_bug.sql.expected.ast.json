@@ -1,263 +1,348 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "1e7"
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 10000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_replicas"
-        }
-      },
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_parallel_replicas": "1",
+        "max_parallel_replicas": "3",
+        "cluster_for_parallel_replicas": "parallel_replicas",
+        "parallel_replicas_for_non_replicated_merge_tree": true
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "tab",
-        "alias": "l"
-      },
-      "kind": "joinExpr",
-      "joinType": "CROSS",
-      "right": {
-        "kind": "tableRef",
-        "table": "tab",
-        "alias": "r"
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "l",
-              "x"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "l",
+                    "name": "tab"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "r",
+                    "name": "tab"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "r",
-              "x"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "l.x",
+                    "name_parts": [
+                      "l",
+                      "x"
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "r.x",
+                    "name_parts": [
+                      "r",
+                      "x"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "r.x",
+                    "name_parts": [
+                      "r",
+                      "x"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
             ]
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "r",
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "r",
-              "x"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "from": {
-          "left": {
-            "kind": "tableRef",
-            "table": "tab",
-            "alias": "l"
-          },
-          "kind": "joinExpr",
-          "joinType": "CROSS",
-          "right": {
-            "kind": "tableRef",
-            "table": "tab",
-            "alias": "r"
-          }
-        },
-        "where": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "binaryExpr",
-              "op": "<",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "r",
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
             },
             {
-              "kind": "binaryExpr",
-              "op": "<",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "l",
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "r.x",
+                  "name_parts": [
+                    "r",
+                    "x"
+                  ]
+                }
+              ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "alias": "l",
+                                    "name": "tab"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_join": {
+                                  "type": "TableJoin",
+                                  "kind": "COMMA"
+                                },
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "alias": "r",
+                                    "name": "tab"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "less",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "r.x",
+                                    "name_parts": [
+                                      "r",
+                                      "x"
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "2"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "less",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "l.x",
+                                    "name_parts": [
+                                      "l",
+                                      "x"
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "3"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
+      ]
     }
   }
 ]

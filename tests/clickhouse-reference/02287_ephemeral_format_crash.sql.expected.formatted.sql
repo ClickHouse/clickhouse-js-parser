@@ -5,7 +5,7 @@ CREATE TABLE test
     a UInt8,
     b String EPHEMERAL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SHOW CREATE TABLE test;
@@ -17,7 +17,7 @@ CREATE TABLE test
     a UInt8,
     b EPHEMERAL String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError UNKNOWN_IDENTIFIER }
 
 CREATE TABLE test
@@ -25,7 +25,7 @@ CREATE TABLE test
     a UInt8,
     b String EPHEMERAL test
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError UNKNOWN_IDENTIFIER }
 
 CREATE TABLE test
@@ -33,7 +33,7 @@ CREATE TABLE test
     a UInt8,
     b String EPHEMERAL 1 + 2
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT *

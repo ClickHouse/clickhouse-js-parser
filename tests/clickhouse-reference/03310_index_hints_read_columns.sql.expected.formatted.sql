@@ -1,9 +1,9 @@
 -- Tags: no-parallel, no-random-settings, no-object-storage
 -- add_minmax_index_for_numeric_columns=0: More opened files
 -- Does additional index analysis round that the test doesn't expect
-SET automatic_parallel_replicas_mode = 0;
+SET automatic_parallel_replicas_mode = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t_index_hint;
 
@@ -12,9 +12,9 @@ CREATE TABLE t_index_hint
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 1, min_bytes_for_wide_part = 0, serialization_info_version = 'basic', add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', min_bytes_for_wide_part = '0', serialization_info_version = 'basic', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO t_index_hint SELECT
     number,
@@ -27,7 +27,7 @@ SELECT sum(b)
 FROM t_index_hint
 WHERE b >= 100
     AND b < 200
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SELECT sum(b)
 FROM t_index_hint
@@ -36,8 +36,8 @@ WHERE a >= 100
     AND b >= 100
     AND b < 200
 SETTINGS
-    max_threads = 1,
-    force_primary_key = 1;
+    max_threads = '1',
+    force_primary_key = '1';
 
 SELECT sum(b)
 FROM t_index_hint
@@ -46,19 +46,19 @@ WHERE indexHint(a >= 100
     AND b >= 100
     AND b < 200
 SETTINGS
-    max_threads = 1,
-    force_primary_key = 1;
+    max_threads = '1',
+    force_primary_key = '1';
 
 SYSTEM FLUSH LOGS query_log;
 
 SELECT
     ProfileEvents['FileOpen'],
     read_rows,
-    arraySort(arrayMap(x -> splitByChar('.', x)[-1], `columns`))
+    arraySort(arrayMap((x -> splitByChar('.', x)[-1]), `columns`))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%SELECT sum(b) FROM t_index_hint%')
+    AND query LIKE '%SELECT sum(b) FROM t_index_hint%'
 ORDER BY event_time_microseconds ASC;
 
 CREATE TABLE t_index_hint
@@ -68,9 +68,9 @@ CREATE TABLE t_index_hint
     s_tokens Array(String) MATERIALIZED arrayDistinct(splitByWhitespace(s)),
     INDEX idx_tokens s_tokens TYPE bloom_filter(0.01) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 1, min_bytes_for_wide_part = 0, serialization_info_version = 'basic';
+SETTINGS index_granularity = '1', min_bytes_for_wide_part = '0', serialization_info_version = 'basic';
 
 INSERT INTO t_index_hint (a, s);
 
@@ -78,33 +78,33 @@ SYSTEM CLEAR INDEX MARK CACHE;
 
 SELECT count()
 FROM t_index_hint
-WHERE like(s, '%my_token%')
-SETTINGS max_threads = 1;
+WHERE s LIKE '%my_token%'
+SETTINGS max_threads = '1';
 
 SELECT count()
 FROM t_index_hint
 WHERE has(s_tokens, 'my_token')
-    AND like(s, '%my_token%')
+    AND s LIKE '%my_token%'
 SETTINGS
-    max_threads = 1,
+    max_threads = '1',
     force_data_skipping_indices = 'idx_tokens';
 
 SELECT count()
 FROM t_index_hint
 WHERE indexHint(has(s_tokens, 'my_token'))
-    AND like(s, '%my_token%')
+    AND s LIKE '%my_token%'
 SETTINGS
-    max_threads = 1,
+    max_threads = '1',
     force_data_skipping_indices = 'idx_tokens';
 
 SELECT
     ProfileEvents['FileOpen'],
     read_rows,
-    arraySort(arrayMap(x -> splitByChar('.', x)[-1], `columns`))
+    arraySort(arrayMap((x -> splitByChar('.', x)[-1]), `columns`))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%SELECT count() FROM t_index_hint%')
+    AND query LIKE '%SELECT count() FROM t_index_hint%'
 ORDER BY event_time_microseconds ASC;
 
 DROP TABLE t_index_hint;

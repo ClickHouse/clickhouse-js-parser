@@ -3,7 +3,7 @@ CREATE TABLE t
     a DateTime64(3),
     b FixedString(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toStartOfDay(a) AS
 SELECT *
@@ -14,7 +14,7 @@ CREATE TABLE t1
     a DateTime64(3),
     b FixedString(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toStartOfDay(a) AS
 SELECT
@@ -62,7 +62,7 @@ CREATE TABLE t
     a DateTime,
     b FixedString(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toStartOfDay(a) AS
 SELECT *
@@ -73,7 +73,7 @@ CREATE TABLE t1
     a DateTime64,
     b FixedString(6)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toStartOfDay(a) AS
 SELECT

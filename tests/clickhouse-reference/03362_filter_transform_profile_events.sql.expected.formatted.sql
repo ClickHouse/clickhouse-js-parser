@@ -20,6 +20,6 @@ SELECT
     ProfileEvents['FilterTransformPassedRows'] > 0,
     ProfileEvents['FilterTransformPassedBytes'] > 0
 FROM `system`.query_log
-WHERE (type = 'QueryFinish')
-    AND (current_database = currentDatabase())
-    AND (query = 'SELECT * FROM system.numbers WHERE number % 2 = 0 LIMIT 100 FORMAT Null;');
+WHERE type = 'QueryFinish'
+    AND current_database = currentDatabase()
+    AND query = 'SELECT * FROM system.numbers WHERE number % 2 = 0 LIMIT 100 FORMAT Null;';

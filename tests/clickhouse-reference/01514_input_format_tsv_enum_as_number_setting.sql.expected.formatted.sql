@@ -7,8 +7,8 @@ CREATE TABLE table_with_enum_column_for_tsv_insert
 )
 ENGINE = Memory();
 
-SET input_format_tsv_enum_as_number = 1;
+SET input_format_tsv_enum_as_number = '1';
 
-INSERT INTO table_with_enum_column_for_tsv_insert;
+INSERT INTO table_with_enum_column_for_tsv_insert FORMAT TSV;
 
-SET input_format_tsv_enum_as_number = 0;
+SET input_format_tsv_enum_as_number = '0';

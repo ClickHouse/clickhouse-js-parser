@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -12,9 +12,9 @@ CREATE TABLE t1
     key String,
     key2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE t2
 (
@@ -22,19 +22,19 @@ CREATE TABLE t2
     key String,
     key2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t1;
 
 INSERT INTO t2;
 
-EXPLAIN actions = 1, optimize = 1, header = 1
+EXPLAIN actions = '1', optimize = '1', header = '1'
 SELECT t1.id
 FROM
-    t1
-CROSS JOIN t2
+    t1,
+    t2
 WHERE t1.id = t2.id
 SETTINGS
     query_plan_use_new_logical_join_step = true,
@@ -45,9 +45,9 @@ SELECT
     t1.key2
 FROM
     t1
-INNER JOIN t2
-    ON (t1.id = t2.id)
-    AND (t2.key = t2.key2)
+ALL INNER JOIN t2
+    ON t1.id = t2.id
+    AND t2.key = t2.key2
 ORDER BY
     t1.key ASC,
     t1.key2 ASC
@@ -55,15 +55,15 @@ SETTINGS
     query_plan_use_new_logical_join_step = true,
     query_plan_convert_join_to_in = true;
 
-SYSTEM FLUSH LOGS system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 EXPLAIN
 SELECT hostName() AS hostName
 FROM
     `system`.query_log AS a
 INNER JOIN `system`.processes AS b
-    ON (a.query_id = b.query_id)
-    AND (type = 'QueryStart')
+    ON a.query_id = b.query_id
+    AND type = 'QueryStart'
 WHERE current_database = currentDatabase()
 SETTINGS
     query_plan_use_new_logical_join_step = true,
@@ -90,7 +90,7 @@ SETTINGS
     query_plan_convert_join_to_in = true;
 
 -- check type, modified from 02988_join_using_prewhere_pushdown
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS t;
 
@@ -100,7 +100,7 @@ CREATE TABLE t
     u LowCardinality(Int32),
     s LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t;
@@ -111,7 +111,7 @@ SELECT
 FROM
     t
 INNER JOIN (
-        SELECT CAST(number, 'Int32') AS u
+        SELECT CAST(number AS Int32) AS u
         FROM numbers(10)
     ) AS t1
     USING (u)
@@ -153,8 +153,8 @@ SELECT 10
 FROM
     `system`.query_log AS a
 INNER JOIN `system`.processes AS b
-    ON (a.query_id = b.query_id)
-    AND (a.query_id = b.query_id)
+    ON a.query_id = b.query_id
+    AND a.query_id = b.query_id
 WHERE current_database = currentDatabase()
 FORMAT Null
 SETTINGS query_plan_use_new_logical_join_step = true, query_plan_convert_join_to_in = true;

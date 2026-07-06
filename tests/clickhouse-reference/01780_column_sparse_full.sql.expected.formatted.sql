@@ -8,9 +8,9 @@ CREATE TABLE t_sparse_full
     u UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 32, index_granularity_bytes = '10Mi', ratio_of_defaults_for_sparse_serialization = 0.1, enable_block_number_column = 0, enable_block_offset_column = 0;
+SETTINGS index_granularity = '32', index_granularity_bytes = '10Mi', ratio_of_defaults_for_sparse_serialization = 0.1, enable_block_number_column = '0', enable_block_offset_column = '0';
 
 SYSTEM STOP MERGES t_sparse_full;
 
@@ -55,7 +55,7 @@ ORDER BY
     id ASC,
     u ASC
 LIMIT 4
-SETTINGS optimize_read_in_order = 0;
+SETTINGS optimize_read_in_order = '0';
 
 SELECT
     id,

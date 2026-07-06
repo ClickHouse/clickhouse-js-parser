@@ -1,215 +1,241 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/47422"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "temporary": true,
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Float32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "a",
-        "expr": {
-          "kind": "functionCall",
-          "name": "avg",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            }
-          ],
-          "window": {}
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_window_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- alias clash (a is redefined in CTE)",
-      "-- 21.8: no error, bad result",
-      "-- 21.9 and newer: error \"Block structure mismatch in (columns with identical name must have identical structure) stream\""
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "a2",
-        "expr": {
-          "kind": "functionCall",
-          "name": "avg",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            }
-          ],
-          "window": {}
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a2"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_window_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- no aliases clash, good result"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "avg",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
+              "type": "Function",
+              "alias": "a",
+              "name": "avg",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition"
+              }
             }
           ],
-          "window": {}
-        },
-        "alias": "a"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "settings": [
-      {
-        "name": "allow_experimental_window_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "a"
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_window_functions": "1"
+            }
+          }
         }
-      }
-    ],
-    "leadingComments": [
-      "-- aliases clash without CTE"
-    ]
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "a2",
+              "name": "avg",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition"
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "a2"
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_window_functions": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "a",
+              "name": "avg",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition"
+              }
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "allow_experimental_window_functions": "1"
+            }
+          }
+        }
+      ]
+    }
   }
 ]

@@ -6,11 +6,11 @@
 -- If throttling works as expected - each execution will take >= 1 second, as we allow not more than {max_execution_speed} records/seconds
 -- If it doesn't - each select will finish immediately, and the test will fail
 -- NOTE: Setting max_block_size=1 to ensure sleepEachRow(..) applies per each row guaranteed and the resulting timing is predictable [2-3] seconds
-SET max_execution_speed = 10;
+SET max_execution_speed = '10';
 
-SET timeout_before_checking_execution_speed = 0;
+SET timeout_before_checking_execution_speed = '0';
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 CREATE TEMPORARY TABLE times
 (
@@ -31,7 +31,7 @@ INSERT INTO times SELECT now();
 
 SELECT *
 FROM t00156_max_execution_speed_sample_merge
-WHERE sleepEachRow(0.1) == 0
+WHERE sleepEachRow(0.1) = 0
 FORMAT Null;
 
 SELECT max(t) - min(t) >= 1

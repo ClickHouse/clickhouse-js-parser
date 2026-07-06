@@ -1,289 +1,309 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest, long, no-asan, no-ubsan, no-msan, no-tsan, no-debug",
-      "-- Test for Bug 78161"
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "128"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "functionCall",
-              "name": "randCanonical",
-              "args": []
-            },
-            {
-              "kind": "functionCall",
-              "name": "randCanonical",
-              "args": []
-            }
-          ],
-          "source": "[randCanonical(), randCanonical()]"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "128"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "array",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "randCanonical",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Function",
+                    "name": "randCanonical",
+                    "arguments": []
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "idx_vec",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "vec"
-            ]
-          },
-          "indexType": {
-            "name": "vector_similarity",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "hnsw"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "cosineDistance"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "f32"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "64"
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "400"
-              }
-            ]
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "idx_vec",
+            "expression": {
+              "type": "Identifier",
+              "name": "vec"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "vector_similarity",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "hnsw"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "cosineDistance"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "f32"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "64"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "400"
+                }
+              ]
+            },
+            "granularity": 100000000
           }
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Create index"
-    ]
+      ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MATERIALIZE_INDEX",
-        "indexName": "idx_vec"
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
         }
-      }
-    ]
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MATERIALIZE_INDEX",
+          "index": {
+            "type": "Identifier",
+            "name": "idx_vec"
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "reference_vec",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "1."
-            },
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "2."
+              "type": "Literal",
+              "alias": "reference_vec",
+              "value_type": "Array",
+              "value": [
+                {
+                  "value_type": "Float64",
+                  "value": 1
+                },
+                {
+                  "value_type": "Float64",
+                  "value": 2
+                }
+              ]
             }
           ],
-          "source": "[1., 2.]"
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5000"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "cosineDistance",
-          "args": [
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "vec"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "reference_vec"
-              ]
+              "type": "Asterisk"
             }
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5000"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "cosineDistance",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "vec"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "reference_vec"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

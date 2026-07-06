@@ -1,4 +1,4 @@
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS t_block_number_proj;
 
@@ -7,9 +7,9 @@ CREATE TABLE t_block_number_proj
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS enable_block_number_column = 1, min_bytes_for_wide_part = 0, index_granularity = 128;
+SETTINGS enable_block_number_column = '1', min_bytes_for_wide_part = '0', index_granularity = '128';
 
 INSERT INTO t_block_number_proj SELECT
     number,
@@ -18,21 +18,18 @@ FROM numbers(1000);
 
 OPTIMIZE TABLE t_block_number_proj FINAL;
 
-ALTER TABLE t_block_number_proj ADD PROJECTION p (SELECT
-    a,
-    b
-ORDER BY b ASC);
+ALTER TABLE t_block_number_proj ADD PROJECTION p (SELECT a, b ORDER BY b);
 
 ALTER TABLE t_block_number_proj MATERIALIZE PROJECTION p;
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 SELECT
     a,
     b
 FROM t_block_number_proj
 WHERE b = 5
-SETTINGS force_optimize_projection = 1;
+SETTINGS force_optimize_projection = '1';
 
 DROP TABLE t_block_number_proj;
 
@@ -44,9 +41,9 @@ CREATE TABLE t_block_number_ttl
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS enable_block_number_column = 1, min_bytes_for_wide_part = 0, index_granularity = 128;
+SETTINGS enable_block_number_column = '1', min_bytes_for_wide_part = '0', index_granularity = '128';
 
 INSERT INTO t_block_number_ttl;
 

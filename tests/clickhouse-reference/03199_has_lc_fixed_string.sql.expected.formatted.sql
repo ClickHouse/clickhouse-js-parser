@@ -4,7 +4,7 @@ CREATE TABLE `03199_fixedstring_array`
 (
     arr Array(LowCardinality(FixedString(8)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `03199_fixedstring_array`;
 

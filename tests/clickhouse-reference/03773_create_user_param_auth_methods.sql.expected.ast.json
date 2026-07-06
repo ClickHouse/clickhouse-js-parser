@@ -1,41 +1,50 @@
 [
   {
-    "kind": "system",
-    "body": "DROP USER IF EXISTS user_param_auth_03773",
-    "leadingComments": [
-      "-- Tags: no-fasttest, no-parallel, no-replicated-database",
-      "-- Tag no-replicated-database: ON CLUSTER is not allowed",
-      "-- Test for issue #92010: Query parameters in authentication methods with ON CLUSTER"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "USER",
+      "if_exists": true,
+      "names": [
+        "user_param_auth_03773"
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "param_password",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_password_03773"
+    "version": 2,
+    "ast": {
+      "type": "Settings"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateUserQuery",
+      "cluster": "test_shard_localhost",
+      "names": {
+        "type": "UserNamesWithHost",
+        "users": [
+          {
+            "type": "UserNameWithHost",
+            "name": "user_param_auth_03773"
+          }
+        ]
+      },
+      "authentication_methods": [
+        {
+          "type": "AuthenticationData",
+          "auth_type": "PLAINTEXT_PASSWORD",
+          "contains_password": true,
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "placeholder"
+            }
+          ]
         }
-      }
-    ]
-  },
-  {
-    "kind": "createUser",
-    "names": [
-      {
-        "name": "user_param_auth_03773"
-      }
-    ],
-    "onCluster": "test_shard_localhost",
-    "auth": [
-      {
-        "secret": "{password:String}"
-      }
-    ],
-    "leadingComments": [
-      "-- Before fix: This would fail with UNKNOWN_QUERY_PARAMETER on remote nodes"
-    ]
+      ],
+      "replace_authentication_methods": true
+    }
   }
 ]

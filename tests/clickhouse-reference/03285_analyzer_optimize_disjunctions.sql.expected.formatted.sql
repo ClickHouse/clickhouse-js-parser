@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_extract_common_expressions = 1;
+SET optimize_extract_common_expressions = '1';
 
 DROP TABLE IF EXISTS x;
 
@@ -14,7 +14,7 @@ CREATE TABLE x
     E UInt8,
     F UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO x SELECT
@@ -27,174 +27,174 @@ INSERT INTO x SELECT
     cityHash64(number + 6) % 2 AS F
 FROM numbers(2000);
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT count()
 FROM x
 WHERE A
     OR B
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 0;
-
-SELECT count()
-FROM x
-WHERE A
     OR B
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 0;
-
-EXPLAIN QUERY TREE dump_ast = 1
-SELECT count()
-FROM x
-WHERE A
-    OR B
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 1;
+    AND C
+SETTINGS optimize_extract_common_expressions = '0';
 
 SELECT count()
 FROM x
 WHERE A
     OR B
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 1;
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '0';
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (B
-    AND C)
-    OR (B
+WHERE A
+    OR B
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '1';
+
+SELECT count()
+FROM x
+WHERE A
+    OR B
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '1';
+
+EXPLAIN QUERY TREE dump_ast = '1'
+SELECT count()
+FROM x
+WHERE A
+    AND B
+    OR B
+    AND C
+    OR B
     AND D
-    AND A)
-SETTINGS optimize_extract_common_expressions = 1;
+    AND A
+SETTINGS optimize_extract_common_expressions = '1';
 
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (B
-    AND C)
-    OR (B
+WHERE A
+    AND B
+    OR B
+    AND C
+    OR B
     AND D
-    AND A)
-SETTINGS optimize_extract_common_expressions = 1;
+    AND A
+SETTINGS optimize_extract_common_expressions = '1';
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (B
-    AND C)
-    OR (B
+WHERE A
+    AND B
+    OR B
+    AND C
+    OR B
     AND D
-    AND A)
-SETTINGS optimize_extract_common_expressions = 0;
+    AND A
+SETTINGS optimize_extract_common_expressions = '0';
 
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (B
-    AND C)
-    OR (B
+WHERE A
+    AND B
+    OR B
+    AND C
+    OR B
     AND D
-    AND A)
-SETTINGS optimize_extract_common_expressions = 0;
+    AND A
+SETTINGS optimize_extract_common_expressions = '0';
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (A
+WHERE A
     AND B
-    AND C)
-    OR (D
-    AND E)
-SETTINGS optimize_extract_common_expressions = 1;
-
-SELECT count()
-FROM x
-WHERE (A
-    AND B)
-    OR (A
+    OR A
     AND B
-    AND C)
-    OR (D
-    AND E)
-SETTINGS optimize_extract_common_expressions = 1;
-
-EXPLAIN QUERY TREE dump_ast = 1
-SELECT count()
-FROM x
-WHERE (A
-    AND B)
-    OR (A
-    AND B
-    AND C)
-    OR (D
-    AND E)
-SETTINGS optimize_extract_common_expressions = 0;
+    AND C
+    OR D
+    AND E
+SETTINGS optimize_extract_common_expressions = '1';
 
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (A
+WHERE A
     AND B
-    AND C)
-    OR (D
-    AND E)
-SETTINGS optimize_extract_common_expressions = 0;
+    OR A
+    AND B
+    AND C
+    OR D
+    AND E
+SETTINGS optimize_extract_common_expressions = '1';
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (A
+WHERE A
     AND B
-    AND C)
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 1;
-
-SELECT count()
-FROM x
-WHERE (A
-    AND B)
-    OR (A
+    OR A
     AND B
-    AND C)
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 1;
-
-EXPLAIN QUERY TREE dump_ast = 1
-SELECT count()
-FROM x
-WHERE (A
-    AND B)
-    OR (A
-    AND B
-    AND C)
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 0;
+    AND C
+    OR D
+    AND E
+SETTINGS optimize_extract_common_expressions = '0';
 
 SELECT count()
 FROM x
-WHERE (A
-    AND B)
-    OR (A
+WHERE A
     AND B
-    AND C)
-    OR (B
-    AND C)
-SETTINGS optimize_extract_common_expressions = 0;
+    OR A
+    AND B
+    AND C
+    OR D
+    AND E
+SETTINGS optimize_extract_common_expressions = '0';
+
+EXPLAIN QUERY TREE dump_ast = '1'
+SELECT count()
+FROM x
+WHERE A
+    AND B
+    OR A
+    AND B
+    AND C
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '1';
+
+SELECT count()
+FROM x
+WHERE A
+    AND B
+    OR A
+    AND B
+    AND C
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '1';
+
+EXPLAIN QUERY TREE dump_ast = '1'
+SELECT count()
+FROM x
+WHERE A
+    AND B
+    OR A
+    AND B
+    AND C
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '0';
+
+SELECT count()
+FROM x
+WHERE A
+    AND B
+    OR A
+    AND B
+    AND C
+    OR B
+    AND C
+SETTINGS optimize_extract_common_expressions = '0';

@@ -1,9 +1,9 @@
 -- Tags: stateful
 SELECT '-- check that distinct with and w/o optimization produce the same result';
 
-DROP TABLE IF EXISTS distinct_in_order;
+DROP TABLE IF EXISTS distinct_in_order SYNC;
 
-DROP TABLE IF EXISTS ordinary_distinct;
+DROP TABLE IF EXISTS ordinary_distinct SYNC;
 
 CREATE TABLE distinct_in_order
 (
@@ -12,7 +12,7 @@ CREATE TABLE distinct_in_order
 )
 ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO distinct_in_order SELECT DISTINCT
     CounterID,
@@ -21,7 +21,7 @@ FROM test.hits
 ORDER BY
     CounterID ASC,
     EventDate ASC
-SETTINGS optimize_distinct_in_order = 1;
+SETTINGS optimize_distinct_in_order = '1';
 
 CREATE TABLE ordinary_distinct
 (
@@ -30,7 +30,7 @@ CREATE TABLE ordinary_distinct
 )
 ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO ordinary_distinct SELECT DISTINCT
     CounterID,
@@ -39,7 +39,7 @@ FROM test.hits
 ORDER BY
     CounterID ASC,
     EventDate ASC
-SETTINGS optimize_distinct_in_order = 0;
+SETTINGS optimize_distinct_in_order = '0';
 
 SELECT DISTINCT *
 FROM distinct_in_order
@@ -52,11 +52,11 @@ INSERT INTO distinct_in_order SELECT DISTINCT
     EventDate
 FROM test.hits
 ORDER BY CounterID ASC
-SETTINGS optimize_distinct_in_order = 1;
+SETTINGS optimize_distinct_in_order = '1';
 
 INSERT INTO ordinary_distinct SELECT DISTINCT
     CounterID,
     EventDate
 FROM test.hits
 ORDER BY CounterID ASC
-SETTINGS optimize_distinct_in_order = 0;
+SETTINGS optimize_distinct_in_order = '0';

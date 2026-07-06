@@ -5,7 +5,7 @@ CREATE TABLE test_grace_hash
     id UInt32,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_grace_hash SELECT

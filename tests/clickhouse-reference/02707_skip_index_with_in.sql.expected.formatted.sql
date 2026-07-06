@@ -5,9 +5,9 @@ CREATE TABLE t_skip_index_in
     a String,
     b String,
     c String,
-    INDEX idx_c c TYPE bloom_filter GRANULARITY 1
+    INDEX idx_c c TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b);
 
 INSERT INTO t_skip_index_in;
@@ -20,7 +20,7 @@ FROM t_skip_index_in
 WHERE c IN (
         SELECT throwIf(1)
     )
-SETTINGS use_skip_indexes = 0
+SETTINGS use_skip_indexes = '0'
 FORMAT Null;
 
 EXPLAIN
@@ -29,6 +29,6 @@ FROM t_skip_index_in
 WHERE c IN (
         SELECT throwIf(1)
     )
-SETTINGS use_skip_indexes = 1; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
+SETTINGS use_skip_indexes = '1'; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
 
 DROP TABLE t_skip_index_in;

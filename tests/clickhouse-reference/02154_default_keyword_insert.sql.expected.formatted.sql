@@ -4,7 +4,7 @@ CREATE TEMPORARY TABLE IF NOT EXISTS default_table
     y UInt32 DEFAULT 42,
     z UInt32 DEFAULT 33
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO default_table (x);
 

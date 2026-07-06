@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS pk_set;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE pk_set
 (

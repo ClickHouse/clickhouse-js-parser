@@ -8,7 +8,7 @@ CREATE TABLE t0
     rev INT UNSIGNED NOT NULL,
     content varchar(200) NOT NULL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (id, rev);
 
 CREATE TABLE t1
@@ -17,7 +17,7 @@ CREATE TABLE t1
     rev INT UNSIGNED NOT NULL,
     content varchar(200) NOT NULL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (id, rev);
 
 INSERT INTO t0;

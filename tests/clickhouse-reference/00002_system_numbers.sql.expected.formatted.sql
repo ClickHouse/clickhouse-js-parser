@@ -16,7 +16,7 @@ LIMIT 2;
 
 SELECT *
 FROM `system`.numbers
-WHERE number == 7
+WHERE number = 7
 LIMIT 1;
 
 SELECT number AS n

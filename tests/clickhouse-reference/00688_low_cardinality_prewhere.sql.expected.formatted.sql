@@ -7,9 +7,9 @@ CREATE TABLE lc_prewhere
     str LowCardinality(String),
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO lc_prewhere SELECT
     number,
@@ -24,4 +24,4 @@ SELECT
     sum(toUInt64(str)),
     sum(toUInt64(s))
 FROM lc_prewhere
-PREWHERE val == 1;
+PREWHERE val = 1;

@@ -5,7 +5,7 @@ CREATE TABLE hourly_data
     event_time DateTime,
     count_views UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (domain_name, event_time);
 
 CREATE TABLE monthly_aggregated_data
@@ -14,7 +14,7 @@ CREATE TABLE monthly_aggregated_data
     month Date,
     sumCountViews AggregateFunction(sum, UInt64)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY (domain_name, month);
 
 CREATE MATERIALIZED VIEW monthly_aggregated_data_mv

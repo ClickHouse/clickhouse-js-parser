@@ -1,304 +1,380 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-shared-catalog",
-      "-- no-shared-catalog: standard MergeTree is not supported"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "default_table_engine",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "ReplicatedMergeTree"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "primaryKeyInSchema": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/1166/{database}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "default_table_engine": "ReplicatedMergeTree"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "trunc"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "20"
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/1166/{database}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
+            }
+          ]
+        },
+        "primary_key": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "20"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "n"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "n"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "trunc"
+                  }
+                }
+              }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "trunc"
+        }
+      ]
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partition": {
-          "partitionKind": "all"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ATTACH_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "0"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ATTACH_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "1"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ATTACH_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ATTACH_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "3"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "default_table_engine",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "MergeTree"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "trunc"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "primaryKeyInSchema": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ],
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "detach": true,
+          "partition": {
+            "type": "Partition_ID",
+            "all": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ATTACH_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ATTACH_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ATTACH_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ATTACH_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "default_table_engine": "MergeTree"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "trunc"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Identifier",
+          "name": "n"
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
+            }
+          ]
+        },
+        "primary_key": {
+          "type": "Identifier",
+          "name": "n"
+        }
       }
     }
   }

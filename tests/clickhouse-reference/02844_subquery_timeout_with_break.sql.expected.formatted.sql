@@ -4,7 +4,7 @@ CREATE TABLE t
 (
     key UInt64,
     value UInt64,
-    INDEX value_idx value TYPE bloom_filter GRANULARITY 1
+    INDEX value_idx value TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key;
@@ -16,7 +16,7 @@ FROM numbers(10000);
 
 SET timeout_overflow_mode = 'break';
 
-SET max_execution_time = 0.1, max_rows_to_read = 0;
+SET max_execution_time = 0.1, max_rows_to_read = '0';
 
 SELECT *
 FROM t

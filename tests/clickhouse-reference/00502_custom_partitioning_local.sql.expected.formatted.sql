@@ -4,7 +4,7 @@ CREATE TABLE not_partitioned
 (
     x UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO not_partitioned;
@@ -25,7 +25,7 @@ OPTIMIZE TABLE not_partitioned PARTITION tuple() FINAL;
 SELECT sum(x)
 FROM not_partitioned;
 
-ALTER TABLE not_partitioned DROP PARTITION ID 'all';
+ALTER TABLE not_partitioned DETACH PARTITION ID 'all';
 
 SELECT `system`.detached_parts.* EXCEPT (bytes_on_disk, path, disk, modification_time)
 FROM `system`.detached_parts
@@ -41,7 +41,7 @@ CREATE TABLE partitioned_by_week
     d Date,
     x UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY toMonday(d);
 
@@ -76,7 +76,7 @@ CREATE TABLE partitioned_by_tuple
     x UInt8,
     y UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY (d, x);
 
@@ -100,7 +100,7 @@ OPTIMIZE TABLE partitioned_by_tuple PARTITION ('2000-01-02', 1) FINAL;
 SELECT sum(y)
 FROM partitioned_by_tuple;
 
-ALTER TABLE partitioned_by_tuple DROP PARTITION ID '20000101-1';
+ALTER TABLE partitioned_by_tuple DETACH PARTITION ID '20000101-1';
 
 DROP TABLE partitioned_by_tuple;
 
@@ -111,7 +111,7 @@ CREATE TABLE partitioned_by_string
     s String,
     x UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY s;
 
@@ -143,7 +143,7 @@ CREATE TABLE without_fixed_size_columns
 (
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
 PARTITION BY length(s);
 

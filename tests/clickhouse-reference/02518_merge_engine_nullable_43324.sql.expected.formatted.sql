@@ -9,7 +9,7 @@ CREATE TABLE foo
     Id Int32,
     Val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id;
 
 CREATE TABLE foo__fuzz_0
@@ -17,7 +17,7 @@ CREATE TABLE foo__fuzz_0
     Id Int64,
     Val Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id;
 
 INSERT INTO foo SELECT

@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS t_lightweight_mut_5;
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
-SET mutations_execute_subqueries_on_initiator = 1;
+SET mutations_execute_subqueries_on_initiator = '1';
 
-SET mutations_execute_nondeterministic_on_initiator = 1;
+SET mutations_execute_nondeterministic_on_initiator = '1';
 
 -- SELECT sum(...)
 CREATE TABLE t_lightweight_mut_5
@@ -12,7 +12,7 @@ CREATE TABLE t_lightweight_mut_5
     id UInt64,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 SYSTEM STOP MERGES t_lightweight_mut_5;
@@ -45,7 +45,7 @@ CREATE TABLE t_lightweight_mut_5
     id UInt64,
     v Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_lightweight_mut_5;
@@ -69,7 +69,7 @@ ORDER BY id ASC; -- { serverError BAD_ARGUMENTS }
 SYSTEM START MERGES t_lightweight_mut_5;
 
 -- Force to wait previous mutations
-ALTER TABLE t_lightweight_mut_5 UPDATE v = v WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE t_lightweight_mut_5 UPDATE v = v WHERE 1 SETTINGS mutations_sync = '2';
 
 -- SELECT uniqExactState(...)
 CREATE TABLE t_lightweight_mut_5
@@ -77,7 +77,7 @@ CREATE TABLE t_lightweight_mut_5
     id UInt64,
     v AggregateFunction(uniqExact, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_lightweight_mut_5;
@@ -99,7 +99,7 @@ CREATE TABLE t_lightweight_mut_5
     id UInt64,
     v DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_lightweight_mut_5;
@@ -108,7 +108,8 @@ ALTER TABLE t_lightweight_mut_5 UPDATE v = now() WHERE 1;
 
 SELECT
     id,
-    and(greaterOrEquals(v, now() - toIntervalMinute(10)), lessOrEquals(v, now()))
+    v >= now() - toIntervalMinute(10)
+    AND v <= now()
 FROM t_lightweight_mut_5;
 
 SELECT replaceRegexpOne(command, '(\\d{10})', 'timestamp')
@@ -129,14 +130,14 @@ ORDER BY id ASC; -- { serverError BAD_ARGUMENTS }
 SELECT *
 FROM t_lightweight_mut_5
 ORDER BY id ASC
-SETTINGS apply_mutations_on_fly = 0;
+SETTINGS apply_mutations_on_fly = '0';
 
 -- Check that function in subquery is not rewritten.
 ALTER TABLE t_lightweight_mut_5 UPDATE v = (
     SELECT sum(number)
     FROM numbers(1000)
     WHERE number > randConstant()
-) WHERE 1 SETTINGS mutations_execute_subqueries_on_initiator = 0;
+) WHERE 1 SETTINGS mutations_execute_subqueries_on_initiator = '0';
 
 -- DELETE WHERE now()
 CREATE TABLE t_lightweight_mut_5
@@ -144,7 +145,7 @@ CREATE TABLE t_lightweight_mut_5
     id UInt64,
     d DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_lightweight_mut_5;
@@ -154,4 +155,4 @@ ALTER TABLE t_lightweight_mut_5 DELETE WHERE d < now();
 SELECT *
 FROM t_lightweight_mut_5
 ORDER BY id ASC
-SETTINGS apply_mutations_on_fly = 1;
+SETTINGS apply_mutations_on_fly = '1';

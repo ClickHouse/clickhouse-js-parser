@@ -10,7 +10,7 @@ CREATE TABLE test_33602
     score UInt8,
     user_level Enum8('LOW' = 1, 'MEDIUM' = 2, 'HIGH' = 3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT any(user_level)
 FROM test_33602;
@@ -46,7 +46,7 @@ CREATE TABLE test_33602_t0a
 (
     e Enum8('LOW' = 123, 'MEDIUM' = 12, 'HIGH' = 33)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT any(e)
 FROM test_33602_t0a;
@@ -75,7 +75,7 @@ CREATE TABLE test_33602_t0b
 (
     e Enum16('LOW' = 123, 'MEDIUM' = 12, 'HIGH' = 33)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT any(e)
 FROM test_33602_t0b;

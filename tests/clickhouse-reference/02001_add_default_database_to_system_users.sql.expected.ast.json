@@ -1,51 +1,82 @@
 [
   {
-    "kind": "createUser",
-    "names": [
-      {
-        "name": "u_02001"
-      }
-    ],
-    "ifNotExists": true,
-    "defaultDatabase": "system",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: create user"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "default_database"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "users"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "name"
+    "version": 2,
+    "ast": {
+      "type": "CreateUserQuery",
+      "if_not_exists": true,
+      "names": {
+        "type": "UserNamesWithHost",
+        "users": [
+          {
+            "type": "UserNameWithHost",
+            "name": "u_02001"
+          }
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "u_02001"
+      "default_database": {
+        "type": "DatabaseOrNone",
+        "database": "system"
       }
     }
   },
   {
-    "kind": "system",
-    "body": "drop user if exists u_02001"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "default_database"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "users",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "name"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "u_02001"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "USER",
+      "if_exists": true,
+      "names": [
+        "u_02001"
+      ]
+    }
   }
 ]

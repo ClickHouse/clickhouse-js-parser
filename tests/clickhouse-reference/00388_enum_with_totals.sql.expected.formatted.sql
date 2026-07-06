@@ -4,7 +4,7 @@ CREATE TABLE enum_totals
 (
     e Enum8('hello' = 1, 'world' = 2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO enum_totals;
 

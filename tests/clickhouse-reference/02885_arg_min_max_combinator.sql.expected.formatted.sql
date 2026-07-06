@@ -24,5 +24,5 @@ SELECT sumArgMin(number, unhex('0000000000000000')::AggregateFunction(sum, UInt6
 FROM numbers(100); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- ASAN (data leak)
-SELECT sumArgMax(number, tuple(number, repeat('a', ((10 * ((number % 100))))::Int32)))
+SELECT sumArgMax(number, tuple(number, repeat('a', (10 * (number % 100))::Int32)))
 FROM numbers(1000);

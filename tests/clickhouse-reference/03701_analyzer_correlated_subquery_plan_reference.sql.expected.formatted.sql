@@ -1,30 +1,30 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET query_plan_join_swap_table = false;
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET correlated_subqueries_default_join_kind = 'left';
 
-SET correlated_subqueries_use_in_memory_buffer = 0;
+SET correlated_subqueries_use_in_memory_buffer = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 CREATE TABLE t
 (
     x Int,
     y Int
 )
-ORDER BY tuple() AS
+ORDER BY () AS
 SELECT
     number AS x,
     number % 2 AS y
 FROM numbers(100);
 
-EXPLAIN actions = 1
+EXPLAIN actions = '1'
 SELECT count()
 FROM t AS n
-WHERE EXISTS((
+WHERE exists((
         SELECT *
         FROM numbers(10)
         WHERE number != n.x

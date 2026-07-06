@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET aggregate_functions_null_for_empty = 1;
+SET aggregate_functions_null_for_empty = '1';
 
 SELECT max(aggr)
 FROM (

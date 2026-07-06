@@ -37,7 +37,7 @@ CREATE DICTIONARY dict_flat_simple
 )
 PRIMARY KEY v0
 SOURCE(clickhouse(TABLE 'dict_data'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SYSTEM RELOAD DICTIONARY dict_flat_simple;
@@ -59,7 +59,7 @@ CREATE DICTIONARY dict_hashed_simple_Decimal128
 )
 PRIMARY KEY v3
 SOURCE(clickhouse(TABLE 'dict_data'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SYSTEM RELOAD DICTIONARY dict_hashed_simple_Decimal128;
@@ -81,7 +81,7 @@ CREATE DICTIONARY dict_hashed_simple_Float32
 )
 PRIMARY KEY v2
 SOURCE(clickhouse(TABLE 'dict_data'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SYSTEM RELOAD DICTIONARY dict_hashed_simple_Float32;
@@ -103,7 +103,7 @@ CREATE DICTIONARY dict_hashed_simple_String
 )
 PRIMARY KEY v4
 SOURCE(clickhouse(TABLE 'dict_data'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SYSTEM RELOAD DICTIONARY dict_hashed_simple_String;
@@ -125,7 +125,7 @@ CREATE DICTIONARY dict_hashed_simple_auto_convert
 )
 PRIMARY KEY v0, v1
 SOURCE(clickhouse(TABLE 'dict_data'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SYSTEM RELOAD DICTIONARY dict_hashed_simple_auto_convert;

@@ -18,4 +18,4 @@ FROM (
 ORDER BY
     id ASC,
     event ASC
-SETTINGS max_rows_to_read = 40000000;
+SETTINGS max_rows_to_read = '40000000';

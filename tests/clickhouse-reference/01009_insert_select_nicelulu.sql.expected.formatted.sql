@@ -11,20 +11,20 @@ CREATE TABLE test_insert_t1
     name String,
     city String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name
 PARTITION BY toYYYYMMDD(dt)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE test_insert_t2
 (
     dt Date,
     uid String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY uid
 PARTITION BY toYYYYMMDD(dt)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE test_insert_t3
 (
@@ -33,10 +33,10 @@ CREATE TABLE test_insert_t3
     name String,
     city String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name
 PARTITION BY toYYYYMMDD(dt)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_insert_t1 SELECT
     '2019-09-01',
@@ -104,7 +104,7 @@ FROM
         FROM test_insert_t1
         WHERE dt = '2019-09-01'
     ) AS t1
-LEFT JOIN (
+GLOBAL SEMI LEFT JOIN (
         SELECT uid
         FROM test_insert_t2
         WHERE dt = '2019-09-01'

@@ -9,27 +9,27 @@ DROP TABLE IF EXISTS numbers4;
 DROP TABLE IF EXISTS numbers5;
 
 CREATE TABLE numbers1
-ENGINE = StripeLog AS
+ENGINE = StripeLog() AS
 SELECT number
 FROM numbers(1000);
 
 CREATE TABLE numbers2
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT number
 FROM numbers(1000);
 
 CREATE TABLE numbers3
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT number
 FROM numbers(1000);
 
 CREATE TABLE numbers4
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT number
 FROM numbers(1000);
 
 CREATE TABLE numbers5
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number AS
 SELECT number
 FROM numbers(1000);
@@ -41,9 +41,9 @@ SELECT DISTINCT count()
 FROM merge(currentDatabase(), '^numbers\\d+$')
 GROUP BY number;
 
-SET optimize_aggregation_in_order = 0; -- FIXME : in order may happen before filter push down
+SET optimize_aggregation_in_order = '0'; -- FIXME : in order may happen before filter push down
 
-SET max_rows_to_read = 1000;
+SET max_rows_to_read = '1000';
 
 SET max_threads = 'auto';
 
@@ -51,19 +51,19 @@ SELECT count()
 FROM merge(currentDatabase(), '^numbers\\d+$')
 WHERE _table = 'numbers1';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT count()
 FROM merge(currentDatabase(), '^numbers\\d+$')
 WHERE _table = 'numbers2';
 
-SET max_threads = 10;
+SET max_threads = '10';
 
 SELECT count()
 FROM merge(currentDatabase(), '^numbers\\d+$')
 WHERE _table = 'numbers3';
 
-SET max_rows_to_read = 1;
+SET max_rows_to_read = '1';
 
 SELECT count()
 FROM merge(currentDatabase(), '^numbers\\d+$')

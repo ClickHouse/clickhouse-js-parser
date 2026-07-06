@@ -1,4 +1,4 @@
-SELECT arrayMap(x -> if(number != -1, x, 0), arr)
+SELECT arrayMap((x -> number != -1 ? x : 0), arr)
 FROM (
         SELECT
             number,
@@ -7,4 +7,4 @@ FROM (
         LIMIT 10
     )
 WHERE number % 2 = 1
-    AND arrayExists(x -> number != -1, arr);
+    AND arrayExists((x -> number != -1), arr);

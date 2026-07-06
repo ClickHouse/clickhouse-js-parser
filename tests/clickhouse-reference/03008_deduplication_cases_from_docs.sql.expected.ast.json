@@ -1,736 +1,886 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dst"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_first"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_second"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dst"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "non_replicated_deduplication_window",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "non_replicated_deduplication_window",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_first"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_second"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "deduplicate_blocks_in_dependent_materialized_views",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "from dst"
+        "type": "Identifier",
+        "name": "dst"
       },
-      {
-        "kind": "asterisk"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_part"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dst"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "all"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "from mv_dst"
-      },
-      {
-        "kind": "asterisk"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_part"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "all"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_second"
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_first"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "dst"
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_dst"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "non_replicated_deduplication_window",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true,
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
+        "type": "Identifier",
+        "name": "mv_dst"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_insert_block_size_rows",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "min_insert_block_size_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "A"
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "mv_first"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "mv_second"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "ALL"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ],
-      "settings": [
-        {
-          "name": "insert_deduplication_token",
-          "value": {
-            "kind": "literal",
-            "type": "String",
-            "value": "some_user_token"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "b"
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "ALL"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ],
-      "settings": [
-        {
-          "name": "insert_deduplication_token",
-          "value": {
-            "kind": "literal",
-            "type": "String",
-            "value": "some_user_token"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          },
-          "alias": "key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "A"
-          },
-          "alias": "value"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "ALL"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "dst"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
             }
           },
-          "alias": "key"
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "IF",
-            "args": [
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "non_replicated_deduplication_window": "1000"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "mv_dst"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "non_replicated_deduplication_window": "1000"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_first"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "key"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
+              },
+              {
+                "type": "Identifier",
+                "alias": "value",
+                "name": "value"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dst"
+                    }
+                  }
                 }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "mv_dst"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_second"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "A"
-              },
+                "type": "Identifier",
+                "alias": "value",
+                "name": "value"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dst"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "mv_dst"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "deduplicate_blocks_in_dependent_materialized_views": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "from dst"
+            },
+            {
+              "type": "Asterisk"
+            },
+            {
+              "type": "Identifier",
+              "name": "_part"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "B"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dst"
+                  }
+                }
               }
             ]
           },
-          "alias": "value"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "all"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "from mv_dst"
+            },
+            {
+              "type": "Asterisk"
+            },
+            {
+              "type": "Identifier",
+              "name": "_part"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "mv_dst"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "all"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "mv_second"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "mv_first"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "mv_dst"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_dst"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
         ]
       },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "ALL"
-            ]
-          },
-          "direction": "ASC"
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
+              },
+              {
+                "type": "Identifier",
+                "alias": "value",
+                "name": "value"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "dst"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Function",
+                "name": "tuple",
+                "arguments": []
+              },
+              "settings": {
+                "type": "Settings",
+                "changes": {
+                  "non_replicated_deduplication_window": "1000"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_insert_block_size_rows": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "min_insert_block_size_bytes": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "insert_deduplication_token": "some_user_token"
         }
-      ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "order_by_all": true,
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
+              },
+              {
+                "type": "Literal",
+                "alias": "value",
+                "value_type": "String",
+                "value": "A"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "ALL"
+                },
+                "direction": "ASC"
+              }
+            ],
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "insert_deduplication_token": "some_user_token"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "insert_deduplication_token": "some_user_token"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "order_by_all": true,
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "alias": "value",
+                "value_type": "String",
+                "value": "b"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "ALL"
+                },
+                "direction": "ASC"
+              }
+            ],
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "insert_deduplication_token": "some_user_token"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "order_by_all": true,
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "key",
+                "value_type": "UInt64",
+                "value": "0"
+              },
+              {
+                "type": "Literal",
+                "alias": "value",
+                "value_type": "String",
+                "value": "A"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "ALL"
+                },
+                "direction": "ASC"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dst"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "order_by_all": true,
+            "select": [
+              {
+                "type": "Function",
+                "alias": "key",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "value",
+                "name": "IF",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "key"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "A"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "B"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "order_by": [
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "ALL"
+                },
+                "direction": "ASC"
+              }
+            ]
+          }
+        ]
+      }
     }
   }
 ]

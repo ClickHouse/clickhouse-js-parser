@@ -1,3 +1,3 @@
-SELECT like(materialize('prepre_f'), '%pre_f%');
+SELECT materialize('prepre_f') LIKE '%pre_f%';
 
-SELECT like(materialize('prepre_f'), '%%%pre_f%');
+SELECT materialize('prepre_f') LIKE '%%%pre_f%';

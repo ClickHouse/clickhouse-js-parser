@@ -1,4 +1,4 @@
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
 DROP TABLE IF EXISTS order_with_aggr;
 
@@ -6,7 +6,7 @@ CREATE TABLE order_with_aggr
 (
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO order_with_aggr SELECT *

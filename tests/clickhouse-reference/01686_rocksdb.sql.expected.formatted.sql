@@ -8,9 +8,9 @@ CREATE TABLE `01686_test`
     key UInt64,
     value String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key
-SETTINGS optimize_for_bulk_insert = 0;
+SETTINGS optimize_for_bulk_insert = '0';
 
 SELECT value
 FROM `system`.rocksdb

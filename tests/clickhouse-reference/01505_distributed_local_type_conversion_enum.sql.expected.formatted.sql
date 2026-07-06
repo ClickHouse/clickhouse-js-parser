@@ -7,7 +7,7 @@ CREATE TABLE t
 (
     x Enum8('abc' = 0, 'def' = 1, 'ghi' = 2)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t;
 

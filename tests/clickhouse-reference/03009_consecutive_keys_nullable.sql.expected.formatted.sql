@@ -4,14 +4,14 @@ CREATE TABLE t_nullable_keys_1
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_1;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_1
 GROUP BY x
 ORDER BY x ASC;
@@ -24,14 +24,14 @@ CREATE TABLE t_nullable_keys_2
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_2;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_2
 GROUP BY x
 ORDER BY x ASC;
@@ -44,14 +44,14 @@ CREATE TABLE t_nullable_keys_3
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_3;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_3
 GROUP BY x
 ORDER BY x ASC;
@@ -64,14 +64,14 @@ CREATE TABLE t_nullable_keys_4
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_4;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_4
 GROUP BY x
 ORDER BY x ASC;
@@ -84,14 +84,14 @@ CREATE TABLE t_nullable_keys_5
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_5;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_5
 GROUP BY x
 ORDER BY x ASC;
@@ -104,14 +104,14 @@ CREATE TABLE t_nullable_keys_6
 (
     x Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_nullable_keys_6;
 
 SELECT
     x,
     count(),
-    countIf(isNull(x))
+    countIf(x IS NULL)
 FROM t_nullable_keys_6
 GROUP BY x
 ORDER BY x ASC;
@@ -126,5 +126,5 @@ SELECT
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%SELECT%FROM%t_nullable_keys_%')
+    AND query LIKE '%SELECT%FROM%t_nullable_keys_%'
 ORDER BY table ASC;

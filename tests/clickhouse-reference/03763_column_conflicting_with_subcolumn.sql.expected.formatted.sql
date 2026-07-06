@@ -5,9 +5,9 @@ CREATE TABLE test
     a Array(UInt64),
     `a.size0` UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '1';
 
 INSERT INTO test SELECT
     [number],

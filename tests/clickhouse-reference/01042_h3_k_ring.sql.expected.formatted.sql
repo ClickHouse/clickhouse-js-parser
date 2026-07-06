@@ -19,7 +19,7 @@ CREATE TABLE h3_indexes
     h3_index UInt64,
     k UInt16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO h3_indexes;
 

@@ -9,4 +9,4 @@ FROM (
     )
 GROUP BY a
 HAVING c
-SETTINGS enable_analyzer = 1; -- { serverError NOT_AN_AGGREGATE }
+SETTINGS enable_analyzer = '1'; -- { serverError NOT_AN_AGGREGATE }

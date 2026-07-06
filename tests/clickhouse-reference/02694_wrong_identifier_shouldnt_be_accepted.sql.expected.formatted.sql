@@ -9,20 +9,20 @@ CREATE TABLE t1
     k Int64,
     x Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     x Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE s
 (
     k Int64,
     d DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM
@@ -31,7 +31,7 @@ INNER JOIN s
     ON t1.k = s.k
 INNER JOIN t2
     ON t2.x = t1.x
-WHERE (t1.d >= now()); -- { serverError UNKNOWN_IDENTIFIER }
+WHERE t1.d >= now(); -- { serverError UNKNOWN_IDENTIFIER }
 
 DROP TABLE t1;
 

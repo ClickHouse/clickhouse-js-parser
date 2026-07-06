@@ -13,7 +13,7 @@ CREATE TABLE local
     g UInt64,
     h UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE distr AS local
 ENGINE = Distributed('test_cluster_two_shards', currentDatabase(), local);
@@ -21,10 +21,10 @@ ENGINE = Distributed('test_cluster_two_shards', currentDatabase(), local);
 INSERT INTO local (a) SELECT number
 FROM numbers(10);
 
-SET max_columns_to_read = 1;
+SET max_columns_to_read = '1';
 
 SELECT count()
 FROM
     distr AS l
-LEFT JOIN distr AS r
+GLOBAL ALL LEFT JOIN distr AS r
     ON l.a = r.a;

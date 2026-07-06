@@ -8,22 +8,22 @@ SELECT toBFloat16(-1) IN ([toFloat64(-2), toFloat64(-1), toFloat64(0), toFloat64
 
 SELECT toFloat64(-1) IN ([toBFloat16(-2), toBFloat16(-1), toBFloat16(0), toBFloat16(1), toBFloat16(2)]) AS result;
 
-SELECT toBFloat16(0) IN ([-0]) AS result;
+SELECT toBFloat16(0) IN ([0]) AS result;
 
-SELECT toBFloat16(0 / 0) IN ([0/0]) AS result;
+SELECT toBFloat16(0 / 0) IN ([0 / 0]) AS result;
 
-SELECT toBFloat16(0 / 0) IN ([-0/0]) AS result;
+SELECT toBFloat16(0 / 0) IN ([0 / 0]) AS result;
 
-SELECT toBFloat16(1 / 0) IN ([1/0]) AS result;
+SELECT toBFloat16(1 / 0) IN ([1 / 0]) AS result;
 
-SELECT toBFloat16(1 / 0) IN ([-1/0]) AS result;
+SELECT toBFloat16(1 / 0) IN ([-1 / 0]) AS result;
 
-SELECT toFloat32(0) IN ([-0]) AS result;
+SELECT toFloat32(0) IN ([0]) AS result;
 
-SELECT toFloat32(0 / 0) IN ([0/0]) AS result;
+SELECT toFloat32(0 / 0) IN ([0 / 0]) AS result;
 
-SELECT toFloat32(0 / 0) IN ([-0/0]) AS result;
+SELECT toFloat32(0 / 0) IN ([0 / 0]) AS result;
 
-SELECT toFloat32(1 / 0) IN ([1/0]) AS result;
+SELECT toFloat32(1 / 0) IN ([1 / 0]) AS result;
 
-SELECT toFloat32(1 / 0) IN ([-1/0]) AS result;
+SELECT toFloat32(1 / 0) IN ([-1 / 0]) AS result;

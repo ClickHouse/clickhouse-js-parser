@@ -1,109 +1,131 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_low_cardinality_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "val"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_low_cardinality_types": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toUInt64",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "val"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                }
+              ]
+            }
           }
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "Int64",
-        "value": "-1"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "val"
+        }
       }
-    },
-    "trailingComments": [
-      "-- { serverError CANNOT_CONVERT_TYPE }"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toUInt64",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "val"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "Int64",
+                "value": "-1"
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

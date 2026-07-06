@@ -7,12 +7,12 @@ CREATE TABLE test
     _file String,
     _path String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO FUNCTION file(`02483_data`.LineAsString) SELECT 'Hello'
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
-SET use_structure_from_insertion_table_in_table_functions = 2;
+SET use_structure_from_insertion_table_in_table_functions = '2';
 
 INSERT INTO test SELECT
     *,

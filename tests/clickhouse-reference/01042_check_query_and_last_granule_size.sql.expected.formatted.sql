@@ -1,6 +1,6 @@
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
-SET check_query_single_value_result = 0;
+SET check_query_single_value_result = '0';
 
 DROP TABLE IF EXISTS check_query_test;
 
@@ -11,7 +11,7 @@ CREATE TABLE check_query_test
 )
 ENGINE = MergeTree()
 ORDER BY SomeKey
-SETTINGS min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0';
 
 -- Number of rows in last granule should be equals to granularity.
 -- Rows in this table are short, so granularity will be 8192.
@@ -21,7 +21,7 @@ INSERT INTO check_query_test SELECT
 FROM `system`.numbers
 LIMIT 81920;
 
-CHECK TABLE check_query_test SETTINGS max_threads = 1;
+CHECK TABLE check_query_test SETTINGS max_threads = '1';
 
 OPTIMIZE TABLE check_query_test;
 
@@ -34,7 +34,7 @@ CREATE TABLE check_query_test_non_adaptive
 )
 ENGINE = MergeTree()
 ORDER BY SomeKey
-SETTINGS index_granularity_bytes = 0, min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0;
+SETTINGS index_granularity_bytes = '0', min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0';
 
 INSERT INTO check_query_test_non_adaptive SELECT
     number,
@@ -42,7 +42,7 @@ INSERT INTO check_query_test_non_adaptive SELECT
 FROM `system`.numbers
 LIMIT 81920;
 
-CHECK TABLE check_query_test_non_adaptive SETTINGS max_threads = 1;
+CHECK TABLE check_query_test_non_adaptive SETTINGS max_threads = '1';
 
 OPTIMIZE TABLE check_query_test_non_adaptive;
 

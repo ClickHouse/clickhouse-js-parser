@@ -4,7 +4,7 @@ CREATE TABLE source_table
 (
     x UInt16
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO source_table SELECT *
 FROM `system`.numbers

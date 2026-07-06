@@ -7,14 +7,14 @@ CREATE TABLE using1
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE using2
 (
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO using1;
 
@@ -23,7 +23,7 @@ INSERT INTO using2;
 SELECT *
 FROM
     using1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT *
         FROM using2
     ) AS js2
@@ -44,7 +44,7 @@ CREATE TABLE persons
     id String,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE children
@@ -52,7 +52,7 @@ CREATE TABLE children
     id String,
     childName String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO persons (id, name);
@@ -62,7 +62,7 @@ INSERT INTO children (id, childName);
 SELECT *
 FROM
     persons
-INNER JOIN children
+ALL INNER JOIN children
     USING (id)
 ORDER BY
     id ASC,
@@ -72,7 +72,7 @@ ORDER BY
 SELECT *
 FROM
     persons
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM children
     ) AS j
@@ -88,7 +88,7 @@ FROM
         SELECT *
         FROM persons
     ) AS s
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM children
     ) AS j
@@ -99,12 +99,12 @@ ORDER BY
     childName ASC;
 
 --
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
     persons
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM children
     )
@@ -120,7 +120,7 @@ FROM
         SELECT *
         FROM persons
     )
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM children
     )
@@ -136,7 +136,7 @@ FROM
         SELECT *
         FROM persons
     ) AS s
-INNER JOIN (
+ALL INNER JOIN (
         SELECT *
         FROM children
     )

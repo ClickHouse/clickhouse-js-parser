@@ -25,7 +25,7 @@ GROUP BY
     a,
     grp_aggreg
 ORDER BY a ASC
-SETTINGS optimize_aggregation_in_order = 0
+SETTINGS optimize_aggregation_in_order = '0'
 FORMAT JSONEachRow;
 
 SELECT grp_aggreg
@@ -34,17 +34,7 @@ GROUP BY
     a,
     grp_aggreg
 ORDER BY a ASC
-SETTINGS optimize_aggregation_in_order = 1
-FORMAT JSONEachRow;
-
-SELECT grp_aggreg
-FROM data_02295
-GROUP BY
-    a,
-    grp_aggreg
-WITH TOTALS
-ORDER BY a ASC
-SETTINGS optimize_aggregation_in_order = 0
+SETTINGS optimize_aggregation_in_order = '1'
 FORMAT JSONEachRow;
 
 SELECT grp_aggreg
@@ -54,7 +44,17 @@ GROUP BY
     grp_aggreg
 WITH TOTALS
 ORDER BY a ASC
-SETTINGS optimize_aggregation_in_order = 1
+SETTINGS optimize_aggregation_in_order = '0'
+FORMAT JSONEachRow;
+
+SELECT grp_aggreg
+FROM data_02295
+GROUP BY
+    a,
+    grp_aggreg
+WITH TOTALS
+ORDER BY a ASC
+SETTINGS optimize_aggregation_in_order = '1'
 FORMAT JSONEachRow;
 
 -- regression for incorrect positions passed to finalizeChunk()
@@ -67,7 +67,7 @@ GROUP BY a
 ORDER BY
     a ASC,
     count() ASC
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 SELECT
     a,
@@ -79,8 +79,8 @@ ORDER BY
     a ASC,
     count() ASC
 SETTINGS
-    optimize_aggregation_in_order = 1,
-    max_threads = 1;
+    optimize_aggregation_in_order = '1',
+    max_threads = '1';
 
 SELECT
     a,
@@ -92,7 +92,7 @@ WITH TOTALS
 ORDER BY
     a ASC,
     count() ASC
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 SELECT
     a,
@@ -105,8 +105,8 @@ ORDER BY
     a ASC,
     count() ASC
 SETTINGS
-    optimize_aggregation_in_order = 1,
-    max_threads = 1;
+    optimize_aggregation_in_order = '1',
+    max_threads = '1';
 
 -- { echoOff }
 DROP TABLE data_02295;

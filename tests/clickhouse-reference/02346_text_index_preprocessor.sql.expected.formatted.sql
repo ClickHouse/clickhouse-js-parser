@@ -1,8 +1,8 @@
 -- Tags: no-parallel
 -- Tag no-parallel: Messes with internal cache and global udf factory
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
 -- Tests the preprocessor argument for tokenizers in the text index definitions
 DROP TABLE IF EXISTS tab;
@@ -11,9 +11,9 @@ CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO tab;
@@ -64,27 +64,27 @@ CREATE TABLE tab
 (
     key UInt64,
     val LowCardinality(String),
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE tab
 (
     key UInt64,
     val FixedString(3),
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE tab
 (
     key UInt64,
     val Array(String),
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab;
@@ -93,18 +93,18 @@ CREATE TABLE tab
 (
     key UInt64,
     val Array(FixedString(3)),
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DROP FUNCTION IF EXISTS udf_preprocessor;
@@ -115,9 +115,9 @@ CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = udf_preprocessor(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = udf_preprocessor(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DROP FUNCTION udf_preprocessor;
@@ -128,9 +128,9 @@ CREATE TABLE tab
     key UInt64,
     val String,
     other_str String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(other_str))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(other_str)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
@@ -138,18 +138,18 @@ CREATE TABLE tab
     key UInt64,
     val String,
     other_str String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, other_str))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, other_str)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx upper(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx upper(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 SELECT '-- Not even the same expression';
@@ -158,61 +158,61 @@ CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx lower(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val))
+    INDEX idx lower(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx upper(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(upper(val)))
+    INDEX idx upper(val) TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = lower(upper(val))) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = BAD)
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = BAD) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = nonExistingFunction(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = nonExistingFunction(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError UNKNOWN_FUNCTION }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = length(val))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = length(val)) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = hostname())
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = hostname()) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }
 
 CREATE TABLE tab
 (
     key UInt64,
     val String,
-    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, toString(rand())))
+    INDEX idx val TYPE text(tokenizer = 'splitByNonAlpha', preprocessor = concat(val, toString(rand()))) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError INCORRECT_QUERY }

@@ -1,1687 +1,1686 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "automatic_parallel_replicas_mode",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      {
-        "name": "parallel_replicas_local_plan",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "parallel_replicas_index_analysis_only_on_coordinator",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "cluster_for_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_replicas"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_parallel_replicas": "0",
+        "automatic_parallel_replicas_mode": "2",
+        "parallel_replicas_local_plan": "1",
+        "parallel_replicas_index_analysis_only_on_coordinator": "1",
+        "parallel_replicas_for_non_replicated_merge_tree": "1",
+        "max_parallel_replicas": "3",
+        "cluster_for_parallel_replicas": "parallel_replicas"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful, long, no-msan"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_bytes_ratio_before_external_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_before_external_group_by": "0",
+        "max_bytes_ratio_before_external_group_by": "0"
       }
-    ],
-    "leadingComments": [
-      "-- External aggregation is not supported as of now"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_threads": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Override randomized max_threads to avoid timeout on slow builds (ASan)"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<>",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "AdvEngineID"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "MobilePhoneModel"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNTDistinct",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
-              ]
-            }
-          ]
-        },
-        "alias": "u"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<>",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "MobilePhoneModel"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": ""
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "MobilePhoneModel"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "u"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_10"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Unsupported at the moment, refer to comments in `RuntimeDataflowStatisticsCacheUpdater::recordAggregationStateSizes`",
-      "-- SELECT COUNT(DISTINCT SearchPhrase) FROM test.hits FORMAT Null SETTINGS log_comment='query_5';"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "SearchPhrase"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "alias": "c"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<>",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "SearchPhrase"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": ""
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_12"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "UserID"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "UserID"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
-            {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_15"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%google%"
-        }
-      ]
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_20"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "SearchPhrase"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "MIN",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "URL"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
-            {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "alias": "c"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%google%"
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<>",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "SearchPhrase"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": ""
-          }
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_21"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "SearchPhrase"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "MIN",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "URL"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "MIN",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "Title"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
-            {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "alias": "c"
-      },
-      {
-        "kind": "functionCall",
-        "name": "COUNTDistinct",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "UserID"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Title"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%Google%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "notLike",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%.google.%"
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<>",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "SearchPhrase"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": ""
-          }
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_22"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%google%"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "EventTime"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_23"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "REGEXP_REPLACE",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "Referer"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "^https?://(?:www\\\\.)?([^/]+)/.*$"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "\\\\1"
-            }
-          ]
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "AVG",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "length",
-              "args": [
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "Referer"
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "AdvEngineID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_1"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "MobilePhoneModel"
+            },
+            {
+              "type": "Function",
+              "alias": "u",
+              "name": "COUNTDistinct",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "MobilePhoneModel"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": ""
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "MobilePhoneModel"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "u"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_10"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": ""
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_12"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "UserID"
+            },
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "UserID"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "COUNT",
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
+                ]
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_15"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%google%"
+              }
+            ]
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_20"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            },
+            {
+              "type": "Function",
+              "name": "MIN",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "URL"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%google%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": ""
+                  }
+                ]
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_21"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            },
+            {
+              "type": "Function",
+              "name": "MIN",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "URL"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "MIN",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Title"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "COUNTDistinct",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "Title"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%Google%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notLike",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%.google.%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": ""
+                  }
+                ]
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_22"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%google%"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "EventTime"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_23"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "k",
+              "name": "REGEXP_REPLACE",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Referer"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "^https?://(?:www\\.)?([^/]+)/.*$"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "\\1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "l",
+              "name": "AVG",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "length",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "Referer"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "MIN",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "Referer"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "Referer"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": ""
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "having": {
+            "type": "Function",
+            "name": "greater",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "COUNT",
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "100000"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "l"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "25"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_28"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            },
+            {
+              "type": "Identifier",
+              "name": "URL"
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            },
+            {
+              "type": "Identifier",
+              "name": "URL"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_34"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "URL"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%yandex%"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              "direction": "DESC"
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "log_comment": "query_43"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_parallel_replicas": "0",
+        "automatic_parallel_replicas_mode": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Literal",
+              "alias": "expected_bytes",
+              "value_type": "Array",
+              "value": [
+                {
+                  "value_type": "UInt64",
+                  "value": "96"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "500000"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "11189312"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "2359808"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "64"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "29920"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "82456"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "20000"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "31064320"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "275251200"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "48271331"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "res",
+              "name": "arrayJoin",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "arrayMap",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "lambda",
+                      "is_operator": true,
+                      "is_lambda_function": true,
+                      "kind": "LAMBDA_FUNCTION",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "tuple",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "x"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "tuple",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "untuple",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "tupleElement",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "x"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "1"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "x"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "arrayZip",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "res"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "expected_bytes"
+                        }
+                      ]
+                    }
                   ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "l"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
+          ],
+          "select": [
             {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "alias": "c"
-      },
-      {
-        "kind": "functionCall",
-        "name": "MIN",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "Referer"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<>",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "Referer"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": ""
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    },
-    "having": {
-      "kind": "binaryExpr",
-      "op": ">",
-      "left": {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100000"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "l"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "25"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_28"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "URL"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "COUNT",
-          "args": [
-            {
-              "kind": "asterisk"
-            }
-          ]
-        },
-        "alias": "c"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_34"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "URL"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "%yandex%"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "query_43"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "automatic_parallel_replicas_mode",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Unsupported case: filtering by set built from subquery",
-      "--SELECT * FROM test.hits WHERE CounterID IN (SELECT CounterID % 1000 FROM test.hits) FORMAT Null SETTINGS log_comment='query_44';"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "expected_bytes",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "96"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "500000"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "11189312"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2359808"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "64"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "29920"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "82456"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "20000"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "31064320"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "275251200"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "48271331",
-              "trailingComments": [
-                "/*, 641835*/"
+              "type": "Function",
+              "name": "format",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "{} {} {}"
+                },
+                {
+                  "type": "Function",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "res"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "res"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "res"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                }
               ]
             }
           ],
-          "source": "[96, 500000, 11189312, 2359808, 64, 29920, 82456, 20000, 31064320, 275251200, 48271331/*, 641835*/]"
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "res",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayMap",
-              "args": [
-                {
-                  "kind": "lambdaExpr",
-                  "params": [
-                    "x"
-                  ],
-                  "body": {
-                    "kind": "tupleLiteral",
-                    "elements": [
-                      {
-                        "kind": "functionCall",
-                        "name": "untuple",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "tupleElement",
-                            "args": [
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "res",
+                              "name": "groupArray",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "tuple",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "log_comment"
+                                    },
+                                    {
+                                      "type": "Identifier",
+                                      "name": "output_bytes"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
                               {
-                                "kind": "columnRef",
-                                "parts": [
-                                  "x"
-                                ]
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "subquery": {
+                                    "type": "Subquery",
+                                    "query": {
+                                      "type": "SelectWithUnionQuery",
+                                      "selects": [
+                                        {
+                                          "type": "SelectQuery",
+                                          "select": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "log_comment"
+                                            },
+                                            {
+                                              "type": "Function",
+                                              "alias": "output_bytes",
+                                              "name": "arrayElement",
+                                              "is_operator": true,
+                                              "arguments": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "ProfileEvents"
+                                                },
+                                                {
+                                                  "type": "Literal",
+                                                  "value_type": "String",
+                                                  "value": "RuntimeDataflowStatisticsOutputBytes"
+                                                }
+                                              ]
+                                            }
+                                          ],
+                                          "from": {
+                                            "type": "TablesInSelectQuery",
+                                            "children": [
+                                              {
+                                                "type": "TablesInSelectQueryElement",
+                                                "table_expression": {
+                                                  "type": "TableExpression",
+                                                  "database_and_table_name": {
+                                                    "type": "TableIdentifier",
+                                                    "name": "query_log",
+                                                    "database": "system"
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "where": {
+                                            "type": "Function",
+                                            "name": "and",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "greaterOrEquals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "event_date"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "yesterday",
+                                                    "arguments": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Function",
+                                                "name": "greaterOrEquals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "event_time"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "minus",
+                                                    "is_operator": true,
+                                                    "arguments": [
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "NOW",
+                                                        "arguments": []
+                                                      },
+                                                      {
+                                                        "type": "Function",
+                                                        "name": "toIntervalMinute",
+                                                        "arguments": [
+                                                          {
+                                                            "type": "Literal",
+                                                            "value_type": "UInt64",
+                                                            "value": "15"
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "current_database"
+                                                  },
+                                                  {
+                                                    "type": "Function",
+                                                    "name": "currentDatabase",
+                                                    "arguments": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Function",
+                                                "name": "like",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "log_comment"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "query_%"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Function",
+                                                "name": "equals",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "type"
+                                                  },
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "String",
+                                                    "value": "QueryFinish"
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          "order_by": [
+                                            {
+                                              "type": "OrderByElement",
+                                              "expression": {
+                                                "type": "Identifier",
+                                                "name": "event_time_microseconds"
+                                              },
+                                              "direction": "ASC"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "divide",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "greatest",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
                               },
                               {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "1"
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
                               }
                             ]
                           }
                         ]
                       },
                       {
-                        "kind": "functionCall",
-                        "name": "tupleElement",
-                        "args": [
+                        "type": "Function",
+                        "name": "least",
+                        "arguments": [
                           {
-                            "kind": "columnRef",
-                            "parts": [
-                              "x"
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              }
                             ]
                           },
                           {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "2"
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
+                              }
+                            ]
                           }
                         ]
                       }
-                    ],
-                    "source": "(untuple(x.1), x.2)"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Float64",
+                    "value": 2.5
                   }
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayZip",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "expected_bytes"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "format",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "{} {} {}"
-          },
-          {
-            "kind": "functionCall",
-            "name": "tupleElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "res"
                 ]
               },
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "tupleElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "res"
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "100"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "tupleElement",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "res"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "3"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "100"
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              }
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "tupleElement",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "res"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "groupArray",
-              "args": [
-                {
-                  "kind": "tupleLiteral",
-                  "elements": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "log_comment"
-                      ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "output_bytes"
-                      ]
-                    }
-                  ],
-                  "source": "(log_comment, output_bytes)"
-                }
-              ]
-            },
-            "alias": "res"
-          }
-        ],
-        "from": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "log_comment"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "arrayElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "ProfileEvents"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "RuntimeDataflowStatisticsOutputBytes"
-                    }
-                  ]
-                },
-                "alias": "output_bytes"
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "query_log"
-            },
-            "where": {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_date"
-                    ]
-                  },
-                  "right": {
-                    "kind": "functionCall",
-                    "name": "yesterday",
-                    "args": []
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": ">=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time"
-                    ]
-                  },
-                  "right": {
-                    "kind": "binaryExpr",
-                    "op": "-",
-                    "left": {
-                      "kind": "functionCall",
-                      "name": "NOW",
-                      "args": []
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "toIntervalMinute",
-                      "args": [
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "15"
-                        }
-                      ]
-                    },
-                    "parenthesized": true
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "current_database"
-                    ]
-                  },
-                  "right": {
-                    "kind": "functionCall",
-                    "name": "currentDatabase",
-                    "args": []
-                  },
-                  "parenthesized": true
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "like",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "log_comment"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "query_%"
-                    }
-                  ],
-                  "parenthesized": true
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "=",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "type"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "QueryFinish"
-                  },
-                  "parenthesized": true
-                }
-              ]
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_time_microseconds"
-                  ]
-                },
-                "direction": "ASC"
-              }
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "/",
-            "left": {
-              "kind": "functionCall",
-              "name": "greatest",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  ]
-                }
-              ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "least",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  ]
-                }
-              ]
-            },
-            "parenthesized": true
-          },
-          "right": {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "2.5"
-          }
-        },
-        {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "tupleElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "res"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "3"
-                    }
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
-                }
               }
             ]
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Just checking that the estimation is not too far off"
-    ]
+    }
   }
 ]

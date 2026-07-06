@@ -1,13 +1,13 @@
 -- Tags: long, no-tsan, no-asan, no-msan, no-debug
-SET max_threads = 0;
+SET max_threads = '0';
 
-SET max_insert_threads = 0;
+SET max_insert_threads = '0';
 
 SET max_rows_to_read = '50M';
 
 SET join_algorithm = 'partial_merge';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
 DROP TABLE IF EXISTS `left`;
 
@@ -18,18 +18,18 @@ CREATE TABLE `left`
     key UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE `right`
 (
     key UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO `left` SELECT
     number,

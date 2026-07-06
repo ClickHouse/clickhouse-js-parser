@@ -5,7 +5,7 @@ CREATE TABLE tztest
     timeBerlin DateTime('Europe/Berlin'),
     timeLA DateTime('America/Los_Angeles')
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tztest (timeBerlin, timeLA);
 

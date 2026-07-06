@@ -1,9 +1,9 @@
 -- More tests for use_skip_index_if_final_exact_mode optimization
-SET use_skip_indexes = 1;
+SET use_skip_indexes = '1';
 
-SET use_skip_indexes_if_final = 1;
+SET use_skip_indexes_if_final = '1';
 
-SET use_skip_indexes_if_final_exact_mode = 1;
+SET use_skip_indexes_if_final_exact_mode = '1';
 
 DROP TABLE IF EXISTS tab1;
 
@@ -11,11 +11,11 @@ CREATE TABLE tab1
 (
     id Int32,
     v Int32,
-    INDEX secondaryidx v TYPE minmax
+    INDEX secondaryidx v TYPE minmax() GRANULARITY 1
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY id
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 SYSTEM STOP MERGES tab1;
 
@@ -94,24 +94,24 @@ CREATE TABLE tab2
     id2 Int32,
     id3 Int32,
     v Int32,
-    INDEX secondaryidx v TYPE minmax
+    INDEX secondaryidx v TYPE minmax() GRANULARITY 1
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (id1, id2, id3)
-SETTINGS index_granularity = 64;
+SETTINGS index_granularity = '64';
 
 SYSTEM STOP MERGES tab2;
 
 INSERT INTO tab2 SELECT
-    (number % 2500),
-    (number % 500),
+    number % 2500,
+    number % 500,
     number,
     number
 FROM numbers(10000);
 
 INSERT INTO tab2 SELECT
-    (number % 2500),
-    (number % 500),
+    number % 2500,
+    number % 500,
     number,
     100000 + number
 FROM numbers(10000); -- 'v' column has changed
@@ -131,7 +131,7 @@ CREATE TABLE tab3
 (
     key Int,
     value Int,
-    INDEX idx value TYPE minmax GRANULARITY 1
+    INDEX idx value TYPE minmax() GRANULARITY 1
 )
 ENGINE = ReplacingMergeTree()
 ORDER BY key
@@ -149,7 +149,7 @@ SELECT
     value
 FROM tab3 FINAL
 WHERE value = 1
-SETTINGS max_rows_to_read = 1; -- 1,1
+SETTINGS max_rows_to_read = '1'; -- 1,1
 
 INSERT INTO tab3; -- 10 more parts
 
@@ -159,70 +159,70 @@ SELECT
     value
 FROM tab3 FINAL
 WHERE value = 0
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 1
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 2
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 3
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 4
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 5
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 6
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 7
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 8
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 SELECT
     key,
     value
 FROM tab3 FINAL
 WHERE value = 9
-SETTINGS max_rows_to_read = 2;
+SETTINGS max_rows_to_read = '2';
 
 DROP TABLE tab1;
 

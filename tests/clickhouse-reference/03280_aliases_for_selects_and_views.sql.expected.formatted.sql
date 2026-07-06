@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT b
 FROM (
@@ -81,7 +81,7 @@ WITH t (a) AS (
 SELECT a
 FROM t;
 
-EXPLAIN QUERY TREE dump_ast = 1
+EXPLAIN QUERY TREE dump_ast = '1'
 WITH t (a, b) AS (
     SELECT
         1,

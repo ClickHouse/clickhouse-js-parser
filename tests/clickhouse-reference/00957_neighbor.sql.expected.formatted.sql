@@ -1,4 +1,4 @@
-SET allow_deprecated_error_prone_window_functions = 1;
+SET allow_deprecated_error_prone_window_functions = '1';
 
 -- no arguments
 SELECT neighbor(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
@@ -84,13 +84,13 @@ FROM numbers(4);
 
 SELECT
     number,
-    negate(number) * 2 AS `offset`,
+    -number * 2 AS `offset`,
     neighbor(number, `offset`, number * 10)
 FROM numbers(6);
 
 SELECT
     number,
-    negate((number - 2)) * 2 AS `offset`,
+    -(number - 2) * 2 AS `offset`,
     neighbor(number, `offset`)
 FROM numbers(6);
 

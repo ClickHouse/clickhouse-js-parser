@@ -5,9 +5,9 @@ DROP TABLE IF EXISTS encryption_test;
 CREATE TABLE encryption_test
 (
     i Int,
-    s String CODEC(AES_128_GCM_SIV)
+    s String CODEC(AES_128_GCM_SIV())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO encryption_test;
@@ -20,7 +20,7 @@ DROP TABLE encryption_test;
 CREATE TABLE encryption_test
 (
     i Int,
-    s String CODEC(AES_256_GCM_SIV)
+    s String CODEC(AES_256_GCM_SIV())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;

@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS alter_compression_codec;
 
 CREATE TABLE alter_compression_codec
 (
-    somedate Date CODEC(LZ4),
-    id UInt64 CODEC(NONE)
+    somedate Date CODEC(LZ4()),
+    id UInt64 CODEC(NONE())
 )
 ENGINE = MergeTree()
 ORDER BY id
@@ -21,7 +21,7 @@ SELECT *
 FROM alter_compression_codec
 ORDER BY id ASC;
 
-ALTER TABLE alter_compression_codec ADD COLUMN alter_column String DEFAULT 'default_value' CODEC(ZSTD);
+ALTER TABLE alter_compression_codec ADD COLUMN alter_column String DEFAULT 'default_value' CODEC(ZSTD());
 
 SELECT compression_codec
 FROM `system`.`columns`
@@ -33,7 +33,7 @@ INSERT INTO alter_compression_codec;
 
 INSERT INTO alter_compression_codec;
 
-ALTER TABLE alter_compression_codec MODIFY COLUMN alter_column CODEC(NONE);
+ALTER TABLE alter_compression_codec MODIFY COLUMN alter_column CODEC(NONE());
 
 INSERT INTO alter_compression_codec;
 
@@ -41,9 +41,9 @@ INSERT INTO alter_compression_codec;
 
 OPTIMIZE TABLE alter_compression_codec FINAL;
 
-SET allow_suspicious_codecs = 1;
+SET allow_suspicious_codecs = '1';
 
-ALTER TABLE alter_compression_codec MODIFY COLUMN alter_column CODEC(ZSTD, LZ4HC, LZ4, LZ4, NONE);
+ALTER TABLE alter_compression_codec MODIFY COLUMN alter_column CODEC(ZSTD(), LZ4HC(), LZ4(), LZ4(), NONE());
 
 INSERT INTO alter_compression_codec;
 
@@ -55,13 +55,13 @@ DROP TABLE IF EXISTS alter_bad_codec;
 
 CREATE TABLE alter_bad_codec
 (
-    somedate Date CODEC(LZ4),
-    id UInt64 CODEC(NONE)
+    somedate Date CODEC(LZ4()),
+    id UInt64 CODEC(NONE())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
 
-ALTER TABLE alter_bad_codec ADD COLUMN alter_column DateTime DEFAULT '2019-01-01 00:00:00' CODEC(gbdgkjsdh); -- { serverError UNKNOWN_CODEC }
+ALTER TABLE alter_bad_codec ADD COLUMN alter_column DateTime DEFAULT '2019-01-01 00:00:00' CODEC(gbdgkjsdh()); -- { serverError UNKNOWN_CODEC }
 
 ALTER TABLE alter_bad_codec ADD COLUMN alter_column DateTime DEFAULT '2019-01-01 00:00:00' CODEC(ZSTD(100)); -- { serverError ILLEGAL_CODEC_PARAMETER }
 
@@ -71,16 +71,16 @@ DROP TABLE IF EXISTS store_of_hash_00804;
 
 CREATE TABLE large_alter_table_00804
 (
-    somedate Date CODEC(ZSTD, ZSTD, ZSTD(12), LZ4HC(12)),
-    id UInt64 CODEC(LZ4, ZSTD, NONE, LZ4HC),
-    data String CODEC(ZSTD(2), LZ4HC, NONE, LZ4, LZ4)
+    somedate Date CODEC(ZSTD(), ZSTD(), ZSTD(12), LZ4HC(12)),
+    id UInt64 CODEC(LZ4(), ZSTD(), NONE(), LZ4HC()),
+    data String CODEC(ZSTD(2), LZ4HC(), NONE(), LZ4(), LZ4())
 )
 ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY somedate
-SETTINGS index_granularity = 2, index_granularity_bytes = '10Mi', min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '2', index_granularity_bytes = '10Mi', min_bytes_for_wide_part = '0';
 
-SET max_execution_time = 300;
+SET max_execution_time = '300';
 
 INSERT INTO large_alter_table_00804 SELECT
     toDate('2019-01-01'),
@@ -98,7 +98,7 @@ ENGINE = Memory();
 INSERT INTO store_of_hash_00804 SELECT sum(cityHash64(*))
 FROM large_alter_table_00804;
 
-ALTER TABLE large_alter_table_00804 MODIFY COLUMN data CODEC(NONE, LZ4, LZ4HC, ZSTD);
+ALTER TABLE large_alter_table_00804 MODIFY COLUMN data CODEC(NONE(), LZ4(), LZ4HC(), ZSTD());
 
 OPTIMIZE TABLE large_alter_table_00804;
 

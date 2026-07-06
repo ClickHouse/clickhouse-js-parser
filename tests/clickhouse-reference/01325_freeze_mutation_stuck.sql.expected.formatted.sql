@@ -4,9 +4,9 @@ CREATE TABLE mt
 (
     x String,
     y UInt64,
-    INDEX idx y TYPE minmax GRANULARITY 1
+    INDEX idx y TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y;
 
 INSERT INTO mt;
@@ -16,7 +16,7 @@ FROM mt;
 
 ALTER TABLE mt FREEZE;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE mt UPDATE x = 'Goodbye' WHERE y = 1;
 

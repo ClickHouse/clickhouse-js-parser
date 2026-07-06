@@ -5,14 +5,14 @@ DROP DATABASE IF EXISTS dict_db_01224;
 
 DROP DATABASE IF EXISTS dict_db_01224_dictionary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE dict_db_01224
-ENGINE = Ordinary; -- Different internal dictionary name with Atomic
+ENGINE = Ordinary(); -- Different internal dictionary name with Atomic
 
 CREATE DATABASE dict_db_01224_dictionary
-ENGINE = Dictionary;
+ENGINE = Dictionary();
 
 CREATE TABLE dict_db_01224.dict_data
 (
@@ -46,7 +46,7 @@ SHOW CREATE TABLE dict_db_01224_dictionary.`dict_db_01224.dict` FORMAT TSVRaw;
 
 SELECT
     engine,
-    like(metadata_path, '%metadata/dict\\_db\\_01224/dict.sql'),
+    metadata_path LIKE '%metadata/dict\\_db\\_01224/dict.sql',
     create_table_query
 FROM `system`.tables
 WHERE database = 'dict_db_01224'

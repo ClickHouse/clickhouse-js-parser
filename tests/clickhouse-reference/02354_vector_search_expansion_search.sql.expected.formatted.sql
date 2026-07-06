@@ -8,18 +8,18 @@ CREATE TABLE tab
 (
     id Int32,
     vec Array(Float32),
-    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 2)
+    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 2) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 -- Generate random values but with a fixed seed (conceptually), so that the data is deterministic.
 -- Unfortunately, no random functions in ClickHouse accepts a seed. Instead, abuse the numbers table + hash functions to provide
 -- deterministic randomness.
 INSERT INTO tab SELECT
     number,
-    [sipHash64(number)/18446744073709551615, wyHash64(number)/18446744073709551615]
+    [sipHash64(number) / 18446744073709551615, wyHash64(number) / 18446744073709551615]
 FROM numbers(660000); -- 18446744073709551615 is the biggest UInt64
 
 -- hnsw_candidate_list_size_for_search = 0 is illegal
@@ -32,7 +32,7 @@ SELECT
 FROM tab
 ORDER BY L2Distance(vec, reference_vec) ASC
 LIMIT 3
-SETTINGS hnsw_candidate_list_size_for_search = 0; -- { serverError INVALID_SETTING_VALUE }
+SETTINGS hnsw_candidate_list_size_for_search = '0'; -- { serverError INVALID_SETTING_VALUE }
 
 DROP TABLE IF EXISTS results;
 
@@ -40,7 +40,7 @@ CREATE TABLE results
 (
     id Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Standard vector search with default hnsw_candidate_list_size_for_search = 64
 INSERT INTO results SELECT id
@@ -53,7 +53,7 @@ INSERT INTO results SELECT id
 FROM tab
 ORDER BY L2Distance(vec, [0.5, 0.5]) ASC
 LIMIT 1
-SETTINGS hnsw_candidate_list_size_for_search = 1;
+SETTINGS hnsw_candidate_list_size_for_search = '1';
 
 -- Expect that matches are different
 SELECT countDistinct(*)

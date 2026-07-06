@@ -1,4 +1,4 @@
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 DROP TABLE IF EXISTS constCondOptimization;
 
@@ -8,19 +8,19 @@ CREATE TABLE constCondOptimization
     time DateTime DEFAULT now(),
     n Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (time, n)
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO constCondOptimization (n) SELECT number
 FROM `system`.numbers
 LIMIT 10000;
 
 -- The queries should use index.
-SET max_rows_to_read = 2;
+SET max_rows_to_read = '2';
 
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT count()
 FROM constCondOptimization

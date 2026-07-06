@@ -6,7 +6,7 @@ SET max_memory_usage = '200Mi';
 SET max_bytes_before_remerge_sort = '10Mi';
 
 -- more blocks
-SET max_block_size = 40960;
+SET max_block_size = '40960';
 
 -- remerge_sort_lowered_memory_bytes_ratio default 2, slightly not enough
 --     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 819200 rows) to save memory consumption
@@ -16,22 +16,22 @@ SELECT
     number AS k,
     repeat(toString(number), 11) AS v1,
     repeat(toString(number), 12) AS v2
-FROM numbers(3e6)
+FROM numbers(3000000.)
 ORDER BY
     v1 ASC,
     v2 ASC
-LIMIT 400e3
+LIMIT 400000.
 FORMAT Null; -- { serverError MEMORY_LIMIT_EXCEEDED }
 
 SELECT
     number AS k,
     repeat(toString(number), 11) AS v1,
     repeat(toString(number), 12) AS v2
-FROM numbers(3e6)
+FROM numbers(3000000.)
 ORDER BY
     v1 ASC,
     v2 ASC
-LIMIT 400e3
+LIMIT 400000.
 SETTINGS remerge_sort_lowered_memory_bytes_ratio = 2.
 FORMAT Null; -- { serverError MEMORY_LIMIT_EXCEEDED }
 
@@ -52,8 +52,8 @@ SELECT
     number AS k,
     repeat(toString(number), 11) AS v1,
     repeat(toString(number), 12) AS v2
-FROM numbers(3e6)
+FROM numbers(3000000.)
 ORDER BY k ASC
-LIMIT 400e3
+LIMIT 400000.
 SETTINGS remerge_sort_lowered_memory_bytes_ratio = 1.9
 FORMAT Null;

@@ -1,5 +1,5 @@
 -- Testing basic functionality with compact parts
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS mt_compact;
 
@@ -11,16 +11,16 @@ CREATE TABLE mt_compact
     n Nested(x UInt32, y String),
     lc LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY a % 10
-SETTINGS index_granularity = 8, min_bytes_for_wide_part = 0, min_rows_for_wide_part = 10;
+SETTINGS index_granularity = '8', min_bytes_for_wide_part = '0', min_rows_for_wide_part = '10';
 
 INSERT INTO mt_compact (a, s, n.y, lc) SELECT
     number,
-    toString(((number * 2132214234 + 5434543)) % 2133443),
+    toString((number * 2132214234 + 5434543) % 2133443),
     ['a', 'b', 'c'],
-    if(number % 2, 'bar', 'baz')
+    number % 2 ? 'bar' : 'baz'
 FROM numbers(90);
 
 SELECT *
@@ -36,7 +36,7 @@ WHERE database = currentDatabase()
 
 INSERT INTO mt_compact (a, s, n.x, lc) SELECT
     number % 3,
-    toString(((number * 75434535 + 645645)) % 2133443),
+    toString((number * 75434535 + 645645) % 2133443),
     [1, 2],
     toString(number)
 FROM numbers(5);
@@ -60,9 +60,9 @@ ORDER BY
     s ASC
 LIMIT 10;
 
-ALTER TABLE mt_compact DROP COLUMN `n.y`;
+ALTER TABLE mt_compact DROP COLUMN n.y;
 
-ALTER TABLE mt_compact ADD COLUMN `n.y` Array(String) DEFAULT ['qwqw'] AFTER `n.x`;
+ALTER TABLE mt_compact ADD COLUMN `n.y` Array(String) DEFAULT ['qwqw'] AFTER n.x;
 
 ALTER TABLE mt_compact UPDATE b = 42 WHERE 1;
 

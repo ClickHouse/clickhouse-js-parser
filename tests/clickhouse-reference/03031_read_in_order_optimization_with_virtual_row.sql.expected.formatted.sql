@@ -1,9 +1,9 @@
 -- Tags: no-parallel-replicas
 -- ^ because we are using query_log
 -- add_minmax_index_for_numeric_columns=0: Different read rows
-SET read_in_order_use_virtual_row = 1;
+SET read_in_order_use_virtual_row = '1';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
 DROP TABLE IF EXISTS t;
 
@@ -14,9 +14,9 @@ CREATE TABLE t
     z UInt64,
     k UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (x, y, z)
-SETTINGS index_granularity = 8192, index_granularity_bytes = 10485760, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10485760', add_minmax_index_for_numeric_columns = '0';
 
 SYSTEM STOP MERGES t;
 
@@ -28,9 +28,9 @@ INSERT INTO t SELECT
 FROM numbers(8192 * 3);
 
 INSERT INTO t SELECT
-    number + (8192 * 3),
-    number + (8192 * 3),
-    number + (8192 * 3),
+    number + 8192 * 3,
+    number + 8192 * 3,
+    number + 8192 * 3,
     number
 FROM numbers(8192 * 3);
 
@@ -41,10 +41,10 @@ FROM t
 ORDER BY x ASC
 LIMIT 4
 SETTINGS
-    max_block_size = 8192,
-    read_in_order_two_level_merge_threshold = 0,
-    max_threads = 1,
-    optimize_read_in_order = 1,
+    max_block_size = '8192',
+    read_in_order_two_level_merge_threshold = '0',
+    max_threads = '1',
+    optimize_read_in_order = '1',
     log_comment = 'preliminary merge, no filter';
 
 SYSTEM FLUSH LOGS query_log;
@@ -65,10 +65,10 @@ WHERE k > 8192 * 2
 ORDER BY x ASC
 LIMIT 4
 SETTINGS
-    max_block_size = 8192,
-    read_in_order_two_level_merge_threshold = 0,
-    max_threads = 1,
-    optimize_read_in_order = 1,
+    max_block_size = '8192',
+    read_in_order_two_level_merge_threshold = '0',
+    max_threads = '1',
+    optimize_read_in_order = '1',
     log_comment = 'preliminary merge with filter';
 
 SELECT read_rows
@@ -86,10 +86,10 @@ FROM t
 ORDER BY x ASC
 LIMIT 4
 SETTINGS
-    max_block_size = 8192,
-    read_in_order_two_level_merge_threshold = 5,
-    max_threads = 1,
-    optimize_read_in_order = 1,
+    max_block_size = '8192',
+    read_in_order_two_level_merge_threshold = '5',
+    max_threads = '1',
+    optimize_read_in_order = '1',
     log_comment = 'no preliminary merge, no filter';
 
 SELECT read_rows
@@ -108,10 +108,10 @@ WHERE k > 8192 * 2
 ORDER BY x ASC
 LIMIT 4
 SETTINGS
-    max_block_size = 8192,
-    read_in_order_two_level_merge_threshold = 5,
-    max_threads = 1,
-    optimize_read_in_order = 1,
+    max_block_size = '8192',
+    read_in_order_two_level_merge_threshold = '5',
+    max_threads = '1',
+    optimize_read_in_order = '1',
     log_comment = 'no preliminary merge, with filter';
 
 SELECT read_rows
@@ -132,9 +132,9 @@ CREATE TABLE fixed_prefix
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 3;
+SETTINGS index_granularity = '3';
 
 SYSTEM STOP MERGES fixed_prefix;
 
@@ -147,9 +147,9 @@ FROM fixed_prefix
 WHERE a = 1
 ORDER BY b ASC
 SETTINGS
-    max_threads = 1,
-    optimize_read_in_order = 1,
-    read_in_order_two_level_merge_threshold = 0; --force preliminary merge
+    max_threads = '1',
+    optimize_read_in_order = '1',
+    read_in_order_two_level_merge_threshold = '0'; --force preliminary merge
 
 SELECT
     a,
@@ -158,9 +158,9 @@ FROM fixed_prefix
 WHERE a = 1
 ORDER BY b ASC
 SETTINGS
-    max_threads = 1,
-    optimize_read_in_order = 1,
-    read_in_order_two_level_merge_threshold = 5; --avoid preliminary merge
+    max_threads = '1',
+    optimize_read_in_order = '1',
+    read_in_order_two_level_merge_threshold = '5'; --avoid preliminary merge
 
 DROP TABLE fixed_prefix;
 
@@ -171,9 +171,9 @@ CREATE TABLE function_pk
     A Int64,
     B Int64
 )
-ENGINE = MergeTree
-ORDER BY (A, negate(B))
-SETTINGS index_granularity = 1;
+ENGINE = MergeTree()
+ORDER BY (A, -B)
+SETTINGS index_granularity = '1';
 
 SYSTEM STOP MERGES function_pk;
 
@@ -185,19 +185,19 @@ INSERT INTO function_pk;
 
 SELECT *
 FROM function_pk
-ORDER BY (A,-B) ASC
+ORDER BY (A, -B) ASC
 LIMIT 3
 SETTINGS
-    max_threads = 1,
-    optimize_read_in_order = 1,
-    read_in_order_two_level_merge_threshold = 5; --avoid preliminary merge
+    max_threads = '1',
+    optimize_read_in_order = '1',
+    read_in_order_two_level_merge_threshold = '5'; --avoid preliminary merge
 
 DROP TABLE function_pk;
 
 -- modified from 02317_distinct_in_order_optimization
 SELECT '-- test distinct ----';
 
-DROP TABLE IF EXISTS distinct_in_order;
+DROP TABLE IF EXISTS distinct_in_order SYNC;
 
 CREATE TABLE distinct_in_order
 (
@@ -205,9 +205,9 @@ CREATE TABLE distinct_in_order
     b int,
     c int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SYSTEM STOP MERGES distinct_in_order;
 
@@ -221,8 +221,8 @@ SELECT DISTINCT a
 FROM distinct_in_order
 ORDER BY a ASC
 SETTINGS
-    read_in_order_two_level_merge_threshold = 0,
-    optimize_read_in_order = 1,
-    max_threads = 2;
+    read_in_order_two_level_merge_threshold = '0',
+    optimize_read_in_order = '1',
+    max_threads = '2';
 
 DROP TABLE distinct_in_order;

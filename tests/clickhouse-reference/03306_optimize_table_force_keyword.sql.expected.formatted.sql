@@ -2,7 +2,7 @@ CREATE TABLE tab
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO tab;

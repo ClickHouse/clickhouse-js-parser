@@ -1,8 +1,8 @@
 -- Tags: long, zookeeper
 -- Replicated
-SET allow_suspicious_ttl_expressions = 0;
+SET allow_suspicious_ttl_expressions = '0';
 
-DROP TABLE IF EXISTS replicated_ttl_00933;
+DROP TABLE IF EXISTS replicated_ttl_00933 SYNC;
 
 -- Create
 CREATE TABLE replicated_ttl_00933
@@ -15,7 +15,7 @@ ORDER BY a
 PARTITION BY tuple()
 TTL now() + toIntervalSecond(1); -- { serverError BAD_ARGUMENTS }
 
-SET allow_suspicious_ttl_expressions = 1;
+SET allow_suspicious_ttl_expressions = '1';
 
 ALTER TABLE replicated_ttl_00933 MODIFY TTL now() + toIntervalDay(1); -- { serverError BAD_ARGUMENTS }
 

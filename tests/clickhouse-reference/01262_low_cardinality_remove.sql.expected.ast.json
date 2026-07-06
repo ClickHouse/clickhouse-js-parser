@@ -1,210 +1,249 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "testView"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "testTable"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "testTable"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "A",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "B",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "A"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "testTable"
+        "type": "Identifier",
+        "name": "testView"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "testTable"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "testTable"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "A",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "B",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "A"
+        }
       }
     }
   },
   {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "testView"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "testTable"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "testView"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "ALow",
+                "name": "A"
+              },
+              {
+                "type": "Identifier",
+                "name": "B"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "testTable"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "A"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "AStr",
+              "name": "CAST",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ALow"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "String"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "testView"
+                  }
+                }
+              }
             ]
           },
-          "alias": "ALow",
-          "trailingComments": [
-            "-- like account"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "B"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "testTable"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "CAST",
-          "args": [
+          "group_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "ALow"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "String"
+              "type": "Identifier",
+              "name": "AStr"
             }
-          ]
-        },
-        "alias": "AStr"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "testView"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "AStr"
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "AStr"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "AStr"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "testTable"
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "testTable"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "A",
-        "type": {
-          "name": "String"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "testTable"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "testTable"
       },
-      {
-        "kind": "columnDef",
-        "name": "B",
-        "type": {
-          "name": "Int64"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "A",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "B",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "A"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "A"
-          ]
-        }
-      }
-    ]
+    }
   }
 ]

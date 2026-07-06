@@ -5,7 +5,7 @@ CREATE TABLE dictionary_non_nullable_source_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_non_nullable_source_table;
 
@@ -35,7 +35,7 @@ CREATE TABLE dictionary_nullable_source_table
     id UInt64,
     value Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_nullable_source_table;
 

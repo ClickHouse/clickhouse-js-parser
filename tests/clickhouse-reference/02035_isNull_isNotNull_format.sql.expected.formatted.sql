@@ -1,11 +1,11 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- { echo }
 EXPLAIN SYNTAX
-SELECT isNull(NULL);
+SELECT NULL IS NULL;
 
 EXPLAIN SYNTAX
-SELECT isNotNull(NULL);
+SELECT NULL IS NOT NULL;
 
 EXPLAIN SYNTAX
 SELECT isNull(NULL);

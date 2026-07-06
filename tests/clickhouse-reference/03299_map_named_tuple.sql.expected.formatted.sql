@@ -5,4 +5,4 @@
 -- 'incompatible types' error showing exactly same Map types - issue https://github.com/ClickHouse/ClickHouse/issues/64805
 SELECT
     mapConcat(map(1, 2)),
-    mapApply((x, y) -> (map(1, 2), x + 1), map(1, 0));
+    mapApply(((x, y) -> (map(1, 2), x + 1)), map(1, 0));

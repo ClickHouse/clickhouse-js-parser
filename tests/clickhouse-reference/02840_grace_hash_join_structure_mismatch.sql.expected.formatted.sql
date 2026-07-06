@@ -1,18 +1,18 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE t1__fuzz_17
 (
     a LowCardinality(UInt8),
     b Nullable(UInt256)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2__fuzz_0
 (
     c UInt32,
     d String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1__fuzz_17 SELECT *
 FROM generateRandom()

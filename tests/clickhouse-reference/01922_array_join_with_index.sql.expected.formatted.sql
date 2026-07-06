@@ -4,7 +4,7 @@ CREATE TABLE t_array_index
 (
     n Nested(key String, value String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n.key;
 
 INSERT INTO t_array_index;

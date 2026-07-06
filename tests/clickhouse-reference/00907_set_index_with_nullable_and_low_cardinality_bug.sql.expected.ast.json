@@ -1,208 +1,223 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "null_lc_set_index"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "null_lc_set_index"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "null_lc_set_index"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "timestamp",
-        "type": {
-          "name": "DateTime"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "null_lc_set_index"
       },
-      {
-        "kind": "columnDef",
-        "name": "action",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "action",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Nullable",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "String"
                     }
-                  }
-                ]
-              }
+                  ]
+                }
+              ]
             }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "user",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "user",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Nullable",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "String"
                     }
-                  }
-                ]
-              }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "test_user_idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "user"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "set",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            "granularity": 8192
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMMDD",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "timestamp"
             }
           ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "test_user_idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "user"
-          ]
         },
-        "indexType": {
-          "name": "set",
-          "args": [
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          ]
-        },
-        "granularity": 8192
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMMDD",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "action"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "cityHash64",
-          "args": [
+              "type": "Identifier",
+              "name": "timestamp"
+            },
             {
-              "kind": "columnRef",
-              "parts": [
-                "user"
+              "type": "Identifier",
+              "name": "action"
+            },
+            {
+              "type": "Function",
+              "name": "cityHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "user"
+                }
               ]
             }
           ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "allow_nullable_key": "1"
+          }
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "allow_nullable_key",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "null_lc_set_index"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "null_lc_set_index"
-      }
+        "type": "Identifier",
+        "name": "null_lc_set_index"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "action"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "null_lc_set_index"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "user"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "null_lc_set_index"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "user"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "alice"
-      }
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "action"
+            },
+            {
+              "type": "Identifier",
+              "name": "user"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "null_lc_set_index"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "user"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "alice"
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

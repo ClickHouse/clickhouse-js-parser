@@ -8,7 +8,7 @@ CREATE TABLE decimal
     nest Nested(a Decimal(9, 2), b Decimal(18, 2), c Decimal(38, 2)),
     tup Tuple(Decimal32(1), Decimal64(1), Decimal128(1))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c, nest.a, nest.b, nest.c, tup);
 
@@ -38,9 +38,9 @@ FROM decimal;
 
 SELECT
     toTypeName(tup),
-    toTypeName(tup.1),
-    toTypeName(tup.2),
-    toTypeName(tup.3)
+    toTypeName((tup).1),
+    toTypeName((tup).2),
+    toTypeName((tup).3)
 FROM decimal;
 
 SELECT arrayJoin(a)
@@ -54,9 +54,9 @@ FROM decimal;
 
 SELECT
     tup,
-    tup.1,
-    tup.2,
-    tup.3
+    (tup).1,
+    (tup).2,
+    (tup).3
 FROM decimal;
 
 SELECT
@@ -202,17 +202,17 @@ FROM decimal;
 
 SELECT
     has(a, toDecimal32(0.1, 3)),
-    has(a, toDecimal32(1.0, 3))
+    has(a, toDecimal32(1., 3))
 FROM decimal;
 
 SELECT
     has(b, toDecimal64(0.4, 3)),
-    has(b, toDecimal64(1.0, 3))
+    has(b, toDecimal64(1., 3))
 FROM decimal;
 
 SELECT
     has(c, toDecimal128(0.7, 3)),
-    has(c, toDecimal128(1.0, 3))
+    has(c, toDecimal128(1., 3))
 FROM decimal;
 
 SELECT has(a, toDecimal32(0.1, 2))
@@ -253,17 +253,17 @@ FROM decimal;
 
 SELECT
     indexOf(a, toDecimal32(0.1, 3)),
-    indexOf(a, toDecimal32(1.0, 3))
+    indexOf(a, toDecimal32(1., 3))
 FROM decimal;
 
 SELECT
     indexOf(b, toDecimal64(0.5, 3)),
-    indexOf(b, toDecimal64(1.0, 3))
+    indexOf(b, toDecimal64(1., 3))
 FROM decimal;
 
 SELECT
     indexOf(c, toDecimal128(0.9, 3)),
-    indexOf(c, toDecimal128(1.0, 3))
+    indexOf(c, toDecimal128(1., 3))
 FROM decimal;
 
 SELECT indexOf(a, toDecimal32(0.1, 2))
@@ -364,38 +364,38 @@ FROM decimal;
 
 SELECT
     toDecimal32(12345.6789, 4) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x - 0);
 
 SELECT
     toDecimal32(-12345.6789, 4) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x + 0);
 
 SELECT
-    toDecimal64(123456789.123456789, 9) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    toDecimal64(123456789.12345679, 9) AS x,
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x - 0);
 
 SELECT
-    toDecimal64(-123456789.123456789, 9) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    toDecimal64(-123456789.12345679, 9) AS x,
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x + 0);
 
 SELECT
-    toDecimal128(0.123456789123456789, 18) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    toDecimal128(0.12345678912345678, 18) AS x,
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x - 0);
 
 SELECT
-    toDecimal128(-0.1234567891123456789, 18) AS x,
-    countEqual([x+1, x, x], x),
-    countEqual([x, x-1, x], x),
+    toDecimal128(-0.12345678911234569, 18) AS x,
+    countEqual([x + 1, x, x], x),
+    countEqual([x, x - 1, x], x),
     countEqual([x, x], x + 0);
 
 SELECT toTypeName(x)
@@ -638,74 +638,74 @@ FROM (
     )
 WHERE x = 0;
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal32('32.2', 5))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal32('32.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal64('64.2', 5))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal64('64.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal128('128.2', 5))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal128('128.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal32('32.2', 5))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal32('32.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal64('64.2', 5))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal64('64.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal128('128.2', 5))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal128('128.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal32('32.2', 5))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal32('32.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal64('64.2', 5))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal64('64.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal128('128.2', 5))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal128('128.2', 5)
 FROM `system`.numbers
 LIMIT 2;
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal32('32.2', 1))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal32('32.2', 1)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal64('64.2', 2))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal64('64.2', 2)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal32('32.1', 5), toDecimal128('128.2', 3))
+SELECT number % 2 ? toDecimal32('32.1', 5) : toDecimal128('128.2', 3)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal32('32.2', 1))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal32('32.2', 1)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal64('64.2', 2))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal64('64.2', 2)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal64('64.1', 5), toDecimal128('128.2', 3))
+SELECT number % 2 ? toDecimal64('64.1', 5) : toDecimal128('128.2', 3)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal32('32.2', 1))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal32('32.2', 1)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal64('64.2', 2))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal64('64.2', 2)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }
 
-SELECT if(number % 2, toDecimal128('128.1', 5), toDecimal128('128.2', 3))
+SELECT number % 2 ? toDecimal128('128.1', 5) : toDecimal128('128.2', 3)
 FROM `system`.numbers
 LIMIT 2; -- { serverError NOT_IMPLEMENTED }

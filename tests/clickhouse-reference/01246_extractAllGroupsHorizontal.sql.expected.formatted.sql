@@ -14,13 +14,13 @@ SELECT extractAllGroupsHorizontal('hello world', materialize('\\w+')); --{server
 SELECT extractAllGroupsHorizontal('hello world', '\\w+'); -- { serverError BAD_ARGUMENTS } 0 groups
 
 SELECT extractAllGroupsHorizontal('hello world', '(\\w+)')
-SETTINGS regexp_max_matches_per_row = 0; -- { serverError TOO_LARGE_ARRAY_SIZE } to many groups matched per row
+SETTINGS regexp_max_matches_per_row = '0'; -- { serverError TOO_LARGE_ARRAY_SIZE } to many groups matched per row
 
 SELECT extractAllGroupsHorizontal('hello world', '(\\w+)')
-SETTINGS regexp_max_matches_per_row = 1; -- { serverError TOO_LARGE_ARRAY_SIZE } to many groups matched per row
+SETTINGS regexp_max_matches_per_row = '1'; -- { serverError TOO_LARGE_ARRAY_SIZE } to many groups matched per row
 
 SELECT extractAllGroupsHorizontal('hello world', '(\\w+)')
-SETTINGS regexp_max_matches_per_row = 1000000
+SETTINGS regexp_max_matches_per_row = '1000000'
 FORMAT Null; -- users now can set limit bigger than previous 1000 matches per row
 
 SELECT extractAllGroupsHorizontal('hello world', '(\\w+)');
@@ -41,7 +41,7 @@ SELECT
     length(haystack),
     length(matches),
     length(matches[1]),
-    arrayMap(x -> length(x), matches[1])
+    arrayMap((x -> length(x)), matches[1])
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,
@@ -53,7 +53,7 @@ SELECT
     length(haystack),
     length(matches),
     length(matches[1]),
-    arrayReduce('sum', arrayMap(x -> length(x), matches[1]))
+    arrayReduce('sum', arrayMap((x -> length(x)), matches[1]))
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,
@@ -65,7 +65,7 @@ SELECT
     length(haystack),
     length(matches),
     length(matches[1]),
-    arrayMap(x -> length(x), matches[1])
+    arrayMap((x -> length(x)), matches[1])
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,

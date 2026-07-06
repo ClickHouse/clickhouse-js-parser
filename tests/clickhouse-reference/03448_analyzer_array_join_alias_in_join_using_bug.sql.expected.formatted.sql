@@ -3,7 +3,7 @@ CREATE TABLE local_table
     id Int8,
     arr Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO local_table SELECT
@@ -72,7 +72,7 @@ SELECT arr
 FROM
     remote('127.0.0.2', currentDatabase(), local_table) AS r
 ARRAY JOIN arr AS arr_item
-RIGHT JOIN (
+GLOBAL RIGHT JOIN (
         SELECT 1 AS arr_item
     ) AS foo
     USING (arr_item);

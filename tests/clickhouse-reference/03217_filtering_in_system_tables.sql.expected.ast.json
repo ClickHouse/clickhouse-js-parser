@@ -1,487 +1,570 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "database"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "table"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "tables"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "information_schema"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "tables"
-          }
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- If filtering is not done correctly on databases, then this query report to read 3 rows, which are: `system.tables`, `information_schema.tables` and `INFORMATION_SCHEMA.tables`"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_03217_system_tables_replica_1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_03217_system_tables_replica"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_03217_system_tables_replica_2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_03217_system_tables_replica"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "both"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "database"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "table"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "left",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "replica_name"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "replicas"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "database"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "currentDatabase",
-        "args": []
-      }
-    },
-    "leadingComments": [
-      "-- Make sure we can read both replicas",
-      "-- The replica name might be altered because of `_functional_tests_helper_database_replicated_replace_args_macros`,",
-      "-- thus we need to use `left`"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "database"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "table"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "left",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "replica_name"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "replicas"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "test_03217_system_tables_replica_1"
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "replica_name"
-              ]
+              "type": "Identifier",
+              "name": "database"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "r1%"
+              "type": "Identifier",
+              "name": "table"
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tables",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "information_schema"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "tables"
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
-    },
-    "leadingComments": [
-      "-- If filtering is not done correctly on database-table column, then this query report to read 2 rows, which are the above tables"
-    ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "argMax",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_03217_system_tables_replica_1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "read_rows"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "event_time_microseconds"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_03217_system_tables_replica"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%SELECT database, table FROM system.tables WHERE database = 'information_schema' AND table = 'tables';"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
             }
           ]
         },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
         }
-      ]
-    },
-    "leadingComments": [
-      "-- argMax is necessary to make the test repeatable",
-      "-- StorageSystemTables"
-    ]
+      }
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "argMax",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_03217_system_tables_replica_2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "read_rows"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "event_time_microseconds"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_03217_system_tables_replica"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%SELECT database, table, left(replica_name, 2) FROM system.replicas WHERE database = currentDatabase() AND table = 'test_03217_system_tables_replica_1' AND replica_name LIKE 'r1\\\\%';"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r2"
             }
           ]
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "both"
+            },
+            {
+              "type": "Identifier",
+              "name": "database"
+            },
+            {
+              "type": "Identifier",
+              "name": "table"
+            },
+            {
+              "type": "Function",
+              "name": "left",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "replica_name"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicas",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "database"
+              },
+              {
+                "type": "Function",
+                "name": "currentDatabase",
+                "arguments": []
+              }
+            ]
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- StorageSystemReplicas"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "database"
+            },
+            {
+              "type": "Identifier",
+              "name": "table"
+            },
+            {
+              "type": "Function",
+              "name": "left",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "replica_name"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicas",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "test_03217_system_tables_replica_1"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "replica_name"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "r1%"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "argMax",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "read_rows"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "event_time_microseconds"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%SELECT database, table FROM system.tables WHERE database = 'information_schema' AND table = 'tables';"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "argMax",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "read_rows"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "event_time_microseconds"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%SELECT database, table, left(replica_name, 2) FROM system.replicas WHERE database = currentDatabase() AND table = 'test_03217_system_tables_replica_1' AND replica_name LIKE 'r1\\%';"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

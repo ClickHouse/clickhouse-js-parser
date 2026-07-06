@@ -7,14 +7,14 @@ CREATE TABLE t1
     col UInt64,
     x UInt64 MATERIALIZED col + 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t2
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1;

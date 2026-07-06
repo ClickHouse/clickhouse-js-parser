@@ -5,7 +5,7 @@ CREATE TABLE test
     x Enum('hello' = 1, 'world' = 2),
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y
 PARTITION BY x;
 

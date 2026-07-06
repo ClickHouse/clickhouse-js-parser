@@ -1,12 +1,12 @@
 -- Tags: no-ordinary-database, no-fasttest
-DROP TABLE IF EXISTS `02706_keeper_map_insert_strict`;
+DROP TABLE IF EXISTS `02706_keeper_map_insert_strict` SYNC;
 
 CREATE TABLE `02706_keeper_map_insert_strict`
 (
     key UInt64,
     value Float64
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test_02706_keeper_map_insert_strict'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test_02706_keeper_map_insert_strict')
 PRIMARY KEY key;
 
 INSERT INTO `02706_keeper_map_insert_strict`;

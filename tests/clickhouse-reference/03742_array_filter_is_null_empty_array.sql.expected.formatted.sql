@@ -1,12 +1,12 @@
 -- { echoOn }
-SELECT arrayFilter(x -> (isNotNull(x)), []);
+SELECT arrayFilter((x -> x IS NOT NULL), []);
 
-SELECT arrayFilter(x -> (isNotNull(x)), [NULL]);
+SELECT arrayFilter((x -> x IS NOT NULL), [NULL]);
 
-SELECT arrayFilter(x -> (isNotNull(x)), [1]);
+SELECT arrayFilter((x -> x IS NOT NULL), [1]);
 
-SELECT arrayFilter(x -> (isNull(x)), []);
+SELECT arrayFilter((x -> x IS NULL), []);
 
-SELECT arrayFilter(x -> (isNull(x)), [NULL]);
+SELECT arrayFilter((x -> x IS NULL), [NULL]);
 
-SELECT arrayFilter(x -> (isNull(x)), [1]);
+SELECT arrayFilter((x -> x IS NULL), [1]);

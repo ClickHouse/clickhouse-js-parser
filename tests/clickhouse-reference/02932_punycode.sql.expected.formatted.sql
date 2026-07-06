@@ -190,7 +190,7 @@ CREATE TABLE tab
 (
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY str;
 
 INSERT INTO tab;
@@ -208,7 +208,7 @@ CREATE TABLE tab
 (
     puny String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY puny;
 
 INSERT INTO tab;

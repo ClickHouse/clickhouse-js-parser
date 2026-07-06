@@ -1,146 +1,255 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "x"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: zookeeper, no-replicated-database, no-parallel, no-object-storage"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "x"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "x"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "i",
-        "type": {
-          "name": "int"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "x"
       },
-      {
-        "kind": "indexDef",
-        "name": "mm",
-        "expr": {
-          "kind": "functionCall",
-          "name": "LOG2",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "i"
-              ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "i",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
             }
-          ]
-        },
-        "indexType": {
-          "name": "minmax"
-        },
-        "granularity": 1
-      },
-      {
-        "kind": "projectionDef",
-        "name": "p",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "functionCall",
-              "name": "MAX",
-              "args": [
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "mm",
+            "expression": {
+              "type": "Function",
+              "name": "LOG2",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "i"
+                  "type": "Identifier",
+                  "name": "i"
+                }
+              ]
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "minmax",
+              "arguments": []
+            },
+            "granularity": 1
+          }
+        ],
+        "projections": [
+          {
+            "type": "Projection",
+            "name": "p",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
+                {
+                  "type": "Function",
+                  "name": "MAX",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "i"
+                    }
                   ]
                 }
               ]
             }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/x"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r"
+            }
           ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/x"
         },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "i"
-          ]
+        "order_by": {
+          "type": "Identifier",
+          "name": "i"
         }
       }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "x"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "nn",
-          "expr": {
-            "kind": "functionCall",
-            "name": "LOG2",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "x"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "nn",
+            "expression": {
+              "type": "Function",
+              "name": "LOG2",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "i"
+                }
+              ]
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "minmax",
+              "arguments": []
+            },
+            "granularity": 1
+          }
+        },
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_PROJECTION",
+          "projection_declaration": {
+            "type": "Projection",
+            "name": "p2",
+            "query": {
+              "type": "ProjectionSelectQuery",
+              "select": [
+                {
+                  "type": "Function",
+                  "name": "MIN",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "i"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateTableQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "x"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "i"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "zookeeper",
+                    "database": "system"
+                  }
+                }
               }
             ]
           },
-          "indexType": {
-            "name": "minmax"
-          },
-          "granularity": 1
-        }
-      },
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_PROJECTION",
-        "projection": {
-          "kind": "projectionDef",
-          "name": "p2",
-          "query": {
-            "kind": "select",
-            "select": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "functionCall",
-                "name": "MIN",
-                "args": [
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "i"
+                    "type": "Identifier",
+                    "name": "name"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "metadata"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "path"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "concat",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "/clickhouse/tables/"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "/x"
+                      }
                     ]
                   }
                 ]
@@ -148,91 +257,18 @@
             ]
           }
         }
-      }
-    ]
-  },
-  {
-    "kind": "showCreate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "x"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "zookeeper"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "name"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "metadata"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "path"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "/clickhouse/tables/"
-              },
-              {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "/x"
-              }
-            ]
-          }
-        }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "x"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "x"
+      }
     }
   }
 ]

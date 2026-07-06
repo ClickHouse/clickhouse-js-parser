@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS test_table_comment;
 
 CREATE VIEW test_table_comment
 AS
-SELECT toString({date_from:String});
+SELECT toString('placeholder');
 
 ALTER TABLE test_table_comment MODIFY COMMENT 'test comment';
 

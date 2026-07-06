@@ -1,4 +1,4 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS AddedToCart;
 
@@ -10,7 +10,7 @@ CREATE TABLE Session
     site Enum8('STORE_A' = 1, 'STORE_B' = 2),
     device Enum8('DESKTOP' = 1, 'MOBILE' = 2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE AddedToCart
@@ -23,7 +23,7 @@ CREATE TABLE AddedToCart
     isPromotion UInt8,
     date DateTime64(3)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (sessionId, date);
 
 INSERT INTO Session (id, site, device);
@@ -32,19 +32,19 @@ INSERT INTO AddedToCart (sessionId, `order`, `top`, screenHeight, screenWidth, i
 
 SELECT
     s.site AS site,
-    if((isNull(a.`order`))
-    OR (a.`order` <= 0)
-    OR (a.`order` > 30), NULL, accurateCastOrNull(a.`order`, 'Int32')) AS page_level,
+    if(a.`order` IS NULL
+    OR a.`order` <= 0
+    OR a.`order` > 30, NULL, accurateCastOrNull(a.`order`, 'Int32')) AS page_level,
     count() AS count
 FROM
     AddedToCart AS a
-LEFT JOIN Session AS s
+ANY LEFT JOIN Session AS s
     ON a.sessionId = s.id
-WHERE (isNotNull(a.`top`))
-    AND (isNotNull(a.screenHeight))
-    AND (a.screenHeight > 0)
-    AND (a.isPromotion = _CAST(1, 'UInt8'))
-    AND (s.device = 'DESKTOP')
+WHERE a.`top` IS NOT NULL
+    AND a.screenHeight IS NOT NULL
+    AND a.screenHeight > 0
+    AND a.isPromotion = _CAST(1, 'UInt8')
+    AND s.device = 'DESKTOP'
     AND isNotNull(s.site)
 GROUP BY
     site,

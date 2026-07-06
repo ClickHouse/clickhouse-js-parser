@@ -1,182 +1,213 @@
 [
   {
-    "kind": "insert",
-    "target": {
-      "kind": "function",
-      "func": {
-        "kind": "tableFunctionRef",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table_function": {
+        "type": "Function",
         "name": "s3",
-        "args": [
+        "arguments": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "s3_conn"
+            "type": "Identifier",
+            "name": "s3_conn"
+          },
+          {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "url"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "http://localhost:11111/test/03762_data/file_"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": ".parquet"
+                  }
+                ]
+              }
             ]
           },
           {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "url"
-              ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "format"
+              },
+              {
+                "type": "Identifier",
+                "name": "Parquet"
+              }
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "s3_truncate_on_insert": "1"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "http://localhost:11111/test/03762_data/file_"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": ".parquet"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
             }
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "format"
-              ]
-            },
-            "right": {
-              "kind": "columnRef",
-              "parts": [
-                "Parquet"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "blob_storage_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "elapsed_microseconds"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
               ]
             }
-          }
-        ]
-      }
-    },
-    "insertSettings": [
-      {
-        "name": "s3_truncate_on_insert",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
-      }
-    },
-    "leadingComments": [
-      "-- Tags: no-fasttest",
-      "-- Tag no-fasttest: Depends on S3"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS blob_storage_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "elapsed_microseconds"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "blob_storage_log"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "remote_path"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "concat",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "03762_data/file_"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "blob_storage_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
           },
-          {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "remote_path"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "03762_data/file_"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": ".parquet"
+                  }
+                ]
+              }
+            ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": ".parquet"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
+        }
+      ]
     }
   }
 ]

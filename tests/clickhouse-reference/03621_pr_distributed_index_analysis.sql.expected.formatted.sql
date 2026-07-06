@@ -10,20 +10,20 @@ CREATE TABLE test_10m
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS distributed_index_analysis_min_parts_to_activate = 0, distributed_index_analysis_min_indexes_size_to_activate = 0;
+SETTINGS distributed_index_analysis_min_parts_to_activate = '0', distributed_index_analysis_min_indexes_size_to_activate = '0';
 
-SYSTEM stop merges test_10m;
+SYSTEM STOP MERGES test_10m;
 
 INSERT INTO test_10m SELECT
     number,
     number * 100
-FROM numbers(10e6);
+FROM numbers(10000000.);
 
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
-SET parallel_replicas_index_analysis_only_on_coordinator = 1;
+SET parallel_replicas_index_analysis_only_on_coordinator = '1';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 --- Ignore warnings when replica does not respond, and analysis is done on initiator
 SET send_logs_level = 'error';
@@ -32,26 +32,26 @@ SET send_logs_level = 'error';
 SELECT sum(key)
 FROM test_10m
 SETTINGS
-    allow_experimental_parallel_reading_from_replicas = 0,
-    distributed_index_analysis = 1,
+    allow_experimental_parallel_reading_from_replicas = '0',
+    distributed_index_analysis = '1',
     cluster_for_parallel_replicas = 'parallel_replicas';
 
 SELECT sum(key)
 FROM test_10m
 SETTINGS
-    allow_experimental_parallel_reading_from_replicas = 1,
-    distributed_index_analysis = 1,
+    allow_experimental_parallel_reading_from_replicas = '1',
+    distributed_index_analysis = '1',
     cluster_for_parallel_replicas = 'parallel_replicas';
 
 SELECT sum(key)
 FROM test_10m
 SETTINGS
-    allow_experimental_parallel_reading_from_replicas = 1,
-    distributed_index_analysis = 1,
+    allow_experimental_parallel_reading_from_replicas = '1',
+    distributed_index_analysis = '1',
     cluster_for_parallel_replicas = 'test_cluster_one_shard_two_replicas';
 
 -- { echoOff }
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     anyIf(normalizeQuery(query), is_initial_query) AS q,
@@ -76,7 +76,7 @@ WHERE event_date >= yesterday()
     AND query_kind = 'Select'
     AND `Settings`['distributed_index_analysis'] = '1'
     -- SKIP: current_database = currentDatabase() (it will filter out non-initial queries)
-    AND endsWith(log_comment, concat('-', currentDatabase()))
+    AND endsWith(log_comment, '-' || currentDatabase())
 GROUP BY initial_query_id
 ORDER BY min(event_time_microseconds) ASC
 FORMAT Vertical;

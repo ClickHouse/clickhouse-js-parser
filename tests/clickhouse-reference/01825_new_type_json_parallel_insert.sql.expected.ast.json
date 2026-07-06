@@ -1,156 +1,176 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_json_parallel"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_json_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_insert_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "20"
-        }
-      },
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "20"
-        }
-      },
-      {
-        "name": "min_insert_block_size_rows",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "65536"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_json_parallel"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "data",
-        "type": {
-          "name": "JSON"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_json_parallel"
+        "type": "Identifier",
+        "name": "t_json_parallel"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_json_type": "1",
+        "max_insert_threads": "20",
+        "max_threads": "20",
+        "min_insert_block_size_rows": "65536"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "materialize",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "{\"k1\":1, \"k2\": \"some\"}"
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers_mt",
-        "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_json_parallel"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "500000"
+            "type": "ColumnDeclaration",
+            "name": "data",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_json_parallel"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "materialize",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "{\"k1\":1, \"k2\": \"some\"}"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers_mt",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "500000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "groupUniqArrayMap",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "JSONAllPathsWithTypes",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "groupUniqArrayMap",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "JSONAllPathsWithTypes",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "data"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "data"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_json_parallel"
+                  }
+                }
               }
             ]
           }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_json_parallel"
+        }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_json_parallel"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_json_parallel"
+      }
     }
   }
 ]

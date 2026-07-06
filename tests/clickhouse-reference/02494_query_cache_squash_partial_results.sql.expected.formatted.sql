@@ -9,7 +9,7 @@ CREATE TABLE t
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 SYSTEM STOP MERGES t; -- retain multiple parts to make the SELECT process multiple chunks
@@ -23,7 +23,7 @@ SELECT *
 FROM t
 ORDER BY c ASC
 SETTINGS
-    max_block_size = 3,
+    max_block_size = '3',
     use_query_cache = true,
     query_cache_squash_partial_results = true;
 
@@ -31,14 +31,14 @@ SELECT *
 FROM t
 ORDER BY c ASC
 SETTINGS
-    max_block_size = 3,
+    max_block_size = '3',
     use_query_cache = true;
 
 SELECT *
 FROM t
 ORDER BY c ASC
 SETTINGS
-    max_block_size = 3,
+    max_block_size = '3',
     use_query_cache = true,
     query_cache_squash_partial_results = false;
 

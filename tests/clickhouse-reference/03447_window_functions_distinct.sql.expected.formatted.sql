@@ -15,7 +15,7 @@ WITH intHash64(number) % 10 AS x
 SELECT
     x,
     sumDistinct(x) OVER (ORDER BY number ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS a,
-    sumDistinct(x) OVER (ORDER BY number ASC ROWS BETWEEN CURRENT ROW AND UNBOUNDED PRECEDING) AS b
+    sumDistinct(x) OVER (ORDER BY number ASC ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS b
 FROM numbers(10);
 
 SELECT
@@ -34,7 +34,7 @@ SELECT
     arr,
     minDistinct(arr) OVER (ORDER BY arr ASC)
 FROM (
-        SELECT [toString(number), toString(number+1)] AS arr
+        SELECT [toString(number), toString(number + 1)] AS arr
         FROM numbers(10)
     )
 ORDER BY arr ASC;
@@ -76,6 +76,6 @@ SELECT
     finalizeAggregation(a + b),
     finalizeAggregation(a + c),
     finalizeAggregation(b + c),
-    finalizeAggregation((a + b) + c),
-    finalizeAggregation((b + c) + a),
-    finalizeAggregation((c + a) + b);
+    finalizeAggregation(a + b + c),
+    finalizeAggregation(b + c + a),
+    finalizeAggregation(c + a + b);

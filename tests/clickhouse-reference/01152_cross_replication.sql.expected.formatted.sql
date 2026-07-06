@@ -22,7 +22,7 @@ ENGINE = ReplacingMergeTree()
 ORDER BY id
 PARTITION BY toYYYYMM(date_stat); -- { serverError NOT_IMPLEMENTED }
 
-SET distributed_ddl_entry_format_version = 2;
+SET distributed_ddl_entry_format_version = '2';
 
 SET distributed_ddl_output_mode = 'throw';
 

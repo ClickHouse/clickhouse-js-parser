@@ -1,127 +1,182 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "a"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "b"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "a"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "a"
-          },
-          "alias": "id"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "b"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "a"
-          },
-          "alias": "id"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "b"
-          },
-          "alias": "other"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "b"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "a"
       },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "b"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "a"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "id",
+                "value_type": "String",
+                "value": "a"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "b"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "id",
+                "value_type": "String",
+                "value": "a"
+              },
+              {
+                "type": "Literal",
+                "alias": "other",
+                "value_type": "String",
+                "value": "b"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "id"
-              ]
+              "type": "Asterisk"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "a"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "b"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "id"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "id"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "a"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "a"
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "a"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "b"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "b"
+      }
     }
   }
 ]

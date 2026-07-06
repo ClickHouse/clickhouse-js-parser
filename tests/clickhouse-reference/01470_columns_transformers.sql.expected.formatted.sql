@@ -6,7 +6,7 @@ CREATE TABLE columns_transformers
     j Int16,
     k Int64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO columns_transformers;
 
@@ -19,7 +19,7 @@ FROM columns_transformers;
 SELECT columns_transformers.* APPLY(avg)
 FROM columns_transformers;
 
-SELECT a.* APPLY(toDate) APPLY(`any`)
+SELECT a.* APPLY(toDate) APPLY(any)
 FROM columns_transformers AS a;
 
 SELECT COLUMNS('[jk]') APPLY(toString) APPLY(length)
@@ -32,7 +32,7 @@ SELECT columns_transformers.* EXCEPT (j) APPLY(avg)
 FROM columns_transformers;
 
 -- EXCEPT after APPLY will not match anything
-SELECT a.* APPLY(toDate) EXCEPT (i, j) APPLY(`any`)
+SELECT a.* APPLY(toDate) EXCEPT (i, j) APPLY(any)
 FROM columns_transformers AS a;
 
 SELECT * EXCEPT STRICT (i)
@@ -65,10 +65,10 @@ SELECT columns_transformers.* REPLACE (j + 1 AS j, j + 2 AS j) APPLY(avg)
 FROM columns_transformers; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 -- REPLACE after APPLY will not match anything
-SELECT a.* APPLY(toDate) REPLACE (i + 1 AS i) APPLY(`any`)
+SELECT a.* APPLY(toDate) REPLACE (i + 1 AS i) APPLY(any)
 FROM columns_transformers AS a;
 
-SELECT a.* APPLY(toDate) REPLACE STRICT (i + 1 AS i) APPLY(`any`)
+SELECT a.* APPLY(toDate) REPLACE STRICT (i + 1 AS i) APPLY(any)
 FROM columns_transformers AS a; -- { serverError NO_SUCH_COLUMN_IN_TABLE, BAD_ARGUMENTS }
 
 EXPLAIN SYNTAX
@@ -80,7 +80,7 @@ SELECT columns_transformers.* APPLY(avg)
 FROM columns_transformers;
 
 EXPLAIN SYNTAX
-SELECT a.* APPLY(toDate) APPLY(`any`)
+SELECT a.* APPLY(toDate) APPLY(any)
 FROM columns_transformers AS a;
 
 EXPLAIN SYNTAX
@@ -96,7 +96,7 @@ SELECT columns_transformers.* EXCEPT (j) APPLY(avg)
 FROM columns_transformers;
 
 EXPLAIN SYNTAX
-SELECT a.* APPLY(toDate) EXCEPT (i, j) APPLY(`any`)
+SELECT a.* APPLY(toDate) EXCEPT (i, j) APPLY(any)
 FROM columns_transformers AS a;
 
 EXPLAIN SYNTAX
@@ -120,7 +120,7 @@ SELECT columns_transformers.* REPLACE (j + 2 AS j, i + 1 AS i) APPLY(avg)
 FROM columns_transformers;
 
 EXPLAIN SYNTAX
-SELECT a.* APPLY(toDate) REPLACE (i + 1 AS i) APPLY(`any`)
+SELECT a.* APPLY(toDate) REPLACE (i + 1 AS i) APPLY(any)
 FROM columns_transformers AS a;
 
 -- Multiple REPLACE in a row

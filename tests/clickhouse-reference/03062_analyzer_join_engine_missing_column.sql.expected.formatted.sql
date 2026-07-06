@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23416
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test
 (
@@ -18,7 +18,7 @@ CREATE TABLE test_join
     `OFFSET` UInt64
 )
 ENGINE = Join(`ANY`, `LEFT`, TOPIC, `PARTITION`)
-SETTINGS join_any_take_last_row = 1;
+SETTINGS join_any_take_last_row = '1';
 
 INSERT INTO test;
 
@@ -32,5 +32,5 @@ FROM test;
 SELECT *
 FROM
     test
-LEFT JOIN test_join
+ANY LEFT JOIN test_join
     USING (TOPIC, `PARTITION`);

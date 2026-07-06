@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT toUInt256(123) IN (NULL);
 

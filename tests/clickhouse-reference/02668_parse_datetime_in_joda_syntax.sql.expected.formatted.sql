@@ -337,7 +337,7 @@ SELECT parseDateTimeInJodaSyntaxOrZero('2001 invalid 366 2000', 'yyyy D yyyy', '
 
 SELECT parseDateTimeInJodaSyntaxOrNull('2001 366 2000', 'yyyy D yyyy', 'UTC') = toDateTime('2000-12-31', 'UTC');
 
-SELECT isNull(parseDateTimeInJodaSyntaxOrNull('2001 invalid 366 2000', 'yyyy D yyyy', 'UTC'));
+SELECT parseDateTimeInJodaSyntaxOrNull('2001 invalid 366 2000', 'yyyy D yyyy', 'UTC') IS NULL;
 
 -- Error handling
 SELECT parseDateTimeInJodaSyntax(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
@@ -451,7 +451,7 @@ SELECT parseDateTime64InJodaSyntaxOrNull('2024-10-09 10:30:10.123456America/Los_
 
 SELECT parseDateTime64InJodaSyntaxOrNull('2024-10-09 10:30:10.123', 'yyyy-dd-MM HH:mm:ss.SSS') = toDateTime64('2024-09-10 10:30:10.123', 3);
 
-SELECT isNull(parseDateTime64InJodaSyntaxOrNull('2023-02-29 11:22:33America/Los_Angeles', 'yyyy-MM-dd HH:mm:ssz'));
+SELECT parseDateTime64InJodaSyntaxOrNull('2023-02-29 11:22:33America/Los_Angeles', 'yyyy-MM-dd HH:mm:ssz') IS NULL;
 
 SELECT parseDateTime64InJodaSyntaxOrNull('', '') = toDateTime64('1970-01-01 00:00:00', 0);
 

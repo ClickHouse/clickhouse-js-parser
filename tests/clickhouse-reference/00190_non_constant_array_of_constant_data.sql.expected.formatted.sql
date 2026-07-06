@@ -1,17 +1,17 @@
-SELECT arrayFilter(x -> notEmpty(concat(x, 'hello')), [''])
+SELECT arrayFilter((x -> notEmpty(concat(x, 'hello'))), [''])
 FROM
     `system`.one
-ARRAY JOIN [0] AS elem, arrayMap(x -> concat(x, 'hello'), ['']) AS unused
+ARRAY JOIN [0] AS elem, arrayMap((x -> concat(x, 'hello')), ['']) AS unused
 WHERE NOT ignore(elem);
 
 SELECT '---';
 
-SELECT arrayFilter(x -> x = 'hello', [''])
+SELECT arrayFilter((x -> x = 'hello'), [''])
 FROM
     `system`.one
 ARRAY JOIN [0] AS elem
 WHERE NOT ignore(elem)
-    AND arrayExists(x -> x = 'hello', ['']);
+    AND arrayExists((x -> x = 'hello'), ['']);
 
 SELECT
     arrayJoin([0]),

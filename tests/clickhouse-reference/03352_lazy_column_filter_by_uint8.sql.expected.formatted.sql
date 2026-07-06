@@ -7,7 +7,7 @@ CREATE TABLE t_filter
     u UInt64,
     f UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY u;
 
 INSERT INTO t_filter SELECT
@@ -17,7 +17,7 @@ INSERT INTO t_filter SELECT
     toUInt8(number)
 FROM numbers(1000);
 
-SET optimize_read_in_order = 0; -- this trigger error
+SET optimize_read_in_order = '0'; -- this trigger error
 
 SELECT *
 FROM t_filter

@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS replicated_truncate1;
 
 DROP TABLE IF EXISTS replicated_truncate2;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE replicated_truncate1
 (
@@ -38,4 +38,4 @@ SELECT *
 FROM replicated_truncate2
 ORDER BY k ASC;
 
-TRUNCATE TABLE replicated_truncate1 SETTINGS replication_alter_partitions_sync = 2;
+TRUNCATE TABLE replicated_truncate1 SETTINGS replication_alter_partitions_sync = '2';

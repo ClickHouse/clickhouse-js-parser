@@ -6,7 +6,7 @@ CREATE TABLE null_00117
     b Array(String),
     c Array(Array(Date))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO null_00117 (a);
 

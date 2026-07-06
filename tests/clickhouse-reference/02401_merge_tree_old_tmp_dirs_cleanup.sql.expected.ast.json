@@ -1,178 +1,196 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_inserts"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-fasttest"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_inserts"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "Int"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "part",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "part"
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "temporary_directories_lifetime",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "merge_tree_clear_old_temporary_directories_interval_seconds",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_inserts"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "sleep",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
+        "type": "Identifier",
+        "name": "test_inserts"
       },
-      "settings": [
-        {
-          "name": "max_insert_delayed_streams_for_parallel_write",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          }
-        },
-        {
-          "name": "max_insert_block_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        {
-          "name": "min_insert_block_size_rows",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      ]
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_inserts"
       },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "part"
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "part",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "part"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "temporary_directories_lifetime": "0",
+            "merge_tree_clear_old_temporary_directories_interval_seconds": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_inserts"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "max_insert_delayed_streams_for_parallel_write": "100",
+          "max_insert_block_size": "1",
+          "min_insert_block_size_rows": "1"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "sleep",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "max_insert_delayed_streams_for_parallel_write": "100",
+                "max_insert_block_size": "1",
+                "min_insert_block_size_rows": "1"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "part"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_inserts"
+                  }
+                }
+              }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_inserts"
+        }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_inserts"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_inserts"
+      }
     }
   }
 ]

@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS enum;
 
 CREATE TABLE enum
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY enum AS
-SELECT cast(1, 'Enum8(''zero''=0, ''one''=1)') AS enum;
+SELECT CAST(1, 'Enum8(''zero''=0, ''one''=1)') AS enum;
 
 SELECT *
 FROM enum

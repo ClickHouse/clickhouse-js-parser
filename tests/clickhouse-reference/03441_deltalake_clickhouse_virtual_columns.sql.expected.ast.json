@@ -1,55 +1,59 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_for_cluster_engines",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_for_cluster_engines": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest, no-msan",
-      "-- Tag no-fasttest: Depends on AWS",
-      "-- Tag no-msan: delta-kernel is not built with msan"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_data_lake_snapshot_version"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "deltaLake",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "https://clickhouse-public-datasets.s3.amazonaws.com/delta_lake/hits/"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "NOSIGN"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "_data_lake_snapshot_version"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "deltaLake",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "https://clickhouse-public-datasets.s3.amazonaws.com/delta_lake/hits/"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "NOSIGN"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
     }
   }
 ]

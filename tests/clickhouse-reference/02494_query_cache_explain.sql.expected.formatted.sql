@@ -1,6 +1,6 @@
 -- Tags: no-parallel
 -- Tag no-parallel: Messes with internal cache
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET query_cache_system_table_handling = 'save';
 
@@ -16,12 +16,12 @@ SELECT count(*)
 FROM `system`.query_cache;
 
 -- EXPLAIN PLAN should show the same regardless if the result is calculated or read from the QC
-EXPLAIN PLAN
+EXPLAIN
 SELECT 1 + number
 FROM `system`.numbers
 LIMIT 1;
 
-EXPLAIN PLAN
+EXPLAIN
 SELECT 1 + number
 FROM `system`.numbers
 LIMIT 1

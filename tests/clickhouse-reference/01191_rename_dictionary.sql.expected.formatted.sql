@@ -2,7 +2,7 @@
 DROP DATABASE IF EXISTS test_01191;
 
 CREATE DATABASE test_01191
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE test_01191._
 (
@@ -61,7 +61,7 @@ DROP TABLE test_01191.t;
 DROP DATABASE IF EXISTS dummy_db;
 
 CREATE DATABASE dummy_db
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 RENAME DICTIONARY test_01191.dict TO dummy_db.dict1;
 

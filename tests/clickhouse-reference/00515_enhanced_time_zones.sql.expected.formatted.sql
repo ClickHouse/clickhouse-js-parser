@@ -1,4 +1,4 @@
-SET allow_deprecated_snowflake_conversion_functions = 1;
+SET allow_deprecated_snowflake_conversion_functions = '1';
 
 SELECT addMonths(toDateTime('2017-11-05 08:07:47', 'Asia/Istanbul'), 1, 'Asia/Kolkata');
 
@@ -45,7 +45,7 @@ CREATE TABLE tab
     val Int64,
     tz String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO tab;
 
@@ -53,114 +53,114 @@ SELECT val
 FROM tab
 WHERE now(tz) != toDateTime('2000-01-01 00:00:00')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE now(tz) != toDateTime('2000-01-01 00:00:00')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE now64(9, tz) != toDateTime64('2000-01-01 00:00:00', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE now64(9, tz) != toDateTime64('2000-01-01 00:00:00', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE nowInBlock(tz) != toDateTime('2000-01-01 00:00:00')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE nowInBlock(tz) != toDateTime('2000-01-01 00:00:00')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE toTimeZone(toDateTime(val), tz) != toDateTime('2023-06-11 14:14:14')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE toTimeZone(toDateTime(val), tz) != toDateTime('2023-06-11 14:14:14')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Milli(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Milli(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Micro(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Micro(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Nano(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE fromUnixTimestamp64Nano(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE snowflakeToDateTime(val, tz) != toDateTime('2023-06-11 14:14:14')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE snowflakeToDateTime(val, tz) != toDateTime('2023-06-11 14:14:14')
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 SELECT val
 FROM tab
 WHERE snowflakeToDateTime64(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 0; -- { serverError ILLEGAL_COLUMN }
+SETTINGS allow_nonconst_timezone_arguments = '0'; -- { serverError ILLEGAL_COLUMN }
 
 SELECT val
 FROM tab
 WHERE snowflakeToDateTime64(val, tz) != toDateTime64('2023-06-11 14:14:14', 6)
 ORDER BY val ASC
-SETTINGS allow_nonconst_timezone_arguments = 1;
+SETTINGS allow_nonconst_timezone_arguments = '1';
 
 -- test for a related bug:
 DROP TABLE tab;
 
-SET allow_nonconst_timezone_arguments = 1;
+SET allow_nonconst_timezone_arguments = '1';
 
 CREATE TABLE tab
 (
@@ -169,7 +169,7 @@ CREATE TABLE tab
     region LowCardinality(String) DEFAULT 'unknown',
     continent LowCardinality(FixedString(7)) DEFAULT 'unknown',
     is_eu_country Bool,
-    date DateTime CODEC(DoubleDelta, LZ4),
+    date DateTime CODEC(DoubleDelta(), LZ4()),
     viewer_date DateTime ALIAS toTimezone(date, timezone),
     device_browser LowCardinality(String) DEFAULT 'unknown',
     metro_code LowCardinality(String) DEFAULT 'unknown',
@@ -178,15 +178,15 @@ CREATE TABLE tab
     device_type LowCardinality(String) DEFAULT 'unknown',
     device_vendor LowCardinality(String) DEFAULT 'unknown',
     ip FixedString(39) DEFAULT 'unknown',
-    lat Decimal(8, 6) CODEC(T64),
-    lng Decimal(9, 6) CODEC(T64),
+    lat Decimal(8, 6) CODEC(T64()),
+    lng Decimal(9, 6) CODEC(T64()),
     asset_id String DEFAULT 'unknown',
     is_personalized Bool,
     metric String,
     origin String DEFAULT 'unknown',
-    product_id UInt64 CODEC(T64),
+    product_id UInt64 CODEC(T64()),
     referer String DEFAULT 'unknown',
-    server_side Int8 CODEC(T64),
+    server_side Int8 CODEC(T64()),
     third_party_id String DEFAULT 'unknown',
     partner_slug LowCardinality(FixedString(10)) DEFAULT 'unknown',
     user_agent String DEFAULT 'unknown',
@@ -199,17 +199,17 @@ CREATE TABLE tab
     store_id LowCardinality(String) DEFAULT 'unknown',
     store_url String DEFAULT 'unknown',
     timestamp Nullable(DateTime),
-    ad_count Int8 CODEC(T64),
+    ad_count Int8 CODEC(T64()),
     ad_type LowCardinality(FixedString(10)) DEFAULT 'unknown',
     ad_categories Array(FixedString(8)),
     blocked_ad_categories Array(FixedString(8)),
-    break_max_ad_length Int8 CODEC(T64),
-    break_max_ads Int8 CODEC(T64),
-    break_max_duration Int8 CODEC(T64),
-    break_min_ad_length Int8 CODEC(T64),
+    break_max_ad_length Int8 CODEC(T64()),
+    break_max_ads Int8 CODEC(T64()),
+    break_max_duration Int8 CODEC(T64()),
+    break_min_ad_length Int8 CODEC(T64()),
     break_position LowCardinality(FixedString(18)) DEFAULT 'unknown',
     media_playhead String DEFAULT 'unknown',
-    placement_type Int8 CODEC(T64),
+    placement_type Int8 CODEC(T64()),
     transaction_id String,
     universal_ad_id Array(String),
     client_ua LowCardinality(String) DEFAULT 'unknown',
@@ -217,8 +217,8 @@ CREATE TABLE tab
     device_ua LowCardinality(String) DEFAULT 'unknown',
     ifa String,
     ifa_type LowCardinality(String) DEFAULT 'unknown',
-    vast_lat Decimal(8, 6) CODEC(T64),
-    vast_long Decimal(9, 6) CODEC(T64),
+    vast_lat Decimal(8, 6) CODEC(T64()),
+    vast_long Decimal(9, 6) CODEC(T64()),
     server_ua String DEFAULT 'unknown',
     app_bundle String DEFAULT 'unknown',
     page_url String DEFAULT 'unknown',
@@ -238,27 +238,22 @@ CREATE TABLE tab
     inventory_state Array(FixedString(14)),
     player_size Array(UInt8),
     player_state Array(FixedString(12)),
-    pod_sequence Int8 CODEC(T64),
+    pod_sequence Int8 CODEC(T64()),
     click_position Array(UInt32),
-    error_code Int16 CODEC(T64),
-    error_reason Int8 CODEC(T64),
+    error_code Int16 CODEC(T64()),
+    error_reason Int8 CODEC(T64()),
     gdpr_consent String DEFAULT 'unknown',
     limited_tracking Bool,
     regulations String DEFAULT 'unknown',
     content_category Array(String),
-    PROJECTION projection_TPAG_VAST_date (    SELECT *
-    ORDER BY
-        toYYYYMMDD(date) ASC,
-        metric ASC,
-        product_id ASC,
-        asset_id ASC)
+    PROJECTION projection_TPAG_VAST_date (SELECT * ORDER BY toYYYYMMDD(date), metric, product_id, asset_id)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (product_id, metric, asset_id, toYYYYMMDD(date));
 
 DETACH TABLE tab;
 
-SET allow_nonconst_timezone_arguments = 0;
+SET allow_nonconst_timezone_arguments = '0';
 
 -- ATTACH TABLE doesn't check the default expressions
 ATTACH TABLE tab;

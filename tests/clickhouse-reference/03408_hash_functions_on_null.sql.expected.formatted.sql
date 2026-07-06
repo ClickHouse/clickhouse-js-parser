@@ -5,13 +5,13 @@ SELECT xxHash64(NULL);
 
 SELECT xxHash64([]);
 
-SELECT xxHash64([null]);
+SELECT xxHash64([NULL]);
 
-SELECT xxHash64([null, null]);
+SELECT xxHash64([NULL, NULL]);
 
-SELECT xxHash64([null::Nullable(Int64)]);
+SELECT xxHash64([NULL::Nullable(Int64)]);
 
-SELECT xxHash64([null::Nullable(String)]);
+SELECT xxHash64([NULL::Nullable(String)]);
 
 SELECT xxHash64(tuple());
 
@@ -29,13 +29,13 @@ SELECT xxHash64(materialize(NULL));
 
 SELECT xxHash64(materialize([]));
 
-SELECT xxHash64(materialize([null]));
+SELECT xxHash64(materialize([NULL]));
 
-SELECT xxHash64(materialize([null, null]));
+SELECT xxHash64(materialize([NULL, NULL]));
 
-SELECT xxHash64(materialize([null::Nullable(Int64)]));
+SELECT xxHash64(materialize([NULL::Nullable(Int64)]));
 
-SELECT xxHash64(materialize([null::Nullable(String)]));
+SELECT xxHash64(materialize([NULL::Nullable(String)]));
 
 SELECT xxHash64(materialize(tuple()));
 
@@ -51,7 +51,7 @@ CREATE TABLE test_hash_on_null
 (
     a Array(Nullable(Int64))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_hash_on_null;
 
@@ -76,7 +76,7 @@ CREATE TABLE test_mix_null
 (
     a Nullable(Int64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_mix_null;
 
@@ -90,7 +90,7 @@ CREATE TABLE t
 (
     a Array(Tuple(x Nullable(Int64), y Map(Int64, Nullable(String)), z LowCardinality(Nullable(FixedString(16)))))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 
@@ -113,16 +113,16 @@ SELECT cityHash64(a.z)
 FROM t;
 
 --- Keyed.
-SELECT sipHash64Keyed(materialize((1::UInt64, 2::UInt64)), NULL)
+SELECT sipHash64Keyed(materialize((CAST('1' AS UInt64), CAST('2' AS UInt64))), NULL)
 FROM numbers(2);
 
-SELECT sipHash64Keyed((1::UInt64, 2::UInt64), tuple(NULL))
+SELECT sipHash64Keyed((CAST('1' AS UInt64), CAST('2' AS UInt64)), tuple(NULL))
 FROM numbers(2);
 
-SELECT sipHash64Keyed(materialize((1::UInt64, 2::UInt64)), tuple(NULL))
+SELECT sipHash64Keyed(materialize((CAST('1' AS UInt64), CAST('2' AS UInt64))), tuple(NULL))
 FROM numbers(2);
 
-SELECT sipHash64Keyed((1::UInt64, number), tuple(NULL))
+SELECT sipHash64Keyed((CAST('1' AS UInt64), number), tuple(NULL))
 FROM numbers(3);
 
 -- Make sure all types are allowed.

@@ -8,7 +8,7 @@ CREATE TABLE t0
     b String,
     a1 Int32 ALIAS a + 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t1
 (
@@ -16,15 +16,15 @@ CREATE TABLE t1
     b String,
     a1 Int16 ALIAS a + 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0;
 
 INSERT INTO t1;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET analyzer_compatibility_join_using_top_level_identifier = 1;
+SET analyzer_compatibility_join_using_top_level_identifier = '1';
 
 SELECT
     tuple(*),
@@ -71,4 +71,4 @@ FROM
     t0
 INNER JOIN t1
     USING (a1)
-SETTINGS enable_join_runtime_filters = 0;
+SETTINGS enable_join_runtime_filters = '0';

@@ -142,7 +142,7 @@ ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
 SAMPLE BY intHash32(UserID)
-SETTINGS index_granularity = 8192, index_granularity_bytes = 0, min_bytes_for_wide_part = 0; -- looks like default table before update
+SETTINGS index_granularity = '8192', index_granularity_bytes = '0', min_bytes_for_wide_part = '0'; -- looks like default table before update
 
 INSERT INTO fixed_granularity_table SELECT *
 FROM test.hits
@@ -154,7 +154,7 @@ DETACH TABLE fixed_granularity_table;
 
 ATTACH TABLE fixed_granularity_table;
 
-ALTER TABLE fixed_granularity_table DROP PARTITION 201403;
+ALTER TABLE fixed_granularity_table DETACH PARTITION 201403;
 
 ALTER TABLE fixed_granularity_table ATTACH PARTITION 201403;
 

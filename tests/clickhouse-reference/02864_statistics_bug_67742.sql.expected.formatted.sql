@@ -1,14 +1,14 @@
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
-SET allow_statistics_optimize = 1;
+SET allow_statistics_optimize = '1';
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 (
-    a Float64 STATISTICS(tdigest)
+    a Float64 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -25,7 +25,7 @@ DROP TABLE tab;
 
 CREATE TABLE tab
 (
-    a Int32 STATISTICS(tdigest)
+    a Int32 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();
@@ -40,7 +40,7 @@ WHERE a < 10.5;
 
 CREATE TABLE tab
 (
-    a Int16 STATISTICS(tdigest)
+    a Int16 STATISTICS(tdigest())
 )
 ENGINE = MergeTree()
 ORDER BY tuple();

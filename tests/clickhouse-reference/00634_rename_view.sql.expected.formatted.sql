@@ -16,13 +16,13 @@ CREATE TABLE test1_00634
 (
     id UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE test2_00634
 (
     id UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE VIEW v_test1
 AS

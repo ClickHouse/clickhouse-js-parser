@@ -1,4 +1,4 @@
-SET optimize_arithmetic_operations_in_aggregate_functions = 0;
+SET optimize_arithmetic_operations_in_aggregate_functions = '0';
 
 SELECT round(toDecimal32(2, 2) * 1.2, 6);
 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS test01603
 ENGINE = MergeTree()
 ORDER BY f32;
 
-INSERT INTO test01603 (f64) SELECT 1 / ((number + 1))
+INSERT INTO test01603 (f64) SELECT 1 / (number + 1)
 FROM `system`.numbers
 LIMIT 1000;
 

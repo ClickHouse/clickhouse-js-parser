@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS sample_00314_2;
 
 DROP TABLE IF EXISTS sample_merge_00314;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE sample_00314_1
 (
@@ -24,7 +24,7 @@ CREATE TABLE sample_00314_2
 )
 ENGINE = MergeTree(d, intHash64(x), intHash64(x), 10);
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
 INSERT INTO sample_00314_1 (x) SELECT number AS x
 FROM `system`.numbers

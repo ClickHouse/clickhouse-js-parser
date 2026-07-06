@@ -12,6 +12,6 @@
 -- an exception after parsing but before the query string is assigned.
 -- Before the fix: std::length_error is thrown
 -- After the fix: UNKNOWN_QUERY_PARAMETER error is returned properly
-SET max_query_size = 18446744073709551615;
+SET max_query_size = '18446744073709551615';
 
-SELECT {undefined_param:UInt64}; -- {serverError UNKNOWN_QUERY_PARAMETER}
+SELECT 0; -- {serverError UNKNOWN_QUERY_PARAMETER}

@@ -6,7 +6,7 @@ CREATE TABLE with_skip_index
 (
     key Int,
     value Int,
-    INDEX value_idx value TYPE minmax GRANULARITY 1
+    INDEX value_idx value TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY key;
@@ -14,7 +14,7 @@ ORDER BY key;
 INSERT INTO with_skip_index SELECT
     number,
     number * 100
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 -- { echo }
 SELECT *

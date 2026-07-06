@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH 1 AS x
 
@@ -26,6 +26,8 @@ WITH 1 AS x
 
 SELECT x
 UNION ALL
+WITH 1 AS x
+
 SELECT x;
 
 SELECT x
@@ -83,6 +85,8 @@ WITH 1 AS x
 
 SELECT x
 UNION ALL
+WITH 1 AS x
+
 SELECT x;
 
 EXPLAIN SYNTAX

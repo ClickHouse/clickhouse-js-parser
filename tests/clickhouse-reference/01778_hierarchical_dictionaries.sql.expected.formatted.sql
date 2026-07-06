@@ -8,14 +8,14 @@ CREATE TABLE `01778_db`.hierarchy_source_table
     id UInt64,
     parent_id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01778_db`.hierarchy_source_table;
 
 CREATE DICTIONARY `01778_db`.hierarchy_flat_dictionary
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'hierarchy_source_table' DB '01778_db'))
@@ -47,7 +47,7 @@ DROP DICTIONARY `01778_db`.hierarchy_flat_dictionary;
 CREATE DICTIONARY `01778_db`.hierarchy_hashed_dictionary
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'hierarchy_source_table' DB '01778_db'))
@@ -79,7 +79,7 @@ DROP DICTIONARY `01778_db`.hierarchy_hashed_dictionary;
 CREATE DICTIONARY `01778_db`.hierarchy_cache_dictionary
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'hierarchy_source_table' DB '01778_db'))
@@ -99,7 +99,7 @@ DROP DICTIONARY `01778_db`.hierarchy_cache_dictionary;
 CREATE DICTIONARY `01778_db`.hierarchy_direct_dictionary
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'hierarchy_source_table' DB '01778_db'))

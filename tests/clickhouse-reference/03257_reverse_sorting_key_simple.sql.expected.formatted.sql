@@ -1,7 +1,7 @@
 -- Tags: no-random-merge-tree-settings
-SET optimize_read_in_order = 1;
+SET optimize_read_in_order = '1';
 
-SET read_in_order_two_level_merge_threshold = 100;
+SET read_in_order_two_level_merge_threshold = '100';
 
 DROP TABLE IF EXISTS x1;
 
@@ -11,9 +11,9 @@ CREATE TABLE x1
 (
     i Nullable(int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i DESC
-SETTINGS allow_nullable_key = 1, index_granularity = 2, allow_experimental_reverse_key = 1;
+SETTINGS allow_nullable_key = '1', index_granularity = '2', allow_experimental_reverse_key = '1';
 
 INSERT INTO x1 SELECT *
 FROM numbers(100);
@@ -26,7 +26,8 @@ WHERE i = 3;
 
 SELECT count()
 FROM x1
-WHERE and(greaterOrEquals(i, 3), lessOrEquals(i, 10));
+WHERE i >= 3
+    AND i <= 10;
 
 SELECT *
 FROM x1
@@ -43,9 +44,9 @@ CREATE TABLE x2
     i Nullable(int),
     j Nullable(int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (i, j DESC)
-SETTINGS allow_nullable_key = 1, index_granularity = 2, allow_experimental_reverse_key = 1;
+SETTINGS allow_nullable_key = '1', index_granularity = '2', allow_experimental_reverse_key = '1';
 
 INSERT INTO x2 SELECT
     number % 10,
@@ -60,8 +61,10 @@ WHERE j = 1003;
 
 SELECT count()
 FROM x2
-WHERE and(greaterOrEquals(i, 3), lessOrEquals(i, 10))
-    AND and(greaterOrEquals(j, 1003), lessOrEquals(j, 1008));
+WHERE (i >= 3
+    AND i <= 10)
+    AND (j >= 1003
+    AND j <= 1008);
 
 SELECT *
 FROM x2

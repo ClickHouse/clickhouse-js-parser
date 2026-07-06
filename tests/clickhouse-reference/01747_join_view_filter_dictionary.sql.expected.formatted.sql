@@ -17,7 +17,7 @@ CREATE TABLE summing_table01747
     currency String
 )
 ENGINE = SummingMergeTree()
-ORDER BY (some_name);
+ORDER BY some_name;
 
 CREATE VIEW rates01747
 AS
@@ -34,7 +34,7 @@ CREATE TABLE dictst01747
     field1 String,
     field2 UInt8
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     'name',
     'test',
@@ -60,7 +60,7 @@ SELECT
     rates01747.rates01747 AS rates01747
 FROM
     summing_table01747
-LEFT JOIN rates01747
+ANY LEFT JOIN rates01747
     ON rates01747.from_currency = summing_table01747.currency;
 
 SELECT *

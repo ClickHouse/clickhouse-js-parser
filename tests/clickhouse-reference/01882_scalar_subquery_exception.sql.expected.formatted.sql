@@ -6,7 +6,7 @@ CREATE TABLE nums_in_mem
 (
     v UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO nums_in_mem SELECT *
 FROM `system`.numbers
@@ -15,9 +15,9 @@ LIMIT 1000000;
 CREATE TABLE nums_in_mem_dist AS nums_in_mem
 ENGINE = Distributed('test_shard_localhost', currentDatabase(), nums_in_mem);
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
-SET max_rows_to_read = 100;
+SET max_rows_to_read = '100';
 
 SELECT count() / (
         SELECT count()

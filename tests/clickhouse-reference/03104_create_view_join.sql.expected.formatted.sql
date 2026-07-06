@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS test_table_02;
 
 DROP TABLE IF EXISTS test_view_01;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test_table_01
 (

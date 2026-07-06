@@ -1,4 +1,4 @@
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS t_ephemeral_02205_1;
 
@@ -8,7 +8,7 @@ CREATE TABLE t_ephemeral_02205_1
     y UInt32 EPHEMERAL 17,
     z UInt32 DEFAULT 5
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DESCRIBE TABLE t_ephemeral_02205_1;
 
@@ -45,4 +45,4 @@ CREATE TABLE t_ephemeral_02205_1
     y UInt32 EPHEMERAL,
     z UInt32 DEFAULT 5
 )
-ENGINE = Memory;
+ENGINE = Memory();

@@ -1,16 +1,16 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 (
     str String,
-    INDEX text_idx str TYPE text(tokenizer = ngrams(3)),
+    INDEX text_idx str TYPE text(tokenizer = ngrams(3)) GRANULARITY 100000000,
     INDEX set_idx str TYPE set(10) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS compress_marks = 0;
+SETTINGS compress_marks = '0';
 
 INSERT INTO tab (str);
 

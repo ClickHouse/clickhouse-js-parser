@@ -5,7 +5,7 @@ CREATE TABLE discounts
     discount_end_date Nullable(Date),
     amount Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO discounts;
 
@@ -36,7 +36,7 @@ CREATE TABLE ids
 (
     id UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ids SELECT *
 FROM numbers(10);

@@ -10,7 +10,7 @@ CREATE TABLE test_02245
 ENGINE = S3(s3_conn, filename = 'test_02245', `format` = Parquet);
 
 INSERT INTO test_02245 SELECT 1
-SETTINGS s3_truncate_on_insert = 1;
+SETTINGS s3_truncate_on_insert = '1';
 
 SELECT *
 FROM test_02245;
@@ -30,7 +30,7 @@ ENGINE = S3(s3_conn, filename = 'test_02245_2', `format` = Parquet);
 INSERT INTO test_02245_2 SELECT
     1,
     2
-SETTINGS s3_truncate_on_insert = 1;
+SETTINGS s3_truncate_on_insert = '1';
 
 SELECT *
 FROM test_02245_2;

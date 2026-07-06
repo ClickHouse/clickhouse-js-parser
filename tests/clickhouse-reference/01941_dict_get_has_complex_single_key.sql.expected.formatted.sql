@@ -5,7 +5,7 @@ CREATE TABLE test_dictionary_source
     key String,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_dictionary_source;
 
@@ -18,7 +18,7 @@ CREATE DICTIONARY test_dictionary
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE 'test_dictionary_source'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 SELECT dictGet('test_dictionary', 'value', tuple('Key'));

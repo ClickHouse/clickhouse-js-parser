@@ -5,7 +5,7 @@ CREATE TABLE test_log
     crypto_name String,
     trade_date Date
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test_log (crypto_name, trade_date);
 
@@ -19,6 +19,6 @@ CREATE TABLE test_log
     crypto_name String,
     trade_date Date
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 DROP TABLE test_log;

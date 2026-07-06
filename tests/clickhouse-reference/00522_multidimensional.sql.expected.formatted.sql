@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS multidimensional;
 
 CREATE TABLE multidimensional
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi' AS
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi' AS
 SELECT
     number,
-    arrayMap(x -> (x, [x], [[x]], (x, toString(x))), arrayMap(x -> range(x), range(number % 10))) AS value
+    arrayMap((x -> (x, [x], [[x]], (x, toString(x)))), arrayMap((x -> range(x)), range(number % 10))) AS value
 FROM `system`.numbers
 LIMIT 100000;
 

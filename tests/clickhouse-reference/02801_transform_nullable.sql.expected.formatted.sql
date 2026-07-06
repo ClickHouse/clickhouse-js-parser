@@ -12,25 +12,25 @@ SELECT transform(NULL, ['3', '5', '7'], ['hello', 'world', 'abc'], NULL)
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT transform(NULL, [null, null, null], [null, null, null], NULL)
+SELECT transform(NULL, [NULL, NULL, NULL], [NULL, NULL, NULL], NULL)
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT transform(toString(number), ['3', '5', '7'], [111, 222, null], -1)
+SELECT transform(toString(number), ['3', '5', '7'], [111, 222, NULL], -1)
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT transform(toString(number), ['3', '5', '7'], [null, 222, 333], materialize(-1.1))
+SELECT transform(toString(number), ['3', '5', '7'], [NULL, 222, 333], materialize(-1.1))
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT transform(toString(number), ['3', '5', '7'], [null, null, null], materialize(1))
+SELECT transform(toString(number), ['3', '5', '7'], [NULL, NULL, NULL], materialize(1))
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT transform(1, [2, 3], ['Meta.ua', null], materialize('Остальные')) AS title;
+SELECT transform(1, [2, 3], ['Meta.ua', NULL], materialize('Остальные')) AS title;
 
-SELECT transform(2, [2, 3], [null, 'Google'], materialize('Остальные')) AS title;
+SELECT transform(2, [2, 3], [NULL, 'Google'], materialize('Остальные')) AS title;
 
-SELECT transform(if(number % 3 = 1, NULL, number), [2, 5, NULL], ['Hello', 'World', 'xyz'], '-')
+SELECT transform(number % 3 = 1 ? NULL : number, [2, 5, NULL], ['Hello', 'World', 'xyz'], '-')
 FROM numbers(10);

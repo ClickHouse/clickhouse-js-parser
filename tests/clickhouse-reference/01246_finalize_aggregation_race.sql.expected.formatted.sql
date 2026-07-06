@@ -5,9 +5,9 @@ CREATE TABLE test_quantile
 (
     x AggregateFunction(quantileTiming(0.2), UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-INSERT INTO test_quantile SELECT medianTimingState(.2)(number)
+INSERT INTO test_quantile SELECT medianTimingState(0.2)(number)
 FROM (
         SELECT *
         FROM numbers(1000)

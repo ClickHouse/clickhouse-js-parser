@@ -1,3 +1,3 @@
 -- Tags: no-fasttest, no-parallel
 -- no-fasttest: Will perform 'sync' syscall (it can take time)
-SYSTEM sync file cache;
+SYSTEM SYNC FILE CACHE;

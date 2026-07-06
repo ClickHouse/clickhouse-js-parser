@@ -9,7 +9,7 @@ CREATE TABLE test_local_blob_log
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS disk = disk(type = 'local_blob_storage', path = '03776_test_local_blob_log/');
+SETTINGS disk = 'disk(type = ''local_blob_storage'', path = ''03776_test_local_blob_log/'')';
 
 INSERT INTO test_local_blob_log;
 
@@ -25,14 +25,14 @@ SELECT
     count() > 0
 FROM `system`.blob_storage_log
 WHERE event_type = 'Upload'
-    AND like(remote_path, '%03776_test_local_blob_log%')
+    AND remote_path LIKE '%03776_test_local_blob_log%'
     AND data_size > 0
     AND error_code = 0
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(5);
 
 -- Drop table to trigger delete events
-DROP TABLE test_local_blob_log;
+DROP TABLE test_local_blob_log SYNC;
 
 -- Check that delete events were logged
 SELECT
@@ -40,7 +40,7 @@ SELECT
     count() > 0
 FROM `system`.blob_storage_log
 WHERE event_type = 'Delete'
-    AND like(remote_path, '%03776_test_local_blob_log%')
+    AND remote_path LIKE '%03776_test_local_blob_log%'
     AND error_code = 0
     AND event_date >= yesterday()
     AND event_time > now() - toIntervalMinute(5);

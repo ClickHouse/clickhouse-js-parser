@@ -1,3 +1,3 @@
 SELECT
     [1],
-    0::UInt16;
+    CAST('0' AS UInt16);

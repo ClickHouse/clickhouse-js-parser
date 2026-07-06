@@ -5,31 +5,31 @@ CREATE TABLE no_physical
 (
     a Int EPHEMERAL
 )
-ENGINE = Memory; -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
+ENGINE = Memory(); -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
 
 CREATE TABLE no_physical
 (
     a Int ALIAS 1
 )
-ENGINE = Memory; -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
+ENGINE = Memory(); -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
 
 CREATE TABLE no_insertable
 (
     a Int MATERIALIZED 1
 )
-ENGINE = Memory; -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
+ENGINE = Memory(); -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }
 
-ATTACH TABLE no_insertable
+ATTACH TABLE no_insertable UUID '00000000-0000-0000-0000-000000003541'
 (
     a Int MATERIALIZED 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE insertable
 (
     a Int EPHEMERAL,
     b Int MATERIALIZED 1
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 ALTER TABLE insertable DROP COLUMN a; -- { serverError EMPTY_LIST_OF_COLUMNS_PASSED }

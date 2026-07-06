@@ -6,7 +6,7 @@ CREATE TABLE limit_by
     Num UInt32,
     Name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO limit_by (Num, Name);
 

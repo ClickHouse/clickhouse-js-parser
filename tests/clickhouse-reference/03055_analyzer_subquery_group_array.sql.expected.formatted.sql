@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23344
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     logTrace(repeat('Hello', 100)),

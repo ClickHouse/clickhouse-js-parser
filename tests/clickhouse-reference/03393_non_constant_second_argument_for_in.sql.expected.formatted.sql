@@ -1,4 +1,4 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 SELECT number
 FROM numbers(10)
@@ -11,13 +11,13 @@ SELECT number
 FROM numbers(10)
 WHERE number % 2 IN ([number % 3, number % 5])
 ORDER BY number ASC
-SETTINGS allow_experimental_analyzer = 1;
+SETTINGS allow_experimental_analyzer = '1';
 
 SELECT number
 FROM numbers(10)
 WHERE number % 2 IN ([number % 3, number % 5])
 ORDER BY number ASC
-SETTINGS allow_experimental_analyzer = 0; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS allow_experimental_analyzer = '0'; -- { serverError UNKNOWN_IDENTIFIER }
 
 -- { echoOn }
 SELECT (1, 2) IN ([number % 3, number % 5])
@@ -51,33 +51,33 @@ SELECT
         SELECT (1, 1)
     );
 
-SELECT (1, null) IN ([(number % 3, number % 5)])
+SELECT (1, NULL) IN ([(number % 3, number % 5)])
 FROM numbers(2);
 
 SELECT
-    (1, null) IN (
-        SELECT (0, 0::Nullable(Int))
+    (1, NULL) IN (
+        SELECT (0, CAST('0' AS Nullable(Int)))
     ),
-    (1, null) IN (
-        SELECT (1, 1::Nullable(Int))
+    (1, NULL) IN (
+        SELECT (1, CAST('1' AS Nullable(Int)))
     );
 
-SELECT (1, null) IN ([(number % 3, number % 5), (1, null)])
+SELECT (1, NULL) IN ([(number % 3, number % 5), (1, NULL)])
 FROM numbers(2);
 
 SELECT
-    (1, null) IN (
-        SELECT (0, 0::Nullable(Int))
+    (1, NULL) IN (
+        SELECT (0, CAST('0' AS Nullable(Int)))
         UNION ALL
-        SELECT (1, null)
+        SELECT (1, NULL)
     ),
-    (1, null) IN (
-        SELECT (1, 1::Nullable(Int))
+    (1, NULL) IN (
+        SELECT (1, CAST('1' AS Nullable(Int)))
         UNION ALL
-        SELECT (1, null)
+        SELECT (1, NULL)
     );
 
-SET transform_null_in = 1;
+SET transform_null_in = '1';
 
 --- with tuple rewritten into array
 SELECT *
@@ -91,7 +91,7 @@ SELECT
     NULL IN (1, 2),
     NULL IN (1, NULL)
 FROM numbers(1)
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT
     NULL IN (1, number),
@@ -99,7 +99,7 @@ SELECT
     NULL IN (1, 2),
     NULL IN (1, NULL)
 FROM numbers(1)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 -- Consistency for arrays/tuples
 SELECT toNullable(1) IN ([1, number])
@@ -114,35 +114,35 @@ FROM numbers(2);
 
 SELECT NULL IN (258, CAST('string' AS Nullable(String)), CAST(number AS Nullable(UInt64)))
 FROM numbers(1)
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT NULL IN (258, CAST('string' AS Nullable(String)), CAST(number AS Nullable(UInt64)))
 FROM numbers(1)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT NULL IN (258, CAST('string' AS Nullable(String)), CAST(number AS Nullable(UInt64)), NULL)
 FROM numbers(1)
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT NULL IN (258, CAST('string' AS Nullable(String)), CAST(number AS Nullable(UInt64)), NULL)
 FROM numbers(1)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT NULL IN ([1, number])
 FROM numbers(1)
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT NULL IN ([1, number])
 FROM numbers(1)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT 1 IN ([1, toNullable(number)])
 FROM numbers(2)
-SETTINGS transform_null_in = 1;
+SETTINGS transform_null_in = '1';
 
 SELECT 1 IN ([1, toNullable(number)])
 FROM numbers(2)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT
     0 AS x,
@@ -151,7 +151,7 @@ SELECT
     x IN (t),
     x IN (arr)
 FROM numbers(3)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT
     arrayJoin([0, 1, NULL]) AS x,
@@ -160,7 +160,7 @@ SELECT
     x IN (t),
     x IN (arr)
 FROM numbers(3)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT
     NULL AS x,
@@ -169,7 +169,7 @@ SELECT
     x IN (t),
     x IN (arr)
 FROM numbers(3)
-SETTINGS transform_null_in = 0;
+SETTINGS transform_null_in = '0';
 
 SELECT 1 IN (if(1 > 0, 1, 2));
 

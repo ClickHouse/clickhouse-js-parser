@@ -1,10 +1,10 @@
-SET max_threads = 1;
+SET max_threads = '1';
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
-SET max_block_size = 65536;
+SET max_block_size = '65536';
 
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS test_limit_by_all;
 
@@ -15,7 +15,7 @@ CREATE TABLE test_limit_by_all
     value Int32,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_limit_by_all;
 
@@ -182,7 +182,7 @@ FROM (
             value ASC,
             name ASC
         LIMIT 2 BY ALL
-        SETTINGS enable_positional_arguments = 0
+        SETTINGS enable_positional_arguments = '0'
     )
 GROUP BY
     d,
@@ -232,7 +232,7 @@ CREATE TABLE test_limit_by_all_tags
     id Int32,
     tags Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_limit_by_all_tags;
 
@@ -281,7 +281,7 @@ ORDER BY
     category ASC,
     value ASC
 LIMIT 1 BY ALL
-SETTINGS enable_positional_arguments = 0;
+SETTINGS enable_positional_arguments = '0';
 
 SELECT
     id,
@@ -316,7 +316,7 @@ ORDER BY
     2 ASC,
     3 ASC
 LIMIT 2 BY 1, 2
-SETTINGS enable_positional_arguments = 1;
+SETTINGS enable_positional_arguments = '1';
 
 SELECT
     id,
@@ -387,7 +387,7 @@ SELECT
 FROM test_limit_by_all
 ORDER BY
     id ASC,
-    category ASC,
+    category ASC NULLS FIRST,
     value ASC
 LIMIT 1 BY ALL;
 

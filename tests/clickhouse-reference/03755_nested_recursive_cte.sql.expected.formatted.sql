@@ -4,15 +4,15 @@ CREATE TABLE t0
 (
     x Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0;
 
 -- The original problematic query pattern - inner CTE references outer CTE
 -- Using count() to get deterministic output regardless of how many rows are produced before hitting the limit
-SET max_recursive_cte_evaluation_depth = 5;
+SET max_recursive_cte_evaluation_depth = '5';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT count() > 0
 FROM (
@@ -20,21 +20,21 @@ FROM (
             SELECT 1
             FROM t0
             UNION ALL
-(            WITH RECURSIVE x AS (
+            WITH RECURSIVE x AS (
                 SELECT 1
                 FROM t0
                 UNION ALL
-(                SELECT 1
+                SELECT 1
                 FROM q
                 WHERE false
                 UNION ALL
                 SELECT 1
                 FROM x
-                WHERE false)
+                WHERE false
             )
 
             SELECT 1
-            FROM x)
+            FROM x
         )
 
         SELECT 1

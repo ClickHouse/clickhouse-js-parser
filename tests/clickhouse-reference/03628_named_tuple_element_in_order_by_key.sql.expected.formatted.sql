@@ -4,9 +4,9 @@ CREATE TABLE test
 (
     x Tuple(a UInt64, b String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x.b
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test;
 
@@ -32,8 +32,8 @@ SELECT *
 FROM test
 WHERE x.b = 'World'
 SETTINGS
-    max_rows_to_read = 1,
-    parallel_replicas_index_analysis_only_on_coordinator = 0;
+    max_rows_to_read = '1',
+    parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT x.a
 FROM test
@@ -55,8 +55,8 @@ SELECT x.a
 FROM test
 WHERE x.b = 'World'
 SETTINGS
-    max_rows_to_read = 1,
-    parallel_replicas_index_analysis_only_on_coordinator = 0;
+    max_rows_to_read = '1',
+    parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT x.b
 FROM test
@@ -78,7 +78,7 @@ SELECT x.b
 FROM test
 WHERE x.b = 'World'
 SETTINGS
-    max_rows_to_read = 1,
-    parallel_replicas_index_analysis_only_on_coordinator = 0;
+    max_rows_to_read = '1',
+    parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 DROP TABLE test;

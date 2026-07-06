@@ -1,191 +1,222 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CACHE",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: Messes with internal cache",
-      "-- Test for issue #77553: SQL-defined UDFs may be non-deterministic. The query cache should treat them as such, i.e. reject them.",
-      "-- Also see test_executable_function_query_cache in tests/integration/test_executable_user_defined_function"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CACHE"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "FUNCTION",
-    "table": {
-      "kind": "tableRef",
-      "table": "udf"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropFunctionQuery",
+      "function_name": "udf",
+      "if_exists": true
+    }
   },
   {
-    "kind": "createFunction",
-    "name": "udf",
-    "functionExpr": {
-      "kind": "lambdaExpr",
-      "params": [
-        "a"
-      ],
-      "body": {
-        "kind": "binaryExpr",
-        "op": "+",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
+    "version": 2,
+    "ast": {
+      "type": "CreateFunctionQuery",
+      "function_name": {
+        "type": "Identifier",
+        "name": "udf"
+      },
+      "function_core": {
+        "type": "Function",
+        "name": "lambda",
+        "is_operator": true,
+        "is_lambda_function": true,
+        "kind": "LAMBDA_FUNCTION",
+        "arguments": [
+          {
+            "type": "Function",
+            "name": "tuple",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              }
+            ]
+          },
+          {
+            "type": "Function",
+            "name": "plus",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-- query_cache_nondeterministic_function_handling = throw"
+            }
           ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-- query_cache_nondeterministic_function_handling = throw"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "udf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "udf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true,
+          "query_cache_nondeterministic_function_handling": "throw"
         }
       },
-      {
-        "name": "query_cache_nondeterministic_function_handling",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError QUERY_CACHE_USED_WITH_NONDETERMINISTIC_FUNCTIONS }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "udf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
-    ],
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
         }
-      },
-      {
-        "name": "query_cache_nondeterministic_function_handling",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "save"
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "udf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "udf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true,
+          "query_cache_nondeterministic_function_handling": "save"
         }
       },
-      {
-        "name": "query_cache_nondeterministic_function_handling",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "ignore"
-        }
-      }
-    ]
+      "format": "Null"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "FUNCTION",
-    "table": {
-      "kind": "tableRef",
-      "table": "udf"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "udf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "use_query_cache": true,
+          "query_cache_nondeterministic_function_handling": "ignore"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropFunctionQuery",
+      "function_name": "udf"
     }
   }
 ]

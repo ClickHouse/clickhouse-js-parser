@@ -19,7 +19,7 @@ GRANT SELECT(col1, col2) ON db4.table TO test_user_01073;
 
 GRANT INSERT ON *.* TO test_user_01073;
 
-GRANT DELETE ON *.* TO test_user_01073;
+GRANT ALTER DELETE ON *.* TO test_user_01073;
 
 REVOKE SELECT ON db1.* FROM test_user_01073;
 

@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET single_join_prefer_left_table = 0;
+SET single_join_prefer_left_table = '0';
 
 DROP TABLE IF EXISTS test_table_join_1;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_table_join_1
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DROP TABLE IF EXISTS test_table_join_2;
@@ -19,7 +19,7 @@ CREATE TABLE test_table_join_2
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 DROP TABLE IF EXISTS test_table_join_3;
@@ -29,7 +29,7 @@ CREATE TABLE test_table_join_3
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_table_join_1;
@@ -56,8 +56,8 @@ SELECT
     test_table_join_2.id,
     test_table_join_2.value
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2
+    test_table_join_1,
+    test_table_join_2
 ORDER BY `ALL` ASC;
 
 SELECT '--';
@@ -68,8 +68,8 @@ SELECT
     t2.id,
     t2.value
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -82,8 +82,8 @@ SELECT
     t2.value,
     test_table_join_2.value
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -94,9 +94,9 @@ SELECT
     test_table_join_3.id,
     test_table_join_3.value
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2
-CROSS JOIN test_table_join_3
+    test_table_join_1,
+    test_table_join_2,
+    test_table_join_3
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -107,9 +107,9 @@ SELECT
     t3.id,
     t3.value
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
-CROSS JOIN test_table_join_3 AS t3
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2,
+    test_table_join_3 AS t3
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -126,20 +126,20 @@ SELECT
     t3.value,
     test_table_join_3.value
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
-CROSS JOIN test_table_join_3 AS t3
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2,
+    test_table_join_3 AS t3
 ORDER BY `ALL` ASC;
 
 SELECT id
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2; -- { serverError AMBIGUOUS_IDENTIFIER }
+    test_table_join_1,
+    test_table_join_2; -- { serverError AMBIGUOUS_IDENTIFIER }
 
 SELECT value
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2; -- { serverError AMBIGUOUS_IDENTIFIER }
+    test_table_join_1,
+    test_table_join_2; -- { serverError AMBIGUOUS_IDENTIFIER }
 
 DROP TABLE test_table_join_1;
 

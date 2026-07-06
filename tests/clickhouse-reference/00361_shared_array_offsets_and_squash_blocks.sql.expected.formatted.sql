@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS nested1;
 
 DROP TABLE IF EXISTS nested2;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE nested1
 (
@@ -14,7 +14,7 @@ ENGINE = MergeTree(d, x, 1);
 
 INSERT INTO nested1 (x, n.a, n.b);
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 SELECT *
 FROM nested1

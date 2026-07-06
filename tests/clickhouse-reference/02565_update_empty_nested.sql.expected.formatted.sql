@@ -5,11 +5,11 @@ CREATE TABLE t_update_empty_nested
     id UInt32,
     `nested.arr1` Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS min_bytes_for_wide_part = '0', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 INSERT INTO t_update_empty_nested SELECT
     1,

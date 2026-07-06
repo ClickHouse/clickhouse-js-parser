@@ -62,7 +62,7 @@ CREATE TABLE sensor_value
     high_warning Nullable(Decimal(18, 4)),
     high_critical Nullable(Decimal(18, 4))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (device_id, sensor_id)
 PARTITION BY toDate(received_at);
 
@@ -73,11 +73,12 @@ SELECT
     groupArray((sensor_id, volume)) AS groupArr
 FROM (
         SELECT
-            (intDiv(toUInt32(received_at), 900) * 900) AS time,
+            intDiv(toUInt32(received_at), 900) * 900 AS time,
             sensor_id,
             avg(value) AS volume
         FROM sensor_value
-        WHERE and(greaterOrEquals(received_at, '2018-12-12 00:00:00'), lessOrEquals(received_at, '2018-12-30 00:00:00'))
+        WHERE received_at >= '2018-12-12 00:00:00'
+            AND received_at <= '2018-12-30 00:00:00'
         GROUP BY
             time,
             sensor_id
@@ -104,8 +105,8 @@ FROM (
             toDateTime('2018-11-01 10:44:58', 'Asia/Istanbul') AS dt1,
             'txt' AS c,
             toDecimal128('274.350000000000', 12) AS d,
-            toDecimal128(268.970000000000, 12) AS f,
-            toDecimal128(0.000000000000, 12) AS i,
+            toDecimal128(268.97, 12) AS f,
+            toDecimal128(0., 12) AS i,
             toDateTime('2018-11-02 00:00:00', 'Asia/Istanbul') AS dt2
         UNION ALL
         SELECT
@@ -114,8 +115,8 @@ FROM (
             toDateTime('2018-11-01 16:47:46', 'Asia/Istanbul') AS dt1,
             'txt' AS c,
             toDecimal128('321.380000000000', 12) AS d,
-            toDecimal128(315.080000000000, 12) AS f,
-            toDecimal128(0.000000000000, 12) AS i,
+            toDecimal128(315.08, 12) AS f,
+            toDecimal128(0., 12) AS i,
             toDateTime('2018-11-02 00:00:00', 'Asia/Istanbul') AS dt2
         UNION ALL
         SELECT
@@ -124,8 +125,8 @@ FROM (
             toDateTime('2018-11-02 09:00:07', 'Asia/Istanbul') AS dt1,
             'txt' AS c,
             toDecimal128('274.350000000000', 12) AS d,
-            toDecimal128(268.970000000000, 12) AS f,
-            toDecimal128(0.000000000000, 12) AS i,
+            toDecimal128(268.97, 12) AS f,
+            toDecimal128(0., 12) AS i,
             toDateTime('2018-11-02 00:00:00', 'Asia/Istanbul') AS dt2
     ) AS s
 GROUP BY

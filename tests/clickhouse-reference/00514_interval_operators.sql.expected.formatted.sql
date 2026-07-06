@@ -17,47 +17,47 @@ LIMIT 16;
 SELECT toDateTime('2016-02-29 01:02:03') - toIntervalQuarter(1);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') + toIntervalSecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') + toIntervalSecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') + toIntervalMillisecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') + toIntervalMillisecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') + toIntervalMicrosecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') + toIntervalMicrosecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') + toIntervalNanosecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') + toIntervalNanosecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') - toIntervalSecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') - toIntervalSecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') - toIntervalMillisecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') - toIntervalMillisecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') - toIntervalMicrosecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') - toIntervalMicrosecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime('2000-01-01 12:00:00') - toIntervalNanosecond(1234567)) AS x,
+    toDateTime('2000-01-01 12:00:00') - toIntervalNanosecond(1234567) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime64('2000-01-01 12:00:00.678', 3) - toIntervalMillisecond(12345)) AS x,
+    toDateTime64('2000-01-01 12:00:00.678', 3) - toIntervalMillisecond(12345) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime64('2000-01-01 12:00:00.67898', 5) - toIntervalMillisecond(12345)) AS x,
+    toDateTime64('2000-01-01 12:00:00.67898', 5) - toIntervalMillisecond(12345) AS x,
     toTypeName(x);
 
 SELECT
-    (toDateTime64('2000-01-01 12:00:00.67', 2) - toIntervalMillisecond(12345)) AS x,
+    toDateTime64('2000-01-01 12:00:00.67', 2) - toIntervalMillisecond(12345) AS x,
     toTypeName(x);
 
 SELECT toDateTime64('3000-01-01 12:00:00.12345', 0) + toIntervalNanosecond(0); -- { serverError DECIMAL_OVERFLOW }

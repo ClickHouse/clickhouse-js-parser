@@ -1,74 +1,115 @@
 [
   {
-    "kind": "createWorkload",
-    "name": "all",
-    "orReplace": true,
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Do not run this test in parallel because `all` workload might affect other queries execution process"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "or_replace": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "all"
+      }
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "parent"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "create_query"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "workloads"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "name"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "parent"
+            },
+            {
+              "type": "Identifier",
+              "name": "create_query"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "workloads",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "name"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "if_not_exists": true,
+      "workload_name": {
+        "type": "Identifier",
+        "name": "production"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
       }
-    ]
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "production",
-    "ifNotExists": true,
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "CreateWorkloadQuery",
+      "workload_name": {
+        "type": "Identifier",
+        "name": "development"
+      },
+      "workload_parent": {
+        "type": "Identifier",
+        "name": "all"
+      }
+    }
   },
   {
-    "kind": "createWorkload",
-    "name": "development",
-    "parentWorkload": "all"
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "production",
+      "if_exists": true
+    }
   },
   {
-    "kind": "system",
-    "body": "DROP WORKLOAD IF EXISTS production"
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "development"
+    }
   },
   {
-    "kind": "system",
-    "body": "DROP WORKLOAD development"
-  },
-  {
-    "kind": "system",
-    "body": "DROP WORKLOAD all"
+    "version": 2,
+    "ast": {
+      "type": "DropWorkloadQuery",
+      "workload_name": "all"
+    }
   }
 ]

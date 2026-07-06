@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/34697
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT table1_id
 FROM (
@@ -40,7 +40,7 @@ FROM (
             ) AS third
             ON `first`.table1_id = third.table3_id
     )
-SETTINGS multiple_joins_try_to_keep_original_names = 1;
+SETTINGS multiple_joins_try_to_keep_original_names = '1';
 
 SELECT aaa
 FROM (
@@ -61,4 +61,4 @@ FROM (
             ) AS third
             ON `first`.table1_id = third.table3_id
     )
-SETTINGS multiple_joins_try_to_keep_original_names = 1;
+SETTINGS multiple_joins_try_to_keep_original_names = '1';

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS t_lwu_lock_profile_events;
+DROP TABLE IF EXISTS t_lwu_lock_profile_events SYNC;
 
 CREATE TABLE t_lwu_lock_profile_events
 (
@@ -6,9 +6,9 @@ CREATE TABLE t_lwu_lock_profile_events
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_lwu_lock_profile_events', '1')
 ORDER BY id
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 SET lightweight_delete_mode = 'lightweight_update_force';
 
@@ -28,6 +28,6 @@ SELECT
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%DELETE FROM t_lwu_lock_profile_events WHERE id < 10000%');
+    AND query LIKE '%DELETE FROM t_lwu_lock_profile_events WHERE id < 10000%';
 
-DROP TABLE t_lwu_lock_profile_events;
+DROP TABLE t_lwu_lock_profile_events SYNC;

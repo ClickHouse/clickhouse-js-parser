@@ -1,14 +1,14 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT test_function(number, 0)
 FROM numbers(100)
 FORMAT Null
-SETTINGS max_threads = 1, max_block_size = 1;
+SETTINGS max_threads = '1', max_block_size = '1';
 
 SELECT test_function(number, 0)
 FROM numbers(200)
 FORMAT Null
-SETTINGS max_threads = 1, max_block_size = 1;
+SETTINGS max_threads = '1', max_block_size = '1';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -20,5 +20,5 @@ FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
     AND query_kind = 'Select'
-    AND like(query, '%test_function(number, 0)%')
+    AND query LIKE '%test_function(number, 0)%'
 FORMAT Vertical;

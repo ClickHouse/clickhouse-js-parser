@@ -4,7 +4,7 @@ CREATE TABLE sums
     sumOfSums UInt64,
     sumsMap Nested(key LowCardinality(String), sum UInt64)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 PRIMARY KEY key;
 
 INSERT INTO sums (key, sumOfSums, sumsMap.key, sumsMap.sum);

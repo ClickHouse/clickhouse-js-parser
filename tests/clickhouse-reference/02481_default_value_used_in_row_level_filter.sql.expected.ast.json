@@ -1,356 +1,366 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      },
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "10Mi"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_rlp"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+        "type": "Identifier",
+        "name": "test_rlp"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_rlp"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "5",
+            "index_granularity_bytes": "10Mi"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_rlp"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "15"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_rlp"
+      },
+      "commands": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "b"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "<AST Error>",
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "if_exists": true,
+      "row_policy_names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "test_rlp_policy",
+            "table": "test_rlp"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateRowPolicyQuery",
+      "names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "test_rlp_policy",
+            "table": "test_rlp"
+          }
+        ]
+      },
+      "filters": [
+        {
+          "filter_type": "SELECT_FILTER",
+          "condition": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "c"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          }
         }
       ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "15"
-          }
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "default"
         ]
       }
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "c",
-          "type": {
-            "name": "Int32"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "==",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "c"
-              ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "a"
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+            {
+              "type": "Identifier",
+              "name": "c"
             }
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "b"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_rlp"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "b"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "optimize_move_to_prewhere": "0"
+            }
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- { echoOn }"
-    ]
+    }
   },
   {
-    "kind": "system",
-    "body": "DROP POLICY IF EXISTS test_rlp_policy ON test_rlp"
-  },
-  {
-    "kind": "createRowPolicy",
-    "targets": [
-      {
-        "names": [
-          "test_rlp_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "table": "test_rlp"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "a"
+            },
+            {
+              "type": "Identifier",
+              "name": "c"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_rlp"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "b"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "5"
+              }
+            ]
+          }
         }
-      }
-    ],
-    "hasRowKeyword": true,
-    "using": {
-      "kind": "binaryExpr",
-      "op": "==",
-      "left": {
-        "kind": "binaryExpr",
-        "op": "%",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    },
-    "to": {
-      "kind": "names",
-      "names": [
-        "default"
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "row_policy_names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "test_rlp_policy",
+            "table": "test_rlp"
+          }
         ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "settings": [
-      {
-        "name": "optimize_move_to_prewhere",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_rlp"
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "b"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
       }
     }
   },
   {
-    "kind": "system",
-    "body": "DROP POLICY test_rlp_policy ON test_rlp",
-    "leadingComments": [
-      "-- { echoOff }"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_rlp"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_rlp"
+      }
     }
   }
 ]

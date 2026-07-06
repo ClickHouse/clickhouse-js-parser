@@ -19,7 +19,7 @@ SELECT a
 FROM (
         WITH a + 1 AS aa,
 
-        -- , sumIf(c, b > 0) as aaif
+          -- , sumIf(c, b > 0) as aaif
           sum(if(b > 0, c, 0)) AS aaif2
 
         SELECT

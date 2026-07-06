@@ -1,11 +1,11 @@
 -- Tags: long
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 CREATE TABLE test
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO test SELECT *

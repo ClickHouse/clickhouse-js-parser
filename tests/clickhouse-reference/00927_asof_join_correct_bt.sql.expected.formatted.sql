@@ -56,7 +56,7 @@ SELECT
     B.k
 FROM
     A
-LEFT JOIN B1 AS B
+ASOF LEFT JOIN B1 AS B
     USING (k, t)
 ORDER BY (A.k, A.t) ASC;
 
@@ -69,7 +69,7 @@ SELECT
     B.k
 FROM
     A
-LEFT JOIN B2 AS B
+ASOF LEFT JOIN B2 AS B
     USING (k, t)
 ORDER BY (A.k, A.t) ASC;
 
@@ -82,7 +82,7 @@ SELECT
     B.k
 FROM
     A
-LEFT JOIN B3 AS B
+ASOF LEFT JOIN B3 AS B
     USING (k, t)
 ORDER BY (A.k, A.t) ASC;
 

@@ -1,5 +1,5 @@
 -- { echoOn }
-SET allow_experimental_nullable_tuple_type = 1;
+SET allow_experimental_nullable_tuple_type = '1';
 
 SELECT toTypeName(arrayElementOrNull([(1, 'a'), (2, 'b')], 1));
 
@@ -7,7 +7,7 @@ SELECT toTypeName(arrayElementOrNull(CAST([(1, 'a'), NULL] AS Array(Nullable(Tup
 
 SELECT toTypeName(arrayElementOrNull(CAST([(NULL, 'a'), (1, 'b')] AS Array(Tuple(Nullable(Int64), String))), 1));
 
-SELECT toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple())), 1));
+SELECT toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple)), 1));
 
 SELECT arrayElementOrNull([(1, 'a'), (2, 'b')], 1);
 
@@ -176,16 +176,16 @@ SELECT
     toTypeName(arrayElementOrNull(arr, 1)) AS type1;
 
 SELECT
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple())), 1) AS idx1,
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple())), 2) AS idx2,
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple())), 3) AS idx3,
-    toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple())), 1)) AS type1;
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple)), 1) AS idx1,
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple)), 2) AS idx2,
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple)), 3) AS idx3,
+    toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Tuple)), 1)) AS type1;
 
 SELECT
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))), 1) AS idx1,
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))), 2) AS idx2,
-    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))), 3) AS idx3,
-    toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))), 1)) AS type1;
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 1) AS idx1,
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 2) AS idx2,
+    arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 3) AS idx3,
+    toTypeName(arrayElementOrNull(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 1)) AS type1;
 
 SELECT arrayElementOrNull(arr, idx)
 FROM (
@@ -218,19 +218,19 @@ ORDER BY tuple() ASC;
 SELECT arrayElementOrNull(arr, idx)
 FROM (
         SELECT
-            CAST([tuple(), tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple(), tuple()] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple()] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([] AS Array(Tuple())) AS arr,
+            CAST([] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple(), tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple(), tuple()] AS Array(Tuple)) AS arr,
             3 AS idx
     )
 ORDER BY tuple() ASC;
@@ -238,23 +238,23 @@ ORDER BY tuple() ASC;
 SELECT arrayElementOrNull(arr, idx)
 FROM (
         SELECT
-            CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple(), tuple()] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple()] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([NULL] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([NULL] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple(), tuple()] AS Array(Nullable(Tuple))) AS arr,
             3 AS idx
     )
 ORDER BY tuple() ASC;
@@ -322,7 +322,7 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-WITH CAST([tuple(), tuple()] AS Array(Tuple())) AS arr
+WITH CAST([tuple(), tuple()] AS Array(Tuple)) AS arr
 
 SELECT
     idx,
@@ -343,7 +343,7 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-WITH CAST([tuple(), NULL] AS Array(Nullable(Tuple()))) AS arr
+WITH CAST([tuple(), NULL] AS Array(Nullable(Tuple))) AS arr
 
 SELECT
     idx,
@@ -375,7 +375,7 @@ CREATE TABLE test_array_tuple_mergetree
     arr_null Array(Nullable(Tuple(Int64, String))),
     idx Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_array_tuple_mergetree;
@@ -399,103 +399,103 @@ SELECT
 FROM test_array_tuple_mergetree
 ORDER BY id ASC;
 
-SELECT toTypeName([(1, 'a'), (2, 'b')][1]);
+SELECT toTypeName(arrayElement([(1, 'a'), (2, 'b')], 1));
 
-SELECT toTypeName(CAST([(1, 'a'), NULL] AS Array(Nullable(Tuple(Int64, String))))[1]);
+SELECT toTypeName(arrayElement(CAST([(1, 'a'), NULL] AS Array(Nullable(Tuple(Int64, String)))), 1));
 
-SELECT toTypeName(CAST([(NULL, 'a'), (1, 'b')] AS Array(Tuple(Nullable(Int64), String)))[1]);
+SELECT toTypeName(arrayElement(CAST([(NULL, 'a'), (1, 'b')] AS Array(Tuple(Nullable(Int64), String))), 1));
 
-SELECT toTypeName(CAST([tuple(), tuple()] AS Array(Tuple()))[1]);
+SELECT toTypeName(arrayElement(CAST([tuple(), tuple()] AS Array(Tuple)), 1));
 
-SELECT [(1, 'a'), (2, 'b')][1];
+SELECT arrayElement([(1, 'a'), (2, 'b')], 1);
 
-SELECT [(1, 'a'), (2, 'b')][2];
+SELECT arrayElement([(1, 'a'), (2, 'b')], 2);
 
-SELECT [(1, 'a'), (2, 'b')][3];
+SELECT arrayElement([(1, 'a'), (2, 'b')], 3);
 
-SELECT [(1, 'a'), (2, 'b')][-1];
+SELECT arrayElement([(1, 'a'), (2, 'b')], -1);
 
-SELECT [(1, 'a'), (2, 'b')][-2];
+SELECT arrayElement([(1, 'a'), (2, 'b')], -2);
 
-SELECT [(1, 'a'), (2, 'b')][-3];
+SELECT arrayElement([(1, 'a'), (2, 'b')], -3);
 
-SELECT [(1, 'a'), (2, 'b')][0];
+SELECT arrayElement([(1, 'a'), (2, 'b')], 0);
 
-SELECT [(1, 'a'), (2, 'b')][CAST(1 AS Int8)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(1 AS Int8));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(-1 AS Int8)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(-1 AS Int8));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(2 AS UInt8)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(2 AS UInt8));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(-2 AS Int16)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(-2 AS Int16));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(1 AS Int16)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(1 AS Int16));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(2 AS UInt16)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(2 AS UInt16));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(-2 AS Int32)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(-2 AS Int32));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(1 AS Int32)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(1 AS Int32));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(2 AS UInt32)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(2 AS UInt32));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(-2 AS Int64)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(-2 AS Int64));
 
-SELECT [(1, 'a'), (2, 'b')][CAST(1 AS Int64)];
+SELECT arrayElement([(1, 'a'), (2, 'b')], CAST(1 AS Int64));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][1];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], 1);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][2];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], 2);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][3];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], 3);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][-1];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], -1);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][-2];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], -2);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][-3];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], -3);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][0];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], 0);
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(1 AS Int8)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(1 AS Int8));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(-1 AS Int8)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(-1 AS Int8));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(2 AS UInt8)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(2 AS UInt8));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(-2 AS Int16)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(-2 AS Int16));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(1 AS Int16)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(1 AS Int16));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(2 AS UInt16)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(2 AS UInt16));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(-2 AS Int32)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(-2 AS Int32));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(1 AS Int32)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(1 AS Int32));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(2 AS UInt32)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(2 AS UInt32));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(-2 AS Int64)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(-2 AS Int64));
 
-SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')][CAST(1 AS Int64)];
+SELECT arrayElement([CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')], CAST(1 AS Int64));
 
 SELECT
-    arr[1],
-    arr[-1],
-    arr[3],
-    arr[CAST(1 AS Int8)],
-    arr[CAST(-1 AS Int8)],
-    arr[CAST(2 AS UInt8)],
-    arr[CAST(-2 AS Int16)],
-    arr[CAST(1 AS Int16)],
-    arr[CAST(2 AS UInt16)],
-    arr[CAST(-2 AS Int32)],
-    arr[CAST(1 AS Int32)],
-    arr[CAST(2 AS UInt32)],
-    arr[CAST(-2 AS Int64)],
-    arr[CAST(1 AS Int64)],
-    arr[CAST(-1 AS Int64)],
-    arr[CAST(1 AS Int64)]
+    arrayElement(arr, 1),
+    arrayElement(arr, -1),
+    arrayElement(arr, 3),
+    arrayElement(arr, CAST(1 AS Int8)),
+    arrayElement(arr, CAST(-1 AS Int8)),
+    arrayElement(arr, CAST(2 AS UInt8)),
+    arrayElement(arr, CAST(-2 AS Int16)),
+    arrayElement(arr, CAST(1 AS Int16)),
+    arrayElement(arr, CAST(2 AS UInt16)),
+    arrayElement(arr, CAST(-2 AS Int32)),
+    arrayElement(arr, CAST(1 AS Int32)),
+    arrayElement(arr, CAST(2 AS UInt32)),
+    arrayElement(arr, CAST(-2 AS Int64)),
+    arrayElement(arr, CAST(1 AS Int64)),
+    arrayElement(arr, CAST(-1 AS Int64)),
+    arrayElement(arr, CAST(1 AS Int64))
 FROM (
         SELECT [(1, 'a'), (2, 'b')] AS arr
         UNION ALL
@@ -506,8 +506,8 @@ FROM (
 ORDER BY tuple() ASC;
 
 SELECT
-    arr[0],
-    arr[-1]
+    arrayElement(arr, 0),
+    arrayElement(arr, -1)
 FROM (
         SELECT [(1, 'a'), (2, 'b')] AS arr
         UNION ALL
@@ -517,8 +517,8 @@ FROM (
     ); -- {serverError ZERO_ARRAY_OR_TUPLE_INDEX}
 
 SELECT
-    arr[0],
-    arr[-1]
+    arrayElement(arr, 0),
+    arrayElement(arr, -1)
 FROM (
         SELECT [(1, 'a'), (2, 'b')] AS arr
         UNION ALL
@@ -528,22 +528,22 @@ FROM (
     ); -- {serverError ZERO_ARRAY_OR_TUPLE_INDEX}
 
 SELECT
-    arr[1],
-    arr[-1],
-    arr[3],
-    arr[CAST(1 AS Int8)],
-    arr[CAST(-1 AS Int8)],
-    arr[CAST(2 AS UInt8)],
-    arr[CAST(-2 AS Int16)],
-    arr[CAST(1 AS Int16)],
-    arr[CAST(2 AS UInt16)],
-    arr[CAST(-2 AS Int32)],
-    arr[CAST(1 AS Int32)],
-    arr[CAST(2 AS UInt32)],
-    arr[CAST(-2 AS Int64)],
-    arr[CAST(1 AS Int64)],
-    arr[CAST(-1 AS Int64)],
-    arr[CAST(1 AS Int64)]
+    arrayElement(arr, 1),
+    arrayElement(arr, -1),
+    arrayElement(arr, 3),
+    arrayElement(arr, CAST(1 AS Int8)),
+    arrayElement(arr, CAST(-1 AS Int8)),
+    arrayElement(arr, CAST(2 AS UInt8)),
+    arrayElement(arr, CAST(-2 AS Int16)),
+    arrayElement(arr, CAST(1 AS Int16)),
+    arrayElement(arr, CAST(2 AS UInt16)),
+    arrayElement(arr, CAST(-2 AS Int32)),
+    arrayElement(arr, CAST(1 AS Int32)),
+    arrayElement(arr, CAST(2 AS UInt32)),
+    arrayElement(arr, CAST(-2 AS Int64)),
+    arrayElement(arr, CAST(1 AS Int64)),
+    arrayElement(arr, CAST(-1 AS Int64)),
+    arrayElement(arr, CAST(1 AS Int64))
 FROM (
         SELECT [CAST((1, 'a') AS Nullable(Tuple(Int64, String))), (2, 'b')] AS arr
         UNION ALL
@@ -553,7 +553,7 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-SELECT arr[idx]
+SELECT arrayElement(arr, idx)
 FROM (
         SELECT
             CAST([(1, 'a'), NULL] AS Array(Nullable(Tuple(Int64, String)))) AS arr,
@@ -588,24 +588,24 @@ ORDER BY tuple() ASC;
 WITH CAST([(NULL, 'a'), (1, 'b')] AS Array(Tuple(Nullable(Int64), String))) AS arr
 
 SELECT
-    arr[1] AS idx1,
-    arr[2] AS idx2,
-    arr[3] AS idx3,
-    toTypeName(arr[1]) AS type1;
+    arrayElement(arr, 1) AS idx1,
+    arrayElement(arr, 2) AS idx2,
+    arrayElement(arr, 3) AS idx3,
+    toTypeName(arrayElement(arr, 1)) AS type1;
 
 SELECT
-    CAST([tuple(), tuple()] AS Array(Tuple()))[1] AS idx1,
-    CAST([tuple(), tuple()] AS Array(Tuple()))[2] AS idx2,
-    CAST([tuple(), tuple()] AS Array(Tuple()))[3] AS idx3,
-    toTypeName(CAST([tuple(), tuple()] AS Array(Tuple()))[1]) AS type1;
+    arrayElement(CAST([tuple(), tuple()] AS Array(Tuple)), 1) AS idx1,
+    arrayElement(CAST([tuple(), tuple()] AS Array(Tuple)), 2) AS idx2,
+    arrayElement(CAST([tuple(), tuple()] AS Array(Tuple)), 3) AS idx3,
+    toTypeName(arrayElement(CAST([tuple(), tuple()] AS Array(Tuple)), 1)) AS type1;
 
 SELECT
-    CAST([tuple(), tuple()] AS Array(Nullable(Tuple())))[1] AS idx1,
-    CAST([tuple(), tuple()] AS Array(Nullable(Tuple())))[2] AS idx2,
-    CAST([tuple(), tuple()] AS Array(Nullable(Tuple())))[3] AS idx3,
-    toTypeName(CAST([tuple(), tuple()] AS Array(Nullable(Tuple())))[1]) AS type1;
+    arrayElement(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 1) AS idx1,
+    arrayElement(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 2) AS idx2,
+    arrayElement(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 3) AS idx3,
+    toTypeName(arrayElement(CAST([tuple(), tuple()] AS Array(Nullable(Tuple))), 1)) AS type1;
 
-SELECT arr[idx]
+SELECT arrayElement(arr, idx)
 FROM (
         SELECT
             CAST([(1, 'a'), NULL] AS Array(Nullable(Tuple(Int64, String)))) AS arr,
@@ -633,53 +633,53 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-SELECT arr[idx]
+SELECT arrayElement(arr, idx)
 FROM (
         SELECT
-            CAST([tuple(), tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple(), tuple()] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple()] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([] AS Array(Tuple())) AS arr,
+            CAST([] AS Array(Tuple)) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple(), tuple()] AS Array(Tuple())) AS arr,
+            CAST([tuple(), tuple()] AS Array(Tuple)) AS arr,
             3 AS idx
     )
 ORDER BY tuple() ASC;
 
-SELECT arr[idx]
+SELECT arrayElement(arr, idx)
 FROM (
         SELECT
-            CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple(), tuple()] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple()] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([NULL] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([NULL] AS Array(Nullable(Tuple))) AS arr,
             1 AS idx
         UNION ALL
         SELECT
-            CAST([tuple(), tuple()] AS Array(Nullable(Tuple()))) AS arr,
+            CAST([tuple(), tuple()] AS Array(Nullable(Tuple))) AS arr,
             3 AS idx
     )
 ORDER BY tuple() ASC;
 
 WITH [(1, 'a'), (2, 'b')] AS arr
 
-SELECT arr[idx]
+SELECT arrayElement(arr, idx)
 FROM (
         SELECT 1 AS idx
         UNION ALL
@@ -701,8 +701,8 @@ WITH CAST([(1, 'a'), NULL] AS Array(Nullable(Tuple(Int64, String)))) AS arr
 
 SELECT
     idx,
-    arr[idx] AS value,
-    toTypeName(arr[idx]) AS type
+    arrayElement(arr, idx) AS value,
+    toTypeName(arrayElement(arr, idx)) AS type
 FROM (
         SELECT 1 AS idx
         UNION ALL
@@ -723,8 +723,8 @@ ORDER BY tuple() ASC;
 WITH [(1, 'a'), (2, 'b')] AS arr
 
 SELECT
-    arr[CAST(idx AS Int8)] AS int8_res,
-    arr[CAST(idx AS UInt8)] AS uint8_res
+    arrayElement(arr, CAST(idx AS Int8)) AS int8_res,
+    arrayElement(arr, CAST(idx AS UInt8)) AS uint8_res
 FROM (
         SELECT 1 AS idx
         UNION ALL
@@ -740,12 +740,12 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-WITH CAST([tuple(), tuple()] AS Array(Tuple())) AS arr
+WITH CAST([tuple(), tuple()] AS Array(Tuple)) AS arr
 
 SELECT
     idx,
-    arr[idx] AS value,
-    toTypeName(arr[idx]) AS type
+    arrayElement(arr, idx) AS value,
+    toTypeName(arrayElement(arr, idx)) AS type
 FROM (
         SELECT 1 AS idx
         UNION ALL
@@ -761,12 +761,12 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-WITH CAST([tuple(), NULL] AS Array(Nullable(Tuple()))) AS arr
+WITH CAST([tuple(), NULL] AS Array(Nullable(Tuple))) AS arr
 
 SELECT
     idx,
-    arr[idx] AS value,
-    toTypeName(arr[idx]) AS type
+    arrayElement(arr, idx) AS value,
+    toTypeName(arrayElement(arr, idx)) AS type
 FROM (
         SELECT 1 AS idx
         UNION ALL
@@ -782,32 +782,32 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-SELECT [(1, 'a'), (2, 'b')]['x']; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT arrayElement([(1, 'a'), (2, 'b')], 'x'); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 SELECT
     id,
-    arr[1] AS arr_1,
-    arr[-1] AS arr_minus_1,
-    arr[3] AS arr_3,
-    arr_null[1] AS arr_null_1,
-    arr_null[2] AS arr_null_2,
-    arr_null[3] AS arr_null_3
+    arrayElement(arr, 1) AS arr_1,
+    arrayElement(arr, -1) AS arr_minus_1,
+    arrayElement(arr, 3) AS arr_3,
+    arrayElement(arr_null, 1) AS arr_null_1,
+    arrayElement(arr_null, 2) AS arr_null_2,
+    arrayElement(arr_null, 3) AS arr_null_3
 FROM test_array_tuple_mergetree
 ORDER BY id ASC;
 
 SELECT
     id,
     idx,
-    arr[idx] AS arr_idx,
-    arr_null[idx] AS arr_null_idx
+    arrayElement(arr, idx) AS arr_idx,
+    arrayElement(arr_null, idx) AS arr_null_idx
 FROM test_array_tuple_mergetree
 ORDER BY id ASC;
 
-SELECT [(1, 2)][NULL];
+SELECT arrayElement([(1, 2)], NULL);
 
 SELECT arrayElementOrNull([(1, 2)], NULL);
 
-SELECT arrayElementOrNull([CAST(NULL AS Nullable(Tuple()))], NULL);
+SELECT arrayElementOrNull([CAST(NULL AS Nullable(Tuple))], NULL);
 
 WITH [(1, 'a'), (2, 'b')] AS arr
 
@@ -847,4 +847,4 @@ FROM (
     )
 ORDER BY tuple() ASC;
 
-SET allow_experimental_nullable_tuple_type = 0;
+SET allow_experimental_nullable_tuple_type = '0';

@@ -1,9 +1,9 @@
 -- Tags: shard
 -- make the order static
-SET max_threads = 1;
+SET max_threads = '1';
 
 -- data should be inserted into Distributed table synchronously
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 DROP TABLE IF EXISTS mem1;
 
@@ -119,7 +119,7 @@ FROM remote('127.0.0.1', currentDatabase(), dist_2)
 ORDER BY
     _shard_num ASC,
     key ASC
-SETTINGS serialize_query_plan = 0;
+SETTINGS serialize_query_plan = '0';
 
 -- distributed over distributed does not work, because _shard_num is not analyzed from QueryPlan.
 SELECT
@@ -130,9 +130,9 @@ ORDER BY
     _shard_num ASC,
     key ASC
 SETTINGS
-    serialize_query_plan = 1,
-    prefer_localhost_replica = 0,
-    enable_analyzer = 1;
+    serialize_query_plan = '1',
+    prefer_localhost_replica = '0',
+    enable_analyzer = '1';
 
 SELECT
     a._shard_num,
@@ -163,7 +163,7 @@ INNER JOIN `system`.clusters AS b
     ON _shard_num = b.shard_num
 WHERE b.cluster = 'test_cluster_two_shards_localhost'
 ORDER BY key ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     a._shard_num,
@@ -183,7 +183,7 @@ INNER JOIN `system`.clusters AS b
     ON a._shard_num = b.shard_num
 WHERE b.cluster = 'test_cluster_two_shards_localhost'
 ORDER BY key ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM dist_3;

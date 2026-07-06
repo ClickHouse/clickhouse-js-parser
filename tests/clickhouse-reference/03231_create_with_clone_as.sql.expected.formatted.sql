@@ -38,7 +38,7 @@ CREATE TABLE foo_memory
     x Int8,
     y String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE foo_memory;
 
@@ -68,7 +68,7 @@ CREATE TABLE foo_merge_tree
     x Int8,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY x;
 
 SHOW CREATE TABLE foo_merge_tree;
@@ -89,7 +89,7 @@ FROM clone_as_foo_merge_tree;
 -- Specify ENGINE
 CREATE TABLE clone_as_foo_merge_tree_p_x
 CLONE AS foo_merge_tree
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY x;
 
 SELECT *
@@ -97,7 +97,7 @@ FROM clone_as_foo_merge_tree_p_x;
 
 CREATE TABLE clone_as_foo_merge_tree_p_y
 CLONE AS foo_merge_tree
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY y; -- { serverError BAD_ARGUMENTS }
 
 -- CLONE AS with a table of ReplacingMergeTree engine
@@ -106,7 +106,7 @@ CREATE TABLE foo_replacing_merge_tree
     x Int8,
     y String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 PRIMARY KEY x;
 
 SHOW CREATE TABLE foo_replacing_merge_tree;
@@ -127,7 +127,7 @@ FROM clone_as_foo_replacing_merge_tree;
 -- Specify ENGINE
 CREATE TABLE clone_as_foo_replacing_merge_tree_p_x
 CLONE AS foo_replacing_merge_tree
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 PRIMARY KEY x;
 
 SELECT *
@@ -135,7 +135,7 @@ FROM clone_as_foo_replacing_merge_tree_p_x;
 
 CREATE TABLE clone_as_foo_replacing_merge_tree_p_y
 CLONE AS foo_replacing_merge_tree
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 PRIMARY KEY y; -- { serverError BAD_ARGUMENTS }
 
 -- CLONE AS with a table of ReplicatedMergeTree engine
@@ -171,9 +171,9 @@ ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/clone_as_foo_replica
 PRIMARY KEY y; -- { serverError BAD_ARGUMENTS }
 
 -- CLONE AS with a Replicated database
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE_1:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE_1;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE_1:Identifier}
+CREATE DATABASE CLICKHOUSE_DATABASE_1
 ENGINE = Replicated('/test/databases/{database}/test_03231', 's1', 'r1');
 
-USE {CLICKHOUSE_DATABASE_1:Identifier};
+USE CLICKHOUSE_DATABASE_1;

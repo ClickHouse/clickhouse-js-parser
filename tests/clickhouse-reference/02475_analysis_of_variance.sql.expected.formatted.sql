@@ -12,7 +12,7 @@ FORMAT Null;
 
 SELECT analysisOfVariance(1.11, -20); -- { serverError BAD_ARGUMENTS }
 
-SELECT analysisOfVariance(1.11, 20::UInt128); -- { serverError BAD_ARGUMENTS }
+SELECT analysisOfVariance(1.11, CAST('20' AS UInt128)); -- { serverError BAD_ARGUMENTS }
 
 SELECT analysisOfVariance(1.11, 9000000000000000); -- { serverError BAD_ARGUMENTS }
 

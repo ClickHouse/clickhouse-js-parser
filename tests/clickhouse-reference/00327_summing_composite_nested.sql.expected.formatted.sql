@@ -1,8 +1,8 @@
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS summing_composite_key;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE summing_composite_key
 (

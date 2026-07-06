@@ -5,14 +5,14 @@ CREATE TABLE bool_test
     value Bool,
     f String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- value column shoud have type 'Bool'
 SHOW CREATE TABLE bool_test;
 
 INSERT INTO bool_test (value, f);
 
-INSERT INTO bool_test (value, f);
+INSERT INTO bool_test (value, f) FORMAT JSONEachRow;
 
 SELECT
     value,
@@ -35,7 +35,7 @@ SET bool_true_representation = 'True';
 
 SET bool_false_representation = 'False';
 
-INSERT INTO bool_test (value, f);
+INSERT INTO bool_test (value, f) FORMAT CSV;
 
 SELECT
     value,
@@ -48,10 +48,10 @@ SET bool_true_representation = 'Yes';
 
 SET bool_false_representation = 'No';
 
-INSERT INTO bool_test (value, f);
+INSERT INTO bool_test (value, f) FORMAT CSV;
 
 SET bool_true_representation = 'On';
 
 SET bool_false_representation = 'Off';
 
-INSERT INTO bool_test (value, f);
+INSERT INTO bool_test (value, f) FORMAT CSV;

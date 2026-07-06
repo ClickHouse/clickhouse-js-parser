@@ -9,16 +9,16 @@ CREATE TABLE segfault
     tags_ids Array(UInt32)
 )
 ENGINE = MergeTree()
-ORDER BY (id);
+ORDER BY id;
 
 CREATE MATERIALIZED VIEW segfault_mv
 ENGINE = AggregatingMergeTree()
-ORDER BY (id)
+ORDER BY id
 AS
 SELECT
     id,
     uniqState(uuid) AS uniq_uuids,
-    uniqMapState(CAST((tags_ids, arrayMap(_ -> toString(uuid), tags_ids)), 'Map(UInt32, String)')) AS uniq_tags_ids
+    uniqMapState(CAST((tags_ids, arrayMap((_ -> toString(uuid)), tags_ids)) AS Map(UInt32, String))) AS uniq_tags_ids
 FROM segfault
 GROUP BY id;
 
@@ -26,5 +26,5 @@ INSERT INTO segfault SELECT *
 FROM generateRandom('id UInt32, uuid UUID, c Array(UInt32)', 10, 5, 5)
 LIMIT 100;
 
-SELECT ignore(CAST((arrayMap(k -> toString(k), mapKeys(uniqMapMerge(uniq_tags_ids) AS m)), mapValues(m)), 'Map(String, UInt32)'))
+SELECT ignore(CAST((arrayMap((k -> toString(k)), mapKeys(uniqMapMerge(uniq_tags_ids) AS m)), mapValues(m)) AS Map(String, UInt32)))
 FROM segfault_mv;

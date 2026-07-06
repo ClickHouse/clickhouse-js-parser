@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1, max_rows_to_read = '31M';
+SET allow_suspicious_low_cardinality_types = '1', max_rows_to_read = '31M';
 
 DROP TABLE IF EXISTS perf_lc_num;
 
@@ -7,7 +7,7 @@ CREATE TABLE perf_lc_num
     num UInt8,
     arr Array(LowCardinality(Int64)) DEFAULT [num]
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 INSERT INTO perf_lc_num (num) SELECT toUInt8(number)
 FROM numbers(10000000);

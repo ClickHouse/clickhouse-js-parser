@@ -6,18 +6,21 @@ CREATE TABLE t1
     b UInt32,
     c UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
-SELECT DISTINCT ON (a, b)
+SELECT
     a,
     b,
     c
-FROM t1;
+FROM t1
+LIMIT 1 BY a, b;
 
-SELECT DISTINCT ON (a, b) *
-FROM t1;
+SELECT *
+FROM t1
+LIMIT 1 BY a, b;
 
-SELECT DISTINCT ON (a) *
-FROM t1;
+SELECT *
+FROM t1
+LIMIT 1 BY a;

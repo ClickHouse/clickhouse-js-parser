@@ -24,7 +24,7 @@ CREATE TABLE Orders
     OrderName String,
     OrderDate DateTime
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO Orders;
 

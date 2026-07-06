@@ -6,7 +6,7 @@ CREATE TABLE test
 (
     x String
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 INSERT INTO test;
 
@@ -25,7 +25,7 @@ FROM test;
 SELECT if(toUInt8(toUInt8(0)), y, 42)
 FROM test;
 
-SELECT if(cast(cast(0, 'UInt8'), 'UInt8'), y, 42)
+SELECT if(CAST(CAST(0 AS UInt8) AS UInt8), y, 42)
 FROM test;
 
 EXPLAIN SYNTAX
@@ -33,7 +33,7 @@ SELECT
     x,
     if((
         SELECT hasColumnInTable(currentDatabase(), 'test', 'y')
-    ), y, concat(x, '_'))
+    ), y, x || '_')
 FROM test;
 
 DROP TABLE IF EXISTS t;

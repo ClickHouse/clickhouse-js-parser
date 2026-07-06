@@ -1,206 +1,257 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      ]
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "15"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "==",
-          "left": {
-            "kind": "functionCall",
-            "name": "test_function",
-            "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
               }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "15"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "test_function",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "4"
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayElement",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ProfileEvents"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "ExecuteShellCommand"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "==",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "SELECT number FROM numbers(10) WHERE number > 15 and test_function(number, number) == 4;"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_time"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "toIntervalMinute",
-              "args": [
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "ExecuteShellCommand"
                 }
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "SELECT number FROM numbers(10) WHERE number > 15 and test_function(number, number) == 4;"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toIntervalMinute",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
     }
   }
 ]

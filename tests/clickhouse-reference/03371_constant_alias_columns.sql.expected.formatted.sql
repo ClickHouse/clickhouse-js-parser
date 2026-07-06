@@ -1,6 +1,6 @@
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
-SET allow_experimental_parallel_reading_from_replicas = 1;
+SET allow_experimental_parallel_reading_from_replicas = '1';
 
 SET cluster_for_parallel_replicas = 'parallel_replicas';
 
@@ -32,14 +32,14 @@ SELECT y
 FROM test_table
 ORDER BY c ASC;
 
-SET allow_experimental_parallel_reading_from_replicas = 0;
+SET allow_experimental_parallel_reading_from_replicas = '0';
 
 SELECT '----';
 
 SELECT y
 FROM remote('127.0.0.{1,2}', currentDatabase(), test_table)
 ORDER BY c ASC
-SETTINGS extremes = 1;
+SETTINGS extremes = '1';
 
 CREATE TABLE test_table
 (
@@ -61,7 +61,7 @@ INSERT INTO test_table SELECT
     ['a']
 FROM numbers(1);
 
-ALTER TABLE test_table ADD COLUMN `n.y` Array(String) ALIAS ['qwqw'] AFTER `n.x`;
+ALTER TABLE test_table ADD COLUMN `n.y` Array(String) ALIAS ['qwqw'] AFTER n.x;
 
 SELECT
     a,

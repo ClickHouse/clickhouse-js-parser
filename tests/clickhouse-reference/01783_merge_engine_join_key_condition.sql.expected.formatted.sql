@@ -9,7 +9,7 @@ CREATE TABLE foo
     Id Int32,
     Val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Id
 PARTITION BY Val;
 
@@ -27,11 +27,11 @@ CREATE TABLE t2
     Val Int32,
     X Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
-SET force_primary_key = 1, force_index_by_date = 1;
+SET force_primary_key = '1', force_index_by_date = '1';
 
 SELECT *
 FROM foo_merge
@@ -47,7 +47,7 @@ INNER JOIN t2
     USING (Val)
 WHERE Val = 3
     AND Id = 3
-    AND t2.X == 4
+    AND t2.X = 4
 GROUP BY X;
 
 SELECT
@@ -58,8 +58,8 @@ FROM
 INNER JOIN t2
     USING (Val)
 WHERE Val = 3
-    AND ((Id = 3
-    AND t2.X == 4))
+    AND (Id = 3
+    AND t2.X = 4)
 GROUP BY X;
 
 SELECT

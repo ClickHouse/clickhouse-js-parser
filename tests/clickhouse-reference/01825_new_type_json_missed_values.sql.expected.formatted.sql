@@ -1,16 +1,16 @@
 -- Tags: no-fasttest
 DROP TABLE IF EXISTS t_json;
 
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 CREATE TABLE t_json
 (
     id UInt64,
     obj JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 SYSTEM STOP MERGES t_json;
 
@@ -27,4 +27,4 @@ ORDER BY path ASC;
 
 SELECT count()
 FROM t_json
-WHERE isNotNull(obj.foo);
+WHERE obj.foo IS NOT NULL;

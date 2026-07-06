@@ -8,7 +8,7 @@ CREATE TABLE lwd_test_02521
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS min_bytes_for_wide_part = '0', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO lwd_test_02521 SELECT
     number,
@@ -22,9 +22,9 @@ INSERT INTO lwd_test_02521 SELECT
     now()
 FROM numbers(50000);
 
-OPTIMIZE TABLE lwd_test_02521 FINAL SETTINGS mutations_sync = 1;
+OPTIMIZE TABLE lwd_test_02521 FINAL SETTINGS mutations_sync = '1';
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 -- { echoOn }
 SELECT
@@ -42,9 +42,9 @@ FROM lwd_test_02521;
 
 DELETE FROM lwd_test_02521 WHERE id < 25000;
 
-ALTER TABLE lwd_test_02521 MODIFY TTL event_time + toIntervalMonth(1) SETTINGS mutations_sync = 1;
+ALTER TABLE lwd_test_02521 MODIFY TTL event_time + toIntervalMonth(1) SETTINGS mutations_sync = '1';
 
-ALTER TABLE lwd_test_02521 DELETE WHERE id >= 40000 SETTINGS mutations_sync = 1;
+ALTER TABLE lwd_test_02521 DELETE WHERE id >= 40000 SETTINGS mutations_sync = '1';
 
 -- { echoOff }
 DROP TABLE lwd_test_02521;

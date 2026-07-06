@@ -16,7 +16,7 @@ CREATE TABLE zero_rows_per_granule1
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/zero_rows_in_granule', '1')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 20, min_index_granularity_bytes = 10, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '20', min_index_granularity_bytes = '10', write_final_mark = '0';
 
 CREATE TABLE zero_rows_per_granule2
 (
@@ -28,7 +28,7 @@ CREATE TABLE zero_rows_per_granule2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/zero_rows_in_granule', '2')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 20, min_index_granularity_bytes = 10, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '20', min_index_granularity_bytes = '10', write_final_mark = '0';
 
 INSERT INTO zero_rows_per_granule1 (p, k, v1, v2);
 
@@ -37,7 +37,7 @@ SYSTEM SYNC REPLICA zero_rows_per_granule2;
 SELECT COUNT(*)
 FROM zero_rows_per_granule1;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'zero_rows_per_granule1'
     AND database = currentDatabase()
@@ -46,7 +46,7 @@ WHERE table = 'zero_rows_per_granule1'
 SELECT COUNT(*)
 FROM zero_rows_per_granule2;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'zero_rows_per_granule2'
     AND database = currentDatabase()
@@ -75,7 +75,7 @@ CREATE TABLE four_rows_per_granule1
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/four_rows_in_granule', '1')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 110, min_index_granularity_bytes = 100, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '110', min_index_granularity_bytes = '100', write_final_mark = '0';
 
 CREATE TABLE four_rows_per_granule2
 (
@@ -87,14 +87,14 @@ CREATE TABLE four_rows_per_granule2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/four_rows_in_granule', '2')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 110, min_index_granularity_bytes = 100, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '110', min_index_granularity_bytes = '100', write_final_mark = '0';
 
 INSERT INTO four_rows_per_granule1 (p, k, v1, v2);
 
 SELECT COUNT(*)
 FROM four_rows_per_granule1;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'four_rows_per_granule1'
     AND database = currentDatabase()
@@ -105,7 +105,7 @@ SYSTEM SYNC REPLICA four_rows_per_granule2;
 SELECT COUNT(*)
 FROM four_rows_per_granule2;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'four_rows_per_granule2'
     AND database = currentDatabase()
@@ -136,7 +136,7 @@ CREATE TABLE adaptive_granularity_alter1
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/adaptive_granularity_alter', '1')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 110, min_index_granularity_bytes = 100, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '110', min_index_granularity_bytes = '100', write_final_mark = '0';
 
 CREATE TABLE adaptive_granularity_alter2
 (
@@ -148,14 +148,14 @@ CREATE TABLE adaptive_granularity_alter2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00926/adaptive_granularity_alter', '2')
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS index_granularity_bytes = 110, min_index_granularity_bytes = 100, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '110', min_index_granularity_bytes = '100', write_final_mark = '0';
 
 INSERT INTO adaptive_granularity_alter1 (p, k, v1, v2);
 
 SELECT COUNT(*)
 FROM adaptive_granularity_alter1;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'adaptive_granularity_alter1'
     AND database = currentDatabase()
@@ -166,7 +166,7 @@ SYSTEM SYNC REPLICA adaptive_granularity_alter2;
 SELECT COUNT(*)
 FROM adaptive_granularity_alter2;
 
-SELECT DISTINCT (marks)
+SELECT DISTINCT marks
 FROM `system`.parts
 WHERE table = 'adaptive_granularity_alter2'
     AND database = currentDatabase()

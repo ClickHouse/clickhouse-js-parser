@@ -14,7 +14,7 @@ FROM
             1 AS a,
             42 AS c
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             2 AS b,
             2 AS b,
@@ -29,7 +29,7 @@ FROM
             1 AS a,
             42 AS c
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             2 AS b,
             2 AS b,
@@ -54,7 +54,7 @@ FROM
             a ASC,
             c ASC
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             2 AS b,
             2 AS b,

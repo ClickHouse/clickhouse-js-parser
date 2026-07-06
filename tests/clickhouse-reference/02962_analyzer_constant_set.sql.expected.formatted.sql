@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS test_parallel_index;
 CREATE TABLE test_parallel_index
 (
     z UInt64,
-    INDEX i z TYPE set(8)
+    INDEX i z TYPE set(8) GRANULARITY 1
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 INSERT INTO test_parallel_index SELECT number
 FROM numbers(10);

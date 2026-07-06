@@ -1,5 +1,5 @@
 -- Tags: long, no-azure-blob-storage
-SET allow_experimental_funnel_functions = 1;
+SET allow_experimental_funnel_functions = '1';
 
 DROP TABLE IF EXISTS test_sequenceNextNode_Nullable;
 
@@ -355,7 +355,7 @@ FROM (
         FROM test_sequenceNextNode_Nullable
         WHERE id = 11
         GROUP BY id
-        HAVING isNull(next_node)
+        HAVING next_node IS NULL
     );
 
 SELECT
@@ -394,7 +394,7 @@ FROM (
         FROM test_sequenceNextNode_Nullable
         WHERE id = 11
         GROUP BY id
-        HAVING isNull(next_node)
+        HAVING next_node IS NULL
     );
 
 SELECT
@@ -848,7 +848,7 @@ FROM (
         FROM test_sequenceNextNode
         WHERE id = 11
         GROUP BY id
-        HAVING isNull(next_node)
+        HAVING next_node IS NULL
     );
 
 SELECT
@@ -887,7 +887,7 @@ FROM (
         FROM test_sequenceNextNode
         WHERE id = 11
         GROUP BY id
-        HAVING isNull(next_node)
+        HAVING next_node IS NULL
     );
 
 SELECT
@@ -1121,4 +1121,4 @@ FROM test_base_condition
 GROUP BY id
 ORDER BY id ASC;
 
-SET allow_experimental_funnel_functions = 0;
+SET allow_experimental_funnel_functions = '0';

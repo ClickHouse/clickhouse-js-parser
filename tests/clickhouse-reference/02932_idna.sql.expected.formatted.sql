@@ -228,7 +228,7 @@ CREATE TABLE tab
 (
     idna String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY idna;
 
 INSERT INTO tab;

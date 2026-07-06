@@ -1,299 +1,363 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "none"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_ddl_output_mode": "none"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: zookeeper"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/databases/{database}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica1"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "UseQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/databases/{database}"
+        "type": "Identifier",
+        "name": "03655_keepermap"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "KeeperMap",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Function",
+              "name": "concat",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "/"
+                },
+                {
+                  "type": "Function",
+                  "name": "currentDatabase",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "/03655_keepermap"
+                }
+              ]
+            }
+          ]
         },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica1"
+        "primary_key": {
+          "type": "Identifier",
+          "name": "k"
         }
-      ]
+      }
     }
   },
   {
-    "kind": "use",
-    "database": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "03655_keepermap"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "KeeperMap",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "/"
-            },
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "/03655_keepermap"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-- Before ALTER:"
             }
           ]
         }
       ]
-    },
-    "primaryKey": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "k"
-        ]
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-- Before ALTER:"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "local:"
-      },
-      {
-        "kind": "functionCall",
-        "name": "regexpExtract",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "create_table_query"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "(`k`.+?)(\\n|\\\\))"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "tables"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "local:"
+            },
+            {
+              "type": "Function",
+              "name": "regexpExtract",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "create_table_query"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "(`k`.+?)(\n|\\))"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tables",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "03655_keepermap"
+                  }
+                ]
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "03655_keepermap"
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "keeper:"
-      },
-      {
-        "kind": "functionCall",
-        "name": "regexpExtract",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "keeper:"
+            },
+            {
+              "type": "Function",
+              "name": "regexpExtract",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "(`k`.+?)(\n|\\))"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "zookeeper",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "(`k`.+?)(\\n|\\\\))"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "path"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "/clickhouse/databases/"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "/metadata"
+                  }
+                ]
+              }
+            ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "zookeeper"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "path"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "concat",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "/clickhouse/databases/"
-          },
-          {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "/metadata"
-          }
-        ]
-      }
+        }
+      ]
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "03655_keepermap"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "COMMENT_COLUMN",
-        "columnName": "k",
-        "comment": {
-          "kind": "literal",
-          "type": "String",
-          "value": "some comment"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "03655_keepermap"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "COMMENT_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "k"
+          },
+          "comment": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "some comment"
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "sync": true
     }
   }
 ]

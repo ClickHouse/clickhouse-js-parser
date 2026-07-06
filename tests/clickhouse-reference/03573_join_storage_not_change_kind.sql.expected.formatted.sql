@@ -16,7 +16,7 @@ CREATE TABLE events
     user_id UInt64,
     message String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 

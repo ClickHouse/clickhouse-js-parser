@@ -15,9 +15,9 @@ CREATE TABLE test
     block_timestamp DateTime('UTC'),
     insertion_time DateTime('UTC')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY address
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE test_tmp AS test;
 
@@ -41,9 +41,9 @@ CREATE TABLE dst
     _updated_at AggregateFunction(max, DateTime('UTC')),
     _active AggregateFunction(argMax, Bool, DateTime('UTC'))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY address
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE MATERIALIZED VIEW view
 TO dst
@@ -67,33 +67,33 @@ TO dst
     _active AggregateFunction(argMax, Bool, DateTime('UTC'))
 )
 AS
-(WITH (
+WITH (
         SELECT toDateTime('1970-01-01 00:00:00')
     ) AS default_timestamp
 
 SELECT
-    maxState(CAST(block_timestamp, 'Nullable(DateTime(''UTC''))')) AS block_timestamp,
-    argMaxState(CAST(block_hash, 'Nullable(FixedString(32))'), insertion_time) AS block_hash,
-    argMaxState(CAST(block_number, 'Nullable(UInt256)'), insertion_time) AS block_number,
-    argMaxState(CAST(deployer, 'Nullable(FixedString(20))'), insertion_time) AS deployer,
+    maxState(CAST(block_timestamp AS Nullable(DateTime('UTC')))) AS block_timestamp,
+    argMaxState(CAST(block_hash AS Nullable(FixedString(32))), insertion_time) AS block_hash,
+    argMaxState(CAST(block_number AS Nullable(UInt256)), insertion_time) AS block_number,
+    argMaxState(CAST(deployer AS Nullable(FixedString(20))), insertion_time) AS deployer,
     address,
-    argMaxState(CAST(NULL, 'Nullable(String)'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS name,
-    argMaxState(CAST(NULL, 'Nullable(String)'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS symbol,
-    argMaxState(CAST(NULL, 'Nullable(UInt8)'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS decimals,
-    argMaxState(CAST(true, 'Nullable(Boolean)'), insertion_time) AS is_proxy,
-    argMaxState(CAST('[]', 'Array(Nullable(String))'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS blacklist_flags,
-    argMaxState(CAST('[]', 'Array(Nullable(String))'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS whitelist_flags,
-    argMaxState(CAST('[]', 'Array(Nullable(String))'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS detected_standards,
-    argMaxState(CAST(NULL, 'Nullable(String)'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS amended_type,
-    argMaxState(CAST(NULL, 'Nullable(String)'), CAST(default_timestamp, 'DateTime(''UTC'')')) AS comment,
+    argMaxState(CAST(NULL AS Nullable(String)), CAST(default_timestamp AS DateTime('UTC'))) AS name,
+    argMaxState(CAST(NULL AS Nullable(String)), CAST(default_timestamp AS DateTime('UTC'))) AS symbol,
+    argMaxState(CAST(NULL AS Nullable(UInt8)), CAST(default_timestamp AS DateTime('UTC'))) AS decimals,
+    argMaxState(CAST(true AS Nullable(Boolean)), insertion_time) AS is_proxy,
+    argMaxState(CAST('[]' AS Array(Nullable(String))), CAST(default_timestamp AS DateTime('UTC'))) AS blacklist_flags,
+    argMaxState(CAST('[]' AS Array(Nullable(String))), CAST(default_timestamp AS DateTime('UTC'))) AS whitelist_flags,
+    argMaxState(CAST('[]' AS Array(Nullable(String))), CAST(default_timestamp AS DateTime('UTC'))) AS detected_standards,
+    argMaxState(CAST(NULL AS Nullable(String)), CAST(default_timestamp AS DateTime('UTC'))) AS amended_type,
+    argMaxState(CAST(NULL AS Nullable(String)), CAST(default_timestamp AS DateTime('UTC'))) AS comment,
     groupUniqArrayState('tokens_proxy_deployments') AS _sources,
     maxState(insertion_time) AS _updated_at,
-    argMaxState(true, CAST(default_timestamp, 'DateTime(''UTC'')')) AS _active
+    argMaxState(true, CAST(default_timestamp AS DateTime('UTC'))) AS _active
 FROM test
 WHERE insertion_time > toDateTime('2024-03-14 11:38:09')
-GROUP BY address);
+GROUP BY address;
 
-SET max_insert_threads = 4;
+SET max_insert_threads = '4';
 
 INSERT INTO test_tmp SELECT *
 FROM generateRandom()

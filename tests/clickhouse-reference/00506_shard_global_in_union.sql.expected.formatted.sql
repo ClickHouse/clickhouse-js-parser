@@ -21,7 +21,7 @@ CREATE TABLE globalin
     CounterID UInt32,
     StartDate Date
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO globalin;
 
@@ -29,40 +29,40 @@ SELECT *
 FROM (
         SELECT CounterID
         FROM remote('127.0.0.2', currentDatabase(), 'globalin')
-        WHERE (CounterID GLOBAL IN (
+        WHERE CounterID GLOBAL IN (
                 SELECT toUInt32(34)
-            ))
+            )
         GROUP BY CounterID
     );
 
 SELECT CounterID
 FROM remote('127.0.0.2', currentDatabase(), 'globalin')
-WHERE (CounterID GLOBAL IN (
+WHERE CounterID GLOBAL IN (
         SELECT toUInt32(34)
-    ))
+    )
 GROUP BY CounterID
 UNION ALL
 SELECT CounterID
 FROM remote('127.0.0.2', currentDatabase(), 'globalin')
-WHERE (CounterID GLOBAL IN (
+WHERE CounterID GLOBAL IN (
         SELECT toUInt32(34)
-    ))
+    )
 GROUP BY CounterID;
 
 SELECT *
 FROM (
         SELECT CounterID
         FROM remote('127.0.0.2', currentDatabase(), 'globalin')
-        WHERE (CounterID GLOBAL IN (
+        WHERE CounterID GLOBAL IN (
                 SELECT toUInt32(34)
-            ))
+            )
         GROUP BY CounterID
         UNION ALL
         SELECT CounterID
         FROM remote('127.0.0.2', currentDatabase(), 'globalin')
-        WHERE (CounterID GLOBAL IN (
+        WHERE CounterID GLOBAL IN (
                 SELECT toUInt32(34)
-            ))
+            )
         GROUP BY CounterID
     );
 
@@ -77,7 +77,7 @@ CREATE TABLE union_bug
     Event String,
     Datetime DateTime('Asia/Istanbul')
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO union_bug;
 

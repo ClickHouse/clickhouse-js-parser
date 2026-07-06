@@ -9,7 +9,7 @@ CREATE TABLE t1
     a1 Int64,
     `1a1` Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -18,7 +18,7 @@ CREATE TABLE t2
     b1 Int64,
     `1b1` Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
@@ -27,7 +27,7 @@ CREATE TABLE t3
     c1 Int64,
     `1c1` Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t3;
 

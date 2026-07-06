@@ -7,7 +7,7 @@ CREATE TABLE map_containsKeyLike_test
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO map_containsKeyLike_test;
 

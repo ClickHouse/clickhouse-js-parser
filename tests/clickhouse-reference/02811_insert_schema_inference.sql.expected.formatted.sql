@@ -6,7 +6,7 @@ CREATE TABLE test
     n2 UInt32 ALIAS murmurHash3_32(n1),
     n3 UInt32 MATERIALIZED n2 + 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 INSERT INTO test SELECT *

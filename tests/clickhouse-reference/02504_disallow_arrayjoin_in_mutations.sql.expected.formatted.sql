@@ -5,7 +5,7 @@ CREATE TABLE test_02504
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_02504;

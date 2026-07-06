@@ -1,139 +1,152 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "explain",
-    "explainType": "SYNTAX",
-    "query": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "msg"
-          ]
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN SYNTAX",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "functionCall",
-                "name": "intDiv",
-                "args": [
+                "type": "Identifier",
+                "name": "msg"
+              },
+              {
+                "type": "Function",
+                "alias": "time",
+                "name": "toDateTime",
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "ms"
+                    "type": "Function",
+                    "name": "intDiv",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "ms"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1000"
+                      }
                     ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1000"
                   }
                 ]
               }
-            ]
-          },
-          "alias": "time"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "hello"
-              },
-              "alias": "msg"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "*",
-                "left": {
-                  "kind": "functionCall",
-                  "name": "toUInt64",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t"
-                      ]
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Literal",
+                                "alias": "msg",
+                                "value_type": "String",
+                                "value": "hello"
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "ms",
+                                "name": "multiply",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "toUInt64",
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "t"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "1000"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "table_function": {
+                                      "type": "Function",
+                                      "name": "generateRandom",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "String",
+                                          "value": "t DateTime"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "10"
+                            }
+                          }
+                        ]
+                      }
                     }
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1000"
+                  }
                 }
-              },
-              "alias": "ms"
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "generateRandom",
-            "args": [
+              ]
+            },
+            "order_by": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "t DateTime"
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "msg"
+                },
+                "direction": "ASC"
+              },
+              {
+                "type": "OrderByElement",
+                "expression": {
+                  "type": "Identifier",
+                  "name": "time"
+                },
+                "direction": "ASC"
               }
             ]
-          },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
           }
-        }
-      },
-      "orderBy": [
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "msg"
-            ]
-          },
-          "direction": "ASC"
-        },
-        {
-          "kind": "orderByItem",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          },
-          "direction": "ASC"
-        }
-      ]
+        ]
+      }
     }
   }
 ]

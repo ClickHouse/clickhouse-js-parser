@@ -2,7 +2,7 @@ CREATE TABLE null_02902
 (
     t Tuple(num Int64, str String)
 )
-ENGINE = Null;
+ENGINE = Null();
 
 SELECT t
 FROM null_02902;

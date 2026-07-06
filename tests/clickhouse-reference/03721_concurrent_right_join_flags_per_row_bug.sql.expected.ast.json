@@ -1,214 +1,235 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "parallel_hash"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "join_algorithm": "parallel_hash"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "join_use_nulls",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "join_use_nulls": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ty",
-          "number"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "functionCall",
-            "name": "sipHash64",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "+",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "ty",
-                    "number"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "order_by_all": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "ty.number",
+              "name_parts": [
+                "ty",
+                "number"
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "a",
+              "name": "modulo",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sipHash64",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "plus",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "ty.number",
+                          "name_parts": [
+                            "ty",
+                            "number"
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "100"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "tw.number",
+              "name_parts": [
+                "tw",
+                "number"
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "b",
+              "name": "modulo",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sipHash64",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tw.number",
+                      "name_parts": [
+                        "tw",
+                        "number"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "100"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "ty",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "4"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "RIGHT",
+                  "on": {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "tw.number",
+                            "name_parts": [
+                              "tw",
+                              "number"
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "ty.number",
+                            "name_parts": [
+                              "ty",
+                              "number"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "lessOrEquals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "a"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "tw",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "4"
+                      }
+                    ]
+                  }
                 }
               }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          }
-        },
-        "alias": "a"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "tw",
-          "number"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "functionCall",
-            "name": "sipHash64",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "tw",
-                  "number"
-                ]
-              }
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          }
-        },
-        "alias": "b"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
-          }
-        ],
-        "alias": "ty"
-      },
-      "kind": "joinExpr",
-      "joinType": "RIGHT",
-      "right": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
-          }
-        ],
-        "alias": "tw"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
+          "order_by": [
             {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tw",
-                  "number"
-                ]
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ALL"
               },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "ty",
-                  "number"
-                ]
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "<=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "a"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "b"
-                ]
-              }
+              "direction": "ASC"
             }
           ]
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   }
 ]

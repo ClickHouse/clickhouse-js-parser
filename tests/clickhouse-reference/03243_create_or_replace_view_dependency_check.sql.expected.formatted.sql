@@ -9,7 +9,7 @@ CREATE TABLE test
     x UInt32,
     v String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE VIEW v (x UInt32, v String)
 AS

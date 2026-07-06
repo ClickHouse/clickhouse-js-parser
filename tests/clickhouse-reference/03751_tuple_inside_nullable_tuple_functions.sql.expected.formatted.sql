@@ -1,5 +1,5 @@
 -- { echoOn }
-SET allow_experimental_nullable_tuple_type = 1;
+SET allow_experimental_nullable_tuple_type = '1';
 
 -- Value of type Nullable(Tuple(...))
 SELECT
@@ -14,13 +14,13 @@ SELECT
 
 -- Both sides non-null Nullable(Tuple)
 SELECT
-    tupleConcat(CAST((1, 2) AS Nullable(Tuple(Int32, Int32))), CAST(tuple(3) AS Nullable(Tuple(Int32)))) AS res,
+    tupleConcat(CAST((1, 2) AS Nullable(Tuple(Int32, Int32))), CAST((3,) AS Nullable(Tuple(Int32)))) AS res,
     toTypeName(res),
     isNull(res);
 
 -- Left side NULL
 SELECT
-    tupleConcat(CAST(NULL AS Nullable(Tuple(Int32, Int32))), CAST(tuple(3) AS Nullable(Tuple(Int32)))) AS res_null,
+    tupleConcat(CAST(NULL AS Nullable(Tuple(Int32, Int32))), CAST((3,) AS Nullable(Tuple(Int32)))) AS res_null,
     toTypeName(res_null),
     isNull(res_null);
 
@@ -50,13 +50,13 @@ SELECT
 
 -- Index access on non-null Nullable(Tuple)
 SELECT
-    CAST((1, 'a') AS Nullable(Tuple(Int32, String))).2 AS v,
+    tupleElement(CAST((1, 'a') AS Nullable(Tuple(Int32, String))), 2) AS v,
     toTypeName(v),
     isNull(v);
 
 -- Index access on NULL tuple
 SELECT
-    CAST(NULL AS Nullable(Tuple(Int32, String))).2 AS v_null,
+    tupleElement(CAST(NULL AS Nullable(Tuple(Int32, String))), 2) AS v_null,
     toTypeName(v_null),
     isNull(v_null);
 
@@ -67,7 +67,7 @@ SELECT
     isNull(v_name);
 
 SELECT
-    t.2 AS v,
+    (t).2 AS v,
     toTypeName(v),
     isNull(v)
 FROM (

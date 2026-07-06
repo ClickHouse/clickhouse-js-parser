@@ -16,11 +16,11 @@ INSERT INTO prefetched_table SELECT
     randomString(5)
 FROM numbers(1000);
 
-SET local_filesystem_read_prefetch = 1;
+SET local_filesystem_read_prefetch = '1';
 
-SET allow_prefetched_read_pool_for_remote_filesystem = 1;
+SET allow_prefetched_read_pool_for_remote_filesystem = '1';
 
-SET allow_prefetched_read_pool_for_local_filesystem = 1;
+SET allow_prefetched_read_pool_for_local_filesystem = '1';
 
 SYSTEM ENABLE FAILPOINT prefetched_reader_pool_failpoint;
 

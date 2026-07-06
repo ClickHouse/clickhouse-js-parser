@@ -13,7 +13,7 @@ CREATE TABLE t1
     value UInt32
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE t2
 (
@@ -22,7 +22,7 @@ CREATE TABLE t2
     value UInt32
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 CREATE TABLE t3
 (
@@ -31,7 +31,7 @@ CREATE TABLE t3
     value UInt32
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 CREATE TABLE t4
 (
@@ -40,7 +40,7 @@ CREATE TABLE t4
     value UInt32
 )
 ENGINE = Join(`ANY`, `LEFT`, id)
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 INSERT INTO t1;
 
@@ -74,7 +74,7 @@ SELECT
     toTypeName(name)
 FROM t4;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE t1;
 

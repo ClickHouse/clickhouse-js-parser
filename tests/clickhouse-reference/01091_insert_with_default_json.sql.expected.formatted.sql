@@ -5,11 +5,11 @@ CREATE TABLE table_with_complex_default
 (
     i Int8,
     n UInt8 DEFAULT 42,
-    s String DEFAULT concat('test', CAST(n, 'String'))
+    s String DEFAULT concat('test', CAST(n AS String))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-INSERT INTO table_with_complex_default;
+INSERT INTO table_with_complex_default FORMAT JSONEachRow;
 
 DROP TABLE IF EXISTS test_default_using_alias;
 
@@ -20,7 +20,7 @@ CREATE TABLE test_default_using_alias
     b String DEFAULT concat(c, ' is fast'),
     c String ALIAS concat(what, 'House')
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_default_using_alias (what);
 

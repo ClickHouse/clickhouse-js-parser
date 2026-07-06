@@ -13,107 +13,125 @@ EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE toYear(date1) <> 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE toYear(date1) != 1993
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE toYear(date1) <> 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE toYear(date1) != 1993
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYear(date1) < 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYear(date1) < 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYear(date1) > 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYear(date1) > 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYear(date1) <= 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYear(date1) <= 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYear(date1) >= 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYear(date1) >= 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE and(greaterOrEquals(toYear(date1), 1993), lessOrEquals(toYear(date1), 1997))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE (toYear(date1) >= 1993
+    AND toYear(date1) <= 1997)
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE and(greaterOrEquals(toYear(date1), 1993), lessOrEquals(toYear(date1), 1997))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE (toYear(date1) >= 1993
+    AND toYear(date1) <= 1997)
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE ((toYear(date1) = 1993
-    OR toYear(date1) = 1994))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE (toYear(date1) = 1993
+    OR toYear(date1) = 1994)
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE ((toYear(date1) = 1993
-    OR toYear(date1) = 1994))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE (toYear(date1) = 1993
+    OR toYear(date1) = 1994)
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -121,187 +139,215 @@ SELECT
     toYear(date1) AS year1
 FROM date_t
 WHERE year1 = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     value1,
     toYear(date1) AS year1
 FROM date_t
 WHERE year1 = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE 1993 > toYear(date1)
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE 1993 > toYear(date1)
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 PREWHERE toYear(date1) = 1993
-WHERE and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE id >= 1
+    AND id <= 3;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 PREWHERE toYear(date1) = 1993
-WHERE and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE id >= 1
+    AND id <= 3
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
+WHERE id >= 1
+    AND id <= 3
 HAVING toYear(date1) = 1993;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
+WHERE id >= 1
+    AND id <= 3
 HAVING toYear(date1) = 1993
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199300
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199300
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199313
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199313
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) = 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE toYYYYMM(date1) <> 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE toYYYYMM(date1) != 199203
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE toYYYYMM(date1) <> 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE toYYYYMM(date1) != 199203
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) < 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) < 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) > 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) > 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) <= 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) <= 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) >= 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
 WHERE toYYYYMM(date1) >= 199203
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date_t
-WHERE ((toYYYYMM(date1) >= 199203
-    OR toYear(date1) = 1993))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+WHERE (toYYYYMM(date1) >= 199203
+    OR toYear(date1) = 1993)
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date_t
-WHERE ((toYYYYMM(date1) >= 199203
-    OR toYear(date1) = 1993))
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+WHERE (toYYYYMM(date1) >= 199203
+    OR toYear(date1) = 1993)
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE date_t;
 
@@ -320,27 +366,31 @@ EXPLAIN SYNTAX
 SELECT value1
 FROM datetime_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM datetime_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM datetime_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM datetime_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE datetime_t;
 
@@ -359,27 +409,31 @@ EXPLAIN SYNTAX
 SELECT value1
 FROM date32_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date32_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM date32_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM date32_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE date32_t;
 
@@ -398,26 +452,30 @@ EXPLAIN SYNTAX
 SELECT value1
 FROM datetime64_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM datetime64_t
 WHERE toYear(date1) = 1993
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT value1
 FROM datetime64_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3));
+    AND (id >= 1
+    AND id <= 3);
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT value1
 FROM datetime64_t
 WHERE toYYYYMM(date1) = 199312
-    AND and(greaterOrEquals(id, 1), lessOrEquals(id, 3))
-SETTINGS enable_analyzer = 1;
+    AND (id >= 1
+    AND id <= 3)
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE datetime64_t;

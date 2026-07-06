@@ -1,126 +1,122 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "RegionID"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqExact",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
+              "type": "Identifier",
+              "name": "RegionID"
+            },
+            {
+              "type": "Function",
+              "alias": "u1",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
               ]
-            }
-          ]
-        },
-        "alias": "u1"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "uniqUpTo",
-          "params": [
+            },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+              "type": "Function",
+              "alias": "u2",
+              "name": "uniqUpTo",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ],
+              "parameters": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10"
+                }
+              ]
             }
           ],
-          "args": [
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{1,2}"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "test"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "visits"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
-              ]
+              "type": "Identifier",
+              "name": "RegionID"
             }
-          ]
-        },
-        "alias": "u2"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{1,2}"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "visits"
-          ]
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "RegionID"
-          ]
-        }
-      ]
-    },
-    "having": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "u1"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "11"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "!=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "u1"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "u2"
+          ],
+          "having": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "u1"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "11"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "u1"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "u2"
+                  }
+                ]
+              }
             ]
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Tags: stateful, distributed"
-    ]
+    }
   }
 ]

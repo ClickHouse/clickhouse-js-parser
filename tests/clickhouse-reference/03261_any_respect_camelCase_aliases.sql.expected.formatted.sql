@@ -9,10 +9,10 @@ FROM (
         FROM numbers(5)
     );
 
-SELECT finalizeAggregation(CAST(unhex('01'), 'AggregateFunction(anyRespectNulls, UInt64)'));
+SELECT finalizeAggregation(CAST(unhex('01') AS AggregateFunction(anyRespectNulls, UInt64)));
 
 SELECT anyRespectNullsIf(number, NOT isNull(number)
-    AND (assumeNotNull(number) > 5))
+    AND assumeNotNull(number) > 5)
 FROM numbers(10);
 
 SELECT firstValueRespectNulls(number)
@@ -26,10 +26,10 @@ FROM (
         FROM numbers(5)
     );
 
-SELECT finalizeAggregation(CAST(unhex('01'), 'AggregateFunction(firstValueRespectNulls, UInt64)'));
+SELECT finalizeAggregation(CAST(unhex('01') AS AggregateFunction(firstValueRespectNulls, UInt64)));
 
 SELECT firstValueRespectNullsIf(number, NOT isNull(number)
-    AND (assumeNotNull(number) > 5))
+    AND assumeNotNull(number) > 5)
 FROM numbers(10);
 
 SELECT anyValueRespectNulls(number)
@@ -43,10 +43,10 @@ FROM (
         FROM numbers(5)
     );
 
-SELECT finalizeAggregation(CAST(unhex('01'), 'AggregateFunction(anyValueRespectNulls, UInt64)'));
+SELECT finalizeAggregation(CAST(unhex('01') AS AggregateFunction(anyValueRespectNulls, UInt64)));
 
 SELECT anyValueRespectNullsIf(number, NOT isNull(number)
-    AND (assumeNotNull(number) > 5))
+    AND assumeNotNull(number) > 5)
 FROM numbers(10);
 
 SELECT lastValueRespectNulls(number)
@@ -60,10 +60,10 @@ FROM (
         FROM numbers(5)
     );
 
-SELECT finalizeAggregation(CAST(unhex('01'), 'AggregateFunction(lastValueRespectNulls, UInt64)'));
+SELECT finalizeAggregation(CAST(unhex('01') AS AggregateFunction(lastValueRespectNulls, UInt64)));
 
 SELECT lastValueRespectNullsIf(number, NOT isNull(number)
-    AND (assumeNotNull(number) > 5))
+    AND assumeNotNull(number) > 5)
 FROM numbers(10);
 
 SELECT anyLastRespectNulls(number)
@@ -77,8 +77,8 @@ FROM (
         FROM numbers(5)
     );
 
-SELECT finalizeAggregation(CAST(unhex('01'), 'AggregateFunction(anyLastRespectNulls, UInt64)'));
+SELECT finalizeAggregation(CAST(unhex('01') AS AggregateFunction(anyLastRespectNulls, UInt64)));
 
 SELECT anyLastRespectNullsIf(number, NOT isNull(number)
-    AND (assumeNotNull(number) > 5))
+    AND assumeNotNull(number) > 5)
 FROM numbers(10);

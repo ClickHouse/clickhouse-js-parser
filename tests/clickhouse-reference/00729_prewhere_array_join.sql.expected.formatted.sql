@@ -2,7 +2,7 @@ SET send_logs_level = 'fatal';
 
 DROP TABLE IF EXISTS t1_00729;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE t1_00729
 (

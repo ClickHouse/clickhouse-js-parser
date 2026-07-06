@@ -17,52 +17,1257 @@ export const SourceLocationSchema = z.object({
   end: z.object({ offset: z.number(), line: z.number(), column: z.number() }),
 });
 
+/**
+ * Validator for an arbitrary AST node, used in positions that legitimately
+ * hold any node type: generic `children` arrays, `data_type`/`arguments`
+ * operands, the back-reference `parent`, and other type-erased slots. Every AST
+ * node carries a string `type` discriminator, so this asserts node-shape
+ * without descending into the node's own fields. A full recursive union over
+ * every node type is intentionally avoided — it is expensive and would recurse
+ * forever through the `parent` back-edge. Deep validation of a node's own
+ * fields happens through the specific node schemas reachable from
+ * {@link StatementSchema}, which the reference-AST test suite exercises for the
+ * whole corpus.
+ */
+export const ASTNodeSchema: z.ZodType<WithoutLocations<ASTNode>> = z.custom<ASTNode>(
+  (val) =>
+    typeof val === 'object' && val !== null && typeof (val as { type?: unknown }).type === 'string',
+);
+
+/**
+ * Loose validator that asserts AST-node shape (an object with a string `type`)
+ * but yields a caller-chosen node type. For fields whose deep shape is
+ * context-specific and irregular — e.g. a storage `ORDER BY` key that may be a
+ * `tuple(...)` Function embedding `StorageOrderByElement` operands, which the
+ * generic {@link Expression} schema would reject.
+ */
+const looseNode = <T>(): z.ZodType<T> =>
+  z.custom<T>(
+    (val) =>
+      typeof val === 'object' &&
+      val !== null &&
+      typeof (val as { type?: unknown }).type === 'string',
+  );
+
 // ── Leaf schemas (no recursion) ───────────────────────────────────────────────
 
 const ExprMetadataFields = {
   leadingComments: z.array(z.string()).optional(),
   trailingComments: z.array(z.string()).optional(),
   location: SourceLocationSchema.optional(),
-  parent: z.any().optional(),
+  parent: ASTNodeSchema.optional(),
 };
 
+// ── ClickHouse-native expression nodes ────────────────────────────────────────
+// These node types mirror ClickHouse's own AST: the `type` discriminator and all
+// non-underscore fields must match `EXPLAIN AST json = 1` output exactly (the
+// reference ast suite compares them via `stripAstMeta`). Underscore-prefixed
+// fields carry library-only data the native JSON loses but that format() and
+// formatExplain() need. See CLAUDE.md and src/meta.ts.
+
 /**
- * Zod schema for {@link Literal}.
+ * A query parameter placeholder: `{name:Type}`. Library-extension node type —
+ * ClickHouse cannot serialize statements with unsubstituted parameters, so this
+ * never appears in compared reference output.
+ *
+ * @example `{x:UInt64}` → `{ type: 'QueryParameter', name: 'x', param_type: 'UInt64' }`
  */
-export const LiteralSchema = z.object({
-  kind: z.literal('literal'),
-  type: z.union([
-    z.literal('UInt64'),
-    z.literal('Int64'),
-    z.literal('Float64'),
-    z.literal('String'),
-    z.literal('NULL'),
-    z.literal('Bool'),
-  ]),
-  value: z.string(),
-  source: z.string().optional(),
-  parenthesized: z.boolean().optional(),
+export type QueryParameterNode = {
+  type: 'QueryParameter';
+  name: string;
+  /** The declared parameter type text, e.g. `'UInt64'` or `'Identifier'`. */
+  param_type: string;
+  alias?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link QueryParameterNode}. */
+export const QueryParameterSchema: z.ZodType<WithoutLocations<QueryParameterNode>> = z.object({
+  type: z.literal('QueryParameter'),
+  name: z.string(),
+  param_type: z.string(),
+  alias: z.string().optional(),
   ...ExprMetadataFields,
 });
 
-/** Zod schema for an identifier-position value: plain string or a
- * query-parameter node ({@link QueryParam}) with `type: 'Identifier'`.
- * The schema deliberately does not constrain `type` to `'Identifier'` so
- * that the single QueryParamSchema can be reused. */
-export const IdentifierSchema: z.ZodType<string | QueryParam> = z.lazy(() =>
-  z.union([z.string(), QueryParamSchema]),
+/**
+ * One segment of a (possibly compound) identifier: a plain name or a
+ * query-parameter used in identifier position (`{db:Identifier}.table`).
+ */
+export type IdentifierPart = string | QueryParameterNode;
+
+/** Zod schema for {@link IdentifierPart}. */
+export const IdentifierPartSchema: z.ZodType<WithoutLocations<IdentifierPart>> = z.lazy(() =>
+  z.union([z.string(), QueryParameterSchema]),
 );
 
 /**
- * Zod schema for {@link ColumnRef}.
+ * One element of an `Array`/`Tuple`/`Map` literal `value` list. It mirrors a
+ * {@link LiteralNode} without the `type`/`alias`/metadata: just the element's
+ * `value_type`, its decoded `value` (recursively a list for nested
+ * collections), and—for non-finite/`-0` `Float64` elements—the same
+ * `_nonfinite` discriminator a top-level Float64 literal carries (the native
+ * JSON collapses those to `null`/`0`, so it is needed to re-spell `inf`/`-0`
+ * in `format()`/`formatExplain()`).
  */
-export const ColumnRefSchema = z.object({
-  kind: z.literal('columnRef'),
-  parts: z.array(IdentifierSchema),
-  parenthesized: z.boolean().optional(),
+export type LiteralElement = {
+  value_type: LiteralNode['value_type'];
+  value: number | string | boolean | null | LiteralElement[];
+  _nonfinite?: LiteralNode['_nonfinite'];
+};
+
+/** Zod schema for {@link LiteralElement}. */
+export const LiteralElementSchema: z.ZodType<WithoutLocations<LiteralElement>> = z.lazy(() =>
+  z.object({
+    value_type: z.union([
+      z.literal('UInt64'),
+      z.literal('Int64'),
+      z.literal('Float64'),
+      z.literal('String'),
+      z.literal('Bool'),
+      z.literal('Null'),
+      z.literal('Array'),
+      z.literal('Tuple'),
+      z.literal('Map'),
+    ]),
+    value: z.union([
+      z.custom<number>((v) => typeof v === 'number'),
+      z.string(),
+      z.boolean(),
+      z.null(),
+      z.array(LiteralElementSchema),
+    ]),
+    _nonfinite: z
+      .union([
+        z.literal('inf'),
+        z.literal('-inf'),
+        z.literal('nan'),
+        z.literal('-nan'),
+        z.literal('-0'),
+      ])
+      .optional(),
+  }),
+);
+
+/**
+ * A literal value.
+ *
+ * `value` holds the fully-decoded, JSON-typed value exactly as ClickHouse
+ * serializes it: `UInt64`/`Int64` as decimal-digit strings (preserves
+ * precision beyond `Number.MAX_SAFE_INTEGER`), `Float64`/`Bool` as JS
+ * primitives, `String` decoded, `Null` as `null`, and `Array`/`Tuple`/`Map`
+ * literals as a list of {@link LiteralElement} (each its own `value_type` +
+ * `value`), matching ClickHouse's typed-element serialization.
+ *
+ * @example `42` → `{ type: 'Literal', value_type: 'UInt64', value: '42' }`
+ * @example `'a\nb'` → `{ type: 'Literal', value_type: 'String', value: 'a\nb' }`
+ * @example `[1, 2]` → `{ type: 'Literal', value_type: 'Array', value: [{ value_type: 'UInt64', value: '1' }, { value_type: 'UInt64', value: '2' }] }`
+ */
+export type LiteralNode = {
+  type: 'Literal';
+  value_type:
+    | 'UInt64'
+    | 'Int64'
+    | 'Float64'
+    | 'String'
+    | 'Bool'
+    | 'Null'
+    | 'Array'
+    | 'Tuple'
+    | 'Map';
+  value: number | string | boolean | null | LiteralElement[];
+  alias?: string;
+  /**
+   * Discriminator for `Float64` values the native AST's `value` cannot carry:
+   * non-finite values collapse to `null` (JSON has no infinity/NaN) and
+   * negative zero collapses to `0`. It is the only library-only field numeric
+   * literals need — all other finite values round-trip through `value` itself
+   * (decimal strings for UInt64/Int64, the IEEE double for Float64), and
+   * format()/formatExplain() reconstruct the canonical spelling from that.
+   * Hex/large-integer source spelling is intentionally not preserved
+   * (`0xFF` formats as `255`).
+   */
+  _nonfinite?: 'inf' | '-inf' | 'nan' | '-nan' | '-0';
+} & NodeMetadata;
+
+/** Zod schema for {@link LiteralNode}. */
+export const LiteralNodeSchema: z.ZodType<WithoutLocations<LiteralNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Literal'),
+    value_type: z.union([
+      z.literal('UInt64'),
+      z.literal('Int64'),
+      z.literal('Float64'),
+      z.literal('String'),
+      z.literal('Bool'),
+      z.literal('Null'),
+      z.literal('Array'),
+      z.literal('Tuple'),
+      z.literal('Map'),
+    ]),
+    // A custom check is needed because z.number() rejects NaN and Infinity
+    // (e.g. `SELECT nan`, `SELECT inf`).
+    value: z.union([
+      z.custom<number>((v) => typeof v === 'number'),
+      z.string(),
+      z.boolean(),
+      z.null(),
+      z.array(LiteralElementSchema),
+    ]),
+    alias: z.string().optional(),
+    _nonfinite: z
+      .union([
+        z.literal('inf'),
+        z.literal('-inf'),
+        z.literal('nan'),
+        z.literal('-nan'),
+        z.literal('-0'),
+      ])
+      .optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A column or name reference, possibly compound (`db.table.col`).
+ *
+ * `name` is the dot-joined display form; `name_parts` is present only for
+ * compound names and is authoritative (parts may contain literal dots from
+ * quoted identifiers).
+ *
+ * @example `col` → `{ type: 'Identifier', name: 'col' }`
+ * @example `t.col` → `{ type: 'Identifier', name: 't.col', name_parts: ['t', 'col'] }`
+ */
+export type IdentifierNode = {
+  type: 'Identifier';
+  name: string;
+  name_parts?: IdentifierPart[];
+  alias?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link IdentifierNode}. */
+export const IdentifierNodeSchema: z.ZodType<WithoutLocations<IdentifierNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Identifier'),
+    name: z.string(),
+    name_parts: z.array(IdentifierPartSchema).optional(),
+    alias: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** The `kind` data field ClickHouse sets on special function roles. */
+export type FunctionKind =
+  | 'LAMBDA_FUNCTION'
+  | 'WINDOW_FUNCTION'
+  | 'TABLE_ENGINE'
+  | 'DATABASE_ENGINE'
+  | 'CODEC'
+  | 'STATISTICS'
+  | 'BACKUP_NAME';
+
+/**
+ * A function application. All operators, casts, lambdas, subscripts, CASE
+ * expressions, intervals, array/tuple construction etc. normalize to this node,
+ * mirroring ClickHouse (`a > 2` → `greater(a, 2)` with `is_operator`).
+ *
+ * Note: `kind` here is ClickHouse's own data field (e.g. `TABLE_ENGINE`), not a
+ * discriminator — the discriminator is `type`.
+ */
+export type FunctionNode = {
+  type: 'Function';
+  name: string;
+  arguments: Expression[];
+  /** Parametric arguments — the first list in `quantile(0.5)(x)`. */
+  parameters?: Expression[];
+  is_operator?: boolean;
+  is_lambda_function?: boolean;
+  is_window_function?: boolean;
+  kind?: FunctionKind;
+  window_definition?: WindowDefinitionNode;
+  window_name?: string;
+  nulls_action?: 'RESPECT NULLS' | 'IGNORE NULLS';
+  alias?: string;
+  /**
+   * Library-only: `true` for an engine/codec/index-type function written
+   * without parentheses (`ENGINE = MergeTree`). ClickHouse's JSON AST shows
+   * `arguments: []` for both the no-parens and empty-parens forms, but its
+   * EXPLAIN/SHOW CREATE output distinguishes them.
+   */
+  _no_parens?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link FunctionNode}. */
+export const FunctionNodeSchema: z.ZodType<WithoutLocations<FunctionNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Function'),
+    name: z.string(),
+    arguments: z.array(ExpressionSchema),
+    parameters: z.array(ExpressionSchema).optional(),
+    is_operator: z.boolean().optional(),
+    is_lambda_function: z.boolean().optional(),
+    is_window_function: z.boolean().optional(),
+    kind: z
+      .union([
+        z.literal('LAMBDA_FUNCTION'),
+        z.literal('WINDOW_FUNCTION'),
+        z.literal('TABLE_ENGINE'),
+        z.literal('DATABASE_ENGINE'),
+        z.literal('CODEC'),
+        z.literal('STATISTICS'),
+        z.literal('BACKUP_NAME'),
+      ])
+      .optional(),
+    window_definition: WindowDefinitionSchema.optional(),
+    window_name: z.string().optional(),
+    nulls_action: z.union([z.literal('RESPECT NULLS'), z.literal('IGNORE NULLS')]).optional(),
+    alias: z.string().optional(),
+    _no_parens: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A window definition: the parenthesized spec in `OVER (...)` or `WINDOW w AS (...)`.
+ *
+ * Frame bounds nest a `{type, preceding?, offset?}` object under
+ * `frame_begin` / `frame_end`. `type` is `'Unbounded'`, `'Current'`, or
+ * `'Offset'`; `offset` holds the row count expression for `'Offset'`; and
+ * `preceding` is `true` for PRECEDING and `false`/omitted for FOLLOWING.
+ */
+export type WindowFrameBoundNode =
+  | { type: 'Unbounded'; preceding?: boolean }
+  | { type: 'Current'; preceding?: boolean }
+  | { type: 'Offset'; offset: Expression; preceding?: boolean };
+
+export type WindowDefinitionNode = {
+  type: 'WindowDefinition';
+  /** Parent window name for window inheritance: `OVER (w ORDER BY x)`. */
+  parent_window_name?: string;
+  partition_by?: Expression[];
+  order_by?: OrderByElementNode[];
+  frame_type?: 'ROWS' | 'RANGE' | 'GROUPS';
+  frame_begin?: WindowFrameBoundNode;
+  frame_end?: WindowFrameBoundNode;
+} & NodeMetadata;
+
+const WindowFrameBoundSchema: z.ZodType<WithoutLocations<WindowFrameBoundNode>> = z.lazy(() =>
+  z.union([
+    z.object({ type: z.literal('Unbounded'), preceding: z.boolean().optional() }),
+    z.object({ type: z.literal('Current'), preceding: z.boolean().optional() }),
+    z.object({
+      type: z.literal('Offset'),
+      offset: ExpressionSchema,
+      preceding: z.boolean().optional(),
+    }),
+  ]),
+);
+
+/** Zod schema for {@link WindowDefinitionNode}. */
+export const WindowDefinitionSchema: z.ZodType<WithoutLocations<WindowDefinitionNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('WindowDefinition'),
+      parent_window_name: z.string().optional(),
+      partition_by: z.array(ExpressionSchema).optional(),
+      order_by: z.array(OrderByElementSchema).optional(),
+      frame_type: z.union([z.literal('ROWS'), z.literal('RANGE'), z.literal('GROUPS')]).optional(),
+      frame_begin: WindowFrameBoundSchema.optional(),
+      frame_end: WindowFrameBoundSchema.optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * A single element of an ORDER BY list (statement-level, window specs, and
+ * WITH FILL modifiers).
+ */
+export type OrderByElementNode = {
+  type: 'OrderByElement';
+  expression: Expression;
+  direction: 'ASC' | 'DESC';
+  /** COLLATE locale as a String literal. */
+  collation?: LiteralNode;
+  nulls_first?: boolean;
+  with_fill?: boolean;
+  fill_from?: Expression;
+  fill_to?: Expression;
+  fill_step?: Expression;
+  fill_staleness?: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link OrderByElementNode}. */
+export const OrderByElementSchema: z.ZodType<WithoutLocations<OrderByElementNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('OrderByElement'),
+    expression: ExpressionSchema,
+    direction: z.union([z.literal('ASC'), z.literal('DESC')]),
+    collation: LiteralNodeSchema.optional(),
+    nulls_first: z.boolean().optional(),
+    with_fill: z.boolean().optional(),
+    fill_from: ExpressionSchema.optional(),
+    fill_to: ExpressionSchema.optional(),
+    fill_step: ExpressionSchema.optional(),
+    fill_staleness: ExpressionSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A single column in an INTERPOLATE clause: `INTERPOLATE (col AS expr)`.
+ */
+export type InterpolateElementNode = {
+  type: 'InterpolateElement';
+  column: string;
+  expr: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link InterpolateElementNode}. */
+export const InterpolateElementSchema: z.ZodType<WithoutLocations<InterpolateElementNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('InterpolateElement'),
+      column: z.string(),
+      expr: ExpressionSchema,
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * A subquery used as an expression: `(SELECT ...)`.
+ */
+export type SubqueryNode = {
+  type: 'Subquery';
+  query: QueryStatement;
+  alias?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link SubqueryNode}. */
+export const SubqueryNodeSchema: z.ZodType<WithoutLocations<SubqueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Subquery'),
+    query: QueryStatementSchema,
+    alias: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * APPLY column transformer: `* APPLY (toString)` or `* APPLY x -> f(x)`.
+ */
+export type ColumnsApplyTransformerNode = {
+  type: 'ColumnsApplyTransformer';
+  func_name?: string;
+  /** Parametric arguments when the applied function is parameterized. */
+  parameters?: ExpressionListNode;
+  /** Lambda form: `APPLY x -> expr`. */
+  lambda?: FunctionNode;
+  lambda_arg?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsApplyTransformerNode}. */
+export const ColumnsApplyTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsApplyTransformerNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsApplyTransformer'),
+    func_name: z.string().optional(),
+    parameters: ExpressionListNodeSchema.optional(),
+    lambda: FunctionNodeSchema.optional(),
+    lambda_arg: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * EXCEPT column transformer: `* EXCEPT (a, b)` or `* EXCEPT 'regex'`.
+ * The regex form serializes with no children — the pattern lives in `pattern`.
+ */
+export type ColumnsExceptTransformerNode = {
+  type: 'ColumnsExceptTransformer';
+  is_strict?: boolean;
+  columns?: IdentifierNode[];
+  /** Regex pattern for the string form (`* EXCEPT 'regex'`). */
+  pattern?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsExceptTransformerNode}. */
+export const ColumnsExceptTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsExceptTransformerNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsExceptTransformer'),
+    is_strict: z.boolean().optional(),
+    columns: z.array(IdentifierNodeSchema).optional(),
+    pattern: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * One replacement inside a REPLACE transformer: `expr AS name`.
+ */
+export type ColumnsReplaceTransformerReplacementNode = {
+  type: 'ColumnsReplaceTransformer::Replacement';
+  name: string;
+  expression: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsReplaceTransformerReplacementNode}. */
+export const ColumnsReplaceTransformerReplacementSchema: z.ZodType<
+  WithoutLocations<ColumnsReplaceTransformerReplacementNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsReplaceTransformer::Replacement'),
+    name: z.string(),
+    expression: ExpressionSchema,
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * REPLACE column transformer: `* REPLACE (a + 1 AS a)`.
+ */
+export type ColumnsReplaceTransformerNode = {
+  type: 'ColumnsReplaceTransformer';
+  is_strict?: boolean;
+  replacements: ColumnsReplaceTransformerReplacementNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsReplaceTransformerNode}. */
+export const ColumnsReplaceTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsReplaceTransformerNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsReplaceTransformer'),
+    is_strict: z.boolean().optional(),
+    replacements: z.array(ColumnsReplaceTransformerReplacementSchema),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Any single column transformer. */
+export type ColumnsTransformerNode =
+  | ColumnsApplyTransformerNode
+  | ColumnsExceptTransformerNode
+  | ColumnsReplaceTransformerNode;
+
+/** Zod schema for {@link ColumnsTransformerNode}. */
+export const ColumnsTransformerSchema: z.ZodType<WithoutLocations<ColumnsTransformerNode>> = z.lazy(
+  () =>
+    z.union([
+      ColumnsApplyTransformerSchema,
+      ColumnsExceptTransformerSchema,
+      ColumnsReplaceTransformerSchema,
+    ]),
+);
+
+/**
+ * The list of transformers attached to `*`, `t.*`, or `COLUMNS(...)`.
+ */
+export type ColumnsTransformerListNode = {
+  type: 'ColumnsTransformerList';
+  children: ColumnsTransformerNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsTransformerListNode}. */
+export const ColumnsTransformerListSchema: z.ZodType<WithoutLocations<ColumnsTransformerListNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnsTransformerList'),
+      children: z.array(ColumnsTransformerSchema),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * Bare `*` wildcard, with optional transformers. Tuple expansion `expr.*` is
+ * also an Asterisk with the base in `expression`.
+ */
+export type AsteriskNode = {
+  type: 'Asterisk';
+  /** Native AST stores transformers as a flat array on plain `Asterisk` nodes. */
+  transformers?: ColumnsTransformerListNode['children'];
+  /** Base expression for tuple expansion `expr.*`. */
+  expression?: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link AsteriskNode}. */
+export const AsteriskNodeSchema: z.ZodType<WithoutLocations<AsteriskNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Asterisk'),
+    transformers: z.array(ColumnsTransformerSchema).optional(),
+    expression: ExpressionSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * Qualified `table.*` or `db.table.*` wildcard.
+ */
+export type QualifiedAsteriskNode = {
+  type: 'QualifiedAsterisk';
+  qualifier: IdentifierNode;
+  /** Native AST stores transformers as a flat array on `QualifiedAsterisk`. */
+  transformers?: ColumnsTransformerListNode['children'];
+} & NodeMetadata;
+
+/** Zod schema for {@link QualifiedAsteriskNode}. */
+export const QualifiedAsteriskNodeSchema: z.ZodType<WithoutLocations<QualifiedAsteriskNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('QualifiedAsterisk'),
+      qualifier: IdentifierNodeSchema,
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * A generic ordered list of nodes — ClickHouse's `ExpressionList` wrapper as it
+ * appears in the native JSON (e.g. inside `QualifiedColumnsListMatcher.children`).
+ */
+export type ExpressionListNode = {
+  type: 'ExpressionList';
+  children?: ASTNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link ExpressionListNode}. */
+export const ExpressionListNodeSchema: z.ZodType<WithoutLocations<ExpressionListNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ExpressionList'),
+      // Children may be any node type; validated loosely to avoid a global ASTNode schema union.
+      children: z.array(ASTNodeSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * `COLUMNS('regex')` matcher.
+ */
+export type ColumnsRegexpMatcherNode = {
+  type: 'ColumnsRegexpMatcher';
+  pattern: string;
+  /** Plain matchers store transformers as a flat array. */
+  transformers?: ColumnsTransformerListNode['children'];
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsRegexpMatcherNode}. */
+export const ColumnsRegexpMatcherSchema: z.ZodType<WithoutLocations<ColumnsRegexpMatcherNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnsRegexpMatcher'),
+      pattern: z.string(),
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * `COLUMNS(a, b, ...)` matcher.
+ */
+export type ColumnsListMatcherNode = {
+  type: 'ColumnsListMatcher';
+  columns: Expression[];
+  /** Plain matchers store transformers as a flat array. */
+  transformers?: ColumnsTransformerListNode['children'];
+} & NodeMetadata;
+
+/** Zod schema for {@link ColumnsListMatcherNode}. */
+export const ColumnsListMatcherSchema: z.ZodType<WithoutLocations<ColumnsListMatcherNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ColumnsListMatcher'),
+      columns: z.array(ExpressionSchema),
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * `qualifier.COLUMNS('regex')` matcher.
+ */
+export type QualifiedColumnsRegexpMatcherNode = {
+  type: 'QualifiedColumnsRegexpMatcher';
+  pattern: string;
+  qualifier: IdentifierNode;
+  /** Qualified matchers wrap transformers in a `ColumnsTransformerList` node. */
+  transformers?: ColumnsTransformerListNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link QualifiedColumnsRegexpMatcherNode}. */
+export const QualifiedColumnsRegexpMatcherSchema: z.ZodType<
+  WithoutLocations<QualifiedColumnsRegexpMatcherNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('QualifiedColumnsRegexpMatcher'),
+    pattern: z.string(),
+    qualifier: IdentifierNodeSchema,
+    transformers: ColumnsTransformerListSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `qualifier.COLUMNS(a, b)` matcher.
+ */
+export type QualifiedColumnsListMatcherNode = {
+  type: 'QualifiedColumnsListMatcher';
+  qualifier: IdentifierNode;
+  columns: Expression[];
+  /** Qualified matchers wrap transformers in a `ColumnsTransformerList` node. */
+  transformers?: ColumnsTransformerListNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link QualifiedColumnsListMatcherNode}. */
+export const QualifiedColumnsListMatcherSchema: z.ZodType<
+  WithoutLocations<QualifiedColumnsListMatcherNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('QualifiedColumnsListMatcher'),
+    qualifier: IdentifierNodeSchema,
+    columns: z.array(ExpressionSchema),
+    transformers: ColumnsTransformerListSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A SETTINGS clause / settings changes node. Inside function calls
+ * (`f(x SETTINGS k=1)`) ClickHouse appends a `Set` node to the arguments.
+ *
+ * Matches ClickHouse's native AST: `changes` is a flat name→scalar map (lossy
+ * — it loses ordering on duplicates, identifier-vs-string distinction, and any
+ * expression structure beyond what {@link Expression}-to-compact-text encoding
+ * can preserve), and `default_settings` captures the names of `SET x = DEFAULT`
+ * resets. Query parameters (`SET param_x = ...`) are also stored in `changes`
+ * (the native AST drops them entirely, but the formatter needs them to
+ * round-trip; the reference-AST test strips library-only `param_*` keys
+ * before comparing).
+ */
+export type SettingsNode = {
+  type: 'Settings' | 'DictionarySettings';
+  changes?: Record<
+    string,
+    string | number | boolean | null | LiteralElement[] | Record<string, LiteralElement>
+  >;
+  default_settings?: string[];
+} & NodeMetadata;
+
+/** Zod schema for {@link SettingsNode}. */
+export const SettingsNodeSchema: z.ZodType<WithoutLocations<SettingsNode>> = z.lazy(() =>
+  z.object({
+    type: z.union([z.literal('Settings'), z.literal('DictionarySettings')]),
+    changes: z
+      .record(
+        z.string(),
+        z.union([
+          z.string(),
+          // Custom check: z.number() rejects NaN/Infinity (e.g. SET x = inf)
+          z.custom<number>((v) => typeof v === 'number'),
+          z.boolean(),
+          z.null(),
+          // Array/tuple-valued settings: typed element list.
+          z.array(LiteralElementSchema),
+          // Map-valued settings: map object {key: {value_type, value}}.
+          z.record(z.string(), LiteralElementSchema),
+        ]),
+      )
+      .optional(),
+    default_settings: z.array(z.string()).optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+// ── ClickHouse-native statement nodes (SELECT family) ────────────────────────
+
+/**
+ * A table named in a FROM clause: `db.table [AS alias]`.
+ *
+ * `name` and `database` are plain strings for ordinary table references,
+ * matching ClickHouse's native AST. When a name is written as an
+ * identifier-position query parameter (`{db:Identifier}.t`), that segment is
+ * a {@link QueryParameterNode} instead — ClickHouse itself cannot serialize an
+ * unsubstituted parameter (it errors), so this is a library-only extension
+ * that keeps the parameter's structure in-place rather than encoding it as a
+ * raw `{name:Type}` string.
+ */
+export type TableIdentifierNode = {
+  type: 'TableIdentifier';
+  name: IdentifierPart;
+  database?: IdentifierPart;
+  alias?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link TableIdentifierNode}. */
+export const TableIdentifierSchema: z.ZodType<WithoutLocations<TableIdentifierNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('TableIdentifier'),
+    name: IdentifierPartSchema,
+    database: IdentifierPartSchema.optional(),
+    alias: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A sample ratio in a SAMPLE clause, normalized to a fraction. The source
+ * spelling is not preserved — `SAMPLE 0.1` canonicalizes to `SAMPLE 1/10`.
+ *
+ * @example `SAMPLE 1/10` → `{ numerator: '1', denominator: '10' }`
+ * @example `SAMPLE 0.1` → `{ numerator: '1', denominator: '10' }`
+ */
+export type SampleRatioNode = {
+  type: 'SampleRatio';
+  numerator: string;
+  denominator: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link SampleRatioNode}. */
+export const SampleRatioSchema: z.ZodType<WithoutLocations<SampleRatioNode>> = z.object({
+  type: z.literal('SampleRatio'),
+  numerator: z.string(),
+  denominator: z.string(),
   ...ExprMetadataFields,
 });
 
+/**
+ * One source in a FROM clause: a named table, table function, or subquery,
+ * with FINAL/SAMPLE modifiers.
+ */
+export type TableExpressionNode = {
+  type: 'TableExpression';
+  database_and_table_name?: TableIdentifierNode;
+  table_function?: FunctionNode;
+  subquery?: SubqueryNode;
+  final?: boolean;
+  sample_size?: SampleRatioNode;
+  sample_offset?: SampleRatioNode;
+  /** Column aliases after a subquery alias: `(SELECT ...) AS t (a, b)`. */
+  column_aliases?: ExpressionListNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link TableExpressionNode}. */
+export const TableExpressionSchema: z.ZodType<WithoutLocations<TableExpressionNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('TableExpression'),
+    database_and_table_name: TableIdentifierSchema.optional(),
+    table_function: FunctionNodeSchema.optional(),
+    subquery: SubqueryNodeSchema.optional(),
+    final: z.boolean().optional(),
+    sample_size: SampleRatioSchema.optional(),
+    sample_offset: SampleRatioSchema.optional(),
+    column_aliases: ExpressionListNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * A JOIN's kind/strictness/condition.
+ */
+export type TableJoinNode = {
+  type: 'TableJoin';
+  kind: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL' | 'CROSS' | 'COMMA' | 'PASTE';
+  strictness?: 'ANY' | 'ALL' | 'ASOF' | 'SEMI' | 'ANTI';
+  locality?: 'GLOBAL';
+  using?: Expression[];
+  on?: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link TableJoinNode}. */
+export const TableJoinSchema: z.ZodType<WithoutLocations<TableJoinNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('TableJoin'),
+    kind: z.union([
+      z.literal('INNER'),
+      z.literal('LEFT'),
+      z.literal('RIGHT'),
+      z.literal('FULL'),
+      z.literal('CROSS'),
+      z.literal('COMMA'),
+      z.literal('PASTE'),
+    ]),
+    strictness: z
+      .union([
+        z.literal('ANY'),
+        z.literal('ALL'),
+        z.literal('ASOF'),
+        z.literal('SEMI'),
+        z.literal('ANTI'),
+      ])
+      .optional(),
+    locality: z.literal('GLOBAL').optional(),
+    using: z.array(ExpressionSchema).optional(),
+    on: ExpressionSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * An ARRAY JOIN clause.
+ */
+export type ArrayJoinNode = {
+  type: 'ArrayJoin';
+  /** `'INNER'` for plain ARRAY JOIN, `'LEFT'` for LEFT ARRAY JOIN. */
+  kind: 'INNER' | 'LEFT';
+  expressions: Expression[];
+} & NodeMetadata;
+
+/** Zod schema for {@link ArrayJoinNode}. */
+export const ArrayJoinSchema: z.ZodType<WithoutLocations<ArrayJoinNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('ArrayJoin'),
+    kind: z.union([z.literal('INNER'), z.literal('LEFT')]),
+    expressions: z.array(ExpressionSchema),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * One element of a FROM clause: a table expression, optionally preceded by the
+ * join that connects it to the previous element, or an ARRAY JOIN.
+ */
+export type TablesInSelectQueryElementNode = {
+  type: 'TablesInSelectQueryElement';
+  table_expression?: TableExpressionNode;
+  table_join?: TableJoinNode;
+  array_join?: ArrayJoinNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link TablesInSelectQueryElementNode}. */
+export const TablesInSelectQueryElementSchema: z.ZodType<
+  WithoutLocations<TablesInSelectQueryElementNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('TablesInSelectQueryElement'),
+    table_expression: TableExpressionSchema.optional(),
+    table_join: TableJoinSchema.optional(),
+    array_join: ArrayJoinSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * The full FROM clause: a flat list of table elements joined in order.
+ */
+export type TablesInSelectQueryNode = {
+  type: 'TablesInSelectQuery';
+  children: TablesInSelectQueryElementNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link TablesInSelectQueryNode}. */
+export const TablesInSelectQuerySchema: z.ZodType<WithoutLocations<TablesInSelectQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('TablesInSelectQuery'),
+      children: z.array(TablesInSelectQueryElementSchema),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * A subquery CTE in a WITH clause: `WITH name AS (SELECT ...)`.
+ */
+export type WithElementNode = {
+  type: 'WithElement';
+  name: string;
+  subquery: SubqueryNode;
+  /** Column aliases: `WITH t (a, b) AS (...)`. */
+  aliases?: ExpressionListNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link WithElementNode}. */
+export const WithElementSchema: z.ZodType<WithoutLocations<WithElementNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('WithElement'),
+    name: z.string(),
+    subquery: SubqueryNodeSchema,
+    aliases: ExpressionListNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** A WITH clause item: a named subquery or an (aliased) expression. */
+export type WithItem = Expression | WithElementNode;
+
+/** Zod schema for {@link WithItem}. */
+export const WithItemSchema: z.ZodType<WithoutLocations<WithItem>> = z.lazy(() =>
+  z.union([WithElementSchema, ExpressionSchema]),
+);
+
+/**
+ * A named window definition: `WINDOW name AS (spec)`.
+ */
+export type WindowListElementNode = {
+  type: 'WindowListElement';
+  name: string;
+  definition: WindowDefinitionNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link WindowListElementNode}. */
+export const WindowListElementSchema: z.ZodType<WithoutLocations<WindowListElementNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('WindowListElement'),
+      name: z.string(),
+      definition: WindowDefinitionSchema,
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * A single SELECT query (one member of a SelectWithUnionQuery).
+ */
+export type SelectQueryNode = {
+  type: 'SelectQuery';
+  with?: WithItem[];
+  recursive_with?: boolean;
+  /**
+   * Library-only: set when the `WITH` clause was written before an enclosing
+   * `INSERT` (`WITH ... INSERT INTO ... SELECT ...`). ClickHouse appends the
+   * WITH ExpressionList after the select body in EXPLAIN AST; this flag lets
+   * the explain projection reproduce that ordering.
+   */
+  _with_trailing?: boolean;
+  /**
+   * Library-only: marks the synthetic SelectQuery produced when lowering
+   * `expr op ANY/ALL (subquery)`. ClickHouse's EXPLAIN AST text dumps the
+   * projection + tables twice for this node; the flag drives that doubling.
+   */
+  _agg_repeat?: boolean;
+  distinct?: boolean;
+  select: Expression[];
+  from?: TablesInSelectQueryNode;
+  prewhere?: Expression;
+  where?: Expression;
+  group_by?: (Expression | ExpressionListNode)[];
+  group_by_all?: boolean;
+  group_by_with_totals?: boolean;
+  group_by_with_rollup?: boolean;
+  group_by_with_cube?: boolean;
+  group_by_with_grouping_sets?: boolean;
+  having?: Expression;
+  window?: WindowListElementNode[];
+  qualify?: Expression;
+  order_by?: OrderByElementNode[];
+  order_by_all?: boolean;
+  interpolate?: InterpolateElementNode[];
+  /**
+   * `LIMIT n BY cols [OFFSET m]` is grouped into a single object matching
+   * ClickHouse's native AST shape. `by` is the list of columns to limit
+   * groups by; `length` is the per-group row count; optional `offset`
+   * skips that many leading rows in each group.
+   */
+  limit_by?: {
+    length: Expression;
+    offset?: Expression;
+    by: Expression[];
+  };
+  /** Row count for the trailing `LIMIT n [OFFSET m]` clause. */
+  limit?: Expression;
+  /** Skip count for the trailing `LIMIT/OFFSET` clause. */
+  offset?: Expression;
+  settings?: SettingsNode;
+  /**
+   * `true` when LIMIT/FETCH/TOP ... WITH TIES was specified. WITH TIES is
+   * semantically meaningful (extends the result set to include rows tied with
+   * the last row at the limit), so this flag is preserved across canonical
+   * `LIMIT n WITH TIES` formatting regardless of the original syntactic form.
+   */
+  limit_with_ties?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link SelectQueryNode}. */
+export const SelectQuerySchema: z.ZodType<WithoutLocations<SelectQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('SelectQuery'),
+    with: z.array(WithItemSchema).optional(),
+    recursive_with: z.boolean().optional(),
+    _with_trailing: z.boolean().optional(),
+    _agg_repeat: z.boolean().optional(),
+    distinct: z.boolean().optional(),
+    select: z.array(ExpressionSchema),
+    from: TablesInSelectQuerySchema.optional(),
+    prewhere: ExpressionSchema.optional(),
+    where: ExpressionSchema.optional(),
+    group_by: z.array(z.union([ExpressionSchema, ExpressionListNodeSchema])).optional(),
+    group_by_all: z.boolean().optional(),
+    group_by_with_totals: z.boolean().optional(),
+    group_by_with_rollup: z.boolean().optional(),
+    group_by_with_cube: z.boolean().optional(),
+    group_by_with_grouping_sets: z.boolean().optional(),
+    having: ExpressionSchema.optional(),
+    window: z.array(WindowListElementSchema).optional(),
+    qualify: ExpressionSchema.optional(),
+    order_by: z.array(OrderByElementSchema).optional(),
+    order_by_all: z.boolean().optional(),
+    interpolate: z.array(InterpolateElementSchema).optional(),
+    limit_by: z
+      .object({
+        length: ExpressionSchema,
+        offset: ExpressionSchema.optional(),
+        by: z.array(ExpressionSchema),
+      })
+      .optional(),
+    limit: ExpressionSchema.optional(),
+    offset: ExpressionSchema.optional(),
+    settings: SettingsNodeSchema.optional(),
+    limit_with_ties: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * Trailing output clauses shared by query wrappers (INTO OUTFILE, FORMAT, and
+ * the trailing SETTINGS clause). All are native fields that ClickHouse's JSON
+ * exposes on the query wrapper (`ASTQueryWithOutput`).
+ */
+export type QueryTrailingFields = {
+  /** Native trailing `INTO OUTFILE 'path'` target literal. */
+  out_file?: LiteralNode;
+  /** Native `TRUNCATE` flag on `INTO OUTFILE` (present only when set). */
+  outfile_truncate?: boolean;
+  /** Native trailing `FORMAT name`. */
+  format?: string;
+  /**
+   * Native trailing `SETTINGS` clause. ClickHouse allows `SETTINGS` on either
+   * side of `FORMAT`, but this is a purely syntactic difference (both land in
+   * the same wrapper-level settings and apply identically).
+   */
+  settings?: SettingsNode;
+  /**
+   * Library-only: `true` when the trailing SETTINGS was written *before* the
+   * FORMAT clause (`... SETTINGS x FORMAT F`). ClickHouse's native JSON drops
+   * this ordering, but its EXPLAIN AST child order preserves it, so
+   * `formatExplain()` needs it to match ClickHouse exactly. `format()` does
+   * *not* use it — it canonicalizes to ClickHouse's re-emitted order (SETTINGS
+   * after FORMAT) — so the flag may flip across a reformat and is treated as
+   * volatile in round-trip comparisons.
+   */
+  _settings_before_format?: boolean;
+};
+
+const QueryTrailingSchemaFields = {
+  out_file: LiteralNodeSchema.optional(),
+  outfile_truncate: z.boolean().optional(),
+  format: z.string().optional(),
+  settings: SettingsNodeSchema.optional(),
+  _settings_before_format: z.boolean().optional(),
+};
+
+/**
+ * The wrapper around one or more SELECTs combined with UNION. Every query
+ * statement is wrapped in one of these, mirroring ClickHouse.
+ */
+export type SelectWithUnionQueryNode = {
+  type: 'SelectWithUnionQuery';
+  selects: (SelectQueryNode | SelectIntersectExceptQueryNode | SelectWithUnionQueryNode)[];
+  union_mode?: 'UNION_ALL' | 'UNION_DISTINCT';
+} & QueryTrailingFields &
+  NodeMetadata;
+
+/** Zod schema for {@link SelectWithUnionQueryNode}. */
+export const SelectWithUnionQuerySchema: z.ZodType<WithoutLocations<SelectWithUnionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('SelectWithUnionQuery'),
+      selects: z.array(
+        z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
+      ),
+      union_mode: z.union([z.literal('UNION_ALL'), z.literal('UNION_DISTINCT')]).optional(),
+      ...QueryTrailingSchemaFields,
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * An INTERSECT/EXCEPT combination of two queries.
+ *
+ * The operator is always stored as the fully-qualified `INTERSECT/EXCEPT
+ * ALL/DISTINCT` form. ClickHouse defaults bare `INTERSECT`/`EXCEPT` to the
+ * `ALL` variant; format() always emits the canonical fully-qualified form.
+ */
+export type SelectIntersectExceptQueryNode = {
+  type: 'SelectIntersectExceptQuery';
+  operator: 'INTERSECT ALL' | 'INTERSECT DISTINCT' | 'EXCEPT ALL' | 'EXCEPT DISTINCT';
+  selects: (SelectQueryNode | SelectIntersectExceptQueryNode | SelectWithUnionQueryNode)[];
+} & QueryTrailingFields &
+  NodeMetadata;
+
+/** Zod schema for {@link SelectIntersectExceptQueryNode}. */
+export const SelectIntersectExceptQuerySchema: z.ZodType<
+  WithoutLocations<SelectIntersectExceptQueryNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('SelectIntersectExceptQuery'),
+    operator: z.union([
+      z.literal('INTERSECT ALL'),
+      z.literal('INTERSECT DISTINCT'),
+      z.literal('EXCEPT ALL'),
+      z.literal('EXCEPT DISTINCT'),
+    ]),
+    selects: z.array(
+      z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
+    ),
+    ...QueryTrailingSchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * Union of all expression node types. Use the `type` field to discriminate.
+ */
+export type Expression =
+  | LiteralNode
+  | IdentifierNode
+  | FunctionNode
+  | AsteriskNode
+  | QualifiedAsteriskNode
+  | SubqueryNode
+  | QueryParameterNode
+  | ColumnsRegexpMatcherNode
+  | ColumnsListMatcherNode
+  | QualifiedColumnsRegexpMatcherNode
+  | QualifiedColumnsListMatcherNode
+  // Set appears in expression position as a trailing Function argument for
+  // f(x SETTINGS k = v).
+  | SettingsNode
+  // Bare SELECT arguments (`view(SELECT ...)`) are unwrapped query nodes.
+  | SelectWithUnionQueryNode;
+
+/**
+ * Zod schema for {@link Expression}. Uses `z.lazy` for recursive references.
+ */
+export const ExpressionSchema: z.ZodType<WithoutLocations<Expression>> = z.lazy(() =>
+  z.union([
+    LiteralNodeSchema,
+    IdentifierNodeSchema,
+    FunctionNodeSchema,
+    AsteriskNodeSchema,
+    QualifiedAsteriskNodeSchema,
+    SubqueryNodeSchema,
+    QueryParameterSchema,
+    ColumnsRegexpMatcherSchema,
+    ColumnsListMatcherSchema,
+    QualifiedColumnsRegexpMatcherSchema,
+    QualifiedColumnsListMatcherSchema,
+    SettingsNodeSchema,
+    SelectWithUnionQuerySchema,
+  ]),
+);
+
+// ── Transitional aliases (kind→type rewrite) ─────────────────────────────────
+
+/** Old name for {@link QueryParameterNode}, kept while statement types migrate. */
+export type QueryParam = QueryParameterNode;
+/** An identifier-position value: plain string or an Identifier query parameter. */
+export type Identifier = IdentifierPart;
+/** Old name for {@link OrderByElementNode}, kept while statement types migrate. */
+export type OrderByItem = OrderByElementNode;
+/** Old name for {@link WindowDefinitionNode}, kept while statement types migrate. */
+export type WindowSpec = WindowDefinitionNode;
+/** Old name for {@link LiteralNode}, kept while statement types migrate. */
+export type Literal = LiteralNode;
 /**
  * A single ratio value used in SAMPLE clauses.
  *
@@ -89,164 +1294,6 @@ export type SampleClause = {
   offset?: SampleRatioValue;
 };
 
-/** Zod schema for {@link SampleRatioValue}. */
-export const SampleRatioValueSchema = z.object({
-  num: z.string(),
-  den: z.string().optional(),
-});
-
-/** Zod schema for {@link SampleClause}. */
-export const SampleClauseSchema = z.object({
-  ratio: SampleRatioValueSchema,
-  offset: SampleRatioValueSchema.optional(),
-});
-
-/**
- * Zod schema for {@link TableRef}.
- */
-export const TableRefSchema = z.object({
-  kind: z.literal('tableRef'),
-  database: IdentifierSchema.optional(),
-  table: IdentifierSchema,
-  alias: z.string().optional(),
-  final: z.boolean().optional(),
-  sample: SampleClauseSchema.optional(),
-  ...ExprMetadataFields,
-});
-
-/**
- * A column transformer: EXCEPT, APPLY, or REPLACE modifier applied to
- * `*`, `qualifier.*`, or `COLUMNS(...)`.
- *
- * @example `* EXCEPT (id)` → `{ kind: 'except', columns: ['id'] }`
- * @example `* APPLY (toString)` → `{ kind: 'apply', func: { kind: 'columnRef', parts: ['toString'] } }`
- * @example `* REPLACE (a + 1 AS a)` → `{ kind: 'replace', items: [{ expr: ..., alias: 'a' }] }`
- */
-export type ColumnTransformer =
-  | {
-      /** Excludes specific columns from the wildcard expansion. */
-      kind: 'except';
-      /** Column names to exclude. */
-      columns: string[];
-      /** Whether STRICT keyword was used (error if column doesn't exist). */
-      strict?: boolean;
-      /** Whether the column name is a regex pattern. */
-      pattern?: boolean;
-    }
-  | {
-      /** Applies a function to each column in the wildcard expansion. */
-      kind: 'apply';
-      /** The function to apply. */
-      func: Expression;
-    }
-  | {
-      /** Replaces specific columns with computed expressions. */
-      kind: 'replace';
-      /** Replacement expressions with their target column aliases. */
-      items: { expr: Expression; alias: string }[];
-      /** Whether STRICT keyword was used. */
-      strict?: boolean;
-    };
-
-/** Zod schema for {@link ColumnTransformer}. */
-export const ColumnTransformerSchema: z.ZodType<ColumnTransformer> = z.lazy(() =>
-  z.union([
-    z.object({
-      kind: z.literal('except'),
-      columns: z.array(z.string()),
-      strict: z.boolean().optional(),
-      pattern: z.boolean().optional(),
-    }),
-    z.object({
-      kind: z.literal('apply'),
-      func: ExpressionSchema,
-    }),
-    z.object({
-      kind: z.literal('replace'),
-      items: z.array(z.object({ expr: ExpressionSchema, alias: z.string() })),
-      strict: z.boolean().optional(),
-    }),
-  ]),
-);
-
-/** Zod schema for {@link Asterisk}. */
-export const AsteriskSchema: z.ZodType<Asterisk> = z.lazy(() =>
-  z.object({
-    kind: z.literal('asterisk'),
-    transformers: z.array(ColumnTransformerSchema).optional(),
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link QualifiedAsterisk}. */
-export const QualifiedAsteriskSchema: z.ZodType<QualifiedAsterisk> = z.lazy(() =>
-  z.object({
-    kind: z.literal('qualifiedAsterisk'),
-    parts: z.array(IdentifierSchema),
-    transformers: z.array(ColumnTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link QueryParam}. */
-export const QueryParamSchema = z.object({
-  kind: z.literal('queryParam'),
-  name: z.string(),
-  type: z.string(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link TupleExpansion}. */
-export const TupleExpansionSchema: z.ZodType<TupleExpansion> = z.lazy(() =>
-  z.object({
-    kind: z.literal('tupleExpansion'),
-    expr: ExpressionSchema,
-    transformers: z.array(ColumnTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-// ── Recursive expression types ────────────────────────────────────────────────
-// TypeScript types must be declared explicitly because z.infer cannot resolve
-// recursive schemas without an explicit type annotation.
-
-/**
- * A literal value: number, string, NULL, or boolean.
- *
- * The `value` field is always a string representation of the literal.
- * The `type` field indicates how to interpret it.
- *
- * @example `42` → `{ kind: 'literal', type: 'UInt64', value: '42' }`
- * @example `'hello'` → `{ kind: 'literal', type: 'String', value: 'hello' }`
- * @example `NULL` → `{ kind: 'literal', type: 'NULL', value: 'NULL' }`
- * @example `true` → `{ kind: 'literal', type: 'Bool', value: 'true' }`
- * @example `-3.14` → `{ kind: 'literal', type: 'Float64', value: '-3.14' }`
- */
-export type Literal = {
-  kind: 'literal';
-  type: 'UInt64' | 'Int64' | 'Float64' | 'String' | 'NULL' | 'Bool';
-  value: string;
-  source?: string;
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A column reference, optionally qualified with database/table names.
- *
- * All qualifier parts are stored as a flat array in `parts`, including the
- * final column name.
- *
- * @example `col` → `{ kind: 'columnRef', parts: ['col'] }`
- * @example `t.col` → `{ kind: 'columnRef', parts: ['t', 'col'] }`
- * @example `db.t.col` → `{ kind: 'columnRef', parts: ['db', 't', 'col'] }`
- */
-export type ColumnRef = {
-  kind: 'columnRef';
-  parts: Identifier[];
-  parenthesized?: boolean;
-} & NodeMetadata;
-
 /**
  * A table reference in a FROM clause.
  *
@@ -264,703 +1311,6 @@ export type TableRef = {
 } & NodeMetadata;
 
 /**
- * Bare `*` wildcard, with optional column transformers (EXCEPT, APPLY, REPLACE).
- *
- * @example `*` → `{ kind: 'asterisk' }`
- * @example `* EXCEPT (id)` → `{ kind: 'asterisk', transformers: [{ kind: 'except', columns: ['id'] }] }`
- */
-export type Asterisk = {
-  kind: 'asterisk';
-  transformers?: ColumnTransformer[];
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * Qualified `table.*` or `db.table.*` wildcard, with optional column transformers.
- *
- * `parts` contains all qualifier segments before the `*`.
- *
- * @example `t.*` → `{ kind: 'qualifiedAsterisk', parts: ['t'] }`
- * @example `db.t.*` → `{ kind: 'qualifiedAsterisk', parts: ['db', 't'] }`
- */
-export type QualifiedAsterisk = {
-  kind: 'qualifiedAsterisk';
-  /** Qualifier parts before the `*`, e.g. `['system', 'one']` for `system.one.*`. */
-  parts: Identifier[];
-  /** Optional column transformers (EXCEPT, APPLY, REPLACE). */
-  transformers?: ColumnTransformer[];
-} & NodeMetadata;
-
-/**
- * A query parameter placeholder: `{name:Type}`.
- *
- * Used in parameterized queries where values are substituted at execution time.
- *
- * @example `{x:UInt64}` → `{ kind: 'queryParam', name: 'x', type: 'UInt64' }`
- */
-export type QueryParam = {
-  kind: 'queryParam';
-  name: string;
-  type: string;
-} & NodeMetadata;
-
-/**
- * Either a bare string identifier or a query-parameter used in identifier
- * position (`{name:Identifier}`). A query-parameter here is just a
- * {@link QueryParam} whose `type` is the literal string `'Identifier'`.
- */
-export type Identifier = string | QueryParam;
-
-/**
- * Tuple expansion: `expr.*` — expands all fields of a tuple expression.
- *
- * Different from {@link QualifiedAsterisk} which has named qualifier parts;
- * here the qualifier is an arbitrary expression.
- *
- * @example `tuple(1, 'a').*` → `{ kind: 'tupleExpansion', expr: { kind: 'functionCall', name: 'tuple', ... } }`
- */
-export type TupleExpansion = {
-  kind: 'tupleExpansion';
-  /** The expression whose tuple fields are expanded. */
-  expr: Expression;
-  /** Optional column transformers (EXCEPT, APPLY, REPLACE). */
-  transformers?: ColumnTransformer[];
-} & NodeMetadata;
-
-/**
- * The type of JOIN operation.
- *
- * - `'INNER'` — only matching rows from both sides
- * - `'LEFT'` — all rows from left, matching from right
- * - `'RIGHT'` — all rows from right, matching from left
- * - `'FULL'` — all rows from both sides
- * - `'CROSS'` — cartesian product (no join condition)
- * - `'PASTE'` — ClickHouse-specific: combines rows by position
- */
-export type JoinType = 'INNER' | 'LEFT' | 'RIGHT' | 'FULL' | 'CROSS' | 'PASTE';
-
-/**
- * The type of ARRAY JOIN operation.
- *
- * - `'ARRAY'` — unfolds array columns into rows (removes rows with empty arrays)
- * - `'LEFT ARRAY'` — like ARRAY but keeps rows with empty arrays (fills with defaults)
- */
-export type ArrayJoinType = 'ARRAY' | 'LEFT ARRAY';
-
-/**
- * A column in a USING clause: either a plain column name or a column
- * name with an alias (when the column name differs between the two tables).
- *
- * @example `USING (id)` → `'id'`
- * @example `USING (id AS other_id)` → `{ name: 'id', alias: 'other_id' }`
- */
-export type UsingColumn = string | { name: string; alias: string };
-
-/**
- * A JOIN constraint: either ON (with an expression) or USING (with column names).
- *
- * @example `ON a.id = b.id` → `{ kind: 'on', expr: ... }`
- * @example `USING (id, name)` → `{ kind: 'using', columns: ['id', 'name'] }`
- */
-export type JoinConstraint =
-  | { kind: 'on'; expr: Expression }
-  | { kind: 'using'; columns: UsingColumn[] };
-
-/**
- * A bound in a window frame specification.
- *
- * - `'unbounded'` — `UNBOUNDED PRECEDING` or `UNBOUNDED FOLLOWING`
- * - `'currentRow'` — `CURRENT ROW`
- * - `'preceding'` — `N PRECEDING`
- * - `'following'` — `N FOLLOWING`
- */
-export type WindowFrameBound =
-  | { kind: 'unbounded' }
-  | { kind: 'currentRow' }
-  | { kind: 'preceding'; expr: Expression }
-  | { kind: 'following'; expr: Expression };
-
-/**
- * A window specification for window functions.
- *
- * @example `OVER (PARTITION BY a ORDER BY b ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`
- */
-export type WindowSpec = {
-  /** Base window name for window inheritance, e.g. `w1` in `WINDOW w2 AS (w1 ORDER BY x)`. */
-  baseWindow?: string;
-  /** Expressions to partition the window by. */
-  partitionBy?: Expression[];
-  /** Ordering within each partition. */
-  orderBy?: OrderByItem[];
-  /** Window frame definition (ROWS, RANGE, or GROUPS with bounds). */
-  frame?: {
-    /** The frame type: `'rows'`, `'range'`, or `'groups'`. */
-    frameType: 'rows' | 'range' | 'groups';
-    /** The start bound of the frame. */
-    start: WindowFrameBound;
-    /** The end bound of the frame (if BETWEEN syntax is used). */
-    end?: WindowFrameBound;
-  };
-};
-
-/**
- * A function call expression.
- *
- * @example `count()` → `{ kind: 'functionCall', name: 'count', args: [] }`
- * @example `quantile(0.5)(x)` → `{ kind: 'functionCall', name: 'quantile', params: [...], args: [...] }`
- * @example `count() OVER (PARTITION BY a)` → `{ kind: 'functionCall', name: 'count', args: [], window: { partitionBy: [...] } }`
- */
-export type FunctionCall = {
-  kind: 'functionCall';
-  /** The function name (always lowercase as returned by the parser). */
-  name: string;
-  /** Parametric arguments — the first `(...)` in `func(params)(args)` syntax. */
-  params?: Expression[];
-  /** Function arguments. */
-  args: Expression[];
-  /** Function-level SETTINGS, e.g. `func(x SETTINGS y=1)`. */
-  funcSettings?: SettingItem[];
-  /** Window specification when used as a window function. */
-  window?: WindowSpec;
-  /** Whether the entire function call was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A type cast expression: `CAST(expr AS Type)` or `expr::Type`.
- *
- * @example `CAST(x AS Int32)` → `{ kind: 'castExpr', expr: ..., type: 'Int32' }`
- * @example `x::String` → `{ kind: 'castExpr', expr: ..., type: 'String', operator: true }`
- */
-export type CastExpr = {
-  kind: 'castExpr';
-  /** The expression being cast. */
-  expr: Expression;
-  /** The target type name. */
-  type: string;
-  /** `true` when created by `::` operator syntax (e.g. `42::Int32`), absent for `CAST(x AS T)`. */
-  operator?: boolean;
-  /** Whether the cast expression was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A lambda expression: `(params) -> body`.
- *
- * @example `x -> x + 1` → `{ kind: 'lambdaExpr', params: ['x'], body: ... }`
- * @example `(x, y) -> x + y` → `{ kind: 'lambdaExpr', params: ['x', 'y'], body: ... }`
- */
-export type LambdaExpr = {
-  kind: 'lambdaExpr';
-  /** Parameter names. */
-  params: string[];
-  /** The lambda body expression. */
-  body: Expression;
-  /** Whether the lambda was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A subquery used as an expression: `(SELECT ...)`.
- *
- * @example `SELECT * WHERE id IN (SELECT id FROM other)` — the `(SELECT id FROM other)` part.
- */
-export type SubqueryExpr = {
-  kind: 'subqueryExpr';
-  /** The query inside the subquery. */
-  query: QueryStatement;
-} & NodeMetadata;
-
-/**
- * An IN expression: `expr [NOT] IN (values)` or `expr [GLOBAL] [NOT] IN (subquery)`.
- *
- * @example `x IN (1, 2, 3)` → `{ kind: 'inExpr', negated: false, expr: ..., values: [...] }`
- * @example `x NOT IN (SELECT ...)` → `{ kind: 'inExpr', negated: true, expr: ..., values: { kind: 'subqueryExpr', ... } }`
- * @example `x GLOBAL IN (1)` → `{ kind: 'inExpr', negated: false, global: true, expr: ..., values: [...] }`
- */
-export type InExpr = {
-  kind: 'inExpr';
-  /** Whether this is a NOT IN expression. */
-  negated: boolean;
-  /** Whether this is a GLOBAL IN expression (ClickHouse distributed query feature). */
-  global?: boolean;
-  /** The left-hand expression being tested. */
-  expr: Expression;
-  /** The right-hand values: an array of expressions for literal lists, or a subquery. */
-  values: Expression[] | SubqueryExpr;
-  /** Whether the IN expression was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A unary NOT expression.
- *
- * @example `NOT x` → `{ kind: 'unaryExpr', op: 'NOT', expr: ... }`
- */
-export type UnaryExpr = {
-  kind: 'unaryExpr';
-  /** Always `'NOT'`. */
-  op: 'NOT';
-  /** The operand expression. */
-  expr: Expression;
-  /** Whether the NOT expression was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * Binary operators that produce {@link BinaryExpr} nodes.
- *
- * Note: `AND` and `OR` are not included — they always produce {@link NaryExpr} with 2+ operands.
- */
-export type BinaryOp =
-  | '<=>'
-  | '>='
-  | '<='
-  | '<>'
-  | '!='
-  | '=='
-  | '>'
-  | '<'
-  | '='
-  | 'IS DISTINCT FROM'
-  | '+'
-  | '-'
-  | '*'
-  | '/'
-  | '%'
-  | 'DIV'
-  | 'MOD';
-
-/**
- * A binary expression: `left op right`.
- *
- * @example `a + b` → `{ kind: 'binaryExpr', op: '+', left: ..., right: ... }`
- * @example `x = 1` → `{ kind: 'binaryExpr', op: '=', left: ..., right: ... }`
- */
-export type BinaryExpr = {
-  kind: 'binaryExpr';
-  /** The binary operator. */
-  op: BinaryOp;
-  /** The left operand. */
-  left: Expression;
-  /** The right operand. */
-  right: Expression;
-  /** Whether the binary expression was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * An n-ary AND/OR expression with a flat list of operands (always 2+).
- *
- * Chained `AND`/`OR` expressions are flattened into a single node rather than
- * nested binary trees, e.g. `a AND b AND c` produces one NaryExpr with 3 operands.
- *
- * @example `a AND b AND c` → `{ kind: 'naryExpr', op: 'AND', operands: [a, b, c] }`
- * @example `x OR y` → `{ kind: 'naryExpr', op: 'OR', operands: [x, y] }`
- */
-export type NaryExpr = {
-  kind: 'naryExpr';
-  /** The logical operator: `'AND'` or `'OR'`. */
-  op: 'AND' | 'OR';
-  /** The operand expressions (always 2 or more). */
-  operands: Expression[];
-  /** Whether the expression was wrapped in parentheses in the source. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * An aliased expression: `expr AS name`.
- *
- * @example `count() AS cnt` → `{ kind: 'alias', expr: { kind: 'functionCall', name: 'count', ... }, alias: 'cnt' }`
- */
-export type Alias = {
-  kind: 'alias';
-  /** The underlying expression. */
-  expr: Expression;
-  /** The alias name. */
-  alias: string;
-  /** `true` when the alias was wrapped in parentheses, e.g. `('abc' AS s)`. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * An array literal: `[a, b, c]`.
- *
- * @example `[1, 2, 3]` → `{ kind: 'arrayLiteral', elements: [...] }`
- */
-export type ArrayLiteral = {
-  kind: 'arrayLiteral';
-  /** The array elements. */
-  elements: Expression[];
-  /** Original source text, used by the formatter for round-tripping when the elements can't be reconstructed. */
-  source?: string;
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A tuple literal: `(a, b, c)`.
- *
- * Tuples with 2+ elements are represented here. Single-element parenthesized
- * expressions are represented by their inner expression with `parenthesized: true`.
- *
- * @example `(1, 'a', 3.14)` → `{ kind: 'tupleLiteral', elements: [...] }`
- */
-export type TupleLiteral = {
-  kind: 'tupleLiteral';
-  /** The tuple elements. */
-  elements: Expression[];
-  /** Original source text, used by the formatter for round-tripping when the elements can't be reconstructed. */
-  source?: string;
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/**
- * A COLUMNS expression: `COLUMNS('pattern')` or `COLUMNS(col1, col2, ...)`.
- *
- * ClickHouse-specific expression that matches multiple columns at once.
- *
- * @example `COLUMNS('abc')` → `{ kind: 'columnsExpr', args: [{ kind: 'literal', type: 'String', value: 'abc' }] }`
- * @example `t.COLUMNS(a, b)` → `{ kind: 'columnsExpr', qualifier: 't', args: [...] }`
- * @example `COLUMNS('a') APPLY (toString)` → `{ kind: 'columnsExpr', args: [...], transformers: [...] }`
- */
-export type ColumnsExpr = {
-  kind: 'columnsExpr';
-  /** Optional table qualifier, e.g. `'t'` in `t.COLUMNS(...)`. */
-  qualifier?: string;
-  /** Arguments to COLUMNS: a regex pattern string or column expressions. */
-  args: Expression[];
-  /** Optional column transformers (EXCEPT, APPLY, REPLACE). */
-  transformers?: ColumnTransformer[];
-} & NodeMetadata;
-
-/**
- * ClickHouse JSON type annotation syntax: `expr.:Type` or `expr.:"ComplexType"`.
- *
- * Used to read a JSON subcolumn as a specific type.
- *
- * @example `json.field.:Int64` → `{ kind: 'jsonSubcolumn', expr: ..., type: 'Int64' }`
- * @example `col.:Array(JSON).d` → `{ kind: 'jsonSubcolumn', expr: ..., type: 'Array(JSON)', path: ['d'] }`
- */
-export type JsonSubcolumn = {
-  kind: 'jsonSubcolumn';
-  /** The base expression to access the JSON subcolumn from. */
-  expr: Expression;
-  /** The target type annotation. */
-  type: string;
-  /** Optional further field accesses after the type annotation, e.g. `['d']` in `col.:Array(JSON).d`. */
-  path?: string[];
-} & NodeMetadata;
-
-/**
- * Union of all expression node types in the AST.
- *
- * Use the `kind` field to discriminate between variants.
- */
-export type Expression =
-  | Literal
-  | ColumnRef
-  | FunctionCall
-  | CastExpr
-  | LambdaExpr
-  | BinaryExpr
-  | NaryExpr
-  | UnaryExpr
-  | Asterisk
-  | QualifiedAsterisk
-  | TupleExpansion
-  | QueryParam
-  | Alias
-  | ArrayLiteral
-  | TupleLiteral
-  | SubqueryExpr
-  | InExpr
-  | ColumnsExpr
-  | JsonSubcolumn;
-
-/**
- * Zod schema for {@link Expression}. Uses `z.lazy` for recursive references.
- */
-export const ExpressionSchema: z.ZodType<Expression> = z.lazy(() =>
-  z.union([
-    LiteralSchema,
-    ColumnRefSchema,
-    FunctionCallSchema,
-    CastExprSchema,
-    LambdaExprSchema,
-    BinaryExprSchema,
-    NaryExprSchema,
-    UnaryExprSchema,
-    AsteriskSchema,
-    QualifiedAsteriskSchema,
-    TupleExpansionSchema,
-    QueryParamSchema,
-    AliasSchema,
-    ArrayLiteralSchema,
-    TupleLiteralSchema,
-    SubqueryExprSchema,
-    InExprSchema,
-    ColumnsExprSchema,
-    JsonSubcolumnSchema,
-  ]),
-);
-
-/** Zod schema for {@link ColumnsExpr}. */
-export const ColumnsExprSchema: z.ZodType<ColumnsExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('columnsExpr'),
-    qualifier: z.string().optional(),
-    args: z.array(ExpressionSchema),
-    transformers: z.array(ColumnTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link JsonSubcolumn}. */
-export const JsonSubcolumnSchema: z.ZodType<JsonSubcolumn> = z.lazy(() =>
-  z.object({
-    kind: z.literal('jsonSubcolumn'),
-    expr: ExpressionSchema,
-    type: z.string(),
-    path: z.array(z.string()).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link WindowFrameBound}. */
-const WindowFrameBoundSchema: z.ZodType<WindowFrameBound> = z.lazy(() =>
-  z.union([
-    z.object({ kind: z.literal('unbounded') }),
-    z.object({ kind: z.literal('currentRow') }),
-    z.object({ kind: z.literal('preceding'), expr: ExpressionSchema }),
-    z.object({ kind: z.literal('following'), expr: ExpressionSchema }),
-  ]),
-);
-
-/** Zod schema for {@link WindowSpec}. */
-const WindowSpecSchema: z.ZodType<WindowSpec> = z.lazy(() =>
-  z.object({
-    baseWindow: z.string().optional(),
-    partitionBy: z.array(ExpressionSchema).optional(),
-    orderBy: z.array(OrderByItemSchema).optional(),
-    frame: z
-      .object({
-        frameType: z.union([z.literal('rows'), z.literal('range'), z.literal('groups')]),
-        start: WindowFrameBoundSchema,
-        end: WindowFrameBoundSchema.optional(),
-      })
-      .optional(),
-  }),
-);
-
-/** Zod schema for {@link FunctionCall}. */
-export const FunctionCallSchema: z.ZodType<FunctionCall> = z.lazy(() =>
-  z.object({
-    kind: z.literal('functionCall'),
-    name: z.string(),
-    params: z.array(ExpressionSchema).optional(),
-    args: z.array(ExpressionSchema),
-    funcSettings: z.array(SettingItemSchema).optional(),
-    window: WindowSpecSchema.optional(),
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link CastExpr}. */
-export const CastExprSchema: z.ZodType<CastExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('castExpr'),
-    expr: ExpressionSchema,
-    type: z.string(),
-    operator: z.boolean().optional(),
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link LambdaExpr}. */
-export const LambdaExprSchema: z.ZodType<LambdaExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('lambdaExpr'),
-    params: z.array(z.string()),
-    body: ExpressionSchema,
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link BinaryOp}. */
-export const BinaryOpSchema = z.union([
-  z.literal('<=>'),
-  z.literal('>='),
-  z.literal('<='),
-  z.literal('<>'),
-  z.literal('!='),
-  z.literal('=='),
-  z.literal('>'),
-  z.literal('<'),
-  z.literal('='),
-  z.literal('IS DISTINCT FROM'),
-  z.literal('+'),
-  z.literal('-'),
-  z.literal('*'),
-  z.literal('/'),
-  z.literal('%'),
-  z.literal('DIV'),
-  z.literal('MOD'),
-]);
-
-/** Zod schema for {@link BinaryExpr}. */
-export const BinaryExprSchema: z.ZodType<BinaryExpr> = z.object({
-  kind: z.literal('binaryExpr'),
-  op: BinaryOpSchema,
-  left: ExpressionSchema,
-  right: ExpressionSchema,
-  parenthesized: z.boolean().optional(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link NaryExpr}. */
-export const NaryExprSchema: z.ZodType<NaryExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('naryExpr'),
-    op: z.union([z.literal('AND'), z.literal('OR')]),
-    operands: z.array(ExpressionSchema),
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link UnaryExpr}. */
-export const UnaryExprSchema: z.ZodType<UnaryExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('unaryExpr'),
-    op: z.literal('NOT'),
-    expr: ExpressionSchema,
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link Alias}. */
-export const AliasSchema: z.ZodType<Alias> = z.object({
-  kind: z.literal('alias'),
-  expr: ExpressionSchema,
-  alias: z.string(),
-  parenthesized: z.boolean().optional(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link ArrayLiteral}. */
-export const ArrayLiteralSchema: z.ZodType<ArrayLiteral> = z.object({
-  kind: z.literal('arrayLiteral'),
-  elements: z.array(ExpressionSchema),
-  source: z.string().optional(),
-  parenthesized: z.boolean().optional(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link TupleLiteral}. */
-export const TupleLiteralSchema: z.ZodType<TupleLiteral> = z.object({
-  kind: z.literal('tupleLiteral'),
-  elements: z.array(ExpressionSchema),
-  source: z.string().optional(),
-  parenthesized: z.boolean().optional(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link SubqueryExpr}. */
-export const SubqueryExprSchema: z.ZodType<SubqueryExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('subqueryExpr'),
-    query: QueryStatementSchema,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link InExpr}. */
-export const InExprSchema: z.ZodType<InExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('inExpr'),
-    negated: z.boolean(),
-    global: z.boolean().optional(),
-    expr: ExpressionSchema,
-    values: z.union([z.array(ExpressionSchema), SubqueryExprSchema]),
-    parenthesized: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/**
- * A single column in an INTERPOLATE clause.
- *
- * @example `INTERPOLATE (col AS col + 1)` → `{ col: 'col', expr: ... }`
- * @example `INTERPOLATE (col)` → `{ col: 'col' }` (uses default interpolation)
- */
-export type InterpolateItem = {
-  /** The column name to interpolate. */
-  col: string;
-  /** Optional expression defining how to compute the interpolated value. */
-  expr?: Expression;
-};
-
-/**
- * A single item in an ORDER BY clause.
- *
- * @example `col ASC` → `{ kind: 'orderByItem', expr: ..., direction: 'ASC' }`
- * @example `col DESC COLLATE 'en'` → `{ kind: 'orderByItem', expr: ..., direction: 'DESC', collate: 'en' }`
- * @example `col ASC WITH FILL FROM 0 TO 100 STEP 10` → includes `fillFrom`, `fillTo`, `fillStep`
- */
-export type OrderByItem = {
-  kind: 'orderByItem';
-  /** The expression to sort by. */
-  expr: Expression;
-  /** Sort direction. */
-  direction: 'ASC' | 'DESC';
-  /** Collation name for string sorting. */
-  collate?: string;
-  /** WITH FILL start value. */
-  fillFrom?: Expression;
-  /** WITH FILL end value. */
-  fillTo?: Expression;
-  /** WITH FILL step value. */
-  fillStep?: Expression;
-  /** WITH FILL staleness value. */
-  fillStaleness?: Expression;
-  /** INTERPOLATE clause items (attached to the last WITH FILL item in the ORDER BY). */
-  interpolate?: InterpolateItem[];
-} & NodeMetadata;
-
-/** Zod schema for {@link InterpolateItem}. */
-const InterpolateItemSchema: z.ZodType<InterpolateItem> = z.lazy(() =>
-  z.object({
-    col: z.string(),
-    expr: ExpressionSchema.optional(),
-  }),
-);
-
-/** Zod schema for {@link OrderByItem}. */
-export const OrderByItemSchema = z.object({
-  kind: z.literal('orderByItem'),
-  expr: ExpressionSchema,
-  direction: z.union([z.literal('ASC'), z.literal('DESC')]),
-  collate: z.string().optional(),
-  fillFrom: ExpressionSchema.optional(),
-  fillTo: ExpressionSchema.optional(),
-  fillStep: ExpressionSchema.optional(),
-  fillStaleness: ExpressionSchema.optional(),
-  interpolate: z.array(InterpolateItemSchema).optional(),
-  ...ExprMetadataFields,
-});
-
-/** Zod schema for {@link SettingItem}. */
-export const SettingItemSchema = z.lazy(() =>
-  z.object({
-    name: z.string(),
-    value: ExpressionSchema,
-  }),
-);
-
 /**
  * A single key-value setting: `name = value`.
  *
@@ -976,125 +1326,6 @@ export type SettingItem = {
 };
 
 /**
- * LIMIT BY clause: `LIMIT [offset,] count BY expr_list` or `LIMIT count BY ALL`.
- *
- * Limits rows per group defined by the BY expressions (or all groups with BY ALL).
- *
- * @example `LIMIT 5 BY user_id` → `{ count: ..., by: [{ kind: 'columnRef', parts: ['user_id'] }] }`
- * @example `LIMIT 2, 5 BY category` → `{ count: ..., by: [...], offset: ... }`
- * @example `LIMIT 1 BY ALL` → `{ count: ..., by: [] }`
- */
-export type LimitByClause = {
-  /** Maximum number of rows per group. */
-  count: Expression;
-  /** Group-by expressions. Empty array means `BY ALL`. */
-  by: Expression[];
-  /** Number of rows to skip per group before limiting. */
-  offset?: Expression;
-};
-
-/** Zod schema for {@link LimitByClause}. */
-export const LimitByClauseSchema: z.ZodType<LimitByClause> = z.lazy(() =>
-  z.object({
-    count: ExpressionSchema,
-    by: z.array(ExpressionSchema),
-    offset: ExpressionSchema.optional(),
-  }),
-);
-
-/**
- * LIMIT clause: `LIMIT count [WITH TIES]`.
- *
- * When `commaSyntax` is true, the original SQL used `LIMIT count, offset` syntax
- * (the offset is stored in {@link SelectStatement.offset}). This flag affects
- * formatting and explain output ordering.
- *
- * @example `LIMIT 10` → `{ count: ... }`
- * @example `LIMIT 10 WITH TIES` → `{ count: ..., withTies: true }`
- * @example `LIMIT 10, 20` → `{ count: ..., commaSyntax: true }` (offset stored separately)
- */
-export type LimitClause = {
-  /** Maximum number of rows to return. */
-  count: Expression;
-  /**
-   * `true` when `LIMIT count, offset` comma syntax was used.
-   * Affects formatting order and explain output (limit before offset instead of after).
-   */
-  commaSyntax?: boolean;
-  /** Whether `WITH TIES` was specified (return additional rows that tie with the last row). */
-  withTies?: boolean;
-};
-
-/** Zod schema for {@link LimitClause}. */
-export const LimitClauseSchema: z.ZodType<LimitClause> = z.lazy(() =>
-  z.object({
-    count: ExpressionSchema,
-    commaSyntax: z.boolean().optional(),
-    withTies: z.boolean().optional(),
-  }),
-);
-
-/**
- * GROUP BY clause — a discriminated union of three mutually exclusive variants.
- *
- * - `'expressions'` — standard `GROUP BY col1, col2, ...`
- * - `'groupingSets'` — `GROUP BY GROUPING SETS ((a), (a, b), ())`
- * - `'all'` — `GROUP BY ALL` (groups by all non-aggregate columns)
- *
- * Note: WITH TOTALS, WITH CUBE, and WITH ROLLUP modifiers are stored as
- * separate flags on {@link SelectStatement}, not on this type, because they
- * can appear without a GROUP BY clause.
- *
- * @example `GROUP BY a, b` → `{ kind: 'expressions', items: [a, b] }`
- * @example `GROUP BY GROUPING SETS ((a), (a, b))` → `{ kind: 'groupingSets', sets: [[a], [a, b]] }`
- * @example `GROUP BY ALL` → `{ kind: 'all' }`
- */
-export type GroupByClause =
-  | { kind: 'expressions'; items: Expression[] }
-  | { kind: 'groupingSets'; sets: Expression[][] }
-  | { kind: 'all' };
-
-/** Zod schema for {@link GroupByClause}. */
-export const GroupByClauseSchema: z.ZodType<GroupByClause> = z.lazy(() =>
-  z.union([
-    z.object({ kind: z.literal('expressions'), items: z.array(ExpressionSchema) }),
-    z.object({ kind: z.literal('groupingSets'), sets: z.array(z.array(ExpressionSchema)) }),
-    z.object({ kind: z.literal('all') }),
-  ]),
-);
-
-/**
- * DISTINCT clause — a discriminated union of two variants.
- *
- * - `'distinct'` — standard `SELECT DISTINCT ...`
- * - `'distinctOn'` — PostgreSQL-style `SELECT DISTINCT ON (col1, col2) ...`
- *
- * @example `SELECT DISTINCT col` → `{ kind: 'distinct' }`
- * @example `SELECT DISTINCT ON (a, b) col` → `{ kind: 'distinctOn', on: [a, b] }`
- */
-export type DistinctClause = { kind: 'distinct' } | { kind: 'distinctOn'; on: Expression[] };
-
-/** Zod schema for {@link DistinctClause}. */
-export const DistinctClauseSchema: z.ZodType<DistinctClause> = z.union([
-  z.object({ kind: z.literal('distinct') }),
-  z.object({ kind: z.literal('distinctOn'), on: z.array(ExpressionSchema) }),
-]);
-
-// ── Trailing output clauses shared by query-type statements ──────────────────
-
-/**
- * Trailing output clauses that can appear after any query-type statement at the
- * top level. These control output destination and formatting.
- *
- * ClickHouse allows up to three SETTINGS clauses in a single statement:
- * 1. Query-body SETTINGS (on {@link SelectStatement.settings}) — query execution settings
- * 2. Pre-format SETTINGS ({@link preFormatSettings}) — between query body and FORMAT
- * 3. Post-format SETTINGS ({@link postFormatSettings}) — after FORMAT clause
- *
- * @example `SELECT 1 INTO OUTFILE '/tmp/out' FORMAT TSV`
- * @example `SELECT 1 SETTINGS max_block_size=1 FORMAT TSV SETTINGS max_block_size=3`
- */
-/**
  * Metadata fields common to all AST nodes: comments, source location, and parent reference.
  */
 export type NodeMetadata = {
@@ -1102,273 +1333,84 @@ export type NodeMetadata = {
   leadingComments?: string[];
   /** Comments appearing on the same line as the end of this node (inline trailing). */
   trailingComments?: string[];
-  /** Source location in the original SQL input. */
-  location?: SourceLocation;
+  /**
+   * Source location in the original SQL input. Every node the parser emits
+   * carries one when `parse` runs with locations enabled (the default), so it
+   * is a required property. `parse(sql, { locations: false })` strips it — the
+   * returned AST is then typed as {@link WithoutLocations}, where the property
+   * is absent entirely.
+   */
+  location: SourceLocation;
   /** Reference to the parent AST node. Set by {@link setParents}. */
   parent?: ASTNode;
 };
 
-export type TrailingClauses = {
-  /** Output file path: `INTO OUTFILE '/path/to/file'`. */
-  intoOutfile?: Literal;
-  /** SETTINGS clause appearing before FORMAT (between query body and FORMAT). */
-  preFormatSettings?: SettingItem[];
-  /** Output format name: `FORMAT TSV`, `FORMAT JSON`, etc. */
-  format?: string;
-  /** SETTINGS clause appearing after FORMAT (output formatting settings). */
-  postFormatSettings?: SettingItem[];
-};
-
-// ── Mutually recursive statement types ───────────────────────────────────────
-
 /**
- * A subquery used as a FROM source: `(SELECT ...) AS alias`.
+ * Recursively removes the `location` metadata property from `T` and every
+ * nested node/array within it.
  *
- * @example `FROM (SELECT 1) AS t` → `{ kind: 'subqueryFrom', query: ..., alias: 't' }`
- * @example `FROM (SELECT 1) AS t (a, b)` → includes `columnAliases: ['a', 'b']`
+ * Two uses:
+ *  - The return type of `parse(sql, { locations: false })`: the resulting AST
+ *    provably carries no `location` anywhere, so accessing `.location` is a
+ *    compile-time error and the tree is JSON-serializable w.r.t. source
+ *    positions.
+ *  - The **input** type of the AST-consuming functions (`format`,
+ *    `formatExplain`, `formatNode`, `transformNodes`). Those functions have no
+ *    need for locations (and a transform cannot keep them accurate once it
+ *    changes the SQL), so they accept the location-free view. Because a fully
+ *    located node is assignable to its `WithoutLocations` counterpart (an extra
+ *    property is allowed) but not vice-versa, these functions transparently
+ *    accept both a parsed (located) AST and a `{ locations: false }` one, while
+ *    never letting a location-free AST reach a context that requires locations.
  */
-export type SubqueryFrom = {
-  kind: 'subqueryFrom';
-  /** The subquery. */
-  query: QueryStatement;
-  /** Optional table alias. */
-  alias?: string;
-  /** Column aliases: `(a, b, c)` after the table alias, e.g. `(SELECT ...) AS x (a, b)`. */
-  columnAliases?: string[];
-  /** Whether FINAL modifier was applied. */
-  final?: boolean;
-  /** Optional SAMPLE clause. */
-  sample?: SampleClause;
-} & NodeMetadata;
-
-/**
- * A table function reference in a FROM clause.
- *
- * @example `FROM numbers(10)` → `{ kind: 'tableFunctionRef', name: 'numbers', args: [...] }`
- * @example `FROM remote('host', db, table) AS r` → includes `alias: 'r'`
- */
-export type TableFunctionRef = {
-  kind: 'tableFunctionRef';
-  /** The table function name. */
-  name: string;
-  /** Function arguments. */
-  args: Expression[];
-  /** Whether FINAL modifier was applied. */
-  final?: boolean;
-  /** Optional table alias. */
-  alias?: string;
-  /** Optional SAMPLE clause. */
-  sample?: SampleClause;
-  /** Optional function-level SETTINGS. */
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * A JOIN expression combining two FROM sources.
- *
- * @example `t1 INNER JOIN t2 ON t1.id = t2.id`
- * @example `t1 LEFT JOIN t2 USING (id)`
- * @example `t1 CROSS JOIN t2`
- */
-export type JoinExpr = {
-  kind: 'joinExpr';
-  /** The type of join. */
-  joinType: JoinType;
-  /** The left side of the join. */
-  left: FromExpr;
-  /** The right side of the join. */
-  right: TableRef | SubqueryFrom | TableFunctionRef;
-  /** The join condition (ON or USING). Absent for CROSS and PASTE joins. */
-  constraint?: JoinConstraint;
-} & NodeMetadata;
-
-/**
- * An ARRAY JOIN expression: unfolds array columns into individual rows.
- *
- * @example `t ARRAY JOIN arr AS a` — unfolds `arr` into rows
- * @example `t LEFT ARRAY JOIN arr` — keeps rows where `arr` is empty
- */
-export type ArrayJoinExpr = {
-  kind: 'arrayJoinExpr';
-  /** `'ARRAY'` or `'LEFT ARRAY'`. */
-  joinType: ArrayJoinType;
-  /** The left side (table or prior joins). */
-  left: FromExpr;
-  /** The array expressions to unfold. */
-  expressions: Expression[];
-} & NodeMetadata;
-
-/**
- * Union of all FROM clause source types.
- *
- * Use the `kind` field to discriminate between variants.
- */
-export type FromExpr = TableRef | SubqueryFrom | TableFunctionRef | JoinExpr | ArrayJoinExpr;
-
-/**
- * A SELECT statement.
- *
- * @example `SELECT a, b FROM t WHERE x > 1 ORDER BY a LIMIT 10`
- */
-export type SelectStatement = {
-  kind: 'select';
-  /** DISTINCT or DISTINCT ON clause. */
-  distinct?: DistinctClause;
-  /** Common Table Expressions (WITH clause). */
-  with?: CTE[];
-  /** Comments before the FROM keyword. */
-  fromLeadingComments?: string[];
-  /** The SELECT list expressions. */
-  select: Expression[];
-  /** The FROM clause source. */
-  from?: FromExpr;
-  /** ClickHouse PREWHERE filter (applied before reading data from storage). */
-  prewhere?: Expression;
-  /** WHERE filter expression. */
-  where?: Expression;
-  /** GROUP BY clause (expressions, grouping sets, or ALL). */
-  groupBy?: GroupByClause;
-  /** `true` when WITH TOTALS modifier is present (adds a totals row to the output). */
-  withTotals?: boolean;
-  /** `true` when WITH CUBE modifier is present (generates all grouping combinations). */
-  withCube?: boolean;
-  /** `true` when WITH ROLLUP modifier is present (generates hierarchical grouping subtotals). */
-  withRollup?: boolean;
-  /** HAVING filter expression (applied after GROUP BY). */
-  having?: Expression;
-  /** ORDER BY clause items. */
-  orderBy?: OrderByItem[];
-  /** LIMIT BY clause (limits rows per group). */
-  limitBy?: LimitByClause;
-  /** LIMIT clause (limits total rows returned). */
-  limit?: LimitClause;
-  /** Standalone OFFSET clause, or the offset from `LIMIT count, offset` comma syntax. */
-  offset?: Expression;
-  /** Named window definitions: `WINDOW name AS (spec)`. */
-  windows?: { name: string; spec: WindowSpec }[];
-  /** QUALIFY filter expression (applied after window functions). */
-  qualify?: Expression;
-  /** `true` when this SELECT was wrapped in parentheses, e.g. `(SELECT 1)` inside a UNION. */
-  parenthesized?: boolean;
-  /** `true` when the WITH clause uses RECURSIVE keyword. */
-  recursive?: boolean;
-  /** Query execution settings: `SETTINGS key = value, ...` inside the query body. */
-  settings?: SettingItem[];
-} & TrailingClauses &
-  NodeMetadata;
-
-/**
- * A UNION ALL or UNION DISTINCT statement combining multiple queries.
- *
- * @example `SELECT 1 UNION ALL SELECT 2` → `{ kind: 'union', queries: [...] }`
- * @example `SELECT 1 UNION DISTINCT SELECT 2` → `{ kind: 'union', queries: [...], unionMode: 'DISTINCT' }`
- */
-export type UnionStatement = {
-  kind: 'union';
-  /** The queries being unioned (always 2+). */
-  queries: QueryStatement[];
-  /** `'DISTINCT'` for UNION DISTINCT; absent for UNION ALL (the default). */
-  unionMode?: 'DISTINCT';
-  /** Query execution settings. */
-  settings?: SettingItem[];
-  /** True when this union was wrapped in parentheses. */
-  parenthesized?: boolean;
-} & TrailingClauses &
-  NodeMetadata;
-
-/**
- * An INTERSECT or EXCEPT statement between two queries.
- *
- * @example `SELECT 1 INTERSECT SELECT 1` → `{ kind: 'intersect', op: 'INTERSECT', left: ..., right: ... }`
- * @example `SELECT 1 EXCEPT SELECT 2` → `{ kind: 'intersect', op: 'EXCEPT', left: ..., right: ... }`
- */
-export type IntersectStatement = {
-  kind: 'intersect';
-  /** The set operation: `'INTERSECT'` or `'EXCEPT'`. */
-  op: 'INTERSECT' | 'EXCEPT';
-  /** The left query. */
-  left: QueryStatement;
-  /** The right query. */
-  right: QueryStatement;
-  /** True when this intersect/except was wrapped in parentheses. */
-  parenthesized?: boolean;
-} & TrailingClauses &
-  NodeMetadata;
-
-/**
- * A Common Table Expression (CTE) in a WITH clause.
- *
- * - `'cteSubquery'` — `WITH name AS (SELECT ...)` — names a subquery
- * - `'cteExpr'` — `WITH expr AS name` — names an expression
- *
- * @example `WITH cte AS (SELECT 1)` → `{ kind: 'cteSubquery', name: 'cte', query: ... }`
- * @example `WITH 42 AS answer` → `{ kind: 'cteExpr', name: 'answer', expr: ... }`
- */
-export type CTESubquery = {
-  kind: 'cteSubquery';
-  name: string;
-  query: QueryStatement;
-  /** Optional column aliases: `WITH t (a, b) AS (SELECT ...)` */
-  columnAliases?: string[];
-} & NodeMetadata;
-
-export type CTEExpr = {
-  kind: 'cteExpr';
-  /** Optional alias for the expression. Absent for anonymous WITH clauses
-   * such as `WITH 1 SELECT 1` (a no-op WITH that ClickHouse still preserves). */
-  name?: string;
-  expr: Expression;
-} & NodeMetadata;
-
-/** Tuple CTE: `WITH ((expr) AS a, (expr) AS b)` — parenthesized list of aliased expressions */
-export type CTETuple = {
-  kind: 'cteTuple';
-  /** The aliased expressions within the tuple, stored as alias expressions */
-  elements: Expression[];
-} & NodeMetadata;
-
-export type CTE = CTESubquery | CTEExpr | CTETuple;
+export type WithoutLocations<T> = T extends (infer U)[]
+  ? WithoutLocations<U>[]
+  : T extends object
+    ? { [K in keyof T as K extends 'location' ? never : K]: WithoutLocations<T[K]> }
+    : T;
 
 /**
  * Union of statement types that produce query results. These can appear in
  * subqueries, CTEs, UNION members, and other contexts that expect a result set.
  */
 export type QueryStatement =
-  | SelectStatement
-  | UnionStatement
-  | IntersectStatement
-  | ExplainStatement;
+  | SelectWithUnionQueryNode
+  | SelectIntersectExceptQueryNode
+  | ExplainQueryNode;
 
 /**
- * An EXPLAIN statement: `EXPLAIN [type] [settings] query`.
- *
- * @example `EXPLAIN AST SELECT 1` → `{ kind: 'explain', explainType: 'AST', query: ... }`
- * @example `EXPLAIN QUERY TREE SELECT 1` → `{ kind: 'explain', explainType: 'QUERY TREE', query: ... }`
- * @example `EXPLAIN actions=1 SELECT 1` → `{ kind: 'explain', settings: [...], query: ... }`
+ * `EXPLAIN [kind] [settings] [statement]` in ClickHouse's native shape.
+ * `kind` is the full keyword string (`"EXPLAIN"`, `"EXPLAIN AST"`,
+ * `"EXPLAIN SYNTAX"`, ...). `query` carries the explained statement
+ * directly. EXPLAIN-level settings live in `settings` (a native field);
+ * post-format SETTINGS live in `output_settings` (a native field).
  */
-export type ExplainStatement = {
-  kind: 'explain';
-  /** The explain output type: `'AST'`, `'SYNTAX'`, `'QUERY TREE'`, `'PLAN'`, `'PIPELINE'`, etc. */
-  explainType?: string;
-  /** Explain-level settings (without SETTINGS keyword), e.g. `actions=1`. */
-  settings?: SettingItem[];
-  /** The query being explained. */
+export type ExplainQueryNode = {
+  type: 'Explain';
+  /** EXPLAIN keyword phrase: `"EXPLAIN"`, `"EXPLAIN AST"`, `"EXPLAIN SYNTAX"`, ... */
+  kind?: string;
+  /** The explained inner statement. */
   query?: Statement;
-} & TrailingClauses &
-  NodeMetadata;
-
-/**
- * A SET statement: `SET key = value [, key = value ...]`.
- *
- * Changes session-level settings.
- *
- * @example `SET max_threads = 4` → `{ kind: 'set', settings: [{ name: 'max_threads', value: ... }] }`
- */
-export type SetStatement = {
-  kind: 'set';
-  /** The settings to set. */
-  settings?: SettingItem[];
+  /** EXPLAIN-level settings written as `EXPLAIN AST setting = value SELECT ...` */
+  settings?: SettingsNode;
+  /** Native trailing FORMAT name. */
+  format?: string;
+  /** Native post-format SETTINGS trailer (after FORMAT). */
+  output_settings?: SettingsNode;
 } & NodeMetadata;
+
+/** Zod schema for {@link ExplainQueryNode}. */
+export const ExplainQueryNodeSchema: z.ZodType<WithoutLocations<ExplainQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Explain'),
+    kind: z.string().optional(),
+    query: z.lazy(() => StatementSchema).optional(),
+    settings: SettingsNodeSchema.optional(),
+    format: z.string().optional(),
+    output_settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
 
 // ── Role target ──────────────────────────────────────────────────────────────
 
@@ -1380,35 +1422,6 @@ export type RoleTarget =
 
 /** Default role clause (same structure as RoleTarget). */
 export type DefaultRoleClause = RoleTarget;
-
-/**
- * A transaction control statement: `BEGIN [TRANSACTION]`, `COMMIT`, `ROLLBACK`,
- * or `SET TRANSACTION SNAPSHOT n`.
- *
- * @example `BEGIN TRANSACTION` → `{ kind: 'transactionControl', action: 'begin' }`
- * @example `COMMIT` → `{ kind: 'transactionControl', action: 'commit' }`
- * @example `SET TRANSACTION SNAPSHOT 1` → `{ kind: 'transactionControl', action: 'snapshot', snapshot: '1' }`
- */
-export type TransactionControlStatement = {
-  kind: 'transactionControl';
-  /** Which transaction control action this statement performs. */
-  action: 'begin' | 'commit' | 'rollback' | 'snapshot';
-  /** The snapshot number (only present when `action` is `'snapshot'`). */
-  snapshot?: string;
-} & NodeMetadata;
-
-/**
- * A SET DEFAULT ROLE statement.
- *
- * @example `SET DEFAULT ROLE ALL TO u1` → `{ kind: 'setRole', roles: { kind: 'all' }, users: ['u1'] }`
- */
-export type SetRoleStatement = {
-  kind: 'setRole';
-  /** The role specification. */
-  roles: RoleTarget;
-  /** The user names the role applies to. */
-  users: string[];
-} & NodeMetadata;
 
 // ── Access control shared types ──────────────────────────────────────────────
 
@@ -1441,60 +1454,7 @@ export type AccessControlSettingsItem =
       modifier?: 'CONST' | 'WRITABLE' | 'READONLY';
     };
 
-/**
- * A USE statement: `USE database` — selects the current database.
- *
- * @example `USE default` → `{ kind: 'use', database: 'default' }`
- */
-export type UseStatement = {
-  kind: 'use';
-  /** The database name to switch to. */
-  database: Identifier;
-} & NodeMetadata;
-
-/**
- * A SYSTEM statement: `SYSTEM FLUSH LOGS`, `SYSTEM RELOAD CONFIG`, etc.
- *
- * The body is stored as raw text since these are admin commands whose internal
- * structure is not parsed.
- *
- * @example `SYSTEM FLUSH LOGS` → `{ kind: 'system', body: 'FLUSH LOGS' }`
- */
-export type SystemStatement = {
-  kind: 'system';
-  /** The raw text of the SYSTEM command after the SYSTEM keyword. */
-  body: string;
-} & NodeMetadata;
-
 // ── CREATE TABLE types ───────────────────────────────────────────────────────
-
-/**
- * A parsed ClickHouse data type, e.g. `Array(UInt8)`, `Nullable(String)`, `Enum8('a' = 1)`.
- *
- * @example `{ name: 'Array', args: [{ kind: 'type', type: { name: 'UInt8' } }] }`
- */
-export type DataType = {
-  /** Type name, e.g. `'UInt64'`, `'Array'`, `'Enum8'`, `'DOUBLE PRECISION'`. */
-  name: string;
-  /** Type arguments. `undefined` means no parentheses. */
-  args?: DataTypeArg[];
-};
-
-/** A single argument inside a parameterized type like `Array(UInt8)` or `Nested(x UInt8, y String)`. */
-export type DataTypeArg =
-  | { kind: 'type'; type: DataType }
-  | { kind: 'namedField'; name: string; type: DataType }
-  | { kind: 'literal'; value: string }
-  | { kind: 'enumValues'; values: { name: string | null; value?: string | null }[] }
-  | { kind: 'setting'; name: string; value: Expression };
-
-/** A single codec in a CODEC(...) pipeline, e.g. `LZ4` or `Delta(4)`. */
-export type CodecItem = {
-  /** Codec name, e.g. `'LZ4'`, `'ZSTD'`, `'Delta'`. */
-  name: string;
-  /** Codec arguments. `undefined` means no parentheses. */
-  args?: Expression[];
-};
 
 /** An index type, e.g. `minmax`, `set(100)`, `bloom_filter(0.01)`. */
 export type IndexType = {
@@ -1504,255 +1464,7 @@ export type IndexType = {
   args?: Expression[];
 };
 
-/**
- * A column definition in a CREATE TABLE statement.
- *
- * @example `name String DEFAULT 'foo' COMMENT 'the name' CODEC(ZSTD) TTL created + INTERVAL 1 DAY`
- */
-export type ColumnDef = {
-  kind: 'columnDef';
-  /** Column name. */
-  name: string;
-  /** Column data type (structured). */
-  type?: DataType;
-  /** Nullability modifier: `'NULL'` or `'NOT NULL'`. */
-  nullable?: 'NULL' | 'NOT NULL';
-  /** Default value kind: `'DEFAULT'`, `'MATERIALIZED'`, `'EPHEMERAL'`, or `'ALIAS'`. */
-  defaultKind?: 'DEFAULT' | 'MATERIALIZED' | 'EPHEMERAL' | 'ALIAS';
-  /** Default value expression. */
-  defaultExpr?: Expression;
-  /** Column comment string. */
-  comment?: string;
-  /** Compression codec pipeline. */
-  codec?: CodecItem[];
-  /** Statistics types. */
-  statistics?: CodecItem[];
-  /** TTL expression for the column. */
-  ttl?: Expression;
-  /** Collation name (e.g. `'utf8_unicode_ci'`). */
-  collate?: string;
-  /** `true` when the column has an inline `PRIMARY KEY` modifier. */
-  primaryKey?: boolean;
-  /** Column-level SETTINGS. */
-  columnSettings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * A constraint definition in a CREATE TABLE column list.
- *
- * @example `CONSTRAINT c1 CHECK x > 0`
- * @example `CONSTRAINT c2 ASSUME length(name) = name_len`
- */
-export type ConstraintDef = {
-  kind: 'constraintDef';
-  /** Constraint name. */
-  name: string;
-  /** Constraint type: `'CHECK'` or `'ASSUME'`. */
-  constraintType: 'CHECK' | 'ASSUME';
-  /** The boolean expression for the constraint. */
-  expr: Expression;
-} & NodeMetadata;
-
-/**
- * An index definition in a CREATE TABLE column list.
- *
- * @example `INDEX idx_name expr TYPE minmax GRANULARITY 4`
- */
-export type IndexDef = {
-  kind: 'indexDef';
-  /** Index name. */
-  name: string;
-  /** The indexed expression. */
-  expr: Expression;
-  /** Index type (structured). */
-  indexType: IndexType;
-  /** Granularity value. */
-  granularity?: number;
-} & NodeMetadata;
-
-/**
- * A projection definition in a CREATE TABLE column list.
- *
- * @example `PROJECTION proj_name (SELECT col1, col2 ORDER BY col1)`
- */
-export type ProjectionDef = {
-  kind: 'projectionDef';
-  /** Projection name. */
-  name: string;
-  /** The projection SELECT query (for standard projections). */
-  query?: SelectStatement;
-  /** Index expression (for PROJECTION name INDEX expr TYPE type syntax). */
-  indexExpr?: Expression;
-  /** Index type (for PROJECTION name INDEX expr TYPE type syntax). */
-  indexType?: IndexType;
-  /** Optional WITH SETTINGS for projection. */
-  projectionSettings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * A foreign key definition in a CREATE TABLE column list.
- * ClickHouse accepts but ignores foreign keys.
- *
- * @example `FOREIGN KEY (a) REFERENCES other (b)`
- */
-export type ForeignKeyDef = {
-  kind: 'foreignKeyDef';
-  /** Columns in this table. */
-  columns: Expression[];
-  /** Referenced table. */
-  refTable: TableRef;
-  /** Referenced columns. */
-  refColumns: Expression[];
-} & NodeMetadata;
-
-/** Any element that can appear in a CREATE TABLE column list. */
-export type TableElement = ColumnDef | ConstraintDef | IndexDef | ProjectionDef | ForeignKeyDef;
-
-/**
- * An engine clause: `ENGINE = name[(args)]`.
- *
- * @example `ENGINE = MergeTree` → `{ name: 'MergeTree' }`
- * @example `ENGINE = MergeTree()` → `{ name: 'MergeTree', args: [] }`
- * @example `ENGINE = ReplicatedMergeTree('/table', '{replica}')` → `{ name: 'ReplicatedMergeTree', args: [...] }`
- */
-export type EngineClause = {
-  /** Engine name (e.g. `'MergeTree'`, `'Memory'`, `'ReplicatedMergeTree'`). */
-  name: string;
-  /** Engine arguments. `undefined` means no parentheses; `[]` means empty parens `()`. */
-  args?: Expression[];
-};
-
-/** Common fields for DDL CREATE statements. */
-type CreateCommonFields = {
-  orReplace?: boolean;
-  ifNotExists?: boolean;
-  onCluster?: string;
-  /** `true` when the statement was written as `ATTACH` rather than `CREATE`. */
-  attach?: boolean;
-} & NodeMetadata;
-
 export type TableOrderByItem = { expr: Expression; dir?: 'ASC' | 'DESC' };
-
-/** A single TTL item with an expression and optional WHERE clause. */
-export type TTLItem = { expr: Expression; where?: Expression };
-
-/** Zod schema for {@link TTLItem}. */
-export const TTLItemSchema: z.ZodType<TTLItem> = z.lazy(() =>
-  z.object({
-    expr: ExpressionSchema,
-    where: ExpressionSchema.optional(),
-  }),
-);
-
-/** Storage-related clauses shared by CREATE TABLE and CREATE MATERIALIZED VIEW. */
-type StorageClauses = {
-  engine?: EngineClause;
-  orderBy?: TableOrderByItem[];
-  partitionBy?: Expression;
-  primaryKey?: Expression[];
-  sampleBy?: Expression;
-  ttl?: TTLItem[];
-  settings?: SettingItem[];
-  comment?: string;
-};
-
-/**
- * `CREATE TABLE`, `CREATE OR REPLACE TABLE`, or `REPLACE TABLE`.
- * @example `CREATE TABLE t (id UInt64) ENGINE = MergeTree ORDER BY id`
- */
-export type CreateTableStatement = {
-  kind: 'createTable';
-  replace?: boolean;
-  temporary?: boolean;
-  table: TableRef;
-  tableElements?: TableElement[];
-  primaryKeyInSchema?: Expression[];
-  asTable?: TableRef;
-  clone?: boolean;
-  asQuery?: QueryStatement;
-  asTableFunction?: { name: string; args: Expression[] };
-  empty?: boolean;
-  /** ATTACH TABLE ... FROM 'path' — only valid with attach: true. */
-  attachFromPath?: string;
-} & StorageClauses &
-  CreateCommonFields;
-
-/** `CREATE VIEW` or `CREATE OR REPLACE VIEW`. */
-export type CreateViewStatement = {
-  kind: 'createView';
-  temporary?: boolean;
-  table: TableRef;
-  tableElements?: TableElement[];
-  asQuery: QueryStatement;
-} & CreateCommonFields;
-
-/** `CREATE MATERIALIZED VIEW`. */
-export type CreateMaterializedViewStatement = {
-  kind: 'createMaterializedView';
-  table: TableRef;
-  tableElements?: TableElement[];
-  toTable?: TableRef;
-  populate?: boolean;
-  empty?: boolean;
-  asQuery: QueryStatement;
-} & StorageClauses &
-  CreateCommonFields;
-
-/** `CREATE DATABASE`. */
-export type CreateDatabaseStatement = {
-  kind: 'createDatabase';
-  name: Identifier;
-  engine?: EngineClause;
-  orderBy?: TableOrderByItem[];
-  comment?: string;
-  settings?: SettingItem[];
-} & CreateCommonFields;
-
-/** `CREATE FUNCTION`. */
-export type CreateFunctionStatement = {
-  kind: 'createFunction';
-  name: string;
-  functionExpr: Expression;
-} & CreateCommonFields;
-
-/** `CREATE INDEX` (standalone, not inside CREATE TABLE). */
-export type CreateIndexStatement = {
-  kind: 'createIndex';
-  indexName: string;
-  table: TableRef;
-  indexExpr: Expression;
-  indexType?: IndexType;
-  granularity?: number;
-} & CreateCommonFields;
-
-/** `CREATE DICTIONARY`. */
-export type CreateDictionaryStatement = {
-  kind: 'createDictionary';
-  replace?: boolean;
-  table: TableRef;
-  dictAttrs: {
-    name: string;
-    type: DataType;
-    defaultValue?: Expression;
-    expression?: Expression;
-  }[];
-  dictDef: {
-    primaryKey?: Expression[];
-    source?: { name: string; pairs: { name: string; value: Expression }[] };
-    lifetime?: { min?: number; max?: number; value?: number };
-    layout?: { name: string; pairs: { name: string; value: Expression }[] };
-    range?: { name: string; value: Expression }[];
-    settings?: SettingItem[];
-    comment?: string;
-  };
-} & CreateCommonFields;
-
-/** `CREATE WORKLOAD`. */
-export type CreateWorkloadStatement = {
-  kind: 'createWorkload';
-  name: string;
-  parentWorkload?: string;
-} & CreateCommonFields;
 
 /** Authentication data for a CREATE USER statement. */
 export type AuthenticationData = {
@@ -1761,136 +1473,6 @@ export type AuthenticationData = {
   /** SSH public keys (for the `ssh_key` auth type): `KEY '<key>' TYPE '<type>'`. */
   sshKeys?: { key: string; type: string }[];
 };
-
-/** `CREATE USER`. */
-export type CreateUserStatement = {
-  kind: 'createUser';
-  /** User name(s) with optional @'host' suffix. */
-  names: AccessControlName[];
-  /** Parsed authentication methods. */
-  auth?: AuthenticationData[];
-  /** HOST specification items. */
-  host?: HostItem[];
-  /** Access control settings. */
-  settings?: AccessControlSettingsItem[] | 'NONE';
-  /** Default role clause. */
-  defaultRole?: DefaultRoleClause;
-  /** DEFAULT DATABASE clause. */
-  defaultDatabase?: string;
-  /** GRANTEES clause. */
-  grantees?: RoleTarget;
-  /** VALID UNTIL value. */
-  validUntil?: string;
-} & CreateCommonFields;
-
-/** `CREATE ROLE`. */
-export type CreateRoleStatement = {
-  kind: 'createRole';
-  /** Role name(s) with optional @'host' suffix. */
-  names: AccessControlName[];
-  /** Access control settings. */
-  settings?: AccessControlSettingsItem[] | 'NONE';
-} & CreateCommonFields;
-
-/** `CREATE ROW POLICY` (or `CREATE POLICY`). */
-export type CreateRowPolicyStatement = {
-  kind: 'createRowPolicy';
-  /** Whether the ROW keyword was used (vs plain POLICY). */
-  hasRowKeyword?: boolean;
-  /** Policy name(s) and their target table(s). */
-  targets: { names: string[]; table: TableRef }[];
-  /** USING expression. */
-  using?: Expression;
-  /** AS RESTRICTIVE or AS PERMISSIVE. */
-  restrictive?: 'RESTRICTIVE' | 'PERMISSIVE';
-  /** TO clause. */
-  to?: RoleTarget;
-} & CreateCommonFields;
-
-/** `CREATE QUOTA`. */
-export type CreateQuotaStatement = {
-  kind: 'createQuota';
-  /** Quota name(s). */
-  names: string[];
-  /** KEY/KEYED BY clause. */
-  keyed?: { notKeyed: true } | { keys: string[] };
-  /** Interval definitions. */
-  intervals?: {
-    randomized?: boolean;
-    duration: string;
-    unit: string;
-    trackingOnly?: boolean;
-    noLimits?: boolean;
-    limits?: { name: string; value: Expression }[];
-  }[];
-  /** TO clause. */
-  to?: RoleTarget;
-} & CreateCommonFields;
-
-/** `CREATE SETTINGS PROFILE` (or `CREATE PROFILE`). */
-export type CreateSettingsProfileStatement = {
-  kind: 'createSettingsProfile';
-  /** Whether the SETTINGS keyword was used before PROFILE. */
-  hasSettingsKeyword?: boolean;
-  /** Profile name(s). */
-  names: string[];
-  /** Access control settings. */
-  settings?: AccessControlSettingsItem[] | 'NONE';
-  /** TO clause. */
-  to?: RoleTarget;
-} & CreateCommonFields;
-
-/** `CREATE NAMED COLLECTION`. */
-export type CreateNamedCollectionStatement = {
-  kind: 'createNamedCollection';
-  /** Collection name. */
-  name: string;
-  /** Key-value items. */
-  items: { key: string; value: Expression }[];
-} & CreateCommonFields;
-
-/** `CREATE RESOURCE`. */
-export type CreateResourceStatement = {
-  kind: 'createResource';
-  /** Resource name. */
-  name: string;
-  /** Resource specifications: (operation disk name). */
-  specs: { operation: string; resourceType: string; resourceName: string }[];
-} & CreateCommonFields;
-
-/** `CREATE WINDOW VIEW`. Raw body stored since syntax is extremely complex. */
-export type CreateWindowViewStatement = {
-  kind: 'createWindowView';
-  /** Raw body text after CREATE [OR REPLACE] WINDOW VIEW. */
-  rawBody: string;
-} & NodeMetadata;
-
-/** `CREATE LIVE VIEW`. Raw body stored since syntax is rarely used. */
-export type CreateLiveViewStatement = {
-  kind: 'createLiveView';
-  /** Raw body text after CREATE [OR REPLACE] LIVE VIEW. */
-  rawBody: string;
-} & NodeMetadata;
-
-/** Union of all CREATE statement types. */
-export type CreateStatement =
-  | CreateTableStatement
-  | CreateViewStatement
-  | CreateMaterializedViewStatement
-  | CreateDatabaseStatement
-  | CreateFunctionStatement
-  | CreateIndexStatement
-  | CreateDictionaryStatement
-  | CreateWorkloadStatement
-  | CreateUserStatement
-  | CreateRoleStatement
-  | CreateRowPolicyStatement
-  | CreateQuotaStatement
-  | CreateSettingsProfileStatement
-  | CreateNamedCollectionStatement
-  | CreateResourceStatement
-  | CreateWindowViewStatement
-  | CreateLiveViewStatement;
 
 // ── ALTER TABLE statement ─────────────────────────────────────────────────────
 
@@ -1901,601 +1483,6 @@ export type AlterPartitionExpr =
   | { partitionKind: 'all' }
   | { partitionKind: 'id'; id: Literal | QueryParam }
   | { partitionKind: 'expr'; expr: Expression };
-
-/**
- * All valid ALTER command type strings.
- */
-export type AlterCommandType = AlterCommand['commandType'];
-
-/** Base fields shared by all ALTER commands. */
-type AlterCommandBase = {
-  kind: 'alterCommand';
-  /** Whether the command was wrapped in parentheses. */
-  parenthesized?: boolean;
-} & NodeMetadata;
-
-/** ALTER TABLE ... ADD COLUMN col [AFTER pos] */
-type AlterAddColumn = AlterCommandBase & {
-  commandType: 'ADD_COLUMN';
-  column: ColumnDef;
-  afterColumn?: string;
-};
-
-/** ALTER TABLE ... DROP COLUMN col [IN PARTITION ...] */
-type AlterDropColumn = AlterCommandBase & {
-  commandType: 'DROP_COLUMN';
-  columnName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... MODIFY COLUMN col [AFTER pos] [MODIFY/RESET SETTING ...] */
-type AlterModifyColumn = AlterCommandBase & {
-  commandType: 'MODIFY_COLUMN';
-  column: ColumnDef;
-  afterColumn?: string;
-  /** Optional MODIFY SETTING / RESET SETTING on the column. */
-  columnSettingOp?: { op: string; settings?: SettingItem[]; names?: string[] };
-};
-
-/** ALTER TABLE ... RENAME COLUMN old TO new */
-type AlterRenameColumn = AlterCommandBase & {
-  commandType: 'RENAME_COLUMN';
-  oldName: string;
-  newName: string;
-};
-
-/** ALTER TABLE ... COMMENT COLUMN col 'text' */
-type AlterCommentColumn = AlterCommandBase & {
-  commandType: 'COMMENT_COLUMN';
-  columnName: string;
-  comment: Literal;
-};
-
-/** ALTER TABLE ... MATERIALIZE COLUMN col [IN PARTITION ...] */
-type AlterMaterializeColumn = AlterCommandBase & {
-  commandType: 'MATERIALIZE_COLUMN';
-  columnName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... ADD INDEX idx [AFTER pos] */
-type AlterAddIndex = AlterCommandBase & {
-  commandType: 'ADD_INDEX';
-  index: IndexDef;
-  afterIndex?: string;
-};
-
-/** ALTER TABLE ... DROP INDEX idx [IN PARTITION ...] */
-type AlterDropIndex = AlterCommandBase & {
-  commandType: 'DROP_INDEX';
-  indexName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... MATERIALIZE INDEX idx [IN PARTITION ...] */
-type AlterMaterializeIndex = AlterCommandBase & {
-  commandType: 'MATERIALIZE_INDEX';
-  indexName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... ADD PROJECTION proj [AFTER pos] */
-type AlterAddProjection = AlterCommandBase & {
-  commandType: 'ADD_PROJECTION';
-  projection: ProjectionDef;
-  afterProjection?: string;
-};
-
-/** ALTER TABLE ... DROP PROJECTION proj [IN PARTITION ...] */
-type AlterDropProjection = AlterCommandBase & {
-  commandType: 'DROP_PROJECTION';
-  projectionName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... MATERIALIZE PROJECTION proj [IN PARTITION ...] */
-type AlterMaterializeProjection = AlterCommandBase & {
-  commandType: 'MATERIALIZE_PROJECTION';
-  projectionName: string;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... ADD CONSTRAINT con CHECK expr */
-type AlterAddConstraint = AlterCommandBase & {
-  commandType: 'ADD_CONSTRAINT';
-  constraint: ConstraintDef;
-};
-
-/** ALTER TABLE ... DROP CONSTRAINT con */
-type AlterDropConstraint = AlterCommandBase & {
-  commandType: 'DROP_CONSTRAINT';
-  constraintName: string;
-};
-
-/** ALTER TABLE ... ADD/MODIFY STATISTICS cols TYPE types */
-type AlterAddOrModifyStatistics = AlterCommandBase & {
-  commandType: 'ADD_STATISTICS' | 'MODIFY_STATISTICS';
-  statColumns: string[];
-  statTypes: IndexType[];
-};
-
-/** ALTER TABLE ... DROP/CLEAR STATISTICS [cols] */
-type AlterDropStatistics = AlterCommandBase & {
-  commandType: 'DROP_STATISTICS';
-  statColumns?: string[];
-};
-
-/** ALTER TABLE ... MATERIALIZE STATISTICS [cols] */
-type AlterMaterializeStatistics = AlterCommandBase & {
-  commandType: 'MATERIALIZE_STATISTICS';
-  statColumns?: string[];
-};
-
-/** ALTER TABLE ... UPDATE col=val [, ...] [IN PARTITION ...] WHERE expr */
-type AlterUpdate = AlterCommandBase & {
-  commandType: 'UPDATE';
-  assignments: { column: string; expr: Expression }[];
-  where: Expression;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... DELETE [IN PARTITION ...] WHERE expr */
-type AlterDelete = AlterCommandBase & {
-  commandType: 'DELETE';
-  where: Expression;
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... DROP/ATTACH PARTITION expr (or PART 'name') */
-type AlterDropOrAttachPartition = AlterCommandBase & {
-  commandType: 'DROP_PARTITION' | 'ATTACH_PARTITION';
-  partition?: AlterPartitionExpr;
-  partName?: Literal | QueryParam;
-};
-
-/** ALTER TABLE ... DROP DETACHED PARTITION expr (or DETACHED PART 'name') */
-type AlterDropDetachedPartition = AlterCommandBase & {
-  commandType: 'DROP_DETACHED_PARTITION';
-  partition?: AlterPartitionExpr;
-  partName?: Literal | QueryParam;
-};
-
-/** ALTER TABLE ... MODIFY REFRESH ... — refresh schedule for a refreshable materialized view */
-type AlterModifyRefresh = AlterCommandBase & {
-  commandType: 'MODIFY_REFRESH';
-  /** The refresh schedule text following the REFRESH keyword. */
-  refresh: string;
-};
-
-/** ALTER TABLE ... REPLACE PARTITION expr FROM table */
-type AlterReplacePartition = AlterCommandBase & {
-  commandType: 'REPLACE_PARTITION';
-  partition: AlterPartitionExpr;
-  fromTable: TableRef;
-};
-
-/** ALTER TABLE ... MOVE PARTITION expr TO TABLE/DISK/VOLUME/SHARD target */
-type AlterMovePartition = AlterCommandBase & {
-  commandType: 'MOVE_PARTITION';
-  partition: AlterPartitionExpr;
-  moveDest?:
-    | { destType: 'TABLE'; table: TableRef }
-    | { destType: 'DISK' | 'VOLUME' | 'SHARD'; value: Literal };
-};
-
-/** ALTER TABLE ... FETCH PARTITION expr FROM 'path' */
-type AlterFetchPartition = AlterCommandBase & {
-  commandType: 'FETCH_PARTITION';
-  partition: AlterPartitionExpr;
-  fromPath?: Expression;
-};
-
-/** ALTER TABLE ... FREEZE PARTITION expr */
-type AlterFreezePartition = AlterCommandBase & {
-  commandType: 'FREEZE_PARTITION';
-  partition: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... FREEZE ALL */
-type AlterFreezeAll = AlterCommandBase & {
-  commandType: 'FREEZE_ALL';
-};
-
-/** ALTER TABLE ... MODIFY TTL expr */
-type AlterModifyTTL = AlterCommandBase & {
-  commandType: 'MODIFY_TTL';
-  ttl: TTLItem[];
-};
-
-/** ALTER TABLE ... REMOVE TTL / REMOVE SAMPLE BY */
-type AlterRemoveTTLOrSampleBy = AlterCommandBase & {
-  commandType: 'REMOVE_TTL' | 'REMOVE_SAMPLE_BY';
-};
-
-/** ALTER TABLE ... MATERIALIZE TTL [IN PARTITION ...] */
-type AlterMaterializeTTL = AlterCommandBase & {
-  commandType: 'MATERIALIZE_TTL';
-  partition?: AlterPartitionExpr;
-};
-
-/** ALTER TABLE ... MODIFY ORDER BY / MODIFY SAMPLE BY expr */
-type AlterModifyOrderByOrSampleBy = AlterCommandBase & {
-  commandType: 'MODIFY_ORDER_BY' | 'MODIFY_SAMPLE_BY';
-  expr: Expression;
-};
-
-/** ALTER TABLE ... MODIFY SETTING key=val [, ...] */
-type AlterModifySetting = AlterCommandBase & {
-  commandType: 'MODIFY_SETTING';
-  settings: SettingItem[];
-};
-
-/** ALTER TABLE ... RESET SETTING name [, ...] */
-type AlterResetSetting = AlterCommandBase & {
-  commandType: 'RESET_SETTING';
-  settingNames: string[];
-};
-
-/** ALTER TABLE ... MODIFY QUERY SELECT ... */
-type AlterModifyQuery = AlterCommandBase & {
-  commandType: 'MODIFY_QUERY';
-  query: QueryStatement;
-};
-
-/** ALTER TABLE ... MODIFY COMMENT 'text' */
-type AlterModifyComment = AlterCommandBase & {
-  commandType: 'MODIFY_COMMENT';
-  comment: Literal;
-};
-
-/** ALTER TABLE ... APPLY DELETED MASK / APPLY PATCHES / REWRITE PARTS [IN PARTITION ...] */
-type AlterApplyOrRewrite = AlterCommandBase & {
-  commandType: 'APPLY_DELETED_MASK' | 'APPLY_PATCHES' | 'REWRITE_PARTS';
-  partition?: AlterPartitionExpr;
-};
-
-/**
- * An ALTER TABLE command — one of many operations within an ALTER TABLE statement.
- * Discriminated union on `commandType`.
- */
-export type AlterCommand =
-  | AlterAddColumn
-  | AlterDropColumn
-  | AlterModifyColumn
-  | AlterRenameColumn
-  | AlterCommentColumn
-  | AlterMaterializeColumn
-  | AlterAddIndex
-  | AlterDropIndex
-  | AlterMaterializeIndex
-  | AlterAddProjection
-  | AlterDropProjection
-  | AlterMaterializeProjection
-  | AlterAddConstraint
-  | AlterDropConstraint
-  | AlterAddOrModifyStatistics
-  | AlterDropStatistics
-  | AlterMaterializeStatistics
-  | AlterUpdate
-  | AlterDelete
-  | AlterDropOrAttachPartition
-  | AlterDropDetachedPartition
-  | AlterReplacePartition
-  | AlterMovePartition
-  | AlterFetchPartition
-  | AlterFreezePartition
-  | AlterFreezeAll
-  | AlterModifyTTL
-  | AlterRemoveTTLOrSampleBy
-  | AlterMaterializeTTL
-  | AlterModifyOrderByOrSampleBy
-  | AlterModifySetting
-  | AlterResetSetting
-  | AlterModifyQuery
-  | AlterModifyComment
-  | AlterModifyRefresh
-  | AlterApplyOrRewrite;
-
-/**
- * An ALTER TABLE statement.
- *
- * @example `ALTER TABLE t ADD COLUMN x UInt32`
- * @example `ALTER TABLE t UPDATE x = 1 WHERE id = 2`
- */
-export type AlterStatement = {
-  kind: 'alter';
-  /** The table being altered. */
-  table: TableRef;
-  /** The list of ALTER commands. */
-  commands: AlterCommand[];
-  /** Optional ON CLUSTER clause. */
-  onCluster?: string;
-  /** Optional SETTINGS clause. */
-  settings?: SettingItem[];
-  /** Optional FORMAT clause. */
-  format?: string;
-} & NodeMetadata;
-
-/**
- * A PARALLEL WITH statement: chains multiple CREATE statements for parallel execution.
- *
- * @example `CREATE TABLE t1 (...) ENGINE=X PARALLEL WITH CREATE TABLE t2 (...) ENGINE=Y`
- */
-export type ParallelWithStatement = {
-  kind: 'parallelWith';
-  /** The CREATE or INSERT statements being executed in parallel (always 2+). */
-  queries: (
-    | CreateStatement
-    | InsertStatement
-    | TruncateStatement
-    | DropStatement
-    | AlterStatement
-    | OptimizeStatement
-  )[];
-} & NodeMetadata;
-
-/**
- * An INSERT statement: inserts data into a table or table function.
- *
- * @example `INSERT INTO t (a, b) VALUES (1, 2)` — VALUES data is not stored in AST
- * @example `INSERT INTO t SELECT * FROM other` — SELECT query is stored in `selectQuery`
- * @example `INSERT INTO TABLE FUNCTION s3(...) PARTITION BY val SELECT ...`
- */
-export type InsertStatement = {
-  kind: 'insert';
-  /** The insert target — either a table reference or a table function. */
-  target: { kind: 'table'; table: TableRef } | { kind: 'function'; func: TableFunctionRef };
-  /** Optional WITH clause appearing before `INSERT INTO`. */
-  with?: CTE[];
-  /** Optional column list for the insert. */
-  columns?: Expression[];
-  /** Optional PARTITION BY expression. */
-  partitionBy?: Expression;
-  /** Optional `FROM INFILE 'path' [COMPRESSION 'name']` clause. */
-  fromInfile?: { path: Literal; compression?: Literal };
-  /** Optional INSERT-level SETTINGS (before SELECT/VALUES). */
-  insertSettings?: SettingItem[];
-  /** Optional SELECT query (for INSERT ... SELECT). */
-  selectQuery?: QueryStatement;
-  /** Optional SELECT-level SETTINGS (after SELECT). */
-  querySettings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * A TRUNCATE statement: removes all data from a table, database, or set of tables.
- *
- * @example `TRUNCATE TABLE t`
- * @example `TRUNCATE DATABASE db`
- * @example `TRUNCATE ALL TABLES FROM IF EXISTS db`
- * @example `TRUNCATE TABLES FROM db NOT LIKE '%log'`
- */
-export type TruncateStatement = {
-  kind: 'truncate';
-  /** What is being truncated. Defaults to 'TABLE'. */
-  targetType: 'TABLE' | 'DATABASE' | 'TABLES';
-  /** Target table (when targetType is 'TABLE'). */
-  table?: TableRef;
-  /** Target database name (when targetType is 'DATABASE' or 'TABLES'). */
-  database?: Identifier;
-  /** TRUNCATE TEMPORARY TABLE. */
-  temporary?: boolean;
-  /** IF EXISTS modifier (position varies: before table for TABLE, after FROM for DATABASE/TABLES). */
-  ifExists?: boolean;
-  /** ON CLUSTER cluster name. */
-  onCluster?: string;
-  /** SETTINGS ... */
-  settings?: SettingItem[];
-  /** Whether the `ALL` keyword was present (only meaningful when targetType='TABLES'). */
-  allTables?: boolean;
-  /** Optional [NOT] LIKE filter on TABLES FROM form. */
-  like?: { pattern: string; not?: boolean };
-} & NodeMetadata;
-
-/**
- * A DROP statement: drops a table, view, database, dictionary, or function.
- *
- * @example `DROP TABLE IF EXISTS t`
- * @example `DROP DATABASE mydb`
- */
-export type DropStatement = {
-  kind: 'drop';
-  /** The target to drop (single table/database/etc.). */
-  table?: TableRef;
-  /** Multiple targets for comma-separated DROP (e.g. DROP TABLE t1, t2). */
-  tables?: TableRef[];
-  /** The type of object being dropped. */
-  targetType: 'TABLE' | 'VIEW' | 'DICTIONARY' | 'DATABASE' | 'FUNCTION' | 'INDEX';
-  /** For DROP INDEX: the index name. */
-  indexName?: string;
-  /** Whether TEMPORARY keyword was specified. */
-  temporary?: boolean;
-  /** Whether IF EXISTS or IF EMPTY was specified. */
-  ifExists?: boolean;
-  /** Optional ON CLUSTER clause. */
-  onCluster?: string;
-  /** Optional SETTINGS clause. */
-  settings?: SettingItem[];
-  /** Optional FORMAT clause. */
-  format?: string;
-} & NodeMetadata;
-
-/**
- * An UNDROP TABLE statement: restores a recently dropped table.
- *
- * @example `UNDROP TABLE t` → `{ kind: 'undrop', table: { kind: 'tableRef', table: 't' } }`
- */
-export type UndropStatement = {
-  kind: 'undrop';
-  /** The table being restored. */
-  table: TableRef;
-  /** Whether IF NOT EXISTS was specified. */
-  ifNotExists?: boolean;
-  /** Optional UUID literal value (without quotes). */
-  uuid?: string;
-  /** Optional ON CLUSTER clause. */
-  onCluster?: string;
-  /** Optional FORMAT clause. */
-  format?: string;
-} & NodeMetadata;
-
-/**
- * A BACKUP/RESTORE destination, e.g. `Disk('backups', 'b.tar')`, `Memory('b1')`, `Null`.
- */
-export type BackupDestination = {
-  /** The destination engine/function name (`Disk`, `S3`, `Memory`, `Null`, ...). */
-  name: string;
-  /** Arguments inside parentheses; `undefined` when no parentheses were present. */
-  args?: Expression[];
-};
-
-/** A single element in a BACKUP/RESTORE target list. */
-export type BackupElement =
-  | {
-      kind: 'table' | 'dictionary' | 'view' | 'temporaryTable';
-      /** The table being backed up/restored. */
-      table: TableRef;
-      /** Optional `AS [db.]name` rename target. */
-      as?: TableRef;
-      /** Optional `PARTITION(S) ...` expressions. */
-      partitions?: Expression[];
-      /** Optional `EXCEPT COLUMNS (...)` column names. */
-      exceptColumns?: string[];
-    }
-  | { kind: 'database'; name: Identifier; as?: Identifier; exceptTables?: Identifier[] }
-  | { kind: 'function'; name: Identifier }
-  | { kind: 'namedCollection'; name: Identifier }
-  | { kind: 'all'; exceptDatabases?: Identifier[]; exceptTables?: TableRef[] };
-
-/**
- * A BACKUP or RESTORE statement.
- *
- * @example `BACKUP TABLE t TO Disk('d', 'b.zip')` →
- *   `{ kind: 'backup', operation: 'BACKUP', elements: [{ kind: 'table', table: ... }], destination: { name: 'Disk', args: [...] } }`
- */
-export type BackupStatement = {
-  kind: 'backup';
-  /** Whether this is a BACKUP or a RESTORE. */
-  operation: 'BACKUP' | 'RESTORE';
-  /** The list of backup targets. */
-  elements: BackupElement[];
-  /** The TO (BACKUP) / FROM (RESTORE) destination. */
-  destination: BackupDestination;
-  /** Optional ON CLUSTER clause. */
-  onCluster?: string;
-  /** Optional SETTINGS clause. */
-  settings?: SettingItem[];
-  /** Optional SYNC / ASYNC modifier. */
-  wait?: 'SYNC' | 'ASYNC';
-  /** Optional FORMAT clause. */
-  format?: string;
-} & NodeMetadata;
-
-/** A `[NOT] LIKE|ILIKE 'pattern'` filter used by several SHOW statements. */
-export type ShowLike = {
-  /** Whether the `NOT` keyword was present. */
-  not?: boolean;
-  /** True for `ILIKE`, false/absent for `LIKE`. */
-  ilike?: boolean;
-  /** The pattern string (without quotes). */
-  pattern: string;
-};
-
-/** A name with an optional `ON table` (used by SHOW CREATE ROW POLICY). */
-export type ShowRowPolicyName = { names: string[]; table?: TableRef };
-
-/**
- * What a {@link ShowStatement} displays. Discriminated by `type`.
- */
-export type ShowTarget =
-  // SHOW [TEMPORARY] TABLES|DATABASES|DICTIONARIES [FROM db] [[NOT] LIKE|ILIKE p] [WHERE e] [LIMIT e] [SETTINGS ...]
-  | {
-      type: 'listing';
-      objectType: 'TABLES' | 'DATABASES' | 'DICTIONARIES';
-      temporary?: boolean;
-      from?: Identifier;
-      like?: ShowLike;
-      where?: Expression;
-      limit?: Expression;
-      settings?: SettingItem[];
-    }
-  // SHOW [CURRENT|ENABLED|CHANGED] CLUSTERS|ROLES|USERS|QUOTAS|POLICIES|PROFILES|COLLECTIONS|WARNINGS|SETTINGS
-  | {
-      type: 'accessEntities';
-      objectType:
-        | 'CLUSTERS'
-        | 'ROLES'
-        | 'USERS'
-        | 'QUOTAS'
-        | 'ROW POLICIES'
-        | 'SETTINGS PROFILES'
-        | 'NAMED COLLECTIONS'
-        | 'WARNINGS'
-        | 'SETTINGS';
-      modifier?: 'CURRENT' | 'ENABLED' | 'CHANGED';
-      like?: ShowLike;
-      limit?: Expression;
-    }
-  // SHOW CLUSTER name
-  | { type: 'cluster'; name: Identifier }
-  // SHOW [EXTENDED] [FULL] COLUMNS|FIELDS FROM table [FROM db] [[NOT] LIKE|ILIKE p] [WHERE e] [LIMIT e]
-  | {
-      type: 'columns';
-      keyword: 'COLUMNS' | 'FIELDS';
-      extended?: boolean;
-      full?: boolean;
-      table: TableRef;
-      from?: Identifier;
-      like?: ShowLike;
-      where?: Expression;
-      limit?: Expression;
-    }
-  // SHOW [EXTENDED] INDEX|INDEXES|INDICES|KEYS FROM table [FROM db] [WHERE e]
-  | {
-      type: 'indexes';
-      keyword: 'INDEX' | 'INDEXES' | 'INDICES' | 'KEYS';
-      extended?: boolean;
-      table: TableRef;
-      from?: Identifier;
-      where?: Expression;
-    }
-  // SHOW [SETTING] name
-  | { type: 'setting'; name: Identifier }
-  // Keyword-only forms with no arguments.
-  | { type: 'privileges' }
-  | { type: 'engines' }
-  | { type: 'merges' }
-  | { type: 'access' }
-  | { type: 'processlist'; full?: boolean }
-  // SHOW FUNCTIONS [[LIKE|ILIKE] p]
-  | { type: 'functions'; like?: ShowLike }
-  // SHOW GRANTS [FOR users] [WITH IMPLICIT] [FINAL]
-  | { type: 'grants'; for?: string[]; withImplicit?: boolean; final?: boolean }
-  // SHOW CREATE USER|ROLE|QUOTA|SETTINGS PROFILE|NAMED COLLECTION name {, name}
-  | {
-      type: 'createAccess';
-      entity: 'USER' | 'ROLE' | 'QUOTA' | 'SETTINGS PROFILE' | 'NAMED COLLECTION';
-      names: AccessControlName[];
-    }
-  // SHOW CREATE [ROW] POLICY name ON table {, ...}
-  | { type: 'createRowPolicy'; policies: ShowRowPolicyName[] }
-  // SHOW TABLE|VIEW name  (shorthand for SHOW CREATE TABLE/VIEW)
-  | { type: 'objectShorthand'; objectType: 'TABLE' | 'VIEW'; temporary?: boolean; table: TableRef }
-  // SHOW DATABASE name  (shorthand for SHOW CREATE DATABASE)
-  | { type: 'databaseShorthand'; database: Identifier };
-
-/**
- * A SHOW statement.
- *
- * @example `SHOW TABLES FROM db` →
- *   `{ kind: 'show', show: { type: 'listing', objectType: 'TABLES', from: 'db' } }`
- */
-export type ShowStatement = {
-  kind: 'show';
-  /** The structured description of what is being shown. */
-  show: ShowTarget;
-  /** Optional trailing FORMAT clause. */
-  format?: string;
-} & NodeMetadata;
 
 /** A single privilege in a GRANT/REVOKE statement, e.g. `SELECT(col1, col2)`. */
 export type GrantPrivilege = {
@@ -2572,1951 +1559,2565 @@ export type AlterUserClause =
   | { kind: 'grantees'; grantees: RoleTarget }
   | { kind: 'validUntil'; value: string };
 
-/** `ALTER USER`. */
-export type AlterUserStatement = {
-  kind: 'alterUser';
-  names: AccessControlName[];
-  ifExists?: boolean;
-  onCluster?: string;
-  /** Ordered clauses applied to the user(s). */
-  clauses: AlterUserClause[];
-} & NodeMetadata;
-
-/** `ALTER ROLE`. */
-export type AlterRoleStatement = {
-  kind: 'alterRole';
-  names: AccessControlName[];
-  ifExists?: boolean;
-  onCluster?: string;
-  renameTo?: AccessControlName;
-  settings?: AccessControlSettingsItem[] | 'NONE';
-} & NodeMetadata;
-
-/** `ALTER QUOTA`. */
-export type AlterQuotaStatement = {
-  kind: 'alterQuota';
-  names: string[];
-  ifExists?: boolean;
-  onCluster?: string;
-  renameTo?: string;
-  keyed?: { notKeyed: true } | { keys: string[] };
-  intervals?: {
-    randomized?: boolean;
-    duration: string;
-    unit: string;
-    trackingOnly?: boolean;
-    noLimits?: boolean;
-    limits?: { name: string; value: Expression }[];
-  }[];
-  to?: RoleTarget;
-} & NodeMetadata;
-
-/** `ALTER ROW POLICY` (or `ALTER POLICY`). */
-export type AlterRowPolicyStatement = {
-  kind: 'alterRowPolicy';
-  hasRowKeyword?: boolean;
-  targets: { names: string[]; table: TableRef }[];
-  ifExists?: boolean;
-  onCluster?: string;
-  renameTo?: string;
-  /** Whether a `FOR SELECT` clause was present. */
-  forSelect?: boolean;
-  using?: Expression;
-  restrictive?: 'RESTRICTIVE' | 'PERMISSIVE';
-  to?: RoleTarget;
-} & NodeMetadata;
-
-/** `ALTER SETTINGS PROFILE` (or `ALTER PROFILE`). */
-export type AlterSettingsProfileStatement = {
-  kind: 'alterSettingsProfile';
-  hasSettingsKeyword?: boolean;
-  names: string[];
-  ifExists?: boolean;
-  onCluster?: string;
-  renameTo?: string;
-  settings?: AccessControlSettingsItem[] | 'NONE';
-  to?: RoleTarget;
-} & NodeMetadata;
-
-/**
- * OPTIMIZE TABLE: forces merges/deduplication.
- *
- * @example `OPTIMIZE TABLE t FINAL DEDUPLICATE BY a`
- */
-export type OptimizeStatement = {
-  kind: 'optimize';
-  table: TableRef;
-  onCluster?: string;
-  /** PARTITION expr | PARTITION ID 'id' | PARTITION ALL. */
-  partition?: { kind: 'expr'; expr: Expression } | { kind: 'id'; id: string } | { kind: 'all' };
-  final?: boolean;
-  cleanup?: boolean;
-  deduplicate?: boolean;
-  /** Expressions for `DEDUPLICATE BY (...)`. */
-  deduplicateBy?: Expression[];
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * DESC/DESCRIBE TABLE: returns table columns/types.
- *
- * @example `DESC TABLE t`
- * @example `DESC (SELECT 1)`
- */
-export type DescribeStatement = {
-  kind: 'describe';
-  target:
-    | { kind: 'table'; table: TableRef }
-    | { kind: 'function'; func: TableFunctionRef }
-    | { kind: 'subquery'; query: QueryStatement };
-  final?: boolean;
-  format?: string;
-  settings?: SettingItem[];
-  /** True when SETTINGS appeared before FORMAT in source. */
-  settingsBeforeFormat?: boolean;
-} & NodeMetadata;
-
-/**
- * SHOW CREATE for tables, databases, views, dictionaries.
- *
- * @example `SHOW CREATE TABLE t`
- */
-export type ShowCreateStatement = {
-  kind: 'showCreate';
-  targetType: 'TABLE' | 'DATABASE' | 'VIEW' | 'DICTIONARY';
-  /** Set for TABLE/VIEW/DICTIONARY. */
-  table?: TableRef;
-  /** Set for DATABASE. */
-  database?: Identifier;
-  format?: string;
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * DETACH TABLE/VIEW/DICTIONARY/DATABASE.
- *
- * @example `DETACH TABLE t`
- */
-export type DetachStatement = {
-  kind: 'detach';
-  targetType: 'TABLE' | 'VIEW' | 'DICTIONARY' | 'DATABASE';
-  table?: TableRef;
-  database?: Identifier;
-  ifExists?: boolean;
-  onCluster?: string;
-  permanently?: boolean;
-  sync?: boolean;
-} & NodeMetadata;
-
-/**
- * DELETE FROM table WHERE expr — lightweight delete.
- *
- * @example `DELETE FROM t WHERE x = 1`
- */
-export type DeleteStatement = {
-  kind: 'delete';
-  table: TableRef;
-  onCluster?: string;
-  partition?: { kind: 'expr'; expr: Expression } | { kind: 'id'; id: string };
-  where: Expression;
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * UPDATE table SET col = expr [, ...] WHERE expr — lightweight update.
- *
- * @example `UPDATE t SET a = a + 1 WHERE b > 0`
- */
-export type UpdateStatement = {
-  kind: 'update';
-  table: TableRef;
-  onCluster?: string;
-  assignments: { column: string; expr: Expression }[];
-  where: Expression;
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * CHECK TABLE/DATABASE/ALL TABLES.
- *
- * @example `CHECK TABLE t`
- * @example `CHECK ALL TABLES`
- */
-export type CheckStatement = {
-  kind: 'check';
-  targetType: 'TABLE' | 'DATABASE' | 'ALL';
-  table?: TableRef;
-  database?: Identifier;
-  /** PARTITION expr or PART 'id' (ignored in explain output). */
-  partition?: { kind: 'expr'; expr: Expression } | { kind: 'id'; id: string };
-  settings?: SettingItem[];
-  /** Optional FORMAT clause name. */
-  format?: string;
-} & NodeMetadata;
-
-/**
- * ATTACH TABLE/VIEW/DICTIONARY/DATABASE.
- *
- * @example `ATTACH TABLE t`
- */
-export type AttachStatement = {
-  kind: 'attach';
-  targetType: 'TABLE' | 'VIEW' | 'DICTIONARY' | 'DATABASE';
-  table?: TableRef;
-  database?: Identifier;
-  ifNotExists?: boolean;
-  onCluster?: string;
-  uuid?: string;
-} & NodeMetadata;
-
-/**
- * RENAME TABLE/DATABASE/DICTIONARY src TO dst [, ...].
- *
- * @example `RENAME TABLE a TO b, c TO d`
- */
-export type RenameStatement = {
-  kind: 'rename';
-  targetType: 'TABLE' | 'DATABASE' | 'DICTIONARY';
-  /** One or more `from -> to` pairs. */
-  pairs: Array<{ from: TableRef; to: TableRef }>;
-  ifExists?: boolean;
-  onCluster?: string;
-  exchange?: boolean;
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * EXISTS TABLE/VIEW/DATABASE/DICTIONARY.
- *
- * @example `EXISTS TABLE t`
- */
-export type ExistsStatement = {
-  kind: 'exists';
-  targetType: 'TABLE' | 'VIEW' | 'DATABASE' | 'DICTIONARY';
-  table?: TableRef;
-  database?: Identifier;
-  settings?: SettingItem[];
-} & NodeMetadata;
-
-/**
- * EXECUTE AS user <statement> — run a statement under a different user's permissions.
- *
- * @example `EXECUTE AS some_user ALTER TABLE t UPDATE x = 1 WHERE y = 0`
- */
-export type ExecuteAsStatement = {
-  kind: 'executeAs';
-  user: string;
-  statement: Statement;
-} & NodeMetadata;
-
-/**
- * KILL QUERY or KILL MUTATION.
- *
- * @example `KILL QUERY WHERE query_id = 'abc' SYNC`
- */
-export type KillStatement = {
-  kind: 'kill';
-  target: 'QUERY' | 'MUTATION';
-  onCluster?: string;
-  where: Expression;
-  mode?: 'SYNC' | 'ASYNC' | 'TEST';
-  settings?: SettingItem[];
-  format?: string;
-} & NodeMetadata;
-
 /**
  * An empty statement — a bare `;` between real statements. Preserved so AST
  * indices align with ClickHouse's EXPLAIN AST output (which emits an error
  * placeholder for the empty statement).
  */
-export type EmptyStatement = {
-  kind: 'empty';
+export type EmptyQueryNode = {
+  type: 'EmptyQuery';
 } & NodeMetadata;
+
+/** Zod schema for {@link EmptyQueryNode}. */
+export const EmptyQueryNodeSchema: z.ZodType<WithoutLocations<EmptyQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('EmptyQuery'),
+    ...ExprMetadataFields,
+  }),
+);
 
 /**
  * Union of all top-level statement types.
  *
  * Use the `kind` field to discriminate between variants.
  */
+
+/**
+ * Shared table-target shape used by drop-family statements and by the
+ * sibling node types that mirror ClickHouse's identical native AST layout
+ * (`ShowCreate*`, `Exists*`, `CheckQuery`, `AttachQuery`). The native JSON
+ * splits the target into explicit `database` / `table` Identifier fields
+ * (with `_multi_tables` for the uncommon multi-table form) and exposes flat
+ * modifier flags (`if_exists`, `temporary`, `is_dictionary`, `is_view`,
+ * `sync`) plus `cluster`. Library-only underscore fields preserve target
+ * keyword disambiguation, SETTINGS/FORMAT trailers, etc.
+ */
+type TableTargetFields = {
+  /** Bare table name Identifier (e.g. `foo` in `DROP TABLE db.foo`). */
+  table?: IdentifierNode;
+  /** Database name Identifier (qualifier for `table`, or sole target for `DROP DATABASE`). */
+  database?: IdentifierNode;
+  if_exists?: boolean;
+  if_empty?: boolean;
+  temporary?: boolean;
+  is_dictionary?: boolean;
+  is_view?: boolean;
+  sync?: boolean;
+  /** ON CLUSTER cluster name. */
+  cluster?: string;
+  /** Explicit `UUID '...'` (only `UNDROP TABLE` carries one in this family). */
+  uuid?: string;
+  /**
+   * Multi-table list (`DROP TABLE t1, t2, ...`) serialized as an
+   * `ExpressionList` of `TableIdentifier`s — matches ClickHouse's native AST.
+   */
+  database_and_tables?: ExpressionListNode;
+  /** Library-only SETTINGS trailer. */
+  settings?: SettingsNode;
+  /** Native FORMAT trailer (`FORMAT Null`, `FORMAT JSON`, ...). */
+  format?: string;
+} & NodeMetadata;
+
+/**
+ * Drop-family extension that adds the native `kind` discriminator (matches
+ * the node `type` minus the `Query` suffix). `UndropQuery` doesn't carry
+ * `kind` in the native AST and its grammar override leaves it unset.
+ */
+type DropFamilyFields = {
+  /** Action keyword. Omitted from `UndropQuery`. */
+  kind?: 'DROP' | 'DETACH' | 'TRUNCATE';
+} & TableTargetFields;
+
+/** `DROP TABLE/DATABASE/DICTIONARY/VIEW ...` */
+export type DropQueryNode = { type: 'DropQuery' } & DropFamilyFields;
+
+/** `DETACH TABLE/DATABASE/VIEW/DICTIONARY ...` */
+export type DetachQueryNode = {
+  type: 'DetachQuery';
+  permanently?: boolean;
+} & DropFamilyFields;
+
+/** `TRUNCATE TABLE/DATABASE/ALL TABLES FROM ...` */
+export type TruncateQueryNode = {
+  type: 'TruncateQuery';
+  /** `true` when the `ALL` keyword was present (`TRUNCATE ALL TABLES FROM db`). */
+  has_all?: boolean;
+  /** `true` when the `TABLES` keyword was present (`TRUNCATE [ALL] TABLES FROM db`). */
+  has_tables?: boolean;
+  /** `[NOT] [I]LIKE 'pattern'` filter on `TRUNCATE ALL TABLES FROM db`. */
+  like?: string;
+  /** `true` when the LIKE filter was written as `NOT LIKE` / `NOT ILIKE`. */
+  not_like?: boolean;
+  /** `true` when the LIKE filter used the case-insensitive `ILIKE` form. */
+  case_insensitive_like?: boolean;
+} & DropFamilyFields;
+
+/** `DROP FUNCTION name` — ClickHouse's JSON keeps `function_name` and `if_exists`. */
+export type DropFunctionQueryNode = {
+  type: 'DropFunctionQuery';
+  /** The user-defined function name being dropped. */
+  function_name: string;
+  /** `true` for `DROP FUNCTION IF EXISTS`. */
+  if_exists?: boolean;
+  /** Library-only: the `ON CLUSTER` name (the native JSON does not emit it). */
+  cluster?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link DropFunctionQueryNode}. */
+export const DropFunctionQueryNodeSchema: z.ZodType<WithoutLocations<DropFunctionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('DropFunctionQuery'),
+      function_name: z.string(),
+      if_exists: z.boolean().optional(),
+      cluster: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * `DROP USER / ROLE / ROW POLICY / SETTINGS PROFILE / QUOTA / NAMED COLLECTION
+ * / WORKLOAD / RESOURCE`. All forms are fully structured: the access-entity
+ * drops carry the native `entity_type` + `names` / `row_policy_names` (+
+ * `if_exists` / `cluster` / `storage_name`), and the collection / workload /
+ * resource drops carry `collection_name` / `workload_name` / `resource_name`.
+ * `format()` re-emits everything from these fields.
+ */
+export type AccessDropQueryNode = {
+  type:
+    | 'DropAccessEntityQuery'
+    | 'DropNamedCollectionQuery'
+    | 'DropWorkloadQuery'
+    | 'DropResourceQuery';
+  /**
+   * The access-entity kind for `DropAccessEntityQuery`, e.g. `'USER'`,
+   * `'ROLE'`, `'QUOTA'`, `'SETTINGS PROFILE'`, `'ROW POLICY'`.
+   */
+  entity_type?: string;
+  /** `true` when `IF EXISTS` was given. */
+  if_exists?: boolean;
+  /** `ON CLUSTER` name. */
+  cluster?: string;
+  /** Dropped entity names (non-row-policy entities). */
+  names?: string[];
+  /** Access storage the entities are dropped from (`FROM <storage>`). */
+  storage_name?: string;
+  /** Dropped row policies (for `entity_type === 'ROW POLICY'`). */
+  row_policy_names?: RowPolicyNamesNode;
+  /** Named-collection name (for `DropNamedCollectionQuery`). */
+  collection_name?: string;
+  /** Workload name (for `DropWorkloadQuery`). */
+  workload_name?: string;
+  /** Resource name (for `DropResourceQuery`). */
+  resource_name?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link AccessDropQueryNode}. */
+export const AccessDropQueryNodeSchema: z.ZodType<WithoutLocations<AccessDropQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('DropAccessEntityQuery'),
+        z.literal('DropNamedCollectionQuery'),
+        z.literal('DropWorkloadQuery'),
+        z.literal('DropResourceQuery'),
+      ]),
+      collection_name: z.string().optional(),
+      workload_name: z.string().optional(),
+      resource_name: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** `DROP INDEX name ON [db.]table`. */
+export type DropIndexQueryNode = {
+  type: 'DropIndexQuery';
+  table: IdentifierNode;
+  database?: IdentifierNode;
+  index_name: IdentifierNode;
+  if_exists?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link DropIndexQueryNode}. */
+export const DropIndexQueryNodeSchema: z.ZodType<WithoutLocations<DropIndexQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('DropIndexQuery'),
+      table: IdentifierNodeSchema,
+      database: IdentifierNodeSchema.optional(),
+      index_name: IdentifierNodeSchema,
+      if_exists: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** A single element in a {@link BackupQueryNode}'s native `elements` list. */
+export type BackupQueryElement = {
+  /** `TABLE`, `DATABASE`, `ALL`, `FUNCTION`, or `NAMED_COLLECTION`. */
+  element_type: string;
+  /** Table name (for `TABLE` elements). */
+  table?: string;
+  /** Source database (when the table/database is qualified). */
+  database?: string;
+  /** `AS` rename target table. */
+  new_table?: string;
+  /** `AS` rename target database. */
+  new_database?: string;
+  /** Function name (for `FUNCTION` elements). */
+  function_name?: string;
+  /** Named-collection name (for `NAMED_COLLECTION` elements). */
+  collection_name?: string;
+  /** `PARTITION(S)` list (each wrapped as a `Partition` node). */
+  partitions?: { type: 'Partition'; value: ASTNode }[];
+  /** `EXCEPT TABLES` list (`DATABASE` / `ALL` elements). */
+  except_tables?: { database?: string; table: string }[];
+  /** `ALL EXCEPT DATABASES` list. */
+  except_databases?: string[];
+};
+
+/** Zod schema for {@link BackupQueryElement}. */
+export const BackupQueryElementSchema: z.ZodType<WithoutLocations<BackupQueryElement>> = z.lazy(
+  () =>
+    z.object({
+      element_type: z.string(),
+      table: z.string().optional(),
+      database: z.string().optional(),
+      new_table: z.string().optional(),
+      new_database: z.string().optional(),
+      function_name: z.string().optional(),
+      collection_name: z.string().optional(),
+      partitions: z
+        .array(z.object({ type: z.literal('Partition'), value: ASTNodeSchema }))
+        .optional(),
+      except_tables: z
+        .array(z.object({ database: z.string().optional(), table: z.string() }))
+        .optional(),
+      except_databases: z.array(z.string()).optional(),
+    }),
+);
+
+/**
+ * `BACKUP <items> TO <destination>` and `RESTORE`. Every operand lives in a
+ * native field: the operation `kind`, the target `elements` (with per-element
+ * `partitions` / `except_tables` / `except_databases`), the `backup_name`
+ * destination function, the trailing `FORMAT name`, and optional `cluster` /
+ * `settings` (the `SYNC` / `ASYNC` wait mode rides inside `settings` as a
+ * boolean `async` change, matching ClickHouse).
+ */
+export type BackupQueryNode = {
+  type: 'BackupQuery' | 'RestoreQuery';
+  /** `BACKUP` or `RESTORE`. */
+  kind: 'BACKUP' | 'RESTORE';
+  /** The backup/restore target list. */
+  elements: BackupQueryElement[];
+  /** The TO (BACKUP) / FROM (RESTORE) destination function. */
+  backup_name: FunctionNode;
+  /** Optional `ON CLUSTER` name. */
+  cluster?: string;
+  /** Optional `SETTINGS` node. */
+  settings?: SettingsNode;
+  /** Trailing `FORMAT name` clause. */
+  format?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link BackupQueryNode}. */
+export const BackupQueryNodeSchema: z.ZodType<WithoutLocations<BackupQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.union([z.literal('BackupQuery'), z.literal('RestoreQuery')]),
+    kind: z.enum(['BACKUP', 'RESTORE']),
+    elements: z.array(BackupQueryElementSchema),
+    backup_name: FunctionNodeSchema,
+    cluster: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    format: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `PARALLEL WITH` chain: a sequence of CREATE/INSERT/DROP/... statements
+ * executed in parallel. Children are the inner queries in source order.
+ */
+export type ParallelWithQueryNode = {
+  type: 'ParallelWithQuery';
+  children: ASTNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link ParallelWithQueryNode}. */
+export const ParallelWithQueryNodeSchema: z.ZodType<WithoutLocations<ParallelWithQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ParallelWithQuery'),
+      children: z.array(ASTNodeSchema),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * A NAMED COLLECTION / WORKLOAD setting value in ClickHouse's reference AST: a
+ * literal keeps its native `value_type`/`value`; any other expression
+ * serializes to a `CustomType` whose `value` is the compact SQL text.
+ */
+export type TypedSettingValue = {
+  value_type: string;
+  value: string | number | boolean | null;
+};
+
+/** One `CREATE WORKLOAD` setting: `name = value [FOR resource]`. */
+export type WorkloadChange = {
+  name: string;
+  value: TypedSettingValue;
+  resource?: string;
+};
+
+/** One `CREATE RESOURCE` operation: `READ`/`WRITE` against a `disk` (or any disk). */
+export type ResourceOperation = {
+  mode: string;
+  disk?: string;
+};
+
+// ── Native access-control field shapes ──────────────────────────────────────
+// These mirror ClickHouse's `EXPLAIN AST json = 1` shape for the plain (typeless)
+// data objects the access-control grammar emits. Typed sub-nodes that carry
+// their own `type` discriminator (RolesOrUsersSet, UserNamesWithHost,
+// SettingsProfileElements, ...) are defined further below and referenced here.
+
+/** One argument of a native {@link NativeAuthenticationData} method. */
+export type NativeAuthenticationArgument = {
+  /** `'PublicSSHKey'` for SSH keys; `'Literal'` for a password/secret. */
+  type?: string;
+  /** Secret/password value (for a `Literal` argument). */
+  value?: string;
+  /** Base64-encoded SSH public key (for a `PublicSSHKey` argument). */
+  key_base64?: string;
+  /** SSH key type (for a `PublicSSHKey` argument). */
+  key_type?: string;
+} & NodeMetadata;
+
+/** A native `AuthenticationData` method node (CREATE/ALTER USER `IDENTIFIED`). */
+export type NativeAuthenticationData = {
+  type?: 'AuthenticationData';
+  /** Native auth-type enum (e.g. `SHA256_PASSWORD`, `SSH_KEY`, `NO_PASSWORD`). */
+  auth_type?: string;
+  arguments?: NativeAuthenticationArgument[];
+  valid_until?: string;
+  contains_hash?: boolean;
+  contains_password?: boolean;
+} & NodeMetadata;
+
+/** A native `AllowedClientHosts` object (typeless data bag). */
+export type NativeHosts = {
+  any_host?: boolean;
+  local_host?: boolean;
+  names?: string[];
+  name_regexps?: string[];
+  like_patterns?: string[];
+  addresses?: string[];
+  subnets?: string[];
+};
+
+/** A native quota `limits` interval (typeless data bag). */
+export type NativeQuotaLimit = {
+  duration_sec: string;
+  randomize_interval?: boolean;
+  drop?: boolean;
+  /** Per-limit-name maximum values, keyed by native limit name. */
+  max?: Record<string, string>;
+};
+
+/** A single native `access_rights` element (one privilege on one target). */
+export type NativeAccessRight = {
+  access_types?: string[];
+  database?: string;
+  table?: string;
+  default_database?: boolean;
+  parameter?: string;
+  columns?: string[];
+  wildcard?: boolean;
+  grant_option?: boolean;
+};
+
+/** A native row-policy `filters` element. */
+export type NativeRowPolicyFilter = {
+  filter_type?: string;
+  condition?: Expression;
+};
+
+/**
+ * Fields common to every access-control query node: the shared native flags.
+ */
+type AccessQueryCommon = {
+  /** Set when this node represents an `ALTER ...` (rather than a `CREATE ...`). */
+  alter?: boolean;
+  or_replace?: boolean;
+  if_not_exists?: boolean;
+  if_exists?: boolean;
+  cluster?: string;
+} & NodeMetadata;
+
+/** `CREATE / ALTER USER` (`ALTER` when {@link AccessQueryCommon.alter} is set). */
+export type CreateUserQueryNode = {
+  type: 'CreateUserQuery';
+  /** Target user names (with optional host patterns). */
+  names?: UserNamesWithHostNode;
+  /** `ALTER USER ... RENAME TO` target. */
+  new_name?: string;
+  authentication_methods?: NativeAuthenticationData[];
+  replace_authentication_methods?: boolean;
+  hosts?: NativeHosts;
+  add_hosts?: NativeHosts;
+  remove_hosts?: NativeHosts;
+  /** `ALTER USER ... SETTINGS` (replace-all) element set. */
+  alter_settings?: AlterSettingsProfileElementsNode;
+  /** `CREATE USER ... SETTINGS` element list. */
+  settings?: SettingsProfileElementsNode;
+  default_roles?: RolesOrUsersSetNode;
+  default_database?: DatabaseOrNoneNode;
+  grantees?: RolesOrUsersSetNode;
+} & AccessQueryCommon;
+
+/** `CREATE / ALTER ROLE`. */
+export type CreateRoleQueryNode = {
+  type: 'CreateRoleQuery';
+  names?: string[];
+  new_name?: string;
+  settings?: SettingsProfileElementsNode;
+  alter_settings?: AlterSettingsProfileElementsNode;
+} & AccessQueryCommon;
+
+/** `CREATE / ALTER QUOTA`. */
+export type CreateQuotaQueryNode = {
+  type: 'CreateQuotaQuery';
+  names?: string[];
+  new_name?: string;
+  /** Native `key_type` enum (e.g. `USER_NAME`, `CLIENT_KEY_OR_USER_NAME`, `NONE`). */
+  key_type?: string;
+  limits?: NativeQuotaLimit[];
+  /** `TO` role/user target. */
+  roles?: RolesOrUsersSetNode;
+} & AccessQueryCommon;
+
+/** `CREATE / ALTER SETTINGS PROFILE`. */
+export type CreateSettingsProfileQueryNode = {
+  type: 'CreateSettingsProfileQuery';
+  names?: string[];
+  new_name?: string;
+  settings?: SettingsProfileElementsNode;
+  alter_settings?: AlterSettingsProfileElementsNode;
+  /** `TO` role/user target. */
+  to_roles?: RolesOrUsersSetNode;
+} & AccessQueryCommon;
+
+/** `CREATE / ALTER ROW POLICY`. */
+export type CreateRowPolicyQueryNode = {
+  type: 'CreateRowPolicyQuery';
+  names?: RowPolicyNamesNode;
+  new_short_name?: string;
+  is_restrictive?: boolean;
+  filters?: NativeRowPolicyFilter[];
+  /** `TO` role/user target. */
+  roles?: RolesOrUsersSetNode;
+} & AccessQueryCommon;
+
+/** `CREATE NAMED COLLECTION`. */
+export type CreateNamedCollectionQueryNode = {
+  type: 'CreateNamedCollectionQuery';
+  collection_name?: string;
+  /** A `key → {value_type, value}` map of collection settings. */
+  changes?: Record<string, TypedSettingValue>;
+  overridability?: Record<string, boolean>;
+} & AccessQueryCommon;
+
+/** `CREATE WORKLOAD`. */
+export type CreateWorkloadQueryNode = {
+  type: 'CreateWorkloadQuery';
+  workload_name?: IdentifierNode;
+  workload_parent?: IdentifierNode;
+  /** An ordered list of `{name, value, resource?}` settings. */
+  changes?: WorkloadChange[];
+} & AccessQueryCommon;
+
+/** `CREATE RESOURCE`. */
+export type CreateResourceQueryNode = {
+  type: 'CreateResourceQuery';
+  resource_name?: IdentifierNode;
+  unit?: string;
+  operations?: ResourceOperation[];
+} & AccessQueryCommon;
+
+/** `GRANT` / `REVOKE`. */
+export type GrantQueryNode = {
+  type: 'GrantQuery' | 'RevokeQuery';
+  grantees?: RolesOrUsersSetNode;
+  access_rights?: NativeAccessRight[];
+  replace_access?: boolean;
+  /** Granted/revoked role names (role grant). */
+  roles?: RolesOrUsersSetNode;
+  replace_granted_roles?: boolean;
+} & AccessQueryCommon;
+
+/** `SET DEFAULT ROLE`. */
+export type SetRoleQueryNode = {
+  type: 'SetRoleQuery';
+  /** Native discriminator (`SET_DEFAULT_ROLE`). */
+  kind?: string;
+  roles?: RolesOrUsersSetNode;
+  to_users?: RolesOrUsersSetNode;
+} & AccessQueryCommon;
+
+/**
+ * `CREATE / ALTER USER, ROLE, QUOTA, SETTINGS PROFILE, ROW POLICY, NAMED
+ * COLLECTION, WORKLOAD, RESOURCE` and `GRANT / REVOKE / SET DEFAULT ROLE`.
+ *
+ * A discriminated union keyed on `type`. Each member carries ClickHouse's
+ * native fields for its subtype; `format()` reconstructs the full DDL from
+ * those native fields alone, accepting ClickHouse's canonical form.
+ */
+export type AccessQueryNode =
+  | CreateUserQueryNode
+  | CreateRoleQueryNode
+  | CreateQuotaQueryNode
+  | CreateSettingsProfileQueryNode
+  | CreateRowPolicyQueryNode
+  | CreateNamedCollectionQueryNode
+  | CreateWorkloadQueryNode
+  | CreateResourceQueryNode
+  | GrantQueryNode
+  | SetRoleQueryNode;
+
+/** Zod schema for {@link AccessQueryNode}. */
+const accessQuerySubSchema = <T extends string>(t: T) =>
+  z.object({ type: z.literal(t), ...ExprMetadataFields });
+export const AccessQueryNodeSchema: z.ZodType<WithoutLocations<AccessQueryNode>> = z.lazy(() =>
+  z.union([
+    accessQuerySubSchema('CreateUserQuery'),
+    accessQuerySubSchema('CreateRoleQuery'),
+    accessQuerySubSchema('CreateQuotaQuery'),
+    accessQuerySubSchema('CreateSettingsProfileQuery'),
+    accessQuerySubSchema('CreateRowPolicyQuery'),
+    accessQuerySubSchema('CreateNamedCollectionQuery'),
+    accessQuerySubSchema('CreateWorkloadQuery'),
+    accessQuerySubSchema('CreateResourceQuery'),
+    accessQuerySubSchema('GrantQuery'),
+    accessQuerySubSchema('RevokeQuery'),
+    accessQuerySubSchema('SetRoleQuery'),
+  ]),
+);
+
+/**
+ * `INSERT INTO ...` in ClickHouse's native children-array shape.
+ * Children order: FROM INFILE path Literal (+ compression Literal), optional
+ * database Identifier + table Identifier (or a Function target), optional
+ * PARTITION BY expression, optional ExpressionList of insert columns,
+ * optional query (INSERT ... SELECT), optional Set (a copy of the INSERT- or
+ * SELECT-level SETTINGS). VALUES/FORMAT payloads are not part of the AST.
+ */
+export type InsertQueryNode = {
+  type: 'InsertQuery';
+  /** Target table Identifier. */
+  table?: IdentifierNode;
+  /** Database qualifier Identifier (for `db.table` targets). */
+  database?: IdentifierNode;
+  /** Target table function (for `INSERT INTO function(...)` syntax). */
+  table_function?: FunctionNode;
+  /** Insert column list. Identifier nodes named in `INSERT INTO t (a, b, c)`. */
+  columns?: Expression[];
+  /** Inline `SELECT ...` source for `INSERT INTO ... SELECT ...`. */
+  select?: Statement;
+  /** FORMAT name (e.g. `Values`, `JSON`). */
+  format?: string;
+  /** SETTINGS payload — INSERT-level or inner-SELECT, collapsed by ClickHouse. */
+  settings?: SettingsNode;
+  /** `FROM INFILE 'path'` literal. */
+  infile?: LiteralNode;
+  /** `FROM INFILE ... COMPRESSION 'name'` literal. */
+  compression?: LiteralNode;
+  /** `PARTITION BY <expr>` clause. */
+  partition_by?: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link InsertQueryNode}. */
+export const InsertQueryNodeSchema: z.ZodType<WithoutLocations<InsertQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('InsertQuery'),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    table_function: FunctionNodeSchema.optional(),
+    columns: z.array(ExpressionSchema).optional(),
+    select: z.lazy(() => StatementSchema).optional(),
+    format: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    infile: LiteralNodeSchema.optional(),
+    compression: LiteralNodeSchema.optional(),
+    partition_by: ExpressionSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+export type CreateQueryNode = {
+  type: 'CreateQuery';
+  /** Target table Identifier (omitted for CREATE DATABASE). */
+  table?: IdentifierNode;
+  /** Database Identifier (qualifier for `table`, or sole target for CREATE DATABASE). */
+  database?: IdentifierNode;
+  /** Column / constraint / index / projection definitions block. */
+  columns_list?: ColumnsNode;
+  /** Bare column-name list on a view (`CREATE VIEW v (a, b) AS ...`). */
+  aliases?: IdentifierNode[];
+  /** Storage definition (engine / partition / order / sample / ttl / settings). */
+  storage?: StorageNode;
+  /** Inline `AS SELECT ...` source. */
+  select?: Statement;
+  /** `AS function(...)` source. */
+  as_table_function?: FunctionNode;
+  /** `AS other_table` source table (bare name). */
+  as_table?: string;
+  /** Database qualifier of `as_table` (when AS source was `db.table`). */
+  as_database?: string;
+  /** Table-level COMMENT clause. */
+  comment?: LiteralNode;
+  /** View targets / inner-table engine spec for materialized views. */
+  targets?: ViewTargetsNode;
+  /** Dictionary attribute list + definition (CREATE DICTIONARY only). */
+  dictionary?: DictionaryNode;
+  dictionary_attributes?: DictionaryAttributeDeclarationNode[];
+  if_not_exists?: boolean;
+  temporary?: boolean;
+  is_dictionary?: boolean;
+  is_materialized_view?: boolean;
+  is_ordinary_view?: boolean;
+  is_populate?: boolean;
+  is_create_empty?: boolean;
+  is_clone_as?: boolean;
+  create_or_replace?: boolean;
+  replace_table?: boolean;
+  replace_view?: boolean;
+  /** ON CLUSTER name. */
+  cluster?: string;
+  /** Explicit `UUID '...'`. */
+  uuid?: string;
+  /** `ATTACH TABLE t FROM '/path'` source path. */
+  attach_from_path?: string;
+  /** `ATTACH TABLE t AS [NOT] REPLICATED` conversion marker. */
+  attach_as_replicated?: boolean;
+  /** Native trailing FORMAT name (`FORMAT Null`, ...). */
+  format?: string;
+  /** Native query-level SETTINGS clause (e.g. `CREATE ... SETTINGS x=y` after
+   * the storage/COMMENT clause, or `CREATE DATABASE ... SETTINGS`). Distinct
+   * from engine `storage.settings`. */
+  settings?: SettingsNode;
+  /** Native refreshable-MV `REFRESH` strategy node. */
+  refresh?: RefreshStrategyNode;
+} & NodeMetadata;
+
+/** Inline target for CREATE MATERIALIZED VIEW: either a `TO [db.]table` target
+ * (carrying `database`/`table`) or an inner-table engine spec (`inner_engine`). */
+export type ViewTargetNode = {
+  kind: 'to';
+  database?: IdentifierPart;
+  table?: IdentifierPart;
+  inner_engine?: StorageNode;
+};
+
+/** Zod schema for {@link CreateQueryNode}. */
+export const CreateQueryNodeSchema: z.ZodType<WithoutLocations<CreateQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('CreateQuery'),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    columns_list: ColumnsNodeSchema.optional(),
+    aliases: z.array(IdentifierNodeSchema).optional(),
+    storage: StorageNodeSchema.optional(),
+    select: z.lazy(() => StatementSchema).optional(),
+    as_table_function: FunctionNodeSchema.optional(),
+    as_table: z.string().optional(),
+    as_database: z.string().optional(),
+    comment: LiteralNodeSchema.optional(),
+    targets: ViewTargetsSchema.optional(),
+    dictionary: DictionaryNodeSchema.optional(),
+    dictionary_attributes: z.array(DictionaryAttributeDeclarationNodeSchema).optional(),
+    if_not_exists: z.boolean().optional(),
+    temporary: z.boolean().optional(),
+    is_dictionary: z.boolean().optional(),
+    is_materialized_view: z.boolean().optional(),
+    is_ordinary_view: z.boolean().optional(),
+    is_populate: z.boolean().optional(),
+    is_create_empty: z.boolean().optional(),
+    is_clone_as: z.boolean().optional(),
+    create_or_replace: z.boolean().optional(),
+    replace_table: z.boolean().optional(),
+    replace_view: z.boolean().optional(),
+    cluster: z.string().optional(),
+    uuid: z.string().optional(),
+    attach_from_path: z.string().optional(),
+    attach_as_replicated: z.boolean().optional(),
+    format: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+// ── DDL sub-node schemas (children of CreateQuery) ──────────────────────────
+// These validate the `CreateQuery` sub-tree referenced above. Node-typed leaf
+// operands (`data_type`, tuple `arguments`, ...) delegate to `ASTNodeSchema`;
+// deep validation of those is covered end-to-end by the reference-AST suite.
+
+/** Zod schema for {@link DataTypeNode}. */
+export const DataTypeNodeSchema: z.ZodType<WithoutLocations<DataTypeNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('DataType'),
+    name: z.string(),
+    arguments: z.array(ASTNodeSchema).optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link EnumDataTypeNode}. */
+export const EnumDataTypeNodeSchema: z.ZodType<WithoutLocations<EnumDataTypeNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('EnumDataType'),
+    name: z.string(),
+    values: z.array(z.object({ name: z.string(), value: z.number() })).optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link TupleDataTypeNode}. */
+export const TupleDataTypeNodeSchema: z.ZodType<WithoutLocations<TupleDataTypeNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('TupleDataType'),
+    name: z.string(),
+    arguments: z.array(ASTNodeSchema).optional(),
+    element_names: z.array(z.string().nullable()).optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link CollationNode}. */
+export const CollationNodeSchema: z.ZodType<WithoutLocations<CollationNode>> = z.lazy(() =>
+  z.object({ type: z.literal('Collation'), name: z.string(), ...ExprMetadataFields }),
+);
+
+/** Zod schema for {@link ColumnDeclarationNode}. */
+export const ColumnDeclarationNodeSchema: z.ZodType<WithoutLocations<ColumnDeclarationNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnDeclaration'),
+      name: z.string(),
+      data_type: ASTNodeSchema.optional(),
+      default_specifier: z
+        .enum(['DEFAULT', 'MATERIALIZED', 'ALIAS', 'EPHEMERAL', 'AUTO_INCREMENT'])
+        .optional(),
+      default_expression: ExpressionSchema.optional(),
+      codec: FunctionNodeSchema.optional(),
+      statistics: FunctionNodeSchema.optional(),
+      settings: SettingsNodeSchema.optional(),
+      ttl: ExpressionSchema.optional(),
+      comment: LiteralNodeSchema.optional(),
+      collation: CollationNodeSchema.optional(),
+      null_modifier: z.boolean().optional(),
+      primary_key_specifier: z.boolean().optional(),
+      ephemeral_default: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/** Zod schema for {@link ConstraintNode}. */
+export const ConstraintNodeSchema: z.ZodType<WithoutLocations<ConstraintNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Constraint'),
+    name: z.string(),
+    constraint_type: z.string(),
+    expression: ExpressionSchema,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link IndexNode}. */
+export const IndexNodeSchema: z.ZodType<WithoutLocations<IndexNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Index'),
+    name: z.string().optional(),
+    expression: ExpressionSchema.optional(),
+    index_type: FunctionNodeSchema.optional(),
+    granularity: z.number().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link ProjectionSelectQueryNode}. */
+export const ProjectionSelectQueryNodeSchema: z.ZodType<
+  WithoutLocations<ProjectionSelectQueryNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ProjectionSelectQuery'),
+    with: z.array(ExpressionSchema).optional(),
+    select: z.array(ExpressionSchema).optional(),
+    group_by: z.array(ExpressionSchema).optional(),
+    order_by: z.array(ExpressionSchema).optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link ProjectionNode}. */
+export const ProjectionNodeSchema: z.ZodType<WithoutLocations<ProjectionNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Projection'),
+    name: z.string(),
+    query: ProjectionSelectQueryNodeSchema.optional(),
+    index: ExpressionSchema.optional(),
+    index_type: FunctionNodeSchema.optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link StorageOrderByElementNode}. */
+export const StorageOrderByElementNodeSchema: z.ZodType<
+  WithoutLocations<StorageOrderByElementNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('StorageOrderByElement'),
+    expression: ExpressionSchema,
+    direction: z.enum(['ASC', 'DESC']),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link StorageNode}. */
+export const StorageNodeSchema: z.ZodType<WithoutLocations<StorageNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Storage'),
+    engine: FunctionNodeSchema.optional(),
+    partition_by: ExpressionSchema.optional(),
+    primary_key: ExpressionSchema.optional(),
+    // A bare/tuple key is an Expression; a single `DESC` key is a
+    // StorageOrderByElement; a mixed-direction key is a `tuple(...)` embedding
+    // StorageOrderByElement operands — validated loosely as a node.
+    order_by: looseNode<Expression | StorageOrderByElementNode>().optional(),
+    sample_by: ExpressionSchema.optional(),
+    ttl_table: ExpressionListNodeSchema.optional(),
+    settings: SettingsNodeSchema.optional(),
+    _settings_after_order_by: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link ColumnsNode}. */
+export const ColumnsNodeSchema: z.ZodType<WithoutLocations<ColumnsNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Columns'),
+    columns: z.array(ColumnDeclarationNodeSchema),
+    constraints: z.array(ConstraintNodeSchema).optional(),
+    indices: z.array(IndexNodeSchema).optional(),
+    projections: z.array(ProjectionNodeSchema).optional(),
+    primary_key: ExpressionSchema.optional(),
+    primary_key_from_columns: ExpressionSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link ViewTargetsNode}. */
+export const ViewTargetsSchema: z.ZodType<WithoutLocations<ViewTargetsNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('ViewTargets'),
+    targets: z
+      .array(
+        z.object({
+          kind: z.literal('to'),
+          database: IdentifierPartSchema.optional(),
+          table: IdentifierPartSchema.optional(),
+          inner_engine: StorageNodeSchema.optional(),
+        }),
+      )
+      .optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link DictionaryNode}. */
+export const DictionaryNodeSchema: z.ZodType<WithoutLocations<DictionaryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Dictionary'),
+    primary_key: z.array(ExpressionSchema).optional(),
+    source: z
+      .object({
+        type: z.literal('FunctionWithKeyValueArguments'),
+        name: z.string(),
+        elements: z.array(
+          z.object({
+            type: z.literal('pair'),
+            key: z.string(),
+            value: z.union([ExpressionSchema, ExpressionListNodeSchema]),
+          }),
+        ),
+      })
+      .optional(),
+    lifetime: z
+      .object({
+        type: z.literal('DictionaryLifetime'),
+        min_sec: z.number().optional(),
+        max_sec: z.number().optional(),
+      })
+      .optional(),
+    layout: z
+      .object({
+        type: z.literal('DictionaryLayout'),
+        layout_type: z.string(),
+        parameters: z.array(
+          z.object({ type: z.literal('pair'), key: z.string(), value: ExpressionSchema }),
+        ),
+      })
+      .optional(),
+    range: z
+      .object({
+        type: z.literal('DictionaryRange'),
+        min_attr_name: z.string(),
+        max_attr_name: z.string(),
+      })
+      .optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link DictionaryAttributeDeclarationNode}. */
+export const DictionaryAttributeDeclarationNodeSchema: z.ZodType<
+  WithoutLocations<DictionaryAttributeDeclarationNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('DictionaryAttributeDeclaration'),
+    name: z.string(),
+    data_type: z.union([DataTypeNodeSchema, EnumDataTypeNodeSchema, TupleDataTypeNodeSchema]),
+    default_value: ExpressionSchema.optional(),
+    expression: ExpressionSchema.optional(),
+    hierarchical: z.boolean().optional(),
+    injective: z.boolean().optional(),
+    is_object_id: z.boolean().optional(),
+    bidirectional: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+// ── DDL sub-nodes (children of CreateQuery) ─────────────────────────────────
+// These mirror ClickHouse's native shapes: a `type` discriminator plus a
+// `children` array, with everything the native JSON drops kept in `_`-fields.
+
+/**
+ * The `Columns` definition block: explicit `columns`/`constraints`/
+ * `indices`/`projections` arrays, plus an optional `primary_key` expression
+ * (used when the PRIMARY KEY appears inside the column list rather than as
+ * a separate clause).
+ */
+export type ColumnsNode = {
+  type: 'Columns';
+  columns: ColumnDeclarationNode[];
+  constraints?: ConstraintNode[];
+  indices?: IndexNode[];
+  projections?: ProjectionNode[];
+  /** Schema-level `PRIMARY KEY expr` clause inside the column list. */
+  primary_key?: Expression;
+  /** Column-level PRIMARY KEY modifiers collapsed into a tuple. */
+  primary_key_from_columns?: Expression;
+} & NodeMetadata;
+
+/**
+ * One column declaration. Mirrors ClickHouse's native AST shape: explicit
+ * `name`/`data_type` plus optional default/codec/ttl/comment/settings/
+ * statistics fields. Library-only underscores carry modifiers the native
+ * AST drops (COLLATE, NULLABLE, column-level PRIMARY KEY marker).
+ */
+export type ColumnDeclarationNode = {
+  type: 'ColumnDeclaration';
+  name: string;
+  data_type?: ASTNode;
+  default_specifier?: 'DEFAULT' | 'MATERIALIZED' | 'ALIAS' | 'EPHEMERAL' | 'AUTO_INCREMENT';
+  default_expression?: Expression;
+  codec?: FunctionNode;
+  statistics?: FunctionNode;
+  settings?: SettingsNode;
+  ttl?: Expression;
+  comment?: LiteralNode;
+  /** Native `COLLATE` clause node (carries the collation `name`). */
+  collation?: CollationNode;
+  /** `true` for `NULL`, `false` for `NOT NULL`; omitted when unspecified. */
+  null_modifier?: boolean;
+  /** `true` when the column carried a column-level `PRIMARY KEY` modifier. */
+  primary_key_specifier?: boolean;
+  /** `true` when the column is a bare `EPHEMERAL` (no explicit default expression). */
+  ephemeral_default?: boolean;
+} & NodeMetadata;
+
+/** A data type. `name` is the type name; `arguments` carries inner types or settings. */
+export type DataTypeNode = {
+  type: 'DataType';
+  name: string;
+  arguments?: ASTNode[];
+} & NodeMetadata;
+
+/** An `Enum8`/`Enum16` type whose values are all explicitly assigned. */
+export type EnumDataTypeNode = {
+  type: 'EnumDataType';
+  name: string;
+  /**
+   * The explicit value pairs, mirroring ClickHouse's native `values` array.
+   * format() rebuilds `Enum8('a' = 1, ...)` from this.
+   */
+  values?: { name: string; value: number }[];
+} & NodeMetadata;
+
+/** A `Tuple(...)` type. */
+export type TupleDataTypeNode = {
+  type: 'TupleDataType';
+  name: string;
+  arguments?: ASTNode[];
+  /**
+   * Named-element names (aligned with `arguments`; `null` for an unnamed
+   * element), mirroring ClickHouse's native `element_names` array.
+   */
+  element_names?: (string | null)[];
+} & NodeMetadata;
+
+/** A `name Type` pair inside a `Nested(...)` / `Tuple(...)` type. */
+export type NameTypePairNode = {
+  type: 'NameTypePair';
+  name: string;
+  data_type: DataTypeNode | EnumDataTypeNode | TupleDataTypeNode;
+} & NodeMetadata;
+
+/** A typed path inside a `JSON(...)` type, e.g. `a.b.c UInt32`. */
+export type ObjectTypedPathNode = {
+  type: 'ObjectTypedPath';
+  /** The (possibly dotted) path name. */
+  name: string;
+  /** The path's declared type. */
+  data_type: ASTNode;
+} & NodeMetadata;
+
+/**
+ * A `JSON(...)` type argument wrapper. Exactly one of the optional fields is
+ * set, mirroring ClickHouse's native `ASTObjectTypeArgument` shape:
+ *  - `path_with_type` for `a.b.c UInt32`
+ *  - `skip_path` for `SKIP a.b.c`
+ *  - `skip_path_regexp` for `SKIP REGEXP '...'`
+ *  - `parameter` for `max_dynamic_paths = N`
+ */
+export type ObjectTypeArgumentNode = {
+  type: 'ObjectTypeArgument';
+  path_with_type?: ObjectTypedPathNode;
+  skip_path?: ASTNode;
+  skip_path_regexp?: ASTNode;
+  parameter?: FunctionNode;
+} & NodeMetadata;
+
+/** A `COLLATE` clause on a column (the collation name is in the source). */
+export type CollationNode = { type: 'Collation'; name: string } & NodeMetadata;
+
+/**
+ * The `Storage` definition (engine / partition / order / sample / ttl /
+ * settings). Mirrors ClickHouse's native shape — each clause is exposed
+ * as an explicit field rather than buried in a `children` array.
+ */
+export type StorageNode = {
+  type: 'Storage';
+  engine?: FunctionNode;
+  partition_by?: Expression;
+  primary_key?: Expression;
+  /**
+   * The storage `ORDER BY` key. A bare/tuple key is an {@link Expression}; a
+   * single `DESC` key is wrapped in a {@link StorageOrderByElementNode}.
+   */
+  order_by?: Expression | StorageOrderByElementNode;
+  sample_by?: Expression;
+  ttl_table?: ExpressionListNode;
+  settings?: SettingsNode;
+  /** Library-only: `true` when storage `SETTINGS` appeared after `ORDER BY`. */
+  _settings_after_order_by?: boolean;
+} & NodeMetadata;
+
+/** A single descending storage ORDER BY element. */
+export type StorageOrderByElementNode = {
+  type: 'StorageOrderByElement';
+  expression: Expression;
+  /**
+   * Per-key sort direction. ClickHouse wraps a storage-key item in this node
+   * whenever any sibling is `DESC`; the wrapped item then carries its own
+   * explicit `ASC`/`DESC` (reverse sorting keys can mix directions).
+   */
+  direction: 'ASC' | 'DESC';
+} & NodeMetadata;
+
+/**
+ * One `TTL` element. `mode` selects the action (DELETE / MOVE / GROUP_BY /
+ * RECOMPRESS); `ttl` carries the TTL expression. Optional `where`,
+ * `group_by_columns`, `group_by_assignments`, and `recompression_codec`
+ * fields cover the per-mode payload.
+ */
+export type TTLElementNode = {
+  type: 'TTLElement';
+  mode?: 'DELETE' | 'MOVE' | 'GROUP_BY' | 'RECOMPRESS';
+  ttl: Expression;
+  where?: Expression;
+  destination_type?: 'DISK' | 'VOLUME';
+  destination_name?: string;
+  if_exists?: boolean;
+  recompression_codec?: FunctionNode;
+  /** `GROUP BY` key expressions for a `GROUP_BY`-mode TTL (native field). */
+  group_by_key?: Expression[];
+  /** `SET column = expression` assignments for a `GROUP_BY`-mode TTL (native `Assignment` nodes). */
+  group_by_assignments?: AssignmentNode[];
+} & NodeMetadata;
+
+/** A table `CONSTRAINT`. */
+export type ConstraintNode = {
+  type: 'Constraint';
+  name: string;
+  /** Constraint kind: `'CHECK'` or `'ASSUME'`. */
+  constraint_type: string;
+  expression: Expression;
+} & NodeMetadata;
+
+/**
+ * A data-skipping `INDEX` table element. Native AST stores the name,
+ * expression, and optional index_type (a Function for `TYPE name(args)`)
+ * with an optional `granularity` integer. The same shape is used for
+ * `CREATE INDEX` declarations and for `INDEX` entries inside CREATE TABLE
+ * column lists.
+ */
+export type IndexNode = {
+  type: 'Index';
+  name?: string;
+  expression?: Expression;
+  index_type?: FunctionNode;
+  granularity?: number;
+} & NodeMetadata;
+
+/**
+ * A `STATISTICS` clause inside an ALTER STATISTICS / MATERIALIZE STATISTICS
+ * command. Mirrors ClickHouse's native shape: the target `columns` and the
+ * statistic `types` are each an `ExpressionList` (the type entries are native
+ * `Function` nodes rendered as bare type names).
+ */
+export type StatNode = {
+  type: 'Stat';
+  columns?: { type?: 'ExpressionList'; children: Expression[] };
+  types?: { type?: 'ExpressionList'; children: Expression[] };
+} & NodeMetadata;
+
+/** A `PROJECTION` table element. */
+export type ProjectionNode = {
+  type: 'Projection';
+  name: string;
+  /** Body for the normal `PROJECTION p (SELECT ...)` form. */
+  query?: ProjectionSelectQueryNode;
+  /** Indexed-projection `PROJECTION p INDEX expr` expression. */
+  index?: Expression;
+  /** Indexed-projection `TYPE name(args)` type (native field). */
+  index_type?: FunctionNode;
+  /** `WITH SETTINGS(...)` suffix on the projection clause (native field). */
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** A projection's inner SELECT (native, fully structured). */
+export type ProjectionSelectQueryNode = {
+  type: 'ProjectionSelectQuery';
+  /** `WITH ...` CTE / alias items. */
+  with?: Expression[];
+  select?: Expression[];
+  group_by?: Expression[];
+  /** `ORDER BY` keys (a flat list of key expressions). */
+  order_by?: Expression[];
+} & NodeMetadata;
+
+/** A time interval (e.g. inside REFRESH). */
+export type TimeIntervalNode = {
+  type: 'TimeInterval';
+  /** Interval components, e.g. `[{ kind: 'Month', value: '1' }]`. */
+  interval?: { kind: string; value: string }[];
+} & NodeMetadata;
+
+/** A refreshable-MV `REFRESH EVERY/AFTER ...` strategy. */
+export type RefreshStrategyNode = {
+  type: 'RefreshStrategy';
+  /** `'EVERY'` or `'AFTER'`. */
+  schedule_kind: string;
+  /** The refresh period (`EVERY`/`AFTER <interval>`). */
+  period?: TimeIntervalNode;
+  /** `OFFSET <interval>`. */
+  offset?: TimeIntervalNode;
+  /** `RANDOMIZE FOR <interval>`. */
+  spread?: TimeIntervalNode;
+  /** `DEPENDS ON <table>, ...` (an ExpressionList of TableIdentifier). */
+  dependencies?: ExpressionListNode;
+  /** Trailing `SETTINGS` clause. */
+  settings?: SettingsNode;
+  /** `true` for `APPEND`. */
+  append?: boolean;
+} & NodeMetadata;
+
+/** Inner-table / TO targets of a materialized view (`CreateQuery.targets`). */
+export type ViewTargetsNode = {
+  type: 'ViewTargets';
+  targets?: ViewTargetNode[];
+} & NodeMetadata;
+
+/** A `Dictionary` definition (CREATE DICTIONARY clauses). */
+export type DictionaryNode = {
+  type: 'Dictionary';
+  primary_key?: Expression[];
+  source?: FunctionWithKeyValueArgumentsNode;
+  lifetime?: {
+    type: 'DictionaryLifetime';
+    min_sec?: number;
+    max_sec?: number;
+  };
+  layout?: {
+    type: 'DictionaryLayout';
+    layout_type: string;
+    parameters: Array<{ type: 'pair'; key: string; value: Expression }>;
+  };
+  range?: {
+    type: 'DictionaryRange';
+    min_attr_name: string;
+    max_attr_name: string;
+  };
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** One attribute declaration inside a dictionary. */
+export type DictionaryAttributeDeclarationNode = {
+  type: 'DictionaryAttributeDeclaration';
+  name: string;
+  data_type: DataTypeNode | EnumDataTypeNode | TupleDataTypeNode;
+  default_value?: Expression;
+  expression?: Expression;
+  hierarchical?: boolean;
+  injective?: boolean;
+  is_object_id?: boolean;
+  bidirectional?: boolean;
+} & NodeMetadata;
+
+/** One key/value pair inside a dictionary SOURCE/LAYOUT. */
+export type PairNode = {
+  type: 'pair';
+  key: string;
+  value: Expression | ExpressionListNode;
+} & NodeMetadata;
+
+/** A dictionary SOURCE function call with key/value argument pairs. */
+export type FunctionWithKeyValueArgumentsNode = {
+  type: 'FunctionWithKeyValueArguments';
+  name: string;
+  elements: PairNode[];
+} & NodeMetadata;
+
+/**
+ * `CREATE [OR REPLACE] FUNCTION [IF NOT EXISTS] name [ON CLUSTER cluster] AS lambda`.
+ * `children` holds `[Identifier(name), Expression(lambda)]` mirroring ClickHouse's
+ * native AST. All header modifiers live as underscore fields.
+ */
+export type CreateFunctionQueryNode = {
+  type: 'CreateFunctionQuery';
+  function_name: IdentifierNode;
+  /**
+   * Function body expression. Typically a `Function` lambda node, but the
+   * grammar accepts any expression (matching ClickHouse, which only fails
+   * the validation at execution time).
+   */
+  function_core: Expression;
+  or_replace?: boolean;
+  if_not_exists?: boolean;
+  cluster?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link CreateFunctionQueryNode}. */
+export const CreateFunctionQueryNodeSchema: z.ZodType<WithoutLocations<CreateFunctionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('CreateFunctionQuery'),
+      function_name: IdentifierNodeSchema,
+      function_core: ExpressionSchema,
+      or_replace: z.boolean().optional(),
+      if_not_exists: z.boolean().optional(),
+      cluster: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/**
+ * `CREATE INDEX [IF NOT EXISTS] name ON [db.]table (expr) [TYPE type] [GRANULARITY n]`.
+ *
+ * `children` mirrors ClickHouse's native shape: `[Identifier(name), Index{[expr, indexType?]}, Identifier([database,] table)]`.
+ * When the target table is qualified, ClickHouse's native AST carries the
+ * database as a separate `Identifier` field (before `table`); modifiers and
+ * granularity live on library fields.
+ */
+export type CreateIndexQueryNode = {
+  type: 'CreateIndexQuery';
+  /** Database qualifier of the target table (native `Identifier`, present only when qualified). */
+  database?: IdentifierNode;
+  table: IdentifierNode;
+  index_name: IdentifierNode;
+  index_declaration: IndexNode;
+  if_not_exists?: boolean;
+  unique?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link CreateIndexQueryNode}. */
+export const CreateIndexQueryNodeSchema: z.ZodType<WithoutLocations<CreateIndexQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('CreateIndexQuery'),
+      database: IdentifierNodeSchema.optional(),
+      table: IdentifierNodeSchema,
+      index_name: IdentifierNodeSchema,
+      index_declaration: z.lazy(() =>
+        z.object({
+          type: z.literal('Index'),
+          name: z.string().optional(),
+          expression: ExpressionSchema.optional(),
+          index_type: FunctionNodeSchema.optional(),
+          granularity: z.number().optional(),
+        }),
+      ),
+      if_not_exists: z.boolean().optional(),
+      unique: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * `ALTER TABLE [db.]name [ON CLUSTER ...] cmd, cmd, ... [SETTINGS ...] [FORMAT ...]`
+ * in ClickHouse's native children-array shape. `children` holds (in
+ * ClickHouse's order) the `ExpressionList` of `AlterCommand` nodes, an
+ * optional database `Identifier`, the name `Identifier`, an optional extra
+ * `Identifier` (for `MOVE PARTITION TO another_table`), and an optional `Set`.
+ * Everything the native JSON drops (ON CLUSTER, FORMAT, the per-command
+ * details, ...) is reconstructed for `format()`/`formatExplain()` from the
+ * structured `_alter` payload.
+ */
+export type AlterQueryNode = {
+  type: 'AlterQuery';
+  /** `"TABLE"` (most cases) or `"DATABASE"` for ALTER DATABASE. */
+  alter_object: string;
+  /** Target table Identifier (omitted for ALTER DATABASE). */
+  table?: IdentifierNode;
+  /** Database qualifier Identifier (or the database name for ALTER DATABASE). */
+  database?: IdentifierNode;
+  /** Ordered list of ALTER commands. */
+  commands: AlterCommandNode[];
+  /** ON CLUSTER cluster name. */
+  cluster?: string;
+  /** Native trailing `SETTINGS` clause. */
+  settings?: SettingsNode;
+  /** Native trailing `FORMAT name`. */
+  format?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link AlterQueryNode}. */
+export const AlterQueryNodeSchema: z.ZodType<WithoutLocations<AlterQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('AlterQuery'),
+    alter_object: z.string(),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    commands: z.array(AlterCommandNodeSchema),
+    cluster: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    format: z.string().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * One `AlterCommand` inside an `AlterQuery`. Mirrors ClickHouse's `EXPLAIN AST
+ * json = 1` shape: the `command_type` keyword plus one explicit field per
+ * operand. Every operand field is optional and command-specific; `format()` and
+ * `formatExplain()` reconstruct the command entirely from these native fields.
+ */
+export type AlterCommandNode = {
+  type: 'AlterCommand';
+  /** Command keyword (`"ADD_COLUMN"`, `"DROP_PARTITION"`, ...). */
+  command_type: string;
+  if_exists?: boolean;
+  if_not_exists?: boolean;
+  first?: boolean;
+  clear_column?: boolean;
+  clear_index?: boolean;
+  clear_projection?: boolean;
+  clear_statistics?: boolean;
+  detach?: boolean;
+  part?: boolean;
+  replace?: boolean;
+  column_declaration?: ColumnDeclarationNode;
+  index_declaration?: IndexNode;
+  projection_declaration?: ProjectionNode;
+  constraint_declaration?: ConstraintNode;
+  statistics_declaration?: StatNode;
+  /** Column operand (`AFTER col`, target column, ...) — a native Identifier. */
+  column?: Expression;
+  index?: Expression;
+  projection?: Expression;
+  constraint?: Expression;
+  rename_to?: Expression;
+  /**
+   * Partition operand. A `Partition` / `Partition_ID` node for the PARTITION
+   * form, or a string-`Literal` for the `PART 'name'` form (`part` is set).
+   */
+  partition?: PartitionNode | PartitionIdNode | LiteralNode;
+  comment?: LiteralNode;
+  remove_property?: string;
+  settings_changes?: SettingsNode;
+  /** `RESET SETTING a, b` — an ExpressionList of setting-name Identifiers. */
+  settings_resets?: { type?: 'ExpressionList'; children: Expression[] };
+  assignments?: AssignmentNode[];
+  predicate?: Expression;
+  /** `MODIFY TTL ...` — an ExpressionList of `TTLElement` nodes. */
+  ttl?: { type?: 'ExpressionList'; children: TTLElementNode[] };
+  order_by?: Expression;
+  sample_by?: Expression;
+  /** `MODIFY QUERY <select>` payload. */
+  select?: Statement;
+  move_destination_type?: string;
+  move_destination_name?: string;
+  to_table?: string;
+  to_database?: string;
+  from_table?: string;
+  from_database?: string;
+  from?: string;
+  with_name?: string;
+  refresh?: RefreshStrategyNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link AlterCommandNode}. */
+export const AlterCommandNodeSchema: z.ZodType<WithoutLocations<AlterCommandNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('AlterCommand'),
+    command_type: z.string(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `SYSTEM ...` admin commands (RELOAD CONFIG, FLUSH LOGS, SYNC REPLICA, ...).
+ * Every operand is captured in structured native fields (`system_type`,
+ * `table`/`database`, `tables`, `sync_replica_mode`, `replica_zk_path`,
+ * `server_type`, `settings`, ...) matching ClickHouse's `EXPLAIN AST json = 1`,
+ * so `format()` and `formatExplain()` reconstruct the command with no verbatim
+ * text.
+ */
+export type SystemQueryNode = {
+  type: 'SYSTEM';
+  /** Subcommand keyword phrase, e.g. `"FLUSH LOGS"`, `"SYNC REPLICA"`. */
+  system_type?: string;
+  /** Target table Identifier (when the SYSTEM command targets a table). */
+  table?: IdentifierNode;
+  /** Database qualifier Identifier (when the target is `db.table`). */
+  database?: IdentifierNode;
+  /** ON CLUSTER cluster name, when ClickHouse preserves it in native AST. */
+  cluster?: string;
+  /** Replica name for `SYSTEM DROP REPLICA ...`. */
+  replica?: string;
+  /** Target table list for `FLUSH LOGS` / `FLUSH ASYNC INSERT QUEUE`. */
+  tables?: { database?: string; table: string }[];
+  /** Wait mode for `SYNC REPLICA` (`PULL` / `LIGHTWEIGHT` / `STRICT`). */
+  sync_replica_mode?: string;
+  /** Fail-point identifier for `ENABLE`/`DISABLE FAILPOINT`. */
+  fail_point_name?: string;
+  /** Tag for `CLEAR QUERY CACHE TAG '...'`. */
+  query_result_cache_tag?: string;
+  /** Storage type for `CLEAR SCHEMA CACHE FOR ...`. */
+  schema_cache_storage?: string;
+  /** Format for `CLEAR FORMAT SCHEMA CACHE FOR ...`. */
+  schema_cache_format?: string;
+  /** ZooKeeper path for `DROP REPLICA ... FROM ZKPATH '...'`. */
+  replica_zk_path?: string;
+  /** Shard for `DROP DATABASE REPLICA ... FROM SHARD '...'`. */
+  shard?: string;
+  /** Source replica list for `SYNC REPLICA ... LIGHTWEIGHT FROM '...'`. */
+  src_replicas?: string[];
+  /** Seconds for `SUSPEND FOR <n> SECOND`. */
+  seconds?: number;
+  /** Cache name for `CLEAR FILESYSTEM CACHE '<name>'`. */
+  filesystem_cache_name?: string;
+  /** Key for `CLEAR FILESYSTEM CACHE ... KEY <k>`. */
+  key_to_drop?: string;
+  /** Offset for `CLEAR FILESYSTEM CACHE ... OFFSET <n>`. */
+  offset_to_drop?: number;
+  /** Backup name for `UNFREEZE WITH NAME '<name>'`. */
+  backup_name?: string;
+  /** Server type for `START`/`STOP LISTEN <server-type>`. */
+  server_type?: { type: string; custom_name?: string; exclude_types?: string[] };
+  /** Trailing `SETTINGS` clause (e.g. `FLUSH DISTRIBUTED ... SETTINGS ...`). */
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link SystemQueryNode}. */
+export const SystemQueryNodeSchema: z.ZodType<WithoutLocations<SystemQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('SYSTEM'),
+    system_type: z.string().optional(),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    cluster: z.string().optional(),
+    replica: z.string().optional(),
+    tables: z.array(z.object({ database: z.string().optional(), table: z.string() })).optional(),
+    sync_replica_mode: z.string().optional(),
+    fail_point_name: z.string().optional(),
+    query_result_cache_tag: z.string().optional(),
+    schema_cache_storage: z.string().optional(),
+    schema_cache_format: z.string().optional(),
+    replica_zk_path: z.string().optional(),
+    shard: z.string().optional(),
+    src_replicas: z.array(z.string()).optional(),
+    seconds: z.number().optional(),
+    filesystem_cache_name: z.string().optional(),
+    key_to_drop: z.string().optional(),
+    offset_to_drop: z.number().optional(),
+    backup_name: z.string().optional(),
+    server_type: z
+      .object({
+        type: z.string(),
+        custom_name: z.string().optional(),
+        exclude_types: z.array(z.string()).optional(),
+      })
+      .optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * The `SHOW ...` family in ClickHouse's native shape — a node whose `type`
+ * selects one of many literals (`ShowTables`/`ShowColumns`/`ShowIndexes`/...).
+ * Every variant is now fully structured and rendered from native fields alone;
+ * there is no library-only payload. Highlights:
+ *  - `ShowTables` covers SHOW TABLES/DATABASES/DICTIONARIES plus the flag-only
+ *    sub-forms SHOW SETTINGS (`show_settings`), SHOW CLUSTERS (`clusters`),
+ *    SHOW CLUSTER (`cluster` + `cluster_str`), and SHOW MERGES (`merges`).
+ *  - `ShowAccessEntitiesQuery` covers SHOW USERS/ROLES/QUOTAS/SETTINGS
+ *    PROFILES/ROW POLICIES (`entity_type` + `all`/`current_roles`/`enabled_roles`).
+ *  - `ShowColumns` / `ShowIndexes` carry `table`/`database`/`extended`/`full`/
+ *    `like`/`where`/`limit`; `ShowSetting` carries `setting_name`;
+ *    `ShowGrantsQuery` carries `for_roles`/`with_implicit`/`final`;
+ *    `ShowCreateAccessEntityQuery` carries `entity_type` +
+ *    `names`/`row_policy_names`/`short_name`/`current_user`.
+ * Some spellings are canonicalized (SHOW FIELDS → SHOW COLUMNS, SHOW INDEX →
+ * SHOW INDEXES, `user@'host'` → `` `user@host` ``) to match ClickHouse's own
+ * lossy native AST.
+ */
+export type ShowFamilyQueryNode = {
+  type:
+    | 'SHOW'
+    | 'ShowTables'
+    | 'ShowColumns'
+    | 'ShowIndexes'
+    | 'ShowFunctions'
+    | 'ShowSetting'
+    | 'ShowEngineQuery'
+    | 'ShowAccessQuery'
+    | 'ShowAccessEntitiesQuery'
+    | 'ShowProcesslistQuery'
+    | 'ShowGrantsQuery'
+    | 'ShowPrivilegesQuery'
+    | 'ShowCreateNamedCollectionQuery'
+    | 'ShowCreateAccessEntityQuery';
+  /** `SHOW GRANTS FOR ...` target set. */
+  for_roles?: RolesOrUsersSetNode;
+  /** `SHOW GRANTS ... WITH IMPLICIT`. */
+  with_implicit?: boolean;
+  /** `SHOW GRANTS ... FINAL`. */
+  final?: boolean;
+  /** `SHOW CREATE USER/ROLE/...` / `ShowAccessEntitiesQuery` entity kind. */
+  entity_type?: string;
+  /** `SHOW USERS`/`ROLES`/... (`ShowAccessEntitiesQuery`, all entities). */
+  all?: boolean;
+  /** `SHOW CURRENT ROLES`. */
+  current_roles?: boolean;
+  /** `SHOW ENABLED ROLES`. */
+  enabled_roles?: boolean;
+  /** `SHOW CREATE USER/ROLE/QUOTA/SETTINGS PROFILE` names. */
+  names?: string[];
+  /** `SHOW CREATE USER CURRENT_USER`. */
+  current_user?: boolean;
+  /** `SHOW CREATE NAMED COLLECTION <name>`. */
+  collection_name?: string;
+  /** `SHOW CREATE ROW POLICY name ON table` policies. */
+  row_policy_names?: RowPolicyNamesNode;
+  /** `SHOW CREATE ROW POLICY name` (no table) short name. */
+  short_name?: string;
+  /** `SHOW TABLES FROM <db>` / `SHOW DICTIONARIES FROM <db>`. */
+  from?: IdentifierNode;
+  /** `SHOW COLUMNS`/`ShowIndexes` target table name (plain string). */
+  table?: string;
+  /** `SHOW COLUMNS`/`ShowIndexes` target database name (plain string). */
+  database?: string;
+  /** True for `SHOW EXTENDED COLUMNS`/`INDEXES`. */
+  extended?: boolean;
+  /** True for `SHOW FULL COLUMNS`. */
+  full?: boolean;
+  /** `SHOW SETTING <name>` setting name. */
+  setting_name?: string;
+  /** `SHOW TABLES LIKE 'pat'` / `SHOW TABLES NOT LIKE 'pat'` pattern text. */
+  like?: string;
+  /** True when the LIKE clause was written as `NOT LIKE`. */
+  not_like?: boolean;
+  /** True when the LIKE clause was written as `ILIKE` (case-insensitive). */
+  case_insensitive_like?: boolean;
+  /** `SHOW DATABASES`. */
+  databases?: boolean;
+  /** `SHOW DICTIONARIES`. */
+  dictionaries?: boolean;
+  /** `SHOW TEMPORARY TABLES`. */
+  temporary?: boolean;
+  /** True for `SHOW SETTINGS` (serialized as a ShowTables node). */
+  show_settings?: boolean;
+  /** True for `SHOW CHANGED SETTINGS`. */
+  changed?: boolean;
+  /** True for `SHOW CLUSTERS` (serialized as a ShowTables node). */
+  clusters?: boolean;
+  /** True for `SHOW CLUSTER '<name>'` (serialized as a ShowTables node). */
+  cluster?: boolean;
+  /** The cluster name for `SHOW CLUSTER '<name>'`. */
+  cluster_str?: string;
+  /** True for `SHOW MERGES` (serialized as a ShowTables node). */
+  merges?: boolean;
+  /** `SHOW TABLES ... WHERE <expr>` filter expression. */
+  where?: ASTNode;
+  /** `SHOW TABLES ... LIMIT <expr>` limit expression. */
+  limit?: ASTNode;
+  /** Native trailing `SETTINGS` clause (`SHOW TABLES ... SETTINGS x = y`). */
+  settings?: SettingsNode;
+  /** Native trailing `FORMAT name` clause. */
+  format?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link ShowFamilyQueryNode}. */
+export const ShowFamilyQueryNodeSchema: z.ZodType<WithoutLocations<ShowFamilyQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('SHOW'),
+        z.literal('ShowTables'),
+        z.literal('ShowColumns'),
+        z.literal('ShowIndexes'),
+        z.literal('ShowFunctions'),
+        z.literal('ShowSetting'),
+        z.literal('ShowEngineQuery'),
+        z.literal('ShowAccessQuery'),
+        z.literal('ShowAccessEntitiesQuery'),
+        z.literal('ShowProcesslistQuery'),
+        z.literal('ShowGrantsQuery'),
+        z.literal('ShowPrivilegesQuery'),
+        z.literal('ShowCreateNamedCollectionQuery'),
+        z.literal('ShowCreateAccessEntityQuery'),
+      ]),
+      for_roles: RolesOrUsersSetNodeSchema.optional(),
+      with_implicit: z.boolean().optional(),
+      final: z.boolean().optional(),
+      entity_type: z.string().optional(),
+      all: z.boolean().optional(),
+      current_roles: z.boolean().optional(),
+      enabled_roles: z.boolean().optional(),
+      names: z.array(z.string()).optional(),
+      current_user: z.boolean().optional(),
+      collection_name: z.string().optional(),
+      row_policy_names: RowPolicyNamesNodeSchema.optional(),
+      short_name: z.string().optional(),
+      from: IdentifierNodeSchema.optional(),
+      table: z.string().optional(),
+      database: z.string().optional(),
+      extended: z.boolean().optional(),
+      full: z.boolean().optional(),
+      setting_name: z.string().optional(),
+      like: z.string().optional(),
+      not_like: z.boolean().optional(),
+      case_insensitive_like: z.boolean().optional(),
+      databases: z.boolean().optional(),
+      dictionaries: z.boolean().optional(),
+      temporary: z.boolean().optional(),
+      show_settings: z.boolean().optional(),
+      changed: z.boolean().optional(),
+      clusters: z.boolean().optional(),
+      cluster: z.boolean().optional(),
+      cluster_str: z.string().optional(),
+      merges: z.boolean().optional(),
+      where: ASTNodeSchema.optional(),
+      limit: ASTNodeSchema.optional(),
+      settings: SettingsNodeSchema.optional(),
+      format: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** `UNDROP TABLE ...` */
+export type UndropQueryNode = {
+  type: 'UndropQuery';
+} & DropFamilyFields;
+
+const TableTargetSchemaFields = {
+  table: IdentifierNodeSchema.optional(),
+  database: IdentifierNodeSchema.optional(),
+  if_exists: z.boolean().optional(),
+  if_empty: z.boolean().optional(),
+  temporary: z.boolean().optional(),
+  is_dictionary: z.boolean().optional(),
+  is_view: z.boolean().optional(),
+  sync: z.boolean().optional(),
+  cluster: z.string().optional(),
+  uuid: z.string().optional(),
+  database_and_tables: ExpressionListNodeSchema.optional(),
+  settings: z.lazy(() => SettingsNodeSchema).optional(),
+  format: z.string().optional(),
+};
+
+const DropFamilySchemaFields = {
+  kind: z.union([z.literal('DROP'), z.literal('DETACH'), z.literal('TRUNCATE')]).optional(),
+  ...TableTargetSchemaFields,
+};
+
+/** Zod schema for {@link DropQueryNode}. */
+export const DropQueryNodeSchema: z.ZodType<WithoutLocations<DropQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('DropQuery'),
+    ...DropFamilySchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link DetachQueryNode}. */
+export const DetachQueryNodeSchema: z.ZodType<WithoutLocations<DetachQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('DetachQuery'),
+    permanently: z.boolean().optional(),
+    ...DropFamilySchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link TruncateQueryNode}. */
+export const TruncateQueryNodeSchema: z.ZodType<WithoutLocations<TruncateQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('TruncateQuery'),
+    has_all: z.boolean().optional(),
+    has_tables: z.boolean().optional(),
+    like: z.string().optional(),
+    not_like: z.boolean().optional(),
+    case_insensitive_like: z.boolean().optional(),
+    ...DropFamilySchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Zod schema for {@link UndropQueryNode}. */
+export const UndropQueryNodeSchema: z.ZodType<WithoutLocations<UndropQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('UndropQuery'),
+    ...DropFamilySchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `PARTITION expr` clause child. */
+export type PartitionNode = {
+  type: 'Partition';
+  /** The partition expression. */
+  value: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link PartitionNode}. */
+export const PartitionNodeSchema: z.ZodType<WithoutLocations<PartitionNode>> = z.lazy(() =>
+  z.object({ type: z.literal('Partition'), value: ExpressionSchema, ...ExprMetadataFields }),
+);
+
+/** `PARTITION ID 'x'` / `PARTITION ALL` clause child (no `id` for ALL). */
+export type PartitionIdNode = {
+  type: 'Partition_ID';
+  /** The literal ID. Omitted for `PARTITION ALL`. */
+  id?: Expression;
+  /** `true` for the bare `PARTITION ALL` form. */
+  all?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link PartitionIdNode}. */
+export const PartitionIdNodeSchema: z.ZodType<WithoutLocations<PartitionIdNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Partition_ID'),
+    id: ExpressionSchema.optional(),
+    all: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `col = expr` assignment in UPDATE / ALTER UPDATE. */
+export type AssignmentNode = {
+  type: 'Assignment';
+  /** Column name being assigned to. */
+  column: string;
+  /** Right-hand-side expression. */
+  expression: Expression;
+} & NodeMetadata;
+
+/** Zod schema for {@link AssignmentNode}. */
+export const AssignmentNodeSchema: z.ZodType<WithoutLocations<AssignmentNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Assignment'),
+    column: z.string(),
+    expression: ExpressionSchema,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `USE db`. */
+export type UseQueryNode = {
+  type: 'UseQuery';
+  database: IdentifierNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link UseQueryNode}. */
+export const UseQueryNodeSchema: z.ZodType<WithoutLocations<UseQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('UseQuery'),
+    database: IdentifierNodeSchema,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `BEGIN/START TRANSACTION`, `COMMIT`, `ROLLBACK`, `SET TRANSACTION SNAPSHOT n`. */
+export type TransactionControlNode = {
+  type: 'TransactionControl';
+  /** The transaction action, mirroring ClickHouse's native enum. */
+  action: 'BEGIN' | 'COMMIT' | 'ROLLBACK' | 'SET_SNAPSHOT';
+  /** Snapshot value for `SET TRANSACTION SNAPSHOT` (`action === 'SET_SNAPSHOT'`). */
+  snapshot?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link TransactionControlNode}. */
+export const TransactionControlNodeSchema: z.ZodType<WithoutLocations<TransactionControlNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('TransactionControl'),
+      action: z.union([
+        z.literal('BEGIN'),
+        z.literal('COMMIT'),
+        z.literal('ROLLBACK'),
+        z.literal('SET_SNAPSHOT'),
+      ]),
+      snapshot: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/** A user name (optionally with host pattern) inside access-control statements. */
+export type UserNameWithHostNode = {
+  type: 'UserNameWithHost';
+  /** The user name. */
+  name?: string;
+  /** The host pattern (`@'host'`), absent for any-host (`@'%'`). */
+  host_pattern?: string;
+} & NodeMetadata;
+
+/** Zod schema for {@link UserNameWithHostNode}. */
+export const UserNameWithHostNodeSchema: z.ZodType<WithoutLocations<UserNameWithHostNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('UserNameWithHost'),
+      name: z.string().optional(),
+      host_pattern: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** A `UserNamesWithHost` list wrapper (CREATE USER target names). */
+export type UserNamesWithHostNode = {
+  type: 'UserNamesWithHost';
+  users: UserNameWithHostNode[];
+} & NodeMetadata;
+
+/** Zod schema for {@link UserNamesWithHostNode}. */
+export const UserNamesWithHostNodeSchema: z.ZodType<WithoutLocations<UserNamesWithHostNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('UserNamesWithHost'),
+      users: z.array(UserNameWithHostNodeSchema),
+      ...ExprMetadataFields,
+    }),
+  );
+
+/** A native `RolesOrUsersSet` (ALL / names / CURRENT_USER / ALL EXCEPT). */
+export type RolesOrUsersSetNode = {
+  type: 'RolesOrUsersSet';
+  all?: boolean;
+  names?: string[];
+  except_names?: string[];
+  current_user?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link RolesOrUsersSetNode}. */
+export const RolesOrUsersSetNodeSchema: z.ZodType<WithoutLocations<RolesOrUsersSetNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('RolesOrUsersSet'),
+      all: z.boolean().optional(),
+      names: z.array(z.string()).optional(),
+      except_names: z.array(z.string()).optional(),
+      current_user: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** A single policy reference inside {@link RowPolicyNamesNode}. */
+export type RowPolicyNameItem = {
+  short_name: string;
+  database?: string;
+  table?: string;
+};
+
+/** Zod schema for {@link RowPolicyNameItem}. */
+export const RowPolicyNameItemSchema: z.ZodType<WithoutLocations<RowPolicyNameItem>> = z.object({
+  short_name: z.string(),
+  database: z.string().optional(),
+  table: z.string().optional(),
+});
+
+/** A native `RowPolicyNames` list wrapper. */
+export type RowPolicyNamesNode = {
+  type: 'RowPolicyNames';
+  policies: RowPolicyNameItem[];
+} & NodeMetadata;
+
+/** Zod schema for {@link RowPolicyNamesNode}. */
+export const RowPolicyNamesNodeSchema: z.ZodType<WithoutLocations<RowPolicyNamesNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('RowPolicyNames'),
+      policies: z.array(RowPolicyNameItemSchema),
+      ...ExprMetadataFields,
+    }),
+);
+
+/** A `DEFAULT DATABASE <db>` / `DEFAULT DATABASE NONE` target. */
+export type DatabaseOrNoneNode = {
+  type: 'DatabaseOrNone';
+  /** The database name; absent for `NONE`. */
+  database?: string;
+} & NodeMetadata;
+
+/** A single element of a {@link SettingsProfileElementsNode}. */
+export type SettingsProfileElementNode = {
+  type: 'SettingsProfileElement';
+  /** Inherited profile name (`PROFILE`/`INHERIT`/bare). */
+  parent_profile?: string;
+  /** Setting name (for a `name = value` element). */
+  setting_name?: string;
+  /** Setting value (string, number, or null). */
+  value?: string | number | null;
+  min_value?: string | number | null;
+  max_value?: string | number | null;
+  /** `'CONST'` / `'WRITABLE'`. */
+  writability?: string;
+} & NodeMetadata;
+
+/** A `SETTINGS ...` element list on a user/role/profile. */
+export type SettingsProfileElementsNode = {
+  type: 'SettingsProfileElements';
+  elements: SettingsProfileElementNode[];
+} & NodeMetadata;
+
+/** An `ALTER ... SETTINGS` (replace-all) element set. */
+export type AlterSettingsProfileElementsNode = {
+  type: 'AlterSettingsProfileElements';
+  add_settings?: SettingsProfileElementsNode;
+  drop_all_settings?: boolean;
+  drop_all_profiles?: boolean;
+} & NodeMetadata;
+
+/** `EXECUTE AS user <statement>`. */
+export type ExecuteAsQueryNode = {
+  type: 'ExecuteAsQuery';
+  /** The user to execute as. */
+  target_user: UserNameWithHostNode;
+  /** The statement to run. */
+  subquery: ASTNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link ExecuteAsQueryNode}. */
+export const ExecuteAsQueryNodeSchema: z.ZodType<WithoutLocations<ExecuteAsQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ExecuteAsQuery'),
+      target_user: UserNameWithHostNodeSchema,
+      subquery: ASTNodeSchema,
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * `OPTIMIZE TABLE ...`. Mirrors ClickHouse's native AST: explicit
+ * `table`/`database` Identifier fields, optional `partition`, and the flat
+ * `final`/`deduplicate`/`cleanup` modifier booleans. Library-only fields
+ * cover the lossy bits (ON CLUSTER, DEDUPLICATE BY expression list).
+ */
+export type OptimizeQueryNode = {
+  type: 'OptimizeQuery';
+  table?: IdentifierNode;
+  database?: IdentifierNode;
+  partition?: PartitionNode | PartitionIdNode;
+  final?: boolean;
+  deduplicate?: boolean;
+  cleanup?: boolean;
+  cluster?: string;
+  /** `DEDUPLICATE BY (col1, col2, ...)` columns as an ExpressionList. */
+  deduplicate_by_columns?: ExpressionListNode;
+  /** Library-only: SETTINGS trailer. */
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link OptimizeQueryNode}. */
+export const OptimizeQueryNodeSchema: z.ZodType<WithoutLocations<OptimizeQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('OptimizeQuery'),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    partition: z.union([PartitionNodeSchema, PartitionIdNodeSchema]).optional(),
+    final: z.boolean().optional(),
+    deduplicate: z.boolean().optional(),
+    cleanup: z.boolean().optional(),
+    cluster: z.string().optional(),
+    deduplicate_by_columns: ExpressionListNodeSchema.optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `DESCRIBE TABLE ...`. Children: TableExpression, then Set / format Identifier.
+ *
+ * The original source order of SETTINGS vs FORMAT is not preserved: format()
+ * always emits the canonical `... FORMAT name SETTINGS ...` ordering, which
+ * is semantically equivalent to the alternative.
+ */
+export type DescribeQueryNode = {
+  type: 'DescribeQuery';
+  /** The target table expression (FROM-clause syntax). */
+  table_expression?: TableExpressionNode;
+  format?: string;
+  settings?: SettingsNode;
+  /** Library-only: true when SETTINGS appeared before FORMAT in the source. */
+  _settings_before_format?: boolean;
+} & NodeMetadata;
+
+/** Zod schema for {@link DescribeQueryNode}. */
+export const DescribeQueryNodeSchema: z.ZodType<WithoutLocations<DescribeQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('DescribeQuery'),
+    table_expression: TableExpressionSchema.optional(),
+    format: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    _settings_before_format: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `SHOW CREATE TABLE/VIEW/DICTIONARY/DATABASE ...` (drop-family child layout).
+ *
+ * The `SHOW TABLE`/`SHOW VIEW`/`SHOW DATABASE` shorthand parses to the same
+ * node shape and canonicalizes to the fully-qualified `SHOW CREATE ...` form
+ * on format() — both spellings are exact aliases in ClickHouse.
+ */
+export type ShowCreateQueryNode = {
+  type:
+    | 'ShowCreateTableQuery'
+    | 'ShowCreateViewQuery'
+    | 'ShowCreateDictionaryQuery'
+    | 'ShowCreateDatabaseQuery';
+} & TableTargetFields;
+
+/** Zod schema for {@link ShowCreateQueryNode}. */
+export const ShowCreateQueryNodeSchema: z.ZodType<WithoutLocations<ShowCreateQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('ShowCreateTableQuery'),
+        z.literal('ShowCreateViewQuery'),
+        z.literal('ShowCreateDictionaryQuery'),
+        z.literal('ShowCreateDatabaseQuery'),
+      ]),
+      ...TableTargetSchemaFields,
+      ...ExprMetadataFields,
+    }),
+);
+
+/** `EXISTS TABLE/VIEW/DICTIONARY/DATABASE ...` (drop-family child layout). */
+export type ExistsQueryNode = {
+  type: 'ExistsTableQuery' | 'ExistsViewQuery' | 'ExistsDictionaryQuery' | 'ExistsDatabaseQuery';
+} & TableTargetFields;
+
+/** Zod schema for {@link ExistsQueryNode}. */
+export const ExistsQueryNodeSchema: z.ZodType<WithoutLocations<ExistsQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.union([
+      z.literal('ExistsTableQuery'),
+      z.literal('ExistsViewQuery'),
+      z.literal('ExistsDictionaryQuery'),
+      z.literal('ExistsDatabaseQuery'),
+    ]),
+    ...TableTargetSchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `CHECK TABLE/DATABASE/ALL TABLES` with an optional `PART '...'` or `PARTITION ...` clause. */
+export type CheckQueryNode = {
+  type: 'CheckQuery' | 'CheckAllQuery';
+  partition?: PartitionNode | PartitionIdNode;
+  part_name?: string;
+} & TableTargetFields;
+
+/** Zod schema for {@link CheckQueryNode}. */
+export const CheckQueryNodeSchema: z.ZodType<WithoutLocations<CheckQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.union([z.literal('CheckQuery'), z.literal('CheckAllQuery')]),
+    partition: z.union([PartitionNodeSchema, PartitionIdNodeSchema]).optional(),
+    part_name: z.string().optional(),
+    ...TableTargetSchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/** Simple `ATTACH TABLE/VIEW/DICTIONARY/DATABASE name` (no schema). */
+export type AttachQueryNode = {
+  type: 'AttachQuery';
+  /** `true` for ATTACH (the native AST distinguishes it from CREATE this way). */
+  attach?: boolean;
+  if_not_exists?: boolean;
+  /** `ATTACH TABLE t FROM '/path'` source path. */
+  attach_from_path?: string;
+  /** `ATTACH TABLE t AS [NOT] REPLICATED` conversion marker. */
+  attach_as_replicated?: boolean;
+} & TableTargetFields;
+
+/** Zod schema for {@link AttachQueryNode}. */
+export const AttachQueryNodeSchema: z.ZodType<WithoutLocations<AttachQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('AttachQuery'),
+    attach: z.boolean().optional(),
+    if_not_exists: z.boolean().optional(),
+    attach_from_path: z.string().optional(),
+    attach_as_replicated: z.boolean().optional(),
+    ...TableTargetSchemaFields,
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * `RENAME/EXCHANGE TABLE a TO b [, ...]`. Native AST exposes the rename
+ * pairs as an `elements` list of plain objects with optional database
+ * qualifiers. Library-only fields capture target kind (TABLE/DATABASE/
+ * DICTIONARY), IF EXISTS, ON CLUSTER, and SETTINGS.
+ */
+export type RenameElement = {
+  /** Source database name; can be a query parameter (`{p:Identifier}`). */
+  from_database?: string | QueryParameterNode;
+  /** Source table name; omitted for `RENAME DATABASE` elements. */
+  from_table?: string | QueryParameterNode;
+  to_database?: string | QueryParameterNode;
+  to_table?: string | QueryParameterNode;
+  /** `RENAME TABLE IF EXISTS ...` flag, carried on each element by the native AST. */
+  if_exists?: boolean;
+};
+
+export type RenameNode = {
+  type: 'Rename';
+  /** Rename/exchange pairs in source order. */
+  elements: RenameElement[];
+  /** `true` for `EXCHANGE TABLES ...`; absent for `RENAME ...`. */
+  exchange?: boolean;
+  /** `true` for `RENAME DICTIONARY ...`. */
+  dictionary?: boolean;
+  /** `true` for `RENAME DATABASE ...`. */
+  database?: boolean;
+  cluster?: string;
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link RenameNode}. */
+export const RenameNodeSchema: z.ZodType<WithoutLocations<RenameNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('Rename'),
+    elements: z.array(
+      z.object({
+        from_database: z.union([z.string(), QueryParameterSchema]).optional(),
+        from_table: z.union([z.string(), QueryParameterSchema]).optional(),
+        to_database: z.union([z.string(), QueryParameterSchema]).optional(),
+        to_table: z.union([z.string(), QueryParameterSchema]).optional(),
+        if_exists: z.boolean().optional(),
+      }),
+    ),
+    exchange: z.boolean().optional(),
+    dictionary: z.boolean().optional(),
+    database: z.boolean().optional(),
+    cluster: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/** `KILL QUERY/MUTATION WHERE ...`. */
+export type KillQueryQueryNode = {
+  type: 'KillQueryQuery';
+  /** Categorical: `'QUERY'` or `'MUTATION'`, native AST field. */
+  kill_type: 'QUERY' | 'MUTATION';
+  where: Expression;
+  /** True for `SYNC`. The mode is `test ? TEST : sync ? SYNC : ASYNC`. */
+  sync?: boolean;
+  /** True for `TEST`. */
+  test?: boolean;
+  format?: string;
+  cluster?: string;
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link KillQueryQueryNode}. */
+export const KillQueryQueryNodeSchema: z.ZodType<WithoutLocations<KillQueryQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('KillQueryQuery'),
+      kill_type: z.union([z.literal('QUERY'), z.literal('MUTATION')]),
+      where: ExpressionSchema,
+      sync: z.boolean().optional(),
+      test: z.boolean().optional(),
+      format: z.string().optional(),
+      cluster: z.string().optional(),
+      settings: SettingsNodeSchema.optional(),
+      ...ExprMetadataFields,
+    }),
+);
+
+/**
+ * `DELETE FROM ...` (lightweight DELETE). Native shape: explicit
+ * `table`/`database` Identifier fields, `predicate` (the WHERE expression),
+ * and optional `partition` clause.
+ */
+export type DeleteQueryNode = {
+  type: 'DeleteQuery';
+  table?: IdentifierNode;
+  database?: IdentifierNode;
+  cluster?: string;
+  partition?: PartitionNode | PartitionIdNode;
+  predicate?: Expression;
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link DeleteQueryNode}. */
+export const DeleteQueryNodeSchema: z.ZodType<WithoutLocations<DeleteQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('DeleteQuery'),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    cluster: z.string().optional(),
+    partition: z.union([PartitionNodeSchema, PartitionIdNodeSchema]).optional(),
+    predicate: ExpressionSchema.optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * Lightweight `UPDATE t SET ... WHERE ...` in ClickHouse's native shape:
+ * explicit `table`/`database` Identifier fields, an `assignments` list,
+ * and `predicate` (the WHERE expression).
+ */
+export type UpdateQueryNode = {
+  type: 'UpdateQuery';
+  table?: IdentifierNode;
+  database?: IdentifierNode;
+  assignments?: AssignmentNode[];
+  predicate?: Expression;
+  cluster?: string;
+  settings?: SettingsNode;
+} & NodeMetadata;
+
+/** Zod schema for {@link UpdateQueryNode}. */
+export const UpdateQueryNodeSchema: z.ZodType<WithoutLocations<UpdateQueryNode>> = z.lazy(() =>
+  z.object({
+    type: z.literal('UpdateQuery'),
+    table: IdentifierNodeSchema.optional(),
+    database: IdentifierNodeSchema.optional(),
+    assignments: z.array(AssignmentNodeSchema).optional(),
+    predicate: ExpressionSchema.optional(),
+    cluster: z.string().optional(),
+    settings: SettingsNodeSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
+
+/**
+ * Union of all top-level statement types — all ClickHouse-native nodes with
+ * a `type` discriminator.
+ */
 export type Statement =
   | QueryStatement
-  | ExplainStatement
-  | SetStatement
-  | TransactionControlStatement
-  | SetRoleStatement
-  | UseStatement
-  | SystemStatement
-  | CreateStatement
-  | AlterStatement
-  | ParallelWithStatement
-  | InsertStatement
-  | TruncateStatement
-  | DropStatement
-  | UndropStatement
-  | BackupStatement
-  | GrantStatement
-  | ShowStatement
-  | AlterUserStatement
-  | AlterRoleStatement
-  | AlterQuotaStatement
-  | AlterRowPolicyStatement
-  | AlterSettingsProfileStatement
-  | OptimizeStatement
-  | DescribeStatement
-  | ShowCreateStatement
-  | DetachStatement
-  | DeleteStatement
-  | UpdateStatement
-  | CheckStatement
-  | AttachStatement
-  | RenameStatement
-  | ExistsStatement
-  | KillStatement
-  | ExecuteAsStatement
-  | EmptyStatement;
+  | SettingsNode
+  | EmptyQueryNode
+  | DropQueryNode
+  | DetachQueryNode
+  | TruncateQueryNode
+  | UndropQueryNode
+  | DropFunctionQueryNode
+  | InsertQueryNode
+  | CreateQueryNode
+  | CreateFunctionQueryNode
+  | CreateIndexQueryNode
+  | AlterQueryNode
+  | SystemQueryNode
+  | ShowFamilyQueryNode
+  | AccessDropQueryNode
+  | AccessQueryNode
+  | BackupQueryNode
+  | ParallelWithQueryNode
+  | DropIndexQueryNode
+  | UseQueryNode
+  | TransactionControlNode
+  | ExecuteAsQueryNode
+  | OptimizeQueryNode
+  | DescribeQueryNode
+  | ShowCreateQueryNode
+  | ExistsQueryNode
+  | CheckQueryNode
+  | AttachQueryNode
+  | RenameNode
+  | KillQueryQueryNode
+  | DeleteQueryNode
+  | UpdateQueryNode
+  | ExplainQueryNode;
 
 // ── AST node kind map ────────────────────────────────────────────────────────
 
 /**
- * Maps each AST node `kind` string to its corresponding TypeScript type.
+ * Maps each legacy `kind` discriminator value to its TypeScript type.
+ *
+ * The public AST is the ClickHouse-native {@link ASTNodeTypeMap}. The legacy
+ * `kind`-discriminated nodes listed here still appear inside the structured
+ * `_alter` payload on {@link AlterQueryNode}, so the formatter and explain
+ * renderer can re-emit DDL exactly. (SHOW, BACKUP/RESTORE, SYSTEM, GRANT,
+ * access-control entities, NAMED COLLECTION / WORKLOAD / RESOURCE, and
+ * CREATE/ATTACH DDL no longer use a structured payload — they are rendered
+ * directly from their native fields.)
+ * Users who introspect those payloads may call {@link findNodes} with these keys.
+ */
+// ── AST node type map (ClickHouse-native nodes) ───────────────────────────────
+
+/**
+ * Maps each ClickHouse-native AST node `type` string to its TypeScript type.
+ * Every node type emitted by the parser must be included here.
  *
  * Used by {@link findNodes} to provide type-safe return values.
  */
-export interface ASTNodeKindMap {
-  literal: Literal;
-  columnRef: ColumnRef;
-  tableRef: TableRef;
-  asterisk: Asterisk;
-  qualifiedAsterisk: QualifiedAsterisk;
-  queryParam: QueryParam;
-  tupleExpansion: TupleExpansion;
-  functionCall: FunctionCall;
-  castExpr: CastExpr;
-  lambdaExpr: LambdaExpr;
-  subqueryExpr: SubqueryExpr;
-  inExpr: InExpr;
-  unaryExpr: UnaryExpr;
-  binaryExpr: BinaryExpr;
-  naryExpr: NaryExpr;
-  alias: Alias;
-  arrayLiteral: ArrayLiteral;
-  tupleLiteral: TupleLiteral;
-  columnsExpr: ColumnsExpr;
-  jsonSubcolumn: JsonSubcolumn;
-  orderByItem: OrderByItem;
-  cteSubquery: CTESubquery;
-  cteExpr: CTEExpr;
-  cteTuple: CTETuple;
-  subqueryFrom: SubqueryFrom;
-  tableFunctionRef: TableFunctionRef;
-  joinExpr: JoinExpr;
-  arrayJoinExpr: ArrayJoinExpr;
-  select: SelectStatement;
-  union: UnionStatement;
-  intersect: IntersectStatement;
-  explain: ExplainStatement;
-  set: SetStatement;
-  transactionControl: TransactionControlStatement;
-  setRole: SetRoleStatement;
-  use: UseStatement;
-  system: SystemStatement;
-  createTable: CreateTableStatement;
-  createView: CreateViewStatement;
-  createMaterializedView: CreateMaterializedViewStatement;
-  createDatabase: CreateDatabaseStatement;
-  createFunction: CreateFunctionStatement;
-  createIndex: CreateIndexStatement;
-  createDictionary: CreateDictionaryStatement;
-  createWorkload: CreateWorkloadStatement;
-  createUser: CreateUserStatement;
-  createRole: CreateRoleStatement;
-  createRowPolicy: CreateRowPolicyStatement;
-  createQuota: CreateQuotaStatement;
-  createSettingsProfile: CreateSettingsProfileStatement;
-  createNamedCollection: CreateNamedCollectionStatement;
-  createResource: CreateResourceStatement;
-  createWindowView: CreateWindowViewStatement;
-  createLiveView: CreateLiveViewStatement;
-  alter: AlterStatement;
-  alterCommand: AlterCommand;
-  parallelWith: ParallelWithStatement;
-  insert: InsertStatement;
-  truncate: TruncateStatement;
-  drop: DropStatement;
-  undrop: UndropStatement;
-  backup: BackupStatement;
-  grant: GrantStatement;
-  show: ShowStatement;
-  alterUser: AlterUserStatement;
-  alterRole: AlterRoleStatement;
-  alterQuota: AlterQuotaStatement;
-  alterRowPolicy: AlterRowPolicyStatement;
-  alterSettingsProfile: AlterSettingsProfileStatement;
-  optimize: OptimizeStatement;
-  describe: DescribeStatement;
-  showCreate: ShowCreateStatement;
-  detach: DetachStatement;
-  delete: DeleteStatement;
-  update: UpdateStatement;
-  check: CheckStatement;
-  attach: AttachStatement;
-  rename: RenameStatement;
-  exists: ExistsStatement;
-  kill: KillStatement;
-  executeAs: ExecuteAsStatement;
-  empty: EmptyStatement;
-  columnDef: ColumnDef;
-  constraintDef: ConstraintDef;
-  indexDef: IndexDef;
-  projectionDef: ProjectionDef;
-  foreignKeyDef: ForeignKeyDef;
+export interface ASTNodeTypeMap {
+  Literal: LiteralNode;
+  Identifier: IdentifierNode;
+  Function: FunctionNode;
+  Asterisk: AsteriskNode;
+  QualifiedAsterisk: QualifiedAsteriskNode;
+  Subquery: SubqueryNode;
+  QueryParameter: QueryParameterNode;
+  ExpressionList: ExpressionListNode;
+  WindowDefinition: WindowDefinitionNode;
+  OrderByElement: OrderByElementNode;
+  InterpolateElement: InterpolateElementNode;
+  ColumnsRegexpMatcher: ColumnsRegexpMatcherNode;
+  ColumnsListMatcher: ColumnsListMatcherNode;
+  QualifiedColumnsRegexpMatcher: QualifiedColumnsRegexpMatcherNode;
+  QualifiedColumnsListMatcher: QualifiedColumnsListMatcherNode;
+  ColumnsTransformerList: ColumnsTransformerListNode;
+  ColumnsApplyTransformer: ColumnsApplyTransformerNode;
+  ColumnsExceptTransformer: ColumnsExceptTransformerNode;
+  ColumnsReplaceTransformer: ColumnsReplaceTransformerNode;
+  'ColumnsReplaceTransformer::Replacement': ColumnsReplaceTransformerReplacementNode;
+  Settings: SettingsNode;
+  DictionarySettings: SettingsNode;
+  SelectQuery: SelectQueryNode;
+  SelectWithUnionQuery: SelectWithUnionQueryNode;
+  SelectIntersectExceptQuery: SelectIntersectExceptQueryNode;
+  TablesInSelectQuery: TablesInSelectQueryNode;
+  TablesInSelectQueryElement: TablesInSelectQueryElementNode;
+  TableExpression: TableExpressionNode;
+  TableIdentifier: TableIdentifierNode;
+  TableJoin: TableJoinNode;
+  ArrayJoin: ArrayJoinNode;
+  SampleRatio: SampleRatioNode;
+  WithElement: WithElementNode;
+  WindowListElement: WindowListElementNode;
+  DropQuery: DropQueryNode;
+  DetachQuery: DetachQueryNode;
+  TruncateQuery: TruncateQueryNode;
+  UndropQuery: UndropQueryNode;
+  DropFunctionQuery: DropFunctionQueryNode;
+  InsertQuery: InsertQueryNode;
+  CreateQuery: CreateQueryNode;
+  Columns: ColumnsNode;
+  ColumnDeclaration: ColumnDeclarationNode;
+  DataType: DataTypeNode;
+  EnumDataType: EnumDataTypeNode;
+  TupleDataType: TupleDataTypeNode;
+  NameTypePair: NameTypePairNode;
+  ObjectTypedPath: ObjectTypedPathNode;
+  ObjectTypeArgument: ObjectTypeArgumentNode;
+  Collation: CollationNode;
+  Storage: StorageNode;
+  StorageOrderByElement: StorageOrderByElementNode;
+  TTLElement: TTLElementNode;
+  Constraint: ConstraintNode;
+  Index: IndexNode;
+  Stat: StatNode;
+  Projection: ProjectionNode;
+  ProjectionSelectQuery: ProjectionSelectQueryNode;
+  RefreshStrategy: RefreshStrategyNode;
+  TimeInterval: TimeIntervalNode;
+  ViewTargets: ViewTargetsNode;
+  Dictionary: DictionaryNode;
+  DictionaryAttributeDeclaration: DictionaryAttributeDeclarationNode;
+  FunctionWithKeyValueArguments: FunctionWithKeyValueArgumentsNode;
+  pair: PairNode;
+  CreateFunctionQuery: CreateFunctionQueryNode;
+  CreateIndexQuery: CreateIndexQueryNode;
+  AlterQuery: AlterQueryNode;
+  AlterCommand: AlterCommandNode;
+  SYSTEM: SystemQueryNode;
+  SHOW: ShowFamilyQueryNode;
+  ShowTables: ShowFamilyQueryNode;
+  ShowColumns: ShowFamilyQueryNode;
+  ShowIndexes: ShowFamilyQueryNode;
+  ShowFunctions: ShowFamilyQueryNode;
+  ShowSetting: ShowFamilyQueryNode;
+  ShowEngineQuery: ShowFamilyQueryNode;
+  ShowAccessQuery: ShowFamilyQueryNode;
+  ShowAccessEntitiesQuery: ShowFamilyQueryNode;
+  ShowProcesslistQuery: ShowFamilyQueryNode;
+  ShowGrantsQuery: ShowFamilyQueryNode;
+  ShowPrivilegesQuery: ShowFamilyQueryNode;
+  ShowCreateNamedCollectionQuery: ShowFamilyQueryNode;
+  ShowCreateAccessEntityQuery: ShowFamilyQueryNode;
+  DropNamedCollectionQuery: AccessDropQueryNode;
+  DropWorkloadQuery: AccessDropQueryNode;
+  DropResourceQuery: AccessDropQueryNode;
+  CreateUserQuery: CreateUserQueryNode;
+  CreateRoleQuery: CreateRoleQueryNode;
+  CreateQuotaQuery: CreateQuotaQueryNode;
+  CreateSettingsProfileQuery: CreateSettingsProfileQueryNode;
+  CreateNamedCollectionQuery: CreateNamedCollectionQueryNode;
+  CreateWorkloadQuery: CreateWorkloadQueryNode;
+  CreateResourceQuery: CreateResourceQueryNode;
+  CreateRowPolicyQuery: CreateRowPolicyQueryNode;
+  GrantQuery: GrantQueryNode;
+  RevokeQuery: GrantQueryNode;
+  SetRoleQuery: SetRoleQueryNode;
+  BackupQuery: BackupQueryNode;
+  RestoreQuery: BackupQueryNode;
+  ParallelWithQuery: ParallelWithQueryNode;
+  DropIndexQuery: DropIndexQueryNode;
+  Partition: PartitionNode;
+  Partition_ID: PartitionIdNode;
+  Assignment: AssignmentNode;
+  UseQuery: UseQueryNode;
+  TransactionControl: TransactionControlNode;
+  UserNameWithHost: UserNameWithHostNode;
+  UserNamesWithHost: UserNamesWithHostNode;
+  RolesOrUsersSet: RolesOrUsersSetNode;
+  RowPolicyNames: RowPolicyNamesNode;
+  DatabaseOrNone: DatabaseOrNoneNode;
+  SettingsProfileElement: SettingsProfileElementNode;
+  SettingsProfileElements: SettingsProfileElementsNode;
+  AlterSettingsProfileElements: AlterSettingsProfileElementsNode;
+  DropAccessEntityQuery: AccessDropQueryNode;
+  ExecuteAsQuery: ExecuteAsQueryNode;
+  OptimizeQuery: OptimizeQueryNode;
+  DescribeQuery: DescribeQueryNode;
+  ShowCreateTableQuery: ShowCreateQueryNode;
+  ShowCreateViewQuery: ShowCreateQueryNode;
+  ShowCreateDictionaryQuery: ShowCreateQueryNode;
+  ShowCreateDatabaseQuery: ShowCreateQueryNode;
+  ExistsTableQuery: ExistsQueryNode;
+  ExistsViewQuery: ExistsQueryNode;
+  ExistsDictionaryQuery: ExistsQueryNode;
+  ExistsDatabaseQuery: ExistsQueryNode;
+  CheckQuery: CheckQueryNode;
+  CheckAllQuery: CheckQueryNode;
+  AttachQuery: AttachQueryNode;
+  Rename: RenameNode;
+  KillQueryQuery: KillQueryQueryNode;
+  DeleteQuery: DeleteQueryNode;
+  UpdateQuery: UpdateQueryNode;
+  Explain: ExplainQueryNode;
+  EmptyQuery: EmptyQueryNode;
 }
 
 /**
- * All valid AST node `kind` values.
+ * All valid ClickHouse-native AST node `type` values.
  */
-export type ASTNodeKind = keyof ASTNodeKindMap;
+export type ASTNodeType = keyof ASTNodeTypeMap;
 
 /**
- * Union of all AST node types. Every member has a `kind` discriminator field.
+ * Lookup map for {@link findNodes} / {@link transformNodes}. The parsed AST is
+ * entirely ClickHouse-native, so this is simply {@link ASTNodeTypeMap}.
  */
-export type ASTNode = ASTNodeKindMap[ASTNodeKind];
+export type ASTNodeLookupMap = ASTNodeTypeMap;
+
+/**
+ * Union of all AST node types. The parser emits only ClickHouse-native
+ * `type`-discriminated nodes.
+ */
+export type ASTNode = ASTNodeTypeMap[ASTNodeType];
 
 // ── Zod schemas for statement types ──────────────────────────────────────────
 
-const TrailingClausesFields = {
-  intoOutfile: LiteralSchema.optional(),
-  preFormatSettings: z.array(SettingItemSchema).optional(),
-  format: z.string().optional(),
-  postFormatSettings: z.array(SettingItemSchema).optional(),
-};
-
-/** Zod schema for {@link SelectStatement}. */
-export const SelectStatementSchema: z.ZodType<SelectStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('select'),
-    distinct: DistinctClauseSchema.optional(),
-    with: z.array(CTESchema).optional(),
-    fromLeadingComments: z.array(z.string()).optional(),
-    select: z.array(ExpressionSchema),
-    from: FromExprSchema.optional(),
-    prewhere: ExpressionSchema.optional(),
-    where: ExpressionSchema.optional(),
-    groupBy: GroupByClauseSchema.optional(),
-    withTotals: z.boolean().optional(),
-    withCube: z.boolean().optional(),
-    withRollup: z.boolean().optional(),
-    having: ExpressionSchema.optional(),
-    orderBy: z.array(OrderByItemSchema).optional(),
-    limitBy: LimitByClauseSchema.optional(),
-    limit: LimitClauseSchema.optional(),
-    offset: ExpressionSchema.optional(),
-    windows: z.array(z.object({ name: z.string(), spec: WindowSpecSchema })).optional(),
-    qualify: ExpressionSchema.optional(),
-    parenthesized: z.boolean().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...TrailingClausesFields,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link UnionStatement}. */
-export const UnionStatementSchema: z.ZodType<UnionStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('union'),
-    queries: z.array(QueryStatementSchema),
-    unionMode: z.literal('DISTINCT').optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    parenthesized: z.boolean().optional(),
-    ...TrailingClausesFields,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link IntersectStatement}. */
-export const IntersectStatementSchema: z.ZodType<IntersectStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('intersect'),
-    op: z.union([z.literal('INTERSECT'), z.literal('EXCEPT')]),
-    left: QueryStatementSchema,
-    right: QueryStatementSchema,
-    parenthesized: z.boolean().optional(),
-    ...TrailingClausesFields,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link CTE}. */
-export const CTESchema: z.ZodType<CTE> = z.lazy(() =>
-  z.union([
-    z.object({
-      kind: z.literal('cteSubquery'),
-      name: z.string(),
-      query: QueryStatementSchema,
-      ...ExprMetadataFields,
-    }),
-    z.object({
-      kind: z.literal('cteExpr'),
-      name: z.string().optional(),
-      expr: ExpressionSchema,
-      ...ExprMetadataFields,
-    }),
-    z.object({
-      kind: z.literal('cteTuple'),
-      elements: z.array(ExpressionSchema),
-      ...ExprMetadataFields,
-    }),
-  ]),
-);
-
-/** Zod schema for {@link SubqueryFrom}. */
-export const SubqueryFromSchema: z.ZodType<SubqueryFrom> = z.lazy(() =>
-  z.object({
-    kind: z.literal('subqueryFrom'),
-    query: QueryStatementSchema,
-    alias: z.string().optional(),
-    columnAliases: z.array(z.string()).optional(),
-    final: z.boolean().optional(),
-    sample: SampleClauseSchema.optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link TableFunctionRef}. */
-export const TableFunctionRefSchema: z.ZodType<TableFunctionRef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('tableFunctionRef'),
-    name: z.string(),
-    args: z.array(ExpressionSchema),
-    final: z.boolean().optional(),
-    alias: z.string().optional(),
-    sample: SampleClauseSchema.optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link JoinType}. */
-export const JoinTypeSchema = z.union([
-  z.literal('INNER'),
-  z.literal('LEFT'),
-  z.literal('RIGHT'),
-  z.literal('FULL'),
-  z.literal('CROSS'),
-  z.literal('PASTE'),
-]);
-
-/** Zod schema for {@link ArrayJoinType}. */
-export const ArrayJoinTypeSchema = z.union([z.literal('ARRAY'), z.literal('LEFT ARRAY')]);
-
-/** Zod schema for {@link UsingColumn}. */
-const UsingColumnSchema: z.ZodType<UsingColumn> = z.union([
-  z.string(),
-  z.object({ name: z.string(), alias: z.string() }),
-]);
-
-/** Zod schema for {@link JoinConstraint}. */
-export const JoinConstraintSchema: z.ZodType<JoinConstraint> = z.lazy(() =>
-  z.union([
-    z.object({ kind: z.literal('on'), expr: ExpressionSchema }),
-    z.object({ kind: z.literal('using'), columns: z.array(UsingColumnSchema) }),
-  ]),
-);
-
-/** Zod schema for {@link FromExpr}. */
-export const FromExprSchema: z.ZodType<FromExpr> = z.lazy(() =>
-  z.union([
-    TableRefSchema,
-    SubqueryFromSchema,
-    TableFunctionRefSchema,
-    JoinExprSchema,
-    ArrayJoinExprSchema,
-  ]),
-);
-
-/** Zod schema for {@link JoinExpr}. */
-export const JoinExprSchema: z.ZodType<JoinExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('joinExpr'),
-    joinType: JoinTypeSchema,
-    left: FromExprSchema,
-    right: z.union([TableRefSchema, SubqueryFromSchema, TableFunctionRefSchema]),
-    constraint: JoinConstraintSchema.optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ArrayJoinExpr}. */
-export const ArrayJoinExprSchema: z.ZodType<ArrayJoinExpr> = z.lazy(() =>
-  z.object({
-    kind: z.literal('arrayJoinExpr'),
-    joinType: ArrayJoinTypeSchema,
-    left: FromExprSchema,
-    expressions: z.array(ExpressionSchema),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ExplainStatement}. */
-export const ExplainStatementSchema: z.ZodType<ExplainStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('explain'),
-    explainType: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    query: StatementSchema.optional(),
-    ...TrailingClausesFields,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link SetStatement}. */
-export const SetStatementSchema: z.ZodType<SetStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('set'),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link RoleTarget}. */
-export const RoleTargetSchema: z.ZodType<RoleTarget> = z.union([
-  z.object({ kind: z.literal('all'), except: z.array(z.string()).optional() }),
-  z.object({ kind: z.literal('none') }),
-  z.object({ kind: z.literal('names'), names: z.array(z.string()) }),
-]);
-
-/** Zod schema for {@link TransactionControlStatement}. */
-export const TransactionControlStatementSchema: z.ZodType<TransactionControlStatement> = z.lazy(
-  () =>
-    z.object({
-      kind: z.literal('transactionControl'),
-      action: z.enum(['begin', 'commit', 'rollback', 'snapshot']),
-      snapshot: z.string().optional(),
-      ...ExprMetadataFields,
-    }),
-);
-
-/** Zod schema for {@link SetRoleStatement}. */
-export const SetRoleStatementSchema: z.ZodType<SetRoleStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('setRole'),
-    roles: RoleTargetSchema,
-    users: z.array(z.string()),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AccessControlName}. */
-const AccessControlNameSchema: z.ZodType<AccessControlName> = z.object({
-  name: z.string(),
-  host: z.string().optional(),
-});
-
-/** Zod schema for {@link HostItem}. */
-const HostItemSchema: z.ZodType<HostItem> = z.union([
-  z.object({ kind: z.literal('any') }),
-  z.object({ kind: z.literal('none') }),
-  z.object({ kind: z.literal('local') }),
-  z.object({ kind: z.literal('name'), value: z.string() }),
-  z.object({ kind: z.literal('regexp'), value: z.string() }),
-  z.object({ kind: z.literal('like'), value: z.string() }),
-  z.object({ kind: z.literal('ip'), value: z.string() }),
-]);
-
-/** Zod schema for {@link AccessControlSettingsItem}. */
-const AccessControlSettingsItemSchema: z.ZodType<AccessControlSettingsItem> = z.lazy(() =>
-  z.union([
-    z.object({ kind: z.literal('profile'), name: z.string() }),
-    z.object({ kind: z.literal('inherit'), name: z.string() }),
-    z.object({
-      kind: z.literal('setting'),
-      name: z.string(),
-      value: ExpressionSchema.optional(),
-      min: ExpressionSchema.optional(),
-      max: ExpressionSchema.optional(),
-      modifier: z
-        .union([z.literal('CONST'), z.literal('WRITABLE'), z.literal('READONLY')])
-        .optional(),
-    }),
-  ]),
-);
-
-/** Zod schema for {@link UseStatement}. */
-export const UseStatementSchema: z.ZodType<UseStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('use'),
-    database: IdentifierSchema,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link SystemStatement}. */
-export const SystemStatementSchema: z.ZodType<SystemStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('system'),
-    body: z.string(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ColumnDef}. */
-const DataTypeArgSchema: z.ZodType<DataTypeArg> = z.lazy(() =>
-  z.union([
-    z.object({ kind: z.literal('type'), type: DataTypeSchema }),
-    z.object({ kind: z.literal('namedField'), name: z.string(), type: DataTypeSchema }),
-    z.object({ kind: z.literal('literal'), value: z.string() }),
-    z.object({
-      kind: z.literal('enumValues'),
-      values: z.array(
-        z.object({
-          name: z.union([z.string(), z.null()]),
-          value: z.union([z.string(), z.null()]).optional(),
-        }),
-      ),
-    }),
-    z.object({ kind: z.literal('setting'), name: z.string(), value: ExpressionSchema }),
-  ]),
-);
-
-const DataTypeSchema: z.ZodType<DataType> = z.lazy(() =>
-  z.object({ name: z.string(), args: z.array(DataTypeArgSchema).optional() }),
-);
-
-const CodecItemSchema = z.object({
-  name: z.string(),
-  args: z.array(ExpressionSchema).optional(),
-});
-
-const IndexTypeSchema = z.object({
-  name: z.string(),
-  args: z.array(ExpressionSchema).optional(),
-});
-
-export const ColumnDefSchema: z.ZodType<ColumnDef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('columnDef'),
-    name: z.string(),
-    type: DataTypeSchema.optional(),
-    nullable: z.union([z.literal('NULL'), z.literal('NOT NULL')]).optional(),
-    defaultKind: z
-      .union([
-        z.literal('DEFAULT'),
-        z.literal('MATERIALIZED'),
-        z.literal('EPHEMERAL'),
-        z.literal('ALIAS'),
-      ])
-      .optional(),
-    defaultExpr: ExpressionSchema.optional(),
-    comment: z.string().optional(),
-    codec: z.array(CodecItemSchema).optional(),
-    statistics: z.array(CodecItemSchema).optional(),
-    ttl: ExpressionSchema.optional(),
-    collate: z.string().optional(),
-    primaryKey: z.boolean().optional(),
-    columnSettings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ConstraintDef}. */
-export const ConstraintDefSchema: z.ZodType<ConstraintDef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('constraintDef'),
-    name: z.string(),
-    constraintType: z.union([z.literal('CHECK'), z.literal('ASSUME')]),
-    expr: ExpressionSchema,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link IndexDef}. */
-export const IndexDefSchema: z.ZodType<IndexDef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('indexDef'),
-    name: z.string(),
-    expr: ExpressionSchema,
-    indexType: IndexTypeSchema,
-    granularity: z.number().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ProjectionDef}. */
-export const ProjectionDefSchema: z.ZodType<ProjectionDef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('projectionDef'),
-    name: z.string(),
-    query: SelectStatementSchema.optional(),
-    projectionIndex: z.object({ column: z.string(), typeName: z.string() }).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-export const ForeignKeyDefSchema: z.ZodType<ForeignKeyDef> = z.lazy(() =>
-  z.object({
-    kind: z.literal('foreignKeyDef'),
-    columns: z.array(ExpressionSchema),
-    refTable: TableRefSchema,
-    refColumns: z.array(ExpressionSchema),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link TableElement}. */
-export const TableElementSchema: z.ZodType<TableElement> = z.lazy(() =>
-  z.union([
-    ColumnDefSchema,
-    ConstraintDefSchema,
-    IndexDefSchema,
-    ProjectionDefSchema,
-    ForeignKeyDefSchema,
-  ]),
-);
-
-/** Zod schema for {@link EngineClause}. */
-export const EngineClauseSchema = z.object({
-  name: z.string(),
-  args: z.array(ExpressionSchema).optional(),
-});
-
-export const TableOrderByItemSchema: z.ZodType<TableOrderByItem> = z.object({
-  expr: ExpressionSchema,
-  dir: z.union([z.literal('ASC'), z.literal('DESC')]).optional(),
-});
-
-const StorageClausesFields = {
-  engine: EngineClauseSchema.optional(),
-  orderBy: z.array(TableOrderByItemSchema).optional(),
-  partitionBy: ExpressionSchema.optional(),
-  primaryKey: z.array(ExpressionSchema).optional(),
-  sampleBy: ExpressionSchema.optional(),
-  ttl: z.array(z.object({ expr: ExpressionSchema, where: ExpressionSchema.optional() })).optional(),
-  settings: z.array(SettingItemSchema).optional(),
-  comment: z.string().optional(),
-};
-
-const CreateCommonFields = {
-  orReplace: z.boolean().optional(),
-  ifNotExists: z.boolean().optional(),
-  onCluster: z.string().optional(),
-  attach: z.boolean().optional(),
-  ...ExprMetadataFields,
-};
-
-export const CreateTableStatementSchema: z.ZodType<CreateTableStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createTable'),
-    replace: z.boolean().optional(),
-    temporary: z.boolean().optional(),
-    table: TableRefSchema,
-    tableElements: z.array(TableElementSchema).optional(),
-    primaryKeyInSchema: z.array(ExpressionSchema).optional(),
-    asTable: TableRefSchema.optional(),
-    clone: z.boolean().optional(),
-    asQuery: QueryStatementSchema.optional(),
-    asTableFunction: z.object({ name: z.string(), args: z.array(ExpressionSchema) }).optional(),
-    empty: z.boolean().optional(),
-    attachFromPath: z.string().optional(),
-    ...StorageClausesFields,
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateViewStatementSchema: z.ZodType<CreateViewStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createView'),
-    temporary: z.boolean().optional(),
-    table: TableRefSchema,
-    tableElements: z.array(TableElementSchema).optional(),
-    asQuery: QueryStatementSchema,
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateMaterializedViewStatementSchema: z.ZodType<CreateMaterializedViewStatement> =
-  z.lazy(() =>
-    z.object({
-      kind: z.literal('createMaterializedView'),
-      table: TableRefSchema,
-      tableElements: z.array(TableElementSchema).optional(),
-      toTable: TableRefSchema.optional(),
-      populate: z.boolean().optional(),
-      empty: z.boolean().optional(),
-      asQuery: QueryStatementSchema,
-      ...StorageClausesFields,
-      ...CreateCommonFields,
-    }),
-  );
-
-export const CreateDatabaseStatementSchema: z.ZodType<CreateDatabaseStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createDatabase'),
-    name: IdentifierSchema,
-    engine: EngineClauseSchema.optional(),
-    orderBy: z.array(TableOrderByItemSchema).optional(),
-    comment: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateFunctionStatementSchema: z.ZodType<CreateFunctionStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createFunction'),
-    name: z.string(),
-    functionExpr: ExpressionSchema,
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateIndexStatementSchema: z.ZodType<CreateIndexStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createIndex'),
-    indexName: z.string(),
-    table: TableRefSchema,
-    indexExpr: ExpressionSchema,
-    indexType: IndexTypeSchema.optional(),
-    granularity: z.number().optional(),
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateDictionaryStatementSchema: z.ZodType<CreateDictionaryStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createDictionary'),
-    replace: z.boolean().optional(),
-    table: TableRefSchema,
-    dictAttrs: z.array(
-      z.object({
-        name: z.string(),
-        type: DataTypeSchema,
-        defaultValue: ExpressionSchema.optional(),
-        expression: ExpressionSchema.optional(),
-      }),
-    ),
-    dictDef: z.any(),
-    ...CreateCommonFields,
-  }),
-);
-
-export const CreateWorkloadStatementSchema: z.ZodType<CreateWorkloadStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createWorkload'),
-    name: z.string(),
-    parentWorkload: z.string().optional(),
-    ...CreateCommonFields,
-  }),
-);
-
-const AccessControlSettingsField = z
-  .union([z.array(AccessControlSettingsItemSchema), z.literal('NONE' as const)])
-  .optional();
-
-export const CreateUserStatementSchema: z.ZodType<CreateUserStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createUser'),
-    names: z.array(AccessControlNameSchema),
-    auth: z
-      .array(
-        z.object({
-          secret: z.string().optional(),
-          sshKeys: z.array(z.object({ key: z.string(), type: z.string() })).optional(),
-        }),
-      )
-      .optional(),
-    host: z.array(HostItemSchema).optional(),
-    settings: AccessControlSettingsField,
-    defaultRole: RoleTargetSchema.optional(),
-    defaultDatabase: z.string().optional(),
-    grantees: RoleTargetSchema.optional(),
-    validUntil: z.string().optional(),
-    ...CreateCommonFields,
-  }),
-);
-export const CreateRoleStatementSchema: z.ZodType<CreateRoleStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createRole'),
-    names: z.array(AccessControlNameSchema),
-    settings: AccessControlSettingsField,
-    ...CreateCommonFields,
-  }),
-);
-export const CreateRowPolicyStatementSchema: z.ZodType<CreateRowPolicyStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createRowPolicy'),
-    hasRowKeyword: z.boolean().optional(),
-    targets: z.array(
-      z.object({
-        names: z.array(z.string()),
-        table: TableRefSchema,
-      }),
-    ),
-    using: ExpressionSchema.optional(),
-    restrictive: z.union([z.literal('RESTRICTIVE'), z.literal('PERMISSIVE')]).optional(),
-    to: RoleTargetSchema.optional(),
-    ...CreateCommonFields,
-  }),
-);
-export const CreateQuotaStatementSchema: z.ZodType<CreateQuotaStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createQuota'),
-    names: z.array(z.string()),
-    keyed: z
-      .union([z.object({ notKeyed: z.literal(true) }), z.object({ keys: z.array(z.string()) })])
-      .optional(),
-    intervals: z
-      .array(
-        z.object({
-          randomized: z.boolean().optional(),
-          duration: z.string(),
-          unit: z.string(),
-          trackingOnly: z.boolean().optional(),
-          noLimits: z.boolean().optional(),
-          limits: z.array(z.object({ name: z.string(), value: ExpressionSchema })).optional(),
-        }),
-      )
-      .optional(),
-    to: RoleTargetSchema.optional(),
-    ...CreateCommonFields,
-  }),
-);
-export const CreateSettingsProfileStatementSchema: z.ZodType<CreateSettingsProfileStatement> =
-  z.object({
-    kind: z.literal('createSettingsProfile'),
-    hasSettingsKeyword: z.boolean().optional(),
-    names: z.array(z.string()),
-    settings: AccessControlSettingsField,
-    to: RoleTargetSchema.optional(),
-    ...CreateCommonFields,
-  });
-export const CreateNamedCollectionStatementSchema: z.ZodType<CreateNamedCollectionStatement> =
-  z.lazy(() =>
-    z.object({
-      kind: z.literal('createNamedCollection'),
-      name: z.string(),
-      items: z.array(z.object({ key: z.string(), value: ExpressionSchema })),
-      ...CreateCommonFields,
-    }),
-  );
-export const CreateResourceStatementSchema: z.ZodType<CreateResourceStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createResource'),
-    name: z.string(),
-    specs: z.array(
-      z.object({
-        operation: z.string(),
-        resourceType: z.string(),
-        resourceName: z.string(),
-      }),
-    ),
-    ...CreateCommonFields,
-  }),
-);
-const rawBodyFields = { rawBody: z.string(), ...ExprMetadataFields };
-export const CreateWindowViewStatementSchema: z.ZodType<CreateWindowViewStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createWindowView'),
-    ...rawBodyFields,
-  }),
-);
-export const CreateLiveViewStatementSchema: z.ZodType<CreateLiveViewStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('createLiveView'),
-    ...rawBodyFields,
-  }),
-);
-
-const CreateStatementSchema: z.ZodType<CreateStatement> = z.lazy(() =>
-  z.union([
-    CreateTableStatementSchema,
-    CreateViewStatementSchema,
-    CreateMaterializedViewStatementSchema,
-    CreateDatabaseStatementSchema,
-    CreateFunctionStatementSchema,
-    CreateIndexStatementSchema,
-    CreateDictionaryStatementSchema,
-    CreateWorkloadStatementSchema,
-    CreateUserStatementSchema,
-    CreateRoleStatementSchema,
-    CreateRowPolicyStatementSchema,
-    CreateQuotaStatementSchema,
-    CreateSettingsProfileStatementSchema,
-    CreateNamedCollectionStatementSchema,
-    CreateResourceStatementSchema,
-    CreateWindowViewStatementSchema,
-    CreateLiveViewStatementSchema,
-  ]),
-);
-
 /** Zod schema for {@link QueryStatement}. */
-export const QueryStatementSchema: z.ZodType<QueryStatement> = z.lazy(() =>
-  z.union([
-    SelectStatementSchema,
-    UnionStatementSchema,
-    IntersectStatementSchema,
-    ExplainStatementSchema,
-  ]),
-);
-
-/** Zod schema for {@link AlterPartitionExpr}. */
-export const AlterPartitionExprSchema: z.ZodType<AlterPartitionExpr> = z.lazy(() =>
-  z.union([
-    z.object({ partitionKind: z.literal('all') }),
-    z.object({ partitionKind: z.literal('id'), id: z.union([LiteralSchema, QueryParamSchema]) }),
-    z.object({ partitionKind: z.literal('expr'), expr: ExpressionSchema }),
-  ]),
-);
-
-/** Zod schema for {@link AlterCommand}. */
-const AlterCommandBaseFields = {
-  kind: z.literal('alterCommand'),
-  parenthesized: z.boolean().optional(),
-  ...ExprMetadataFields,
-};
-
-export const AlterCommandSchema: z.ZodType<AlterCommand> = z.lazy(() =>
-  z.discriminatedUnion('commandType', [
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ADD_COLUMN'),
-      column: ColumnDefSchema,
-      afterColumn: z.string().optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_COLUMN'),
-      columnName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_COLUMN'),
-      column: ColumnDefSchema,
-      afterColumn: z.string().optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('RENAME_COLUMN'),
-      oldName: z.string(),
-      newName: z.string(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('COMMENT_COLUMN'),
-      columnName: z.string(),
-      comment: LiteralSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MATERIALIZE_COLUMN'),
-      columnName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ADD_INDEX'),
-      index: IndexDefSchema,
-      afterIndex: z.string().optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_INDEX'),
-      indexName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MATERIALIZE_INDEX'),
-      indexName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ADD_PROJECTION'),
-      projection: ProjectionDefSchema,
-      afterProjection: z.string().optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_PROJECTION'),
-      projectionName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MATERIALIZE_PROJECTION'),
-      projectionName: z.string(),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ADD_CONSTRAINT'),
-      constraint: ConstraintDefSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_CONSTRAINT'),
-      constraintName: z.string(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ADD_STATISTICS'),
-      statColumns: z.array(z.string()),
-      statTypes: z.array(IndexTypeSchema),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_STATISTICS'),
-      statColumns: z.array(z.string()),
-      statTypes: z.array(IndexTypeSchema),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_STATISTICS'),
-      statColumns: z.array(z.string()).optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MATERIALIZE_STATISTICS'),
-      statColumns: z.array(z.string()).optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('UPDATE'),
-      assignments: z.array(z.object({ column: z.string(), expr: ExpressionSchema })),
-      where: ExpressionSchema,
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DELETE'),
-      where: ExpressionSchema,
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_PARTITION'),
-      partition: AlterPartitionExprSchema.optional(),
-      partName: z.union([LiteralSchema, QueryParamSchema]).optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('ATTACH_PARTITION'),
-      partition: AlterPartitionExprSchema.optional(),
-      partName: z.union([LiteralSchema, QueryParamSchema]).optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('DROP_DETACHED_PARTITION'),
-      partition: AlterPartitionExprSchema.optional(),
-      partName: z.union([LiteralSchema, QueryParamSchema]).optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_REFRESH'),
-      refresh: z.string(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('REPLACE_PARTITION'),
-      partition: AlterPartitionExprSchema,
-      fromTable: TableRefSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MOVE_PARTITION'),
-      partition: AlterPartitionExprSchema,
-      moveDest: z.any().optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('FETCH_PARTITION'),
-      partition: AlterPartitionExprSchema,
-      fromPath: ExpressionSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('FREEZE_PARTITION'),
-      partition: AlterPartitionExprSchema,
-    }),
-    z.object({ ...AlterCommandBaseFields, commandType: z.literal('FREEZE_ALL') }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_TTL'),
-      ttl: z.array(TTLItemSchema),
-    }),
-    z.object({ ...AlterCommandBaseFields, commandType: z.literal('REMOVE_TTL') }),
-    z.object({ ...AlterCommandBaseFields, commandType: z.literal('REMOVE_SAMPLE_BY') }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MATERIALIZE_TTL'),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_ORDER_BY'),
-      expr: ExpressionSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_SAMPLE_BY'),
-      expr: ExpressionSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_SETTING'),
-      settings: z.array(SettingItemSchema),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('RESET_SETTING'),
-      settingNames: z.array(z.string()),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_QUERY'),
-      query: QueryStatementSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('MODIFY_COMMENT'),
-      comment: LiteralSchema,
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('APPLY_DELETED_MASK'),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('APPLY_PATCHES'),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-    z.object({
-      ...AlterCommandBaseFields,
-      commandType: z.literal('REWRITE_PARTS'),
-      partition: AlterPartitionExprSchema.optional(),
-    }),
-  ]),
-);
-
-/** Zod schema for {@link AlterStatement}. */
-export const AlterStatementSchema: z.ZodType<AlterStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('alter'),
-    table: TableRefSchema,
-    commands: z.array(AlterCommandSchema),
-    onCluster: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ParallelWithStatement}. */
-export const ParallelWithStatementSchema: z.ZodType<ParallelWithStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('parallelWith'),
-    queries: z.array(
-      z.union([
-        CreateStatementSchema,
-        InsertStatementSchema,
-        TruncateStatementSchema,
-        DropStatementSchema,
-        AlterStatementSchema,
-        OptimizeStatementSchema,
-      ]),
-    ),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link InsertStatement}. */
-export const InsertStatementSchema: z.ZodType<InsertStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('insert'),
-    target: z.union([
-      z.object({ kind: z.literal('table'), table: TableRefSchema }),
-      z.object({ kind: z.literal('function'), func: TableFunctionRefSchema }),
-    ]),
-    with: z.array(CTESchema).optional(),
-    columns: z.array(ExpressionSchema).optional(),
-    partitionBy: ExpressionSchema.optional(),
-    fromInfile: z
-      .object({
-        path: LiteralSchema,
-        compression: LiteralSchema.optional(),
-      })
-      .optional(),
-    insertSettings: z.array(SettingItemSchema).optional(),
-    selectQuery: QueryStatementSchema.optional(),
-    querySettings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link TruncateStatement}. */
-export const TruncateStatementSchema: z.ZodType<TruncateStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('truncate'),
-    targetType: z.union([z.literal('TABLE'), z.literal('DATABASE'), z.literal('TABLES')]),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    temporary: z.boolean().optional(),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    allTables: z.boolean().optional(),
-    like: z
-      .object({
-        pattern: z.string(),
-        not: z.boolean().optional(),
-      })
-      .optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link DropStatement}. */
-export const DropStatementSchema: z.ZodType<DropStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('drop'),
-    table: TableRefSchema.optional(),
-    tables: z.array(TableRefSchema).optional(),
-    targetType: z.enum(['TABLE', 'VIEW', 'DICTIONARY', 'DATABASE', 'FUNCTION', 'INDEX']),
-    temporary: z.boolean().optional(),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link UndropStatement}. */
-export const UndropStatementSchema: z.ZodType<UndropStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('undrop'),
-    table: TableRefSchema,
-    ifNotExists: z.boolean().optional(),
-    uuid: z.string().optional(),
-    onCluster: z.string().optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link BackupDestination}. */
-export const BackupDestinationSchema: z.ZodType<BackupDestination> = z.lazy(() =>
-  z.object({
-    name: z.string(),
-    args: z.array(ExpressionSchema).optional(),
-  }),
-);
-
-/** Zod schema for {@link BackupElement}. */
-export const BackupElementSchema: z.ZodType<BackupElement> = z.lazy(() =>
-  z.union([
-    z.object({
-      kind: z.enum(['table', 'dictionary', 'view', 'temporaryTable']),
-      table: TableRefSchema,
-      as: TableRefSchema.optional(),
-      partitions: z.array(ExpressionSchema).optional(),
-      exceptColumns: z.array(z.string()).optional(),
-    }),
-    z.object({
-      kind: z.literal('database'),
-      name: IdentifierSchema,
-      as: IdentifierSchema.optional(),
-      exceptTables: z.array(IdentifierSchema).optional(),
-    }),
-    z.object({ kind: z.literal('function'), name: IdentifierSchema }),
-    z.object({ kind: z.literal('namedCollection'), name: IdentifierSchema }),
-    z.object({
-      kind: z.literal('all'),
-      exceptDatabases: z.array(IdentifierSchema).optional(),
-      exceptTables: z.array(TableRefSchema).optional(),
-    }),
-  ]),
-);
-
-/** Zod schema for {@link BackupStatement}. */
-export const BackupStatementSchema: z.ZodType<BackupStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('backup'),
-    operation: z.enum(['BACKUP', 'RESTORE']),
-    elements: z.array(BackupElementSchema),
-    destination: BackupDestinationSchema,
-    onCluster: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    wait: z.enum(['SYNC', 'ASYNC']).optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link GrantStatement}. */
-export const GrantStatementSchema: z.ZodType<GrantStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('grant'),
-    operation: z.enum(['GRANT', 'REVOKE']),
-    elements: z
-      .array(
-        z.object({
-          privileges: z.array(
-            z.object({ name: z.string(), columns: z.array(z.string()).optional() }),
-          ),
-          target: z.object({ database: z.string().optional(), table: z.string() }),
-        }),
-      )
-      .optional(),
-    roles: z.array(z.string()).optional(),
-    grantees: z.array(z.string()),
-    onCluster: z.string().optional(),
-    optionFor: z.enum(['GRANT', 'ADMIN']).optional(),
-    withOptions: z.array(z.enum(['GRANT', 'ADMIN', 'REPLACE'])).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-const ShowLikeSchema: z.ZodType<ShowLike> = z.object({
-  not: z.boolean().optional(),
-  ilike: z.boolean().optional(),
-  pattern: z.string(),
-});
-
-/** Zod schema for {@link ShowStatement}. */
-export const ShowStatementSchema: z.ZodType<ShowStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('show'),
-    show: z.union([
-      z.object({
-        type: z.literal('listing'),
-        objectType: z.enum(['TABLES', 'DATABASES', 'DICTIONARIES']),
-        temporary: z.boolean().optional(),
-        from: IdentifierSchema.optional(),
-        like: ShowLikeSchema.optional(),
-        where: ExpressionSchema.optional(),
-        limit: ExpressionSchema.optional(),
-        settings: z.array(SettingItemSchema).optional(),
-      }),
-      z.object({
-        type: z.literal('accessEntities'),
-        objectType: z.enum([
-          'CLUSTERS',
-          'ROLES',
-          'USERS',
-          'QUOTAS',
-          'ROW POLICIES',
-          'SETTINGS PROFILES',
-          'NAMED COLLECTIONS',
-          'WARNINGS',
-          'SETTINGS',
-        ]),
-        modifier: z.enum(['CURRENT', 'ENABLED', 'CHANGED']).optional(),
-        like: ShowLikeSchema.optional(),
-        limit: ExpressionSchema.optional(),
-      }),
-      z.object({ type: z.literal('cluster'), name: IdentifierSchema }),
-      z.object({
-        type: z.literal('columns'),
-        keyword: z.enum(['COLUMNS', 'FIELDS']),
-        extended: z.boolean().optional(),
-        full: z.boolean().optional(),
-        table: TableRefSchema,
-        from: IdentifierSchema.optional(),
-        like: ShowLikeSchema.optional(),
-        where: ExpressionSchema.optional(),
-        limit: ExpressionSchema.optional(),
-      }),
-      z.object({
-        type: z.literal('indexes'),
-        keyword: z.enum(['INDEX', 'INDEXES', 'INDICES', 'KEYS']),
-        extended: z.boolean().optional(),
-        table: TableRefSchema,
-        from: IdentifierSchema.optional(),
-        where: ExpressionSchema.optional(),
-      }),
-      z.object({ type: z.literal('setting'), name: IdentifierSchema }),
-      z.object({ type: z.literal('privileges') }),
-      z.object({ type: z.literal('engines') }),
-      z.object({ type: z.literal('merges') }),
-      z.object({ type: z.literal('access') }),
-      z.object({ type: z.literal('processlist'), full: z.boolean().optional() }),
-      z.object({ type: z.literal('functions'), like: ShowLikeSchema.optional() }),
-      z.object({
-        type: z.literal('grants'),
-        for: z.array(z.string()).optional(),
-        withImplicit: z.boolean().optional(),
-        final: z.boolean().optional(),
-      }),
-      z.object({
-        type: z.literal('createAccess'),
-        entity: z.enum(['USER', 'ROLE', 'QUOTA', 'SETTINGS PROFILE', 'NAMED COLLECTION']),
-        names: z.array(AccessControlNameSchema),
-      }),
-      z.object({
-        type: z.literal('createRowPolicy'),
-        policies: z.array(
-          z.object({ names: z.array(z.string()), table: TableRefSchema.optional() }),
-        ),
-      }),
-      z.object({
-        type: z.literal('objectShorthand'),
-        objectType: z.enum(['TABLE', 'VIEW']),
-        temporary: z.boolean().optional(),
-        table: TableRefSchema,
-      }),
-      z.object({ type: z.literal('databaseShorthand'), database: IdentifierSchema }),
-    ]),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-const AuthDataArraySchema = z.array(
-  z.object({
-    secret: z.string().optional(),
-    sshKeys: z.array(z.object({ key: z.string(), type: z.string() })).optional(),
-  }),
-);
-
-/** Zod schema for {@link AlterUserStatement}. */
-export const AlterUserStatementSchema: z.ZodType<AlterUserStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('alterUser'),
-    names: z.array(AccessControlNameSchema),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    clauses: z.array(
-      z.union([
-        z.object({ kind: z.literal('rename'), to: AccessControlNameSchema }),
-        z.object({ kind: z.literal('identified'), auth: AuthDataArraySchema }),
-        z.object({ kind: z.literal('notIdentified') }),
-        z.object({
-          kind: z.literal('host'),
-          mode: z.enum(['ADD', 'DROP']).optional(),
-          hosts: z.array(HostItemSchema),
-        }),
-        z.object({
-          kind: z.literal('settings'),
-          settings: z.union([z.array(AccessControlSettingsItemSchema), z.literal('NONE' as const)]),
-        }),
-        z.object({ kind: z.literal('defaultRole'), roles: RoleTargetSchema }),
-        z.object({ kind: z.literal('defaultDatabase'), database: z.string() }),
-        z.object({ kind: z.literal('grantees'), grantees: RoleTargetSchema }),
-        z.object({ kind: z.literal('validUntil'), value: z.string() }),
-      ]),
-    ),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AlterRoleStatement}. */
-export const AlterRoleStatementSchema: z.ZodType<AlterRoleStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('alterRole'),
-    names: z.array(AccessControlNameSchema),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    renameTo: AccessControlNameSchema.optional(),
-    settings: AccessControlSettingsField,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AlterQuotaStatement}. */
-export const AlterQuotaStatementSchema: z.ZodType<AlterQuotaStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('alterQuota'),
-    names: z.array(z.string()),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    renameTo: z.string().optional(),
-    keyed: z
-      .union([z.object({ notKeyed: z.literal(true) }), z.object({ keys: z.array(z.string()) })])
-      .optional(),
-    intervals: z
-      .array(
-        z.object({
-          randomized: z.boolean().optional(),
-          duration: z.string(),
-          unit: z.string(),
-          trackingOnly: z.boolean().optional(),
-          noLimits: z.boolean().optional(),
-          limits: z.array(z.object({ name: z.string(), value: ExpressionSchema })).optional(),
-        }),
-      )
-      .optional(),
-    to: RoleTargetSchema.optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AlterRowPolicyStatement}. */
-export const AlterRowPolicyStatementSchema: z.ZodType<AlterRowPolicyStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('alterRowPolicy'),
-    hasRowKeyword: z.boolean().optional(),
-    targets: z.array(z.object({ names: z.array(z.string()), table: TableRefSchema })),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    renameTo: z.string().optional(),
-    forSelect: z.boolean().optional(),
-    using: ExpressionSchema.optional(),
-    restrictive: z.enum(['RESTRICTIVE', 'PERMISSIVE']).optional(),
-    to: RoleTargetSchema.optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AlterSettingsProfileStatement}. */
-export const AlterSettingsProfileStatementSchema: z.ZodType<AlterSettingsProfileStatement> = z.lazy(
-  () =>
-    z.object({
-      kind: z.literal('alterSettingsProfile'),
-      hasSettingsKeyword: z.boolean().optional(),
-      names: z.array(z.string()),
-      ifExists: z.boolean().optional(),
-      onCluster: z.string().optional(),
-      renameTo: z.string().optional(),
-      settings: AccessControlSettingsField,
-      to: RoleTargetSchema.optional(),
-      ...ExprMetadataFields,
-    }),
-);
-
-/** Zod schema for {@link OptimizeStatement}. */
-export const OptimizeStatementSchema: z.ZodType<OptimizeStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('optimize'),
-    table: TableRefSchema,
-    onCluster: z.string().optional(),
-    partition: z
-      .union([
-        z.object({ kind: z.literal('expr'), expr: ExpressionSchema }),
-        z.object({ kind: z.literal('id'), id: z.string() }),
-        z.object({ kind: z.literal('all') }),
-      ])
-      .optional(),
-    final: z.boolean().optional(),
-    cleanup: z.boolean().optional(),
-    deduplicate: z.boolean().optional(),
-    deduplicateBy: z.array(ExpressionSchema).optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link DescribeStatement}. */
-export const DescribeStatementSchema: z.ZodType<DescribeStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('describe'),
-    target: z.union([
-      z.object({ kind: z.literal('table'), table: TableRefSchema }),
-      z.object({ kind: z.literal('function'), func: TableFunctionRefSchema }),
-      z.object({ kind: z.literal('subquery'), query: QueryStatementSchema }),
-    ]),
-    final: z.boolean().optional(),
-    format: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    settingsBeforeFormat: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ShowCreateStatement}. */
-export const ShowCreateStatementSchema: z.ZodType<ShowCreateStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('showCreate'),
-    targetType: z.enum(['TABLE', 'DATABASE', 'VIEW', 'DICTIONARY']),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    format: z.string().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link DetachStatement}. */
-export const DetachStatementSchema: z.ZodType<DetachStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('detach'),
-    targetType: z.enum(['TABLE', 'VIEW', 'DICTIONARY', 'DATABASE']),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    permanently: z.boolean().optional(),
-    sync: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link DeleteStatement}. */
-export const DeleteStatementSchema: z.ZodType<DeleteStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('delete'),
-    table: TableRefSchema,
-    onCluster: z.string().optional(),
-    partition: z
-      .union([
-        z.object({ kind: z.literal('expr'), expr: ExpressionSchema }),
-        z.object({ kind: z.literal('id'), id: z.string() }),
-      ])
-      .optional(),
-    where: ExpressionSchema,
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link UpdateStatement}. */
-export const UpdateStatementSchema: z.ZodType<UpdateStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('update'),
-    table: TableRefSchema,
-    onCluster: z.string().optional(),
-    assignments: z.array(z.object({ column: z.string(), expr: ExpressionSchema })),
-    where: ExpressionSchema,
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link CheckStatement}. */
-export const CheckStatementSchema: z.ZodType<CheckStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('check'),
-    targetType: z.enum(['TABLE', 'DATABASE', 'ALL']),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    partition: z
-      .union([
-        z.object({ kind: z.literal('expr'), expr: ExpressionSchema }),
-        z.object({ kind: z.literal('id'), id: z.string() }),
-      ])
-      .optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link AttachStatement}. */
-export const AttachStatementSchema: z.ZodType<AttachStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('attach'),
-    targetType: z.enum(['TABLE', 'VIEW', 'DICTIONARY', 'DATABASE']),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    ifNotExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    uuid: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link RenameStatement}. */
-export const RenameStatementSchema: z.ZodType<RenameStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('rename'),
-    targetType: z.enum(['TABLE', 'DATABASE', 'DICTIONARY']),
-    pairs: z.array(z.object({ from: TableRefSchema, to: TableRefSchema })),
-    ifExists: z.boolean().optional(),
-    onCluster: z.string().optional(),
-    exchange: z.boolean().optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ExistsStatement}. */
-export const ExistsStatementSchema: z.ZodType<ExistsStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('exists'),
-    targetType: z.enum(['TABLE', 'VIEW', 'DATABASE', 'DICTIONARY']),
-    table: TableRefSchema.optional(),
-    database: IdentifierSchema.optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link KillStatement}. */
-export const KillStatementSchema: z.ZodType<KillStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('kill'),
-    target: z.enum(['QUERY', 'MUTATION']),
-    onCluster: z.string().optional(),
-    where: ExpressionSchema,
-    mode: z.enum(['SYNC', 'ASYNC', 'TEST']).optional(),
-    settings: z.array(SettingItemSchema).optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link ExecuteAsStatement}. */
-export const ExecuteAsStatementSchema: z.ZodType<ExecuteAsStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('executeAs'),
-    user: z.string(),
-    statement: StatementSchema,
-    ...ExprMetadataFields,
-  }),
-);
-
-/** Zod schema for {@link EmptyStatement}. */
-export const EmptyStatementSchema: z.ZodType<EmptyStatement> = z.lazy(() =>
-  z.object({
-    kind: z.literal('empty'),
-    ...ExprMetadataFields,
-  }),
+export const QueryStatementSchema: z.ZodType<WithoutLocations<QueryStatement>> = z.lazy(() =>
+  z.union([SelectWithUnionQuerySchema, SelectIntersectExceptQuerySchema, ExplainQueryNodeSchema]),
 );
 
 /** Zod schema for {@link Statement}. */
-export const StatementSchema: z.ZodType<Statement> = z.lazy(() =>
+export const StatementSchema: z.ZodType<WithoutLocations<Statement>> = z.lazy(() =>
   z.union([
-    SelectStatementSchema,
-    UnionStatementSchema,
-    IntersectStatementSchema,
-    ExplainStatementSchema,
-    SetStatementSchema,
-    TransactionControlStatementSchema,
-    SetRoleStatementSchema,
-    UseStatementSchema,
-    SystemStatementSchema,
-    CreateStatementSchema,
-    AlterStatementSchema,
-    ParallelWithStatementSchema,
-    InsertStatementSchema,
-    TruncateStatementSchema,
-    DropStatementSchema,
-    UndropStatementSchema,
-    BackupStatementSchema,
-    GrantStatementSchema,
-    ShowStatementSchema,
-    AlterUserStatementSchema,
-    AlterRoleStatementSchema,
-    AlterQuotaStatementSchema,
-    AlterRowPolicyStatementSchema,
-    AlterSettingsProfileStatementSchema,
-    OptimizeStatementSchema,
-    DescribeStatementSchema,
-    ShowCreateStatementSchema,
-    DetachStatementSchema,
-    DeleteStatementSchema,
-    UpdateStatementSchema,
-    CheckStatementSchema,
-    AttachStatementSchema,
-    RenameStatementSchema,
-    ExistsStatementSchema,
-    KillStatementSchema,
-    ExecuteAsStatementSchema,
-    EmptyStatementSchema,
+    SelectWithUnionQuerySchema,
+    SelectIntersectExceptQuerySchema,
+    SettingsNodeSchema,
+    EmptyQueryNodeSchema,
+    DropQueryNodeSchema,
+    DetachQueryNodeSchema,
+    TruncateQueryNodeSchema,
+    UndropQueryNodeSchema,
+    DropFunctionQueryNodeSchema,
+    InsertQueryNodeSchema,
+    CreateQueryNodeSchema,
+    CreateFunctionQueryNodeSchema,
+    CreateIndexQueryNodeSchema,
+    AlterQueryNodeSchema,
+    SystemQueryNodeSchema,
+    ShowFamilyQueryNodeSchema,
+    AccessDropQueryNodeSchema,
+    AccessQueryNodeSchema,
+    BackupQueryNodeSchema,
+    ParallelWithQueryNodeSchema,
+    DropIndexQueryNodeSchema,
+    UseQueryNodeSchema,
+    TransactionControlNodeSchema,
+    ExecuteAsQueryNodeSchema,
+    OptimizeQueryNodeSchema,
+    DescribeQueryNodeSchema,
+    ShowCreateQueryNodeSchema,
+    ExistsQueryNodeSchema,
+    CheckQueryNodeSchema,
+    AttachQueryNodeSchema,
+    RenameNodeSchema,
+    KillQueryQueryNodeSchema,
+    DeleteQueryNodeSchema,
+    UpdateQueryNodeSchema,
+    ExplainQueryNodeSchema,
   ]),
 );
 
 /** Zod schema for an array of {@link Statement}s (the top-level parse result). */
-export const StatementsSchema = z.array(StatementSchema);
+export const StatementsSchema: z.ZodType<WithoutLocations<Statement>[]> = z.array(StatementSchema);

@@ -4,7 +4,7 @@ CREATE TABLE table_2009_part
     d Date,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
 PARTITION BY toYYYYMM(d);
 

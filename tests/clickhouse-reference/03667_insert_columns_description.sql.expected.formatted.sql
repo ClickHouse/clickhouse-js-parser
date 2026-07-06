@@ -25,13 +25,13 @@ ORDER BY tuple();
 
 INSERT INTO FUNCTION remote('localhost:9000', database(), 'fuzz_87972', 'default', ''); -- { error EMPTY_LIST_OF_COLUMNS_PASSED }
 
-INSERT INTO FUNCTION file(concat(database(), '_test.csv'), CSV, 'a Int, b Int DEFAULT 77') SELECT
+INSERT INTO FUNCTION file(database() || '_test.csv', CSV, 'a Int, b Int DEFAULT 77') SELECT
     number,
     if(number % 2 = 1, NULL, number)
 FROM numbers(3);
 
-INSERT INTO FUNCTION file(concat(database(), '_test.csv'), CSV, 'a Int, b Int DEFAULT 77');
+INSERT INTO FUNCTION file(database() || '_test.csv', CSV, 'a Int, b Int DEFAULT 77');
 
 SELECT *
-FROM file(concat(database(), '_test.csv'))
+FROM file(database() || '_test.csv')
 ORDER BY `ALL` ASC;

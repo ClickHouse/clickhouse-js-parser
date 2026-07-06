@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET use_statistics = 1;
+SET use_statistics = '1';
 
 CREATE TABLE t
 (
@@ -7,7 +7,7 @@ CREATE TABLE t
     b LowCardinality(Nullable(String))
 )
 ENGINE = MergeTree()
-ORDER BY tuple()
+ORDER BY ()
 SETTINGS auto_statistics_types = 'minmax,uniq,tdigest,countmin';
 
 INSERT INTO t;

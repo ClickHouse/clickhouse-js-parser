@@ -13,14 +13,14 @@ CREATE TABLE cat_hist
     categoryId UUID,
     categoryName String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE prod_hist
 (
     categoryId UUID,
     productId UUID
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY productId;
 
 CREATE TABLE products_l AS prod_hist
@@ -38,7 +38,7 @@ LEFT JOIN cat_hist AS c
 SELECT *
 FROM
     products AS p
-LEFT JOIN cat_hist AS c
+GLOBAL LEFT JOIN cat_hist AS c
     USING (categoryId);
 
 DROP TABLE cat_hist;

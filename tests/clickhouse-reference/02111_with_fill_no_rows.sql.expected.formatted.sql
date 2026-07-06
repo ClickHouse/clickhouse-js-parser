@@ -36,4 +36,4 @@ FROM (
         WHERE 0
     )
 GROUP BY y
-ORDER BY y ASC;
+ORDER BY y ASC WITH FILL;

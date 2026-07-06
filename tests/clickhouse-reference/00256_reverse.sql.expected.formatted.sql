@@ -14,7 +14,7 @@ SELECT reverse(range(number))
 FROM `system`.numbers
 LIMIT 10;
 
-SELECT reverse(arrayMap(x -> toString(round(exp10(x))), range(number)))
+SELECT reverse(arrayMap((x -> toString(round(exp10(x)))), range(number)))
 FROM `system`.numbers
 LIMIT 10;
 

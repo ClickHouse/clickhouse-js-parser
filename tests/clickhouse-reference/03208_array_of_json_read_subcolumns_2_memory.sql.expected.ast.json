@@ -1,235 +1,548 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_json_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_json_type": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-asan, no-tsan, no-msan, no-flaky-check",
-      "-- too slow for sanitizers and flaky check"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_variant_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_variant_type": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_variant_as_common_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_variant_as_common_type": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "columnDef",
-        "name": "json",
-        "type": {
-          "name": "JSON",
-          "args": [
-            {
-              "kind": "setting",
-              "name": "max_dynamic_paths",
-              "value": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "8"
-              }
-            },
-            {
-              "kind": "namedField",
-              "name": "a.b",
-              "type": {
-                "name": "Array",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "JSON"
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "json",
+            "data_type": {
+              "type": "DataType",
+              "name": "JSON",
+              "arguments": [
+                {
+                  "type": "ObjectTypeArgument",
+                  "parameter": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "max_dynamic_paths"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "8"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "ObjectTypeArgument",
+                  "path_with_type": {
+                    "type": "ObjectTypedPath",
+                    "name": "a.b",
+                    "data_type": {
+                      "type": "DataType",
+                      "name": "Array",
+                      "arguments": [
+                        {
+                          "type": "DataType",
+                          "name": "JSON"
+                        }
+                      ]
                     }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "min_rows_for_wide_part": "1000000000",
+            "min_bytes_for_wide_part": "10000000000"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "{}"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toJSONString",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "map",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.b"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "map",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "concat",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "b.c.d_"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "toString",
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "x"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "CAST",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UInt32"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "c.d.e"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "range",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "plus",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "modulo",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "number"
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "x"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "5"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "range",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "plus",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "5"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "1"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "min_rows_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000000"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10000000000"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "{}"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
           }
         ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toJSONString",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "map",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.b"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
-                    {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "x"
-                      ],
-                      "body": {
-                        "kind": "functionCall",
-                        "name": "map",
-                        "args": [
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toJSONString",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "map",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.r"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
                           {
-                            "kind": "functionCall",
-                            "name": "concat",
-                            "args": [
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
                               {
-                                "kind": "literal",
-                                "type": "String",
-                                "value": "b.c.d_"
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  }
+                                ]
                               },
                               {
-                                "kind": "functionCall",
-                                "name": "toString",
-                                "args": [
+                                "type": "Function",
+                                "name": "map",
+                                "arguments": [
                                   {
-                                    "kind": "columnRef",
-                                    "parts": [
-                                      "x"
+                                    "type": "Function",
+                                    "name": "concat",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "b.c.d_"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "toString",
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "x"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "CAST",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UInt32"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "c.d.e"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "range",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "plus",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "modulo",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "number"
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "x"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "5"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1"
+                                          }
+                                        ]
+                                      }
                                     ]
                                   }
                                 ]
@@ -237,181 +550,293 @@
                             ]
                           },
                           {
-                            "kind": "castExpr",
-                            "expr": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "type": "UInt32",
-                            "operator": true
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "c.d.e"
-                          },
-                          {
-                            "kind": "functionCall",
+                            "type": "Function",
                             "name": "range",
-                            "args": [
+                            "arguments": [
                               {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "binaryExpr",
-                                  "op": "%",
-                                  "left": {
-                                    "kind": "binaryExpr",
-                                    "op": "+",
-                                    "left": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "number"
-                                      ]
-                                    },
-                                    "right": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "x"
-                                      ]
-                                    },
-                                    "parenthesized": true
+                                "type": "Function",
+                                "name": "plus",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "5"
+                                      }
+                                    ]
                                   },
-                                  "right": {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "5"
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "1"
                                   }
-                                },
-                                "right": {
-                                  "kind": "literal",
-                                  "type": "UInt64",
-                                  "value": "1"
-                                }
+                                ]
                               }
                             ]
                           }
                         ]
                       }
-                    },
-                    {
-                      "kind": "functionCall",
-                      "name": "range",
-                      "args": [
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
                         {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "binaryExpr",
-                            "op": "%",
-                            "left": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "right": {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "5"
-                            }
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          }
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "20000"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
                         }
                       ]
                     }
-                  ]
+                  }
                 }
               ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
           }
         ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toJSONString",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "map",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.r"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
-                    {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "x"
-                      ],
-                      "body": {
-                        "kind": "functionCall",
-                        "name": "map",
-                        "args": [
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toJSONString",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "map",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a1"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a2"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a3"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a4"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a5"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a6"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a7"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.a8"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a.r"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "arrayMap",
+                        "arguments": [
                           {
-                            "kind": "functionCall",
-                            "name": "concat",
-                            "args": [
+                            "type": "Function",
+                            "name": "lambda",
+                            "is_operator": true,
+                            "is_lambda_function": true,
+                            "kind": "LAMBDA_FUNCTION",
+                            "arguments": [
                               {
-                                "kind": "literal",
-                                "type": "String",
-                                "value": "b.c.d_"
+                                "type": "Function",
+                                "name": "tuple",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                  }
+                                ]
                               },
                               {
-                                "kind": "functionCall",
-                                "name": "toString",
-                                "args": [
+                                "type": "Function",
+                                "name": "map",
+                                "arguments": [
                                   {
-                                    "kind": "columnRef",
-                                    "parts": [
-                                      "x"
+                                    "type": "Function",
+                                    "name": "concat",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "b.c.d_"
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "toString",
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "x"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "CAST",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "UInt32"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "c.d.e"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "range",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "plus",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "modulo",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Function",
+                                                "name": "plus",
+                                                "is_operator": true,
+                                                "arguments": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "number"
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "x"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "5"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1"
+                                          }
+                                        ]
+                                      }
                                     ]
                                   }
                                 ]
@@ -419,362 +844,164 @@
                             ]
                           },
                           {
-                            "kind": "castExpr",
-                            "expr": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "type": "UInt32",
-                            "operator": true
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "c.d.e"
-                          },
-                          {
-                            "kind": "functionCall",
+                            "type": "Function",
                             "name": "range",
-                            "args": [
+                            "arguments": [
                               {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "binaryExpr",
-                                  "op": "%",
-                                  "left": {
-                                    "kind": "binaryExpr",
-                                    "op": "+",
-                                    "left": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "number"
-                                      ]
-                                    },
-                                    "right": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "x"
-                                      ]
-                                    },
-                                    "parenthesized": true
-                                  },
-                                  "right": {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "5"
-                                  }
-                                },
-                                "right": {
-                                  "kind": "literal",
-                                  "type": "UInt64",
-                                  "value": "1"
-                                }
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "functionCall",
-                      "name": "range",
-                      "args": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "binaryExpr",
-                            "op": "%",
-                            "left": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "right": {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "5"
-                            }
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "20000"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toJSONString",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "map",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a1"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a2"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a3"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a4"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a5"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a6"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a7"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.a8"
-                },
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a.r"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "arrayMap",
-                  "args": [
-                    {
-                      "kind": "lambdaExpr",
-                      "params": [
-                        "x"
-                      ],
-                      "body": {
-                        "kind": "functionCall",
-                        "name": "map",
-                        "args": [
-                          {
-                            "kind": "functionCall",
-                            "name": "concat",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "String",
-                                "value": "b.c.d_"
-                              },
-                              {
-                                "kind": "functionCall",
-                                "name": "toString",
-                                "args": [
+                                "type": "Function",
+                                "name": "plus",
+                                "is_operator": true,
+                                "arguments": [
                                   {
-                                    "kind": "columnRef",
-                                    "parts": [
-                                      "x"
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "5"
+                                      }
                                     ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "1"
                                   }
                                 ]
                               }
                             ]
-                          },
-                          {
-                            "kind": "castExpr",
-                            "expr": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "type": "UInt32",
-                            "operator": true
-                          },
-                          {
-                            "kind": "literal",
-                            "type": "String",
-                            "value": "c.d.e"
-                          },
-                          {
-                            "kind": "functionCall",
-                            "name": "range",
-                            "args": [
-                              {
-                                "kind": "binaryExpr",
-                                "op": "+",
-                                "left": {
-                                  "kind": "binaryExpr",
-                                  "op": "%",
-                                  "left": {
-                                    "kind": "binaryExpr",
-                                    "op": "+",
-                                    "left": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "number"
-                                      ]
-                                    },
-                                    "right": {
-                                      "kind": "columnRef",
-                                      "parts": [
-                                        "x"
-                                      ]
-                                    },
-                                    "parenthesized": true
-                                  },
-                                  "right": {
-                                    "kind": "literal",
-                                    "type": "UInt64",
-                                    "value": "5"
-                                  }
-                                },
-                                "right": {
-                                  "kind": "literal",
-                                  "type": "UInt64",
-                                  "value": "1"
-                                }
-                              }
-                            ]
                           }
                         ]
                       }
-                    },
-                    {
-                      "kind": "functionCall",
-                      "name": "range",
-                      "args": [
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
                         {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "binaryExpr",
-                            "op": "%",
-                            "left": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "number"
-                              ]
-                            },
-                            "right": {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "5"
-                            }
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          }
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "30000"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Function",
+              "alias": "paths_with_types",
+              "name": "arrayJoin",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "JSONAllPathsWithTypes",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "json"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "paths_with_types"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Function",
+              "alias": "paths_with_types",
+              "name": "arrayJoin",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "JSONAllPathsWithTypes",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayJoin",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "json.a.b",
+                          "name_parts": [
+                            "json",
+                            "a",
+                            "b"
+                          ]
                         }
                       ]
                     }
@@ -782,2579 +1009,3217 @@
                 }
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "paths_with_types"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "30000"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "JSONAllPathsWithTypes",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "alias": "paths_with_types"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "paths_with_types"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "JSONAllPathsWithTypes",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayJoin",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "json",
-                        "a",
-                        "b"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "alias": "paths_with_types"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "paths_with_types"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "JSONAllPathsWithTypes",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayJoin",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "json",
-                        "a",
-                        "r[]"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "alias": "paths_with_types"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "paths_with_types"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_2"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_3"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_4"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "^a"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "b",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Function",
+              "alias": "paths_with_types",
+              "name": "arrayJoin",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "JSONAllPathsWithTypes",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "arrayJoin",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "json.a.r.:`Array(JSON)`",
+                          "name_parts": [
+                            "json",
+                            "a",
+                            "r",
+                            ":`Array(JSON)`"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "paths_with_types"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json"
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
                 "c",
                 "d",
                 "e"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_0",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
+                "b",
                 "b",
                 "c",
                 "d_0"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_1",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
+                "b",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.^`a`",
+              "name_parts": [
+                "json",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json"
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b",
+              "name_parts": [
+                "json",
+                "a",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.^`a`",
+              "name_parts": [
+                "json",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.b",
+              "name_parts": [
+                "json",
+                "a",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.^`a`",
+              "name_parts": [
+                "json",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.b",
+              "name_parts": [
+                "json",
+                "a",
+                "b"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_2",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_2"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_3",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_3"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_4",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_4"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.^`a`",
+              "name_parts": [
+                "json",
+                "^`a`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.b.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "b",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.c.d.e",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "c",
+                      "d",
+                      "e"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "b",
+                      "c",
+                      "d_0"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "b",
+                      "c",
+                      "d_1"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "c",
+                      "d",
+                      "e",
+                      ":`Array(Nullable(Int64))`"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "b",
+                      "c",
+                      "d_0",
+                      ":`Int64`"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "b",
+                      "c",
+                      "d_1",
+                      ":`Int64`"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.c.d.e",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "c",
+                          "d",
+                          "e"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_0"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_1"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "c",
+                          "d",
+                          "e",
+                          ":`Array(Nullable(Int64))`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_0",
+                          ":`Int64`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_1",
+                          ":`Int64`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
                 "b",
                 "c",
                 "d_1"
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "jsonSubcolumn",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "json",
-                  "a",
-                  "r[]",
-                  "c",
-                  "d",
-                  "e"
-                ]
-              },
-              "type": "Array(Nullable(Int64))"
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
             {
-              "kind": "jsonSubcolumn",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "json",
-                  "a",
-                  "r[]",
-                  "b",
-                  "c",
-                  "d_0"
-                ]
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
               },
-              "type": "Int64"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
-            {
-              "kind": "jsonSubcolumn",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "json",
-                  "a",
-                  "r[]",
-                  "b",
-                  "c",
-                  "d_1"
-                ]
-              },
-              "type": "Int64"
+              "direction": "ASC"
             }
           ]
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "c",
-                    "d",
-                    "e"
-                  ]
-                }
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e",
+                ":`Array(Nullable(Int64))`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1",
+                ":`Int64`"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "b",
-                    "c",
-                    "d_0"
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e",
+                ":`Array(Nullable(Int64))`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1",
+                ":`Int64`"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "b",
-                    "c",
-                    "d_1"
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
-              ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "jsonSubcolumn",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e",
+                ":`Array(Nullable(Int64))`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1",
+                ":`Int64`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.c.d.e.:`Array(Nullable(Int64))`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "c",
+                "d",
+                "e",
+                ":`Array(Nullable(Int64))`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_1.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_1",
+                ":`Int64`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.^`b`",
+                    "name_parts": [
                       "json",
                       "a",
-                      "r[]",
-                      "c",
-                      "d",
-                      "e"
+                      "r",
+                      ":`Array(JSON)`",
+                      "^`b`"
                     ]
-                  },
-                  "type": "Array(Nullable(Int64))"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "jsonSubcolumn",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+                    "name_parts": [
                       "json",
                       "a",
-                      "r[]",
+                      "r",
+                      ":`Array(JSON)`",
+                      "^`b`",
+                      "c"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
                       "b",
                       "c",
                       "d_0"
                     ]
-                  },
-                  "type": "Int64"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "jsonSubcolumn",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "json",
-                      "a",
-                      "r[]",
-                      "b",
-                      "c",
-                      "d_1"
-                    ]
-                  },
-                  "type": "Int64"
-                }
-              ]
-            }
-          ]
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "c",
-            "d",
-            "e"
-          ]
-        },
-        "type": "Array(Nullable(Int64))"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_1"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "c",
-            "d",
-            "e"
-          ]
-        },
-        "type": "Array(Nullable(Int64))"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_1"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "c",
-          "d",
-          "e"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "c",
-            "d",
-            "e"
-          ]
-        },
-        "type": "Array(Nullable(Int64))"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_1"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "c",
-            "d",
-            "e"
-          ]
-        },
-        "type": "Array(Nullable(Int64))"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_1"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "json",
-                "a",
-                "r[]",
-                "^b"
-              ]
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
-        },
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.^`b`",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "^`b`"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "^`b`",
+                      "c"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+                    "name_parts": [
+                      "json",
+                      "a",
+                      "r",
+                      ":`Array(JSON)`",
+                      "b",
+                      "c",
+                      "d_0",
+                      ":`Int64`"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.^`b`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "^`b`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "^`b`",
+                          "c"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_0"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.^`b`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "^`b`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "empty",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "^`b`",
+                          "c"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "arrayJoin",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+                        "name_parts": [
+                          "json",
+                          "a",
+                          "r",
+                          ":`Array(JSON)`",
+                          "b",
+                          "c",
+                          "d_0",
+                          ":`Int64`"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
-                "^b",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
                 "c"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
+                "r",
+                ":`Array(JSON)`",
                 "b",
                 "c",
                 "d_0"
               ]
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
-                "^b"
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
                 "json",
                 "a",
-                "r[]",
-                "^b",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
                 "c"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+            },
             {
-              "kind": "jsonSubcolumn",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "json",
-                  "a",
-                  "r[]",
-                  "b",
-                  "c",
-                  "d_0"
-                ]
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
               },
-              "type": "Int64"
+              "direction": "ASC"
             }
           ]
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "^b"
-                  ]
-                }
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "^b",
-                    "c"
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "b",
-                    "c",
-                    "d_0"
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
-              ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "^b"
-                  ]
-                }
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "empty",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "json",
-                    "a",
-                    "r[]",
-                    "^b",
-                    "c"
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "arrayJoin",
-              "args": [
-                {
-                  "kind": "jsonSubcolumn",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "json",
-                      "a",
-                      "r[]",
-                      "b",
-                      "c",
-                      "d_0"
-                    ]
-                  },
-                  "type": "Int64"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
                 }
-              ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      ]
+      ],
+      "format": "Null"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "json.a.r",
+              "name_parts": [
+                "json",
+                "a",
+                "r"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.^`b`.c",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "^`b`",
+                "c"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "json.a.r.:`Array(JSON)`.b.c.d_0.:`Int64`",
+              "name_parts": [
+                "json",
+                "a",
+                "r",
+                ":`Array(JSON)`",
+                "b",
+                "c",
+                "d_0",
+                ":`Int64`"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
+        }
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "b",
-          "c",
-          "d_0"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "json",
-          "a",
-          "r[]",
-          "^b",
-          "c"
-        ]
-      },
-      {
-        "kind": "jsonSubcolumn",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json",
-            "a",
-            "r[]",
-            "b",
-            "c",
-            "d_0"
-          ]
-        },
-        "type": "Int64"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
     }
   }
 ]

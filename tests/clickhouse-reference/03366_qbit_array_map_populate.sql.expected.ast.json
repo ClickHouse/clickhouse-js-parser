@@ -1,245 +1,331 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbits"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbits"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "qbits"
       },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "QBit",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Float64"
-              }
-            },
-            {
-              "kind": "literal",
-              "value": "9"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "qbits"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+        "type": "Identifier",
+        "name": "qbits"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
           },
-          "alias": "id"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "arrayMap",
-            "args": [
-              {
-                "kind": "lambdaExpr",
-                "params": [
-                  "i"
-                ],
-                "body": {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "i"
-                    ]
-                  },
-                  "right": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  }
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "QBit",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float64"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "9"
                 }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "qbits"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "id",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
               },
               {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
+                "type": "Function",
+                "alias": "vec",
+                "name": "arrayMap",
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "9"
+                    "type": "Function",
+                    "name": "lambda",
+                    "is_operator": true,
+                    "is_lambda_function": true,
+                    "kind": "LAMBDA_FUNCTION",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "tuple",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "plus",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "i"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "range",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "9"
+                      }
+                    ]
                   }
                 ]
               }
-            ]
-          },
-          "alias": "vec"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "9"
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "9"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "qbits"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbits"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbits"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "QBit",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "type",
-              "type": {
-                "name": "Float32"
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "qbits"
+                  }
+                }
               }
-            },
+            ]
+          },
+          "order_by": [
             {
-              "kind": "literal",
-              "value": "9"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
+      ]
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "qbits"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "qbits"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "qbits"
       },
-      {
-        "kind": "columnDef",
-        "name": "vec",
-        "type": {
-          "name": "QBit",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "BFloat16"
-              }
-            },
-            {
-              "kind": "literal",
-              "value": "9"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
-          ]
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "QBit",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "Float32"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "9"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
       }
-    ],
-    "engine": {
-      "name": "Memory"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "qbits"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "vec",
+            "data_type": {
+              "type": "DataType",
+              "name": "QBit",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "BFloat16"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "9"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
     }
   }
 ]

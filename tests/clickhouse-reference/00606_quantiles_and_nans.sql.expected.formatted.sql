@@ -2,9 +2,9 @@ SELECT DISTINCT eq
 FROM (
         WITH range(2 + number % 10) AS arr, -- minimum two elements, to avoid nan result --
 
-          arrayMap(x -> if(x = intDiv(number, 10), nan, x), arr) AS arr_with_nan,
+          arrayMap((x -> x = intDiv(number, 10) ? nan : x), arr) AS arr_with_nan,
 
-          arrayFilter(x -> x != intDiv(number, 10), arr) AS arr_filtered
+          arrayFilter((x -> x != intDiv(number, 10)), arr) AS arr_filtered
 
         SELECT
             number,

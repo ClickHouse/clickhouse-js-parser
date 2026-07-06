@@ -26,7 +26,7 @@ CREATE TABLE t_map_02014
     m2 Map(Int8, String),
     m3 Map(Int128, String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_map_02014;
 
@@ -49,7 +49,7 @@ CREATE TABLE t_map_02014
     m1 Map(String, String),
     m2 Map(FixedString(3), String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_map_02014;
 

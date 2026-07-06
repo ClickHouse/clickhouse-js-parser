@@ -44,6 +44,6 @@ SELECT
 FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND type = 'QueryFinish'
-    AND current_database == currentDatabase()
-    AND like(query, 'SELECT ''#02136_scalar_subquery_%')
+    AND current_database = currentDatabase()
+    AND query LIKE 'SELECT ''#02136_scalar_subquery_%'
 ORDER BY query ASC;

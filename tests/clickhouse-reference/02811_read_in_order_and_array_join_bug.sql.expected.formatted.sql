@@ -10,7 +10,7 @@ CREATE TABLE test_array_joins
     arr_3 Array(String),
     arr_4 Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_array_joins (id, arr_1, arr_2, arr_3, arr_4) SELECT
@@ -35,4 +35,4 @@ WHERE match(arr_4, 'a')
     AND id < 100
 ORDER BY id ASC
 FORMAT Null
-SETTINGS optimize_read_in_order = 1;
+SETTINGS optimize_read_in_order = '1';

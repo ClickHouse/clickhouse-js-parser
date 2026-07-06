@@ -5,11 +5,11 @@ CREATE TABLE bloom_filter_nullable_index__fuzz_0
 (
     order_key UInt64,
     str Nullable(String),
-    INDEX idx str TYPE bloom_filter GRANULARITY 1
+    INDEX idx str TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_nullable_index__fuzz_0;
 
@@ -21,11 +21,11 @@ CREATE TABLE bloom_filter_nullable_index__fuzz_1
 (
     order_key UInt64,
     str String,
-    INDEX idx str TYPE bloom_filter GRANULARITY 1
+    INDEX idx str TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 DROP TABLE IF EXISTS nullable_string_value__fuzz_2;
 
@@ -33,7 +33,7 @@ CREATE TABLE nullable_string_value__fuzz_2
 (
     value LowCardinality(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO nullable_string_value__fuzz_2;
 

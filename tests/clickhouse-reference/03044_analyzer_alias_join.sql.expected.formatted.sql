@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/17319
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE hits
 (
@@ -25,4 +25,4 @@ LEFT JOIN (
             data AS data
         FROM hits
     ) AS subquery2
-    ON (subquery1.period = subquery2.period);
+    ON subquery1.period = subquery2.period;

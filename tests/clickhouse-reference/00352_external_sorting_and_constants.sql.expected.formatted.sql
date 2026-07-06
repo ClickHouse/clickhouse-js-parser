@@ -7,10 +7,11 @@ FROM (
         LIMIT 1000000
     )
 ORDER BY number ASC
-LIMIT 999990, 100
+LIMIT 100
+OFFSET 999990
 SETTINGS
-    max_bytes_before_external_sort = 1000000,
-    max_bytes_ratio_before_external_sort = 0;
+    max_bytes_before_external_sort = '1000000',
+    max_bytes_ratio_before_external_sort = '0';
 
 SELECT
     number,
@@ -23,10 +24,11 @@ FROM (
 ORDER BY
     number ASC,
     k ASC
-LIMIT 999990, 100
+LIMIT 100
+OFFSET 999990
 SETTINGS
-    max_bytes_before_external_sort = 1000000,
-    max_bytes_ratio_before_external_sort = 0;
+    max_bytes_before_external_sort = '1000000',
+    max_bytes_ratio_before_external_sort = '0';
 
 SELECT
     number,
@@ -40,10 +42,11 @@ ORDER BY
     k ASC,
     number ASC,
     k ASC
-LIMIT 999990, 100
+LIMIT 100
+OFFSET 999990
 SETTINGS
-    max_bytes_before_external_sort = 1000000,
-    max_bytes_ratio_before_external_sort = 0;
+    max_bytes_before_external_sort = '1000000',
+    max_bytes_ratio_before_external_sort = '0';
 
 SELECT
     number,
@@ -57,7 +60,8 @@ ORDER BY
     number ASC,
     k ASC,
     number ASC
-LIMIT 999990, 100
+LIMIT 100
+OFFSET 999990
 SETTINGS
-    max_bytes_before_external_sort = 1000000,
-    max_bytes_ratio_before_external_sort = 0;
+    max_bytes_before_external_sort = '1000000',
+    max_bytes_ratio_before_external_sort = '0';

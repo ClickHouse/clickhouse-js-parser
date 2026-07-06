@@ -8,10 +8,10 @@ CREATE TABLE tbl
     t Int64,
     f Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t
 PARTITION BY p
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO tbl SELECT
     number / 4,
@@ -54,9 +54,9 @@ CREATE TABLE XXXX
     t Int64,
     f Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t
-SETTINGS index_granularity = 128, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '128', index_granularity_bytes = '10Mi';
 
 INSERT INTO XXXX SELECT
     number * 60,
@@ -72,14 +72,14 @@ CREATE TABLE XXXX
     t Int64,
     f Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SELECT count()
 FROM XXXX
 WHERE indexHint(t = toDateTime(0))
-SETTINGS optimize_use_implicit_projections = 1;
+SETTINGS optimize_use_implicit_projections = '1';
 
 DROP TABLE XXXX;
 
@@ -88,10 +88,10 @@ CREATE TABLE XXXX
     p Nullable(Int64),
     k Decimal(76, 39)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY toDate(p)
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO XXXX;
 
@@ -99,13 +99,13 @@ SELECT count()
 FROM XXXX
 WHERE indexHint(p = 1.)
 SETTINGS
-    optimize_use_implicit_projections = 1,
-    enable_analyzer = 0;
+    optimize_use_implicit_projections = '1',
+    enable_analyzer = '0';
 
 -- TODO: optimize_use_implicit_projections ignores indexHint (with analyzer) because source columns might be aliased.
 SELECT count()
 FROM XXXX
 WHERE indexHint(p = 1.)
 SETTINGS
-    optimize_use_implicit_projections = 1,
-    enable_analyzer = 1;
+    optimize_use_implicit_projections = '1',
+    enable_analyzer = '1';

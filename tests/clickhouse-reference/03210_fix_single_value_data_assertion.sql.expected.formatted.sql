@@ -18,4 +18,4 @@ LIMIT 10
 SETTINGS
     group_by_overflow_mode = 'any',
     totals_mode = 'before_having',
-    max_rows_to_group_by = 100000;
+    max_rows_to_group_by = '100000';

@@ -2,7 +2,7 @@ CREATE TABLE `null`
 (
     key Int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 SELECT *
-FROM {CLICKHOUSE_DATABASE:Identifier}.`null`;
+FROM CLICKHOUSE_DATABASE.`null`;

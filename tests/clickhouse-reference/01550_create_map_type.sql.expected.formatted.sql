@@ -5,7 +5,7 @@ CREATE TABLE table_map
 (
     a Map(String, String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table_map;
 
@@ -18,7 +18,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map SELECT map('key1', number, 'key2', number * 2)
 FROM numbers(1111, 3);
@@ -35,7 +35,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map;
 
@@ -54,7 +54,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY d
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map;
 
@@ -71,7 +71,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY d
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map;
 
@@ -82,7 +82,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY b
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map SELECT
     map(number, number + 5),
@@ -95,7 +95,7 @@ CREATE TABLE table_map
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_map;
 
@@ -110,7 +110,7 @@ FROM table_map
 ORDER BY col1 ASC;
 
 SELECT
-    CAST(([1, 2, 3], ['1', '2', 'foo']), 'Map(UInt8, String)') AS map,
+    CAST(([1, 2, 3], ['1', '2', 'foo']) AS Map(UInt8, String)) AS map,
     map[1];
 
 CREATE TABLE table_map
@@ -118,20 +118,20 @@ CREATE TABLE table_map
     n UInt32,
     m Map(String, Int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS min_bytes_for_wide_part = 0, index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS min_bytes_for_wide_part = '0', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 -- coversion from Tuple(Array(K), Array(V))
 INSERT INTO table_map SELECT
     number,
-    (arrayMap(x -> toString(x), range(number % 10 + 2)), range(number % 10 + 2))
+    (arrayMap((x -> toString(x)), range(number % 10 + 2)), range(number % 10 + 2))
 FROM numbers(100000);
 
 -- coversion from Array(Tuple(K, V))
 INSERT INTO table_map SELECT
     number,
-    arrayMap(x -> (toString(x), x), range(number % 10 + 2))
+    arrayMap((x -> (toString(x), x)), range(number % 10 + 2))
 FROM numbers(100000);
 
 SELECT
@@ -145,10 +145,10 @@ CREATE TABLE table_map
     n UInt32,
     m Map(String, Int)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SELECT
-    CAST(([2, 1, 1023], ['', '']), 'Map(UInt8, String)') AS map,
+    CAST(([2, 1, 1023], ['', '']) AS Map(UInt8, String)) AS map,
     map[10]; -- { serverError TYPE_MISMATCH}

@@ -1,694 +1,740 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_queries": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_query_threads": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_profiler_real_time_period_ns": "100000000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sleep",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-tsan, no-asan, no-ubsan, no-msan, no-debug",
-      "-- This file contains tests for the event_time_microseconds field for various tables.",
-      "-- Note: Only event_time_microseconds for asynchronous_metric_log table is tested via",
-      "-- an integration test as those metrics take 60s by default to be updated.",
-      "-- Refer: tests/integration/test_asynchronous_metric_log_table."
-    ]
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_query_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_profiler_real_time_period_ns": "1000000000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "metric_log"
+        },
+        {
+          "table": "trace_log"
+        },
+        {
+          "table": "query_log"
+        },
+        {
+          "table": "query_thread_log"
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_profiler_real_time_period_ns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sleep",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      }
-    ],
-    "format": "Null",
-    "leadingComments": [
-      "-- a long enough query to trigger the query profiler and to record trace log"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_profiler_real_time_period_ns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS metric_log, trace_log, query_log, query_thread_log"
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "time",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time_microseconds"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "time",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Identifier",
+                        "name": "event_time_microseconds"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "event_time"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "metric_log",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "order_by": [
+                      {
+                        "type": "OrderByElement",
+                        "expression": {
+                          "type": "Identifier",
+                          "name": "event_time"
+                        },
+                        "direction": "DESC"
+                      }
+                    ],
+                    "limit": {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  }
                 ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "metric_log"
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_time"
-                  ]
-                },
-                "direction": "DESC"
-              }
-            ],
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
               }
             }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "functionCall",
-              "name": "dateDiff",
-              "args": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "second"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
+                      "type": "Function",
+                      "name": "dateDiff",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "second"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
                     }
                   ]
                 },
                 {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "ok"
+                },
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
-                          ]
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        }
-                      ]
+                      "type": "Identifier",
+                      "name": "time"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "ok"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "leadingComments": [
-      "-- query assumes that the event_time field is accurate."
-    ]
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "time",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time_microseconds"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "time",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Identifier",
+                        "name": "event_time_microseconds"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "event_time"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "trace_log",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "order_by": [
+                      {
+                        "type": "OrderByElement",
+                        "expression": {
+                          "type": "Identifier",
+                          "name": "event_time"
+                        },
+                        "direction": "DESC"
+                      }
+                    ],
+                    "limit": {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  }
                 ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "trace_log"
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_time"
-                  ]
-                },
-                "direction": "DESC"
-              }
-            ],
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
               }
             }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "functionCall",
-              "name": "dateDiff",
-              "args": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "second"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
+                      "type": "Function",
+                      "name": "dateDiff",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "second"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
                     }
                   ]
                 },
                 {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "ok"
+                },
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
-                          ]
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        }
-                      ]
+                      "type": "Identifier",
+                      "name": "time"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "ok"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "time",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time_microseconds"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "time",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Identifier",
+                        "name": "event_time_microseconds"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "event_time"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "query_log",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "current_database"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "currentDatabase",
+                          "arguments": []
+                        }
+                      ]
+                    },
+                    "order_by": [
+                      {
+                        "type": "OrderByElement",
+                        "expression": {
+                          "type": "Identifier",
+                          "name": "event_time"
+                        },
+                        "direction": "DESC"
+                      }
+                    ],
+                    "limit": {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  }
                 ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "query_log"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "current_database"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              }
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_time"
-                  ]
-                },
-                "direction": "DESC"
-              }
-            ],
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
               }
             }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "functionCall",
-              "name": "dateDiff",
-              "args": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "second"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
+                      "type": "Function",
+                      "name": "dateDiff",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "second"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
                     }
                   ]
                 },
                 {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "ok"
+                },
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
-                          ]
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        }
-                      ]
+                      "type": "Identifier",
+                      "name": "time"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "ok"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "time",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time_microseconds"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Subquery",
+              "alias": "time",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Identifier",
+                        "name": "event_time_microseconds"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "event_time"
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "query_thread_log",
+                              "database": "system"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "where": {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "current_database"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "currentDatabase",
+                          "arguments": []
+                        }
+                      ]
+                    },
+                    "order_by": [
+                      {
+                        "type": "OrderByElement",
+                        "expression": {
+                          "type": "Identifier",
+                          "name": "event_time"
+                        },
+                        "direction": "DESC"
+                      }
+                    ],
+                    "limit": {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
+                  }
                 ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "event_time"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "database": "system",
-              "table": "query_thread_log"
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "current_database"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              }
-            },
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "event_time"
-                  ]
-                },
-                "direction": "DESC"
-              }
-            ],
-            "limit": {
-              "count": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
               }
             }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "if",
-        "args": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "functionCall",
-              "name": "dateDiff",
-              "args": [
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "if",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "second"
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
+                      "type": "Function",
+                      "name": "dateDiff",
+                      "arguments": [
                         {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "second"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "1"
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "tupleElement",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
                     }
                   ]
                 },
                 {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "ok"
+                },
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
                     {
-                      "kind": "functionCall",
-                      "name": "tupleElement",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "time"
-                          ]
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "UInt64",
-                          "value": "2"
-                        }
-                      ]
+                      "type": "Identifier",
+                      "name": "time"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "ok"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+          ]
+        }
+      ]
+    }
   }
 ]

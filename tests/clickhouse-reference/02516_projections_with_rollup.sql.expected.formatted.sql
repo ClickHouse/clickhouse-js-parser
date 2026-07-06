@@ -13,10 +13,10 @@ CREATE TABLE video_log
     bytes UInt64,
     duration UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (user_id, device_id)
 PARTITION BY toDate(datetime)
-SETTINGS index_granularity_bytes = 10485760, index_granularity = 8192;
+SETTINGS index_granularity_bytes = '10485760', index_granularity = '8192';
 
 CREATE TABLE video_log_result__fuzz_0
 (
@@ -24,10 +24,10 @@ CREATE TABLE video_log_result__fuzz_0
     sum_bytes UInt64,
     avg_duration Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY sum_bytes
 PARTITION BY toDate(hour)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 CREATE TABLE rng
 (
@@ -40,44 +40,32 @@ CREATE TABLE rng
 ENGINE = GenerateRandom(1024);
 
 INSERT INTO video_log SELECT
-    toUnixTimestamp('2022-07-22 01:00:00') + (rowNumberInAllBlocks() / 20000),
+    toUnixTimestamp('2022-07-22 01:00:00') + rowNumberInAllBlocks() / 20000,
     user_id_raw % 100000000 AS user_id,
     device_id_raw % 200000000 AS device_id,
     domain_raw % 100,
-    (bytes_raw % 1024) + 128,
-    (duration_raw % 300) + 100
+    bytes_raw % 1024 + 128,
+    duration_raw % 300 + 100
 FROM rng
 LIMIT 1728000;
 
 INSERT INTO video_log SELECT
-    toUnixTimestamp('2022-07-22 01:00:00') + (rowNumberInAllBlocks() / 20000),
+    toUnixTimestamp('2022-07-22 01:00:00') + rowNumberInAllBlocks() / 20000,
     user_id_raw % 100000000 AS user_id,
     100 AS device_id,
     domain_raw % 100,
-    (bytes_raw % 1024) + 128,
-    (duration_raw % 300) + 100
+    bytes_raw % 1024 + 128,
+    duration_raw % 300 + 100
 FROM rng
 LIMIT 10;
 
-ALTER TABLE video_log ADD PROJECTION p_norm (SELECT
-    datetime,
-    device_id,
-    bytes,
-    duration
-ORDER BY device_id ASC);
+ALTER TABLE video_log ADD PROJECTION p_norm (SELECT datetime, device_id, bytes, duration ORDER BY device_id);
 
-ALTER TABLE video_log MATERIALIZE PROJECTION p_norm SETTINGS mutations_sync = 1;
+ALTER TABLE video_log MATERIALIZE PROJECTION p_norm SETTINGS mutations_sync = '1';
 
-ALTER TABLE video_log ADD PROJECTION p_agg (SELECT
-    toStartOfHour(datetime) AS hour,
-    domain,
-    sum(bytes),
-    avg(duration)
-GROUP BY
-    hour,
-    domain);
+ALTER TABLE video_log ADD PROJECTION p_agg (SELECT toStartOfHour(datetime) AS hour, domain, sum(bytes), avg(duration) GROUP BY hour, domain);
 
-ALTER TABLE video_log MATERIALIZE PROJECTION p_agg SETTINGS mutations_sync = 1;
+ALTER TABLE video_log MATERIALIZE PROJECTION p_agg SETTINGS mutations_sync = '1';
 
 -- We are not interested in the result of this query, but it should not produce a logical error.
 SELECT
@@ -103,7 +91,7 @@ LEFT JOIN (
         FROM video_log_result__fuzz_0
     )
     USING (hour)
-SETTINGS joined_subquery_requires_alias = 0
+SETTINGS joined_subquery_requires_alias = '0'
 FORMAT Null;
 
 DROP TABLE video_log;

@@ -1,5 +1,5 @@
 -- Tags: shard
-SET output_format_write_statistics = 0;
+SET output_format_write_statistics = '0';
 
 SELECT arrayJoin(range(100)) AS x
 FROM remote('127.0.0.2', `system`.one)

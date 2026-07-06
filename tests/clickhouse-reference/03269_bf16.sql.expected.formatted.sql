@@ -1,51 +1,51 @@
 -- This is a smoke test, non exhaustive.
 -- Conversions
 SELECT
-    1::BFloat16,
-    -1::BFloat16,
-    1.1::BFloat16,
-    -1.1::BFloat16,
+    CAST('1' AS BFloat16),
+    CAST('-1' AS BFloat16),
+    CAST('1.1' AS BFloat16),
+    CAST('-1.1' AS BFloat16),
     CAST(1 AS BFloat16),
     CAST(-1 AS BFloat16),
     CAST(1.1 AS BFloat16),
     CAST(-1.1 AS BFloat16),
-    CAST(0xFFFFFFFFFFFFFFFF AS BFloat16),
-    CAST(-0.0 AS BFloat16),
+    CAST(18446744073709551615 AS BFloat16),
+    CAST(-0. AS BFloat16),
     CAST(inf AS BFloat16),
     CAST(-inf AS BFloat16),
     CAST(nan AS BFloat16);
 
 -- Conversions back
 SELECT
-    CAST(1.1::BFloat16 AS BFloat16),
-    CAST(1.1::BFloat16 AS Float32),
-    CAST(1.1::BFloat16 AS Float64),
-    CAST(1.1::BFloat16 AS Int8);
+    CAST(CAST('1.1' AS BFloat16) AS BFloat16),
+    CAST(CAST('1.1' AS BFloat16) AS Float32),
+    CAST(CAST('1.1' AS BFloat16) AS Float64),
+    CAST(CAST('1.1' AS BFloat16) AS Int8);
 
 -- Comparisons
 SELECT
-    1.1::BFloat16 = 1.1::BFloat16,
-    1.1::BFloat16 < 1.1,
-    1.1::BFloat16 > 1.1,
-    1.1::BFloat16 > 1,
-    1.1::BFloat16 = 1.09375;
+    CAST('1.1' AS BFloat16) = CAST('1.1' AS BFloat16),
+    CAST('1.1' AS BFloat16) < 1.1,
+    CAST('1.1' AS BFloat16) > 1.1,
+    CAST('1.1' AS BFloat16) > 1,
+    CAST('1.1' AS BFloat16) = 1.09375;
 
 -- Arithmetic
 SELECT
-    1.1::BFloat16 - 1.1::BFloat16 AS a,
-    1.1::BFloat16 + 1.1::BFloat16 AS b,
-    1.1::BFloat16 * 1.1::BFloat16 AS c,
-    1.1::BFloat16 / 1.1::BFloat16 AS d,
+    CAST('1.1' AS BFloat16) - CAST('1.1' AS BFloat16) AS a,
+    CAST('1.1' AS BFloat16) + CAST('1.1' AS BFloat16) AS b,
+    CAST('1.1' AS BFloat16) * CAST('1.1' AS BFloat16) AS c,
+    CAST('1.1' AS BFloat16) / CAST('1.1' AS BFloat16) AS d,
     toTypeName(a),
     toTypeName(b),
     toTypeName(c),
     toTypeName(d);
 
 SELECT
-    1.1::BFloat16 - 1.1 AS a,
-    1.1 + 1.1::BFloat16 AS b,
-    1.1::BFloat16 * 1.1 AS c,
-    1.1 / 1.1::BFloat16 AS d,
+    CAST('1.1' AS BFloat16) - 1.1 AS a,
+    1.1 + CAST('1.1' AS BFloat16) AS b,
+    CAST('1.1' AS BFloat16) * 1.1 AS c,
+    1.1 / CAST('1.1' AS BFloat16) AS d,
     toTypeName(a),
     toTypeName(b),
     toTypeName(c),
@@ -97,17 +97,17 @@ CREATE TABLE t
     n UInt64,
     x BFloat16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 -- Distances
-WITH arrayMap(x -> toFloat32(x) / 2, range(384)) AS a32,
+WITH arrayMap((x -> toFloat32(x) / 2), range(384)) AS a32,
 
-arrayMap(x -> toBFloat16(x) / 2, range(384)) AS a16,
+arrayMap((x -> toBFloat16(x) / 2), range(384)) AS a16,
 
-arrayMap(x -> x + 1, a32) AS a32_1,
+arrayMap((x -> x + 1), a32) AS a32_1,
 
-arrayMap(x -> x + 1, a16) AS a16_1
+arrayMap((x -> x + 1), a16) AS a16_1
 
 SELECT
     a32,
@@ -130,7 +130,7 @@ FORMAT Vertical;
 
 -- Introspection
 SELECT
-    1.1::BFloat16 AS x,
+    CAST('1.1' AS BFloat16) AS x,
     hex(x),
     bin(x),
     byteSize(x),
@@ -139,7 +139,7 @@ SELECT
 
 -- Rounding (this could be not towards the nearest)
 SELECT
-    1.1::BFloat16 AS x,
+    CAST('1.1' AS BFloat16) AS x,
     round(x),
     round(x, 1),
     round(x, 2),

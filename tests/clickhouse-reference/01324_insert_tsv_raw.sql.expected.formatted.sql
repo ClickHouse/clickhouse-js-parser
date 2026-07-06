@@ -9,9 +9,9 @@ CREATE TABLE tsv_raw
     b3 String,
     b4 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-INSERT INTO tsv_raw;
+INSERT INTO tsv_raw FORMAT TSVRaw;
 
 SELECT *
 FROM tsv_raw

@@ -1,9 +1,9 @@
 -- Tags: no-fasttest, long, no-debug, no-tsan, no-asan, no-msan, no-ubsan
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET use_variant_as_common_type = 1;
+SET use_variant_as_common_type = '1';
 
 SET session_timezone = 'UTC';
 
@@ -14,7 +14,7 @@ CREATE TABLE test
     id UInt64,
     json JSON(max_dynamic_paths = 2, `a.b.c` UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 TRUNCATE TABLE test;
 
@@ -30,32 +30,32 @@ FROM numbers(100000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number))))
+    toJSONString(map('a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number)))
 FROM numbers(200000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('b.b.d', number::UInt32, 'b.b.e', concat('str_', toString(number))))
+    toJSONString(map('b.b.d', number::UInt32, 'b.b.e', 'str_' || toString(number)))
 FROM numbers(300000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number))))
+    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number)))
 FROM numbers(400000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number)), concat('b.b._', toString(number % 5)), number::UInt32))
+    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number), 'b.b._' || toString(number % 5), number::UInt32))
 FROM numbers(500000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', range(number % 1)::Array(UInt32), 'a.b.e', concat('str_', toString(number)), 'd.a', number::UInt32, 'd.c', toDate(number)))
+    toJSONString(map('a.b.c', number, 'a.b.d', range(number % 1)::Array(UInt32), 'a.b.e', 'str_' || toString(number), 'd.a', number::UInt32, 'd.c', toDate(number)))
 FROM numbers(600000, 100000);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', toDateTime(number), 'a.b.e', concat('str_', toString(number)), 'd.a', range(number % 5 + 1)::Array(UInt32), 'd.b', number::UInt32))
+    toJSONString(map('a.b.c', number, 'a.b.d', toDateTime(number), 'a.b.e', 'str_' || toString(number), 'd.a', range(number % 5 + 1)::Array(UInt32), 'd.b', number::UInt32))
 FROM numbers(700000, 100000);
 
 SELECT DISTINCT arrayJoin(JSONAllPathsWithTypes(json)) AS paths_with_types
@@ -101,11 +101,11 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 FORMAT Null;
 
@@ -148,11 +148,11 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 ORDER BY id ASC
 FORMAT Null;
@@ -197,11 +197,11 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 FORMAT Null;
 
@@ -245,22 +245,22 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 ORDER BY id ASC
 FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.non.existing.path);
+WHERE json.non.existing.path IS NULL;
 
 SELECT count()
 FROM test
-WHERE isNull(json.non.existing.path.:String);
+WHERE json.non.existing.path.:String IS NULL;
 
 SELECT json.non.existing.path
 FROM test
@@ -310,7 +310,7 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE json.a.b.c == 0;
+WHERE json.a.b.c = 0;
 
 SELECT json.a.b.c
 FROM test
@@ -336,11 +336,11 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e);
+WHERE json.b.b.e IS NULL;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e.:String);
+WHERE json.b.b.e.:String IS NULL;
 
 SELECT json.b.b.e
 FROM test
@@ -426,13 +426,13 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e)
-    AND isNull(json.a.b.d);
+WHERE json.b.b.e IS NULL
+    AND json.a.b.d IS NULL;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e.:String)
-    AND isNull(json.a.b.d.:Int64);
+WHERE json.b.b.e.:String IS NULL
+    AND json.a.b.d.:Int64 IS NULL;
 
 SELECT
     json.b.b.e,
@@ -504,12 +504,12 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e)
-    AND isNull(json.d.a);
+WHERE json.b.b.e IS NULL
+    AND json.d.a IS NULL;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e.:String)
+WHERE json.b.b.e.:String IS NULL
     AND empty(json.d.a.:`Array(Nullable(Int64))`);
 
 SELECT
@@ -582,15 +582,15 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e)
-    AND isNull(json.d.a)
-    AND isNull(json.d.b);
+WHERE json.b.b.e IS NULL
+    AND json.d.a IS NULL
+    AND json.d.b IS NULL;
 
 SELECT count()
 FROM test
-WHERE isNull(json.b.b.e.:String)
+WHERE json.b.b.e.:String IS NULL
     AND empty(json.d.a.:`Array(Nullable(Int64))`)
-    AND isNull(json.d.b.:Int64);
+    AND json.d.b.:Int64 IS NULL;
 
 SELECT
     json.b.b.e,
@@ -677,91 +677,91 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE isNull(json.d.a)
-    AND isNull(json.d.b);
-
-SELECT count()
-FROM test
-WHERE empty(json.d.a.:`Array(Nullable(Int64))`)
-    AND isNull(json.d.b.:Int64);
-
-SELECT
-    json.d.a,
-    json.d.b
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT
-    json.d.a.:`Array(Nullable(Int64))`,
-    json.d.a.:Date,
-    json.d.b.:Int64,
-    json.d.b.:Date
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT
-    json.d.a,
-    json.d.a.:`Array(Nullable(Int64))`,
-    json.d.a.:Date,
-    json.d.b,
-    json.d.b.:Int64,
-    json.d.b.:Date
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT
-    json,
-    json.d.a,
-    json.d.b
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT
-    json,
-    json.d.a.:`Array(Nullable(Int64))`,
-    json.d.a.:Date,
-    json.d.b.:Int64,
-    json.d.b.:Date
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT
-    json,
-    json.d.a,
-    json.d.a.:`Array(Nullable(Int64))`,
-    json.d.a.:Date,
-    json.d.b,
-    json.d.b.:Int64,
-    json.d.b.:Date
-FROM test
-FORMAT Null;
-
-SELECT
-    json,
-    json.d.a,
-    json.d.a.:`Array(Nullable(Int64))`,
-    json.d.a.:Date,
-    json.d.b,
-    json.d.b.:Int64,
-    json.d.b.:Date
-FROM test
-ORDER BY id ASC
-FORMAT Null;
-
-SELECT count()
-FROM test
-WHERE isNull(json.d.a)
-    AND isNull(json.b.b._1);
+WHERE json.d.a IS NULL
+    AND json.d.b IS NULL;
 
 SELECT count()
 FROM test
 WHERE empty(json.d.a.:`Array(Nullable(Int64))`)
-    AND isNull(json.b.b._1.:Int64);
+    AND json.d.b.:Int64 IS NULL;
+
+SELECT
+    json.d.a,
+    json.d.b
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT
+    json.d.a.:`Array(Nullable(Int64))`,
+    json.d.a.:Date,
+    json.d.b.:Int64,
+    json.d.b.:Date
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT
+    json.d.a,
+    json.d.a.:`Array(Nullable(Int64))`,
+    json.d.a.:Date,
+    json.d.b,
+    json.d.b.:Int64,
+    json.d.b.:Date
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT
+    json,
+    json.d.a,
+    json.d.b
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT
+    json,
+    json.d.a.:`Array(Nullable(Int64))`,
+    json.d.a.:Date,
+    json.d.b.:Int64,
+    json.d.b.:Date
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT
+    json,
+    json.d.a,
+    json.d.a.:`Array(Nullable(Int64))`,
+    json.d.a.:Date,
+    json.d.b,
+    json.d.b.:Int64,
+    json.d.b.:Date
+FROM test
+FORMAT Null;
+
+SELECT
+    json,
+    json.d.a,
+    json.d.a.:`Array(Nullable(Int64))`,
+    json.d.a.:Date,
+    json.d.b,
+    json.d.b.:Int64,
+    json.d.b.:Date
+FROM test
+ORDER BY id ASC
+FORMAT Null;
+
+SELECT count()
+FROM test
+WHERE json.d.a IS NULL
+    AND json.b.b._1 IS NULL;
+
+SELECT count()
+FROM test
+WHERE empty(json.d.a.:`Array(Nullable(Int64))`)
+    AND json.b.b._1.:Int64 IS NULL;
 
 SELECT
     json.d.a,
@@ -833,11 +833,11 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE empty(json.`^a`)
-    AND json.a.b.c == 0;
+WHERE empty(json.^a)
+    AND json.a.b.c = 0;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.c
 FROM test
 ORDER BY id ASC
@@ -845,14 +845,14 @@ FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.c
 FROM test
 FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.c
 FROM test
 ORDER BY id ASC
@@ -860,18 +860,18 @@ FORMAT Null;
 
 SELECT count()
 FROM test
-WHERE empty(json.`^a`)
-    AND isNull(json.a.b.d);
+WHERE empty(json.^a)
+    AND json.a.b.d IS NULL;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d
 FROM test
 ORDER BY id ASC
 FORMAT Null;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
 FROM test
@@ -879,7 +879,7 @@ ORDER BY id ASC
 FORMAT Null;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
@@ -889,7 +889,7 @@ FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d
 FROM test
 ORDER BY id ASC
@@ -897,7 +897,7 @@ FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
 FROM test
@@ -906,7 +906,7 @@ FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
@@ -915,7 +915,7 @@ FORMAT Null;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d,
     json.a.b.d.:Int64,
     json.a.b.d.:Date

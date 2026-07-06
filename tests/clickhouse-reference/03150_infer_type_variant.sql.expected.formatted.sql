@@ -1,10 +1,10 @@
-SET input_format_try_infer_variants = 1;
+SET input_format_try_infer_variants = '1';
 
-SET output_format_pretty_fallback_to_vertical = 0;
+SET output_format_pretty_fallback_to_vertical = '0';
 
-SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = 0;
+SET input_format_json_infer_array_of_dynamic_from_array_of_different_types = '0';
 
-SET output_format_pretty_named_tuples_as_json = 0;
+SET output_format_pretty_named_tuples_as_json = '0';
 
 SELECT
     arr,

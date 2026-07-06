@@ -5,9 +5,9 @@ CREATE TABLE t_00712_1
     a Int32,
     b Int32
 )
-ENGINE = MergeTree
-ORDER BY (a)
-PARTITION BY (a,b);
+ENGINE = MergeTree()
+ORDER BY a
+PARTITION BY (a, b);
 
 INSERT INTO t_00712_1;
 

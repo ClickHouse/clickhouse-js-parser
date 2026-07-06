@@ -6,12 +6,12 @@ DROP TABLE IF EXISTS `null`;
 DROP TABLE IF EXISTS dist;
 
 CREATE TABLE `null` AS `system`.one
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE dist AS `null`
 ENGINE = Distributed(test_cluster_two_shards, currentDatabase(), 'null', rand());
 
-INSERT INTO dist SETTINGS prefer_localhost_replica = 0;
+INSERT INTO dist SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     'system.distribution_queue',
@@ -89,11 +89,11 @@ CREATE TABLE rep2
 ENGINE = ReplicatedMergeTree('/{database}/rep', '{table}')
 ORDER BY key;
 
-SYSTEM stop fetches rep2;
+SYSTEM STOP FETCHES rep2;
 
 INSERT INTO rep1;
 
-SYSTEM sync replica rep2 pull;
+SYSTEM SYNC REPLICA rep2 PULL;
 
 SELECT
     'system.replication_queue',

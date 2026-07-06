@@ -4,7 +4,7 @@ CREATE TABLE values_01564
     a int,
     CONSTRAINT c1 CHECK a < 10
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- client error hint after broken insert values
 INSERT INTO values_01564; -- { error CANNOT_PARSE_TEXT }

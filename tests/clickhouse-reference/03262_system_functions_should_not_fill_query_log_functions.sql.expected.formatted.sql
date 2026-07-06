@@ -13,4 +13,4 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%bitShiftLeft%');
+    AND query LIKE '%bitShiftLeft%';

@@ -1,121 +1,130 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "output_format_write_statistics",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "50000000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "output_format_write_statistics": "0",
+        "max_rows_to_read": "50000000"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful, shard"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "EventDate"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.1"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test",
-            "hits"
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "UserID"
-        ]
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
-              ]
+              "type": "Identifier",
+              "name": "EventDate"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "hits"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.1"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "test.hits",
+                        "name_parts": [
+                          "test",
+                          "hits"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "globalIn",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "UserID"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "UserID"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "hits",
+                                "database": "test"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "EventDate"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "EventDate"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
           }
         }
-      },
-      "global": true
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "format": "JSONCompact"
+      ],
+      "format": "JSONCompact"
+    }
   }
 ]

@@ -4,7 +4,7 @@ CREATE TABLE merge_tree
 (
     d Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d
 PARTITION BY d;
 

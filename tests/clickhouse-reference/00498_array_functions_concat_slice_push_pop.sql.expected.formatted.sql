@@ -4,11 +4,11 @@ SELECT arrayConcat(emptyArrayUInt8(), emptyArrayUInt8());
 
 SELECT arrayConcat(emptyArrayUInt8(), emptyArrayUInt8(), emptyArrayUInt8());
 
-SELECT arrayConcat([Null], emptyArrayUInt8());
+SELECT arrayConcat([NULL], emptyArrayUInt8());
 
-SELECT arrayConcat([Null], emptyArrayUInt8(), [1]);
+SELECT arrayConcat([NULL], emptyArrayUInt8(), [1]);
 
-SELECT arrayConcat([1, 2], [-1, -2], [0.3, 0.7], [Null]);
+SELECT arrayConcat([1, 2], [-1, -2], [0.3, 0.7], [NULL]);
 
 SELECT arrayConcat(NULL, emptyArrayUInt8());
 
@@ -22,7 +22,7 @@ SELECT arrayConcat(['abc'], ['def', 'gh', 'qwe']);
 
 SELECT arrayConcat([1, NULL, 2], [3, NULL, 4]);
 
-SELECT arrayConcat([1, Null, 2], [3, 4]);
+SELECT arrayConcat([1, NULL, 2], [3, 4]);
 
 SELECT arraySlice(NULL, 1, 2);
 
@@ -58,11 +58,11 @@ SELECT arraySlice([1, 2, 3, 4, 5, 6], 10, -1);
 
 SELECT arraySlice([1, 2, 3, 4, 5, 6], 10, 1);
 
-SELECT arraySlice([1, 2, Null, 4, 5, 6], 2, 4);
+SELECT arraySlice([1, 2, NULL, 4, 5, 6], 2, 4);
 
 SELECT arraySlice(['a', 'b', 'c', 'd', 'e'], 2, 3);
 
-SELECT arraySlice([Null, 'b', Null, 'd', 'e'], 2, 3);
+SELECT arraySlice([NULL, 'b', NULL, 'd', 'e'], 2, 3);
 
 SELECT
     arraySlice([], materialize(NULL), NULL),
@@ -73,7 +73,7 @@ SELECT arrayPushBack(NULL, 1);
 
 SELECT arrayPushBack([1], 1);
 
-SELECT arrayPushBack([Null], 1);
+SELECT arrayPushBack([NULL], 1);
 
 SELECT arrayPushBack([0.5, 0.7], 1);
 
@@ -89,7 +89,7 @@ SELECT arrayPushFront(NULL, 1);
 
 SELECT arrayPushFront([1], 1);
 
-SELECT arrayPushFront([Null], 1);
+SELECT arrayPushFront([NULL], 1);
 
 SELECT arrayPushFront([0.5, 0.7], 1);
 
@@ -136,7 +136,7 @@ CREATE TABLE array_functions
     l Int8,
     nl Nullable(Int8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO array_functions;
 
@@ -327,7 +327,7 @@ CREATE TABLE array_functions
     l Int8,
     nl Nullable(Int8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO array_functions;
 
@@ -340,7 +340,7 @@ CREATE TABLE array_functions
     l Int8,
     nl Nullable(Int8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO array_functions;
 
@@ -355,7 +355,7 @@ CREATE TABLE array_functions
     l Int8,
     nl Nullable(Int8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO array_functions;
 

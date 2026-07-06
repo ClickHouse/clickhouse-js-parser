@@ -7,8 +7,8 @@ FROM (
         LIMIT 1000
     )
 SETTINGS
-    count_distinct_optimization = 0,
-    enable_analyzer = 1;
+    count_distinct_optimization = '0',
+    enable_analyzer = '1';
 
 SELECT countDistinct(x, y)
 FROM (
@@ -19,5 +19,5 @@ FROM (
         LIMIT 1000
     )
 SETTINGS
-    count_distinct_optimization = 1,
-    enable_analyzer = 1;
+    count_distinct_optimization = '1',
+    enable_analyzer = '1';

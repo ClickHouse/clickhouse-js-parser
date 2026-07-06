@@ -1,4 +1,4 @@
-SET enable_variant_type = 1;
+SET enable_variant_type = '1';
 
 DROP TABLE IF EXISTS t0;
 

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS a;
+DROP TABLE IF EXISTS a SYNC;
 
 CREATE TABLE a
 (
@@ -26,7 +26,7 @@ ORDER BY
     name ASC;
 
 -- DROP INDEX is important to make the mutation not a pure metadata mutation
-ALTER TABLE a DROP INDEX some_index, MODIFY COLUMN y SETTINGS alter_sync = 2, mutations_sync = 2;
+ALTER TABLE a DROP INDEX IF EXISTS some_index, MODIFY COLUMN y REMOVE MATERIALIZED SETTINGS alter_sync = '2', mutations_sync = '2';
 
 SELECT
     'AFTER',

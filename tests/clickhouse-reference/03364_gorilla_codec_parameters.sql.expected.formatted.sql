@@ -1,4 +1,4 @@
-SET allow_suspicious_codecs = 1;
+SET allow_suspicious_codecs = '1';
 
 CREATE TABLE `03364_gorilla`
 (

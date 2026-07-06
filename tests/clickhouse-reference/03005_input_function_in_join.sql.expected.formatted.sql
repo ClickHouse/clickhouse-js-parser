@@ -4,7 +4,7 @@ CREATE TABLE test
 (
     a Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test SELECT x.number
@@ -15,6 +15,6 @@ FROM
         LIMIT 10
     ) AS x
 INNER JOIN input('a UInt64') AS y
-    ON x.number = y.a;
+    ON x.number = y.a FORMAT CSV;
 
 DROP TABLE test;

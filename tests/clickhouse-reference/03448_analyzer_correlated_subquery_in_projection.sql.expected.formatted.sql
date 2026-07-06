@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 SELECT (
         SELECT count()

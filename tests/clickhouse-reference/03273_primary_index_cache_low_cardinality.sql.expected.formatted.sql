@@ -8,9 +8,9 @@ CREATE TABLE t_primary_index_cache
     a LowCardinality(String),
     b LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS use_primary_key_cache = 1, prewarm_primary_key_cache = 1, index_granularity = 8192, index_granularity_bytes = '10M', min_bytes_for_wide_part = 0;
+SETTINGS use_primary_key_cache = '1', prewarm_primary_key_cache = '1', index_granularity = '8192', index_granularity_bytes = '10M', min_bytes_for_wide_part = '0';
 
 -- Insert will prewarm primary index cache
 INSERT INTO t_primary_index_cache SELECT
@@ -27,7 +27,7 @@ WHERE metric IN ('PrimaryIndexCacheFiles', 'PrimaryIndexCacheBytes')
 ORDER BY metric ASC;
 
 -- Trigger index reload
-SELECT max(length(concat(a, b)))
+SELECT max(length(a || b))
 FROM t_primary_index_cache
 WHERE a > '1'
     AND b < '99'

@@ -6,12 +6,12 @@ CREATE TABLE `prewhere`
     y ALIAS x,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT count()
 FROM `prewhere`
-PREWHERE (length(s) >= 1) = 0
+PREWHERE length(s) >= 1 = 0
 WHERE NOT ignore(y);
 
 DROP TABLE `prewhere`;

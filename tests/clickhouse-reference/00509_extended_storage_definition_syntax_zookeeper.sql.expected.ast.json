@@ -1,699 +1,874 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_on_insert",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_on_insert": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: zookeeper, no-shared-merge-tree",
-      "-- no-shared-merge-tree: boring test, nothing new"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_with_sampling"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_with_sampling"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt8"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00509/replicated_with_sampling"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "sampleBy": {
-      "kind": "columnRef",
-      "parts": [
-        "x"
-      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_with_sampling"
+        "type": "Identifier",
+        "name": "replicated_with_sampling"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_with_sampling"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00509/replicated_with_sampling"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        },
+        "sample_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "x"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_with_sampling"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicated_with_sampling"
+                  },
+                  "sample_size": {
+                    "type": "SampleRatio",
+                    "numerator": "1",
+                    "denominator": "2"
+                  }
+                }
+              }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replicated_with_sampling",
-      "sample": {
-        "ratio": {
-          "num": "1",
-          "den": "2"
-        }
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_with_sampling"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replacing"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replacing"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "d"
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replacing"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replacing"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replacing"
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replacing"
-    },
-    "partition": {
-      "kind": "expr",
-      "expr": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2017-10-23"
-      }
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replacing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replacing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_collapsing"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_collapsing"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "sign",
-        "type": {
-          "name": "Int8"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedCollapsingMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00509/replicated_collapsing"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "sign"
-          ]
         }
       ]
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_collapsing"
+        "type": "Identifier",
+        "name": "replicated_with_sampling"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_collapsing"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_collapsing PULL"
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_collapsing"
-    },
-    "partition": {
-      "kind": "expr",
-      "expr": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "201710"
-      }
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replicated_collapsing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_collapsing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_versioned_collapsing"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_versioned_collapsing"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Date"
-        }
+        "type": "Identifier",
+        "name": "replacing"
       },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "sign",
-        "type": {
-          "name": "Int8"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "version",
-        "type": {
-          "name": "UInt8"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedVersionedCollapsingMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00509/replicated_versioned_collapsing"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "sign"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "version"
-          ]
-        }
-      ]
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "version"
-          ]
-        }
-      }
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "replicated_versioned_collapsing"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_versioned_collapsing"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "replicated_versioned_collapsing"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA replicated_versioned_collapsing"
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_versioned_collapsing"
-    },
-    "partition": {
-      "kind": "expr",
-      "expr": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "201710"
-      }
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "replicated_versioned_collapsing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "replicated_versioned_collapsing"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "with_settings"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "with_settings"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_00509/with_settings"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "replicated_can_become_leader",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sleep",
-        "args": [
+        "type": "Identifier",
+        "name": "replacing"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "d"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
       }
-    ],
-    "trailingComments": [
-      "-- If replicated_can_become_leader were true, this replica would become the leader after 1 second."
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "is_leader"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "replicas"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replacing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replacing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replacing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replacing"
+      },
+      "partition": {
+        "type": "Partition",
+        "value": {
+          "type": "Literal",
+          "value_type": "String",
+          "value": "2017-10-23"
+        }
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replacing"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replacing"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "sign",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int8"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedCollapsingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00509/replicated_collapsing"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            },
+            {
+              "type": "Identifier",
+              "name": "sign"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "d"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "sync_replica_mode": "PULL"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      },
+      "partition": {
+        "type": "Partition",
+        "value": {
+          "type": "Literal",
+          "value_type": "UInt64",
+          "value": "201710"
+        }
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicated_collapsing"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_collapsing"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "sign",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "version",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedVersionedCollapsingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00509/replicated_versioned_collapsing"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            },
+            {
+              "type": "Identifier",
+              "name": "sign"
+            },
+            {
+              "type": "Identifier",
+              "name": "version"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            },
+            {
+              "type": "Identifier",
+              "name": "version"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      },
+      "partition": {
+        "type": "Partition",
+        "value": {
+          "type": "Literal",
+          "value_type": "UInt64",
+          "value": "201710"
+        }
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicated_versioned_collapsing"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "replicated_versioned_collapsing"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "with_settings"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "with_settings"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_00509/with_settings"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "replicated_can_become_leader": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sleep",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "is_leader"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "replicas",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "with_settings"
+                  }
+                ]
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "with_settings"
           }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "with_settings"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "with_settings"
+      }
     }
   }
 ]

@@ -1,4 +1,4 @@
-SET single_join_prefer_left_table = 0;
+SET single_join_prefer_left_table = '0';
 
 DROP TABLE IF EXISTS test;
 
@@ -19,7 +19,7 @@ INSERT INTO test SELECT
     number
 FROM numbers(4);
 
-SET optimize_redundant_functions_in_order_by = 1;
+SET optimize_redundant_functions_in_order_by = '1';
 
 SELECT groupArray(x)
 FROM (
@@ -38,7 +38,7 @@ FROM (
             x ASC,
             exp(x) ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT groupArray(x)
 FROM (
@@ -57,7 +57,7 @@ FROM (
             x ASC,
             exp(exp(x)) ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT groupArray(x)
 FROM (
@@ -76,7 +76,7 @@ FROM (
             exp(x) ASC,
             x ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -101,7 +101,7 @@ FULL JOIN test AS t
 ORDER BY
     s.key ASC,
     t.key ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     key,
@@ -120,7 +120,7 @@ ORDER BY
     key ASC,
     a ASC,
     exp(key + a) ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     key,
@@ -137,7 +137,7 @@ FROM test
 ORDER BY
     key ASC,
     exp(key + a) ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT groupArray(x)
@@ -149,7 +149,7 @@ FROM (
             exp(x) ASC
     );
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT groupArray(x)
 FROM (
         SELECT number AS x
@@ -158,7 +158,7 @@ FROM (
             x ASC,
             exp(x) ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT groupArray(x)
@@ -170,7 +170,7 @@ FROM (
             exp(exp(x)) ASC
     );
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT groupArray(x)
 FROM (
         SELECT number AS x
@@ -179,7 +179,7 @@ FROM (
             x ASC,
             exp(exp(x)) ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT groupArray(x)
@@ -191,7 +191,7 @@ FROM (
             x ASC
     );
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT groupArray(x)
 FROM (
         SELECT number AS x
@@ -200,7 +200,7 @@ FROM (
             exp(x) ASC,
             x ASC
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT *
@@ -215,7 +215,7 @@ ORDER BY
     s.key ASC,
     t.key ASC;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT *
 FROM
     (
@@ -227,7 +227,7 @@ FULL JOIN test AS t
 ORDER BY
     s.key ASC,
     t.key ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -239,7 +239,7 @@ ORDER BY
     a ASC,
     exp(key + a) ASC;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     key,
     a
@@ -248,7 +248,7 @@ ORDER BY
     key ASC,
     a ASC,
     exp(key + a) ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -259,7 +259,7 @@ ORDER BY
     key ASC,
     exp(key + a) ASC;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT
     key,
     a
@@ -267,16 +267,16 @@ FROM test
 ORDER BY
     key ASC,
     exp(key + a) ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT key
 FROM test
 GROUP BY key
 ORDER BY
     avg(a) ASC,
     key ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t1;
 
@@ -296,7 +296,7 @@ CREATE TABLE t2
 ENGINE = MergeTree()
 ORDER BY id;
 
-EXPLAIN QUERY TREE run_passes = 1
+EXPLAIN QUERY TREE run_passes = '1'
 SELECT *
 FROM
     t1
@@ -305,9 +305,9 @@ INNER JOIN t2
 ORDER BY
     t1.id ASC,
     t2.id ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
-SET optimize_redundant_functions_in_order_by = 0;
+SET optimize_redundant_functions_in_order_by = '0';
 
 DROP TABLE t1;
 

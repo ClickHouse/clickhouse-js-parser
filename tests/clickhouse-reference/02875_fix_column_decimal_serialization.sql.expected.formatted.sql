@@ -5,10 +5,10 @@ CREATE TABLE max_length_alias_14053__fuzz_45
     `c.d` Array(Nullable(DateTime64(3))),
     dcount Int8 ALIAS length(c.d)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
 PARTITION BY toMonday(a)
-SETTINGS allow_nullable_key = 1, index_granularity = 8192;
+SETTINGS allow_nullable_key = '1', index_granularity = '8192';
 
 INSERT INTO max_length_alias_14053__fuzz_45;
 

@@ -1,11 +1,11 @@
 -- Tags: shard, no-parallel
-SET allow_nondeterministic_optimize_skip_unused_shards = 1;
+SET allow_nondeterministic_optimize_skip_unused_shards = '1';
 
-SET optimize_skip_unused_shards = 1;
+SET optimize_skip_unused_shards = '1';
 
-SET force_optimize_skip_unused_shards = 2;
+SET force_optimize_skip_unused_shards = '2';
 
-SET check_table_dependencies = 0;
+SET check_table_dependencies = '0';
 
 DROP DATABASE IF EXISTS db_01527_ranges;
 
@@ -36,11 +36,11 @@ CREATE DICTIONARY db_01527_ranges.dict
     shard UInt64
 )
 PRIMARY KEY key
-SOURCE(clickhouse(host '127.0.0.1' port tcpPort() table 'data' db 'db_01527_ranges' user 'default' password ''))
-LIFETIME(0)
+SOURCE(clickhouse(HOST '127.0.0.1' PORT tcpPort() TABLE 'data' DB 'db_01527_ranges' USER 'default' PASSWORD ''))
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
-SYSTEM reload dictionary db_01527_ranges.dict;
+SYSTEM RELOAD DICTIONARY db_01527_ranges.dict;
 
 SELECT _shard_num
 FROM dist_01527
@@ -50,7 +50,7 @@ SELECT _shard_num
 FROM dist_01527
 WHERE key = 1;
 
-DROP TABLE db_01527_ranges.data;
+DROP TABLE db_01527_ranges.data SYNC;
 
 CREATE TABLE db_01527_ranges.data
 ENGINE = Memory() AS

@@ -1,6 +1,6 @@
-SET allow_experimental_time_time64_type = 1;
+SET allow_experimental_time_time64_type = '1';
 
-SET use_legacy_to_time = 0;
+SET use_legacy_to_time = '0';
 
 SET session_timezone = 'Antarctica/DumontDUrville';
 

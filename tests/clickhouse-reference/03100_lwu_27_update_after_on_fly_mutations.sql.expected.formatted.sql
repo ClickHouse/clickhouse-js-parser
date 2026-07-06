@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS t_lwu_on_fly;
+DROP TABLE IF EXISTS t_lwu_on_fly SYNC;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE t_lwu_on_fly
 (
@@ -11,19 +11,19 @@ CREATE TABLE t_lwu_on_fly
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_lwu_on_fly', '1')
 ORDER BY id
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 SYSTEM STOP MERGES t_lwu_on_fly;
 
 INSERT INTO t_lwu_on_fly (id);
 
-SET apply_patch_parts = 1;
+SET apply_patch_parts = '1';
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
 UPDATE t_lwu_on_fly SET a = 2 WHERE id = 2;
 
-ALTER TABLE t_lwu_on_fly UPDATE b = 20 WHERE a = 2 SETTINGS mutations_sync = 0;
+ALTER TABLE t_lwu_on_fly UPDATE b = 20 WHERE a = 2 SETTINGS mutations_sync = '0';
 
 UPDATE t_lwu_on_fly SET c = 200 WHERE b = 20;
 
@@ -31,4 +31,4 @@ SELECT *
 FROM t_lwu_on_fly
 ORDER BY id ASC;
 
-DROP TABLE t_lwu_on_fly;
+DROP TABLE t_lwu_on_fly SYNC;

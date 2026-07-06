@@ -1,19 +1,19 @@
-SET alter_sync = 2;
+SET alter_sync = '2';
 
 DROP TABLE IF EXISTS t_03644_min_level_for_wide_part;
 
 DROP TABLE IF EXISTS t_03644_min_level_for_wide_part_rmt;
 
 -- Can produce initial parts with level 1
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 CREATE TABLE t_03644_min_level_for_wide_part
 (
     x int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0, min_level_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0', min_level_for_wide_part = '1';
 
 INSERT INTO t_03644_min_level_for_wide_part;
 
@@ -29,16 +29,16 @@ INSERT INTO t_03644_min_level_for_wide_part;
 
 OPTIMIZE TABLE t_03644_min_level_for_wide_part FINAL;
 
-SET optimize_on_insert = 1;
+SET optimize_on_insert = '1';
 
 CREATE TABLE t_03644_min_level_for_wide_part_rmt
 (
     x int,
     y int
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY x
-SETTINGS min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0, min_level_for_wide_part = 2;
+SETTINGS min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0', min_level_for_wide_part = '2';
 
 INSERT INTO t_03644_min_level_for_wide_part_rmt SELECT
     number,

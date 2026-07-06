@@ -5,7 +5,7 @@ CREATE TABLE hierarchy_source_table
     id UInt64,
     parent_id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO hierarchy_source_table;
 
@@ -14,7 +14,7 @@ DROP DICTIONARY IF EXISTS hierarchy_flat_dictionary;
 CREATE DICTIONARY hierarchy_flat_dictionary
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'hierarchy_source_table'))

@@ -52,7 +52,7 @@ CREATE TABLE store_sales
     ss_promo_sk_nn Int16,
     ss_promo_sk_n2 Nullable(Int16)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (ss_item_sk, ss_ticket_number);
 
 CREATE TABLE store_returns
@@ -78,7 +78,7 @@ CREATE TABLE store_returns
     sr_store_credit Nullable(Float32),
     sr_net_loss Nullable(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (sr_item_sk, sr_ticket_number);
 
 CREATE TABLE catalog_sales
@@ -118,7 +118,7 @@ CREATE TABLE catalog_sales
     cs_net_paid_inc_ship_tax Nullable(Float32),
     cs_net_profit Nullable(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (cs_item_sk, cs_order_number);
 
 CREATE TABLE catalog_returns
@@ -151,7 +151,7 @@ CREATE TABLE catalog_returns
     cr_store_credit Nullable(Float32),
     cr_net_loss Nullable(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (cr_item_sk, cr_order_number);
 
 CREATE TABLE date_dim
@@ -185,7 +185,7 @@ CREATE TABLE date_dim
     d_current_quarter Nullable(String),
     d_current_year Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d_date_sk;
 
 CREATE TABLE store
@@ -220,7 +220,7 @@ CREATE TABLE store
     s_gmt_offset Nullable(Float32),
     s_tax_percentage Nullable(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s_store_sk;
 
 CREATE TABLE customer
@@ -244,7 +244,7 @@ CREATE TABLE customer
     c_email_address Nullable(String),
     c_last_review_date Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c_customer_sk;
 
 CREATE TABLE customer_demographics
@@ -259,7 +259,7 @@ CREATE TABLE customer_demographics
     cd_dep_employed_count Nullable(Int64),
     cd_dep_college_count Nullable(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY cd_demo_sk;
 
 CREATE TABLE promotion
@@ -284,7 +284,7 @@ CREATE TABLE promotion
     p_purpose Nullable(String),
     p_discount_active Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY p_promo_sk;
 
 CREATE TABLE household_demographics
@@ -295,7 +295,7 @@ CREATE TABLE household_demographics
     hd_dep_count Nullable(Int64),
     hd_vehicle_count Nullable(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY hd_demo_sk;
 
 CREATE TABLE customer_address
@@ -314,7 +314,7 @@ CREATE TABLE customer_address
     ca_gmt_offset Nullable(Float32),
     ca_location_type Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ca_address_sk;
 
 CREATE TABLE income_band
@@ -323,7 +323,7 @@ CREATE TABLE income_band
     ib_lower_bound Nullable(Int64),
     ib_upper_bound Nullable(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ib_income_band_sk;
 
 CREATE TABLE item
@@ -351,7 +351,7 @@ CREATE TABLE item
     i_manager_id Nullable(Int64),
     i_product_name Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i_item_sk;
 
 -- `parallel_hash` uses two-level hash tables (that have 256 tables internally).
@@ -363,14 +363,14 @@ WITH cs_ui AS (
     SELECT
         cs_item_sk,
         sum(cs_ext_list_price) AS sale,
-        sum((cr_refunded_cash + cr_reversed_charge) + cr_store_credit) AS refund
+        sum(cr_refunded_cash + cr_reversed_charge + cr_store_credit) AS refund
     FROM
-        catalog_sales
-    CROSS JOIN catalog_returns
-    WHERE (cs_item_sk = cr_item_sk)
-        AND (cs_order_number = cr_order_number)
+        catalog_sales,
+        catalog_returns
+    WHERE cs_item_sk = cr_item_sk
+        AND cs_order_number = cr_order_number
     GROUP BY cs_item_sk
-    HAVING sum(cs_ext_list_price) > (2 * sum((cr_refunded_cash + cr_reversed_charge) + cr_store_credit))
+    HAVING sum(cs_ext_list_price) > 2 * sum(cr_refunded_cash + cr_reversed_charge + cr_store_credit)
 ),
 
 cross_sales AS (
@@ -395,48 +395,48 @@ cross_sales AS (
         sum(ss_list_price) AS s2,
         sum(ss_coupon_amt) AS s3
     FROM
-        store_sales
-    CROSS JOIN store_returns
-    CROSS JOIN cs_ui
-    CROSS JOIN date_dim AS d1
-    CROSS JOIN date_dim AS d2
-    CROSS JOIN date_dim AS d3
-    CROSS JOIN store
-    CROSS JOIN customer
-    CROSS JOIN customer_demographics AS cd1
-    CROSS JOIN customer_demographics AS cd2
-    CROSS JOIN promotion
-    CROSS JOIN household_demographics AS hd1
-    CROSS JOIN household_demographics AS hd2
-    CROSS JOIN customer_address AS ad1
-    CROSS JOIN customer_address AS ad2
-    CROSS JOIN income_band AS ib1
-    CROSS JOIN income_band AS ib2
-    CROSS JOIN item
-    WHERE (ss_store_sk = s_store_sk)
-        AND (ss_sold_date_sk = d1.d_date_sk)
-        AND (ss_customer_sk = c_customer_sk)
-        AND (ss_cdemo_sk = cd1.cd_demo_sk)
-        AND (ss_hdemo_sk = hd1.hd_demo_sk)
-        AND (ss_addr_sk = ad1.ca_address_sk)
-        AND (ss_item_sk = i_item_sk)
-        AND (ss_item_sk = sr_item_sk)
-        AND (ss_ticket_number = sr_ticket_number)
-        AND (ss_item_sk = cs_ui.cs_item_sk)
-        AND (c_current_cdemo_sk = cd2.cd_demo_sk)
-        AND (c_current_hdemo_sk = hd2.hd_demo_sk)
-        AND (c_current_addr_sk = ad2.ca_address_sk)
-        AND (c_first_sales_date_sk = d2.d_date_sk)
-        AND (c_first_shipto_date_sk = d3.d_date_sk)
-        AND (ss_promo_sk = p_promo_sk)
-        AND (hd1.hd_income_band_sk = ib1.ib_income_band_sk)
-        AND (hd2.hd_income_band_sk = ib2.ib_income_band_sk)
-        AND (cd1.cd_marital_status != cd2.cd_marital_status)
-        AND (i_color IN ('maroon', 'burnished', 'dim', 'steel', 'navajo', 'chocolate'))
-        AND (((i_current_price >= 35)
-        AND (i_current_price <= (35 + 10))))
-        AND (((i_current_price >= (35 + 1))
-        AND (i_current_price <= (35 + 15))))
+        store_sales,
+        store_returns,
+        cs_ui,
+        date_dim AS d1,
+        date_dim AS d2,
+        date_dim AS d3,
+        store,
+        customer,
+        customer_demographics AS cd1,
+        customer_demographics AS cd2,
+        promotion,
+        household_demographics AS hd1,
+        household_demographics AS hd2,
+        customer_address AS ad1,
+        customer_address AS ad2,
+        income_band AS ib1,
+        income_band AS ib2,
+        item
+    WHERE ss_store_sk = s_store_sk
+        AND ss_sold_date_sk = d1.d_date_sk
+        AND ss_customer_sk = c_customer_sk
+        AND ss_cdemo_sk = cd1.cd_demo_sk
+        AND ss_hdemo_sk = hd1.hd_demo_sk
+        AND ss_addr_sk = ad1.ca_address_sk
+        AND ss_item_sk = i_item_sk
+        AND ss_item_sk = sr_item_sk
+        AND ss_ticket_number = sr_ticket_number
+        AND ss_item_sk = cs_ui.cs_item_sk
+        AND c_current_cdemo_sk = cd2.cd_demo_sk
+        AND c_current_hdemo_sk = hd2.hd_demo_sk
+        AND c_current_addr_sk = ad2.ca_address_sk
+        AND c_first_sales_date_sk = d2.d_date_sk
+        AND c_first_shipto_date_sk = d3.d_date_sk
+        AND ss_promo_sk = p_promo_sk
+        AND hd1.hd_income_band_sk = ib1.ib_income_band_sk
+        AND hd2.hd_income_band_sk = ib2.ib_income_band_sk
+        AND cd1.cd_marital_status != cd2.cd_marital_status
+        AND i_color IN ('maroon', 'burnished', 'dim', 'steel', 'navajo', 'chocolate')
+        AND (i_current_price >= 35
+        AND i_current_price <= 35 + 10)
+        AND (i_current_price >= 35 + 1
+        AND i_current_price <= 35 + 15)
     GROUP BY
         i_product_name,
         i_item_sk,
@@ -478,14 +478,14 @@ SELECT
     cs2.syear,
     cs2.cnt
 FROM
-    cross_sales AS cs1
-CROSS JOIN cross_sales AS cs2
-WHERE (cs1.item_sk = cs2.item_sk)
-    AND (cs1.syear = 2000)
-    AND (cs2.syear = (2000 + 1))
-    AND (cs2.cnt <= cs1.cnt)
-    AND (cs1.store_name = cs2.store_name)
-    AND (cs1.store_zip = cs2.store_zip)
+    cross_sales AS cs1,
+    cross_sales AS cs2
+WHERE cs1.item_sk = cs2.item_sk
+    AND cs1.syear = 2000
+    AND cs2.syear = 2000 + 1
+    AND cs2.cnt <= cs1.cnt
+    AND cs1.store_name = cs2.store_name
+    AND cs1.store_zip = cs2.store_zip
 ORDER BY
     cs1.product_name ASC,
     cs1.store_name ASC,

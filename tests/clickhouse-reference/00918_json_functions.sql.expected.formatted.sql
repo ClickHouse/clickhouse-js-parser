@@ -2,7 +2,7 @@
 -- Tag: no-fasttest due to only SIMD JSON is available in fasttest
 SELECT '--allow_simdjson=1--';
 
-SET allow_simdjson = 1;
+SET allow_simdjson = '1';
 
 SELECT JSONLength('{"a": "hello", "b": [-100, 200.0, 300]}');
 
@@ -153,11 +153,11 @@ SELECT
     JSONExtract('{"a":123456789012345.12}', 'a', 'Decimal(30, 4)');
 
 SELECT
-    toDecimal128(1234567890.12345678901234567890, 20),
+    toDecimal128(1234567890.1234567, 20),
     JSONExtract('{"a":1234567890.12345678901234567890, "b":"test"}', 'Tuple(a Decimal(35,20), b LowCardinality(String))');
 
 SELECT
-    toDecimal256(1234567890.123456789012345678901234567890, 30),
+    toDecimal256(1234567890.1234567, 30),
     JSONExtract('{"a":1234567890.12345678901234567890, "b":"test"}', 'Tuple(a Decimal(45,30), b LowCardinality(String))');
 
 SELECT
@@ -370,7 +370,7 @@ SELECT JSONExtractKeysAndValuesRaw('{"a": "hello", "b": [-100, 200.0, 300], "c":
 
 SELECT JSONExtractString('["a", "b", "c", "d", "e"]', idx)
 FROM (
-        SELECT arrayJoin([1,2,3,4,5]) AS idx
+        SELECT arrayJoin([1, 2, 3, 4, 5]) AS idx
     );
 
 SELECT JSONExtractString(json, 's')
@@ -386,7 +386,7 @@ SELECT JSONExtract(json, 'i', JSONType(json, 'i')); -- { serverError ILLEGAL_COL
 
 SELECT JSONExtract('{"a": [100.0, 200], "b": [-100, 200.0, 300]}', 'Map(Int64, Array(Float64))'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SET allow_simdjson = 0;
+SET allow_simdjson = '0';
 
 SELECT JSONExtractKeys('{"a": "hello", "b": [-100, 200.0, 300]}');
 

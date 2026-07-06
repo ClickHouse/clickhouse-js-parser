@@ -5,7 +5,7 @@ CREATE TABLE test_tbl
     vend_nm String,
     ship_dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY vend_nm
 PARTITION BY toWeek(ship_dt);
 

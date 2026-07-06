@@ -1,223 +1,270 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CACHE",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: Messes with internal cache",
-      "-- Start with empty query cache (QC)."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "leadingComments": [
-      "-- By default, don't write query result into QC."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CACHE"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "-----"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      },
-      {
-        "name": "enable_writes_to_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Try to retrieve query from empty QC using the passive mode. Do this by disabling the active mode. The cache should still be empty (no insert)."
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Put query into cache."
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayElement",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ProfileEvents"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryCacheHits"
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "arrayElement",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ProfileEvents"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryCacheMisses"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%\\nSELECT 1 SETTINGS use_query_cache = true, enable_writes_to_query_cache = false;"
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
             }
-          ],
-          "leadingComments": [
-            "/* NOTE: client incorrectly join comments from the previous line into query, hence LIKE */"
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "-----"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true,
+              "enable_writes_to_query_cache": false
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "QueryCacheHits"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "QueryCacheMisses"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%\nSELECT 1 SETTINGS use_query_cache = true, enable_writes_to_query_cache = false;"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

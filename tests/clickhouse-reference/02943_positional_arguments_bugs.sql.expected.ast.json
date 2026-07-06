@@ -1,234 +1,272 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/46628"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "__unused_group_by_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
         }
       },
-      {
-        "kind": "columnDef",
-        "name": "__unused_group_by_column",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "n"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "__unused_group_by_column"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "__unused_group_by_column"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "__unused_group_by_column"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "n"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "n"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "__unused_group_by_column"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
             ]
-          }
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        "alias": "x"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "__unused_group_by_column"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "__unused_group_by_column"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "literal",
-          "type": "String",
-          "value": "processed"
-        },
-        "alias": "type"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
-        },
-        "alias": "max_date"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
-        },
-        "alias": "min_date"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "n"
+                }
+              ]
+            },
+            {
+              "type": "Literal",
+              "alias": "x",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ]
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "type"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "alias": "type",
+              "value_type": "String",
+              "value": "processed"
+            },
+            {
+              "type": "Function",
+              "alias": "max_date",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "min_date",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "100"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "type"
+            }
           ]
         }
       ]

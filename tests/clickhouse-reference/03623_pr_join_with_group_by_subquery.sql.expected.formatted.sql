@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users SYNC;
 
-DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS messages SYNC;
 
 CREATE TABLE users
 (
@@ -34,7 +34,7 @@ INSERT INTO messages SELECT
     concat('message_', toString(number))
 FROM numbers(11);
 
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
 SELECT '-- subquery INNER JOIN table';
 
@@ -140,6 +140,6 @@ ORDER BY
     user_id ASC,
     c ASC;
 
-DROP TABLE users;
+DROP TABLE users SYNC;
 
-DROP TABLE messages;
+DROP TABLE messages SYNC;

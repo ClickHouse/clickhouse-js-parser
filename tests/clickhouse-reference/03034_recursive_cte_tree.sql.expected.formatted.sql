@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tree;
 
@@ -8,7 +8,7 @@ CREATE TABLE tree
     link Nullable(UInt64),
     data String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO tree;
 
@@ -25,8 +25,8 @@ WITH RECURSIVE search_tree AS (
         t.link,
         t.data
     FROM
-        tree AS t
-    CROSS JOIN search_tree AS st
+        tree AS t,
+        search_tree AS st
     WHERE t.link = st.id
 )
 
@@ -50,8 +50,8 @@ WITH RECURSIVE search_tree AS (
         t.data,
         arrayConcat(path, [t.id])
     FROM
-        tree AS t
-    CROSS JOIN search_tree AS st
+        tree AS t,
+        search_tree AS st
     WHERE t.link = st.id
 )
 

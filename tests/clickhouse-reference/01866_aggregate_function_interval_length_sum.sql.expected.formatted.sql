@@ -12,7 +12,7 @@ CREATE TABLE `interval`
     start Int64,
     `end` Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY start;
 
 INSERT INTO `interval`;
@@ -23,7 +23,7 @@ CREATE TABLE fl_interval
     start Float,
     `end` Float
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY start;
 
 INSERT INTO fl_interval;
@@ -34,7 +34,7 @@ CREATE TABLE dt_interval
     start DateTime,
     `end` DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY start;
 
 INSERT INTO dt_interval;
@@ -45,7 +45,7 @@ CREATE TABLE date_interval
     start Date,
     `end` Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY start;
 
 INSERT INTO date_interval;

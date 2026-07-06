@@ -1,140 +1,140 @@
 -- Tags: race
 SELECT
     'a}a' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}a' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}a' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}a' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{a' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{a' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{a' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{a' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a{' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     'a}' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '}a' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '}a' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '}a' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '}a' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a}' AS x,
-    like(x, (concat('%', x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a}' AS x,
-    like(x, (concat('%', x) AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat('%', x) AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a}' AS x,
-    like(x, (concat(x, '%') AS pat)),
-    like(materialize(x), pat);
+    x LIKE (concat(x, '%') AS pat),
+    materialize(x) LIKE pat;
 
 SELECT
     '{a}' AS x,
-    like(x, (x AS pat)),
-    like(materialize(x), pat);
+    x LIKE (x AS pat),
+    materialize(x) LIKE pat;

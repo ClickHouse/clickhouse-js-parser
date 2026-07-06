@@ -6,7 +6,7 @@ CREATE TABLE t_comp_subcolumns
     n Nullable(String),
     arr Array(Array(UInt32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_comp_subcolumns SELECT
@@ -20,7 +20,8 @@ FROM t_comp_subcolumns;
 
 SELECT n.`null`
 FROM t_comp_subcolumns
-LIMIT 10000, 5;
+LIMIT 5
+OFFSET 10000;
 
 SELECT sum(arr.size0)
 FROM t_comp_subcolumns;

@@ -8,7 +8,7 @@ CREATE TABLE qbit_test
     id UInt64,
     vec QBit(Float32, 18)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbit_test;
 

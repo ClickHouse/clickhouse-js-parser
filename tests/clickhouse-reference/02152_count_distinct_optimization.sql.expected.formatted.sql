@@ -5,7 +5,7 @@ CREATE TABLE table_02152
     a String,
     b LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO table_02152;
@@ -22,7 +22,7 @@ SELECT uniqExact(m)
 FROM (
         SELECT
             number,
-            ((number / 2))::UInt64 AS m
+            (number / 2)::UInt64 AS m
         FROM numbers(10)
     );
 

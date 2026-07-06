@@ -11,7 +11,7 @@ INSERT INTO tab;
 
 SELECT
     col,
-    like(col, '%a'),
-    ilike(col, '%a')
+    col LIKE '%a',
+    col ILIKE '%a'
 FROM tab
 WHERE col = 'AA';

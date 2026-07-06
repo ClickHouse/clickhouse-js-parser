@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -10,7 +10,7 @@ CREATE TABLE test
     b UInt32 DEFAULT json.b,
     c UInt32 DEFAULT json.c
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test (t, json) SELECT
     tuple(42),
@@ -29,7 +29,7 @@ CREATE TABLE test
     b UInt32 MATERIALIZED json.b,
     c UInt32 MATERIALIZED json.c
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     *,

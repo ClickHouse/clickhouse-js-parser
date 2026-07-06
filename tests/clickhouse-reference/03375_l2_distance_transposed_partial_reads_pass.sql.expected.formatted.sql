@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- Check if [L2/cosine/...]DistanceTransposed(vec, reference_vec, N) partial reads are achieved with optimize_qbit_distance_function_reads
 CREATE TABLE qbit
@@ -6,20 +6,20 @@ CREATE TABLE qbit
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SET optimize_qbit_distance_function_reads = true;
 
-EXPLAIN actions = 1
-WITH arrayMap(i -> i * 2, range(16)) AS reference_vec
+EXPLAIN actions = '1'
+WITH arrayMap((i -> i * 2), range(16)) AS reference_vec
 
 SELECT
     id,
     L2DistanceTransposed(vec, reference_vec, 4) AS dist
 FROM qbit;
 
-EXPLAIN actions = 1
-WITH arrayMap(i -> i * 2, range(16)) AS reference_vec
+EXPLAIN actions = '1'
+WITH arrayMap((i -> i * 2), range(16)) AS reference_vec
 
 SELECT
     id,
@@ -36,7 +36,7 @@ CREATE TABLE qbit
     id UInt32,
     vec QBit(BFloat16, 1)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO qbit;
 

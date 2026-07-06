@@ -1,429 +1,470 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_two_level_threshold_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_two_level_threshold_bytes": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_two_level_threshold",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_two_level_threshold": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "groupArrayDistinct",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "groupArrayDistinct",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers_mt",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "50000"
+                      }
+                    ]
+                  }
                 }
               }
             ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "2",
+              "max_block_size": "2000"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "distinct_two_level"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "distinct_two_level"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "domain",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "subdomain",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers_mt",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "50000"
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      },
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2000"
+        "order_by": {
+          "type": "Identifier",
+          "name": "time"
         }
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "distinct_two_level"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "distinct_two_level"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "time",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "3"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "domain",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "subdomain",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "distinct_two_level"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1546300800000"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "test.com"
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "foo"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
+        "type": "Identifier",
+        "name": "distinct_two_level"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1546300800000"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "test.com"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "foo"
                   },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10000"
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10000"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
                   }
                 }
               ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
           }
         ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "distinct_two_level"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1546300800000"
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "test.com"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "/",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10000"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "foo"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10000"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "distinct_two_level"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1546300800000"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "test.com"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "divide",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10000"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "foo"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10000"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "domain"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayUniq",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "groupArraySampleDistinct",
-              "params": [
+              "type": "Identifier",
+              "name": "domain"
+            },
+            {
+              "type": "Function",
+              "alias": "example_subdomains",
+              "name": "arrayUniq",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "11111"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "subdomain"
+                  "type": "Function",
+                  "name": "groupArraySampleDistinct",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "subdomain"
+                    }
+                  ],
+                  "parameters": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "11111"
+                    }
                   ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "example_subdomains"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "distinct_two_level"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "domain"
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "distinct_two_level"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "domain"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "domain"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "example_subdomains"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "domain"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "example_subdomains"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
     }
   }
 ]

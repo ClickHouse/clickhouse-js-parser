@@ -1,135 +1,161 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/36189"
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "dt",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "text",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "dt"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "dt",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "text",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "dt"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "maxDt",
-        "expr": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "dt"
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "maxDt"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "maxDt",
-        "expr": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "maxDt"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "maxDt",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "dt"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "maxDt"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "maxDt",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "maxDt"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
     }

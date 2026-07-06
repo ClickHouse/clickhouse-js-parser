@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/40955
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH toInt64(2) AS new_x
 

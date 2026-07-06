@@ -1,418 +1,357 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "200Mi"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "200Mi"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-settings",
-      "-- Check remerge_sort_lowered_memory_bytes_ratio setting"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_bytes_before_remerge_sort",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "10Mi"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_bytes_before_remerge_sort": "10Mi"
       }
-    ],
-    "leadingComments": [
-      "-- enter remerge once limit*2 is reached"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "40960"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "40960"
       }
-    ],
-    "leadingComments": [
-      "-- more blocks"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "11"
-            }
-          ]
-        },
-        "alias": "v1"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "12"
-            }
-          ]
-        },
-        "alias": "v2"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "3e6"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "alias": "k",
+              "name": "number"
+            },
+            {
+              "type": "Function",
+              "alias": "v1",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "11"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "v2",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "12"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "Float64",
+                        "value": 3000000
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v1"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v2"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "Float64",
+            "value": 400000
+          }
         }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v1"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v2"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "Float64",
-        "value": "400e3"
-      }
-    },
-    "format": "Null",
-    "leadingComments": [
-      "-- remerge_sort_lowered_memory_bytes_ratio default 2, slightly not enough",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 819200 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 186.25 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging is not useful (memory usage was not lowered by remerge_sort_lowered_memory_bytes_ratio=2.0)"
-    ],
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "11"
-            }
-          ]
-        },
-        "alias": "v1"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "12"
-            }
-          ]
-        },
-        "alias": "v2"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "3e6"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "alias": "k",
+              "name": "number"
+            },
+            {
+              "type": "Function",
+              "alias": "v1",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "11"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "v2",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "12"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "Float64",
+                        "value": 3000000
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v1"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "v2"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "Float64",
+            "value": 400000
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "remerge_sort_lowered_memory_bytes_ratio": 2
+            }
+          }
         }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v1"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "v2"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "Float64",
-        "value": "400e3"
-      }
-    },
-    "settings": [
-      {
-        "name": "remerge_sort_lowered_memory_bytes_ratio",
-        "value": {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "2."
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+      ],
+      "format": "Null"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "11"
-            }
-          ]
-        },
-        "alias": "v1"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "repeat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "12"
-            }
-          ]
-        },
-        "alias": "v2"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "3e6"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "alias": "k",
+              "name": "number"
+            },
+            {
+              "type": "Function",
+              "alias": "v1",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "11"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "v2",
+              "name": "repeat",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toString",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "number"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "12"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "Float64",
+                        "value": 3000000
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "Float64",
+            "value": 400000
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "remerge_sort_lowered_memory_bytes_ratio": 1.9
+            }
+          }
         }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "Float64",
-        "value": "400e3"
-      }
-    },
-    "settings": [
-      {
-        "name": "remerge_sort_lowered_memory_bytes_ratio",
-        "value": {
-          "kind": "literal",
-          "type": "Float64",
-          "value": "1.9"
-        }
-      }
-    ],
-    "format": "Null",
-    "leadingComments": [
-      "-- remerge_sort_lowered_memory_bytes_ratio 1.9 is good (need at least 1.91/0.98=1.94)",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 819200 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 186.25 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 809600 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 188.13 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 809600 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 188.13 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 809600 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 188.13 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 809600 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 188.13 MiB to 95.00 MiB",
-      "--     MergeSortingTransform: Re-merging intermediate ORDER BY data (20 blocks with 809600 rows) to save memory consumption",
-      "--     MergeSortingTransform: Memory usage is lowered from 188.13 MiB to 95.00 MiB"
-    ]
+      ],
+      "format": "Null"
+    }
   }
 ]

@@ -1,233 +1,147 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01551"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-object-storage, no-random-merge-tree-settings"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01551"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "AggregatingMergeTree",
-      "args": []
-    },
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "/",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      },
-      {
-        "name": "index_granularity_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "10Mi"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_trivial_insert_select",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "data_01551"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "data_01551"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01551"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "AggregatingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Function",
+              "name": "divide",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
+            }
+          ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "10",
+            "index_granularity_bytes": "10Mi"
+          }
+        }
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_trivial_insert_select": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "merge_tree_min_rows_for_concurrent_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_aggregation_in_order",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "read_in_order_two_level_merge_threshold",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "explain",
-    "explainType": "PIPELINE",
-    "query": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "data_01551"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01551"
       },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "key"
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "/",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "key"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
             }
           }
         ]
@@ -235,11 +149,108 @@
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "data_01551"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_threads": "3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "merge_tree_min_rows_for_concurrent_read": "10000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_aggregation_in_order": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "read_in_order_two_level_merge_threshold": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN PIPELINE",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "data_01551"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Function",
+                "name": "divide",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "data_01551"
+      }
     }
   }
 ]

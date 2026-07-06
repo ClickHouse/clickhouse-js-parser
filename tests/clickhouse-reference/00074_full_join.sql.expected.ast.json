@@ -1,1011 +1,1120 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "any_join_distinct_right_table_keys",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "joined_subquery_requires_alias",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "hits"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "visits"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              },
-              "alias": "hits"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "hits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
-                ]
-              }
-            ]
-          }
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "FULL",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Sign"
-                    ]
-                  }
-                ]
-              },
-              "alias": "visits"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "visits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
-                ]
-              }
-            ]
-          },
-          "having": {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        }
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "CounterID"
-        ]
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "visits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "any_join_distinct_right_table_keys": "1"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "hits"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "visits"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              },
-              "alias": "hits"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "hits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
-                ]
-              }
-            ]
-          }
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Sign"
-                    ]
-                  }
-                ]
-              },
-              "alias": "visits"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "visits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
-                ]
-              }
-            ]
-          },
-          "having": {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        }
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "CounterID"
-        ]
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "visits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "joined_subquery_requires_alias": "0"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "hits"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "visits"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
+              "type": "Identifier",
+              "name": "CounterID"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              },
-              "alias": "hits"
+              "type": "Identifier",
+              "name": "hits"
+            },
+            {
+              "type": "Identifier",
+              "name": "visits"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "hits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "hits",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "FULL",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "CounterID"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "visits",
+                              "name": "sum",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Sign"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "visits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ],
+                          "having": {
+                            "type": "Function",
+                            "name": "greater",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "visits"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "0"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "visits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
                 ]
               }
             ]
-          }
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "RIGHT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
+          },
+          "order_by": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Sign"
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiply",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "visits"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
                     ]
                   }
                 ]
               },
-              "alias": "visits"
+              "direction": "DESC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              "direction": "ASC"
             }
           ],
-          "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "visits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
-                ]
-              }
-            ]
-          },
-          "having": {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        }
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "CounterID"
-        ]
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "visits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
-      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "CounterID"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "hits"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "visits"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
+              "type": "Identifier",
+              "name": "CounterID"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
-              },
-              "alias": "hits"
+              "type": "Identifier",
+              "name": "hits"
+            },
+            {
+              "type": "Identifier",
+              "name": "visits"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "hits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "hits",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "CounterID"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "visits",
+                              "name": "sum",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Sign"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "visits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ],
+                          "having": {
+                            "type": "Function",
+                            "name": "greater",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "visits"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "0"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "visits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
                 ]
               }
             ]
-          }
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
+          },
+          "order_by": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "CounterID"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100000"
-                },
-                "parenthesized": true
-              },
-              "alias": "CounterID"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Sign"
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiply",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "visits"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
                     ]
                   }
                 ]
               },
-              "alias": "visits"
+              "direction": "DESC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "CounterID"
+            },
+            {
+              "type": "Identifier",
+              "name": "hits"
+            },
+            {
+              "type": "Identifier",
+              "name": "visits"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "visits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "CounterID"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "hits",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "RIGHT",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "CounterID"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "visits",
+                              "name": "sum",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Sign"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "visits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ],
+                          "having": {
+                            "type": "Function",
+                            "name": "greater",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "visits"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "0"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "visits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
                 ]
               }
             ]
           },
-          "having": {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiply",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "visits"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "DESC"
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              "direction": "ASC"
             }
-          }
-        }
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "CounterID"
-        ]
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "visits"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "hits"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "CounterID"
+            },
+            {
+              "type": "Identifier",
+              "name": "hits"
+            },
+            {
+              "type": "Identifier",
+              "name": "visits"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "hits",
+                              "name": "count",
+                              "arguments": []
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "CounterID"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "CounterID",
+                              "name": "modulo",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "CounterID"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "100000"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "visits",
+                              "name": "sum",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Sign"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "visits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "CounterID"
+                            }
+                          ],
+                          "having": {
+                            "type": "Function",
+                            "name": "greater",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "visits"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "0"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "visits"
-              ]
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "visits"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "hits"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "multiply",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "visits"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "direction": "DESC"
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              "direction": "ASC"
             }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "20"
           }
-        },
-        "direction": "DESC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "20"
-      }
+        }
+      ]
     }
   }
 ]

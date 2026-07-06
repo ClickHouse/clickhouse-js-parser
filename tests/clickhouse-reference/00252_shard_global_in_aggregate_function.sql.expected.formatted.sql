@@ -5,7 +5,7 @@ CREATE TABLE storage
 (
     UserID UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO storage (UserID);

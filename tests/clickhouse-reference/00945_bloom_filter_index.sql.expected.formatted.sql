@@ -1,10 +1,10 @@
 -- Tags: long
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 DROP TABLE IF EXISTS single_column_bloom_filter;
 
@@ -13,11 +13,11 @@ CREATE TABLE single_column_bloom_filter
     u64 UInt64,
     i32 Int32,
     i64 UInt64,
-    INDEX idx i32 TYPE bloom_filter GRANULARITY 1
+    INDEX idx i32 TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY u64
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO single_column_bloom_filter SELECT
     number AS u64,
@@ -29,98 +29,98 @@ LIMIT 100;
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE i32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i32) = (1, 2)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i64) = (1, 1)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i64, (i64, i32)) = (1, (1, 1))
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE i32 IN (1, 2)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i32) IN ((1, 2), (2, 3))
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i64) IN ((1, 1), (2, 2))
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i64, (i64, i32)) IN ((1, (1, 1)), (2, (2, 2)))
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE i32 IN (
         SELECT arrayJoin([toInt32(1), toInt32(2)])
     )
-SETTINGS max_rows_to_read = 7;
+SETTINGS max_rows_to_read = '7';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i32) IN (
         SELECT arrayJoin([(toInt32(1), toInt32(2)), (toInt32(2), toInt32(3))])
     )
-SETTINGS max_rows_to_read = 7;
+SETTINGS max_rows_to_read = '7';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i64) IN (
         SELECT arrayJoin([(toInt32(1), toUInt64(1)), (toInt32(2), toUInt64(2))])
     )
-SETTINGS max_rows_to_read = 7;
+SETTINGS max_rows_to_read = '7';
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i64, (i64, i32)) IN (
         SELECT arrayJoin([(toUInt64(1), (toUInt64(1), toInt32(1))), (toUInt64(2), (toUInt64(2), toInt32(2)))])
     )
-SETTINGS max_rows_to_read = 7;
+SETTINGS max_rows_to_read = '7';
 
 WITH (1, 2) AS liter_prepared_set
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE i32 IN (liter_prepared_set)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 WITH ((1, 2), (2, 3)) AS liter_prepared_set
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i32) IN (liter_prepared_set)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 WITH ((1, 1), (2, 2)) AS liter_prepared_set
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i32, i64) IN (liter_prepared_set)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 WITH ((1, (1, 1)), (2, (2, 2))) AS liter_prepared_set
 
 SELECT COUNT()
 FROM single_column_bloom_filter
 WHERE (i64, (i64, i32)) IN (liter_prepared_set)
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 -- Check that indexHint() works (but it doesn't work with COUNT()).
 SELECT SUM(ignore(*) + 1)
@@ -130,11 +130,11 @@ WHERE indexHint(i32 IN (3, 15, 50));
 -- The index doesn't understand expressions like these, but it shouldn't break the query.
 SELECT COUNT()
 FROM single_column_bloom_filter
-WHERE (i32 = 200) = ((i32 = 200));
+WHERE i32 = 200 = (i32 = 200);
 
 SELECT SUM(ignore(*) + 1)
 FROM single_column_bloom_filter
-WHERE indexHint((i32 = 200) != ((i32 = 200)));
+WHERE indexHint(i32 = 200 != (i32 = 200));
 
 SELECT COUNT()
 FROM single_column_bloom_filter
@@ -164,11 +164,11 @@ CREATE TABLE bloom_filter_types_test
     str String,
     fixed_string FixedString(5),
     dt64 DateTime64(3, 'Asia/Istanbul'),
-    INDEX idx tuple(i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter GRANULARITY 1
+    INDEX idx (i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_types_test SELECT
     number AS order_key,
@@ -193,77 +193,77 @@ LIMIT 100;
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE i8 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE i16 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE i32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE i64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE u8 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE u16 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE u32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE u64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE f32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE f64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE date = '1970-01-02'
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE date_time = toDateTime('1970-01-01 02:00:01', 'Asia/Istanbul')
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE str = '1'
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE fixed_string = toFixedString('1', 5)
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
 WHERE dt64 = toDateTime64('1970-01-01 02:00:01', 3, 'Asia/Istanbul')
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_types_test
@@ -292,11 +292,11 @@ CREATE TABLE bloom_filter_array_types_test
     str Array(String),
     fixed_string Array(FixedString(5)),
     dt64 Array(DateTime64(3, 'Asia/Istanbul')),
-    INDEX idx tuple(i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter GRANULARITY 1
+    INDEX idx (i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_array_types_test SELECT
     groupArray(number) AS order_key,
@@ -569,11 +569,11 @@ CREATE TABLE bloom_filter_null_types_test
     str Nullable(String),
     fixed_string Nullable(FixedString(5)),
     dt64 Nullable(DateTime64(3, 'Asia/Istanbul')),
-    INDEX idx tuple(i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter GRANULARITY 1
+    INDEX idx (i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string, dt64) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_null_types_test SELECT
     number AS order_key,
@@ -616,77 +616,77 @@ INSERT INTO bloom_filter_null_types_test SELECT
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE i8 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE i16 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE i32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE i64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE u8 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE u16 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE u32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE u64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE f32 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE f64 = 1
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE date = '1970-01-02'
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE date_time = toDateTime('1970-01-01 02:00:01', 'Asia/Istanbul')
-SETTINGS max_rows_to_read = 6;
+SETTINGS max_rows_to_read = '6';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE str = '1'
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE fixed_string = toFixedString('1', 5)
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
 WHERE dt64 = toDateTime64('1970-01-01 02:00:01', 3, 'Asia/Istanbul')
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_null_types_test
@@ -762,11 +762,11 @@ CREATE TABLE bloom_filter_lc_null_types_test
     order_key UInt64,
     str LowCardinality(Nullable(String)),
     fixed_string LowCardinality(Nullable(FixedString(5))),
-    INDEX idx tuple(str, fixed_string) TYPE bloom_filter GRANULARITY 1
+    INDEX idx (str, fixed_string) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_lc_null_types_test SELECT
     number AS order_key,
@@ -783,12 +783,12 @@ INSERT INTO bloom_filter_lc_null_types_test SELECT
 SELECT COUNT()
 FROM bloom_filter_lc_null_types_test
 WHERE str = '1'
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_lc_null_types_test
 WHERE fixed_string = toFixedString('1', 5)
-SETTINGS max_rows_to_read = 12;
+SETTINGS max_rows_to_read = '12';
 
 SELECT COUNT()
 FROM bloom_filter_lc_null_types_test
@@ -824,11 +824,11 @@ CREATE TABLE bloom_filter_array_lc_null_types_test
     date_time Array(LowCardinality(Nullable(DateTime('Asia/Istanbul')))),
     str Array(LowCardinality(Nullable(String))),
     fixed_string Array(LowCardinality(Nullable(FixedString(5)))),
-    INDEX idx tuple(i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string) TYPE bloom_filter GRANULARITY 1
+    INDEX idx (i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, date, date_time, str, fixed_string) TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 6, index_granularity_bytes = '10Mi', allow_nullable_key = 1;
+SETTINGS index_granularity = '6', index_granularity_bytes = '10Mi', allow_nullable_key = '1';
 
 INSERT INTO bloom_filter_array_lc_null_types_test SELECT
     groupArray(number) AS order_key,
@@ -1228,7 +1228,7 @@ CREATE TABLE bloom_filter_array_offsets_lc_str
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 1024, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '1024', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_array_offsets_lc_str SELECT
     number AS i,
@@ -1250,7 +1250,7 @@ CREATE TABLE bloom_filter_array_offsets_str
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 1024, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '1024', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_array_offsets_str SELECT
     number AS i,
@@ -1272,7 +1272,7 @@ CREATE TABLE bloom_filter_array_offsets_i
 )
 ENGINE = MergeTree()
 ORDER BY order_key
-SETTINGS index_granularity = 1024, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '1024', index_granularity_bytes = '10Mi';
 
 INSERT INTO bloom_filter_array_offsets_i SELECT
     number AS i,
@@ -1294,7 +1294,7 @@ CREATE TABLE test_bf_indexOf
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO test_bf_indexOf;
 
@@ -1399,19 +1399,19 @@ FORMAT TSV;
 
 SELECT id
 FROM test_bf_indexOf
-WHERE NOT indexOf(ary, 'value1') == 0
+WHERE NOT indexOf(ary, 'value1') = 0
 ORDER BY id ASC
 FORMAT TSV;
 
 SELECT id
 FROM test_bf_indexOf
-WHERE NOT indexOf(ary, 'value1') == 1
+WHERE NOT indexOf(ary, 'value1') = 1
 ORDER BY id ASC
 FORMAT TSV;
 
 SELECT id
 FROM test_bf_indexOf
-WHERE NOT indexOf(ary, 'value1') == 2
+WHERE NOT indexOf(ary, 'value1') = 2
 ORDER BY id ASC
 FORMAT TSV;
 
@@ -1589,9 +1589,9 @@ DROP TABLE IF EXISTS test_bf_cast;
 CREATE TABLE test_bf_cast
 (
     c Int32,
-    INDEX x1 c TYPE bloom_filter
+    INDEX x1 c TYPE bloom_filter() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c AS
 SELECT 1;
 
@@ -1599,12 +1599,12 @@ SELECT count()
 FROM test_bf_cast
 WHERE CAST(c = 1
     OR c = 9999 AS Bool)
-SETTINGS use_skip_indexes = 0;
+SETTINGS use_skip_indexes = '0';
 
 SELECT count()
 FROM test_bf_cast
 WHERE CAST(c = 1
     OR c = 9999 AS Bool)
-SETTINGS use_skip_indexes = 1;
+SETTINGS use_skip_indexes = '1';
 
 DROP TABLE test_bf_cast;

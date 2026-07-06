@@ -7,7 +7,7 @@ CREATE TABLE test
     x UInt8,
     y UInt8 DEFAULT x + 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test (x);
@@ -18,7 +18,7 @@ ORDER BY
     x ASC,
     y ASC;
 
-ALTER TABLE test DROP COLUMN x;
+ALTER TABLE test CLEAR COLUMN x;
 
 ALTER TABLE test DROP COLUMN x; -- { serverError ILLEGAL_COLUMN }
 
@@ -29,7 +29,7 @@ CREATE TABLE test
     x UInt8,
     y UInt8 MATERIALIZED x + 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT
@@ -46,10 +46,10 @@ CREATE TABLE test
     y UInt8 ALIAS x + 1,
     z String DEFAULT 'Hello'
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE Test
 (
@@ -60,4 +60,4 @@ CREATE TABLE Test
 )
 ENGINE = MergeTree(event_date, impression_id_hashed, (event_date, impression_id_hashed), 8192);
 
-ALTER TABLE Test DROP COLUMN impression_id IN PARTITION '202001';
+ALTER TABLE Test CLEAR COLUMN impression_id IN PARTITION '202001';

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { format, parse } from '../src/index';
-import { CLICKHOUSE_DIR, discoverCases } from './helpers';
+import { CLICKHOUSE_DIR, discoverCases, readReferenceSql } from './helpers';
 
 describe('clickhouse reference - format', () => {
   for (const fileName of discoverCases()) {
@@ -11,7 +11,7 @@ describe('clickhouse reference - format', () => {
     it(fileName, () => {
       if (!fs.existsSync(formattedPath)) return;
 
-      const sql = fs.readFileSync(filePath, 'utf-8');
+      const sql = readReferenceSql(filePath);
       const statements = parse(sql);
 
       const expectedFormatted = fs.readFileSync(formattedPath, 'utf-8').trimEnd();

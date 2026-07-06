@@ -10,9 +10,9 @@ PARTITION BY a;
 
 INSERT INTO t_s3_filter_02495 SELECT number
 FROM numbers(10)
-SETTINGS s3_truncate_on_insert = 1;
+SETTINGS s3_truncate_on_insert = '1';
 
-SET max_rows_to_read = 5;
+SET max_rows_to_read = '5';
 
 WITH splitByChar('_', _file)[3]::UInt64 AS num
 

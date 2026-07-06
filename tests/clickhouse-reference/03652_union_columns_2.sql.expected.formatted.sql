@@ -16,32 +16,36 @@ ORDER BY (g, i);
 
 INSERT INTO `right`;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH differences AS (
 (    SELECT
         g,
         i
     FROM `left`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10))
+    WHERE g >= 0
+        AND g <= 10
 EXCEPT
     SELECT
         g,
         i
     FROM `right`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10)))
+    WHERE g >= 0
+        AND g <= 10)
     UNION ALL
 (    SELECT
         g,
         i
     FROM `right`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10))
+    WHERE g >= 0
+        AND g <= 10
 EXCEPT
     SELECT
         g,
         i
     FROM `left`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10)))
+    WHERE g >= 0
+        AND g <= 10)
 ),
 
 diff_counts AS (
@@ -61,25 +65,29 @@ WITH differences AS (
         g,
         i
     FROM `left`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10))
+    WHERE g >= 0
+        AND g <= 10
 EXCEPT
     SELECT
         g,
         i
     FROM `right`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10)))
+    WHERE g >= 0
+        AND g <= 10)
     UNION ALL
 (    SELECT
         g,
         i
     FROM `right`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10))
+    WHERE g >= 0
+        AND g <= 10
 EXCEPT
     SELECT
         g,
         i
     FROM `left`
-    WHERE and(greaterOrEquals(g, 0), lessOrEquals(g, 10)))
+    WHERE g >= 0
+        AND g <= 10)
 ),
 
 diff_counts AS (

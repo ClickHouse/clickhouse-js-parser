@@ -1,567 +1,658 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rows_events_test"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-async-insert",
-      "-- The correct profile event appears in the secondary query with query_kind: AsyncInsertFlush",
-      "-- add_minmax_index_for_numeric_columns=0: We are checking exact rows read, and that number will be different if we have an index on v"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rows_events_test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "k",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "rows_events_test"
       },
-      {
-        "kind": "columnDef",
-        "name": "v",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "add_minmax_index_for_numeric_columns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
+      "if_exists": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "rows_events_test"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "written_rows"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "INSERT INTO /* test 01413, query 1 */ rows_events_test%"
+        "type": "Identifier",
+        "name": "rows_events_test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "k",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayElement",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "ProfileEvents"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "InsertedRows"
+          {
+            "type": "ColumnDeclaration",
+            "name": "v",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             }
-          ]
-        },
-        "alias": "value"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
           }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "INSERT INTO /* test 01413, query 1 */ rows_events_test%"
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rows_events_test"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "rows_events_test",
-      "leadingComments": [
-        "/* test 01413, query 3 */"
-      ]
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "v"
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "k"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "add_minmax_index_for_numeric_columns": "0"
+          }
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "read_rows"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rows_events_test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "SELECT * FROM /* test 01413, query 3 */ rows_events_test%"
+              "type": "Identifier",
+              "name": "written_rows"
             }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "INSERT INTO /* test 01413, query 1 */ rows_events_test%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayElement",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "ProfileEvents"
+              "type": "Function",
+              "alias": "value",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "InsertedRows"
+                }
               ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "SelectedRows"
             }
-          ]
-        },
-        "alias": "value"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "INSERT INTO /* test 01413, query 1 */ rows_events_test%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "SELECT * FROM /* test 01413, query 3 */ rows_events_test%"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "DESC"
             }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rows_events_test"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rows_events_test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "rows_events_test"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "v"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "2"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "read_rows"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "SELECT * FROM /* test 01413, query 3 */ rows_events_test%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "value",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "SelectedRows"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "SELECT * FROM /* test 01413, query 3 */ rows_events_test%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "rows_events_test"
+      }
     }
   }
 ]

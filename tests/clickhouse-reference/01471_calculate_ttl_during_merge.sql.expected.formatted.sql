@@ -32,11 +32,11 @@ FROM numbers(3000, 1000);
 SELECT count()
 FROM table_for_ttl;
 
-ALTER TABLE table_for_ttl MODIFY TTL d + toIntervalYear(1) SETTINGS materialize_ttl_after_modify = 0;
+ALTER TABLE table_for_ttl MODIFY TTL d + toIntervalYear(1) SETTINGS materialize_ttl_after_modify = '0';
 
 OPTIMIZE TABLE table_for_ttl FINAL;
 
-ALTER TABLE table_for_ttl MODIFY COLUMN value String TTL d + toIntervalDay(1) SETTINGS materialize_ttl_after_modify = 0;
+ALTER TABLE table_for_ttl MODIFY COLUMN value String TTL d + toIntervalDay(1) SETTINGS materialize_ttl_after_modify = '0';
 
 SELECT countDistinct(value)
 FROM table_for_ttl;

@@ -27,10 +27,10 @@ TO dst
     c1 Int
 )
 AS
-(SELECT
+SELECT
     c0,
     c1
-FROM src);
+FROM src;
 
 INSERT INTO src (c0, c1);
 

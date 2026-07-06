@@ -1,190 +1,246 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0_03765"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-fasttest",
-      "-- Regression test for https://github.com/ClickHouse/ClickHouse/issues/77030",
-      "-- remote() wrapping loop() used to fail because TableFunctionLoop::getActualTableStructure",
-      "-- returned empty ColumnsDescription, causing EMPTY_LIST_OF_COLUMNS_PASSED or a logical error."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0_03765"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c0",
-        "type": {
-          "name": "Int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "localhost"
-        },
-        {
-          "kind": "functionCall",
-          "name": "loop",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "t0_03765"
-            }
-          ]
-        }
-      ],
-      "alias": "tx"
-    },
-    "leadingComments": [
-      "-- Empty table: should get TOO_MANY_RETRIES_TO_FETCH_PARTS (same as loop() alone with empty tables)"
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_MANY_RETRIES_TO_FETCH_PARTS }"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t0_03765"
+        "type": "Identifier",
+        "name": "t0_03765"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0_03765"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c0",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "loop",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "t0_03765"
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "tx",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "localhost"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "loop",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "currentDatabase",
+                            "arguments": []
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "t0_03765"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      }
-    },
-    "leadingComments": [
-      "-- With data: selecting a constant should work"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t0_03765"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.1"
-        },
-        {
-          "kind": "functionCall",
-          "name": "loop",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "currentDatabase",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "t0_03765"
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.1"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "loop",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "currentDatabase",
+                            "arguments": []
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "t0_03765"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      }
-    },
-    "leadingComments": [
-      "-- With data: selecting actual columns should work"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t0_03765"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.1"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "loop",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "currentDatabase",
+                            "arguments": []
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "String",
+                            "value": "t0_03765"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "5"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t0_03765"
+      },
+      "sync": true
     }
   }
 ]

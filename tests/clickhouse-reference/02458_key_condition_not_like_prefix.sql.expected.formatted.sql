@@ -2,7 +2,7 @@ CREATE TABLE data
 (
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY str;
 
 INSERT INTO data (str) SELECT 'aa'
@@ -16,40 +16,40 @@ FROM numbers(100000);
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a%')
-SETTINGS force_primary_key = 1;
+WHERE str NOT LIKE 'a%'
+SETTINGS force_primary_key = '1';
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a%%')
-SETTINGS force_primary_key = 1;
+WHERE str NOT LIKE 'a%%'
+SETTINGS force_primary_key = '1';
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE 'a'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM data
-WHERE notLike(str, '%a')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE '%a'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a_')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE 'a_'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a%_')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE 'a%_'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM data
-WHERE notLike(str, '_a')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE '_a'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }
 
 SELECT count()
 FROM data
-WHERE notLike(str, 'a%\\_')
-SETTINGS force_primary_key = 1; -- { serverError INDEX_NOT_USED }
+WHERE str NOT LIKE 'a%\\_'
+SETTINGS force_primary_key = '1'; -- { serverError INDEX_NOT_USED }

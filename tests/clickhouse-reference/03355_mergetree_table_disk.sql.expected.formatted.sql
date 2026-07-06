@@ -8,17 +8,17 @@ CREATE TABLE test_table_disk_requires_disk
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS table_disk = 1; -- { serverError BAD_ARGUMENTS }
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS table_disk = '1'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE test_table_disk_requires_proper_disk
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS disk = 'default', table_disk = 1; -- { serverError BAD_ARGUMENTS }
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS disk = 'default', table_disk = '1'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE uk_price_paid
 (
@@ -37,14 +37,14 @@ CREATE TABLE uk_price_paid
     district LowCardinality(String),
     county LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (postcode1, postcode2, addr1, addr2)
-SETTINGS disk = disk(type = web, endpoint = 'https://raw.githubusercontent.com/ClickHouse/web-tables-demo/main/web/store/cf7/cf712b4f-2ca8-435c-ac23-c4393efe52f7/'), table_disk = 1;
+SETTINGS disk = 'disk(type = web, endpoint = ''https://raw.githubusercontent.com/ClickHouse/web-tables-demo/main/web/store/cf7/cf712b4f-2ca8-435c-ac23-c4393efe52f7/'')', table_disk = '1';
 
 SELECT count()
 FROM uk_price_paid;
 
-ALTER TABLE uk_price_paid MODIFY SETTING table_disk = 0; -- { serverError TABLE_IS_READ_ONLY }
+ALTER TABLE uk_price_paid MODIFY SETTING table_disk = '0'; -- { serverError TABLE_IS_READ_ONLY }
 
 -- drop does not hung
 DROP TABLE uk_price_paid;
@@ -54,7 +54,7 @@ CREATE TABLE test_table_disk_is_immutable
 (
     key Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-ALTER TABLE test_table_disk_is_immutable MODIFY SETTING table_disk = 1; -- { serverError READONLY_SETTING }
+ALTER TABLE test_table_disk_is_immutable MODIFY SETTING table_disk = '1'; -- { serverError READONLY_SETTING }

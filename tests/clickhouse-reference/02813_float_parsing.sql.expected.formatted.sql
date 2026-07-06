@@ -7,7 +7,7 @@ SELECT
     toFloat32('1.5008753E7'),
     toFloat32('6e-09'),
     toFloat32('6.000000000000001e-9')
-SETTINGS precise_float_parsing = 0;
+SETTINGS precise_float_parsing = '0';
 
 SELECT
     toFloat64('1.7091'),
@@ -18,4 +18,4 @@ SELECT
     toFloat32('1.5008753E7'),
     toFloat32('6e-09'),
     toFloat32('6.000000000000001e-9')
-SETTINGS precise_float_parsing = 1;
+SETTINGS precise_float_parsing = '1';

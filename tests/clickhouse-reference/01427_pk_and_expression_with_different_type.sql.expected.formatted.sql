@@ -4,9 +4,9 @@ CREATE TABLE pk
 (
     x DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toStartOfMinute(x)
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 SELECT *
 FROM pk

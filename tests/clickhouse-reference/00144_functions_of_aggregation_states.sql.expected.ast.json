@@ -1,111 +1,119 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_error_prone_window_functions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_error_prone_window_functions": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "EventDate"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "finalizeAggregation",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "state"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "runningAccumulate",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "state"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "EventDate"
-            ]
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqState",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "EventDate"
+            },
+            {
+              "type": "Function",
+              "name": "finalizeAggregation",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "UserID"
-                  ]
+                  "type": "Identifier",
+                  "name": "state"
                 }
               ]
             },
-            "alias": "state"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "database": "test",
-          "table": "hits"
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "EventDate"
+              "type": "Function",
+              "name": "runningAccumulate",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "state"
+                }
               ]
             }
-          ]
-        },
-        "orderBy": [
-          {
-            "kind": "orderByItem",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "EventDate"
-              ]
-            },
-            "direction": "ASC"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "EventDate"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "state",
+                              "name": "uniqState",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "UserID"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "hits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "EventDate"
+                            }
+                          ],
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "EventDate"
+                              },
+                              "direction": "ASC"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
+        }
+      ]
     }
   }
 ]

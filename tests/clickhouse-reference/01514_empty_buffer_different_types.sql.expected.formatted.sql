@@ -7,9 +7,9 @@ CREATE TABLE merge_tree_table1
     s LowCardinality(String),
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 CREATE TABLE buffer_table1
 (

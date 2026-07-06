@@ -1,12 +1,12 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- { echoOn }
 SELECT a
 FROM
     (
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -18,8 +18,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -29,8 +29,8 @@ SELECT a
 FROM
     (
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -46,8 +46,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -66,8 +66,8 @@ FROM
                 UNION ALL
                 SELECT 1 AS a
             )
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT *
         FROM (
                 SELECT
@@ -86,8 +86,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -103,8 +103,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -120,8 +120,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c
@@ -137,8 +137,8 @@ FROM
         SELECT 1 AS a
         UNION ALL
         SELECT 1 AS a
-    ) AS t1
-CROSS JOIN (
+    ) AS t1,
+    (
         SELECT
             2 AS b,
             3 AS c

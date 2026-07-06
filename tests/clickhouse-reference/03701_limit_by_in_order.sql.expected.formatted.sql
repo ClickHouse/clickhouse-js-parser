@@ -1,5 +1,5 @@
 -- In order version of LIMIT BY works only if analyzer enabled
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS `03701_unsorted`, `03701_sorted`;
 
@@ -9,7 +9,7 @@ CREATE TABLE `03701_unsorted`
     val UInt32,
     dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO `03701_unsorted` SELECT
@@ -32,98 +32,114 @@ FROM numbers(500);
 
 -- DISTINCT for explain outputs are required due to parallel replicas tests, as there
 -- are created multiple LimitByTransforms (pushed down to replicas and the global one)
-SELECT DISTINCT concat('Unsorted ORDER BY key LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY key LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY key ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY key ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY key DESC LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY key DESC LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY key DESC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY key DESC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY key, val LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY key, val LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY
-            key ASC,
-            val ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY
+                    key ASC,
+                    val ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY val LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY val LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY val ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY val ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY val, key LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY val, key LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY
-            val ASC,
-            key ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY
+                    val ASC,
+                    key ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY key LIMIT BY key, val: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY key LIMIT BY key, val: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY key ASC
-        LIMIT 1 BY key, val
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY key ASC
+                LIMIT 1 BY key, val
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted ORDER BY key, dt LIMIT BY key, val: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted ORDER BY key, dt LIMIT BY key, val: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        ORDER BY
-            key ASC,
-            dt ASC
-        LIMIT 1 BY key, val
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                ORDER BY
+                    key ASC,
+                    dt ASC
+                LIMIT 1 BY key, val
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Unsorted w/o ORDER BY: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Unsorted w/o ORDER BY: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_unsorted`
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_unsorted`
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
 SELECT '-- Unsorted with LIMIT 1 BY';
 
@@ -147,7 +163,7 @@ CREATE TABLE `03701_sorted`
     val UInt32,
     dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO `03701_sorted` SELECT
@@ -168,98 +184,114 @@ INSERT INTO `03701_sorted` SELECT
     '2025-05-07'
 FROM numbers(500);
 
-SELECT DISTINCT concat('Sorted ORDER BY key LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY key LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY key ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY key ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY key DESC LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY key DESC LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY key DESC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY key DESC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY key, val LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY key, val LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY
-            key ASC,
-            val ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY
+                    key ASC,
+                    val ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY val LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY val LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY val ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY val ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY val, key LIMIT BY key: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY val, key LIMIT BY key: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY
-            val ASC,
-            key ASC
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY
+                    val ASC,
+                    key ASC
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY key LIMIT BY key, val: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY key LIMIT BY key, val: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY key ASC
-        LIMIT 1 BY key, val
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY key ASC
+                LIMIT 1 BY key, val
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted ORDER BY key, dt LIMIT BY key, val: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted ORDER BY key, dt LIMIT BY key, val: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        ORDER BY
-            key ASC,
-            dt ASC
-        LIMIT 1 BY key, val
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                ORDER BY
+                    key ASC,
+                    dt ASC
+                LIMIT 1 BY key, val
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
-SELECT DISTINCT concat('Sorted w/o ORDER BY: ', trimBoth(`explain`, ' '))
+SELECT DISTINCT 'Sorted w/o ORDER BY: ' || trimBoth(`explain`, ' ')
 FROM (
-        EXPLAIN PIPELINE
-        SELECT key
-        FROM `03701_sorted`
-        LIMIT 1 BY key
-        LIMIT 10
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT key
+                FROM `03701_sorted`
+                LIMIT 1 BY key
+                LIMIT 10
+            ))
     )
-WHERE like(`explain`, '%LimitByTransform%');
+WHERE `explain` LIKE '%LimitByTransform%';
 
 SELECT key
 FROM `03701_sorted`

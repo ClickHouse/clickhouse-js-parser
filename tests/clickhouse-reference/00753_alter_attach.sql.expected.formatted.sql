@@ -5,13 +5,13 @@ CREATE TABLE alter_attach
     x UInt64,
     p UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY p;
 
 INSERT INTO alter_attach;
 
-ALTER TABLE alter_attach DROP PARTITION 1;
+ALTER TABLE alter_attach DETACH PARTITION 1;
 
 ALTER TABLE alter_attach ADD COLUMN s String;
 
@@ -23,7 +23,7 @@ SELECT *
 FROM alter_attach
 ORDER BY x ASC;
 
-ALTER TABLE alter_attach DROP PARTITION 2;
+ALTER TABLE alter_attach DETACH PARTITION 2;
 
 ALTER TABLE alter_attach DROP COLUMN s;
 
@@ -31,7 +31,7 @@ INSERT INTO alter_attach;
 
 ALTER TABLE alter_attach ATTACH PARTITION 2;
 
-ALTER TABLE alter_attach DROP PARTITION ALL;
+ALTER TABLE alter_attach DETACH PARTITION ALL;
 
 DROP TABLE IF EXISTS detach_all_no_partition;
 
@@ -40,7 +40,7 @@ CREATE TABLE detach_all_no_partition
     x UInt64,
     p UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO detach_all_no_partition;
@@ -49,7 +49,7 @@ SELECT *
 FROM detach_all_no_partition
 ORDER BY x ASC;
 
-ALTER TABLE detach_all_no_partition DROP PARTITION ALL;
+ALTER TABLE detach_all_no_partition DETACH PARTITION ALL;
 
 ALTER TABLE detach_all_no_partition ATTACH PARTITION tuple();
 
@@ -85,7 +85,7 @@ SELECT *
 FROM replicated_table_detach_all1
 ORDER BY id ASC;
 
-ALTER TABLE replicated_table_detach_all1 DROP PARTITION ALL;
+ALTER TABLE replicated_table_detach_all1 DETACH PARTITION ALL;
 
 SYSTEM SYNC REPLICA replicated_table_detach_all2;
 
@@ -111,7 +111,7 @@ CREATE TABLE partition_all
     p UInt8,
     q UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY p;
 
@@ -123,7 +123,7 @@ CREATE TABLE partition_all2
     p UInt8,
     q UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY p;
 
@@ -134,15 +134,15 @@ ALTER TABLE partition_all2 REPLACE PARTITION ALL FROM partition_all; -- { server
 
 ALTER TABLE partition_all MOVE PARTITION ALL TO TABLE partition_all2; -- { serverError SUPPORT_IS_DISABLED }
 
-ALTER TABLE partition_all2 DROP INDEX p IN PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
+ALTER TABLE partition_all2 CLEAR INDEX p IN PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
 
-ALTER TABLE partition_all2 DROP COLUMN q IN PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
+ALTER TABLE partition_all2 CLEAR COLUMN q IN PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
 
 ALTER TABLE partition_all2 UPDATE q = q + 1 IN PARTITION ALL WHERE p = 1; -- { serverError SUPPORT_IS_DISABLED }
 
 ALTER TABLE partition_all2 FREEZE PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
 
-CHECK TABLE partition_all2 PARTITION `ALL`; -- { serverError SUPPORT_IS_DISABLED }
+CHECK TABLE partition_all2 PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
 
 OPTIMIZE TABLE partition_all2 PARTITION ALL; -- { serverError SUPPORT_IS_DISABLED }
 
@@ -156,13 +156,13 @@ CREATE TABLE partition_attach_all
     x UInt64,
     p UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY p;
 
 INSERT INTO partition_attach_all;
 
-ALTER TABLE partition_attach_all DROP PARTITION ALL;
+ALTER TABLE partition_attach_all DETACH PARTITION ALL;
 
 SELECT *
 FROM partition_attach_all
@@ -170,7 +170,7 @@ ORDER BY x ASC;
 
 ALTER TABLE partition_attach_all ATTACH PARTITION ALL;
 
-ALTER TABLE partition_attach_all DROP PARTITION 1;
+ALTER TABLE partition_attach_all DETACH PARTITION 1;
 
 ALTER TABLE partition_attach_all DROP PARTITION ALL;
 
@@ -185,7 +185,7 @@ PARTITION BY p;
 
 INSERT INTO replicated_partition_attach_all;
 
-ALTER TABLE replicated_partition_attach_all DROP PARTITION ALL;
+ALTER TABLE replicated_partition_attach_all DETACH PARTITION ALL;
 
 SELECT *
 FROM replicated_partition_attach_all
@@ -193,7 +193,7 @@ ORDER BY x ASC;
 
 ALTER TABLE replicated_partition_attach_all ATTACH PARTITION ALL;
 
-ALTER TABLE replicated_partition_attach_all DROP PARTITION 1;
+ALTER TABLE replicated_partition_attach_all DETACH PARTITION 1;
 
 ALTER TABLE replicated_partition_attach_all DROP PARTITION ALL;
 

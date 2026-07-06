@@ -5,7 +5,7 @@ CREATE TABLE tab_00712_2
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY b % 2
 SAMPLE BY b % 2;
 
@@ -22,7 +22,7 @@ CREATE TABLE sample_prewhere
     CounterID UInt32,
     UserID UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY UserID
 SAMPLE BY UserID;
 

@@ -66,7 +66,7 @@ INNER JOIN (
     ) AS t2
     ON t1.amount = t2.amount
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 0; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS enable_analyzer = '0'; -- { serverError UNKNOWN_IDENTIFIER }
 
 SELECT amount
 FROM
@@ -77,7 +77,7 @@ INNER JOIN (
     ) AS t2
     ON t1.amount = t2.amount
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT amount
 FROM
@@ -88,7 +88,7 @@ INNER JOIN (
     ) AS t2
     ON t1.amount = t2.amount
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 0; -- { serverError UNKNOWN_IDENTIFIER }
+SETTINGS enable_analyzer = '0'; -- { serverError UNKNOWN_IDENTIFIER }
 
 SELECT amount
 FROM
@@ -99,7 +99,7 @@ INNER JOIN (
     ) AS t2
     ON t1.amount = t2.amount
 ORDER BY `ALL` ASC
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT t2.amount + 1
 FROM
@@ -147,5 +147,5 @@ GROUP BY
     materialize(toLowCardinality(-127)),
     intDivOrZero(0, 0) = toLowCardinality(toLowCardinality(0))
 WITH TOTALS
-ORDER BY `ALL` DESC
+ORDER BY `ALL` DESC NULLS FIRST
 FORMAT Null;

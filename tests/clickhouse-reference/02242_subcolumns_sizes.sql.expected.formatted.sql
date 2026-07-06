@@ -7,11 +7,11 @@ CREATE TABLE t_subcolumns_sizes
     arr Array(UInt64),
     n Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, serialization_info_version = 'basic', ratio_of_defaults_for_sparse_serialization = 1;
+SETTINGS min_bytes_for_wide_part = '0', serialization_info_version = 'basic', ratio_of_defaults_for_sparse_serialization = '1';
 
-INSERT INTO t_subcolumns_sizes;
+INSERT INTO t_subcolumns_sizes FORMAT JSONEachRow;
 
 SELECT
     column,

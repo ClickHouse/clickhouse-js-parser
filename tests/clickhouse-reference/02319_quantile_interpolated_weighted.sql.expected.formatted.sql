@@ -6,7 +6,7 @@ CREATE TABLE decimal
     b Decimal64(8),
     c Decimal128(8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c) SELECT
     toDecimal32(number - 50, 4),
@@ -31,9 +31,9 @@ FROM decimal
 WHERE a < 0;
 
 SELECT
-    quantileInterpolatedWeighted(0.0)(a, 1),
-    quantileInterpolatedWeighted(0.0)(b, 2),
-    quantileInterpolatedWeighted(0.0)(c, 3)
+    quantileInterpolatedWeighted(0.)(a, 1),
+    quantileInterpolatedWeighted(0.)(b, 2),
+    quantileInterpolatedWeighted(0.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
@@ -66,17 +66,17 @@ FROM decimal
 WHERE a >= 0;
 
 SELECT
-    quantileInterpolatedWeighted(1.0)(a, 1),
-    quantileInterpolatedWeighted(1.0)(b, 2),
-    quantileInterpolatedWeighted(1.0)(c, 3)
+    quantileInterpolatedWeighted(1.)(a, 1),
+    quantileInterpolatedWeighted(1.)(b, 2),
+    quantileInterpolatedWeighted(1.)(c, 3)
 FROM decimal
 WHERE a >= 0;
 
-SELECT quantilesInterpolatedWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(a, 1)
+SELECT quantilesInterpolatedWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(a, 1)
 FROM decimal;
 
-SELECT quantilesInterpolatedWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(b, 2)
+SELECT quantilesInterpolatedWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(b, 2)
 FROM decimal;
 
-SELECT quantilesInterpolatedWeighted(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)(c, 3)
+SELECT quantilesInterpolatedWeighted(0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.)(c, 3)
 FROM decimal;

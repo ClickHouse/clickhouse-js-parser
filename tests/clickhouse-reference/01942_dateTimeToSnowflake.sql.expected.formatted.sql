@@ -1,4 +1,4 @@
-SET allow_deprecated_snowflake_conversion_functions = 1; -- Force-enable deprecated snowflake conversion functions (in case this is randomized in CI)
+SET allow_deprecated_snowflake_conversion_functions = '1'; -- Force-enable deprecated snowflake conversion functions (in case this is randomized in CI)
 
 SET session_timezone = 'Africa/Juba';
 
@@ -16,10 +16,10 @@ SELECT dateTimeToSnowflake('abc', 123); -- {serverError NUMBER_OF_ARGUMENTS_DOES
 SELECT dateTime64ToSnowflake('abc', 123); -- {serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH}
 
 SELECT dateTimeToSnowflake(now())
-SETTINGS allow_deprecated_snowflake_conversion_functions = 0; -- { serverError DEPRECATED_FUNCTION }
+SETTINGS allow_deprecated_snowflake_conversion_functions = '0'; -- { serverError DEPRECATED_FUNCTION }
 
 SELECT dateTime64ToSnowflake(now64())
-SETTINGS allow_deprecated_snowflake_conversion_functions = 0; -- { serverError DEPRECATED_FUNCTION }
+SETTINGS allow_deprecated_snowflake_conversion_functions = '0'; -- { serverError DEPRECATED_FUNCTION }
 
 SELECT '-- const / non-const inputs';
 
@@ -64,10 +64,10 @@ now64(2, 'UTC') AS dt64_2,
 now64(3, 'UTC') AS dt64_3
 
 SELECT
-    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_0), 'UTC') == dt64_0,
-    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_1), 'UTC') == dt64_1,
-    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_2), 'UTC') == dt64_2,
-    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_3), 'UTC') == dt64_3;
+    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_0), 'UTC') = dt64_0,
+    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_1), 'UTC') = dt64_1,
+    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_2), 'UTC') = dt64_2,
+    snowflakeToDateTime64(dateTime64ToSnowflake(dt64_3), 'UTC') = dt64_3;
 
 WITH toDateTime64('2023-11-11 11:11:11.1231', 4, 'UTC') AS dt64_4
 

@@ -3,7 +3,7 @@ CREATE TABLE dt64test
     dt64_column DateTime64(3),
     dt_column DateTime DEFAULT toDateTime(dt64_column)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dt64_column
 PARTITION BY toYYYYMM(dt64_column);
 

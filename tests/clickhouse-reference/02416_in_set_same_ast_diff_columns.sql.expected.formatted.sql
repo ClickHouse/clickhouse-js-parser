@@ -4,7 +4,7 @@ CREATE TABLE set_crash
     id1 Int64,
     c1 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key1
 PARTITION BY id1;
 

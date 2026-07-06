@@ -6,7 +6,7 @@ CREATE TABLE users
     score UInt8,
     user_level String ALIAS multiIf(score <= 3, 'LOW', score <= 6, 'MEDIUM', 'HIGH')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name;
 
 INSERT INTO users;

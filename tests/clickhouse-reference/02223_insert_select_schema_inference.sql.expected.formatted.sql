@@ -15,7 +15,7 @@ FROM numbers(10);
 
 INSERT INTO FUNCTION file('data.native.zst') SELECT *
 FROM test
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
 DESCRIBE TABLE file('data.native.zst');
 

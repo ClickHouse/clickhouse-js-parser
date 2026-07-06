@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     fingerprint UInt16,
     fields Nested(name Array(UInt32), value String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY fingerprint;
 
 INSERT INTO test_table;

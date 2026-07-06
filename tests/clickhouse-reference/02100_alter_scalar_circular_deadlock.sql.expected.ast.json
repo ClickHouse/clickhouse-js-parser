@@ -1,607 +1,809 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
       },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMMDD",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "ts"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "ts"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMMDD",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "columns": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
+          "type": "Identifier",
+          "name": "ts"
+        },
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-01-01 00:05:00"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers_mt",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "mutations_sync": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "foo"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "x"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "4"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "x",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "foo"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "toDateTime",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "2020-01-01 00:05:00"
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "42"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "foo"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "notEquals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "x"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "0"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "x",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
             }
           ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "9"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "ts"
         },
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+          "type": "Identifier",
+          "name": "x"
         }
       ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers_mt"
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "column": "x",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "where": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "foo"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-01-01 00:05:00"
+                  }
+                ]
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
-                }
+              {
+                "type": "Identifier",
+                "name": "number"
               }
-            }
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
-            }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "42"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "foo"
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "foo"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "x",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "where": {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "values": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers_mt",
+                      "database": "system"
+                    }
+                  }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "foo"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "!=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
             }
           }
-        }
+        ]
       }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
-            }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "9"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "foo"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
       "table": {
-        "kind": "tableRef",
-        "table": "bar"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ts"
-        ]
+        "type": "Identifier",
+        "name": "bar"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+      "commands": [
         {
-          "kind": "functionCall",
-          "name": "toDateTime",
-          "args": [
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "bar"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "x"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "4"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "assignments": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "2020-01-01 00:05:00"
+              "type": "Assignment",
+              "column": "x",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
             }
           ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
         }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers_mt"
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
+      ]
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "x",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "where": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "bar"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4"
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "42"
                 }
-              }
-            }
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "x"
               ]
             }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "42"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "bar"
+      ]
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "bar"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "x",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "where": {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "values": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "bar"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "!=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "bar"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "notEquals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "x"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "0"
+                          }
+                        ]
+                      }
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
                 }
               }
-            }
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+            ]
+          },
+          "assignments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
+              "type": "Assignment",
+              "column": "x",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
             }
           ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "9"
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "bar"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "sum",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "9"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

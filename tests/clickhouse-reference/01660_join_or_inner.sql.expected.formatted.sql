@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS tab2;
 
@@ -9,7 +9,7 @@ CREATE TABLE tab2
     a2 Int32,
     b2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a2;
 
 CREATE TABLE tab3
@@ -17,7 +17,7 @@ CREATE TABLE tab3
     a3 Int32,
     b3 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a3;
 
 INSERT INTO tab2;
@@ -34,16 +34,16 @@ INSERT INTO tab3;
 
 INSERT INTO tab3;
 
-SET max_threads = 1;
+SET max_threads = '1';
 
-SET any_join_distinct_right_table_keys = 0;
+SET any_join_distinct_right_table_keys = '0';
 
 SELECT
     tab2.*,
     tab3.*
 FROM
     tab2
-INNER JOIN tab3
+ANY INNER JOIN tab3
     ON a2 = a3
     OR b2 = b3
 ORDER BY `ALL` ASC;
@@ -53,12 +53,12 @@ SELECT
     tab3.*
 FROM
     tab2
-INNER JOIN tab3
+ANY INNER JOIN tab3
     ON b2 = b3
     OR a2 = a3
 ORDER BY `ALL` ASC;
 
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
 SELECT 1
 FROM

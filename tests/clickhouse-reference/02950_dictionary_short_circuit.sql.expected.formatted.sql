@@ -8,7 +8,7 @@ CREATE TABLE dictionary_source_table
     v2 Nullable(String),
     v3 Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_source_table;
 
@@ -111,7 +111,7 @@ CREATE TABLE range_dictionary_source_table
     `end` Nullable(Date),
     val Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO range_dictionary_source_table;
 
@@ -197,7 +197,7 @@ CREATE TABLE ip_dictionary_source_table
     asn UInt32,
     cca2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO ip_dictionary_source_table;
 
@@ -212,7 +212,7 @@ CREATE DICTIONARY ip_dictionary
 )
 PRIMARY KEY prefix
 SOURCE(clickhouse(TABLE 'ip_dictionary_source_table'))
-LIFETIME(3600)
+LIFETIME(MIN 0 MAX 3600)
 LAYOUT(IP_TRIE());
 
 SELECT dictGetOrDefault('ip_dictionary', 'cca2', toIPv4('202.79.32.10'), intDiv(0, id))
@@ -230,7 +230,7 @@ CREATE TABLE polygon_dictionary_source_table
     key Array(Array(Array(Tuple(Float64, Float64)))),
     name Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO polygon_dictionary_source_table;
 
@@ -243,7 +243,7 @@ CREATE DICTIONARY polygon_dictionary
 )
 PRIMARY KEY key
 SOURCE(clickhouse(TABLE 'polygon_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(POLYGON());
 
 DROP TABLE IF EXISTS points;
@@ -253,7 +253,7 @@ CREATE TABLE points
     x Float64,
     y Float64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO points;
 
@@ -278,7 +278,7 @@ CREATE TABLE regexp_dictionary_source_table
     keys Array(String),
     values Array(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO regexp_dictionary_source_table;
 
@@ -301,9 +301,9 @@ CREATE DICTIONARY regexp_dict
     version Nullable(UInt64),
     comment String DEFAULT 'nothing'
 )
-PRIMARY KEY (regexp)
+PRIMARY KEY regexp
 SOURCE(clickhouse(TABLE 'regexp_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(REGEXP_TREE());
 
 SELECT dictGetOrDefault('regexp_dict', 'name', concat(toString(number), '/tclwebkit', toString(number)), intDiv(1, number))

@@ -7,7 +7,7 @@ CREATE TABLE test_xy
     x Int32,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE TABLE updates
@@ -15,7 +15,7 @@ CREATE TABLE updates
     x Int32,
     y String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO test_xy (x, y);
@@ -50,7 +50,7 @@ ORDER BY
     x ASC,
     y ASC;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE test_xy UPDATE y = transform(x, (
     SELECT groupArray(x)

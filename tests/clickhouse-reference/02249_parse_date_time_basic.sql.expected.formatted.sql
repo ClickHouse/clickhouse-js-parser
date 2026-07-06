@@ -10,7 +10,7 @@ CREATE TABLE t
     d String,
     e Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t (a, b, c, d, e);
 

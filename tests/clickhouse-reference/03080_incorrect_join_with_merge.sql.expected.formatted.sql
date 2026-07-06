@@ -1,9 +1,9 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/29838
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
-DROP TABLE IF EXISTS first_table_lr;
+DROP TABLE IF EXISTS first_table_lr SYNC;
 
 CREATE TABLE first_table_lr
 (
@@ -57,7 +57,7 @@ ENGINE = Merge(currentDatabase(), '^(first_table)$');
 SELECT count()
 FROM
     first_table AS s
-INNER JOIN second_table AS f
+GLOBAL ANY INNER JOIN second_table AS f
     USING (id)
 WHERE f.id2 GLOBAL IN (
         SELECT id2
@@ -68,7 +68,7 @@ WHERE f.id2 GLOBAL IN (
 SELECT count()
 FROM
     two_tables AS s
-INNER JOIN second_table AS f
+GLOBAL ANY INNER JOIN second_table AS f
     USING (id)
 WHERE f.id2 GLOBAL IN (
         SELECT id2

@@ -2,7 +2,7 @@ CREATE VIEW v
 AS
 SELECT number
 FROM numbers(5)
-WHERE number % 2 = {parity:Int8};
+WHERE number % 2 = 0;
 
 CREATE TABLE vv
 (

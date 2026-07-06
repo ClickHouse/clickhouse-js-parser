@@ -1,7 +1,7 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- { echoOn }
-EXPLAIN header = 1, optimize = 0
+EXPLAIN header = '1', optimize = '0'
 SELECT avgWeighted(x, y)
 FROM (
         SELECT

@@ -5,18 +5,18 @@ CREATE TABLE merge_table_standard_delete
     id Int32,
     name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO merge_table_standard_delete SELECT
     number,
     toString(number)
 FROM numbers(100);
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
-SET check_query_single_value_result = 1;
+SET check_query_single_value_result = '1';
 
 DELETE FROM merge_table_standard_delete WHERE id = 10;
 
@@ -42,12 +42,12 @@ CREATE TABLE t_light
     a int,
     b int,
     c int,
-    INDEX i_c b TYPE minmax GRANULARITY 4
+    INDEX i_c b TYPE minmax() GRANULARITY 4
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 PARTITION BY c % 5
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_light SELECT
     number,
@@ -67,11 +67,11 @@ CHECK TABLE t_light;
 
 DELETE FROM t_light WHERE c = 4;
 
-ALTER TABLE t_light MATERIALIZE INDEX i_c SETTINGS mutations_sync = 2;
+ALTER TABLE t_light MATERIALIZE INDEX i_c SETTINGS mutations_sync = '2';
 
-ALTER TABLE t_light UPDATE b = -1 WHERE a < 3 SETTINGS mutations_sync = 2;
+ALTER TABLE t_light UPDATE b = -1 WHERE a < 3 SETTINGS mutations_sync = '2';
 
-ALTER TABLE t_light DROP INDEX i_c SETTINGS mutations_sync = 2;
+ALTER TABLE t_light DROP INDEX i_c SETTINGS mutations_sync = '2';
 
 SELECT
     command,
@@ -98,7 +98,7 @@ WHERE database = currentDatabase()
     AND table = 't_light'
 ORDER BY name ASC;
 
-OPTIMIZE TABLE t_light FINAL SETTINGS mutations_sync = 2;
+OPTIMIZE TABLE t_light FINAL SETTINGS mutations_sync = '2';
 
 SELECT
     table,
@@ -119,9 +119,9 @@ CREATE TABLE t_large
     a UInt32,
     b int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS min_bytes_for_wide_part = 0, index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS min_bytes_for_wide_part = '0', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_large SELECT
     number + 1,
@@ -136,9 +136,10 @@ ATTACH TABLE t_large;
 
 CHECK TABLE t_large;
 
-ALTER TABLE t_large UPDATE b = -2 WHERE and(greaterOrEquals(a, 1000), lessOrEquals(a, 1005)) SETTINGS mutations_sync = 2;
+ALTER TABLE t_large UPDATE b = -2 WHERE a >= 1000
+AND a <= 1005 SETTINGS mutations_sync = '2';
 
-ALTER TABLE t_large DELETE WHERE a = 1 SETTINGS mutations_sync = 2;
+ALTER TABLE t_large DELETE WHERE a = 1 SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM t_large
@@ -152,14 +153,11 @@ CREATE TABLE t_proj
     a UInt32,
     b int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
-ALTER TABLE t_proj ADD PROJECTION p_1 (SELECT
-    avg(a),
-    avg(b),
-    count()) SETTINGS mutations_sync = 2;
+ALTER TABLE t_proj ADD PROJECTION p_1 (SELECT avg(a), avg(b), count()) SETTINGS mutations_sync = '2';
 
 INSERT INTO t_proj SELECT
     number + 1,

@@ -2,5 +2,5 @@ CREATE TABLE test
 (
     x Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Map(Int32, Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32), Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();

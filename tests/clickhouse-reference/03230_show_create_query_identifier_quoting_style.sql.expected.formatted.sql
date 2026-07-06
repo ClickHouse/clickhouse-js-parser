@@ -32,20 +32,10 @@ CREATE TABLE uk_price_paid
     district LowCardinality(String),
     county LowCardinality(String),
     INDEX county_index county TYPE set(10) GRANULARITY 1,
-    PROJECTION town_date_projection (    SELECT
-        town,
-        date,
-        price
-    ORDER BY
-        town ASC,
-        date ASC),
-    PROJECTION handy_aggs_projection (    SELECT
-        avg(price),
-        max(price),
-        sum(price)
-    GROUP BY town)
+    PROJECTION town_date_projection (SELECT town, date, price ORDER BY town, date),
+    PROJECTION handy_aggs_projection (SELECT avg(price), max(price), sum(price) GROUP BY town)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (postcode1, postcode2, date);
 
 CREATE TABLE prices_by_year_dest
@@ -61,7 +51,7 @@ CREATE TABLE prices_by_year_dest
     district LowCardinality(String),
     county LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (town, date)
 PARTITION BY toYear(date);
 
@@ -87,7 +77,7 @@ CREATE TABLE uk_prices_aggs_dest
     volume AggregateFunction(count, UInt32),
     avg_price AggregateFunction(avg, UInt32)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 PRIMARY KEY month;
 
 CREATE MATERIALIZED VIEW uk_prices_aggs_view
@@ -126,11 +116,11 @@ CREATE DICTIONARY uk_mortgage_rates_dict
 )
 PRIMARY KEY date
 SOURCE(clickhouse(TABLE 'uk_mortgage_rates'))
-LIFETIME(2628000000)
+LIFETIME(MIN 0 MAX 2628000000)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 -- Show tables, views, dictionaries with default settings
-SELECT ('Settings: default');
+SELECT 'Settings: default';
 
 SHOW CREATE TABLE uk_price_paid;
 
@@ -143,7 +133,7 @@ SHOW CREATE VIEW uk_prices_aggs_view;
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict;
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='always', show_create_query_identifier_quoting_style='Backticks'
-SELECT ('Settings: always & Backticks');
+SELECT 'Settings: always & Backticks';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'Backticks';
 
@@ -156,7 +146,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'Backticks';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='user_display', show_create_query_identifier_quoting_style='Backticks'
-SELECT ('Settings: user_display & Backticks');
+SELECT 'Settings: user_display & Backticks';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'Backticks';
 
@@ -169,7 +159,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'Backticks';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='when_necessary', show_create_query_identifier_quoting_style='Backticks'
-SELECT ('Settings: when_necessary & Backticks');
+SELECT 'Settings: when_necessary & Backticks';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'when_necessary', show_create_query_identifier_quoting_style = 'Backticks';
 
@@ -182,7 +172,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'when_necessary', show_create_query_identifier_quoting_style = 'Backticks';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='always', show_create_query_identifier_quoting_style='DoubleQuotes'
-SELECT ('Settings: always & DoubleQuotes');
+SELECT 'Settings: always & DoubleQuotes';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
@@ -195,7 +185,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='user_display', show_create_query_identifier_quoting_style='DoubleQuotes'
-SELECT ('Settings: user_display & DoubleQuotes');
+SELECT 'Settings: user_display & DoubleQuotes';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
@@ -208,7 +198,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='when_necessary', show_create_query_identifier_quoting_style='DoubleQuotes'
-SELECT ('Settings: when_necessary & DoubleQuotes');
+SELECT 'Settings: when_necessary & DoubleQuotes';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'when_necessary', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
@@ -221,7 +211,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'when_necessary', show_create_query_identifier_quoting_style = 'DoubleQuotes';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='always', show_create_query_identifier_quoting_style='BackticksMySQL'
-SELECT ('Settings: always & BackticksMySQL');
+SELECT 'Settings: always & BackticksMySQL';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'BackticksMySQL';
 
@@ -234,7 +224,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'always', show_create_query_identifier_quoting_style = 'BackticksMySQL';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='user_display', show_create_query_identifier_quoting_style='BackticksMySQL'
-SELECT ('Settings: user_display & BackticksMySQL');
+SELECT 'Settings: user_display & BackticksMySQL';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'BackticksMySQL';
 
@@ -247,7 +237,7 @@ SHOW CREATE VIEW uk_prices_aggs_view SETTINGS show_create_query_identifier_quoti
 SHOW CREATE DICTIONARY uk_mortgage_rates_dict SETTINGS show_create_query_identifier_quoting_rule = 'user_display', show_create_query_identifier_quoting_style = 'BackticksMySQL';
 
 -- Show tables, views, dictionaries with show_create_query_identifier_quoting_rule='when_necessary', show_create_query_identifier_quoting_style='BackticksMySQL'
-SELECT ('Settings: when_necessary & BackticksMySQL');
+SELECT 'Settings: when_necessary & BackticksMySQL';
 
 SHOW CREATE TABLE uk_price_paid SETTINGS show_create_query_identifier_quoting_rule = 'when_necessary', show_create_query_identifier_quoting_style = 'BackticksMySQL';
 

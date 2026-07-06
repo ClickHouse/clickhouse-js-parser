@@ -11,4 +11,4 @@ FROM (
     )
 LIMIT 10;
 
-SET max_bytes_before_remerge_sort = 1000000;
+SET max_bytes_before_remerge_sort = '1000000';

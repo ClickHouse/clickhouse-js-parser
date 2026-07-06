@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 SELECT
     t.a,
@@ -8,10 +8,10 @@ SELECT
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT 1 AS a
-        QUALIFY 0 = ((t.a AS alias668))
+        QUALIFY 0 = (t.a AS alias668)
     ) AS u; -- { serverError NOT_IMPLEMENTED }
 
 SELECT
@@ -20,8 +20,8 @@ SELECT
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT DISTINCT
             *,
             *,
@@ -34,7 +34,7 @@ CROSS JOIN (
             27,
             materialize(27),
             *,
-            isNotNull(*),
+            * IS NOT NULL,
             *,
             27,
             *,
@@ -45,19 +45,9 @@ CROSS JOIN (
             27,
             toLowCardinality(27),
             toNullable(materialize(27)),
-            isNotNull(*),
+            * IS NOT NULL,
             1 AS a
-        QUALIFY (isNull((
-                    *,
-                    27,
-                    materialize(27),
-                    27,
-                    '======Before Truncate======',
-                    27,
-                    27,
-                    (27 IS NOT NULL),
-                    * IS NOT NULL
-                ))) = ((t.a AS alias668))
+        QUALIFY ((*, 27, materialize(27), 27, '======Before Truncate======', 27, 27, 27 IS NOT NULL, * IS NOT NULL) IS NULL) = (t.a AS alias668)
     ) AS u; -- { serverError NOT_IMPLEMENTED }
 
 SELECT

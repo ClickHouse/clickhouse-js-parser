@@ -1,231 +1,223 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "03811_sparse_column_aggregation_with_sum"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt128"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt16"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "03811_sparse_column_aggregation_with_sum"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10000"
+        "type": "Identifier",
+        "name": "03811_sparse_column_aggregation_with_sum"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt128"
             }
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt16"
+            }
           }
         ]
       },
-      "settings": [
-        {
-          "name": "min_insert_block_size_rows",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "name": "max_block_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        },
-        {
-          "name": "max_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
         }
-      ]
+      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "03811_sparse_column_aggregation_with_sum"
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "val"
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "min_insert_block_size_rows": "1000",
+          "max_block_size": "1000",
+          "max_threads": "2"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10000"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "min_insert_block_size_rows": "1000",
+                "max_block_size": "1000",
+                "max_threads": "2"
+              }
             }
-          ]
-        },
-        "alias": "c"
+          }
+        ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "03811_sparse_column_aggregation_with_sum"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "group_by_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "any"
-        }
-      },
-      {
-        "name": "max_rows_to_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      },
-      {
-        "name": "group_by_two_level_threshold_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "group_by_two_level_threshold",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "03811_sparse_column_aggregation_with_sum"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Function",
+              "alias": "c",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "val"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "03811_sparse_column_aggregation_with_sum"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "c"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
+          }
+        }
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "group_by_overflow_mode": "any",
+          "max_rows_to_group_by": "100",
+          "group_by_two_level_threshold_bytes": "1",
+          "group_by_two_level_threshold": "1",
+          "max_threads": "2"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "03811_sparse_column_aggregation_with_sum"
+      }
     }
   }
 ]

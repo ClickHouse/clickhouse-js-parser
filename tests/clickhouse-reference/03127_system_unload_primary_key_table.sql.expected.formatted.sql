@@ -6,17 +6,17 @@ CREATE TABLE test
 (
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
-SETTINGS index_granularity = 1, use_primary_key_cache = 0;
+SETTINGS index_granularity = '1', use_primary_key_cache = '0';
 
 CREATE TABLE test2
 (
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
-SETTINGS index_granularity = 1, use_primary_key_cache = 0;
+SETTINGS index_granularity = '1', use_primary_key_cache = '0';
 
 INSERT INTO test SELECT randomString(1000)
 FROM numbers(100000);
@@ -31,9 +31,9 @@ WHERE database = currentDatabase()
 INSERT INTO test2 SELECT randomString(1000)
 FROM numbers(100000);
 
-SYSTEM UNLOAD PRIMARY KEY {CLICKHOUSE_DATABASE:Identifier}.test;
+SYSTEM UNLOAD PRIMARY KEY CLICKHOUSE_DATABASE.test;
 
-SYSTEM UNLOAD PRIMARY KEY {CLICKHOUSE_DATABASE:Identifier}.test2;
+SYSTEM UNLOAD PRIMARY KEY CLICKHOUSE_DATABASE.test2;
 
 SELECT s != ''
 FROM test

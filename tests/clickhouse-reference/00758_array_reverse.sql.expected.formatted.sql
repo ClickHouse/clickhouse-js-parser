@@ -30,7 +30,11 @@ SELECT
         SELECT '\0'
     ) AS riwwq,
     (
-        SELECT reverse([( SELECT bitTestAll(NULL) ) , ( SELECT '\0' ) AS ddfweeuy])
+        SELECT reverse([(
+                SELECT bitTestAll(NULL)
+            ), (
+                SELECT '\0'
+            ) AS ddfweeuy])
     ) AS xuvv,
     '',
     (

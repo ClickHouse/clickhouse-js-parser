@@ -1,6 +1,6 @@
-SET enable_time_time64_type = 1;
+SET enable_time_time64_type = '1';
 
-SET use_legacy_to_time = 0;
+SET use_legacy_to_time = '0';
 
 SET session_timezone = 'UTC';
 
@@ -13,7 +13,7 @@ CREATE TABLE dt
     time Time,
     event_id UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dt;
 
@@ -115,7 +115,7 @@ CREATE TABLE empty_date_test
     t Time,
     t64 Time64(3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     avg(d),
@@ -346,7 +346,7 @@ CREATE TABLE nullable_date_test
     t Nullable(Time),
     t64 Nullable(Time64(3))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO nullable_date_test;
 
@@ -372,7 +372,7 @@ FORMAT Vertical;
 
 SELECT avg(d)
 FROM nullable_date_test
-WHERE isNull(d);
+WHERE d IS NULL;
 
 DROP TABLE nullable_date_test;
 
@@ -385,7 +385,7 @@ CREATE TABLE avgif_date_test
     t Time,
     flag UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO avgif_date_test;
 
@@ -409,7 +409,7 @@ CREATE TABLE groupby_date_test
     dt DateTime('UTC'),
     t Time
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO groupby_date_test;
 
@@ -622,9 +622,9 @@ FROM (
         SELECT toTime64('12:00:00.003', 3) AS t64
     );
 
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
 SELECT avg(d)
 FROM (
@@ -652,7 +652,7 @@ CREATE TABLE jit_time_test
     t Time,
     t64 Time64(3)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO jit_time_test SELECT
     CAST(number AS Time),
@@ -667,7 +667,7 @@ FROM jit_time_test;
 
 DROP TABLE jit_time_test;
 
-SET compile_aggregate_expressions = 0;
+SET compile_aggregate_expressions = '0';
 
 DROP TABLE IF EXISTS negative_time_test;
 
@@ -675,7 +675,7 @@ CREATE TABLE negative_time_test
 (
     t Time
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Insert -3600 (=-1h), 3600 (=1h), 10800 (=3h) -> avg = 3600 = 1h
 INSERT INTO negative_time_test SELECT toTime(-3600 + number * 7200)
@@ -697,7 +697,7 @@ CREATE TABLE mv_source
     dt DateTime('UTC'),
     t Time
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY grp;
 
 CREATE TABLE mv_target
@@ -707,7 +707,7 @@ CREATE TABLE mv_target
     dt_avg AggregateFunction(avg, DateTime('UTC')),
     t_avg AggregateFunction(avg, Time)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY grp;
 
 CREATE MATERIALIZED VIEW mv_view

@@ -4,15 +4,11 @@ CREATE TABLE test
 (
     a Int32,
     b Int32,
-    PROJECTION p (    SELECT
-        a,
-        b,
-        _part_offset
-    ORDER BY b ASC)
+    PROJECTION p (SELECT a, b, _part_offset ORDER BY b)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY a
-SETTINGS index_granularity_bytes = 10485760, index_granularity = 8192, merge_max_block_size = 8192, deduplicate_merge_projection_mode = 'rebuild';
+SETTINGS index_granularity_bytes = '10485760', index_granularity = '8192', merge_max_block_size = '8192', deduplicate_merge_projection_mode = 'rebuild';
 
 INSERT INTO test SELECT
     number * 3,
@@ -29,7 +25,7 @@ FROM
     test AS l
 INNER JOIN mergeTreeProjection(currentDatabase(), test, p) AS r
     USING (a)
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 OPTIMIZE TABLE test FINAL;
 

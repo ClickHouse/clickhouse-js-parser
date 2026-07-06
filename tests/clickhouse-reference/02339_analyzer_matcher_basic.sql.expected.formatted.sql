@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DESCRIBE TABLE (SELECT *);
 
@@ -22,7 +22,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -101,7 +101,7 @@ CREATE TABLE `02339_db`.test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02339_db`.test_table;
 
@@ -111,30 +111,30 @@ FROM `02339_db`.test_table);
 SELECT `02339_db`.test_table.*
 FROM `02339_db`.test_table;
 
-DESCRIBE TABLE (SELECT `02339_db.test_table`.COLUMNS(id)
+DESCRIBE TABLE (SELECT `02339_db`.test_table.COLUMNS(id)
 FROM `02339_db`.test_table);
 
-SELECT `02339_db.test_table`.COLUMNS(id)
+SELECT `02339_db`.test_table.COLUMNS(id)
 FROM `02339_db`.test_table;
 
 DESCRIBE TABLE (SELECT
-    `02339_db.test_table`.COLUMNS(id),
-    `02339_db.test_table`.COLUMNS(value)
+    `02339_db`.test_table.COLUMNS(id),
+    `02339_db`.test_table.COLUMNS(value)
 FROM `02339_db`.test_table);
 
 SELECT
-    `02339_db.test_table`.COLUMNS(id),
-    `02339_db.test_table`.COLUMNS(value)
+    `02339_db`.test_table.COLUMNS(id),
+    `02339_db`.test_table.COLUMNS(value)
 FROM `02339_db`.test_table;
 
 DESCRIBE TABLE (SELECT
-    `02339_db.test_table`.COLUMNS('i'),
-    `02339_db.test_table`.COLUMNS('v')
+    `02339_db`.test_table.COLUMNS('i'),
+    `02339_db`.test_table.COLUMNS('v')
 FROM `02339_db`.test_table);
 
 SELECT
-    `02339_db.test_table`.COLUMNS('i'),
-    `02339_db.test_table`.COLUMNS('v')
+    `02339_db`.test_table.COLUMNS('i'),
+    `02339_db`.test_table.COLUMNS('v')
 FROM `02339_db`.test_table;
 
 DROP TABLE `02339_db`.test_table;

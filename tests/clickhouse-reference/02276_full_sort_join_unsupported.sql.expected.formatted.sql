@@ -7,7 +7,7 @@ CREATE TABLE t1
     key UInt32,
     val UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -16,7 +16,7 @@ CREATE TABLE t2
     key UInt32,
     val UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
@@ -32,21 +32,21 @@ INNER JOIN t2
 SELECT *
 FROM
     t1
-INNER JOIN t2
+ANTI LEFT JOIN t2
     ON t1.key = t2.key; -- { serverError NOT_IMPLEMENTED }
 
 SELECT *
 FROM
     t1
-INNER JOIN t2
+SEMI LEFT JOIN t2
     ON t1.key = t2.key; -- { serverError NOT_IMPLEMENTED }
 
 SELECT *
 FROM
     t1
-INNER JOIN t2
+ANY INNER JOIN t2
     ON t1.key = t2.key
-SETTINGS any_join_distinct_right_table_keys = 1; -- { serverError NOT_IMPLEMENTED }
+SETTINGS any_join_distinct_right_table_keys = '1'; -- { serverError NOT_IMPLEMENTED }
 
 SELECT *
 FROM

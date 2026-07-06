@@ -17,7 +17,7 @@ CREATE TABLE arrayDistinct_test
     arr_int Array(UInt8),
     arr_string Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO arrayDistinct_test;
 

@@ -8,9 +8,9 @@ CREATE TABLE t_lwd_vertical
     c3 UInt8,
     c4 UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, enable_block_number_column = 0, enable_block_offset_column = 0, vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, vertical_merge_optimize_lightweight_delete = 1, ratio_of_defaults_for_sparse_serialization = 1.0;
+SETTINGS min_bytes_for_wide_part = '0', enable_block_number_column = '0', enable_block_offset_column = '0', vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', vertical_merge_optimize_lightweight_delete = '1', ratio_of_defaults_for_sparse_serialization = 1.;
 
 INSERT INTO t_lwd_vertical SELECT
     number,

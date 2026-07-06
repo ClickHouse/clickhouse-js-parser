@@ -39,7 +39,7 @@ SELECT
     B.k
 FROM
     A
-LEFT JOIN B
+ASOF LEFT JOIN B
     USING (k, t)
 ORDER BY (A.k, A.t) ASC;
 
@@ -52,8 +52,8 @@ SELECT
     B.k
 FROM
     A
-INNER JOIN B
-    ON A.k == B.k
+ASOF INNER JOIN B
+    ON A.k = B.k
     AND A.t >= B.t
 ORDER BY (A.k, A.t) ASC;
 
@@ -66,7 +66,7 @@ SELECT
     B.k
 FROM
     A
-INNER JOIN B
+ASOF INNER JOIN B
     USING (k, t)
 ORDER BY (A.k, A.t) ASC;
 

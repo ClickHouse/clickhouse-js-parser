@@ -8,15 +8,15 @@ SELECT 1 <=> 1 + 1;
 
 -- EXPLAIN AST SELECT true IS NOT DISTINCT FROM ('x' LIKE 'a');
 EXPLAIN AST
-SELECT true <=> like('x', 'a');
+SELECT true <=> 'x' LIKE 'a';
 
 -- EXPLAIN AST SELECT 'x' IS NOT DISTINCT FROM ('x' || 'a');
 EXPLAIN AST
-SELECT 'x' <=> concat('x', 'a');
+SELECT 'x' <=> 'x' || 'a';
 
 -- EXPLAIN AST SELECT 1 IS NOT DISTINCT FROM (1 :: integer);
 EXPLAIN AST
-SELECT 1 <=> 1::integer;
+SELECT 1 <=> CAST('1' AS integer);
 
 -- EXPLAIN AST SELECT NOT (1 IS NOT DISTINCT FROM 1);
 EXPLAIN AST
@@ -33,12 +33,12 @@ SELECT false <=> true
 
 -- EXPLAIN AST SELECT (NULL IS NULL) IS NOT DISTINCT FROM NULL;
 EXPLAIN AST
-SELECT isNull(NULL) <=> NULL;
+SELECT (NULL IS NULL) <=> NULL;
 
 -- EXPLAIN AST SELECT (1 <=> 1) == 1;
 EXPLAIN AST
-SELECT 1 <=> 1 == 1;
+SELECT 1 <=> 1 = 1;
 
 -- EXPLAIN AST SELECT (1 == 1) <=> 1;
 EXPLAIN AST
-SELECT 1 == 1 <=> 1;
+SELECT 1 = 1 <=> 1;

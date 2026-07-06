@@ -5,13 +5,13 @@ CREATE TABLE IF NOT EXISTS data_a_02187
 (
     a Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE IF NOT EXISTS data_b_02187
 (
     a Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv1
 TO data_b_02187
@@ -44,12 +44,12 @@ SELECT sleepEachRow(0.05) AS a
 FROM data_a_02187;
 
 -- INSERT USING VALUES
-INSERT INTO data_a_02187 SETTINGS max_threads = 1;
+INSERT INTO data_a_02187 SETTINGS max_threads = '1';
 
 -- INSERT USING TABLE
 INSERT INTO data_a_02187 SELECT *
 FROM `system`.one
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SYSTEM FLUSH LOGS query_log, query_views_log;
 
@@ -59,7 +59,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND event_date >= yesterday()
-    AND like(query, '-- INSERT USING VALUES%')
+    AND query LIKE '-- INSERT USING VALUES%'
     AND type = 'QueryFinish'
 LIMIT 1;
 
@@ -69,7 +69,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND event_date >= yesterday()
-    AND like(query, '-- INSERT USING VALUES%')
+    AND query LIKE '-- INSERT USING VALUES%'
     AND type = 'QueryFinish'
 LIMIT 1;
 
@@ -78,7 +78,7 @@ WITH (
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
-            AND like(query, '-- INSERT USING VALUES%')
+            AND query LIKE '-- INSERT USING VALUES%'
         LIMIT 1
     ) AS q_id
 
@@ -93,7 +93,7 @@ WITH (
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
-            AND like(query, '-- INSERT USING TABLE%')
+            AND query LIKE '-- INSERT USING TABLE%'
         LIMIT 1
     ) AS q_id
 

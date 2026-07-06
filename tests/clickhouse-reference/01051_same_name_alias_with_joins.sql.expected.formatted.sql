@@ -8,21 +8,21 @@ CREATE TABLE a
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE b
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE c
 (
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 SELECT a.x AS x
 FROM

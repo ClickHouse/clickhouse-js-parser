@@ -20,9 +20,9 @@ SELECT round(financialInternalRateOfReturnExtended([-10000, NULL, 4250, 3250], [
 
 SELECT financialInternalRateOfReturnExtended([-100, 110], [toDate('2020-01-01'), toDate('2020-02-01')], 1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT financialInternalRateOfReturnExtended([-100, 110], [toDate('2020-01-01'), toDate('2020-02-01')], 1.0, 'QWERTY'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT financialInternalRateOfReturnExtended([-100, 110], [toDate('2020-01-01'), toDate('2020-02-01')], 1., 'QWERTY'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT financialInternalRateOfReturnExtended([]::Array(Float32), []::Array(Date));
+SELECT financialInternalRateOfReturnExtended(CAST('[]' AS Array(Float32)), CAST('[]' AS Array(Date)));
 
 SELECT financialInternalRateOfReturnExtended([-10000], [toDate('2020-01-01')]);
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `3533_xirr_test`
     value Float64,
     r Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3533_xirr_test`;
 
@@ -68,7 +68,7 @@ ORDER BY tag ASC;
 
 SELECT financialInternalRateOfReturn(123); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT financialInternalRateOfReturn([1,2,NULL]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT financialInternalRateOfReturn([1, 2, NULL]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT financialInternalRateOfReturn([]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
@@ -91,9 +91,9 @@ SELECT financialNetPresentValueExtended(0.1, [-10], [toDate('2020-01-01')]);
 
 SELECT financialNetPresentValueExtended(0.1, [-0., 0.], [toDate('2020-01-01'), toDate('2020-01-02')]);
 
-SELECT round(financialNetPresentValueExtended(0.1, [-10_000., 5750., 4250., 3250.], [toDate('2020-01-01'), toDate('2020-03-01'), toDate('2020-10-30'), toDate('2021-02-15')]), 6);
+SELECT round(financialNetPresentValueExtended(0.1, [-10000., 5750., 4250., 3250.], [toDate('2020-01-01'), toDate('2020-03-01'), toDate('2020-10-30'), toDate('2021-02-15')]), 6);
 
-SELECT round(financialNetPresentValueExtended(0.1, [-10_000., 5750., 4250., 3250.], [toDate('2020-01-01'), toDate('2020-03-01'), toDate('2020-10-30'), toDate('2021-02-15')], 'ACT_365_25'), 6);
+SELECT round(financialNetPresentValueExtended(0.1, [-10000., 5750., 4250., 3250.], [toDate('2020-01-01'), toDate('2020-03-01'), toDate('2020-10-30'), toDate('2021-02-15')], 'ACT_365_25'), 6);
 
 SELECT
     tag,
@@ -117,17 +117,17 @@ ORDER BY tag ASC;
 
 SELECT financialNetPresentValue(0.1, 123., true); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT financialNetPresentValue(0.1, [1.,2.], 2.); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT financialNetPresentValue(0.1, [1., 2.], 2.); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT financialNetPresentValue(0.1, [1.,NULL]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT financialNetPresentValue(0.1, [1., NULL]); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT financialNetPresentValue(0.1, []); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT round(financialNetPresentValue(0.08, [-40_000., 5_000., 8_000., 12_000., 30_000.]), 6);
+SELECT round(financialNetPresentValue(0.08, [-40000., 5000., 8000., 12000., 30000.]), 6);
 
-SELECT round(financialNetPresentValue(0.08, [-40_000., 5_000., 8_000., 12_000., 30_000.], true), 6);
+SELECT round(financialNetPresentValue(0.08, [-40000., 5000., 8000., 12000., 30000.], true), 6);
 
-SELECT round(financialNetPresentValue(0.08, [-40_000., 5_000., 8_000., 12_000., 30_000.], false), 6);
+SELECT round(financialNetPresentValue(0.08, [-40000., 5000., 8000., 12000., 30000.], false), 6);
 
 SELECT
     tag,
@@ -155,7 +155,7 @@ SELECT round(financialNetPresentValue(0.1, [-10000, 3000, 4200, 6800], false), 6
 
 SELECT round(financialNetPresentValue(0.08, [8000., 9200., 10000., 12000., 14500.], false), 6) - 40000;
 
-SELECT round(financialNetPresentValueExtended(0.09, [-10_000, 2750, 4250, 3250, 2750], [toDate('2008-01-01'), toDate('2008-03-01'), toDate('2008-10-30'), toDate('2009-02-15'), toDate('2009-04-01')], 'ACT_365F'), 6);
+SELECT round(financialNetPresentValueExtended(0.09, [-10000, 2750, 4250, 3250, 2750], [toDate('2008-01-01'), toDate('2008-03-01'), toDate('2008-10-30'), toDate('2009-02-15'), toDate('2009-04-01')], 'ACT_365F'), 6);
 
 SELECT round(financialInternalRateOfReturn([-70000, 12000, 15000, 18000, 21000, 26000]), 6);
 

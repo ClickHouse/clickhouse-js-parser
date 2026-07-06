@@ -9,13 +9,13 @@ TTL greater(materialize(2), 1); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
-    col Int TTL (1 AS alias)
+    col Int TTL 1 AS alias
 )
-ENGINE = Memory; -- { serverError BAD_ARGUMENTS }
+ENGINE = Memory(); -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE tab
 (
-    col Int TTL (1 AS alias)
+    col Int TTL 1 AS alias
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY col; -- { serverError BAD_ARGUMENTS }

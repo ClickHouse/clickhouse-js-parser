@@ -5,7 +5,7 @@ CREATE TABLE test_02559
     x UInt8,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_02559;
@@ -69,7 +69,7 @@ SELECT
     s,
     y
 FROM test_02559
-PREWHERE (NOT y)
+PREWHERE NOT y
     AND x
 ORDER BY s ASC;
 

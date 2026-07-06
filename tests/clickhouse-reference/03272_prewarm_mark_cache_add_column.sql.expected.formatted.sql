@@ -6,9 +6,9 @@ CREATE TABLE t_prewarm_add_column
 (
     a UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS prewarm_mark_cache = 1, min_bytes_for_wide_part = 0;
+SETTINGS prewarm_mark_cache = '1', min_bytes_for_wide_part = '0';
 
 -- Drop mark cache because it may be full and we will fail to add new entries to it.
 SYSTEM CLEAR MARK CACHE;
@@ -35,7 +35,7 @@ SELECT ProfileEvents['LoadedMarksCount']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, 'SELECT * FROM t_prewarm_add_column%')
+    AND query LIKE 'SELECT * FROM t_prewarm_add_column%'
 ORDER BY event_time_microseconds ASC;
 
 DROP TABLE t_prewarm_add_column;

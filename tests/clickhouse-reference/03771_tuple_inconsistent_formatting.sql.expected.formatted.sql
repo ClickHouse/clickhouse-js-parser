@@ -1,8 +1,8 @@
 -- To prevent old analyzer type checks
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 EXPLAIN SYNTAX
-SELECT (((0, * IN *) AS a)) * 1;
+SELECT ((0, * IN (*)) AS a) * 1;
 
 -- Fuzzed
 EXPLAIN SYNTAX
@@ -116,5 +116,5 @@ SELECT
     toInt16(0) != 0.,
     toInt8(0) <= 0.,
     equals(0.),
-    (((*, *, *, *, *, *, *, 1, *, *, isNull(isZeroOrNull(1)), * GLOBAL NOT IN (*)) AS alias3151)) >= toInt64(0)
+    ((*, *, *, *, *, *, *, 1, *, *, isNull(isZeroOrNull(1)), * GLOBAL NOT IN (*)) AS alias3151) >= toInt64(0)
 PREWHERE equals(0 != 0., partitioned_by_tuple__fuzz_12);

@@ -6,7 +6,7 @@ CREATE TABLE test_smt
     sMap SimpleAggregateFunction(sumMap, Tuple(Array(UInt8), Array(Int64))),
     aMap AggregateFunction(sumMap, Tuple(Array(UInt8), Array(Int64)))
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id
 PARTITION BY tuple();
 

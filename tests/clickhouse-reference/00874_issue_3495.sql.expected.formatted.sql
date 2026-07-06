@@ -9,7 +9,7 @@ ENGINE = Memory();
 
 INSERT INTO t;
 
-SET enable_optimize_predicate_expression = 0;
+SET enable_optimize_predicate_expression = '0';
 
 SELECT *
 FROM (
@@ -19,11 +19,11 @@ FROM (
             t2.val AS val2
         FROM
             t AS t1
-        LEFT JOIN t AS t2
+        ANY LEFT JOIN t AS t2
             USING (a)
     )
 ORDER BY val1 ASC;
 
-SET enable_optimize_predicate_expression = 1;
+SET enable_optimize_predicate_expression = '1';
 
 DROP TABLE t;

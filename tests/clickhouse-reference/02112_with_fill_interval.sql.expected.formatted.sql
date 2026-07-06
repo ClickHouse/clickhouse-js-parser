@@ -5,7 +5,7 @@ CREATE TABLE with_fill_date
     d Date,
     d32 Date32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO with_fill_date;
 
@@ -92,7 +92,7 @@ CREATE TABLE with_fill_date
     d DateTime('UTC'),
     d64 DateTime64(3, 'UTC')
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO with_fill_date;
 
@@ -155,7 +155,7 @@ CREATE TABLE with_fill_date
     d Date,
     id UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO with_fill_date;
 

@@ -7,7 +7,7 @@ CREATE TABLE bloom_filter_null_array
 )
 ENGINE = MergeTree()
 ORDER BY v
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO bloom_filter_null_array;
 

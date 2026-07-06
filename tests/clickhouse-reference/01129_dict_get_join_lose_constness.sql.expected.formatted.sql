@@ -9,7 +9,7 @@ CREATE DICTIONARY IF NOT EXISTS `system`.dict1
 )
 PRIMARY KEY bytes_allocated
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' PASSWORD '' TABLE 'dictionaries' DB 'system'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT

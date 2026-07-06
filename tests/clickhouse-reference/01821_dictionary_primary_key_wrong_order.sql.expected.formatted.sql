@@ -6,7 +6,7 @@ CREATE TABLE dictionary_primary_key_source_table
     identifier UInt64,
     v UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_primary_key_source_table;
 

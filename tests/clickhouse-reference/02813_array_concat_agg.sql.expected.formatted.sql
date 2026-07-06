@@ -5,7 +5,7 @@ CREATE TABLE t
     n UInt32,
     a Array(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 

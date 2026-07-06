@@ -11,43 +11,43 @@ SELECT
     lhs;
 
 SELECT
-    CAST(('1234' AS lhs) AS UInt32),
+    CAST('1234' AS lhs AS UInt32),
     lhs;
 
 SELECT
-    CAST((('1234' AS lhs)) AS rhs AS UInt32),
+    CAST('1234' AS rhs AS UInt32),
     rhs;
 
 SELECT
-    CAST((('1234' AS lhs)) AS rhs AS UInt32),
+    CAST('1234' AS rhs AS UInt32),
     rhs;
 
 -- cast(expr [[AS] alias_1], type_expr [[as] alias_2])
-SELECT cast('1234', 'UInt32');
+SELECT CAST('1234' AS UInt32);
 
 SELECT
-    cast('1234' AS lhs, 'UInt32'),
+    CAST('1234' AS lhs AS UInt32),
     lhs;
 
 SELECT
-    cast('1234' AS lhs, 'UInt32'),
+    CAST('1234' AS lhs AS UInt32),
     lhs;
 
 SELECT
-    cast('1234', 'UInt32' AS rhs),
+    CAST('1234', 'UInt32' AS rhs),
     rhs;
 
 SELECT
-    cast('1234', 'UInt32' AS rhs),
+    CAST('1234', 'UInt32' AS rhs),
     rhs;
 
 SELECT
-    cast('1234' AS lhs, 'UInt32' AS rhs),
+    CAST('1234' AS lhs, 'UInt32' AS rhs),
     lhs,
     rhs;
 
 SELECT
-    cast('1234' AS lhs, 'UInt32' AS rhs),
+    CAST('1234' AS lhs, 'UInt32' AS rhs),
     lhs,
     rhs;
 
@@ -82,7 +82,7 @@ SELECT
     rhs;
 
 SELECT
-    substring(('1234' AS lhs), (2 AS rhs)),
+    substring('1234' AS lhs, 2 AS rhs),
     lhs,
     rhs;
 
@@ -188,7 +188,7 @@ SELECT
 -- POSITION expression
 -- position(needle IN haystack)
 SELECT
-    position(('1234' AS arg_2), ('123' AS arg_1)),
+    position('1234' AS arg_2, '123' AS arg_1),
     arg_1,
     arg_2;
 

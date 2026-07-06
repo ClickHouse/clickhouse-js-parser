@@ -1,7 +1,7 @@
 -- Tags: stateful
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     CounterID,
@@ -10,14 +10,14 @@ SELECT
 FROM
     (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             count() AS hits
         FROM test.hits
         GROUP BY CounterID
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             sum(Sign) AS visits
         FROM test.visits
         GROUP BY CounterID
@@ -38,14 +38,14 @@ SELECT
 FROM
     (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             count() AS hits
         FROM test.hits
         GROUP BY CounterID
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             sum(Sign) AS visits
         FROM test.visits
         GROUP BY CounterID
@@ -66,14 +66,14 @@ SELECT
 FROM
     (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             count() AS hits
         FROM test.hits
         GROUP BY CounterID
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             sum(Sign) AS visits
         FROM test.visits
         GROUP BY CounterID
@@ -94,14 +94,14 @@ SELECT
 FROM
     (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             count() AS hits
         FROM test.hits
         GROUP BY CounterID
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
-            (CounterID % 100000) AS CounterID,
+            CounterID % 100000 AS CounterID,
             sum(Sign) AS visits
         FROM test.visits
         GROUP BY CounterID

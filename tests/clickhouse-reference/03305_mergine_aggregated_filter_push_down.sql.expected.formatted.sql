@@ -6,9 +6,9 @@ CREATE TABLE tab
     y UInt32,
     z UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0, add_minmax_index_for_numeric_columns = 0;
+SETTINGS min_rows_for_wide_part = '0', min_bytes_for_wide_part = '0', add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO tab SELECT
     number,
@@ -16,11 +16,11 @@ INSERT INTO tab SELECT
     number
 FROM numbers(8129 * 123);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
-SET optimize_aggregation_in_order = 0, optimize_read_in_order = 0;
+SET optimize_aggregation_in_order = '0', optimize_read_in_order = '0';
 
 -- { echoOn }
 SELECT *
@@ -33,7 +33,7 @@ FROM (
     )
 WHERE x = 42;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT *
 FROM (
         SELECT
@@ -54,7 +54,7 @@ FROM (
     )
 WHERE x = 42;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT *
 FROM (
         SELECT
@@ -76,7 +76,7 @@ FROM (
     )
 WHERE q = 42;
 
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT *
 FROM (
         SELECT
@@ -88,4 +88,4 @@ FROM (
     )
 WHERE q = 42;
 
-SET group_by_use_nulls = 1;
+SET group_by_use_nulls = '1';

@@ -1,6 +1,8 @@
 SELECT *
 FROM (
-        EXPLAIN AST
         SELECT *
-        FROM numbers(10)
+        FROM viewExplain('EXPLAIN AST', '', (
+                SELECT *
+                FROM numbers(10)
+            ))
     );

@@ -1,6 +1,6 @@
 SET join_algorithm = 'auto';
 
-SET max_bytes_in_join = 100;
+SET max_bytes_in_join = '100';
 
 DROP TABLE IF EXISTS t;
 
@@ -11,7 +11,7 @@ CREATE TABLE t
     x UInt32,
     s LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE nr
@@ -19,16 +19,16 @@ CREATE TABLE nr
     x Nullable(UInt32),
     s Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t;
 
 INSERT INTO nr;
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- x is supertupe for `t.x` and `nr.x` from left and right since `x` is inside `USING`.
 SELECT
@@ -103,7 +103,7 @@ FULL JOIN t AS r
     USING (x)
 ORDER BY t.x ASC;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 -- t.x is supertupe for `x` from left and right since `x` is inside `USING`.
 SELECT

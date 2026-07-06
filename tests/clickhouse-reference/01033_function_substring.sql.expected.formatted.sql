@@ -18,19 +18,23 @@ LIMIT 10;
 
 SELECT substring(toFixedString(toString(number), 4), 1, 3)
 FROM `system`.numbers
-LIMIT 995, 10;
+LIMIT 10
+OFFSET 995;
 
 SELECT substring(toFixedString(toString(number), 4), 1, number % 5)
 FROM `system`.numbers
-LIMIT 995, 10;
+LIMIT 10
+OFFSET 995;
 
 SELECT substring(toFixedString(toString(number), 4), 1 + number % 5)
 FROM `system`.numbers
-LIMIT 995, 10;
+LIMIT 10
+OFFSET 995;
 
 SELECT substring(toFixedString(toString(number), 4), 1 + number % 5, 1 + number % 3)
 FROM `system`.numbers
-LIMIT 995, 10;
+LIMIT 10
+OFFSET 995;
 
 DROP TABLE IF EXISTS tab;
 
@@ -39,7 +43,7 @@ CREATE TABLE tab
     e8 Enum8('hello' = -5, 'world' = 15),
     e16 Enum16('shark' = -999, 'eagle' = 9999)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab;
@@ -73,8 +77,8 @@ SELECT
 FROM tab;
 
 SELECT
-    substring(CAST('foo', 'Enum8(''foo'' = 1)'), 1, 1),
-    substring(CAST('foo', 'Enum16(''foo'' = 1111)'), 1, 2);
+    substring(CAST('foo' AS Enum8('foo' = 1)), 1, 1),
+    substring(CAST('foo' AS Enum16('foo' = 1111)), 1, 2);
 
 DROP TABLE tab;
 
@@ -132,7 +136,7 @@ CREATE TABLE tab
     l Int8,
     r Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab;
 
@@ -154,7 +158,7 @@ CREATE TABLE tab
     l Int8,
     r Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT substring('abcdefgh', -2, -2);
 
@@ -188,7 +192,7 @@ CREATE TABLE t
     l Int8,
     r Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 
@@ -210,7 +214,7 @@ CREATE TABLE t
     l Int8,
     r Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 /** NOTE: The behaviour of substring and substringUTF8 is inconsistent when negative offset is greater than string size:
   * substring:

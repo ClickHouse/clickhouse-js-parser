@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS merge_tree;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE merge_tree
 (

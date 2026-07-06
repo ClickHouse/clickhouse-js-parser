@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS hits_dst;
 DROP TABLE IF EXISTS hits_buffer;
 
 CREATE TABLE hits_dst AS test.hits
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
 SAMPLE BY intHash32(UserID)

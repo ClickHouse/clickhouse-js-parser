@@ -1,657 +1,533 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: stateful, long, no-parallel, no-asan, no-tsan, no-ubsan, no-msan",
-      "-- no-*san: too long."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "CounterID",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "EventDate",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "UserID",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "SearchPhrase",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "URL",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_query_condition_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "idx_search_phrase",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "SearchPhrase"
-            ]
-          },
-          "indexType": {
-            "name": "text",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "tokenizer"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "splitByNonAlpha"
-                }
-              }
-            ]
-          },
-          "granularity": 8
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_INDEX",
-        "index": {
-          "kind": "indexDef",
-          "name": "idx_url",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "URL"
-            ]
-          },
-          "indexType": {
-            "name": "text",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "tokenizer"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "splitByNonAlpha"
-                }
-              }
-            ]
-          },
-          "granularity": 8
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_insert_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "hits_text"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "UserID"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "hits"
-      }
+        "type": "Identifier",
+        "name": "hits_text"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes_on_data_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "force_data_skipping_indices",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": ""
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "video"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "google"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "market"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "world"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "mail"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "amazon"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_text"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "UserID"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "CounterID",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "EventDate",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "UserID",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "SearchPhrase",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "URL",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "CounterID"
+            },
+            {
+              "type": "Identifier",
+              "name": "EventDate"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_query_condition_cache": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_text"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "idx_search_phrase",
+            "expression": {
+              "type": "Identifier",
+              "name": "SearchPhrase"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_text"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_INDEX",
+          "index_declaration": {
+            "type": "Index",
+            "name": "idx_url",
+            "expression": {
+              "type": "Identifier",
+              "name": "URL"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "splitByNonAlpha"
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_insert_threads": "4"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_text"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "CounterID"
+              },
+              {
+                "type": "Identifier",
+                "name": "EventDate"
+              },
+              {
+                "type": "Identifier",
+                "name": "UserID"
+              },
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Identifier",
+                "name": "URL"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "hits",
+                      "database": "test"
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "SearchPhrase"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "anime"
-        }
-      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes": "0"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "com"
-        }
-      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes_on_data_read": "0"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "com"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "mail"
-            }
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "force_data_skipping_indices": ""
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "com"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
-        },
-        {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "functionCall",
-            "name": "hasToken",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "URL"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
               },
               {
-                "kind": "literal",
-                "type": "String",
+                "type": "Literal",
+                "value_type": "String",
+                "value": "video"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "google"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "market"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "world"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
                 "value": "mail"
               }
             ]
@@ -661,542 +537,341 @@
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "http"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasToken",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "https"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "https"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "33290414"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "naryExpr",
-          "op": "OR",
-          "operands": [
-            {
-              "kind": "functionCall",
-              "name": "hasToken",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "URL"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "https"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
                 }
-              ]
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "UserID"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "7541501"
               }
-            }
-          ],
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "CounterID"
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "33290414"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "uniqExact",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "UserID"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "EventDate"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "EventDate"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "https"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "SearchPhrase"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "video"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "auto"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "SearchPhrase"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "bmw"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_skip_indexes_on_data_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "force_data_skipping_indices",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "idx_search_phrase"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "force_data_skipping_indices",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "idx_url"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "force_data_skipping_indices",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "idx_search_phrase,idx_url"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasAnyTokens",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "https"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "http"
-            }
-          ],
-          "source": "['https', 'http']"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasAllTokens",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "arrayLiteral",
-          "elements": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "com"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "mail"
-            }
-          ],
-          "source": "['com', 'mail']"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasAllTokens",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "com"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "mail"
-                }
-              ],
-              "source": "['com', 'mail']"
-            }
-          ]
-        },
-        {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "functionCall",
+          "where": {
+            "type": "Function",
             "name": "hasToken",
-            "args": [
+            "arguments": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "URL"
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "amazon"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "SearchPhrase"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "anime"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "com"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "com"
+                  }
                 ]
               },
               {
-                "kind": "literal",
-                "type": "String",
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "mail"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "com"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "hasToken",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "URL"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "mail"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
                 "value": "http"
               }
             ]
@@ -1206,199 +881,865 @@
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasAnyTokens",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "URL"
-          ]
-        },
-        {
-          "kind": "arrayLiteral",
-          "elements": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "facebook"
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "twitter"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
           ],
-          "source": "['facebook', 'twitter']"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasToken",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "https"
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "https"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "CounterID"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "33290414"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "or",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "hasToken",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "URL"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "https"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "UserID"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "7541501"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "CounterID"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "33290414"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "uniqExact",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "EventDate"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "EventDate"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "https"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "video"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "auto"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "bmw"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes": "1"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "hasToken",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "auto"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasAnyTokens",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "SearchPhrase"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "bmw"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "audi"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "toyota"
-                }
-              ],
-              "source": "['bmw', 'audi', 'toyota']"
-            }
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_skip_indexes_on_data_read": "1"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_text"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "force_data_skipping_indices": "idx_search_phrase"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "force_data_skipping_indices": "idx_url"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "force_data_skipping_indices": "idx_search_phrase,idx_url"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "hasAnyTokens",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "URL"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "market"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "shop"
-                }
-              ],
-              "source": "['market', 'shop']"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasAnyTokens",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "SearchPhrase"
-              ]
-            },
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "market"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "shop"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
                 }
-              ],
-              "source": "['market', 'shop']"
-            }
-          ]
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasAnyTokens",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Array",
+                "value": [
+                  {
+                    "value_type": "String",
+                    "value": "https"
+                  },
+                  {
+                    "value_type": "String",
+                    "value": "http"
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_text"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasAllTokens",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Array",
+                "value": [
+                  {
+                    "value_type": "String",
+                    "value": "com"
+                  },
+                  {
+                    "value_type": "String",
+                    "value": "mail"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasAllTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "com"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "mail"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "hasToken",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "URL"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "http"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "hasAnyTokens",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "URL"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Array",
+                "value": [
+                  {
+                    "value_type": "String",
+                    "value": "facebook"
+                  },
+                  {
+                    "value_type": "String",
+                    "value": "twitter"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasToken",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "auto"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "hasAnyTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "bmw"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "audi"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "toyota"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_text"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasAnyTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "URL"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "market"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "shop"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "hasAnyTokens",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "SearchPhrase"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "market"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "shop"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_text"
+      }
     }
   }
 ]

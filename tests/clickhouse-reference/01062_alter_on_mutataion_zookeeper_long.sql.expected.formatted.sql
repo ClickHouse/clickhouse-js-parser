@@ -47,21 +47,24 @@ INSERT INTO test_alter_on_mutation SELECT
     number,
     toString(number)
 FROM `system`.numbers
-LIMIT 100, 100;
+LIMIT 100
+OFFSET 100;
 
 INSERT INTO test_alter_on_mutation SELECT
     toDate('2020-01-06'),
     number,
     toString(number)
 FROM `system`.numbers
-LIMIT 100, 100;
+LIMIT 100
+OFFSET 100;
 
 INSERT INTO test_alter_on_mutation SELECT
     toDate('2020-01-07'),
     number,
     toString(number)
 FROM `system`.numbers
-LIMIT 100, 100;
+LIMIT 100
+OFFSET 100;
 
 OPTIMIZE TABLE test_alter_on_mutation FINAL;
 
@@ -80,7 +83,7 @@ ALTER TABLE test_alter_on_mutation MODIFY COLUMN value UInt64 DEFAULT 10;
 
 DROP TABLE IF EXISTS nested_alter;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE nested_alter
 (

@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS alias_syntax_1;
 
 DROP TABLE IF EXISTS alias_syntax_2;
 
-SET allow_experimental_alias_table_engine = 1;
+SET allow_experimental_alias_table_engine = '1';
 
 -- Create source table
 CREATE TABLE source_table
@@ -14,7 +14,7 @@ CREATE TABLE source_table
     name String,
     value Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO source_table;
@@ -66,7 +66,7 @@ CREATE TABLE base_table
     id UInt32,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE alias_1

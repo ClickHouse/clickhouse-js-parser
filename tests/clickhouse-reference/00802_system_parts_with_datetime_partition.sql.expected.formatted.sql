@@ -58,7 +58,7 @@ CREATE TABLE datetime_table
 )
 ENGINE = MergeTree()
 ORDER BY (t, name)
-PARTITION BY (name, toUInt32(toUnixTimestamp(t)/(60*60*24)) );
+PARTITION BY (name, toUInt32(toUnixTimestamp(t) / (60 * 60 * 24)));
 
 -- We are using a daily aggregation that is independant of the timezone, add data also
 INSERT INTO datetime_table;

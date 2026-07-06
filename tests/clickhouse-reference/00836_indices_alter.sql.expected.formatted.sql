@@ -12,11 +12,11 @@ ORDER BY u64;
 
 INSERT INTO minmax_idx;
 
-ALTER TABLE minmax_idx ADD INDEX idx1 u64 * i32 TYPE minmax GRANULARITY 10;
+ALTER TABLE minmax_idx ADD INDEX idx1 u64 * i32 TYPE minmax() GRANULARITY 10;
 
-ALTER TABLE minmax_idx ADD INDEX idx2 u64 + i32 TYPE minmax GRANULARITY 10;
+ALTER TABLE minmax_idx ADD INDEX idx2 u64 + i32 TYPE minmax() GRANULARITY 10;
 
-ALTER TABLE minmax_idx ADD INDEX idx3 u64 - i32 TYPE minmax GRANULARITY 10 AFTER idx1;
+ALTER TABLE minmax_idx ADD INDEX idx3 u64 - i32 TYPE minmax() GRANULARITY 10 AFTER idx1;
 
 SHOW CREATE TABLE minmax_idx;
 
@@ -30,14 +30,14 @@ ALTER TABLE minmax_idx DROP INDEX idx2;
 
 ALTER TABLE minmax_idx DROP INDEX idx3;
 
-ALTER TABLE minmax_idx ADD INDEX idx1 u64 * i32 TYPE minmax GRANULARITY 10;
+ALTER TABLE minmax_idx ADD INDEX idx1 u64 * i32 TYPE minmax() GRANULARITY 10;
 
 CREATE TABLE minmax_idx2
 (
     u64 UInt64,
     i32 Int32,
-    INDEX idx1 u64 + i32 TYPE minmax GRANULARITY 10,
-    INDEX idx2 u64 * i32 TYPE minmax GRANULARITY 10
+    INDEX idx1 u64 + i32 TYPE minmax() GRANULARITY 10,
+    INDEX idx2 u64 * i32 TYPE minmax() GRANULARITY 10
 )
 ENGINE = MergeTree()
 ORDER BY u64;

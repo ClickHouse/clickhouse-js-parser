@@ -1,261 +1,352 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/48308"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "03038_table"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "03038_table"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "03038_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "time",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "03038_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
-                  ]
-                }
-              ]
-            },
-            "alias": "time"
-          },
-          {
-            "kind": "functionCall",
-            "name": "toHour",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "03038_table",
-                  "time"
-                ]
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
           }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "03038_table"
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "time"
         }
       }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "subquery",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "toUInt64",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "time"
-                    ]
-                  }
-                ]
-              },
-              "alias": "time"
-            },
-            {
-              "kind": "functionCall",
-              "name": "toHour",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "03038_table",
-                    "time"
-                  ]
-                }
-              ]
+              "type": "Asterisk"
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "03038_table"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "subquery"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "subquery",
-            "time"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "time",
+                              "name": "toUInt64",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "toHour",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "03038_table.time",
+                                  "name_parts": [
+                                    "03038_table",
+                                    "time"
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "03038_table"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "time"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "time"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "subquery",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "alias": "time",
+                          "name": "toUInt64",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "time"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toHour",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "03038_table.time",
+                              "name_parts": [
+                                "03038_table",
+                                "time"
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "03038_table"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
                   ]
                 }
-              ]
-            },
-            "alias": "time"
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "subquery"
+                  }
+                }
+              }
+            ]
           },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "toHour",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "03038_table",
-                    "time"
-                  ]
-                }
-              ]
-            },
-            "alias": "hour"
-          }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "03038_table"
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "subquery.time",
+                "name_parts": [
+                  "subquery",
+                  "time"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "time"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "time",
+                              "name": "toUInt64",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "time"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "hour",
+                              "name": "toHour",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "03038_table.time",
+                                  "name_parts": [
+                                    "03038_table",
+                                    "time"
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "03038_table"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "time"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "hour"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "hour"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
   }
 ]

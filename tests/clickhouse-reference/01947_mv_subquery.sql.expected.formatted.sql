@@ -1,9 +1,9 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SET log_profile_events = true;
 
 CREATE TABLE src
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id AS
 SELECT
     number AS id,
@@ -15,11 +15,11 @@ CREATE TABLE dst
     id UInt64,
     delta Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 -- First we try with default values (https://github.com/ClickHouse/ClickHouse/issues/9587)
-SET use_index_for_in_with_subqueries = 1;
+SET use_index_for_in_with_subqueries = '1';
 
 CREATE MATERIALIZED VIEW src2dst_true
 TO dst
@@ -77,7 +77,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%CREATE MATERIALIZED VIEW src2dst_true%')
+WHERE query LIKE '%CREATE MATERIALIZED VIEW src2dst_true%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -88,7 +88,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%INSERT into src SELECT number + 100 as id, 1 FROM numbers(2)%')
+WHERE query LIKE '%INSERT into src SELECT number + 100 as id, 1 FROM numbers(2)%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -99,7 +99,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%DESCRIBE ( SELECT ''1947 #3 QUERY - TRUE'',%')
+WHERE query LIKE '%DESCRIBE ( SELECT ''1947 #3 QUERY - TRUE'',%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -108,7 +108,7 @@ FORMAT JSONEachRow;
 DROP TABLE src2dst_true;
 
 -- Retry the same but using use_index_for_in_with_subqueries = 0
-SET use_index_for_in_with_subqueries = 0;
+SET use_index_for_in_with_subqueries = '0';
 
 CREATE MATERIALIZED VIEW src2dst_false
 TO dst
@@ -164,7 +164,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%CREATE MATERIALIZED VIEW src2dst_false%')
+WHERE query LIKE '%CREATE MATERIALIZED VIEW src2dst_false%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -175,7 +175,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%INSERT into src SELECT number + 200 as id, 1 FROM numbers(2)%')
+WHERE query LIKE '%INSERT into src SELECT number + 200 as id, 1 FROM numbers(2)%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -186,7 +186,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS sleep_calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS sleep_microseconds
 FROM `system`.query_log
-WHERE like(query, '%DESCRIBE ( SELECT ''1947 #3 QUERY - FALSE'',%')
+WHERE query LIKE '%DESCRIBE ( SELECT ''1947 #3 QUERY - FALSE'',%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()

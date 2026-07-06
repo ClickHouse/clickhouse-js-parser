@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_global_with_statement = 1;
+SET enable_global_with_statement = '1';
 
 SET session_timezone = 'Etc/UTC';
 
@@ -12,7 +12,7 @@ CREATE TABLE department__fuzz_1
     parent_department UInt128,
     name String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO department__fuzz_1;
 
@@ -38,7 +38,7 @@ CREATE TABLE department__fuzz_3
     parent_department UInt128,
     name LowCardinality(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO department__fuzz_3;
 
@@ -62,19 +62,19 @@ FROM (
             SELECT *
             FROM department__fuzz_3
             UNION ALL
-(            WITH RECURSIVE x AS (
+            WITH RECURSIVE x AS (
                 SELECT *
                 FROM department__fuzz_1
                 UNION ALL
-(                SELECT *
+                SELECT *
                 FROM q
                 UNION ALL
                 SELECT *
-                FROM x)
+                FROM x
             )
 
             SELECT *
-            FROM x)
+            FROM x
         )
 
         SELECT *

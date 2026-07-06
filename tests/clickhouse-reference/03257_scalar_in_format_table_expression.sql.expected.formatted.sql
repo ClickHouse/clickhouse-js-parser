@@ -1,25 +1,16 @@
 SELECT *
-FROM format(JSONEachRow, '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-');
+FROM format(JSONEachRow, '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n');
 
 -- Should be equivalent to the previous one
 SELECT *
 FROM format(JSONEachRow, (
-        SELECT '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-'
+        SELECT '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n'
     ));
 
 -- The scalar subquery is incorrect so it should throw the proper error
 SELECT *
 FROM format(JSONEachRow, (
-        SELECT '
-{"a": "Hello", "b": 111}
-{"a": "World", "b": 123}
-'
+        SELECT '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n'
         WHERE column_does_not_exists = 4
     )); -- { serverError UNKNOWN_IDENTIFIER }
 
@@ -35,7 +26,7 @@ SELECT
     *,
     s
 FROM format(TSVRaw, s)
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM format(TSVRaw, (
@@ -69,12 +60,13 @@ FROM format(TSVRaw, (
                         WHERE 1 GLOBAL IN (
                                 SELECT toUInt128(1)
                                 GROUP BY GROUPING SETS ((1))
+                                WITH ROLLUP
                             )
                         GROUP BY 1
                         WITH CUBE
-                    ), groupArray('some long string')), 'LowCardinality(String)')
+                    ), groupArray('some long string')) AS LowCardinality(String))
                 FROM numbers(10000)
-            )), toLowCardinality('some long string')), '\n'), 'LowCardinality(String)')
+            )), toLowCardinality('some long string')) RESPECT NULLS, '\n') AS LowCardinality(String))
         FROM numbers(10000)
     ))
 FORMAT TSVRaw; -- { serverError UNKNOWN_IDENTIFIER, ILLEGAL_TYPE_OF_ARGUMENT }

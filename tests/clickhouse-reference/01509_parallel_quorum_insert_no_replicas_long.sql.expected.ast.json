@@ -1,412 +1,457 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r1"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: long, replica, no-replicated-database, no-shared-merge-tree",
-      "-- Tag no-replicated-database: Fails due to additional replicas or shards",
-      "-- no-shared-merge-tree: depend on tricks with quorum inserts for replicated mt"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "r1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/{database}/01509_parallel_quorum_insert_no_replicas"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
+      "if_exists": true,
+      "sync": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "r2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/{database}/01509_parallel_quorum_insert_no_replicas"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
+      "if_exists": true,
+      "sync": true
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_parallel",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "r1"
-      }
-    },
-    "trailingComments": [
-      "--{serverError TOO_FEW_LIVE_REPLICAS}"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
+        "type": "Identifier",
+        "name": "r1"
       },
-      {
-        "name": "insert_quorum_parallel",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "r1"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "COUNT",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "r2"
-    }
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r2"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r1"
-      }
-    },
-    "trailingComments": [
-      "--{serverError TOO_FEW_LIVE_REPLICAS}"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "insert_quorum_parallel",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "r2"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r2"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA r2"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r1"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r2"
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "insert_quorum_parallel",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- will start failing if we increase quorum"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP FETCHES r2"
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r1"
-      }
-    },
-    "insertSettings": [
-      {
-        "name": "insert_keeper_fault_injection_probability",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError UNKNOWN_STATUS_OF_INSERT }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "r2"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/{database}/01509_parallel_quorum_insert_no_replicas"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM START FETCHES r2"
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "6000000"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/{database}/01509_parallel_quorum_insert_no_replicas"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
         }
       }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "r1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_parallel": "1"
       }
-    },
-    "leadingComments": [
-      "-- now retry should be successful"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum": "3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum": "2",
+        "insert_quorum_parallel": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "r1"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "COUNT",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "r2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum": "1",
+        "insert_quorum_parallel": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum": "3",
+        "insert_quorum_parallel": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_timeout": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
+      },
+      "format": "Values",
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "insert_keeper_fault_injection_probability": "0"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "r2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "4"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "r2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_timeout": "6000000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "r1"
+      },
+      "format": "Values"
+    }
   }
 ]

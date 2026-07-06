@@ -1,4 +1,4 @@
-SET allow_experimental_time_time64_type = 1;
+SET allow_experimental_time_time64_type = '1';
 
 DROP TABLE IF EXISTS dt;
 
@@ -7,7 +7,7 @@ CREATE TABLE dt
     time Time,
     event_id UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dt;
 

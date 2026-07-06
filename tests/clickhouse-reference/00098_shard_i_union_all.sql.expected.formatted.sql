@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS report1;
 
 DROP TABLE IF EXISTS report2;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE report1
 (

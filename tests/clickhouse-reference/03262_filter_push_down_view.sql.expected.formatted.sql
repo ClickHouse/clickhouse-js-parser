@@ -10,9 +10,9 @@ CREATE TABLE alpha
     ts DateTime64(6),
     auid Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (auid, ts)
-SETTINGS index_granularity = 1, add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '1', add_minmax_index_for_numeric_columns = '0';
 
 CREATE VIEW alpha__day (ts_date Date, auid Int64)
 AS
@@ -35,11 +35,13 @@ INSERT INTO alpha;
 
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT auid
-        FROM alpha__day
-        WHERE auid = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT auid
+                FROM alpha__day
+                WHERE auid = 1
+            ))
     )
-WHERE like(`explain`, '%Condition:%')
-    OR like(`explain`, '%Granules:%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Condition:%'
+    OR `explain` LIKE '%Granules:%'
+SETTINGS enable_analyzer = '1';

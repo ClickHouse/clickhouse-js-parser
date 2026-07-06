@@ -20,13 +20,13 @@ SELECT makeDate(1980, -10, 17);
 
 SELECT makeDate(1980, 10, -17);
 
-SELECT makeDate(1980.0, 9, 30.0 / 2);
+SELECT makeDate(1980., 9, 30. / 2);
 
-SELECT makeDate(-1980.0, 9, 32.0 / 2);
+SELECT makeDate(-1980., 9, 32. / 2);
 
-SELECT makeDate(CAST(1980.1 AS Decimal(20,5)), 9, 17);
+SELECT makeDate(CAST(1980.1 AS Decimal(20, 5)), 9, 17);
 
-SELECT makeDate(CAST('-1980.1' AS Decimal(20,5)), 9, 18);
+SELECT makeDate(CAST('-1980.1' AS Decimal(20, 5)), 9, 18);
 
 SELECT makeDate(CAST(1980.1 AS Float32), 9, 19);
 
@@ -48,7 +48,7 @@ SELECT makeDate(CAST(1980 AS DateTime64), 10, 30); -- { serverError ILLEGAL_TYPE
 
 SELECT makeDate(CAST(-1980 AS DateTime64), 10, 30); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT makeDate(0.0, 1, 2);
+SELECT makeDate(0., 1, 2);
 
 SELECT makeDate(1980, 15, 1);
 
@@ -100,17 +100,17 @@ SELECT makeDate(1990, 0, 1);
 
 SELECT makeDate(1990, 1, 0);
 
-SELECT makeDate(0x7fff + 2010, 1, 1);
+SELECT makeDate(32767 + 2010, 1, 1);
 
-SELECT makeDate(0xffff + 2010, 1, 2);
+SELECT makeDate(65535 + 2010, 1, 2);
 
-SELECT makeDate(0x7fffffff + 2010, 1, 3);
+SELECT makeDate(2147483647 + 2010, 1, 3);
 
-SELECT makeDate(0xffffffff + 2010, 1, 4);
+SELECT makeDate(4294967295 + 2010, 1, 4);
 
-SELECT makeDate(0x7fffffffffffffff + 2010, 1, 3);
+SELECT makeDate(9223372036854775807 + 2010, 1, 3);
 
-SELECT makeDate(0xffffffffffffffff + 2010, 1, 4);
+SELECT makeDate(18446744073709551615 + 2010, 1, 4);
 
 SELECT makeDate('1980', '10', '20'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 

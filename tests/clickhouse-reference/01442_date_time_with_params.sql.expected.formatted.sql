@@ -11,7 +11,7 @@ CREATE TABLE test
     g DateTime32('Asia/Istanbul'),
     h DateTime(0)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test;
@@ -48,15 +48,15 @@ SELECT
     toTypeName(e);
 
 SELECT
-    CAST('2020-01-01 00:00:00', 'DateTime') AS a,
+    CAST('2020-01-01 00:00:00' AS DateTime) AS a,
     toTypeName(a),
-    CAST('2020-01-01 00:02:00.11', 'DateTime(2)') AS b,
+    CAST('2020-01-01 00:02:00.11' AS DateTime(2)) AS b,
     toTypeName(b),
-    CAST('2020-01-01 00:03:00', 'DateTime(''Asia/Istanbul'')') AS c,
+    CAST('2020-01-01 00:03:00' AS DateTime('Asia/Istanbul')) AS c,
     toTypeName(c),
-    CAST('2020-01-01 00:04:00.22', 'DateTime(3, ''Asia/Istanbul'')') AS d,
+    CAST('2020-01-01 00:04:00.22' AS DateTime(3, 'Asia/Istanbul')) AS d,
     toTypeName(d),
-    CAST('2020-01-01 00:05:00', 'DateTime(0)') AS e,
+    CAST('2020-01-01 00:05:00' AS DateTime(0)) AS e,
     toTypeName(e);
 
 SELECT

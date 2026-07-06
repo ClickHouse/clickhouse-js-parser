@@ -1,6 +1,6 @@
 -- Tags: stateful, no-parallel
 -- no-parallel: Heavy usage
-SET check_query_single_value_result = 1;
+SET check_query_single_value_result = '1';
 
 DROP TABLE IF EXISTS test.hits_log;
 
@@ -16,7 +16,7 @@ CREATE TABLE test.hits_log
     SearchPhrase String,
     UserID UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE test.hits_tinylog
 (
@@ -26,7 +26,7 @@ CREATE TABLE test.hits_tinylog
     SearchPhrase String,
     UserID UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE test.hits_stripelog
 (
@@ -36,7 +36,7 @@ CREATE TABLE test.hits_stripelog
     SearchPhrase String,
     UserID UInt64
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CHECK TABLE test.hits_log;
 

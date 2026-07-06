@@ -1,4 +1,4 @@
-SELECT round(arrayJoin(categoricalInformationValue(x.1, x.2)), 3)
+SELECT round(arrayJoin(categoricalInformationValue((x).1, (x).2)), 3)
 FROM (
         SELECT arrayJoin([(0, 0), (NULL, 2), (1, 0), (1, 1)]) AS x
     );
@@ -39,4 +39,4 @@ SELECT categoricalInformationValue(c1, c2)
 FROM VALUES((0, 0), (NULL, 0));
 
 SELECT quantiles(0.5, 0.9)(c1)
-FROM VALUES(0::Nullable(UInt8));
+FROM VALUES(CAST('0' AS Nullable(UInt8)));

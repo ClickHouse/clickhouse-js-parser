@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS t
     `arr.key` Array(LowCardinality(String)),
     `arr.value` Array(LowCardinality(String))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t (`arr.key`, `arr.value`);
 

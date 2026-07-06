@@ -4,18 +4,18 @@ CREATE TABLE t_index
 (
     data JSON(a UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_index (data);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-ALTER TABLE t_index ADD INDEX a_idx data.a TYPE minmax;
+ALTER TABLE t_index ADD INDEX a_idx data.a TYPE minmax() GRANULARITY 1;
 
 ALTER TABLE t_index MATERIALIZE INDEX a_idx;
 
-ALTER TABLE t_index ADD INDEX b_idx data.b::UInt64 TYPE minmax;
+ALTER TABLE t_index ADD INDEX b_idx data.b::UInt64 TYPE minmax() GRANULARITY 1;
 
 ALTER TABLE t_index MATERIALIZE INDEX b_idx;
 
@@ -39,9 +39,9 @@ CREATE TABLE t_index
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 100000000;
+SETTINGS min_bytes_for_wide_part = '100000000';
 
 INSERT INTO t_index (id);
 

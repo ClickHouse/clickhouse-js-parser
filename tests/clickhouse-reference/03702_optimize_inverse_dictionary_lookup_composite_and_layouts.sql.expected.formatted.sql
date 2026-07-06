@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database, no-parallel-replicas
 -- no-parallel, no-parallel-replicas: Dictionary is not created in parallel replicas.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_inverse_dictionary_lookup = 1;
+SET optimize_inverse_dictionary_lookup = '1';
 
-SET optimize_or_like_chain = 0;
+SET optimize_or_like_chain = '0';
 
 DROP DICTIONARY IF EXISTS dict_prices_ckh;
 
@@ -33,7 +33,7 @@ CREATE TABLE ref_prices_ckh
     price UInt64,
     tag String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (k1, k2);
 
 INSERT INTO ref_prices_ckh;
@@ -44,7 +44,7 @@ CREATE TABLE ref_items_flat
     name String,
     score UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO ref_items_flat;
@@ -58,7 +58,7 @@ CREATE DICTIONARY dict_prices_ckh
 )
 PRIMARY KEY k1, k2
 SOURCE(clickhouse(TABLE 'ref_prices_ckh'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 CREATE DICTIONARY dict_prices_ch_array
@@ -70,7 +70,7 @@ CREATE DICTIONARY dict_prices_ch_array
 )
 PRIMARY KEY k1, k2
 SOURCE(clickhouse(TABLE 'ref_prices_ckh'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED_ARRAY());
 
 CREATE DICTIONARY dict_prices_ck_sparse_hashed
@@ -82,7 +82,7 @@ CREATE DICTIONARY dict_prices_ck_sparse_hashed
 )
 PRIMARY KEY k1, k2
 SOURCE(clickhouse(TABLE 'ref_prices_ckh'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_SPARSE_HASHED());
 
 CREATE DICTIONARY dict_items_flat
@@ -93,7 +93,7 @@ CREATE DICTIONARY dict_items_flat
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_items_flat'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 CREATE DICTIONARY dict_items_hashed
@@ -104,7 +104,7 @@ CREATE DICTIONARY dict_items_hashed
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_items_flat'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 CREATE DICTIONARY dict_items_hashed_array
@@ -115,7 +115,7 @@ CREATE DICTIONARY dict_items_hashed_array
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_items_flat'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED_ARRAY());
 
 CREATE DICTIONARY dict_items_sparse_hashed
@@ -126,7 +126,7 @@ CREATE DICTIONARY dict_items_sparse_hashed
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'ref_items_flat'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(SPARSE_HASHED());
 
 CREATE TABLE f
@@ -136,12 +136,12 @@ CREATE TABLE f
     id UInt64,
     payload String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (k1, k2, id);
 
 INSERT INTO f;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     k1,
     k2,
@@ -164,7 +164,7 @@ ORDER BY
     k2 ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     k1,
     k2,
@@ -187,7 +187,7 @@ ORDER BY
     k2 ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     k1,
     k2,
@@ -210,7 +210,7 @@ ORDER BY
     k2 ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -229,7 +229,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -248,7 +248,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload
@@ -267,7 +267,7 @@ ORDER BY
     id ASC,
     payload ASC;
 
-EXPLAIN SYNTAX run_query_tree_passes = 1
+EXPLAIN SYNTAX run_query_tree_passes = '1'
 SELECT
     id,
     payload

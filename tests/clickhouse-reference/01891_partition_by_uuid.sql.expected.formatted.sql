@@ -5,7 +5,7 @@ CREATE TABLE tab
     id UUID,
     value UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY id;
 

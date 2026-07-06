@@ -11,7 +11,7 @@ CREATE TABLE test_in_tuple_1
     x Array(Int32),
     y Array(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key, key_2);
 
 CREATE TABLE test_in_tuple_2
@@ -21,7 +21,7 @@ CREATE TABLE test_in_tuple_2
     x Array(Int32),
     y Array(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key, key_2);
 
 CREATE TABLE test_in_tuple AS test_in_tuple_1
@@ -65,7 +65,7 @@ SELECT
     _table
 FROM
     test_in_tuple
-LEFT ARRAY JOIN arrayFilter((t, x_0, x_1) -> (key_2, x_0, x_1) IN (1, 1, 1), x, x, y) AS arr_x, arrayFilter((t, x_0, x_1) -> (key_2, x_0, x_1) IN (1, 1, 1), y, x, y) AS arr_y
+LEFT ARRAY JOIN arrayFilter(((t, x_0, x_1) -> (key_2, x_0, x_1) IN (1, 1, 1)), x, x, y) AS arr_x, arrayFilter(((t, x_0, x_1) -> (key_2, x_0, x_1) IN (1, 1, 1)), y, x, y) AS arr_y
 WHERE (key_2, arr_x, arr_y) IN (1, 1, 1)
 ORDER BY
     _table ASC,

@@ -6,10 +6,10 @@ CREATE TABLE mt_compact
     id UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY d
-SETTINGS min_bytes_for_wide_part = 10000000, index_granularity = 128;
+SETTINGS min_bytes_for_wide_part = '10000000', index_granularity = '128';
 
 INSERT INTO mt_compact SELECT
     toDate('2020-01-05'),

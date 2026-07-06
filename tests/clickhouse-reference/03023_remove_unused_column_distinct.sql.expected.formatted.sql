@@ -10,4 +10,4 @@ FROM (
                 FROM numbers(10)
             )
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

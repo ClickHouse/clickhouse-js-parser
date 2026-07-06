@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET group_by_use_nulls = 1;
+SET group_by_use_nulls = '1';
 
-SET optimize_group_by_function_keys = 1;
+SET optimize_group_by_function_keys = '1';
 
-SET optimize_injective_functions_in_group_by = 1;
+SET optimize_injective_functions_in_group_by = '1';
 
 SELECT 3 + 3
 FROM numbers(10)

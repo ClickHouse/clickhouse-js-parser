@@ -1,5 +1,5 @@
 -- Tags: no-random-settings
-SET enable_analyzer = 1, join_algorithm = 'full_sorting_merge';
+SET enable_analyzer = '1', join_algorithm = 'full_sorting_merge';
 
 CREATE TABLE xxxx_yyy
 (
@@ -8,7 +8,7 @@ CREATE TABLE xxxx_yyy
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS ratio_of_defaults_for_sparse_serialization = 0.0;
+SETTINGS ratio_of_defaults_for_sparse_serialization = 0.;
 
 INSERT INTO xxxx_yyy SELECT number
 FROM numbers(10);

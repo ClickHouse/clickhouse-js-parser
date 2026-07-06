@@ -1001,7 +1001,7 @@ CREATE TABLE t
     b499 Int64,
     b500 Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t (c1);
 

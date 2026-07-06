@@ -5,7 +5,7 @@ CREATE TABLE tesd_dedupl
     x UInt32,
     y UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO tesd_dedupl;

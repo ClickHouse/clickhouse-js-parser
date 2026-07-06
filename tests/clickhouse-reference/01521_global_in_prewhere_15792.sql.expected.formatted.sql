@@ -9,7 +9,7 @@ CREATE TABLE xp
     B Int64,
     S String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY B
 PARTITION BY toYYYYMM(A);
 

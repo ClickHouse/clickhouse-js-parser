@@ -1,13 +1,13 @@
 -- Tags: no-fasttest
 -- https://github.com/ClickHouse/ClickHouse/issues/44039
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE test_window_collate
 (
     c1 String,
     c2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c1;
 
 INSERT INTO test_window_collate;

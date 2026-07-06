@@ -2,7 +2,7 @@ CREATE TABLE test_table
 (
     i Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 CREATE DICTIONARY test_dict
@@ -18,7 +18,7 @@ CREATE TABLE test_dict
 (
     y Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y; -- { serverError DICTIONARY_ALREADY_EXISTS }
 
 CREATE DICTIONARY test_table
@@ -34,5 +34,5 @@ CREATE TABLE test_table
 (
     y Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y; -- { serverError TABLE_ALREADY_EXISTS }

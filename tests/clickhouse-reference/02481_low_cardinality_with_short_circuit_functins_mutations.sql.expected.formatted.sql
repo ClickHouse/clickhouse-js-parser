@@ -6,7 +6,7 @@ CREATE TABLE issue_46128
     a LowCardinality(Nullable(String)),
     b LowCardinality(Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id AS
 SELECT
     number % 100,
@@ -14,7 +14,7 @@ SELECT
     'yyyy'
 FROM numbers(10);
 
-ALTER TABLE issue_46128 UPDATE a = b WHERE id = 1 SETTINGS mutations_sync = 2;
+ALTER TABLE issue_46128 UPDATE a = b WHERE id = 1 SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM issue_46128

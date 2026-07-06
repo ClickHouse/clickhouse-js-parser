@@ -5,9 +5,9 @@ CREATE TABLE t_map_lc
     id UInt64,
     t Tuple(m Map(LowCardinality(String), LowCardinality(String)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO t_map_lc SELECT *
 FROM generateRandom('id UInt64, t Tuple(m Map(LowCardinality(String), LowCardinality(String)))')
@@ -36,6 +36,6 @@ CREATE TABLE t_map_lc
     id UInt64,
     t Tuple(m Map(LowCardinality(String), LowCardinality(String)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS min_bytes_for_wide_part = '10G';

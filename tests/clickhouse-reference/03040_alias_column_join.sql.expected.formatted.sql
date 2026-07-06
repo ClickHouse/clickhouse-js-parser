@@ -1,14 +1,14 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/44365
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS `03040_test`;
 
 CREATE TABLE `03040_test`
 (
     id UInt64,
-    val String ALIAS concat('value: ', toString(id))
+    val String ALIAS 'value: ' || toString(id)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SELECT val

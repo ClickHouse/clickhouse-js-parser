@@ -7,7 +7,7 @@ CREATE TABLE X
     id Int32,
     x_name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE Y
@@ -15,7 +15,7 @@ CREATE TABLE Y
     id Int32,
     y_name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO X (id, x_name);

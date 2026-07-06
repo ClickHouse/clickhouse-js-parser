@@ -9,10 +9,10 @@ CREATE TABLE data
     n UInt32,
     t DateTime
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE TABLE agg
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY tuple() AS
 SELECT
     t,

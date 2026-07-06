@@ -4,25 +4,25 @@ CREATE TABLE test
 (
     `my.json` JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT '{"a" : 42}';
 
 SELECT my.json.a
 FROM test
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT `my.json`.a
 FROM test
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT my.json.a
 FROM test
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 SELECT `my.json`.a
 FROM test
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
 DROP TABLE test;
 
@@ -36,17 +36,11 @@ CREATE TABLE test
     a2 UInt32 DEFAULT my.json.a,
     b1 UInt32 MATERIALIZED my.json.b,
     b2 UInt32 DEFAULT my.json.b,
-    INDEX idx1 my.json.a TYPE minmax,
-    INDEX idx2 my.json.b::Int64 TYPE minmax,
-    PROJECTION prj1 (    SELECT
-        my.json,
-        my.json.a,
-        my.json.b
-    ORDER BY
-        my.json.a ASC,
-        my.json.b::Int32 ASC)
+    INDEX idx1 my.json.a TYPE minmax() GRANULARITY 1,
+    INDEX idx2 my.json.b::Int64 TYPE minmax() GRANULARITY 1,
+    PROJECTION prj1 (SELECT my.json, my.json.a, my.json.b ORDER BY my.json.a, my.json.b::Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (my.json.a, my.json.b::Int32, my.json.a + 42, my.json.b::Int32 + 42);
 
 INSERT INTO test (my.json) SELECT '{"a" : 42, "b" : 42}';
@@ -75,13 +69,10 @@ CREATE TABLE test
     `my.tuple` Tuple(a UInt32),
     a1 UInt32 MATERIALIZED my.tuple.a,
     a2 UInt32 DEFAULT my.tuple.a,
-    INDEX idx1 my.tuple.a TYPE minmax,
-    PROJECTION prj1 (    SELECT
-        my.tuple,
-        my.tuple.a
-    ORDER BY my.tuple.a ASC)
+    INDEX idx1 my.tuple.a TYPE minmax() GRANULARITY 1,
+    PROJECTION prj1 (SELECT my.tuple, my.tuple.a ORDER BY my.tuple.a)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (my.tuple.a, my.tuple.a + 42);
 
 INSERT INTO test (my.tuple) SELECT tuple(42);

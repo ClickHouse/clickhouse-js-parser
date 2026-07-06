@@ -17,7 +17,7 @@ CREATE TABLE merge_tree_deduplication
 ENGINE = MergeTree()
 ORDER BY key
 PARTITION BY part
-SETTINGS non_replicated_deduplication_window = 3, disk = 's3_plain_rewritable';
+SETTINGS non_replicated_deduplication_window = '3', disk = 's3_plain_rewritable';
 
 SYSTEM STOP MERGES merge_tree_deduplication;
 
@@ -92,7 +92,7 @@ ORDER BY
     part ASC;
 
 -- Alters....
-ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = 2;
+ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = '2';
 
 INSERT INTO merge_tree_deduplication (key, value, part);
 
@@ -105,9 +105,9 @@ FROM merge_tree_deduplication
 WHERE part = 33
 ORDER BY key ASC;
 
-ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = 0;
+ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = '0';
 
-ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = 3;
+ALTER TABLE merge_tree_deduplication MODIFY SETTING non_replicated_deduplication_window = '3';
 
 INSERT INTO merge_tree_deduplication (key, value, part);
 
@@ -139,7 +139,7 @@ SELECT *
 FROM merge_tree_no_deduplication
 ORDER BY key ASC;
 
-ALTER TABLE merge_tree_no_deduplication MODIFY SETTING non_replicated_deduplication_window = 3;
+ALTER TABLE merge_tree_no_deduplication MODIFY SETTING non_replicated_deduplication_window = '3';
 
 INSERT INTO merge_tree_no_deduplication (key, value);
 

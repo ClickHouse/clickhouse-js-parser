@@ -2,7 +2,7 @@ SELECT
     range(x) AS k,
     count()
 FROM (
-        SELECT if(number % 2, number, 0) AS x
+        SELECT number % 2 ? number : 0 AS x
         FROM `system`.numbers
         LIMIT 10
     )
@@ -15,8 +15,8 @@ SELECT
     count()
 FROM (
         SELECT
-            if(number % 2, number, 0) AS x,
-            if(number % 3, toUInt64(20 - number), 0) AS y
+            number % 2 ? number : 0 AS x,
+            number % 3 ? toUInt64(20 - number) : 0 AS y
         FROM `system`.numbers
         LIMIT 20
     )

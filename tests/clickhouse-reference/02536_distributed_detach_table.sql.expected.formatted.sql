@@ -16,7 +16,7 @@ SYSTEM STOP DISTRIBUTED SENDS test_dist_02536;
 
 INSERT INTO test_dist_02536 SELECT number
 FROM numbers(5)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     count(n),

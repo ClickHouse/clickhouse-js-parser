@@ -1,578 +1,656 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_parallel",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_parallel": false
       }
-    ],
-    "leadingComments": [
-      "-- Tags: long, zookeeper, no-replicated-database, no-shared-merge-tree, no-async-insert",
-      "-- no-replicated-database:",
-      "--   The number of replicas is doubled, so `SYSTEM STOP FETCHES` stop not enough replicas.",
-      "-- no-shared-merge-tree: no quorum inserts",
-      "--- Tag no-async-insert: async inserts are not supported with non-parallel quorum inserts"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "select_sequential_consistency",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "select_sequential_consistency": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum3"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_02377/quorum"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "y"
-      ]
+      "if_exists": true
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_02377/quorum"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "y"
-      ]
+      "if_exists": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "auto"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- insert_quorum = n/2 + 1 , so insert will be written to both replica"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_keeper_fault_injection_probability",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "quorum1"
-      }
+        "type": "Identifier",
+        "name": "quorum3"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "quorum1"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "quorum1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "quorum1"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "quorum2"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum1"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum2"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_02377/quorum1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_02377/quorum"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
           ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "y"
-      ]
-    },
-    "leadingComments": [
-      "-- Create 3 replicas and stop sync 2 replicas"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_02377/quorum1"
         },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
+        "partition_by": {
+          "type": "Identifier",
+          "name": "y"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
         }
       }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "y"
-      ]
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum3"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test_02377/quorum1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "3"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "y"
-      ]
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP FETCHES quorum3",
-    "leadingComments": [
-      "-- Insert should be successful",
-      "-- stop replica 3"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "quorum3"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError REPLICA_IS_NOT_IN_QUORUM}"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START FETCHES quorum3",
-    "leadingComments": [
-      "-- Sync replica 3"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA quorum3"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP FETCHES quorum2",
-    "leadingComments": [
-      "-- Stop 2 replicas , so insert wont be successful"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START FETCHES quorum2",
-    "leadingComments": [
-      "-- Sync replica 2 and 3"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM SYNC REPLICA quorum2"
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_quorum_timeout",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "600000"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- set default value back"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "quorum1"
+        "type": "Identifier",
+        "name": "quorum2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_02377/quorum"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "y"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "quorum3"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum": "auto"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_keeper_fault_injection_probability": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "quorum1"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "quorum2"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_02377/quorum1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "y"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_02377/quorum1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "y"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum3"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test_02377/quorum1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "3"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Identifier",
+          "name": "y"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "quorum3"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_timeout": "5000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START FETCHES",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_quorum_timeout": "600000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "quorum3"
+      }
     }
   }
 ]

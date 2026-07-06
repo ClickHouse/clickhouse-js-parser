@@ -1,256 +1,315 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-parallel, no-random-settings, no-random-merge-tree-settings"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "prewarm_mark_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "columns_to_prewarm_mark_cache",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "a,c"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_prewarm_columns"
-      }
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
-    },
-    "where": {
-      "kind": "unaryExpr",
-      "op": "NOT",
-      "expr": {
-        "kind": "functionCall",
-        "name": "ignore",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "asterisk"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "min_bytes_for_wide_part": "0",
+            "prewarm_mark_cache": "1",
+            "columns_to_prewarm_mark_cache": "a,c"
+          }
+        }
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR MARK CACHE"
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM PREWARM MARK CACHE t_prewarm_columns"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayElement",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "ProfileEvents"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "LoadedMarksCount"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryFinish"
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_prewarm_columns"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "not",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "ignore",
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR MARK CACHE"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "PREWARM MARK CACHE",
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayElement",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ProfileEvents"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "LoadedMarksCount"
+                }
               ]
-            },
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryFinish"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "SELECT count() FROM t_prewarm_columns%"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "SELECT count() FROM t_prewarm_columns%"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
             }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_prewarm_columns"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_prewarm_columns"
+      }
     }
   }
 ]

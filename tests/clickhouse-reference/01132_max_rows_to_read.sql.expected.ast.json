@@ -1,894 +1,1098 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_limits_test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "20"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "read_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "30"
-        }
-      ]
-    },
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "19"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "20"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "21"
-        }
-      ]
-    },
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "30"
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- check early exception if the estimated number of rows is high"
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "read_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "break"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "29"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "31"
-        }
-      ]
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "11"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- the same for uneven block sizes"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "9"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- When reaching row limits, make sure we don't do a large amount of range scans and continue",
-      "-- processing all parts when we don't need to. For instance, we create 3 parts below with 10,000 rows in each",
-      "-- and we have a row limit <= 1000, we shouldn't exceed this value when max_threads = 1.",
-      "-- (process_part in MergeTreeDataSelectExecutor uses a thread pool the size of max_threads to read data,",
-      "-- so we can exceed it slightly if max_threads > 1, but we'll still prevent a lot of scans and part processing)"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- so we don't hit row limits when populating data"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "row_limits_fail_fast"
+        "type": "Identifier",
+        "name": "row_limits_test"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "10"
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "20"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "read_overflow_mode": "throw"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "30"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "19"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "20"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "21"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "30"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "read_overflow_mode": "break"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "29"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "31"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "11"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_block_size": "9"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "100"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
           }
         ]
       }
-    },
-    "leadingComments": [
-      "-- Insert multiple parts with significant data. Multiple parts is important because row limit checks",
-      "-- are checked per part when determining what ranges need to be read for the query."
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "row_limits_fail_fast"
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10000"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "20000"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "1000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "500000"
+              }
+            ]
           }
-        },
-        {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ]
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "row_limits_fail_fast"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "20000"
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "500"
+              }
+            ]
           }
-        },
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
+              "type": "Function",
+              "name": "count",
+              "arguments": []
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1000"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1500"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "100"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "200"
+              }
+            ]
+          }
         }
       ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10000"
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "150"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Tuple",
+                "value": [
+                  {
+                    "value_type": "UInt64",
+                    "value": "1"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "2"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "3"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "4"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "5"
+                  }
+                ]
+              }
+            ]
           }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES row_limits_fail_fast",
-    "leadingComments": [
-      "-- to keep the number of parts predictable"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "500000"
-      }
-    },
-    "leadingComments": [
-      "-- Should fail fast during PK filtering - query selects more rows than limit"
-    ],
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "500"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "and",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "greaterOrEquals",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1000"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "lessOrEquals",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "key"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1500"
-            }
-          ]
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- Test with specific key ranges"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test explicit scan to verify fail-fast during data reading"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "200"
-      }
-    },
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "150"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test with selective filter - needs at least 1 granule"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "values": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
         }
       ]
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read_leaf",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read_leaf": "1000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "read_overflow_mode_leaf": "throw"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "600"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read_leaf": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_threads": "4"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "500"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "100000"
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "read_overflow_mode_leaf",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_limits_fail_fast"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "400"
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "600"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "row_limits_fail_fast"
       }
-    ],
-    "leadingComments": [
-      "-- Reset and test break mode still works and we fail fast"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read_leaf",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test fail-fast with multiple threads"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "500"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100000"
-      }
-    },
-    "trailingComments": [
-      "-- { serverError TOO_MANY_ROWS }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "400"
-      }
-    },
-    "leadingComments": [
-      "-- But should succeed when actual filtered result is small"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_limits_fail_fast"
     }
   }
 ]

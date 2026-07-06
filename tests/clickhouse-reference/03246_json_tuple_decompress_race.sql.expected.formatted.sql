@@ -1,4 +1,4 @@
-SET enable_json_type = 1, type_json_skip_duplicated_paths = 1, allow_simdjson = 1;
+SET enable_json_type = '1', type_json_skip_duplicated_paths = '1', allow_simdjson = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -13,7 +13,7 @@ ENGINE = Memory();
 
 CREATE TABLE t1 AS t0;
 
-SET min_compress_block_size = 2654980, cross_join_min_rows_to_compress = 1, insert_null_as_default = 1, check_query_single_value_result = 1, partial_merge_join_optimizations = 1, use_uncompressed_cache = 0;
+SET min_compress_block_size = '2654980', cross_join_min_rows_to_compress = '1', insert_null_as_default = '1', check_query_single_value_result = '1', partial_merge_join_optimizations = '1', use_uncompressed_cache = '0';
 
 INSERT INTO t0 (c0, c1);
 

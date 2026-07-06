@@ -5,7 +5,7 @@ CREATE TABLE data_02491
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS old_parts_lifetime = 600;
+SETTINGS old_parts_lifetime = '600';
 
 INSERT INTO data_02491;
 
@@ -13,7 +13,7 @@ OPTIMIZE TABLE data_02491 FINAL;
 
 TRUNCATE TABLE data_02491;
 
-SYSTEM flush logs part_log;
+SYSTEM FLUSH LOGS part_log;
 
 WITH (
         SELECT uuid

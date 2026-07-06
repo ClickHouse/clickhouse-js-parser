@@ -6,9 +6,9 @@ CREATE TABLE sites
     `Users.UserID` Array(UInt64),
     `Users.Dates` Array(Array(Date))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY Domain
-SETTINGS vertical_merge_algorithm_min_rows_to_activate = 0, vertical_merge_algorithm_min_columns_to_activate = 0;
+SETTINGS vertical_merge_algorithm_min_rows_to_activate = '0', vertical_merge_algorithm_min_columns_to_activate = '0';
 
 SYSTEM STOP MERGES sites;
 

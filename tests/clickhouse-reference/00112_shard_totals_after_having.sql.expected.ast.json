@@ -1,120 +1,111 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "totals_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "after_having_auto"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "totals_mode": "after_having_auto"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: shard"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_group_by": "100000"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "group_by_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "any"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "group_by_overflow_mode": "any"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "dummy"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
+          "select": [
+            {
+              "type": "Function",
+              "alias": "k",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "dummy"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2,3}"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "one"
+                      }
+                    ]
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        "alias": "k"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2,3}"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "system"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "one"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "k"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "k"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        }
-      ]
-    },
-    "withTotals": true,
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "k"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

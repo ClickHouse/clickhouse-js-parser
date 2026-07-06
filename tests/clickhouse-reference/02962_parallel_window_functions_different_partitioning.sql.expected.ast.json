@@ -1,241 +1,259 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "empsalary"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "depname",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "empno",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "salary",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "enroll_date",
-        "type": {
-          "name": "Date"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "empsalary"
+        "type": "Identifier",
+        "name": "empsalary"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "depname",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "empno",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "salary",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "enroll_date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "depname"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "empsalary"
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "salary"
-              ]
-            }
-          ],
-          "window": {
-            "partitionBy": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "depname"
-                ]
-              }
-            ],
-            "orderBy": [
-              {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "empno"
-                  ]
-                },
-                "direction": "ASC"
-              }
-            ]
-          }
-        },
-        "alias": "depsalary"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "empsalary"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "depsalary"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- 1 window function"
-    ]
+      "format": "Values"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "depname"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "salary"
-              ]
-            }
-          ],
-          "window": {
-            "partitionBy": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "depname"
+              "type": "Identifier",
+              "name": "depname"
+            },
+            {
+              "type": "Function",
+              "alias": "depsalary",
+              "name": "sum",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "salary"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "partition_by": [
+                  {
+                    "type": "Identifier",
+                    "name": "depname"
+                  }
+                ],
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Identifier",
+                      "name": "empno"
+                    },
+                    "direction": "ASC"
+                  }
                 ]
               }
-            ],
-            "orderBy": [
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "empno"
-                  ]
-                },
-                "direction": "ASC"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "empsalary"
+                  }
+                }
               }
             ]
-          }
-        },
-        "alias": "depsalary"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
+          },
+          "order_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "salary"
-              ]
-            }
-          ],
-          "window": {
-            "partitionBy": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "depname"
-                ]
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "depsalary"
               },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "empno"
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "depname"
+            },
+            {
+              "type": "Function",
+              "alias": "depsalary",
+              "name": "sum",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "salary"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "partition_by": [
+                  {
+                    "type": "Identifier",
+                    "name": "depname"
+                  }
+                ],
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Identifier",
+                      "name": "empno"
+                    },
+                    "direction": "ASC"
+                  }
                 ]
               }
-            ],
-            "orderBy": [
+            },
+            {
+              "type": "Function",
+              "alias": "depminsalary",
+              "name": "min",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "salary"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "partition_by": [
+                  {
+                    "type": "Identifier",
+                    "name": "depname"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "empno"
+                  }
+                ],
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Identifier",
+                      "name": "enroll_date"
+                    },
+                    "direction": "ASC"
+                  }
+                ]
+              }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "orderByItem",
-                "expr": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "enroll_date"
-                  ]
-                },
-                "direction": "ASC"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "empsalary"
+                  }
+                }
               }
             ]
-          }
-        },
-        "alias": "depminsalary"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "empsalary"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "depsalary"
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "depsalary"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- 2 window functions with different window,",
-      "-- but result should be the same for depsalary"
-    ]
+        }
+      ]
+    }
   }
 ]

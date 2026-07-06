@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS foo_00234
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO foo_00234 (id);

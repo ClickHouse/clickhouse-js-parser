@@ -1,128 +1,175 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "table": "rview"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+      "table": {
+        "type": "Identifier",
+        "name": "rview"
       },
-      "table": "wview"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "rview"
-    },
-    "engine": {
-      "name": "File",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "CSV"
-          ]
-        }
-      ]
-    },
-    "populate": true,
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "alias": "c0"
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- Read from view"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "rview"
+      "if_exists": true
     }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "wview"
-    },
-    "engine": {
-      "name": "Join",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "wview"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "is_populate": true,
+      "table": {
+        "type": "Identifier",
+        "name": "rview"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "c0",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "File",
+                "kind": "TABLE_ENGINE",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "CSV"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "INNER"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "c0"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "rview"
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
-    },
-    "populate": true,
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          "alias": "c0"
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- Write through view populate"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "is_populate": true,
+      "table": {
+        "type": "Identifier",
+        "name": "wview"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "c0",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "Join",
+                "kind": "TABLE_ENGINE",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "ALL"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "INNER"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "c0"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
   }
 ]

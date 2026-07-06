@@ -65,7 +65,7 @@ FROM remote('127.0.0.{1,2}', numbers(1000));
 SELECT groupArrayMovingAvg(256)(-1)
 FROM numbers(300);
 
-SELECT arrayMap(x -> round(x, 4), groupArrayMovingAvg(256)(1))
+SELECT arrayMap((x -> round(x, 4)), groupArrayMovingAvg(256)(1))
 FROM numbers(300);
 
 SELECT groupArrayMovingAvg(256)(toDecimal32(1, 9))

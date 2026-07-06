@@ -1,1 +1,1 @@
-SELECT arrayMap(x -> (toLowCardinality(1) + 1::Nullable(UInt8)), [1]);
+SELECT arrayMap((x -> toLowCardinality(1) + CAST('1' AS Nullable(UInt8))), [1]);

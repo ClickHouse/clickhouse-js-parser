@@ -7,13 +7,13 @@ CREATE TABLE `01851_merge_tree`
     n3 Int8,
     n4 Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 DROP TABLE IF EXISTS `001851_merge_tree_mv`;
 
 CREATE MATERIALIZED VIEW `01851_merge_tree_mv`
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     n2,
@@ -28,7 +28,7 @@ ALTER TABLE `01851_merge_tree` DROP COLUMN n2; -- { serverError ALTER_OF_COLUMN_
 ALTER TABLE `01851_merge_tree` DROP COLUMN n4;
 
 -- CLEAR COLUMN is OK
-ALTER TABLE `01851_merge_tree` DROP COLUMN n2;
+ALTER TABLE `01851_merge_tree` CLEAR COLUMN n2;
 
 DROP TABLE `01851_merge_tree`;
 

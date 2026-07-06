@@ -6,7 +6,7 @@ CREATE TABLE e
     a UInt64,
     t DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDate(t);
 

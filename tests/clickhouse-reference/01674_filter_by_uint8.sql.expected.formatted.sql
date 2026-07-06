@@ -1,12 +1,12 @@
 -- ORDER BY is to trigger comparison at uninitialized memory after bad filtering.
 SELECT ignore(number)
 FROM numbers(256)
-ORDER BY arrayFilter(x -> materialize(255), materialize([257])) ASC
+ORDER BY arrayFilter((x -> materialize(255)), materialize([257])) ASC
 LIMIT 1;
 
 SELECT ignore(number)
 FROM numbers(256)
-ORDER BY arrayFilter(x -> materialize(255), materialize(['257'])) ASC
+ORDER BY arrayFilter((x -> materialize(255)), materialize(['257'])) ASC
 LIMIT 1;
 
 SELECT count()
@@ -22,7 +22,7 @@ CREATE TABLE t_filter
     u UInt64,
     f UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY u;
 
 INSERT INTO t_filter SELECT

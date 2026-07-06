@@ -4,7 +4,7 @@ CREATE TABLE lc_00800_1
 (
     names Array(LowCardinality(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO lc_00800_1;

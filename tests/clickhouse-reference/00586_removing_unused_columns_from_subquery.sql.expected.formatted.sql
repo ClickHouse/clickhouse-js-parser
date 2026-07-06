@@ -1,6 +1,6 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS local_statements;
 
@@ -28,7 +28,7 @@ CREATE TABLE local_statements
     learnerHash String,
     contextId UInt16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE statements
@@ -55,7 +55,7 @@ CREATE TABLE statements
 )
 ENGINE = Distributed(test_shard_localhost, currentDatabase(), 'local_statements', sipHash64(learnerHash));
 
-INSERT INTO local_statements;
+INSERT INTO local_statements FORMAT CSV;
 
 DROP TABLE local_statements;
 

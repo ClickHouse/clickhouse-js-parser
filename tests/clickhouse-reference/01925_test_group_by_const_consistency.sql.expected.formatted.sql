@@ -15,7 +15,7 @@ SELECT
 FROM numbers(10)
 WHERE 0
 GROUP BY a
-SETTINGS empty_result_for_aggregation_by_constant_keys_on_empty_set = 0;
+SETTINGS empty_result_for_aggregation_by_constant_keys_on_empty_set = '0';
 
 SELECT
     1 AS a,
@@ -24,5 +24,5 @@ FROM numbers(10)
 WHERE 0
 GROUP BY a
 SETTINGS
-    empty_result_for_aggregation_by_constant_keys_on_empty_set = 0,
-    optimize_trivial_count_query = 0;
+    empty_result_for_aggregation_by_constant_keys_on_empty_set = '0',
+    optimize_trivial_count_query = '0';

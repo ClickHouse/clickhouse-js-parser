@@ -6,7 +6,7 @@ CREATE TABLE x
     `arr.value` Array(String),
     n String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO x;
 

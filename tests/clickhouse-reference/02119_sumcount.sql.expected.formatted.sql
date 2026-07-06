@@ -29,7 +29,7 @@ FROM (
         ORDER BY v ASC
     );
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 SELECT
     toTypeName(sumCount(v)),
@@ -268,7 +268,7 @@ FROM (
 
 SELECT sumCountIf(n, n > 10)
 FROM (
-        SELECT If(number % 2 == 0, number, NULL) AS n
+        SELECT If(number % 2 = 0, number, NULL) AS n
         FROM `system`.numbers
         LIMIT 100
     );

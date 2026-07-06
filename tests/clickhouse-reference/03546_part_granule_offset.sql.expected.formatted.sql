@@ -5,9 +5,9 @@ CREATE TABLE test_part_granule_offset
 (
     n UInt64
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS index_granularity = 2;
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS index_granularity = '2';
 
 INSERT INTO test_part_granule_offset SELECT number
 FROM numbers(101);

@@ -2,33 +2,33 @@ DROP TABLE IF EXISTS map_test;
 
 CREATE TABLE map_test
 ENGINE = TinyLog() AS
-(SELECT
-    (number + 1) AS n,
-    ([1, number], [1,2]) AS map
-FROM numbers(1, 5));
+SELECT
+    number + 1 AS n,
+    ([1, number], [1, 2]) AS map
+FROM numbers(1, 5);
 
-SELECT mapPopulateSeries(map.1, map.2)
+SELECT mapPopulateSeries((map).1, (map).2)
 FROM map_test;
 
-SELECT mapPopulateSeries(map.1, map.2, toUInt64(3))
+SELECT mapPopulateSeries((map).1, (map).2, toUInt64(3))
 FROM map_test;
 
-SELECT mapPopulateSeries(map.1, map.2, toUInt64(10))
+SELECT mapPopulateSeries((map).1, (map).2, toUInt64(10))
 FROM map_test;
 
-SELECT mapPopulateSeries(map.1, map.2, 10)
+SELECT mapPopulateSeries((map).1, (map).2, 10)
 FROM map_test;
 
-SELECT mapPopulateSeries(map.1, map.2, n)
+SELECT mapPopulateSeries((map).1, (map).2, n)
 FROM map_test;
 
-SELECT mapPopulateSeries(map.1, [11,22])
+SELECT mapPopulateSeries((map).1, [11, 22])
 FROM map_test;
 
-SELECT mapPopulateSeries([3, 4], map.2)
+SELECT mapPopulateSeries([3, 4], (map).2)
 FROM map_test;
 
-SELECT mapPopulateSeries([toUInt64(3), 4], map.2, n)
+SELECT mapPopulateSeries([toUInt64(3), 4], (map).2, n)
 FROM map_test;
 
 DROP TABLE map_test;
@@ -86,7 +86,7 @@ SELECT
     toTypeName(res);
 
 -- empty
-SELECT mapPopulateSeries(cast([], 'Array(UInt8)'), cast([], 'Array(UInt8)'), 5);
+SELECT mapPopulateSeries(CAST([] AS Array(UInt8)), CAST([] AS Array(UInt8)), 5);
 
 SELECT
     mapPopulateSeries(['1', '2'], [1, 1]) AS res,

@@ -1,4 +1,4 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SET log_profile_events = true;
 
@@ -14,7 +14,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%SELECT ''SLEEP #1 TEST''%')
+WHERE query LIKE '%SELECT ''SLEEP #1 TEST''%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -31,7 +31,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%SELECT ''SLEEP #2 TEST''%')
+WHERE query LIKE '%SELECT ''SLEEP #2 TEST''%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -47,7 +47,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%SELECT ''SLEEP #3 TEST''%')
+WHERE query LIKE '%SELECT ''SLEEP #3 TEST''%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -64,7 +64,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%SELECT ''SLEEP #4 TEST''%')
+WHERE query LIKE '%SELECT ''SLEEP #4 TEST''%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -80,7 +80,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%CREATE VIEW sleep_view AS%')
+WHERE query LIKE '%CREATE VIEW sleep_view AS%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()
@@ -98,7 +98,7 @@ SELECT
     ProfileEvents['SleepFunctionCalls'] AS calls,
     ProfileEvents['SleepFunctionMicroseconds'] AS microseconds
 FROM `system`.query_log
-WHERE like(query, '%SELECT ''SLEEP #6 TEST''%')
+WHERE query LIKE '%SELECT ''SLEEP #6 TEST''%'
     AND type > 1
     AND current_database = currentDatabase()
     AND event_date >= yesterday()

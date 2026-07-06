@@ -27,6 +27,6 @@ FROM data_02294
 GROUP BY
     a,
     b
-SETTINGS optimize_aggregation_in_order = 1;
+SETTINGS optimize_aggregation_in_order = '1';
 
 DROP TABLE data_02294;

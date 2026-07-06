@@ -5,7 +5,7 @@ CREATE TABLE sequence_test
     time UInt32,
     data UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO sequence_test;
@@ -169,52 +169,52 @@ FROM sequence_test;
 SELECT [] = sequenceMatchEvents('(?4)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,1] = sequenceMatchEvents('(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 1] = sequenceMatchEvents('(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,1,2] = sequenceMatchEvents('(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 1, 2] = sequenceMatchEvents('(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,1,2,3] = sequenceMatchEvents('(?1)(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 1, 2, 3] = sequenceMatchEvents('(?1)(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,1,2,3] = sequenceMatchEvents('(?1)(?1)(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 1, 2, 3] = sequenceMatchEvents('(?1)(?1)(?1)(?1)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,1,2,3,4] = sequenceMatchEvents('(?1)(?1)(?1)(?1)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 1, 2, 3, 4] = sequenceMatchEvents('(?1)(?1)(?1)(?1)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,11] = sequenceMatchEvents('(?1)(?t>10)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 11] = sequenceMatchEvents('(?1)(?t>10)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
 SELECT [0] = sequenceMatchEvents('(?1)(?t>11)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [0,4] = sequenceMatchEvents('(?1)(?t<11)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [0, 4] = sequenceMatchEvents('(?1)(?t<11)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [3,5] = sequenceMatchEvents('(?1)(?t<3)(?3)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [3, 5] = sequenceMatchEvents('(?1)(?t<3)(?3)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [3,5] = sequenceMatchEvents('(?1)(?t<=2)(?3)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [3, 5] = sequenceMatchEvents('(?1)(?t<=2)(?3)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
 SELECT [0] = sequenceMatchEvents('(?1)(?t<2)(?3)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [4,11] = sequenceMatchEvents('(?2)(?t>=7)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [4, 11] = sequenceMatchEvents('(?2)(?t>=7)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
 SELECT [4] = sequenceMatchEvents('(?2)(?t>7)(?2)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
-SELECT [4,5,6] = sequenceMatchEvents('(?2)(?3)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
+SELECT [4, 5, 6] = sequenceMatchEvents('(?2)(?3)(?1)')(time, data = 0, data = 1, data = 2, data = 3)
 FROM sequence_test;
 
 SELECT [4] = sequenceMatchEvents('(?1)(?t==2)(?2)')(time, data = 1, data = 2)
 FROM sequence_test;
 
-SELECT [4,5] = sequenceMatchEvents('(?1)(?t==1)(?2)')(time, data = 1, data = 2)
+SELECT [4, 5] = sequenceMatchEvents('(?1)(?t==1)(?2)')(time, data = 1, data = 2)
 FROM sequence_test;
 
 DROP TABLE sequence_test;

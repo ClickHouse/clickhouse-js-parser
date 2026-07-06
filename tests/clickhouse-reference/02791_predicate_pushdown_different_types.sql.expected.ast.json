@@ -1,113 +1,148 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "a"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "a"
       },
-      {
-        "kind": "columnDef",
-        "name": "ID",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "# These queries triggered a crash in old ClickHouse versions:"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "b"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "b"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "table": "a"
-      },
-      "constraint": {
-        "kind": "using",
+      "columns_list": {
+        "type": "Columns",
         "columns": [
-          "key"
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "ID",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
         ]
       }
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "ID"
-        ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "b"
       },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "1"
-      }
-    },
-    "having": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "ID"
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
         ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "1"
       }
-    },
-    "trailingComments": [
-      "# PS. Predicate pushdown does not work for LowCardinality(String), but it's another problem."
-    ]
-  }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "b"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "key"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "a"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "ID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "1"
+              }
+            ]
+          },
+          "having": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "ID"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "1"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "<AST Error>"
 ]

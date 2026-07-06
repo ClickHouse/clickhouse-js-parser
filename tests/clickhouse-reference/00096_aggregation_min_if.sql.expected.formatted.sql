@@ -6,7 +6,7 @@ CREATE TABLE min_if
     str String,
     int Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO min_if SELECT
     emptyArrayUInt8() AS arr,

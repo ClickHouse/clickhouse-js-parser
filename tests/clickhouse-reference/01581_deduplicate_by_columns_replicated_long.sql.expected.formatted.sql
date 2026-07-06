@@ -2,11 +2,11 @@
 --- See also tests/queries/0_stateless/01581_deduplicate_by_columns_local.sql
 --- replicated case
 -- Just in case if previous tests run left some stuff behind.
-DROP TABLE IF EXISTS replicated_deduplicate_by_columns_r1;
+DROP TABLE IF EXISTS replicated_deduplicate_by_columns_r1 SYNC;
 
-DROP TABLE IF EXISTS replicated_deduplicate_by_columns_r2;
+DROP TABLE IF EXISTS replicated_deduplicate_by_columns_r2 SYNC;
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
 -- IRL insert_replica_id were filled from hostname
 CREATE TABLE IF NOT EXISTS replicated_deduplicate_by_columns_r1

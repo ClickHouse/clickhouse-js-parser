@@ -1,307 +1,377 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
           "name": "tuple",
-          "args": []
+          "arguments": []
+        },
+        "ttl_table": {
+          "type": "ExpressionList",
+          "children": [
+            {
+              "type": "TTLElement",
+              "mode": "DELETE",
+              "ttl": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalDay",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "remove_empty_parts": "0"
+          }
         }
       }
-    ],
-    "ttl": [
-      {
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "d"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "rows"
+            },
+            {
+              "type": "Identifier",
+              "name": "delete_ttl_info_min"
+            },
+            {
+              "type": "Identifier",
+              "name": "delete_ttl_info_max"
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.expression",
+              "name_parts": [
+                "move_ttl_info",
+                "expression"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.min",
+              "name_parts": [
+                "move_ttl_info",
+                "min"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.max",
+              "name_parts": [
+                "move_ttl_info",
+                "max"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalDay",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "ttl"
+                  }
+                ]
               }
             ]
           }
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "remove_empty_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
+      ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES ttl"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START MERGES",
       "table": {
-        "kind": "tableRef",
-        "table": "ttl"
+        "type": "Identifier",
+        "name": "ttl"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "rows"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "delete_ttl_info_min"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "delete_ttl_info_max"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "expression"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "min"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "max"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "rows"
+            },
+            {
+              "type": "Function",
+              "name": "toTimeZone",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "delete_ttl_info_min"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "toTimeZone",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "delete_ttl_info_max"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.expression",
+              "name_parts": [
+                "move_ttl_info",
+                "expression"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.min",
+              "name_parts": [
+                "move_ttl_info",
+                "min"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "move_ttl_info.max",
+              "name_parts": [
+                "move_ttl_info",
+                "max"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "ttl"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "active"
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "ttl"
           }
         }
       ]
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM START MERGES ttl"
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl"
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "rows"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "toTimeZone",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "delete_ttl_info_min"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "toTimeZone",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "delete_ttl_info_max"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "expression"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "min"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "move_ttl_info",
-          "max"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "ttl"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "ttl"
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "active"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "ttl"
     }
   }
 ]

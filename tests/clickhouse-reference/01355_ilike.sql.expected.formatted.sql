@@ -1,73 +1,73 @@
 -- Tags: no-fasttest
-SELECT ilike('Hello', '');
+SELECT 'Hello' ILIKE '';
 
-SELECT ilike('Hello', '%');
+SELECT 'Hello' ILIKE '%';
 
-SELECT ilike('Hello', '%%');
+SELECT 'Hello' ILIKE '%%';
 
-SELECT ilike('Hello', '%%%');
+SELECT 'Hello' ILIKE '%%%';
 
-SELECT ilike('Hello', '%_%');
+SELECT 'Hello' ILIKE '%_%';
 
-SELECT ilike('Hello', '_');
+SELECT 'Hello' ILIKE '_';
 
-SELECT ilike('Hello', '_%');
+SELECT 'Hello' ILIKE '_%';
 
-SELECT ilike('Hello', '%_');
+SELECT 'Hello' ILIKE '%_';
 
-SELECT ilike('Hello', 'H%o');
+SELECT 'Hello' ILIKE 'H%o';
 
-SELECT notILike('Hello', 'H%o');
+SELECT 'Hello' NOT ILIKE 'H%o';
 
-SELECT ilike('OHello', '%lhell%');
+SELECT 'OHello' ILIKE '%lhell%';
 
-SELECT ilike('Ohello', '%hell%');
+SELECT 'Ohello' ILIKE '%hell%';
 
-SELECT ilike('hEllo', '%HEL%');
+SELECT 'hEllo' ILIKE '%HEL%';
 
-SELECT notILike('OHello', '%lhell%');
+SELECT 'OHello' NOT ILIKE '%lhell%';
 
-SELECT notILike('Ohello', '%hell%');
+SELECT 'Ohello' NOT ILIKE '%hell%';
 
-SELECT notILike('hEllo', '%HEL%');
+SELECT 'hEllo' NOT ILIKE '%HEL%';
 
-SELECT ilike(materialize('prepre_f'), '%pre_f%');
+SELECT materialize('prepre_f') ILIKE '%pre_f%';
 
-SELECT ilike('abcdef', '%aBc%def%');
+SELECT 'abcdef' ILIKE '%aBc%def%';
 
-SELECT ilike('ABCDDEF', '%abc%def%');
+SELECT 'ABCDDEF' ILIKE '%abc%def%';
 
-SELECT ilike('Abc\nDef', '%abc%def%');
+SELECT 'Abc\nDef' ILIKE '%abc%def%';
 
-SELECT ilike('abc\ntdef', '%abc%def%');
+SELECT 'abc\ntdef' ILIKE '%abc%def%';
 
-SELECT ilike('abct\ndef', '%abc%dEf%');
+SELECT 'abct\ndef' ILIKE '%abc%dEf%';
 
-SELECT ilike('abc\n\ndeF', '%abc%def%');
+SELECT 'abc\n\ndeF' ILIKE '%abc%def%';
 
-SELECT ilike('abc\n\ntdef', '%abc%deF%');
+SELECT 'abc\n\ntdef' ILIKE '%abc%deF%';
 
-SELECT ilike('Abc\nt\ndef', '%abc%def%');
+SELECT 'Abc\nt\ndef' ILIKE '%abc%def%';
 
-SELECT ilike('abct\n\ndef', '%abc%def%');
+SELECT 'abct\n\ndef' ILIKE '%abc%def%';
 
-SELECT ilike('ab\ndef', '%Abc%def%');
+SELECT 'ab\ndef' ILIKE '%Abc%def%';
 
-SELECT ilike('aBc\nef', '%ABC%DEF%');
+SELECT 'aBc\nef' ILIKE '%ABC%DEF%';
 
-SELECT ilike(CAST('hello' AS FixedString(5)), '%he%o%');
+SELECT CAST('hello' AS FixedString(5)) ILIKE '%he%o%';
 
-SELECT ilike('ёЁё', 'Ё%Ё');
+SELECT 'ёЁё' ILIKE 'Ё%Ё';
 
-SELECT ilike('ощщЁё', 'Щ%Ё');
+SELECT 'ощщЁё' ILIKE 'Щ%Ё';
 
-SELECT ilike('ощЩЁё', '%Щ%Ё');
+SELECT 'ощЩЁё' ILIKE '%Щ%Ё';
 
-SELECT ilike('Щущпандер', '%щп%е%');
+SELECT 'Щущпандер' ILIKE '%щп%е%';
 
-SELECT ilike('ощщЁё', '%щ%');
+SELECT 'ощщЁё' ILIKE '%щ%';
 
-SELECT ilike('ощЩЁё', '%ё%');
+SELECT 'ощЩЁё' ILIKE '%ё%';
 
 SHOW TABLES NOT ILIKE '%';
 
@@ -75,13 +75,13 @@ CREATE TABLE test1
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test2
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW TABLES ILIKE 'tES%';
 

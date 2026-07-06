@@ -6,12 +6,12 @@ CREATE TABLE tab_with_primary_key_index
     id UInt32,
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab_with_primary_key_index SELECT
     number,
-    if(number % 2, 1, number)
+    number % 2 ? 1 : number
 FROM numbers(10);
 
 DROP TABLE IF EXISTS tab_with_primary_key_index_and_skipping_index;
@@ -20,26 +20,26 @@ CREATE TABLE tab_with_primary_key_index_and_skipping_index
 (
     id UInt32,
     a UInt32,
-    INDEX idx a TYPE set(0)
+    INDEX idx a TYPE set(0) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab_with_primary_key_index_and_skipping_index SELECT
     number,
-    if(number % 2, 1, number)
+    number % 2 ? 1 : number
 FROM numbers(10);
 
 -- Check that information_schema.tables.index_length is larger than 0 for both tables
 SELECT if(index_length > 0, 'OK', 'FAIL')
 FROM information_schema.tables
-WHERE like(table_name, 'tab_with_primary_key_index%')
+WHERE table_name LIKE 'tab_with_primary_key_index%'
     AND table_schema = currentDatabase();
 
 -- A very crude check that information_schema.tables.index_length is different for both tables
 SELECT count(*)
 FROM information_schema.tables
-WHERE like(table_name, 'tab_with_primary_key_index%')
+WHERE table_name LIKE 'tab_with_primary_key_index%'
     AND table_schema = currentDatabase();
 
 DROP TABLE tab_with_primary_key_index;

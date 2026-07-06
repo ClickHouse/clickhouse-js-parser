@@ -1,325 +1,310 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "input_format_parquet_use_native_reader_v3",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "input_format_parquet_use_native_reader_v3": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-fasttest"
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "function",
-      "func": {
-        "kind": "tableFunctionRef",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table_function": {
+        "type": "Function",
         "name": "file",
-        "args": [
+        "arguments": [
           {
-            "kind": "functionCall",
+            "type": "Function",
             "name": "concat",
-            "args": [
+            "arguments": [
               {
-                "kind": "functionCall",
+                "type": "Function",
                 "name": "currentDatabase",
-                "args": []
+                "arguments": []
               },
               {
-                "kind": "literal",
-                "type": "String",
+                "type": "Literal",
+                "value_type": "String",
                 "value": "/03727_prewhere_intermediate_columns.parquet"
               }
             ]
           }
         ]
-      }
-    },
-    "insertSettings": [
-      {
-        "name": "engine_file_truncate_on_insert",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "engine_file_truncate_on_insert": "1",
+          "max_threads": "1",
+          "output_format_parquet_row_group_size": "5"
         }
       },
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "output_format_parquet_row_group_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "*",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "x",
+                "name": "multiply",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "20"
+                        }
+                      ]
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "max_threads": "1",
+                "output_format_parquet_row_group_size": "5"
+              }
             }
-          },
-          "alias": "x"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "20"
           }
         ]
-      },
-      "settings": [
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "name": "max_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        {
-          "name": "output_format_parquet_row_group_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            },
+            {
+              "type": "Identifier",
+              "name": "_row_number"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "file",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toNullable",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "concat",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "currentDatabase",
+                                "arguments": []
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "/03727_prewhere_intermediate_columns.parquet"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "x"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "60"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "x"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "100"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "x"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "60"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "input_format_parquet_allow_missing_columns": "0",
+              "optimize_move_to_prewhere": "1"
+            }
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_row_number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "file",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "toNullable",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "/03727_prewhere_intermediate_columns.parquet"
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "file",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toNullable",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "concat",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "currentDatabase",
+                                "arguments": []
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "/03727_prewhere_intermediate_columns.parquet"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 }
-              ]
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Identifier",
+            "name": "x"
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "x"
+              },
+              "direction": "ASC"
             }
           ]
         }
       ]
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "60"
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          },
-          "parenthesized": true
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "60"
-          },
-          "parenthesized": true
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "input_format_parquet_allow_missing_columns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "optimize_move_to_prewhere",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Reproduces prewhere optimization bug where intermediate columns are kept in outputs:",
-      "-- 1. Virtual column (_row_number) in SELECT affects optimizer cost calculations",
-      "-- 2. Same expression (x < 60) used in both WHERE and ORDER BY",
-      "-- 3. Optimizer preserves intermediate less(x, 60) column to avoid recomputation",
-      "-- 4. This intermediate column appears in format_header as a new column, triggering the bug"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "file",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "toNullable",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "/03727_prewhere_intermediate_columns.parquet"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "prewhere": {
-      "kind": "columnRef",
-      "parts": [
-        "x"
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

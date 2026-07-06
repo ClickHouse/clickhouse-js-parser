@@ -1,1 +1,1 @@
-SELECT toUInt8(assumeNotNull(cast(cast(NULL, 'Nullable(String)'), 'Nullable(Enum8(''Hello'' = 1))')));
+SELECT toUInt8(assumeNotNull(CAST(CAST(NULL AS Nullable(String)) AS Nullable(Enum8('Hello' = 1)))));

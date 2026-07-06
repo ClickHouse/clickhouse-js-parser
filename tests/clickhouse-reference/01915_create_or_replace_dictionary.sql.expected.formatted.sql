@@ -2,7 +2,7 @@
 DROP DATABASE IF EXISTS test_01915_db;
 
 CREATE DATABASE test_01915_db
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 DROP TABLE IF EXISTS test_01915_db.test_source_table_1;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_01915_db.test_source_table_1
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_01915_db.test_source_table_1;
 
@@ -36,7 +36,7 @@ CREATE TABLE test_01915_db.test_source_table_2
     id UInt64,
     value_1 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_01915_db.test_source_table_2;
 
@@ -47,7 +47,7 @@ CREATE OR REPLACE DICTIONARY test_01915_db.test_dictionary
 )
 PRIMARY KEY id
 SOURCE(clickhouse(DB 'test_01915_db' TABLE 'test_source_table_2'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 DROP DICTIONARY test_01915_db.test_dictionary;

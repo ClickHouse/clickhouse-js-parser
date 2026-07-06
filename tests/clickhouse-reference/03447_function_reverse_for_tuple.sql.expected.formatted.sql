@@ -6,7 +6,7 @@ CREATE TABLE t_tuple
 (
     tuple Tuple(a Int32, b String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_tuple;
@@ -15,8 +15,8 @@ SELECT reverse(tuple)
 FROM t_tuple;
 
 SELECT
-    tupleElement(reverse(tuple), 'a'),
-    tupleElement(reverse(tuple), 'b')
+    reverse(tuple).a,
+    reverse(tuple).b
 FROM t_tuple;
 
 DROP TABLE t_tuple;

@@ -32,19 +32,19 @@ SELECT toIPv4OrDefault(toIPv6('::ffff:1.2.3.4'));
 
 SELECT toIPv4OrDefault(toIPv6('::afff:1.2.3.4'));
 
-SELECT cast('test', 'IPv4'); --{serverError CANNOT_PARSE_IPV4}
+SELECT CAST('test' AS IPv4); --{serverError CANNOT_PARSE_IPV4}
 
-SELECT cast('127.0.0.1', 'IPv4');
+SELECT CAST('127.0.0.1' AS IPv4);
 
-SET cast_ipv4_ipv6_default_on_conversion_error = 1;
+SET cast_ipv4_ipv6_default_on_conversion_error = '1';
 
 SELECT IPv4StringToNum('');
 
 SELECT toIPv4('');
 
-SELECT cast('', 'IPv4');
+SELECT CAST('' AS IPv4);
 
-SET cast_ipv4_ipv6_default_on_conversion_error = 0;
+SET cast_ipv4_ipv6_default_on_conversion_error = '0';
 
 SELECT IPv6StringToNum('test'); --{serverError CANNOT_PARSE_IPV6}
 
@@ -80,24 +80,24 @@ SELECT count()
 FROM numbers_mt(20000000)
 WHERE NOT ignore(toIPv6OrZero(randomString(8)));
 
-SELECT cast('test', 'IPv6'); -- { serverError CANNOT_PARSE_IPV6 }
+SELECT CAST('test' AS IPv6); -- { serverError CANNOT_PARSE_IPV6 }
 
-SELECT cast('::ffff:127.0.0.1', 'IPv6');
+SELECT CAST('::ffff:127.0.0.1' AS IPv6);
 
 SELECT IPv6StringToNum('');
 
 SELECT toIPv6('');
 
-SELECT cast('', 'IPv6');
+SELECT CAST('' AS IPv6);
 
 SELECT
     toFixedString('::1', 3) AS value,
-    cast(value, 'IPv6'),
+    CAST(value AS IPv6),
     toIPv6(value);
 
 SELECT
     toFixedString('', 16) AS value,
-    cast(value, 'IPv6');
+    CAST(value AS IPv6);
 
 SELECT
     toFixedString('', 16) AS value,

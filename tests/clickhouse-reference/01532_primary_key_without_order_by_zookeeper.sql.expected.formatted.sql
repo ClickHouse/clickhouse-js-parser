@@ -1,5 +1,5 @@
 -- Tags: zookeeper
-DROP TABLE IF EXISTS merge_tree_pk;
+DROP TABLE IF EXISTS merge_tree_pk SYNC;
 
 CREATE TABLE merge_tree_pk
 (
@@ -33,7 +33,7 @@ ORDER BY
     key ASC,
     value ASC;
 
-DROP TABLE IF EXISTS merge_tree_pk_sql;
+DROP TABLE IF EXISTS merge_tree_pk_sql SYNC;
 
 CREATE TABLE merge_tree_pk_sql
 (
@@ -73,7 +73,7 @@ INSERT INTO merge_tree_pk_sql;
 
 INSERT INTO merge_tree_pk_sql;
 
-DROP TABLE IF EXISTS replicated_merge_tree_pk_sql;
+DROP TABLE IF EXISTS replicated_merge_tree_pk_sql SYNC;
 
 CREATE TABLE replicated_merge_tree_pk_sql
 (

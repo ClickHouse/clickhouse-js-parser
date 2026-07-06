@@ -1,217 +1,254 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-settings",
-      "-- Regression test for the \"Unexpected return type from equals. Expected Nullable(UInt8). Got UInt8.\"",
-      "-- exception when using RIGHT JOIN with StorageJoin, USING clause, and QUALIFY,",
-      "-- with the legacy join planning path (`query_plan_use_new_logical_join_step` = 0).",
-      "--",
-      "-- The legacy code path did not add \"Right Type Conversion Actions\" after `FilledJoinStep`,",
-      "-- so the right-side USING key column remained non-nullable (UInt32) instead of being cast",
-      "-- to Nullable(UInt32). The QUALIFY filter then expected Nullable(UInt8) from `equals` but got UInt8.",
-      "--",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/96101",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/95678",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/89802"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_use_new_logical_join_step",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "right_join"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt32"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "right_join"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_use_new_logical_join_step": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
       },
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "String"
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "right_join"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt32"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
       }
-    ],
-    "engine": {
-      "name": "Join",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ALL"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "right_join"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Join",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "ALL"
+            },
+            {
+              "type": "Identifier",
+              "name": "RIGHT"
+            },
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
           ]
-        },
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "right_join"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "RIGHT"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t1"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "RIGHT",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "x"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "right_join"
+                  }
+                }
+              }
+            ]
+          },
+          "qualify": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t1"
+        "type": "Identifier",
+        "name": "t1"
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "right_join"
+        "type": "Identifier",
+        "name": "right_join"
       }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "t1"
-      },
-      "kind": "joinExpr",
-      "joinType": "RIGHT",
-      "right": {
-        "kind": "tableRef",
-        "table": "right_join"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "x"
-        ]
-      }
-    },
-    "qualify": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "right_join"
     }
   }
 ]

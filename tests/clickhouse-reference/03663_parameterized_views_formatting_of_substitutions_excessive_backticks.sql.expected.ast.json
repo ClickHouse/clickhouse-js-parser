@@ -1,191 +1,188 @@
 [
   {
-    "kind": "drop",
-    "targetType": "VIEW",
-    "table": {
-      "kind": "tableRef",
-      "table": "audit_size_column"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "audit_size_column"
+      },
+      "if_exists": true,
+      "is_view": true
+    }
   },
   {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "audit_size_column"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "formatReadableSize",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "size"
-                ]
-              }
-            ]
-          },
-          "alias": "formatted"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sum",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "column_bytes_on_disk"
-                ]
-              }
-            ]
-          },
-          "alias": "size"
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "column"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "table"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "database"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "parts_columns"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "audit_size_column"
       },
-      "where": {
-        "kind": "naryExpr",
-        "op": "AND",
-        "operands": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "active"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "formatted",
+                "name": "formatReadableSize",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "size"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "size",
+                "name": "sum",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "column_bytes_on_disk"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "column"
+              },
+              {
+                "type": "Identifier",
+                "name": "table"
+              },
+              {
+                "type": "Identifier",
+                "name": "database"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "parts_columns",
+                      "database": "system"
+                    }
+                  }
+                }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          {
-            "kind": "naryExpr",
-            "op": "OR",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "database"
+            "where": {
+              "type": "Function",
+              "name": "and",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "active"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "queryParam",
-                  "name": "db",
-                  "type": "String"
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "database"
+                {
+                  "type": "Function",
+                  "name": "or",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "database"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "placeholder"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "database"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "currentDatabase",
+                          "arguments": []
+                        }
+                      ]
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "functionCall",
-                  "name": "currentDatabase",
-                  "args": []
+                {
+                  "type": "Function",
+                  "name": "match",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "table"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "placeholder"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "match",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "column"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "placeholder"
+                    }
+                  ]
                 }
-              }
-            ],
-            "parenthesized": true
-          },
-          {
-            "kind": "functionCall",
-            "name": "match",
-            "args": [
+              ]
+            },
+            "group_by": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "table"
-                ]
+                "type": "Identifier",
+                "name": "database"
               },
               {
-                "kind": "queryParam",
-                "name": "table",
-                "type": "String"
-              }
-            ],
-            "parenthesized": true
-          },
-          {
-            "kind": "functionCall",
-            "name": "match",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "column"
-                ]
+                "type": "Identifier",
+                "name": "table"
               },
               {
-                "kind": "queryParam",
-                "name": "column",
-                "type": "String"
+                "type": "Identifier",
+                "name": "column"
               }
-            ],
-            "parenthesized": true
-          }
-        ]
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "column"
             ]
           }
         ]
@@ -193,39 +190,47 @@
     }
   },
   {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "audit_size_column"
-    }
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "audit_size_column"
-    }
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "objectShorthand",
-      "objectType": "TABLE",
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
       "table": {
-        "kind": "tableRef",
-        "table": "audit_size_column"
+        "type": "Identifier",
+        "name": "audit_size_column"
       }
-    },
-    "format": "Raw"
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "audit_size_column"
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "audit_size_column"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateTableQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "audit_size_column"
+      },
+      "format": "Raw"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "audit_size_column"
+      }
     }
   }
 ]

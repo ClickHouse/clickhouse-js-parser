@@ -1,343 +1,560 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "send_logs_level",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "fatal"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "send_logs_level": "fatal"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_deprecated_database_ordinary": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Ordinary",
+          "kind": "DATABASE_ENGINE",
+          "arguments": []
         }
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel, memory-engine, log-engine"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_1603_rename_bug_ordinary"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_deprecated_database_ordinary",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
-      }
-    ]
-  },
-  {
-    "kind": "createDatabase",
-    "name": "test_1603_rename_bug_ordinary",
-    "engine": {
-      "name": "Ordinary"
-    },
-    "leadingComments": [
-      "-- Creation of a database with Ordinary engine emits a warning."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "foo"
-    },
-    "engine": {
-      "name": "Memory"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "bar"
-    },
-    "engine": {
-      "name": "Log"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Log",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "200"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "foo"
-    }
-  },
-  {
-    "kind": "rename",
-    "targetType": "TABLE",
-    "pairs": [
-      {
-        "from": {
-          "kind": "tableRef",
-          "database": "test_1603_rename_bug_ordinary",
-          "table": "bar"
-        },
-        "to": {
-          "kind": "tableRef",
-          "database": "test_1603_rename_bug_ordinary",
-          "table": "foo"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
       }
-    ],
-    "trailingComments": [
-      "-- { serverError TABLE_ALREADY_EXISTS }"
-    ]
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "foo"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "foo"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_ordinary",
-      "table": "bar"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_1603_rename_bug_ordinary"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_1603_rename_bug_atomic"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- was not broken, adding just in case."
-    ]
-  },
-  {
-    "kind": "createDatabase",
-    "name": "test_1603_rename_bug_atomic",
-    "engine": {
-      "name": "Atomic"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "foo"
-    },
-    "engine": {
-      "name": "Memory"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "Rename",
+      "elements": [
         {
-          "kind": "asterisk"
+          "from_database": "test_1603_rename_bug_ordinary",
+          "from_table": "bar",
+          "to_database": "test_1603_rename_bug_ordinary",
+          "to_table": "foo"
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo",
+                    "database": "test_1603_rename_bug_ordinary"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar",
+                    "database": "test_1603_rename_bug_ordinary"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_ordinary"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Atomic",
+          "kind": "DATABASE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "bar"
-    },
-    "engine": {
-      "name": "Log"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "bar"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Log",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "200"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "200"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "foo"
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
+      }
     }
   },
   {
-    "kind": "rename",
-    "targetType": "TABLE",
-    "pairs": [
-      {
-        "from": {
-          "kind": "tableRef",
-          "database": "test_1603_rename_bug_atomic",
-          "table": "bar"
-        },
-        "to": {
-          "kind": "tableRef",
-          "database": "test_1603_rename_bug_atomic",
-          "table": "foo"
+    "version": 2,
+    "ast": {
+      "type": "Rename",
+      "elements": [
+        {
+          "from_database": "test_1603_rename_bug_atomic",
+          "from_table": "bar",
+          "to_database": "test_1603_rename_bug_atomic",
+          "to_table": "foo"
         }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError TABLE_ALREADY_EXISTS }"
-    ]
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "foo"
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "foo"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "foo"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "test_1603_rename_bug_atomic",
-      "table": "bar"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "foo",
+                    "database": "test_1603_rename_bug_atomic"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_1603_rename_bug_atomic"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bar",
+                    "database": "test_1603_rename_bug_atomic"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "test_1603_rename_bug_atomic"
+      }
     }
   }
 ]

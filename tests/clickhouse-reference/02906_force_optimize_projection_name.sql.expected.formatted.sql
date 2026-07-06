@@ -4,16 +4,13 @@ CREATE TABLE test
 (
     id UInt64,
     name String,
-    PROJECTION projection_name (    SELECT sum(id)
-    GROUP BY
-        id,
-        name)
+    PROJECTION projection_name (SELECT sum(id) GROUP BY id, name)
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity_bytes = 10000;
+SETTINGS index_granularity_bytes = '10000';
 
-SET parallel_replicas_local_plan = 1, parallel_replicas_support_projection = 1, optimize_aggregation_in_order = 0;
+SET parallel_replicas_local_plan = '1', parallel_replicas_support_projection = '1', optimize_aggregation_in_order = '0';
 
 INSERT INTO test SELECT
     number,
@@ -48,7 +45,7 @@ SYSTEM FLUSH LOGS query_log;
 SELECT read_rows
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(query, '%SELECT name FROM test%')
+    AND query LIKE '%SELECT name FROM test%'
     AND `Settings`['force_optimize_projection_name'] = 'projection_name'
     AND type = 'ExceptionBeforeStart';
 

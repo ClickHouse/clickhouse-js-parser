@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/44414
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS alias_bug;
 
@@ -21,7 +21,7 @@ INSERT INTO alias_bug;
 -- OK
 SELECT
     theAlias,
-    CAST(NULL, 'Nullable(String)') AS src
+    CAST(NULL AS Nullable(String)) AS src
 FROM alias_bug
 LIMIT 1
 FORMAT Null;
@@ -29,7 +29,7 @@ FORMAT Null;
 -- Not OK
 SELECT
     theAlias,
-    CAST(NULL, 'Nullable(String)') AS src
+    CAST(NULL AS Nullable(String)) AS src
 FROM alias_bug_dist
 LIMIT 1
 FORMAT Null;
@@ -45,7 +45,7 @@ ORDER BY src;
 
 -- Unknown identifier
 SELECT
-    CAST(123, 'String') AS src,
+    CAST(123 AS String) AS src,
     theAlias
 FROM alias_bug_dist
 LIMIT 1

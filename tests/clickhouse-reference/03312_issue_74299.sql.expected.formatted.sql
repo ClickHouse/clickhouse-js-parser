@@ -4,7 +4,7 @@ CREATE TABLE t0
 (
     c0 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 (c0); -- { error TYPE_MISMATCH }
 

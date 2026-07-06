@@ -39,7 +39,7 @@ ORDER BY
 SELECT '------cast to String----';
 
 SELECT
-    cast(color, 'String') AS color,
+    CAST(color AS String) AS color,
     toDateTime(timestamp) AS second
 FROM order_test1
 GROUP BY
@@ -50,7 +50,7 @@ ORDER BY
     second DESC;
 
 SELECT
-    cast(color, 'String') AS color,
+    CAST(color AS String) AS color,
     timestamp
 FROM order_test1
 GROUP BY

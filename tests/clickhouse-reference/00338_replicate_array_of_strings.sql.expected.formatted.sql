@@ -6,7 +6,7 @@ CREATE TABLE bad_arrays
     a Array(String),
     b Array(UInt8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bad_arrays;
 
@@ -22,7 +22,7 @@ CREATE TABLE bad_arrays
     a Array(String),
     b Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bad_arrays;
 

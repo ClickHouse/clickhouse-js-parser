@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS ay;
 
 CREATE TABLE ay
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY i AS
 SELECT
     1 AS i,

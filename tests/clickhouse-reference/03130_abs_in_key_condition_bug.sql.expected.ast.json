@@ -1,154 +1,181 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "ts",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ts"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "ts",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            },
+            {
+              "type": "Identifier",
+              "name": "ts"
+            }
+          ]
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "2"
+          }
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "abs",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
                 {
-                  "kind": "binaryExpr",
-                  "op": "-",
-                  "left": {
-                    "kind": "functionCall",
-                    "name": "toUnixTimestamp",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "ts"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "UTC"
-                      }
-                    ]
-                  },
-                  "right": {
-                    "kind": "functionCall",
-                    "name": "toUnixTimestamp",
-                    "args": [
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "2023-05-04 22:17:23"
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "UTC"
-                      }
-                    ]
-                  }
+                  "type": "Function",
+                  "alias": "error",
+                  "name": "abs",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "minus",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "toUnixTimestamp",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "ts"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toUnixTimestamp",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "2023-05-04 22:17:23"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
-            },
-            "alias": "error"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "error"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "3600"
+              }
+            ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "error"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3600"
-      }
+        }
+      ]
     }
   }
 ]

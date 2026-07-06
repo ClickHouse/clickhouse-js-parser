@@ -4,23 +4,21 @@ CREATE TABLE `03593_t`
 (
     s String,
     n UInt64,
-    PROJECTION prj_s_pos (    SELECT _part_offset
-    ORDER BY s ASC)
+    PROJECTION prj_s_pos (SELECT _part_offset ORDER BY s)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS allow_part_offset_column_in_projections = 0; -- {serverError BAD_ARGUMENTS}
+SETTINGS allow_part_offset_column_in_projections = '0'; -- {serverError BAD_ARGUMENTS}
 
 CREATE OR REPLACE TABLE `03593_t`
 (
     s String,
     n UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS allow_part_offset_column_in_projections = 0;
+SETTINGS allow_part_offset_column_in_projections = '0';
 
-ALTER TABLE `03593_t` ADD PROJECTION prj_s_pos (SELECT _part_offset
-ORDER BY s ASC); -- {serverError BAD_ARGUMENTS}
+ALTER TABLE `03593_t` ADD PROJECTION prj_s_pos (SELECT _part_offset ORDER BY s); -- {serverError BAD_ARGUMENTS}
 
 SHOW CREATE TABLE `03593_t`;

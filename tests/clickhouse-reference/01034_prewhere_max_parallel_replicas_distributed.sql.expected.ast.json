@@ -1,225 +1,233 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_max_parallel_replicas_lr"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: replica, distributed"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_max_parallel_replicas_lr"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_max_parallel_replicas_lr"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "timestamp",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_max_parallel_replicas_lr"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "timestamp",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
           "name": "intHash32",
-          "args": [
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "timestamp"
-              ]
+              "type": "Identifier",
+              "name": "timestamp"
+            }
+          ]
+        },
+        "sample_by": {
+          "type": "Function",
+          "name": "intHash32",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "timestamp"
             }
           ]
         }
       }
-    ],
-    "sampleBy": {
-      "kind": "functionCall",
-      "name": "intHash32",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "timestamp"
-          ]
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- If you wonder why the table is named with \"_lr\" suffix in this test.",
-      "-- No reason. Actually it is the name of the table in our customer and they provided this test case for us."
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test_max_parallel_replicas_lr"
+        "type": "Identifier",
+        "name": "test_max_parallel_replicas_lr"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "timestamp",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "100"
+            }
+          }
+        ]
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_parallel_replicas": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_mode": "sampling_key"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_parallel_replicas": "2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_for_non_replicated_merge_tree": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_query_condition_cache": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2|3}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "test_max_parallel_replicas_lr"
+                      }
+                    ]
+                  }
+                }
+              }
             ]
           },
-          "alias": "timestamp"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100"
-        }
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "sampling_key"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_parallel_replicas",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_for_non_replicated_merge_tree",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_query_condition_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/91741"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2|3}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "test_max_parallel_replicas_lr"
-          ]
+          "prewhere": {
+            "type": "Function",
+            "name": "greater",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "timestamp"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          }
         }
       ]
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": ">",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "timestamp"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_max_parallel_replicas_lr"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_max_parallel_replicas_lr"
+      }
     }
   }
 ]

@@ -6,9 +6,9 @@ CREATE TEMPORARY TABLE temp_tab
     number UInt64
 );
 
-EXISTS TABLE temp_tab;
+EXISTS TEMPORARY TABLE temp_tab;
 
-SHOW CREATE TABLE temp_tab;
+SHOW CREATE TEMPORARY TABLE temp_tab;
 
 SHOW TEMPORARY TABLES LIKE 'temp_tab';
 

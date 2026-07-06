@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t0
 (
     k1 Nullable(Int)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (

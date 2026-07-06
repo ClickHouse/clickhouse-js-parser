@@ -1,115 +1,139 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/11813"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "alias": "x"
-              }
-            ]
-          },
-          "alias": "l"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "subqueryFrom",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "alias": "y"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "l",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "x",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               },
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "arrayLiteral",
-                  "elements": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ],
-                  "source": "[1]"
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "l.x",
+                        "name_parts": [
+                          "l",
+                          "x"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "r.y",
+                        "name_parts": [
+                          "r",
+                          "y"
+                        ]
+                      }
+                    ]
+                  }
                 },
-                "alias": "a"
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "r",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "y",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "a",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "name": "r.a",
+                      "name_parts": [
+                        "r",
+                        "a"
+                      ]
+                    }
+                  ]
+                }
               }
             ]
-          },
-          "alias": "r"
-        },
-        "constraint": {
-          "kind": "on",
-          "expr": {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "l",
-                "x"
-              ]
-            },
-            "right": {
-              "kind": "columnRef",
-              "parts": [
-                "r",
-                "y"
-              ]
-            }
           }
-        }
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "r",
-            "a"
-          ]
         }
       ]
     }

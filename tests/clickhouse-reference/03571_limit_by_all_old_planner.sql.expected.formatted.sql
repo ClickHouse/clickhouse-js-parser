@@ -1,10 +1,10 @@
-SET max_threads = 1;
+SET max_threads = '1';
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
-SET max_block_size = 65536;
+SET max_block_size = '65536';
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 DROP TABLE IF EXISTS test_limit_by_all_old_planner;
 
@@ -15,7 +15,7 @@ CREATE TABLE test_limit_by_all_old_planner
     value Int32,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_limit_by_all_old_planner;
 
@@ -28,7 +28,7 @@ SELECT
     name
 FROM test_limit_by_all_old_planner
 LIMIT 1 BY ALL
-SETTINGS allow_experimental_analyzer = 0; -- {serverError NOT_IMPLEMENTED}
+SETTINGS allow_experimental_analyzer = '0'; -- {serverError NOT_IMPLEMENTED}
 
 -- Test 2: Basic LIMIT BY usage.
 SELECT
@@ -179,7 +179,7 @@ FROM (
             value ASC,
             name ASC
         LIMIT 2 BY d, category
-        SETTINGS enable_positional_arguments = 0
+        SETTINGS enable_positional_arguments = '0'
     )
 GROUP BY
     d,
@@ -197,7 +197,7 @@ SELECT
 FROM test_limit_by_all_old_planner
 ORDER BY
     id ASC,
-    category ASC,
+    category ASC NULLS FIRST,
     value ASC
 LIMIT 1 BY id, category;
 

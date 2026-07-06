@@ -3,11 +3,11 @@
 -- no-parallel: SYSTEM CLEAR MARK CACHE is used.
 DROP TABLE IF EXISTS t_lightweight_mut_5;
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
-SET enable_filesystem_cache = 0;
+SET enable_filesystem_cache = '0';
 
-SET read_through_distributed_cache = 0;
+SET read_through_distributed_cache = '0';
 
 CREATE TABLE t_lightweight_mut_5
 (
@@ -17,7 +17,7 @@ CREATE TABLE t_lightweight_mut_5
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/zktest/tables/{database}/t_lightweight_mut_1', '1')
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, primary_key_lazy_load = 0, serialization_info_version = 'basic', storage_policy = 's3_cache';
+SETTINGS min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', primary_key_lazy_load = '0', serialization_info_version = 'basic', storage_policy = 's3_cache';
 
 SYSTEM STOP MERGES t_lightweight_mut_5;
 
@@ -50,7 +50,7 @@ SELECT
     ProfileEvents['S3GetObject']
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND ilike(query, 'SELECT%FROM t_lightweight_mut_5%')
+    AND query ILIKE 'SELECT%FROM t_lightweight_mut_5%'
     AND type = 'QueryFinish'
 ORDER BY event_time_microseconds ASC;
 

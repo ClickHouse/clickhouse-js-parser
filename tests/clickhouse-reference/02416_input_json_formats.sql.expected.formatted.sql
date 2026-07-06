@@ -4,7 +4,7 @@ INSERT INTO FUNCTION file(`02416_data`.json) SELECT
     'Hello' AS s,
     range(number) AS a
 FROM numbers(3)
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
 DESCRIBE TABLE file(`02416_data`.json);
 
@@ -16,7 +16,7 @@ INSERT INTO FUNCTION file(`02416_data`.jsonCompact) SELECT
     'Hello' AS s,
     range(number) AS a
 FROM numbers(3)
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
 DESCRIBE TABLE file(`02416_data`.jsonCompact);
 
@@ -28,7 +28,7 @@ INSERT INTO FUNCTION file(`02416_data`.jsonColumnsWithMetadata) SELECT
     'Hello' AS s,
     range(number) AS a
 FROM numbers(3)
-SETTINGS engine_file_truncate_on_insert = 1;
+SETTINGS engine_file_truncate_on_insert = '1';
 
 DESCRIBE TABLE file(`02416_data`.jsonColumnsWithMetadata);
 

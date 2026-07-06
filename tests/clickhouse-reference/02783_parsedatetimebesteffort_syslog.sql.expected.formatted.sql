@@ -1,6 +1,6 @@
 SET session_timezone = 'UTC';
 
-SET formatdatetime_e_with_space_padding = 1;
+SET formatdatetime_e_with_space_padding = '1';
 
 WITH toDateTime('2023-06-30 23:59:30') AS dt_ref,
 

@@ -11,7 +11,7 @@ CREATE TABLE users
     gid LowCardinality(String),
     gname LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE `groups`
@@ -19,7 +19,7 @@ CREATE TABLE `groups`
     gid LowCardinality(String),
     gname LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE DICTIONARY groups_dict
@@ -58,4 +58,4 @@ LEFT JOIN `groups` AS g
     USING (gid, gname)
 FORMAT PrettyCompactMonoBlock;
 
-SET allow_experimental_analyzer = 0;
+SET allow_experimental_analyzer = '0';

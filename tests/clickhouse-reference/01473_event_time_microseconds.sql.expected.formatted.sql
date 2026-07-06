@@ -3,17 +3,17 @@
 -- Note: Only event_time_microseconds for asynchronous_metric_log table is tested via
 -- an integration test as those metrics take 60s by default to be updated.
 -- Refer: tests/integration/test_asynchronous_metric_log_table.
-SET log_queries = 1;
+SET log_queries = '1';
 
-SET log_query_threads = 1;
+SET log_query_threads = '1';
 
-SET query_profiler_real_time_period_ns = 100000000;
+SET query_profiler_real_time_period_ns = '100000000';
 
 -- a long enough query to trigger the query profiler and to record trace log
 SELECT sleep(2)
 FORMAT Null;
 
-SET query_profiler_real_time_period_ns = 1000000000;
+SET query_profiler_real_time_period_ns = '1000000000';
 
 SYSTEM FLUSH LOGS metric_log, trace_log, query_log, query_thread_log;
 
@@ -27,7 +27,7 @@ WITH (
         LIMIT 1
     ) AS time
 
-SELECT if(dateDiff('second', toDateTime(time.1), toDateTime(time.2)) = 0, 'ok', toString(time));
+SELECT if(dateDiff('second', toDateTime((time).1), toDateTime((time).2)) = 0, 'ok', toString(time));
 
 WITH (
         SELECT
@@ -38,7 +38,7 @@ WITH (
         LIMIT 1
     ) AS time
 
-SELECT if(dateDiff('second', toDateTime(time.1), toDateTime(time.2)) = 0, 'ok', toString(time));
+SELECT if(dateDiff('second', toDateTime((time).1), toDateTime((time).2)) = 0, 'ok', toString(time));
 
 WITH (
         SELECT
@@ -50,7 +50,7 @@ WITH (
         LIMIT 1
     ) AS time
 
-SELECT if(dateDiff('second', toDateTime(time.1), toDateTime(time.2)) = 0, 'ok', toString(time));
+SELECT if(dateDiff('second', toDateTime((time).1), toDateTime((time).2)) = 0, 'ok', toString(time));
 
 WITH (
         SELECT
@@ -62,4 +62,4 @@ WITH (
         LIMIT 1
     ) AS time
 
-SELECT if(dateDiff('second', toDateTime(time.1), toDateTime(time.2)) = 0, 'ok', toString(time));
+SELECT if(dateDiff('second', toDateTime((time).1), toDateTime((time).2)) = 0, 'ok', toString(time));

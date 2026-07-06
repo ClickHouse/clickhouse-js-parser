@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS repro
     a LowCardinality(String),
     foos Nested(x LowCardinality(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE IF NOT EXISTS repro_dist

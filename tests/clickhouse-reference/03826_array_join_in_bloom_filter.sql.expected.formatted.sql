@@ -6,7 +6,7 @@ CREATE TABLE test_array_bloom
     id UInt16,
     ts DateTime,
     data Array(String),
-    INDEX test_bloom data TYPE bloom_filter GRANULARITY 1
+    INDEX test_bloom data TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY id

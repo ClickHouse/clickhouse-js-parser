@@ -1,15 +1,15 @@
 -- Tags: no-fasttest
 -- no-fasttest: 'countmin' sketches need a 3rd party library
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
-DROP TABLE IF EXISTS t_alter_auto_statistics;
+DROP TABLE IF EXISTS t_alter_auto_statistics SYNC;
 
 CREATE TABLE t_alter_auto_statistics
 (
     a UInt64,
-    b UInt64 STATISTICS(minmax),
+    b UInt64 STATISTICS(minmax()),
     c String
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_alter_auto_statistics', '1')
@@ -41,4 +41,4 @@ ALTER TABLE t_alter_auto_statistics MODIFY SETTING auto_statistics_types = 'minm
 
 INSERT INTO t_alter_auto_statistics;
 
-ALTER TABLE t_alter_auto_statistics DROP STATISTICS ALL;
+ALTER TABLE t_alter_auto_statistics CLEAR STATISTICS ALL;

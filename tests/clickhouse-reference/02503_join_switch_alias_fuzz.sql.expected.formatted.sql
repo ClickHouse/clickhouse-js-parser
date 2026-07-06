@@ -14,5 +14,5 @@ LEFT JOIN (
     ON b.id = a.id
 SETTINGS
     join_algorithm = 'auto',
-    max_rows_in_join = 1,
-    enable_analyzer = 1;
+    max_rows_in_join = '1',
+    enable_analyzer = '1';

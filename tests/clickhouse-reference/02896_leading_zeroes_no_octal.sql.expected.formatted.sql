@@ -11,7 +11,7 @@ CREATE TABLE t_leading_zeroes
     expected Int64,
     comment String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE TABLE t_leading_zeroes_f
@@ -22,10 +22,10 @@ CREATE TABLE t_leading_zeroes_f
     expected Float64,
     comment String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
-SET input_format_values_interpret_expressions = 0;
+SET input_format_values_interpret_expressions = '0';
 
 INSERT INTO t_leading_zeroes;
 
@@ -194,7 +194,7 @@ INSERT INTO t_leading_zeroes; -- { error SYNTAX_ERROR }
 
 INSERT INTO t_leading_zeroes; -- { error SYNTAX_ERROR }
 
-SET input_format_values_interpret_expressions = 1;
+SET input_format_values_interpret_expressions = '1';
 
 INSERT INTO t_leading_zeroes;
 
@@ -360,13 +360,13 @@ INSERT INTO t_leading_zeroes_f;
 INSERT INTO t_leading_zeroes_f;
 
 SELECT
-    t.val == t.expected AS ok,
+    t.val = t.expected AS ok,
     *
 FROM t_leading_zeroes AS t
 ORDER BY id ASC;
 
 SELECT
-    t.val == t.expected AS ok,
+    t.val = t.expected AS ok,
     *
 FROM t_leading_zeroes_f AS t
 ORDER BY id ASC;

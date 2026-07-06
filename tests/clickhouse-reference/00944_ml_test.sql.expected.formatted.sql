@@ -8,15 +8,15 @@ CREATE TABLE defaults
     predict1 Float64,
     predict2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
 DROP TABLE IF EXISTS model;
 
 CREATE TABLE model
-ENGINE = Memory AS
-SELECT stochasticLinearRegressionState(0.1, 0.0, 2, 'SGD')(target, param1, param2) AS state
+ENGINE = Memory() AS
+SELECT stochasticLinearRegressionState(0.1, 0., 2, 'SGD')(target, param1, param2) AS state
 FROM defaults;
 
 SELECT ans < -61.374
@@ -34,7 +34,7 @@ FROM (
 SELECT 0 < ans[1]
     AND ans[1] < 0.15
     AND 0.95 < ans[2]
-    AND ans[2] < 1.0
+    AND ans[2] < 1.
     AND 0 < ans[3]
     AND ans[3] < 0.05
 FROM (

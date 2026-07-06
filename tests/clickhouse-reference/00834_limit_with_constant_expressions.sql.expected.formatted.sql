@@ -16,7 +16,7 @@ LIMIT 0 - 1;
 
 SELECT number
 FROM numbers(10)
-LIMIT 1.0;
+LIMIT 1.;
 
 SELECT number
 FROM numbers(10)
@@ -71,7 +71,8 @@ LIMIT 0.33 / 0.165 - 0.33 + 0.67; -- { serverError INVALID_LIMIT_EXPRESSION }
 
 SELECT *
 FROM numbers(10)
-LIMIT LENGTH('NNN') + COS(0), toDate('0000-00-02'); -- { serverError INVALID_LIMIT_EXPRESSION }
+LIMIT toDate('0000-00-02')
+OFFSET LENGTH('NNN') + COS(0); -- { serverError INVALID_LIMIT_EXPRESSION }
 
 SELECT *
 FROM numbers(10)

@@ -10,7 +10,7 @@ CREATE TABLE prewhere_int128
 (
     a Int128
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO prewhere_int128;
@@ -25,7 +25,7 @@ CREATE TABLE prewhere_int256
 (
     a Int256
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO prewhere_int256;
@@ -40,7 +40,7 @@ CREATE TABLE prewhere_uint128
 (
     a UInt128
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO prewhere_uint128;
@@ -55,7 +55,7 @@ CREATE TABLE prewhere_uint256
 (
     a UInt256
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO prewhere_uint256;

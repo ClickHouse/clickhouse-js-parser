@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 CREATE TABLE partsupp
 (
@@ -18,7 +18,7 @@ CREATE TABLE lineitem
     l_suppkey Int32,
     l_quantity Decimal(15, 2)
 )
-ORDER BY tuple();
+ORDER BY ();
 
 INSERT INTO lineitem (l_partkey, l_suppkey, l_quantity);
 
@@ -28,8 +28,8 @@ SELECT
     (
         SELECT 0.5 * sum(l_quantity)
         FROM lineitem
-        WHERE (l_partkey = ps_partkey)
-            AND (l_suppkey = ps_suppkey)
+        WHERE l_partkey = ps_partkey
+            AND l_suppkey = ps_suppkey
     ) AS half_sum_quantity
 FROM partsupp
 WHERE (ps_partkey, ps_suppkey) IN ((114, 115), (369, 7870))
@@ -44,6 +44,6 @@ FROM partsupp
 WHERE ps_availqty > (
         SELECT 0.5 * sum(l_quantity)
         FROM lineitem
-        WHERE (l_partkey = ps_partkey)
-            AND (l_suppkey = ps_suppkey)
+        WHERE l_partkey = ps_partkey
+            AND l_suppkey = ps_suppkey
     );

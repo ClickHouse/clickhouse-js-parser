@@ -1,13 +1,13 @@
-SET async_insert = 1;
+SET async_insert = '1';
 
-SET wait_for_async_insert = 0;
+SET wait_for_async_insert = '0';
 
-SET async_insert_deduplicate = 1;
+SET async_insert_deduplicate = '1';
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
 -- turn off adaptive busy timeout to make test stable
-SET async_insert_use_adaptive_busy_timeout = 0, async_insert_busy_timeout_min_ms = 1000, async_insert_busy_timeout_max_ms = 5000;
+SET async_insert_use_adaptive_busy_timeout = '0', async_insert_busy_timeout_min_ms = '1000', async_insert_busy_timeout_max_ms = '5000';
 
 CREATE TABLE `03732_table`
 (
@@ -33,7 +33,7 @@ FROM `03732_table`;
 
 INSERT INTO `03732_table`;
 
-SYSTEM flush async insert queue 03732_table;
+SYSTEM FLUSH ASYNC INSERT QUEUE `03732_table`;
 
 SELECT count(*)
 FROM `03732_table`; -- Expecting 3
@@ -65,7 +65,7 @@ INSERT INTO `03732_table_join`;
 
 INSERT INTO `03732_table_join`;
 
-SYSTEM flush async insert queue 03732_table_join;
+SYSTEM FLUSH ASYNC INSERT QUEUE `03732_table_join`;
 
 CREATE TABLE `03732_table_join_mv_dst`
 (

@@ -19,10 +19,10 @@ CREATE TABLE main_table_01818
     create_time DateTime,
     update_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY campaign_id
 PARTITION BY advertiser_id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE tmp_table_01818
 (
@@ -41,69 +41,30 @@ CREATE TABLE tmp_table_01818
     create_time DateTime,
     update_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY campaign_id
 PARTITION BY advertiser_id
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO main_table_01818 SELECT
     1 AS id,
     'ClickHouse' AS advertiser_id,
     * EXCEPT (id, advertiser_id)
-FROM generateRandom('`id` UInt32,
-    `advertiser_id` String,
-    `campaign_id` String,
-    `name` String,
-    `budget` Float64,
-    `budget_mode` String,
-    `landing_type` String,
-    `status` String,
-    `modify_time` String,
-    `campaign_type` String,
-    `campaign_create_time` DateTime,
-    `campaign_modify_time` DateTime,
-    `create_time` DateTime,
-    `update_time` DateTime', 10, 10, 10)
+FROM generateRandom('`id` UInt32,\n    `advertiser_id` String,\n    `campaign_id` String,\n    `name` String,\n    `budget` Float64,\n    `budget_mode` String,\n    `landing_type` String,\n    `status` String,\n    `modify_time` String,\n    `campaign_type` String,\n    `campaign_create_time` DateTime,\n    `campaign_modify_time` DateTime,\n    `create_time` DateTime,\n    `update_time` DateTime', 10, 10, 10)
 LIMIT 100;
 
 INSERT INTO tmp_table_01818 SELECT
     2 AS id,
     'Database' AS advertiser_id,
     * EXCEPT (id, advertiser_id)
-FROM generateRandom('`id` UInt32,
-    `advertiser_id` String,
-    `campaign_id` String,
-    `name` String,
-    `budget` Float64,
-    `budget_mode` String,
-    `landing_type` String,
-    `status` String,
-    `modify_time` String,
-    `campaign_type` String,
-    `campaign_create_time` DateTime,
-    `campaign_modify_time` DateTime,
-    `create_time` DateTime,
-    `update_time` DateTime', 10, 10, 10)
+FROM generateRandom('`id` UInt32,\n    `advertiser_id` String,\n    `campaign_id` String,\n    `name` String,\n    `budget` Float64,\n    `budget_mode` String,\n    `landing_type` String,\n    `status` String,\n    `modify_time` String,\n    `campaign_type` String,\n    `campaign_create_time` DateTime,\n    `campaign_modify_time` DateTime,\n    `create_time` DateTime,\n    `update_time` DateTime', 10, 10, 10)
 LIMIT 100;
 
 INSERT INTO tmp_table_01818 SELECT
     3 AS id,
     'ClickHouse' AS advertiser_id,
     * EXCEPT (id, advertiser_id)
-FROM generateRandom('`id` UInt32,
-    `advertiser_id` String,
-    `campaign_id` String,
-    `name` String,
-    `budget` Float64,
-    `budget_mode` String,
-    `landing_type` String,
-    `status` String,
-    `modify_time` String,
-    `campaign_type` String,
-    `campaign_create_time` DateTime,
-    `campaign_modify_time` DateTime,
-    `create_time` DateTime,
-    `update_time` DateTime', 10, 10, 10)
+FROM generateRandom('`id` UInt32,\n    `advertiser_id` String,\n    `campaign_id` String,\n    `name` String,\n    `budget` Float64,\n    `budget_mode` String,\n    `landing_type` String,\n    `status` String,\n    `modify_time` String,\n    `campaign_type` String,\n    `campaign_create_time` DateTime,\n    `campaign_modify_time` DateTime,\n    `create_time` DateTime,\n    `update_time` DateTime', 10, 10, 10)
 LIMIT 100;
 
 SELECT

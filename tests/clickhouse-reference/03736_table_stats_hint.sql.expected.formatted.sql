@@ -1,10 +1,10 @@
-SET allow_experimental_statistics = 1;
+SET allow_experimental_statistics = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 CREATE TABLE part
 (
@@ -36,34 +36,32 @@ INSERT INTO partsupp SELECT
     number
 FROM numbers(200);
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET use_statistics = 1;
+SET use_statistics = '1';
 
 SELECT `explain`
 FROM (
-        EXPLAIN PLAN keep_logical_steps = 1, actions = 1
-        SELECT count()
-        FROM
-            partsupp
-        CROSS JOIN part
-        WHERE ps_partkey = p_partkey
-            AND ps_availqty >= 10
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'keep_logical_steps = 1, actions = 1', (
+                SELECT count()
+                FROM
+                    partsupp,
+                    part
+                WHERE ps_partkey = p_partkey
+                    AND ps_availqty >= 10
+            ))
     )
-WHERE like(`explain`, '% Join: %')
-    OR like(`explain`, '% ResultRows: %')
-    OR like(`explain`, '% Expression (%')
-    OR like(`explain`, '% ReadFromMergeTree %');
+WHERE `explain` LIKE '% Join: %'
+    OR `explain` LIKE '% ResultRows: %'
+    OR `explain` LIKE '% Expression (%'
+    OR `explain` LIKE '% ReadFromMergeTree %';
 
-SET use_statistics = 0;
+SET use_statistics = '0';
 
 SET query_plan_optimize_join_order_algorithm = 'greedy';
 
 -- Statistics hint with all values multiplied by 10 compared to real
-SET param__internal_join_table_stat_hints = '
-{
-    "part": { "cardinality": 1000, "distinct_keys": { "p_partkey" : 1000, "p_name" : 1000 } },
-    "partsupp": { "cardinality": 1900, "distinct_keys": { "ps_partkey" : 950, "ps_suppkey" : 170, "ps_availqty" : 200 } }
-}';
+SET param__internal_join_table_stat_hints = '\n{\n    "part": { "cardinality": 1000, "distinct_keys": { "p_partkey" : 1000, "p_name" : 1000 } },\n    "partsupp": { "cardinality": 1900, "distinct_keys": { "ps_partkey" : 950, "ps_suppkey" : 170, "ps_availqty" : 200 } }\n}';
 
 SET send_logs_level = 'error'; -- Suppress Warning logs about hint

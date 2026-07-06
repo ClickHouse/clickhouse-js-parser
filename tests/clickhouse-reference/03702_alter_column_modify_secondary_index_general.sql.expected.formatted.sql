@@ -1,10 +1,10 @@
 -- Tests the behavior of MergeTree setting 'alter_column_secondary_index_mode' with tables in compact and wide format
 -- for UPDATE MODIFY COLUMN operations.
-SET apply_mutations_on_fly = 0;
+SET apply_mutations_on_fly = '0';
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
-SET alter_sync = 1;
+SET alter_sync = '1';
 
 DROP TABLE IF EXISTS test_compact;
 
@@ -15,22 +15,22 @@ CREATE TABLE test_compact
     a Int32,
     b Int32,
     c Int32,
-    INDEX idx_minmax b TYPE minmax
+    INDEX idx_minmax b TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS min_bytes_for_wide_part = 999999999;
+SETTINGS min_bytes_for_wide_part = '999999999';
 
 CREATE TABLE test_wide
 (
     a Int32,
     b Int32,
     c Int32,
-    INDEX idx_minmax b TYPE minmax
+    INDEX idx_minmax b TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO test_compact;
 
@@ -69,7 +69,7 @@ ALTER TABLE test_wide MODIFY COLUMN b Int32;
 SELECT
     table,
     name,
-    concat('Emtpy : ', if(marks_bytes == 0, 'true', 'false'))
+    'Emtpy : ' || if(marks_bytes = 0, 'true', 'false')
 FROM `system`.data_skipping_indices
 WHERE table = 'test_compact'
     AND database = currentDatabase()
@@ -78,7 +78,7 @@ WHERE table = 'test_compact'
 SELECT
     table,
     name,
-    concat('Emtpy : ', if(marks_bytes == 0, 'true', 'false'))
+    'Emtpy : ' || if(marks_bytes = 0, 'true', 'false')
 FROM `system`.data_skipping_indices
 WHERE table = 'test_wide'
     AND database = currentDatabase()

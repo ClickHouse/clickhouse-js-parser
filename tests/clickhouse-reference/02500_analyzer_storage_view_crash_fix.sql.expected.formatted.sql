@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_table
     f2 Int32,
     pk Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY f1
 PARTITION BY pk;
 

@@ -21,22 +21,22 @@ CREATE TABLE buffer_
 (
     key UInt64
 )
-ENGINE = Buffer(currentDatabase(), null_, 1, 10e6, 10e6, 0, 10e6, 0, 80e6);
+ENGINE = Buffer(currentDatabase(), null_, 1, 10000000., 10000000., 0, 10000000., 0, 80000000.);
 
-SET max_memory_usage = 10e6;
+SET max_memory_usage = 10000000.;
 
-SET max_block_size = 100e3;
+SET max_block_size = 100000.;
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
 -- Check that max_memory_usage is ignored only on flush and not on squash
-SET min_insert_block_size_bytes = 9e6;
+SET min_insert_block_size_bytes = 9000000.;
 
-SET min_insert_block_size_rows = 0;
+SET min_insert_block_size_rows = '0';
 
 INSERT INTO buffer_ SELECT toUInt64(number)
 FROM `system`.numbers
-LIMIT toUInt64(10e6 + 1); -- { serverError MEMORY_LIMIT_EXCEEDED }
+LIMIT toUInt64(10000000. + 1); -- { serverError MEMORY_LIMIT_EXCEEDED }
 
 OPTIMIZE TABLE buffer_; -- flush just in case
 
@@ -49,9 +49,9 @@ SELECT toString(key)
 FROM null_;
 
 -- Check that max_memory_usage is ignored during write from StorageBuffer
-SET min_insert_block_size_bytes = 0;
+SET min_insert_block_size_bytes = '0';
 
-SET min_insert_block_size_rows = 100e3;
+SET min_insert_block_size_rows = 100000.;
 
 -- Check that 10e6 rows had been flushed from the query, not from the background worker.
 SELECT count()

@@ -17,14 +17,14 @@ CREATE TABLE raw_data
     id UInt32,
     data String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 CREATE VIEW parameterized_view_one_param
 AS
 SELECT *
 FROM raw_data
-WHERE id = {id:UInt32};
+WHERE id = 0;
 
 SELECT
     name,
@@ -38,7 +38,8 @@ CREATE VIEW parameterized_view_multiple_params
 AS
 SELECT *
 FROM raw_data
-WHERE and(greaterOrEquals(id, {id_from:UInt32}), lessOrEquals(id, {id_to:UInt32}));
+WHERE id >= 0
+    AND id <= 0;
 
 SELECT
     name,
@@ -66,7 +67,7 @@ CREATE VIEW parameterized_view_one_param_temporary
 AS
 SELECT *
 FROM raw_data
-WHERE id = {id:UInt32};
+WHERE id = 0;
 
 SELECT
     name,
@@ -80,9 +81,11 @@ CREATE VIEW parameterized_view_multiple_params_temporary
 AS
 SELECT *
 FROM raw_data
-WHERE and(greaterOrEquals(CounterID, {counter_id_from:UInt32}), lessOrEquals(CounterID, {counter_id_to:UInt32}))
-    AND and(greaterOrEquals(StartDate, {date_from:Date}), lessOrEquals(StartDate, {date_to:UInt32}))
-    AND UserId = {UserId:UInt32};
+WHERE (CounterID >= 0
+    AND CounterID <= 0)
+    AND (StartDate >= '2020-01-01'
+    AND StartDate <= 0)
+    AND UserId = 0;
 
 SELECT
     name,

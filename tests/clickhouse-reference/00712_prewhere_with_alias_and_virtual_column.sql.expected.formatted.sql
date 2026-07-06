@@ -6,7 +6,7 @@ CREATE TABLE tab_00712_1
     b UInt32 ALIAS a + 1,
     c UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab_00712_1;

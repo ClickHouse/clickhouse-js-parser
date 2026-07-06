@@ -1,4 +1,4 @@
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 DROP TABLE IF EXISTS samples;
 
@@ -8,8 +8,8 @@ CREATE TABLE samples
     value UInt32
 )
 ENGINE = MergeTree()
-ORDER BY key
-PRIMARY KEY key;
+PRIMARY KEY key
+ORDER BY key;
 
 INSERT INTO samples;
 
@@ -37,9 +37,9 @@ WHERE key IN (arraySlice(range(100), 10, 10));
 SELECT 'a' IN (splitByChar('c', 'abcdef'));
 
 -- non-constant expressions in the right side of IN now work with array-returning functions
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT count()
 FROM samples

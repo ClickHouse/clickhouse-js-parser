@@ -10,7 +10,7 @@ CREATE TABLE data
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO data SELECT
     *,

@@ -9,7 +9,7 @@ CREATE TABLE `03720_test`
     k2 UInt64,
     val UInt64
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_test` SELECT
@@ -18,35 +18,35 @@ INSERT INTO `03720_test` SELECT
     number
 FROM numbers(100);
 
-SELECT COUNT(1) == 100
+SELECT COUNT(1) = 100
 FROM `03720_test`; -- Full scan
 
-SELECT COUNT(1) == 5
+SELECT COUNT(1) = 5
 FROM `03720_test`
 WHERE k1 = 5
     AND k2 IN (15, 35, 55, 75, 95); -- Key scan
 
-SELECT COUNT(1) == 0
+SELECT COUNT(1) = 0
 FROM `03720_test`
 WHERE k1 = 6
     AND k2 IN (15, 35, 55, 75, 95);
 
-SELECT COUNT(1) == 1
+SELECT COUNT(1) = 1
 FROM `03720_test`
 WHERE k1 IN (1, 3, 5)
     AND k2 = 15
     AND k1 IN (3, 5, 7);
 
-SELECT COUNT(1) == 0
+SELECT COUNT(1) = 0
 FROM `03720_test`
 WHERE k1 IN (1, 3, 5)
     AND k2 = 15
     AND k1 IN (2, 4, 6);
 
-SELECT COUNT(1) == 6
+SELECT COUNT(1) = 6
 FROM `03720_test`
-WHERE ((k1 IN (1, 3, 5)
-    OR k1 IN (2, 3, 4, 5, 6)))
+WHERE (k1 IN (1, 3, 5)
+    OR k1 IN (2, 3, 4, 5, 6))
     AND k2 IN (11, 13, 15, 12, 14, 16);
 
 DROP TABLE `03720_test`;
@@ -60,7 +60,7 @@ CREATE TABLE `03720_tuple_equality`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_tuple_equality`;
@@ -82,7 +82,7 @@ WHERE (k1, k2) = (3, 30); -- non-existent
 SELECT COUNT(*)
 FROM `03720_tuple_equality`
 WHERE k1 = 1
-    AND k2 IN (tuple());
+    AND k2 IN ();
 
 DROP TABLE `03720_tuple_equality`;
 
@@ -95,7 +95,7 @@ CREATE TABLE `03720_tuple_in`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_tuple_in`;
@@ -121,7 +121,7 @@ CREATE TABLE `03720_three_columns`
     k3 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 INSERT INTO `03720_three_columns`;
@@ -144,12 +144,12 @@ WHERE k1 = 1
 
 SELECT COUNT(*)
 FROM `03720_three_columns`
-WHERE (k1 = 1
+WHERE k1 = 1
     AND k2 = 1
-    AND k3 = 1)
-    OR (k1 = 1
+    AND k3 = 1
+    OR k1 = 1
     AND k2 = 2
-    AND k3 = 1); -- OR with all 3 keys specified
+    AND k3 = 1; -- OR with all 3 keys specified
 
 DROP TABLE `03720_three_columns`;
 
@@ -164,7 +164,7 @@ CREATE TABLE `03720_four_columns`
     k4 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3, k4);
 
 INSERT INTO `03720_four_columns`;
@@ -191,7 +191,7 @@ CREATE TABLE `03720_string_keys`
     k2 String,
     val UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_string_keys`;
@@ -222,7 +222,7 @@ CREATE TABLE `03720_mixed_types`
     k2 String,
     val Float32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_mixed_types`;
@@ -249,7 +249,7 @@ CREATE TABLE `03720_datetime`
     k2 DateTime,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_datetime`;
@@ -269,7 +269,7 @@ CREATE TABLE `03720_enum`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_enum`;
@@ -288,7 +288,7 @@ CREATE TABLE `03720_single_column`
     k1 UInt64,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY k1;
 
 INSERT INTO `03720_single_column`;
@@ -314,7 +314,7 @@ CREATE TABLE `03720_cartesian`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_cartesian`;
@@ -340,7 +340,7 @@ CREATE TABLE `03720_large_cartesian`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_large_cartesian` SELECT
@@ -365,7 +365,7 @@ CREATE TABLE `03720_empty_results`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_empty_results`;
@@ -394,17 +394,17 @@ CREATE TABLE `03720_complex_or`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_complex_or`;
 
 SELECT COUNT(*)
 FROM `03720_complex_or`
-WHERE (k1 = 1
-    AND k2 = 1)
-    OR (k1 = 2
-    AND k2 = 2);
+WHERE k1 = 1
+    AND k2 = 1
+    OR k1 = 2
+    AND k2 = 2;
 
 SELECT COUNT(*)
 FROM `03720_complex_or`
@@ -421,7 +421,7 @@ CREATE TABLE `03720_mutations`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_mutations`;
@@ -446,7 +446,7 @@ CREATE TABLE `03720_partial_key`
     k3 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 INSERT INTO `03720_partial_key` SELECT
@@ -472,7 +472,7 @@ CREATE TABLE `03720_deletes`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_deletes`;
@@ -516,7 +516,7 @@ CREATE TABLE `03720_deletes_three_col`
     k3 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 INSERT INTO `03720_deletes_three_col`;
@@ -543,7 +543,7 @@ CREATE TABLE `03720_deletes_string`
     k2 String,
     val UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_deletes_string`;
@@ -570,7 +570,7 @@ CREATE TABLE `03720_updates`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_updates`;
@@ -612,7 +612,7 @@ CREATE TABLE `03720_updates_three_col`
     k3 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 INSERT INTO `03720_updates_three_col`;
@@ -637,7 +637,7 @@ CREATE TABLE `03720_updates_string`
     k2 String,
     val UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_updates_string`;
@@ -663,7 +663,7 @@ CREATE TABLE `03720_upsert`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_upsert`;
@@ -697,7 +697,7 @@ CREATE TABLE `03720_join_left`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 CREATE TABLE `03720_join_right`
@@ -706,7 +706,7 @@ CREATE TABLE `03720_join_right`
     k2 UInt32,
     info String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_join_left`;
@@ -759,7 +759,7 @@ CREATE TABLE `03720_join_three_left`
     k3 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 CREATE TABLE `03720_join_three_right`
@@ -769,7 +769,7 @@ CREATE TABLE `03720_join_three_right`
     k3 UInt32,
     info String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2, k3);
 
 INSERT INTO `03720_join_three_left`;
@@ -810,7 +810,7 @@ CREATE TABLE `03720_join_str_left`
     k2 String,
     val UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 CREATE TABLE `03720_join_str_right`
@@ -819,7 +819,7 @@ CREATE TABLE `03720_join_str_right`
     k2 String,
     val UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 INSERT INTO `03720_join_str_left`;
@@ -858,7 +858,7 @@ CREATE TABLE `03720_join_rocks`
     k2 UInt32,
     val String
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY (k1, k2);
 
 CREATE TABLE `03720_join_merge`

@@ -7,7 +7,7 @@ CREATE TABLE Alpha
     foo String,
     bar UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE Beta
@@ -15,7 +15,7 @@ CREATE TABLE Beta
     foo LowCardinality(String),
     baz UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO Alpha;
@@ -59,7 +59,7 @@ FULL JOIN (
     USING (k)
 ORDER BY js2.k ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE Alpha;
 

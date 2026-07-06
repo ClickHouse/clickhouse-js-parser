@@ -6,14 +6,14 @@ CREATE TABLE t1_00856
 (
     n Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2_00856
 (
     a Int32,
     n Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT count()
 FROM t1_00856

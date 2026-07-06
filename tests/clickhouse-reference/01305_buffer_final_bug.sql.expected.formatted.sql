@@ -6,7 +6,7 @@ CREATE TABLE t
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (x, intHash64(x))
 SAMPLE BY intHash64(x);
 

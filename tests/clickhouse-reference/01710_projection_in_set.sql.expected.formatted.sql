@@ -5,21 +5,15 @@ CREATE TABLE x
     i UInt64,
     j UInt64,
     k UInt64,
-    PROJECTION agg (    SELECT
-        sum(j),
-        avg(k)
-    GROUP BY i),
-    PROJECTION norm (    SELECT
-        j,
-        k
-    ORDER BY i ASC)
+    PROJECTION agg (SELECT sum(j), avg(k) GROUP BY i),
+    PROJECTION norm (SELECT j, k ORDER BY i)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO x;
 
-SET optimize_use_projections = 1, use_index_for_in_with_subqueries = 0;
+SET optimize_use_projections = '1', use_index_for_in_with_subqueries = '0';
 
 SELECT
     sum(j),
@@ -60,7 +54,7 @@ SELECT if(SrcAS IN (
         LIMIT 10
     ), SrcAS, 33) AS SrcAS
 FROM flows
-WHERE 2 == 2
+WHERE 2 = 2
 ORDER BY SrcAS ASC;
 
 DROP TABLE flows;

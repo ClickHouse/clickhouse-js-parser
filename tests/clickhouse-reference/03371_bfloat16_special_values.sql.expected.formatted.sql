@@ -1,31 +1,31 @@
 -- Check that Float32 and BFloat16 return the same values for calculations with special values
 SELECT
-    toFloat32(0.0) == toFloat32(-0.0),
-    toBFloat16(0.0) == toBFloat16(-0.0);
+    toFloat32(0.) = toFloat32(-0.),
+    toBFloat16(0.) = toBFloat16(-0.);
 
 SELECT
-    toFloat32(0.0) != toFloat32(-0.0),
-    toBFloat16(0.0) != toBFloat16(-0.0);
+    toFloat32(0.) != toFloat32(-0.),
+    toBFloat16(0.) != toBFloat16(-0.);
 
 SELECT
-    toFloat32(0.0) > toFloat32(-0.0),
-    toBFloat16(0.0) > toBFloat16(-0.0);
+    toFloat32(0.) > toFloat32(-0.),
+    toBFloat16(0.) > toBFloat16(-0.);
 
 SELECT
-    toFloat32(0.0) < toFloat32(-0.0),
-    toBFloat16(0.0) < toBFloat16(-0.0);
+    toFloat32(0.) < toFloat32(-0.),
+    toBFloat16(0.) < toBFloat16(-0.);
 
 SELECT
-    toFloat32(0.0) + toFloat32(-0.0),
-    toBFloat16(0.0) + toBFloat16(-0.0);
+    toFloat32(0.) + toFloat32(-0.),
+    toBFloat16(0.) + toBFloat16(-0.);
 
 SELECT
-    toFloat32(-0.0) + toFloat32(-0.0),
-    toBFloat16(-0.0) + toBFloat16(-0.0);
+    toFloat32(-0.) + toFloat32(-0.),
+    toBFloat16(-0.) + toBFloat16(-0.);
 
 SELECT
-    toFloat32(nan) == toFloat32(nan),
-    toBFloat16(nan) == toBFloat16(nan);
+    toFloat32(nan) = toFloat32(nan),
+    toBFloat16(nan) = toBFloat16(nan);
 
 SELECT
     toFloat32(nan) + toFloat32(nan),
@@ -68,8 +68,8 @@ SELECT
     toBFloat16(5.5) % toBFloat16(nan);
 
 SELECT
-    toFloat32(inf) == toFloat32(inf),
-    toBFloat16(inf) == toBFloat16(inf);
+    toFloat32(inf) = toFloat32(inf),
+    toBFloat16(inf) = toBFloat16(inf);
 
 SELECT
     toFloat32(inf) + toFloat32(inf),
@@ -92,8 +92,8 @@ SELECT
     toBFloat16(inf) % toBFloat16(inf);
 
 SELECT
-    toFloat32(-inf) == toFloat32(-inf),
-    toBFloat16(-inf) == toBFloat16(-inf);
+    toFloat32(-inf) = toFloat32(-inf),
+    toBFloat16(-inf) = toBFloat16(-inf);
 
 SELECT
     toFloat32(5.5) + toFloat32(inf),
@@ -123,8 +123,8 @@ CREATE TABLE tab
     c0 Tuple(BFloat16)
 )
 ENGINE = SummingMergeTree()
-ORDER BY (c0)
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0; -- Disable sparse serialization, otherwise the test becomes flaky
+ORDER BY c0
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.; -- Disable sparse serialization, otherwise the test becomes flaky
 
 INSERT INTO tab (c0);
 
@@ -139,8 +139,8 @@ CREATE TABLE tab
     c0 BFloat16 PRIMARY KEY
 )
 ENGINE = SummingMergeTree()
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0
-PRIMARY KEY c0; -- Disable sparse serialization, otherwise the test becomes flaky
+PRIMARY KEY c0
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.; -- Disable sparse serialization, otherwise the test becomes flaky
 
 INSERT INTO tab (c0);
 

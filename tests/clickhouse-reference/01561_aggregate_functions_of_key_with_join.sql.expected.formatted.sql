@@ -1,4 +1,4 @@
-SET optimize_aggregators_of_group_by_keys = 1;
+SET optimize_aggregators_of_group_by_keys = '1';
 
 SELECT
     source.key,

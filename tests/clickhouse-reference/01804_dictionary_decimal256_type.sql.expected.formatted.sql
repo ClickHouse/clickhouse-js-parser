@@ -6,7 +6,7 @@ CREATE TABLE dictionary_decimal_source_table
     id UInt64,
     decimal_value Decimal256(5)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_decimal_source_table;
 
@@ -82,7 +82,7 @@ CREATE TABLE ip_trie_dictionary_decimal_source_table
     prefix String,
     decimal_value Decimal256(5)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO ip_trie_dictionary_decimal_source_table;
 
@@ -94,7 +94,7 @@ CREATE DICTIONARY ip_trie_dictionary
     decimal_value Decimal256(5)
 )
 PRIMARY KEY prefix
-SOURCE(clickhouse(HOST 'localhost' port tcpPort() TABLE 'ip_trie_dictionary_decimal_source_table'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() TABLE 'ip_trie_dictionary_decimal_source_table'))
 LIFETIME(MIN 10 MAX 1000)
 LAYOUT(IP_TRIE());
 
@@ -111,7 +111,7 @@ CREATE TABLE dictionary_decimal_polygons_source_table
     key Array(Array(Array(Tuple(Float64, Float64)))),
     decimal_value Decimal256(5)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO dictionary_decimal_polygons_source_table;
 

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     count(),
@@ -9,4 +9,4 @@ ORDER BY k ASC;
 
 SELECT '---';
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';

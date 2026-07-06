@@ -1,10 +1,10 @@
 DROP TABLE IF EXISTS t_lwu_multistep;
 
-SET enable_multiple_prewhere_read_steps = 1;
+SET enable_multiple_prewhere_read_steps = '1';
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
-SET move_all_conditions_to_prewhere = 1;
+SET move_all_conditions_to_prewhere = '1';
 
 CREATE TABLE t_lwu_multistep
 (
@@ -14,9 +14,9 @@ CREATE TABLE t_lwu_multistep
     d UInt64,
     e UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO t_lwu_multistep SELECT
     number % 2,

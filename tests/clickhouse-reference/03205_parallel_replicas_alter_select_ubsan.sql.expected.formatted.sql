@@ -1,6 +1,6 @@
-SET alter_sync = 2;
+SET alter_sync = '2';
 
-SET max_parallel_replicas = 3, cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = true;
+SET max_parallel_replicas = '3', cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost', parallel_replicas_for_non_replicated_merge_tree = true;
 
 DROP TABLE IF EXISTS t1;
 
@@ -12,7 +12,7 @@ CREATE TABLE t1__fuzz_26
     b Nullable(Float32),
     pk Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY pk;
 
 CREATE TABLE t1
@@ -24,7 +24,7 @@ CREATE TABLE t1
 ENGINE = MergeTree()
 ORDER BY pk;
 
-ALTER TABLE t1 (MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(viewExplain('EXPLAIN', 'actions = 1', (
+ALTER TABLE t1 MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(viewExplain('EXPLAIN', 'actions = 1', (
     SELECT
         toIntervalMonth(1),
         2
@@ -33,9 +33,9 @@ ALTER TABLE t1 (MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(view
         toFixedString('%Prewhere%', 10),
         toNullable(12)
     WITH ROLLUP
-)), 1)) SETTINGS allow_experimental_parallel_reading_from_replicas = 1; -- { serverError UNKNOWN_FUNCTION }
+)), 1) SETTINGS allow_experimental_parallel_reading_from_replicas = '1'; -- { serverError UNKNOWN_FUNCTION }
 
-ALTER TABLE t1 (MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(viewExplain('EXPLAIN', 'actions = 1', (
+ALTER TABLE t1 MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(viewExplain('EXPLAIN', 'actions = 1', (
     SELECT
         toIntervalMonth(1),
         2
@@ -44,7 +44,7 @@ ALTER TABLE t1 (MODIFY COLUMN a Float64 TTL toDateTime(b) + toIntervalMonth(view
         toFixedString('%Prewhere%', 10),
         toNullable(12)
     WITH ROLLUP
-)), 1)) SETTINGS allow_experimental_parallel_reading_from_replicas = 0; -- { serverError UNKNOWN_FUNCTION }
+)), 1) SETTINGS allow_experimental_parallel_reading_from_replicas = '0'; -- { serverError UNKNOWN_FUNCTION }
 
 DROP TABLE t1;
 

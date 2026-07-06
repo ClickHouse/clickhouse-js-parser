@@ -17,7 +17,7 @@ INSERT INTO pr_tt SELECT
     repeat('blob_', number % 10)
 FROM numbers(1000);
 
-SET enable_parallel_replicas = 1, cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '1', cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = '1';
 
 SELECT *
 FROM pr_tt

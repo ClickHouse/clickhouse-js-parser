@@ -1,6 +1,6 @@
 -- Tags: distributed
 -- from https://github.com/ClickHouse/ClickHouse/issues/5142
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 DROP TABLE IF EXISTS t;
 

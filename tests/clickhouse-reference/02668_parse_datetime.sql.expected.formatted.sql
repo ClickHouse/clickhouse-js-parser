@@ -31,7 +31,7 @@ SELECT parseDateTime('jun', '%b', 'UTC') = toDateTime('2000-06-01', 'UTC');
 
 SELECT parseDateTime('abc', '%b'); -- { serverError CANNOT_PARSE_DATETIME }
 
-SET formatdatetime_parsedatetime_m_is_month_name = 1;
+SET formatdatetime_parsedatetime_m_is_month_name = '1';
 
 SELECT parseDateTime('may', '%M', 'UTC') = toDateTime('2000-05-01', 'UTC');
 
@@ -39,7 +39,7 @@ SELECT parseDateTime('september', '%M', 'UTC') = toDateTime('2000-09-01', 'UTC')
 
 SELECT parseDateTime('summer', '%M'); -- { serverError CANNOT_PARSE_DATETIME }
 
-SET formatdatetime_parsedatetime_m_is_month_name = 0;
+SET formatdatetime_parsedatetime_m_is_month_name = '0';
 
 SELECT parseDateTime('08', '%M', 'UTC') = toDateTime('1970-01-01 00:08:00', 'UTC');
 
@@ -256,11 +256,11 @@ SELECT parseDateTimeOrZero('10:04:11 invalid 03-07-2019', '%s:%i:%H %d-%m-%Y', '
 
 SELECT parseDateTimeOrNull('10:04:11 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC') = toDateTime('2019-07-03 11:04:10', 'UTC');
 
-SELECT isNull(parseDateTimeOrNull('10:04:11 invalid 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC'));
+SELECT parseDateTimeOrNull('10:04:11 invalid 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC') IS NULL;
 
 SELECT str_to_date('10:04:11 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC') = toDateTime('2019-07-03 11:04:10', 'UTC');
 
-SELECT isNull(str_to_date('10:04:11 invalid 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC'));
+SELECT str_to_date('10:04:11 invalid 03-07-2019', '%s:%i:%H %d-%m-%Y', 'UTC') IS NULL;
 
 -- Error handling
 SELECT parseDateTime(); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
@@ -311,17 +311,17 @@ SELECT parseDateTime(''); -- { serverError NOT_ENOUGH_SPACE }
 -- Test setting 'parsedatetime_e_requires_space_padding'
 --     In the default behavior, leading spaces for %e are optional
 SELECT parseDateTime('  1/12/2024', '%e/%m/%Y')
-SETTINGS parsedatetime_e_requires_space_padding = 0;
+SETTINGS parsedatetime_e_requires_space_padding = '0';
 
 SELECT parseDateTime('1/12/2024', '%e/%m/%Y')
-SETTINGS parsedatetime_e_requires_space_padding = 0;
+SETTINGS parsedatetime_e_requires_space_padding = '0';
 
 --     If we enable the legacy behavior, leading spaces for %e are mandatory
 SELECT parseDateTime('  1/12/2024', '%e/%m/%Y')
-SETTINGS parsedatetime_e_requires_space_padding = 1; -- { serverError CANNOT_PARSE_DATETIME }
+SETTINGS parsedatetime_e_requires_space_padding = '1'; -- { serverError CANNOT_PARSE_DATETIME }
 
 SELECT parseDateTime('1/12/2024', '%e/%m/%Y')
-SETTINGS parsedatetime_e_requires_space_padding = 1; -- { serverError CANNOT_PARSE_DATETIME }
+SETTINGS parsedatetime_e_requires_space_padding = '1'; -- { serverError CANNOT_PARSE_DATETIME }
 
 -- -------------------------------------------------------------------------------------------------------------------------
 -- Tests for parseDateTime64, these are not systematic
@@ -351,13 +351,13 @@ SELECT parseDateTime64('2024-02-28 23:22:33.123433', '%Y-%m-%d %H:%i:%s.%f') = t
 SELECT parseDateTime64('2023-02-28 23:22:33.123433', '%Y-%m-%d %H:%i:%s.%f') = toDateTime64('2023-02-28 23:22:33.123433', 6);
 
 -- parseDateTime64OrNull
-SELECT isNull(parseDateTime64OrNull('2021-01-04 23:12:34.118'));
+SELECT parseDateTime64OrNull('2021-01-04 23:12:34.118') IS NULL;
 
-SELECT isNull(parseDateTime64OrNull('2021-01-04 23:12:34.118', '%Y-%m-%d %H:%i:%s.%f'));
+SELECT parseDateTime64OrNull('2021-01-04 23:12:34.118', '%Y-%m-%d %H:%i:%s.%f') IS NULL;
 
-SELECT isNull(parseDateTime64OrNull('2021-01-04 23:12:34.118112', '%Y-%m-%d %H:%i:%s'));
+SELECT parseDateTime64OrNull('2021-01-04 23:12:34.118112', '%Y-%m-%d %H:%i:%s') IS NULL;
 
-SELECT isNull(parseDateTime64OrNull('2021-01-04 23:12:34.11811235', '%Y-%m-%d %H:%i:%s.%f'));
+SELECT parseDateTime64OrNull('2021-01-04 23:12:34.11811235', '%Y-%m-%d %H:%i:%s.%f') IS NULL;
 
 -- parseDateTime64OrZero
 SELECT parseDateTime64OrZero('2021-01-04 23:12:34.118') = toDateTime64('1970-01-01 00:00:00', 6);

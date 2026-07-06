@@ -8,7 +8,7 @@ CREATE TABLE database_for_dict.table_for_dict
     k UInt64,
     v UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k;
 
 DROP DICTIONARY IF EXISTS database_for_dict.dict1;

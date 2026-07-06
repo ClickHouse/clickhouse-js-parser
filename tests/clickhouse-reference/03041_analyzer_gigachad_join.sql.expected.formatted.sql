@@ -1,7 +1,7 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE IF NOT EXISTS `first`
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (inn, sessionId)
 PARTITION BY (inn, toYYYYMM(received)) AS
 SELECT
@@ -10,7 +10,7 @@ SELECT
     '42' AS sessionId;
 
 CREATE TABLE IF NOT EXISTS second
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (inn, sessionId)
 PARTITION BY (inn, toYYYYMM(received)) AS
 SELECT
@@ -22,8 +22,8 @@ SELECT
 
 SELECT
     alias_first.inn,
-    arrayFirst(t -> isNotNull(t), regInfo.1),
-    arrayFirst(t -> isNotNull(t), regInfo.2)
+    arrayFirst((t -> isNotNull(t)), (regInfo).1),
+    arrayFirst((t -> isNotNull(t)), (regInfo).2)
 FROM
     `first` AS alias_first
 INNER JOIN (
@@ -36,6 +36,6 @@ INNER JOIN (
             inn,
             sessionId
     ) AS resp
-    ON (alias_first.inn = resp.inn)
-    AND (alias_first.sessionId = resp.sessionId)
-WHERE if(isNotNull('123456789'), alias_first.inn = '123456789', 1);
+    ON alias_first.inn = resp.inn
+    AND alias_first.sessionId = resp.sessionId
+WHERE if('123456789' IS NOT NULL, alias_first.inn = '123456789', 1);

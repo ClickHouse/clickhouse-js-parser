@@ -10,18 +10,18 @@ CREATE TABLE hits_text
     SearchPhrase String,
     URL String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate);
 
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_query_condition_cache = 0;
+SET use_query_condition_cache = '0';
 
-ALTER TABLE hits_text ADD INDEX idx_search_phrase SearchPhrase TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 8;
+ALTER TABLE hits_text ADD INDEX idx_search_phrase SearchPhrase TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000;
 
-ALTER TABLE hits_text ADD INDEX idx_url URL TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 8;
+ALTER TABLE hits_text ADD INDEX idx_url URL TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000;
 
-SET max_insert_threads = 4;
+SET max_insert_threads = '4';
 
 INSERT INTO hits_text SELECT
     CounterID,
@@ -31,9 +31,9 @@ INSERT INTO hits_text SELECT
     URL
 FROM test.hits;
 
-SET use_skip_indexes = 0;
+SET use_skip_indexes = '0';
 
-SET use_skip_indexes_on_data_read = 0;
+SET use_skip_indexes_on_data_read = '0';
 
 SET force_data_skipping_indices = '';
 
@@ -94,8 +94,8 @@ WHERE hasToken(URL, 'https')
 
 SELECT count()
 FROM hits_text
-WHERE ((hasToken(URL, 'https')
-    OR UserID = 7541501))
+WHERE (hasToken(URL, 'https')
+    OR UserID = 7541501)
     AND CounterID = 33290414;
 
 SELECT
@@ -111,9 +111,9 @@ FROM hits_text
 WHERE hasToken(URL, 'auto')
     AND hasToken(SearchPhrase, 'bmw');
 
-SET use_skip_indexes = 1;
+SET use_skip_indexes = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
 SET force_data_skipping_indices = 'idx_search_phrase';
 

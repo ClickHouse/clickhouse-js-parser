@@ -1,4 +1,4 @@
-SET input_format_json_try_infer_named_tuples_from_objects = 1;
+SET input_format_json_try_infer_named_tuples_from_objects = '1';
 
 DESCRIBE TABLE format(JSONEachRow, '{"obj" : {"a" : 42, "b" : "Hello", "c" : [1,2,3]}}');
 

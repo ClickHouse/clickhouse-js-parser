@@ -1,7 +1,7 @@
 SET session_timezone = 'UTC';
 
 -- For explain with indexes and key condition values verification
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 DROP TABLE IF EXISTS `03636_data_pk`, `03636_data_partitions`, `03636_data_parsed`;
 
@@ -9,7 +9,7 @@ CREATE TABLE `03636_data_pk`
 (
     ts DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toStartOfDay(ts) AS
 SELECT 1756882680;
 
@@ -19,32 +19,36 @@ SELECT count()
 FROM `03636_data_pk`
 WHERE ts = 1756882680;
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_pk`
-        WHERE ts = 1756882680
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_pk`
+                WHERE ts = 1756882680
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %');
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %';
 
 SELECT count()
 FROM `03636_data_pk`
 WHERE ts = 1756882680
 SETTINGS session_timezone = 'EST';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_pk`
-        WHERE ts = 1756882680
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_pk`
+                WHERE ts = 1756882680
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %')
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %'
 SETTINGS session_timezone = 'EST';
 
 DROP TABLE `03636_data_pk`;
@@ -53,7 +57,7 @@ CREATE TABLE `03636_data_partitions`
 (
     ts DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toStartOfDay(ts) AS
 SELECT 1756882680;
@@ -62,32 +66,36 @@ SELECT count()
 FROM `03636_data_partitions`
 WHERE ts = 1756882680;
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_partitions`
-        WHERE ts = 1756882680
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_partitions`
+                WHERE ts = 1756882680
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %');
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %';
 
 SELECT count()
 FROM `03636_data_partitions`
 WHERE ts = 1756882680
 SETTINGS session_timezone = 'EST';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_partitions`
-        WHERE ts = 1756882680
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_partitions`
+                WHERE ts = 1756882680
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %')
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %'
 SETTINGS session_timezone = 'EST';
 
 DROP TABLE `03636_data_partitions`;
@@ -96,7 +104,7 @@ CREATE TABLE `03636_data_parsed`
 (
     ts String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toStartOfDay(toDateTime(ts)) AS
 SELECT '2025-09-02 19:00:00';
 
@@ -104,32 +112,36 @@ SELECT count()
 FROM `03636_data_parsed`
 WHERE ts = '2025-09-02 19:00:00';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_parsed`
-        WHERE ts = '2025-09-02 19:00:00'
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_parsed`
+                WHERE ts = '2025-09-02 19:00:00'
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %');
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %';
 
 SELECT count()
 FROM `03636_data_parsed`
 WHERE ts = '2025-09-02 19:00:00'
 SETTINGS session_timezone = 'EST';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM `03636_data_parsed`
-        WHERE ts = '2025-09-02 19:00:00'
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM `03636_data_parsed`
+                WHERE ts = '2025-09-02 19:00:00'
+            ))
     )
-WHERE ilike(trim(`explain`), 'condition: %')
-    OR ilike(trim(`explain`), 'parts: %')
-    OR ilike(trim(`explain`), 'granules: %')
+WHERE trimBoth(`explain`) ILIKE 'condition: %'
+    OR trimBoth(`explain`) ILIKE 'parts: %'
+    OR trimBoth(`explain`) ILIKE 'granules: %'
 SETTINGS session_timezone = 'EST';
 
 DROP TABLE `03636_data_parsed`;

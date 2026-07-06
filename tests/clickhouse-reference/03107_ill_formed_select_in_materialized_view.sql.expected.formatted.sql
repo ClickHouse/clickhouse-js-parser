@@ -8,24 +8,24 @@ CREATE TABLE a
     a UInt64,
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE b
 (
     b UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 CREATE MATERIALIZED VIEW view_4
 (
     bb UInt64,
     cnt UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY bb
 POPULATE
 AS

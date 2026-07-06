@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS tvs;
 
 -- to use different algorithms for in subquery
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE tvs
 (
@@ -10,7 +10,7 @@ CREATE TABLE tvs
     t UInt32,
     tv UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tvs (k, t, tv) SELECT
     k,
@@ -45,7 +45,7 @@ FROM
             ) AS trade_times
         SETTINGS join_algorithm = 'hash'
     ) AS trades
-LEFT JOIN tvs
+ASOF LEFT JOIN tvs
     USING (k, t);
 
 SELECT SUM(trades.price - tvs.tv)
@@ -66,7 +66,7 @@ FROM
             ) AS trade_times
         SETTINGS join_algorithm = 'hash'
     ) AS trades
-LEFT JOIN tvs
+ASOF LEFT JOIN tvs
     USING (k, t)
 SETTINGS join_algorithm = 'full_sorting_merge';
 

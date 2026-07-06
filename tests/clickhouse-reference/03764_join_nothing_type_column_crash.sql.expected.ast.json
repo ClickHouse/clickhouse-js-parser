@@ -1,139 +1,166 @@
 [
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "kafkaMurmurHash",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ],
-        "alias": "y"
-      },
-      "kind": "joinExpr",
-      "joinType": "RIGHT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "concat",
-                "args": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "str"
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
+              "type": "Function",
+              "name": "kafkaMurmurHash",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "y",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
                     ]
                   }
-                ]
+                }
               },
-              "alias": "str"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "arrayJoin",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "range",
-                    "args": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "RIGHT",
+                  "strictness": "ANY",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
                       {
-                        "kind": "columnRef",
-                        "parts": [
+                        "type": "Identifier",
+                        "name": "y.number",
+                        "name_parts": [
+                          "y",
+                          "number"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "z.number",
+                        "name_parts": [
+                          "z",
                           "number"
                         ]
                       }
                     ]
                   }
-                ]
-              },
-              "alias": "i"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "z",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "str",
+                              "name": "concat",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "str"
+                                },
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "i",
+                              "name": "arrayJoin",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "range",
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "10"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
-          }
-        },
-        "alias": "z"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "y",
-              "number"
-            ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "z",
-              "number"
-            ]
-          }
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              "direction": "ASC"
+            }
+          ]
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Test for bug https://github.com/ClickHouse/ClickHouse/issues/92043"
-    ]
+      ]
+    }
   }
 ]

@@ -5,18 +5,18 @@ SELECT formatQuerySingleLine('create materialized view mv_kek to {target_table:I
 
 -- table name substituion
 CREATE TABLE dst_table
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number AS
 SELECT number
 FROM numbers(3);
 
 CREATE TABLE src_table AS dst_table
-ENGINE = Null;
+ENGINE = Null();
 
 SET param_dst_table = 'dst_table';
 
 CREATE MATERIALIZED VIEW mv_table
-TO {dst_table:Identifier}
+TO dst_table
 AS
 SELECT *
 FROM src_table;
@@ -34,19 +34,19 @@ CREATE TABLE dst_table
 (
     number UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 SET param_src_table = 'src_table';
 
 CREATE MATERIALIZED VIEW mv_table
-TO {dst_table:Identifier}
+TO dst_table
 AS
 SELECT *
-FROM {src_table:Identifier}
+FROM src_table
 WHERE number NOT IN (
         SELECT number
-        FROM {dst_table:Identifier}
+        FROM dst_table
     );
 
 INSERT INTO src_table SELECT 2;

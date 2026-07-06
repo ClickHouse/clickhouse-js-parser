@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -7,7 +7,7 @@ CREATE TABLE test
     agg1 AggregateFunction(sum, UInt64),
     agg2 AggregateFunction(sum, UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT
     sumState(number),

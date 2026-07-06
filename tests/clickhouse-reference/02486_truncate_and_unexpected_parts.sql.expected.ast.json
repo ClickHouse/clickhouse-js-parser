@@ -1,705 +1,810 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/02468/{database}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "settings": [
-      {
-        "name": "replicated_max_ratio_of_wrong_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/02468/{database}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "settings": [
-      {
-        "name": "replicated_max_ratio_of_wrong_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop cleanup rmt"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop merges rmt1"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "rmt"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
           }
         ]
       },
-      "settings": [
-        {
-          "name": "max_block_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        {
-          "name": "max_insert_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "0"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt1"
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "sync": true
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "sync": true
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    }
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "_table"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "merge",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": ""
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "_table"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "asterisk"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/02468/{database}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
             }
           ]
         },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/02468/{database}2"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "%",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      }
-    },
-    "settings": [
-      {
-        "name": "replicated_max_ratio_of_wrong_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt1 lightweight"
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "REPLACE_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "0"
-          }
-        },
-        "fromTable": {
-          "kind": "tableRef",
-          "table": "rmt2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt1"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MOVE_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "1"
-          }
-        },
-        "moveDest": {
-          "destType": "TABLE",
-          "table": {
-            "kind": "tableRef",
-            "table": "rmt2"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt2"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/test/02468/{database}3"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "replicated_max_ratio_of_wrong_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "max_suspicious_broken_parts_bytes",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "insert_keeper_fault_injection_probability",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt3"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt3"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "rmt3"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop cleanup rmt3"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM sync replica rmt3 pull"
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partName": {
-          "kind": "literal",
-          "type": "String",
-          "value": "all_1_1_0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    },
-    "final": true
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    },
-    "sync": true
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "rmt3"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
           ]
         },
-        "direction": "ASC"
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "replicated_max_ratio_of_wrong_parts": "0",
+            "max_suspicious_broken_parts": "0",
+            "max_suspicious_broken_parts_bytes": "0"
+          }
+        }
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/02468/{database}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "replicated_max_ratio_of_wrong_parts": "0",
+            "max_suspicious_broken_parts": "0",
+            "max_suspicious_broken_parts_bytes": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP CLEANUP",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "max_block_size": "1",
+          "max_insert_threads": "1"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "max_block_size": "1",
+                "max_insert_threads": "1"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            },
+            {
+              "type": "Identifier",
+              "name": "_table"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "merge",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": ""
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "_table"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Function",
+                "name": "tuple",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Asterisk"
+                  }
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "0"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/02468/{database}2"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "modulo",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "n"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "replicated_max_ratio_of_wrong_parts": "0",
+            "max_suspicious_broken_parts": "0",
+            "max_suspicious_broken_parts_bytes": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "sync_replica_mode": "LIGHTWEIGHT"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "REPLACE_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "0"
+            }
+          },
+          "replace": true,
+          "from_table": "rmt2"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt1"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MOVE_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          },
+          "move_destination_type": "TABLE",
+          "to_table": "rmt2"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/test/02468/{database}3"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "replicated_max_ratio_of_wrong_parts": "0",
+            "max_suspicious_broken_parts": "0",
+            "max_suspicious_broken_parts_bytes": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "insert_keeper_fault_injection_probability": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP CLEANUP",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "SYNC REPLICA",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "sync_replica_mode": "PULL"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "part": true,
+          "partition": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "all_1_1_0"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      },
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "rmt3"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "rmt3"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "n"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
   }
 ]

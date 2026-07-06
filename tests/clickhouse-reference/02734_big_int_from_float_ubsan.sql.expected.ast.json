@@ -1,173 +1,148 @@
 [
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "precision",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "18"
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "int",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toUInt256",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "literal",
-              "type": "Int64",
-              "value": "-1"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "converted",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toUInt256",
-          "args": [
+              "type": "Literal",
+              "alias": "precision",
+              "value_type": "UInt64",
+              "value": "18"
+            },
             {
-              "kind": "functionCall",
-              "name": "toFloat64",
-              "args": [
+              "type": "Function",
+              "alias": "int",
+              "name": "toUInt256",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "int"
+                  "type": "Literal",
+                  "value_type": "Int64",
+                  "value": "-1"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "converted",
+              "name": "toUInt256",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toFloat64",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "int"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "int_str",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "int"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "converted_str",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "converted"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "alias": "have_same_length",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "length",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "int_str"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "length",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "converted_str"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "have_same_prefix",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "substring",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "int_str"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "precision"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "substring",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "converted_str"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "1"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "precision"
+                    }
                   ]
                 }
               ]
             }
           ]
         }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "int_str",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "int"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "converted_str",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "converted"
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "functionCall",
-            "name": "length",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "int_str"
-                ]
-              }
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "length",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "converted_str"
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "have_same_length"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "functionCall",
-            "name": "substring",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "int_str"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "precision"
-                ]
-              }
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "substring",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "converted_str"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "precision"
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "have_same_prefix"
-      }
-    ]
+      ]
+    }
   }
 ]

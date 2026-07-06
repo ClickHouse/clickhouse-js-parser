@@ -4,12 +4,12 @@ CREATE TABLE t_lightweight_deletes
 (
     a UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO t_lightweight_deletes;
 
-DELETE FROM t_lightweight_deletes WHERE a = 1 SETTINGS lightweight_deletes_sync = 2;
+DELETE FROM t_lightweight_deletes WHERE a = 1 SETTINGS lightweight_deletes_sync = '2';
 
 SELECT count()
 FROM t_lightweight_deletes;
@@ -22,6 +22,6 @@ WHERE database = currentDatabase()
 
 SYSTEM STOP MERGES t_lightweight_deletes;
 
-DELETE FROM t_lightweight_deletes WHERE a = 2 SETTINGS lightweight_deletes_sync = 0;
+DELETE FROM t_lightweight_deletes WHERE a = 2 SETTINGS lightweight_deletes_sync = '0';
 
 DROP TABLE t_lightweight_deletes;

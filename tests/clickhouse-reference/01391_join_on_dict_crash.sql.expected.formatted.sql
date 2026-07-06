@@ -3,7 +3,7 @@ CREATE TABLE t
     click_city_id UInt32,
     click_country_id UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE d_src
 (
@@ -11,7 +11,7 @@ CREATE TABLE d_src
     country_id UInt8,
     name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 
@@ -24,7 +24,7 @@ CREATE DICTIONARY d
     name String
 )
 PRIMARY KEY id
-SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB currentDatabase() table 'd_src'))
+SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' DB currentDatabase() TABLE 'd_src'))
 LIFETIME(MIN 1 MAX 1)
 LAYOUT(HASHED());
 

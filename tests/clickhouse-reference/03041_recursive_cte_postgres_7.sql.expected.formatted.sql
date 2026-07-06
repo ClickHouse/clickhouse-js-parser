@@ -29,18 +29,18 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH RECURSIVE foo AS (
     SELECT 1 AS i
     UNION ALL
-(    SELECT i + 1
+    SELECT i + 1
     FROM foo
     WHERE i < 10
     UNION ALL
     SELECT i + 1
     FROM foo
-    WHERE i < 5)
+    WHERE i < 5
 )
 
 SELECT *
@@ -109,6 +109,14 @@ WITH RECURSIVE t AS (
     SELECT i AS j
     FROM s
     UNION ALL
+    WITH s AS (
+        SELECT toUInt64(1) AS i
+        UNION ALL
+        SELECT i + 1
+        FROM s
+        WHERE i < 10
+    )
+
     SELECT j + 1
     FROM t
     WHERE j < 10
@@ -122,7 +130,7 @@ FROM t;
 --
 WITH RECURSIVE tab AS (
     SELECT *
-    FROM values('id_key UInt64, link UInt64', (1,17), (2,17), (3,17), (4,17), (6,17), (5,17))
+    FROM values('id_key UInt64, link UInt64', (1, 17), (2, 17), (3, 17), (4, 17), (6, 17), (5, 17))
 ),
 
 iter AS (
@@ -131,7 +139,7 @@ iter AS (
         'base' AS row_type,
         17 AS link
     UNION ALL
-(    WITH remaining AS (
+    WITH remaining AS (
         SELECT
             tab.id_key AS id_key,
             'true'::text AS row_type,
@@ -168,8 +176,42 @@ iter AS (
     SELECT *
     FROM first_remaining
     UNION ALL
+    WITH remaining AS (
+        SELECT
+            tab.id_key AS id_key,
+            'true'::text AS row_type,
+            iter.link AS link,
+            MIN(tab.id_key) OVER () AS min
+        FROM
+            tab
+        INNER JOIN iter
+            USING (link)
+        WHERE tab.id_key > iter.id_key
+    ),
+
+    first_remaining AS (
+        SELECT
+            id_key,
+            row_type,
+            link
+        FROM remaining
+        WHERE id_key = min
+    ),
+
+    effect AS (
+        SELECT
+            tab.id_key AS id_key,
+            'new'::text AS row_type,
+            tab.link AS link
+        FROM
+            first_remaining AS e
+        INNER JOIN tab
+            ON e.id_key = tab.id_key
+        WHERE e.row_type = 'false'
+    )
+
     SELECT *
-    FROM effect)
+    FROM effect
 )
 
 SELECT *

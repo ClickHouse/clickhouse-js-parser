@@ -5,9 +5,9 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY id
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO test_table SELECT
     0,

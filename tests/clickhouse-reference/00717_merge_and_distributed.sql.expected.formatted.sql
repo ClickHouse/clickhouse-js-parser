@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET send_logs_level = 'fatal';
 
@@ -11,9 +11,9 @@ DROP TABLE IF EXISTS test_distributed_1;
 
 DROP TABLE IF EXISTS test_distributed_2;
 
-SET merge_table_max_tables_to_look_for_schema_inference = 1;
+SET merge_table_max_tables_to_look_for_schema_inference = '1';
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_local_1
 (

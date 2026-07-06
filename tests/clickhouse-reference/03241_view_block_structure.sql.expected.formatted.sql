@@ -7,7 +7,7 @@ CREATE TABLE foo
     to_dttm DateTime
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE VIEW vfoo
 AS
@@ -29,7 +29,7 @@ CREATE TABLE foo
     to_dttm_blaaaaaaaaaaaaaa DateTime
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE VIEW vfoo
 AS

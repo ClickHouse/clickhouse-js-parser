@@ -9,7 +9,7 @@ CREATE TABLE tbl
     key UInt64,
     agg UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO tbl;
@@ -21,7 +21,7 @@ FROM tbl
 GROUP BY key
 WITH TOTALS
 ORDER BY key ASC
-SETTINGS use_query_cache = 1;
+SETTINGS use_query_cache = '1';
 
 SELECT count(*)
 FROM `system`.query_cache;
@@ -35,8 +35,8 @@ FROM tbl
 GROUP BY key
 ORDER BY key ASC
 SETTINGS
-    use_query_cache = 1,
-    extremes = 1;
+    use_query_cache = '1',
+    extremes = '1';
 
 SELECT
     key,
@@ -46,5 +46,5 @@ GROUP BY key
 WITH TOTALS
 ORDER BY key ASC
 SETTINGS
-    use_query_cache = 1,
-    extremes = 1;
+    use_query_cache = '1',
+    extremes = '1';

@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 --
 -- error cases
@@ -102,7 +102,7 @@ CREATE TABLE y
 (
     a UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO y SELECT *
 FROM numbers(1, 10);
@@ -124,7 +124,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- RIGHT JOIN
 WITH RECURSIVE x AS (
@@ -143,7 +143,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- FULL JOIN
 WITH RECURSIVE x AS (
@@ -162,7 +162,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- subquery
 WITH RECURSIVE x AS (
@@ -179,7 +179,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- aggregate functions
 WITH RECURSIVE x AS (
@@ -192,7 +192,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 WITH RECURSIVE x AS (
     SELECT 1 AS n
@@ -204,7 +204,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- ORDER BY
 WITH RECURSIVE x AS (
@@ -218,7 +218,7 @@ WITH RECURSIVE x AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 
 -- FIXME: indeterministic results
 --
@@ -247,5 +247,5 @@ y AS (
 SELECT *
 FROM x
 FORMAT NULL
-SETTINGS max_recursive_cte_evaluation_depth = 5; -- { serverError TOO_DEEP_RECURSION }
+SETTINGS max_recursive_cte_evaluation_depth = '5'; -- { serverError TOO_DEEP_RECURSION }
 -- { echoOff }

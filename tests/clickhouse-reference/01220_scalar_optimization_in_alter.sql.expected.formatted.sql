@@ -8,7 +8,7 @@ CREATE TABLE cdp_segments
     mid_seqs AggregateFunction(groupBitmap, UInt32)
 )
 ENGINE = ReplacingMergeTree()
-ORDER BY (seg_id);
+ORDER BY seg_id;
 
 CREATE TABLE cdp_customers
 (
@@ -16,7 +16,7 @@ CREATE TABLE cdp_customers
     mid_seq UInt32
 )
 ENGINE = ReplacingMergeTree()
-ORDER BY (mid_seq);
+ORDER BY mid_seq;
 
 ALTER TABLE cdp_segments UPDATE mid_seqs = bitmapOr(mid_seqs, (
     SELECT groupBitmapState(mid_seq)

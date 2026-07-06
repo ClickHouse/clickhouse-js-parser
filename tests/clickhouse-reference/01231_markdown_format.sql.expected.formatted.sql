@@ -9,7 +9,7 @@ CREATE TABLE markdown
     low_cardinality LowCardinality(String),
     decimal Decimal32(6)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO markdown;
 

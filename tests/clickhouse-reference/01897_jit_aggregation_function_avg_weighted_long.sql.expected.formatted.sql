@@ -1,7 +1,7 @@
 -- Tags: long
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
 DROP TABLE IF EXISTS test_table_unsigned_values;
 
@@ -14,7 +14,7 @@ CREATE TABLE test_table_unsigned_values
     value4 UInt64,
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_unsigned_values SELECT
     number % 3,
@@ -49,7 +49,7 @@ CREATE TABLE test_table_signed_values
     value4 Int64,
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_signed_values SELECT
     number % 3,
@@ -82,7 +82,7 @@ CREATE TABLE test_table_float_values
     value2 Float64,
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_float_values SELECT
     number % 3,
@@ -113,7 +113,7 @@ CREATE TABLE test_table_nullable_unsigned_values
     value4 Nullable(UInt64),
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_unsigned_values SELECT
     number % 3,
@@ -148,7 +148,7 @@ CREATE TABLE test_table_nullable_signed_values
     value4 Nullable(Int64),
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_signed_values SELECT
     number % 3,
@@ -181,7 +181,7 @@ CREATE TABLE test_table_nullable_float_values
     value2 Nullable(Float64),
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_float_values SELECT
     number % 3,
@@ -212,7 +212,7 @@ CREATE TABLE test_table_null_specifics
     weight UInt64,
     weight_nullable Nullable(UInt64)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_null_specifics;
 

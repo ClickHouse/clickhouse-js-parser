@@ -1,483 +1,597 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_local_plan",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_local_plan": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "bloom_filter_has_const_array"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bloom_filter_has_const_array"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "bf",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "abf",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx_bf",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "bf"
-          ]
-        },
-        "indexType": {
-          "name": "bloom_filter",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.01"
-            }
-          ]
-        },
-        "granularity": 1
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx_abf",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "abf"
-          ]
-        },
-        "indexType": {
-          "name": "bloom_filter",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "0.01"
-            }
-          ]
-        },
-        "granularity": 1
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "bloom_filter_has_const_array"
-      }
+        "type": "Identifier",
+        "name": "bloom_filter_has_const_array"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "explain"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bloom_filter_has_const_array"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "indexes",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            "type": "ColumnDeclaration",
+            "name": "bf",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "abf",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
             }
           }
         ],
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "bf"
-              ]
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "bloom_filter_has_const_array"
-          },
-          "where": {
-            "kind": "functionCall",
-            "name": "hasAny",
-            "args": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "a"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "c"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "d"
-                  }
-                ],
-                "source": "['a','c','d']"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "abf"
-                ]
-              }
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "Description%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "Granules%"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "trimLeft",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            }
-          ]
-        },
-        "alias": "explain"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "settings": [
+        "indices": [
           {
-            "name": "indexes",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ],
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "bf"
+            "type": "Index",
+            "name": "idx_bf",
+            "expression": {
+              "type": "Identifier",
+              "name": "bf"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "bloom_filter",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.01
+                }
               ]
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "bloom_filter_has_const_array"
+            },
+            "granularity": 1
           },
-          "where": {
-            "kind": "functionCall",
-            "name": "has",
-            "args": [
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "a"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "d"
-                  }
-                ],
-                "source": "['a','d']"
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "bf"
-                ]
-              }
-            ]
+          {
+            "type": "Index",
+            "name": "idx_abf",
+            "expression": {
+              "type": "Identifier",
+              "name": "abf"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "bloom_filter",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 0.01
+                }
+              ]
+            },
+            "granularity": 1
           }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "Description%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "explain"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "Granules%"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "bf"
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "1"
+          }
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "bloom_filter_has_const_array"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bloom_filter_has_const_array"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "hasAny",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "arrayLiteral",
-              "elements": [
+              "type": "Function",
+              "alias": "explain",
+              "name": "trimLeft",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "c"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "d"
+                  "type": "Identifier",
+                  "name": "explain"
                 }
-              ],
-              "source": "['a','c','d']"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "abf"
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "has",
-          "args": [
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "d"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "indexes = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "bf"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "bloom_filter_has_const_array"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "hasAny",
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "Array",
+                                                    "value": [
+                                                      {
+                                                        "value_type": "String",
+                                                        "value": "a"
+                                                      },
+                                                      {
+                                                        "value_type": "String",
+                                                        "value": "c"
+                                                      },
+                                                      {
+                                                        "value_type": "String",
+                                                        "value": "d"
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "abf"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
-              ],
-              "source": "['a','d']"
-            },
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Description%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Granules%"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "bf"
+              "type": "Function",
+              "alias": "explain",
+              "name": "trimLeft",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "explain"
+                }
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "hasAll",
-          "args": [
-            {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "d"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "e"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "indexes = 1"
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "bf"
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "bloom_filter_has_const_array"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "where": {
+                                                "type": "Function",
+                                                "name": "has",
+                                                "arguments": [
+                                                  {
+                                                    "type": "Literal",
+                                                    "value_type": "Array",
+                                                    "value": [
+                                                      {
+                                                        "value_type": "String",
+                                                        "value": "a"
+                                                      },
+                                                      {
+                                                        "value_type": "String",
+                                                        "value": "d"
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "type": "Identifier",
+                                                    "name": "bf"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
-              ],
-              "source": "['d','e']"
-            },
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Description%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "explain"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Granules%"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "abf"
-              ]
+              "type": "Identifier",
+              "name": "bf"
             }
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "bloom_filter_has_const_array"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "hasAny",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "a"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "c"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "d"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "abf"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "has",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "a"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "d"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "bf"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "hasAll",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "Array",
+                    "value": [
+                      {
+                        "value_type": "String",
+                        "value": "d"
+                      },
+                      {
+                        "value_type": "String",
+                        "value": "e"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "abf"
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     }

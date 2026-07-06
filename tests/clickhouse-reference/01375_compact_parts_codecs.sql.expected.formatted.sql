@@ -7,9 +7,9 @@ CREATE TABLE codecs
     val UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_rows_for_wide_part = 10000, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic';
+SETTINGS min_rows_for_wide_part = '10000', ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic';
 
 INSERT INTO codecs SELECT
     number,
@@ -38,20 +38,20 @@ DROP TABLE codecs;
 
 CREATE TABLE codecs
 (
-    id UInt32 CODEC(NONE),
-    val UInt32 CODEC(NONE),
-    s String CODEC(NONE)
+    id UInt32 CODEC(NONE()),
+    val UInt32 CODEC(NONE()),
+    s String CODEC(NONE())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_rows_for_wide_part = 10000, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic';
+SETTINGS min_rows_for_wide_part = '10000', ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic';
 
 CREATE TABLE codecs
 (
     id UInt32,
-    val UInt32 CODEC(Delta, ZSTD),
-    s String CODEC(ZSTD)
+    val UInt32 CODEC(Delta(), ZSTD()),
+    s String CODEC(ZSTD())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS min_rows_for_wide_part = 10000, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic';
+SETTINGS min_rows_for_wide_part = '10000', ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic';

@@ -5,7 +5,7 @@ CREATE TABLE t_delete_empty_part
     a UInt64,
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY b
 PARTITION BY a;
 
@@ -24,7 +24,7 @@ INSERT INTO t_delete_empty_part SELECT
     number
 FROM numbers(2000, 1000);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE t_delete_empty_part DELETE WHERE a = 2
 OR b < 500;

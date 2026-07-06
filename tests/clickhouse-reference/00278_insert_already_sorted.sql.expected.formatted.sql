@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS sorted;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE sorted
 (
@@ -13,7 +13,7 @@ INSERT INTO sorted (x) SELECT intDiv(number, 100000) AS x
 FROM `system`.numbers
 LIMIT 1000000;
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT count()
 FROM sorted;
@@ -25,7 +25,7 @@ FROM (
     )
 ORDER BY x ASC;
 
-INSERT INTO sorted (x) SELECT (if(intHash64(number) % 1000 = 0, 999, intDiv(number, 100000))) AS x
+INSERT INTO sorted (x) SELECT intHash64(number) % 1000 = 0 ? 999 : intDiv(number, 100000) AS x
 FROM `system`.numbers
 LIMIT 1000000;
 

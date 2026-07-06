@@ -2,7 +2,7 @@ CREATE TABLE mytable_stored
 (
     a UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE TABLE mytable

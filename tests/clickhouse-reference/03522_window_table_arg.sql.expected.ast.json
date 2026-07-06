@@ -1,172 +1,250 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "view",
-      "args": [
-        {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "row_number",
-                "args": []
-              }
-            ],
-            "from": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                }
-              ]
-            },
-            "windows": [
-              {
-                "name": "w",
-                "spec": {}
-              }
-            ]
-          }
-        }
-      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "viewExplain",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "EXPLAIN"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": ""
-        },
-        {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            ],
-            "windows": [
-              {
-                "name": "w0",
-                "spec": {}
-              }
-            ]
-          }
-        }
-      ]
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "assumeNotNull",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "viewExplain",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "EXPLAIN"
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": ""
-                },
-                {
-                  "kind": "subqueryExpr",
-                  "query": {
-                    "kind": "select",
-                    "select": [
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "view",
+                    "arguments": [
                       {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "1"
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "name": "row_number",
+                                "is_window_function": true,
+                                "kind": "WINDOW_FUNCTION",
+                                "arguments": [],
+                                "window_name": "w"
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "table_function": {
+                                      "type": "Function",
+                                      "name": "numbers",
+                                      "arguments": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "3"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "window": [
+                              {
+                                "type": "WindowListElement",
+                                "name": "w",
+                                "definition": {
+                                  "type": "WindowDefinition"
+                                }
+                              }
+                            ]
+                          }
+                        ]
                       }
-                    ],
-                    "windows": [
-                      {
-                        "name": "w0",
-                        "spec": {}
-                      }
-                    ],
-                    "qualify": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
+                    ]
                   }
                 }
-              ]
-            }
-          ]
+              }
+            ]
+          }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Fuzzed, fails, but shouldn't crash server"
-    ],
-    "trailingComments": [
-      "-- { serverError UNKNOWN_IDENTIFIER }"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "viewExplain",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "EXPLAIN"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": ""
+                      },
+                      {
+                        "type": "Subquery",
+                        "query": {
+                          "type": "SelectWithUnionQuery",
+                          "selects": [
+                            {
+                              "type": "SelectQuery",
+                              "select": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                }
+                              ],
+                              "window": [
+                                {
+                                  "type": "WindowListElement",
+                                  "name": "w0",
+                                  "definition": {
+                                    "type": "WindowDefinition"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "assumeNotNull",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "viewExplain",
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "EXPLAIN"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": ""
+                              },
+                              {
+                                "type": "Subquery",
+                                "query": {
+                                  "type": "SelectWithUnionQuery",
+                                  "selects": [
+                                    {
+                                      "type": "SelectQuery",
+                                      "select": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "1"
+                                        }
+                                      ],
+                                      "window": [
+                                        {
+                                          "type": "WindowListElement",
+                                          "name": "w0",
+                                          "definition": {
+                                            "type": "WindowDefinition"
+                                          }
+                                        }
+                                      ],
+                                      "qualify": {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

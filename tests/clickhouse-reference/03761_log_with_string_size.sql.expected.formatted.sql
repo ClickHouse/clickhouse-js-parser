@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/89909
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -33,7 +33,7 @@ CREATE TABLE t1
 (
     c0 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 (c0);
 
@@ -59,7 +59,7 @@ INSERT INTO t0 (c0) SELECT c0
 FROM generateRandom('c0 Nullable(String)', 10593397374658667740, 518, 9)
 LIMIT 220;
 
-SELECT concat([1], c0.size)
+SELECT [1] || c0.size
 FROM t0
 GROUP BY
     1,

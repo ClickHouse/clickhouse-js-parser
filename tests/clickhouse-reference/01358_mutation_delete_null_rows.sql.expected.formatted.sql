@@ -29,7 +29,7 @@ SELECT
 FROM mutation_delete_null_rows
 ORDER BY EventDate ASC;
 
-ALTER TABLE mutation_delete_null_rows DELETE WHERE UserID = 0 SETTINGS mutations_sync = 1;
+ALTER TABLE mutation_delete_null_rows DELETE WHERE UserID = 0 SETTINGS mutations_sync = '1';
 
 SELECT *
 FROM mutation_delete_null_rows

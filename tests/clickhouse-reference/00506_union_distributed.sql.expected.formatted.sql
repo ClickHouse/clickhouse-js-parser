@@ -1,6 +1,6 @@
 -- Tags: distributed
 -- https://github.com/ClickHouse/ClickHouse/issues/1059
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 DROP TABLE IF EXISTS union1;
 
@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS union2;
 
 DROP TABLE IF EXISTS union3;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE union1
 (

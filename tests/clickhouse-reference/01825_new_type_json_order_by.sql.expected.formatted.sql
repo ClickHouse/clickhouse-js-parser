@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 SELECT dummy
 FROM `system`.one
@@ -12,4 +12,4 @@ ORDER BY
     dummy ASC;
 
 SELECT materialize('{"k":"v"}'::JSON)
-SETTINGS extremes = 1;
+SETTINGS extremes = '1';

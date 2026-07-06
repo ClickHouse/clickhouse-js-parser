@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS t;
 
 CREATE TABLE t
-ENGINE = Memory AS
+ENGINE = Memory() AS
 WITH cte AS (
     SELECT *
     FROM numbers(10)

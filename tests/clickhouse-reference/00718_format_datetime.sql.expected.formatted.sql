@@ -73,12 +73,12 @@ SELECT
 SELECT
     formatDateTime(toDateTime('2018-01-02 22:33:44'), '%M'),
     formatDateTime(toDate32('2018-01-02'), '%M')
-SETTINGS formatdatetime_parsedatetime_m_is_month_name = 1;
+SETTINGS formatdatetime_parsedatetime_m_is_month_name = '1';
 
 SELECT
     formatDateTime(toDateTime('2018-01-02 22:33:44'), '%M'),
     formatDateTime(toDate32('2018-01-02'), '%M')
-SETTINGS formatdatetime_parsedatetime_m_is_month_name = 0;
+SETTINGS formatdatetime_parsedatetime_m_is_month_name = '0';
 
 SELECT
     formatDateTime(toDateTime('2018-01-02 22:33:44'), '%n'),
@@ -160,44 +160,44 @@ SELECT formatDateTime(toDateTime('1970-01-01 00:00:00', 'Asia/Kolkata'), '%z');
 
 -- %f (default settings)
 SELECT formatDateTime(toDate('2010-01-04'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDate32('2010-01-04'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDateTime('2010-01-04 12:34:56'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56', 0), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56.123', 3), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56.123456', 6), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56.123456789', 9), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 0;
+SETTINGS formatdatetime_f_prints_single_zero = '0';
 
 -- %f (legacy settings)
 SELECT formatDateTime(toDate('2010-01-04'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDate32('2010-01-04'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDateTime('2010-01-04 12:34:56'), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56', 0), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56.123', 3), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDateTime64('2010-01-04 12:34:56.123456789', 9), '%f')
-SETTINGS formatdatetime_f_prints_single_zero = 1;
+SETTINGS formatdatetime_f_prints_single_zero = '1';
 
 SELECT formatDateTime(toDateTime64('2022-12-08 18:11:29.1234', 9, 'UTC'), '%F %T.%f');
 
@@ -213,31 +213,31 @@ SELECT formatDateTime(toDate('2022-12-08 18:11:29', 'UTC'), '%F %T.%f');
 
 -- %c %k %l with different formatdatetime_format_without_leading_zeros
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%c')
-SETTINGS formatdatetime_format_without_leading_zeros = 0;
+SETTINGS formatdatetime_format_without_leading_zeros = '0';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%m')
-SETTINGS formatdatetime_format_without_leading_zeros = 0;
+SETTINGS formatdatetime_format_without_leading_zeros = '0';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%k')
-SETTINGS formatdatetime_format_without_leading_zeros = 0;
+SETTINGS formatdatetime_format_without_leading_zeros = '0';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%l')
-SETTINGS formatdatetime_format_without_leading_zeros = 0;
+SETTINGS formatdatetime_format_without_leading_zeros = '0';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%h')
-SETTINGS formatdatetime_format_without_leading_zeros = 0;
+SETTINGS formatdatetime_format_without_leading_zeros = '0';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%c')
-SETTINGS formatdatetime_format_without_leading_zeros = 1;
+SETTINGS formatdatetime_format_without_leading_zeros = '1';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%m')
-SETTINGS formatdatetime_format_without_leading_zeros = 1;
+SETTINGS formatdatetime_format_without_leading_zeros = '1';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%k')
-SETTINGS formatdatetime_format_without_leading_zeros = 1;
+SETTINGS formatdatetime_format_without_leading_zeros = '1';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%l')
-SETTINGS formatdatetime_format_without_leading_zeros = 1;
+SETTINGS formatdatetime_format_without_leading_zeros = '1';
 
 SELECT formatDateTime(toDateTime('2022-01-08 02:11:29', 'UTC'), '%h')
-SETTINGS formatdatetime_format_without_leading_zeros = 1;
+SETTINGS formatdatetime_format_without_leading_zeros = '1';

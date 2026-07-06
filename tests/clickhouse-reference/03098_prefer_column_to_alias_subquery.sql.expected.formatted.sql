@@ -8,16 +8,16 @@ CREATE TABLE clickhouse_alias_issue_1
     id bigint,
     column_1 Nullable(Float32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE clickhouse_alias_issue_2
 (
     id bigint,
     column_2 Nullable(Float32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 INSERT INTO clickhouse_alias_issue_1;
 
@@ -45,9 +45,9 @@ FROM (
             id
         FROM clickhouse_alias_issue_2
         GROUP BY id
-        SETTINGS prefer_column_name_to_alias = 1
+        SETTINGS prefer_column_name_to_alias = '1'
     )
-ORDER BY `ALL` DESC;
+ORDER BY `ALL` DESC NULLS LAST;
 
 SELECT '-------------------------';
 
@@ -73,11 +73,11 @@ FROM (
             id
         FROM clickhouse_alias_issue_2
         GROUP BY id
-        SETTINGS prefer_column_name_to_alias = 1
+        SETTINGS prefer_column_name_to_alias = '1'
     ) AS T1
 GROUP BY id
 ORDER BY id DESC
-SETTINGS prefer_column_name_to_alias = 1;
+SETTINGS prefer_column_name_to_alias = '1';
 
 -- Expected result :
 -- 10	3
@@ -105,15 +105,15 @@ FROM (
                     id
                 FROM clickhouse_alias_issue_2
                 GROUP BY id
-                SETTINGS prefer_column_name_to_alias = 1
+                SETTINGS prefer_column_name_to_alias = '1'
             ) AS T1
         GROUP BY id
         ORDER BY id DESC
-        SETTINGS prefer_column_name_to_alias = 1
+        SETTINGS prefer_column_name_to_alias = '1'
     ) AS T2
-WHERE isNotNull(column_1)
-    AND isNotNull(column_2)
-SETTINGS prefer_column_name_to_alias = 1;
+WHERE column_1 IS NOT NULL
+    AND column_2 IS NOT NULL
+SETTINGS prefer_column_name_to_alias = '1';
 
 -- Without the setting, the expected result is the same
 -- but the actual result isn't wrong
@@ -143,5 +143,5 @@ FROM (
         GROUP BY id
         ORDER BY id DESC
     ) AS T2
-WHERE isNotNull(column_1)
-    AND isNotNull(column_2);
+WHERE column_1 IS NOT NULL
+    AND column_2 IS NOT NULL;

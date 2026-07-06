@@ -1,120 +1,159 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_dynamic_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_dynamic_type": "1"
       }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "Dynamic"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "sumState",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              }
-            ]
-          },
-          "alias": "d"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "finalizeAggregation",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "d",
-              "AggregateFunction(sum, UInt64)"
-            ]
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "Dynamic"
+            }
           }
         ]
       },
-      {
-        "kind": "functionCall",
-        "name": "sumMerge",
-        "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "d",
-              "AggregateFunction(sum, UInt64)"
-            ]
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "d",
+                "name": "sumState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "d",
-            "AggregateFunction(sum, UInt64)"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "finalizeAggregation",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d.AggregateFunction(sum, UInt64)",
+                  "name_parts": [
+                    "d",
+                    "AggregateFunction(sum, UInt64)"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "sumMerge",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "d.AggregateFunction(sum, UInt64)",
+                  "name_parts": [
+                    "d",
+                    "AggregateFunction(sum, UInt64)"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "d.AggregateFunction(sum, UInt64)",
+              "name_parts": [
+                "d",
+                "AggregateFunction(sum, UInt64)"
+              ]
+            }
           ]
         }
       ]

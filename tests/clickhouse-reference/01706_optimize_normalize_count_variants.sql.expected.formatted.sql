@@ -1,4 +1,4 @@
-SET optimize_normalize_count_variants = 1;
+SET optimize_normalize_count_variants = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -8,7 +8,7 @@ SELECT
     sum(1),
     count(NULL);
 
-SET aggregate_functions_null_for_empty = 1;
+SET aggregate_functions_null_for_empty = '1';
 
 EXPLAIN SYNTAX
 SELECT sum(1)

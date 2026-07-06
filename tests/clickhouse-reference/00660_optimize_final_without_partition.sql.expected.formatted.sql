@@ -1,4 +1,4 @@
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS partitioned_by_tuple;
 

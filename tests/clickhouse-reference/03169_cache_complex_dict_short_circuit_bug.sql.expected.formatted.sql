@@ -9,7 +9,7 @@ CREATE TABLE complex_key_simple_attributes_source_short_circuit_table
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO complex_key_simple_attributes_source_short_circuit_table;
 

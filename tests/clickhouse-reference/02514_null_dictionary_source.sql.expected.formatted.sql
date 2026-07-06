@@ -9,7 +9,7 @@ CREATE DICTIONARY null_dict
 )
 PRIMARY KEY id
 SOURCE(null())
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SELECT
@@ -45,7 +45,7 @@ CREATE DICTIONARY null_ip_dict
 )
 PRIMARY KEY network
 SOURCE(null())
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(IP_TRIE());
 
 SELECT dictGet('null_ip_dict', 'val', toIPv4('127.0.0.1'));

@@ -2,7 +2,7 @@
 -- no-shared-catalog: STOP MERGES will only stop them on the current replica, the second one will continue to merge
 DROP TABLE IF EXISTS t_lightweight_mut_6;
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
 CREATE TABLE t_lightweight_mut_6
 (
@@ -11,14 +11,14 @@ CREATE TABLE t_lightweight_mut_6
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/t_lightweight_mut_6', '1')
 ORDER BY id
-SETTINGS ratio_of_defaults_for_sparse_serialization = 1.0; -- There is a bug.
+SETTINGS ratio_of_defaults_for_sparse_serialization = 1.; -- There is a bug.
 
 INSERT INTO t_lightweight_mut_6 SELECT
     number,
     number
 FROM numbers(10000);
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DELETE FROM t_lightweight_mut_6 WHERE id % 2 = 0;
 
@@ -33,7 +33,7 @@ WHERE database = currentDatabase()
     AND table = 't_lightweight_mut_6'
     AND active;
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
 SYSTEM STOP MERGES t_lightweight_mut_6;
 
@@ -47,7 +47,7 @@ SELECT
     count(),
     sum(v)
 FROM t_lightweight_mut_6
-SETTINGS apply_mutations_on_fly = 0;
+SETTINGS apply_mutations_on_fly = '0';
 
 SELECT
     count(),
@@ -60,7 +60,7 @@ SELECT
     sum(v)
 FROM t_lightweight_mut_6
 PREWHERE id % 5 = 0
-SETTINGS apply_mutations_on_fly = 0;
+SETTINGS apply_mutations_on_fly = '0';
 
 SYSTEM START MERGES t_lightweight_mut_6;
 

@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t1;
 
@@ -8,7 +8,7 @@ CREATE TABLE t1
     arr1 Array(Int32),
     arr2 Array(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 

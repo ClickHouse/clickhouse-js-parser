@@ -5,8 +5,8 @@ CREATE TABLE foo
     ts DateTime,
     x UInt64
 )
-ENGINE = MergeTree
-ORDER BY (ts)
+ENGINE = MergeTree()
+ORDER BY ts
 PARTITION BY toYYYYMMDD(ts);
 
 INSERT INTO foo (ts, x) SELECT
@@ -15,7 +15,7 @@ INSERT INTO foo (ts, x) SELECT
 FROM `system`.numbers_mt
 LIMIT 10;
 
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 ALTER TABLE foo UPDATE x = 1 WHERE x = (
     SELECT x
@@ -23,7 +23,7 @@ ALTER TABLE foo UPDATE x = 1 WHERE x = (
     WHERE x = 4
 );
 
-SELECT sum(x) == 42
+SELECT sum(x) = 42
 FROM foo;
 
 ALTER TABLE foo UPDATE x = 1 WHERE x IN (
@@ -32,7 +32,7 @@ ALTER TABLE foo UPDATE x = 1 WHERE x IN (
     WHERE x != 0
 );
 
-SELECT sum(x) == 9
+SELECT sum(x) = 9
 FROM foo;
 
 DROP TABLE IF EXISTS bar;
@@ -42,7 +42,7 @@ CREATE TABLE bar
     ts DateTime,
     x UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO bar (ts, x) SELECT
     toDateTime('2020-01-01 00:05:00'),
@@ -56,7 +56,7 @@ ALTER TABLE bar UPDATE x = 1 WHERE x = (
     WHERE x = 4
 );
 
-SELECT sum(x) == 42
+SELECT sum(x) = 42
 FROM bar;
 
 ALTER TABLE bar UPDATE x = 1 WHERE x IN (
@@ -65,5 +65,5 @@ ALTER TABLE bar UPDATE x = 1 WHERE x IN (
     WHERE x != 0
 );
 
-SELECT sum(x) == 9
+SELECT sum(x) = 9
 FROM bar;

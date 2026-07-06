@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     1 AS value,
@@ -13,7 +13,7 @@ LEFT JOIN (
             1 AS value
     ) AS r
     USING (key)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT
     1 AS value,
@@ -28,4 +28,4 @@ LEFT JOIN (
             1 AS value
     ) AS r
     USING (key)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';

@@ -6,13 +6,13 @@ CREATE TABLE clicks
 (
     domain String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE transactions
 (
     domain String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO clicks;
 
@@ -190,7 +190,7 @@ FROM
         ORDER BY domain ASC
         LIMIT 10
     ) AS js1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             sum(total_count) AS total,
             domain
@@ -243,7 +243,7 @@ FROM
         ORDER BY domain ASC
         LIMIT 10
     ) AS js1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             sum(total_count) AS total,
             domain
@@ -296,7 +296,7 @@ FROM
         ORDER BY domain ASC
         LIMIT 10
     ) AS js1
-FULL JOIN (
+ALL FULL JOIN (
         SELECT
             sum(total_count) AS total,
             domain

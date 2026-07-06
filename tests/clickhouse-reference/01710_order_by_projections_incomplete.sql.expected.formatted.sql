@@ -7,12 +7,11 @@ CREATE TABLE data_order_by_proj_incomp
 ENGINE = MergeTree()
 ORDER BY t;
 
-SYSTEM stop merges data_order_by_proj_incomp;
+SYSTEM STOP MERGES data_order_by_proj_incomp;
 
 INSERT INTO data_order_by_proj_incomp;
 
-ALTER TABLE data_order_by_proj_incomp ADD PROJECTION tSort (SELECT *
-ORDER BY t ASC);
+ALTER TABLE data_order_by_proj_incomp ADD PROJECTION tSort (SELECT * ORDER BY t);
 
 INSERT INTO data_order_by_proj_incomp;
 
@@ -21,16 +20,16 @@ SELECT t
 FROM data_order_by_proj_incomp
 WHERE t > 0
 ORDER BY t ASC
-SETTINGS optimize_read_in_order = 1;
+SETTINGS optimize_read_in_order = '1';
 
 SELECT t
 FROM data_order_by_proj_incomp
 WHERE t > 0
 ORDER BY t ASC
-SETTINGS optimize_read_in_order = 0;
+SETTINGS optimize_read_in_order = '0';
 
 SELECT t
 FROM data_order_by_proj_incomp
 WHERE t > 0
 ORDER BY t ASC
-SETTINGS max_threads = 1; -- { echoOff }
+SETTINGS max_threads = '1'; -- { echoOff }

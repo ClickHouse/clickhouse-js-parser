@@ -13,7 +13,7 @@ CREATE TABLE test_02480_support_wildcard_write
 ENGINE = S3(s3_conn, filename = 'test_02480_support_wildcard_{_partition_id}', `format` = Parquet)
 PARTITION BY a;
 
-SET s3_truncate_on_insert = 1;
+SET s3_truncate_on_insert = '1';
 
 INSERT INTO test_02480_support_wildcard_write;
 

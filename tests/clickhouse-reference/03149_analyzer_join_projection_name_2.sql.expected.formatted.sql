@@ -15,7 +15,7 @@ CREATE TABLE users
     gid LowCardinality(String),
     gname LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE `groups`
@@ -23,7 +23,7 @@ CREATE TABLE `groups`
     gid LowCardinality(String),
     gname LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE target
@@ -33,7 +33,7 @@ CREATE TABLE target
     gid LowCardinality(String),
     gname LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE DICTIONARY groups_dict

@@ -19,25 +19,25 @@ SELECT icebergTruncate(10, -10);
 
 SELECT icebergTruncate(10, -11);
 
-SELECT icebergTruncate(10, 0::Int64);
+SELECT icebergTruncate(10, CAST('0' AS Int64));
 
-SELECT icebergTruncate(10, 1::Int64);
+SELECT icebergTruncate(10, CAST('1' AS Int64));
 
-SELECT icebergTruncate(10, 5::Int64);
+SELECT icebergTruncate(10, CAST('5' AS Int64));
 
-SELECT icebergTruncate(10, 9::Int64);
+SELECT icebergTruncate(10, CAST('9' AS Int64));
 
-SELECT icebergTruncate(10, 10::Int64);
+SELECT icebergTruncate(10, CAST('10' AS Int64));
 
-SELECT icebergTruncate(10, 11::Int64);
+SELECT icebergTruncate(10, CAST('11' AS Int64));
 
-SELECT icebergTruncate(10, -1::Int64);
+SELECT icebergTruncate(10, CAST('-1' AS Int64));
 
-SELECT icebergTruncate(10, -5::Int64);
+SELECT icebergTruncate(10, CAST('-5' AS Int64));
 
-SELECT icebergTruncate(10, -10::Int64);
+SELECT icebergTruncate(10, CAST('-10' AS Int64));
 
-SELECT icebergTruncate(10, -11::Int64);
+SELECT icebergTruncate(10, CAST('-11' AS Int64));
 
 SELECT icebergTruncate(10, toDecimal64('12.34', 2));
 
@@ -75,7 +75,7 @@ SELECT icebergTruncate(0, 55); --{serverError BAD_ARGUMENTS}
 
 SELECT icebergTruncate(-1, 55); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT icebergTruncate(3, 0.0); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT icebergTruncate(3, 0.); --{serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 SELECT icebergTruncate(50, toDecimal64('10.65', 2));
 

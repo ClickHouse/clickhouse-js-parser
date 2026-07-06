@@ -7,9 +7,9 @@
 -- -----------------------------------------------------------------------------------
 DROP TABLE IF EXISTS tab;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 CREATE TABLE tab
 (
@@ -73,7 +73,7 @@ CREATE TABLE tab
     lns LowCardinality(Nullable(String)),
     lnfs LowCardinality(Nullable(FixedString(3)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW COLUMNS FROM tab;
 

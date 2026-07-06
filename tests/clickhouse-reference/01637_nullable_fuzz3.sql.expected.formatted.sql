@@ -6,7 +6,7 @@ CREATE TABLE t
     price_sold Float32,
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY item_id;
 
 SELECT item_id

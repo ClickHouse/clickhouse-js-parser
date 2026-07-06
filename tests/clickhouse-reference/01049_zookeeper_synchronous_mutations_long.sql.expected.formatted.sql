@@ -10,7 +10,7 @@ CREATE TABLE table_for_synchronous_mutations1
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_01049/table_for_synchronous_mutations', '1')
 ORDER BY k
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE table_for_synchronous_mutations2
 (
@@ -19,7 +19,7 @@ CREATE TABLE table_for_synchronous_mutations2
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_01049/table_for_synchronous_mutations', '2')
 ORDER BY k
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_for_synchronous_mutations1 SELECT
     number,
@@ -28,7 +28,7 @@ FROM numbers(100000);
 
 SYSTEM SYNC REPLICA table_for_synchronous_mutations2;
 
-ALTER TABLE table_for_synchronous_mutations1 UPDATE v1 = v1 + 1 WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE table_for_synchronous_mutations1 UPDATE v1 = v1 + 1 WHERE 1 SETTINGS mutations_sync = '2';
 
 SELECT is_done
 FROM `system`.mutations
@@ -42,16 +42,16 @@ CREATE TABLE table_for_synchronous_mutations_no_replication
     k UInt32,
     v1 UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO table_for_synchronous_mutations_no_replication SELECT
     number,
     number
 FROM numbers(100000);
 
-ALTER TABLE table_for_synchronous_mutations_no_replication UPDATE v1 = v1 + 1 WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE table_for_synchronous_mutations_no_replication UPDATE v1 = v1 + 1 WHERE 1 SETTINGS mutations_sync = '2';
 
 SELECT is_done
 FROM `system`.mutations

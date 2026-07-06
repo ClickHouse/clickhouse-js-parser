@@ -5,7 +5,7 @@ CREATE TABLE t_missed_subcolumns
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_missed_subcolumns SELECT *
@@ -20,13 +20,13 @@ FROM numbers(10);
 
 SELECT x
 FROM t_missed_subcolumns
-WHERE isNotNull(y)
-SETTINGS optimize_functions_to_subcolumns = 1;
+WHERE y IS NOT NULL
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT x
 FROM t_missed_subcolumns
-WHERE isNotNull(y)
-SETTINGS optimize_functions_to_subcolumns = 0;
+WHERE y IS NOT NULL
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- .null and .size0 subcolumn in array
 CREATE TABLE t_missed_subcolumns
@@ -34,7 +34,7 @@ CREATE TABLE t_missed_subcolumns
     id UInt64,
     `n.a` Array(Nullable(String))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_missed_subcolumns;
@@ -73,7 +73,7 @@ CREATE TABLE t_missed_subcolumns
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 SYSTEM STOP MERGES t_missed_subcolumns;

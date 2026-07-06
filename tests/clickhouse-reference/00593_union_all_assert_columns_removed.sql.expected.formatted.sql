@@ -6,11 +6,11 @@ CREATE TABLE `columns`
     b UInt8,
     c UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `columns`;
 
-SET max_columns_to_read = 1;
+SET max_columns_to_read = '1';
 
 SELECT a
 FROM (

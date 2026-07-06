@@ -1,5 +1,5 @@
 -- Tags: long, zookeeper
-SET prefer_warmed_unmerged_parts_seconds = 0;
+SET prefer_warmed_unmerged_parts_seconds = '0';
 
 DROP TABLE IF EXISTS byte_identical_r1;
 
@@ -29,7 +29,7 @@ ALTER TABLE byte_identical_r1 ADD COLUMN y UInt64 DEFAULT rand();
 
 SYSTEM SYNC REPLICA byte_identical_r1;
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
 OPTIMIZE TABLE byte_identical_r1 PARTITION tuple() FINAL;
 
@@ -38,7 +38,7 @@ SELECT
     t1.y - t2.y
 FROM
     byte_identical_r1 AS t1
-LEFT JOIN byte_identical_r2 AS t2
+SEMI LEFT JOIN byte_identical_r2 AS t2
     USING (x)
 ORDER BY x ASC;
 

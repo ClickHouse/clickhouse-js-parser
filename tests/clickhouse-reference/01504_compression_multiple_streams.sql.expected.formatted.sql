@@ -1,17 +1,17 @@
 DROP TABLE IF EXISTS columns_with_multiple_streams;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 CREATE TABLE columns_with_multiple_streams
 (
-    field0 Nullable(Int64) CODEC(Delta(2), LZ4),
-    field1 Nullable(Int64) CODEC(Delta, LZ4),
-    field2 Array(Array(Int64)) CODEC(Delta, LZ4),
-    field3 Tuple(UInt32, Array(UInt64)) CODEC(T64, Default)
+    field0 Nullable(Int64) CODEC(Delta(2), LZ4()),
+    field1 Nullable(Int64) CODEC(Delta(), LZ4()),
+    field2 Array(Array(Int64)) CODEC(Delta(), LZ4()),
+    field3 Tuple(UInt32, Array(UInt64)) CODEC(T64(), Default())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0;
+SETTINGS min_rows_for_wide_part = '0', min_bytes_for_wide_part = '0';
 
 INSERT INTO columns_with_multiple_streams;
 
@@ -32,7 +32,7 @@ SELECT *
 FROM columns_with_multiple_streams
 ORDER BY field0 ASC;
 
-ALTER TABLE columns_with_multiple_streams MODIFY COLUMN field3 CODEC(Delta, Default);
+ALTER TABLE columns_with_multiple_streams MODIFY COLUMN field3 CODEC(Delta(), Default());
 
 INSERT INTO columns_with_multiple_streams;
 
@@ -42,14 +42,14 @@ DROP TABLE IF EXISTS columns_with_multiple_streams_compact;
 
 CREATE TABLE columns_with_multiple_streams_compact
 (
-    field0 Nullable(Int64) CODEC(Delta(2), LZ4),
-    field1 Nullable(Int64) CODEC(Delta, LZ4),
-    field2 Array(Array(Int64)) CODEC(Delta, LZ4),
-    field3 Tuple(UInt32, Array(UInt64)) CODEC(Delta, Default)
+    field0 Nullable(Int64) CODEC(Delta(2), LZ4()),
+    field1 Nullable(Int64) CODEC(Delta(), LZ4()),
+    field2 Array(Array(Int64)) CODEC(Delta(), LZ4()),
+    field3 Tuple(UInt32, Array(UInt64)) CODEC(Delta(), Default())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 100000, min_bytes_for_wide_part = 100000;
+SETTINGS min_rows_for_wide_part = '100000', min_bytes_for_wide_part = '100000';
 
 INSERT INTO columns_with_multiple_streams_compact;
 
@@ -70,7 +70,7 @@ SELECT *
 FROM columns_with_multiple_streams_compact
 ORDER BY field0 ASC;
 
-ALTER TABLE columns_with_multiple_streams_compact MODIFY COLUMN field3 CODEC(Delta, Default);
+ALTER TABLE columns_with_multiple_streams_compact MODIFY COLUMN field3 CODEC(Delta(), Default());
 
 INSERT INTO columns_with_multiple_streams_compact;
 
@@ -79,25 +79,25 @@ DROP TABLE IF EXISTS columns_with_multiple_streams_bad_case;
 -- validation still works, non-sense codecs checked
 CREATE TABLE columns_with_multiple_streams_bad_case
 (
-    field0 Nullable(String) CODEC(Delta, LZ4)
+    field0 Nullable(String) CODEC(Delta(), LZ4())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); --{serverError BAD_ARGUMENTS}
 
 CREATE TABLE columns_with_multiple_streams_bad_case
 (
-    field0 Tuple(Array(UInt64), String) CODEC(T64, LZ4)
+    field0 Tuple(Array(UInt64), String) CODEC(T64(), LZ4())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); --{serverError ILLEGAL_SYNTAX_FOR_CODEC_TYPE}
 
-SET allow_suspicious_codecs = 1;
+SET allow_suspicious_codecs = '1';
 
 CREATE TABLE columns_with_multiple_streams_bad_case
 (
-    field0 Nullable(UInt64) CODEC(Delta)
+    field0 Nullable(UInt64) CODEC(Delta())
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO columns_with_multiple_streams_bad_case;

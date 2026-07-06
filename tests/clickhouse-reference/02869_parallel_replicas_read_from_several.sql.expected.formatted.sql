@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS t1;
+DROP TABLE IF EXISTS t1 SYNC;
 
-DROP TABLE IF EXISTS t2;
+DROP TABLE IF EXISTS t2 SYNC;
 
-DROP TABLE IF EXISTS t3;
+DROP TABLE IF EXISTS t3 SYNC;
 
 CREATE TABLE t1
 (
@@ -11,7 +11,7 @@ CREATE TABLE t1
 )
 ENGINE = ReplicatedMergeTree('/parallel_replicas/{database}/test_tbl', 'r1')
 ORDER BY k
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 CREATE TABLE t2
 (
@@ -20,7 +20,7 @@ CREATE TABLE t2
 )
 ENGINE = ReplicatedMergeTree('/parallel_replicas/{database}/test_tbl', 'r2')
 ORDER BY k
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 CREATE TABLE t3
 (
@@ -29,7 +29,7 @@ CREATE TABLE t3
 )
 ENGINE = ReplicatedMergeTree('/parallel_replicas/{database}/test_tbl', 'r3')
 ORDER BY k
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 INSERT INTO t1 SELECT
     number,
@@ -76,11 +76,11 @@ INSERT INTO t3 SELECT
     number
 FROM numbers(8000, 1000);
 
-SYSTEM sync replica t1;
+SYSTEM SYNC REPLICA t1;
 
-SYSTEM sync replica t2;
+SYSTEM SYNC REPLICA t2;
 
-SYSTEM sync replica t3;
+SYSTEM SYNC REPLICA t3;
 
 SELECT
     count(),
@@ -89,6 +89,6 @@ SELECT
     avg(k)
 FROM t1
 SETTINGS
-    enable_parallel_replicas = 1,
-    max_parallel_replicas = 3,
+    enable_parallel_replicas = '1',
+    max_parallel_replicas = '3',
     cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';

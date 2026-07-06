@@ -5,7 +5,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY id;
 
 -- The elements of qbits will not be summed and this is expected behavior
@@ -26,7 +26,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY id;
 
 CREATE TABLE qbits

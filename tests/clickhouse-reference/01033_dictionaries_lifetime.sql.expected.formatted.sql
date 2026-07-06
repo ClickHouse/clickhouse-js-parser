@@ -1,6 +1,6 @@
 SET send_logs_level = 'fatal';
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.table_for_dict
+CREATE TABLE CLICKHOUSE_DATABASE.table_for_dict
 (
     key_column UInt64,
     second_column UInt8,
@@ -9,13 +9,13 @@ CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.table_for_dict
 ENGINE = MergeTree()
 ORDER BY key_column;
 
-INSERT INTO {CLICKHOUSE_DATABASE:Identifier}.table_for_dict;
+INSERT INTO CLICKHOUSE_DATABASE.table_for_dict;
 
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE_1:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE_1;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE_1:Identifier};
+CREATE DATABASE CLICKHOUSE_DATABASE_1;
 
-CREATE DICTIONARY {CLICKHOUSE_DATABASE_1:Identifier}.dict1
+CREATE DICTIONARY CLICKHOUSE_DATABASE_1.dict1
 (
     key_column UInt64 DEFAULT 0,
     second_column UInt8 DEFAULT 1,
@@ -26,17 +26,17 @@ SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_fo
 LIFETIME(MIN 1 MAX 10)
 LAYOUT(FLAT());
 
-SELECT dictGetUInt8(concat({CLICKHOUSE_DATABASE_1:String}, '.dict1'), 'second_column', toUInt64(100500));
+SELECT dictGetUInt8('placeholder' || '.dict1', 'second_column', toUInt64(100500));
 
 SELECT
     lifetime_min,
     lifetime_max
 FROM `system`.dictionaries
-WHERE database = {CLICKHOUSE_DATABASE_1:String}
+WHERE database = 'placeholder'
     AND name = 'dict1';
 
-DROP DICTIONARY IF EXISTS {CLICKHOUSE_DATABASE_1:Identifier}.dict1;
+DROP DICTIONARY IF EXISTS CLICKHOUSE_DATABASE_1.dict1;
 
-DROP TABLE IF EXISTS {CLICKHOUSE_DATABASE:Identifier}.table_for_dict;
+DROP TABLE IF EXISTS CLICKHOUSE_DATABASE.table_for_dict;
 
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;

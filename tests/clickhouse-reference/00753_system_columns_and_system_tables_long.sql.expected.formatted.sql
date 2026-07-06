@@ -1,5 +1,5 @@
 -- Tags: long, no-object-storage, no-random-merge-tree-settings
-SET output_format_pretty_row_numbers = 0;
+SET output_format_pretty_row_numbers = '0';
 
 DROP TABLE IF EXISTS check_system_tables;
 
@@ -14,7 +14,7 @@ ENGINE = MergeTree()
 ORDER BY name1
 PARTITION BY name2
 SAMPLE BY name1
-SETTINGS min_bytes_for_wide_part = 0, compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = 1, serialization_info_version = 'basic', auto_statistics_types = '';
+SETTINGS min_bytes_for_wide_part = '0', compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = '1', serialization_info_version = 'basic', auto_statistics_types = '';
 
 SELECT
     name,
@@ -75,7 +75,7 @@ WHERE name = 'check_system_tables'
 FORMAT PrettyCompactNoEscapes;
 
 -- Check MergeTree declaration in old format
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE check_system_tables
 (
@@ -132,7 +132,7 @@ CREATE TABLE check_system_tables
 (
     key UInt16
 )
-ENGINE = Buffer(currentDatabase(), check_system_tables_null, 2, 0, 100, 100, 100, 0, 1e6);
+ENGINE = Buffer(currentDatabase(), check_system_tables_null, 2, 0, 100, 100, 100, 0, 1000000.);
 
 INSERT INTO check_system_tables SELECT *
 FROM numbers_mt(50);
@@ -165,7 +165,8 @@ SELECT *
 FROM numbers(50);
 
 SELECT
-    and(greaterOrEquals(total_bytes, 5000), lessOrEquals(total_bytes, 15000)),
+    total_bytes >= 5000
+    AND total_bytes <= 15000,
     total_rows
 FROM `system`.tables
 WHERE name = 'check_system_tables'
@@ -182,7 +183,7 @@ ENGINE = MergeTree()
 ORDER BY name1
 PARTITION BY name2
 SAMPLE BY name1
-SETTINGS min_bytes_for_wide_part = 0, compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = 1;
+SETTINGS min_bytes_for_wide_part = '0', compress_marks = false, compress_primary_key = false, ratio_of_defaults_for_sparse_serialization = '1';
 
 CREATE MATERIALIZED VIEW check_system_tables_mv
 ENGINE = MergeTree()

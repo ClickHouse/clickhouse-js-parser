@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS enum_pk;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE enum_pk
 (
@@ -54,35 +54,35 @@ WHERE d = toString(0);
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE (x = toString(0)) > 0;
+WHERE x = toString(0) > 0;
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE (d = toString(0)) > 0;
+WHERE d = toString(0) > 0;
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE ((x != toString(1)) > 0) > 0;
+WHERE x != toString(1) > 0 > 0;
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE ((d != toString(1)) > 0) > 0;
+WHERE d != toString(1) > 0 > 0;
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE exp2((x != toString(0)) != 0) > 1;
+WHERE exp2(x != toString(0) != 0) > 1;
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE exp2((d != toString(0)) != 0) > 1;
+WHERE exp2(d != toString(0) != 0) > 1;
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE (negate((x != toString(0))) = -1) > 0;
+WHERE -(x != toString(0)) = -1 > 0;
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE (negate((d != toString(0))) = -1) > 0;
+WHERE -(d != toString(0)) = -1 > 0;
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
@@ -94,13 +94,13 @@ WHERE 1 = 1;
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE (x = '0'
-    OR x = '1');
+WHERE x = '0'
+    OR x = '1';
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE (d = '0'
-    OR d = '1');
+WHERE d = '0'
+    OR d = '1';
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
@@ -112,12 +112,12 @@ WHERE d IN ('0', '1');
 
 SELECT cityHash64(groupArraySorted(100)(x))
 FROM enum_pk
-WHERE (x != '0'
-    AND x != '1');
+WHERE x != '0'
+    AND x != '1';
 
 SELECT cityHash64(groupArraySorted(100)(d))
 FROM enum_pk
-WHERE (d != '0'
-    AND d != '1');
+WHERE d != '0'
+    AND d != '1';
 
 DROP TABLE enum_pk;

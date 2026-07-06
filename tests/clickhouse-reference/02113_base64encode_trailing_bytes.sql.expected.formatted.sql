@@ -1,5 +1,5 @@
 -- Tags: no-fasttest
-SET log_queries = 1;
+SET log_queries = '1';
 
 DROP TABLE IF EXISTS tabl_1;
 
@@ -9,14 +9,14 @@ CREATE TABLE tabl_1
 (
     key String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE tabl_2
 (
     key String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 SELECT *

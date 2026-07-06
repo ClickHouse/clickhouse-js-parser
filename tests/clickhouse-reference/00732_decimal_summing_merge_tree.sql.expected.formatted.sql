@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS decimal_sum;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE decimal_sum
 (
@@ -9,7 +9,7 @@ CREATE TABLE decimal_sum
     sum64 Decimal64(8),
     sum128 Decimal128(10)
 )
-ENGINE = SummingMergeTree(date, (date), 8192);
+ENGINE = SummingMergeTree(date, date, 8192);
 
 INSERT INTO decimal_sum;
 

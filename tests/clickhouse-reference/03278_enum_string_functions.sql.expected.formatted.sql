@@ -5,21 +5,21 @@ CREATE TABLE test_enum_string_functions
 (
     e Enum('a' = 1, 'b' = 2)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_enum_string_functions;
 
 SELECT *
 FROM test_enum_string_functions
-WHERE like(e, '%abc%');
+WHERE e LIKE '%abc%';
 
 SELECT *
 FROM test_enum_string_functions
-WHERE notLike(e, '%abc%');
+WHERE e NOT LIKE '%abc%';
 
 SELECT *
 FROM test_enum_string_functions
-WHERE ilike(e, '%a%');
+WHERE e ILIKE '%a%';
 
 SELECT position(e, 'a')
 FROM test_enum_string_functions;
@@ -51,7 +51,7 @@ CREATE TABLE jsons
 (
     json Enum('a', '{"a":1}')
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO jsons;
 
@@ -109,17 +109,17 @@ SELECT positionCaseInsensitive(json, 'A') AS res
 FROM jsons
 ORDER BY res ASC;
 
-SELECT like(materialize(CAST('a', 'Enum(''a'' = 1)')), randomString(0))
+SELECT materialize(CAST('a' AS Enum('a' = 1))) LIKE randomString(0)
 FROM numbers(10);
 
-SELECT like(CAST('a', 'Enum(''a'' = 1)'), randomString(0)); -- {serverError ILLEGAL_COLUMN}
+SELECT CAST('a' AS Enum('a' = 1)) LIKE randomString(0); -- {serverError ILLEGAL_COLUMN}
 
-SELECT like(materialize(CAST('a', 'Enum16(''a'' = 1)')), randomString(0))
+SELECT materialize(CAST('a' AS Enum16('a' = 1))) LIKE randomString(0)
 FROM numbers(10);
 
-SELECT like(CAST('a', 'Enum16(''a'' = 1)'), randomString(0)); -- {serverError ILLEGAL_COLUMN}
+SELECT CAST('a' AS Enum16('a' = 1)) LIKE randomString(0); -- {serverError ILLEGAL_COLUMN}
 
-SELECT like(CAST('a', 'Enum(''a'' = 1)'), 'a');
+SELECT CAST('a' AS Enum('a' = 1)) LIKE 'a';
 
-SELECT like(materialize(CAST('a', 'Enum(''a'' = 1)')), 'a')
+SELECT materialize(CAST('a' AS Enum('a' = 1))) LIKE 'a'
 FROM numbers(10);

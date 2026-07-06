@@ -1,149 +1,196 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_level_policy_prewhere"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/40956#issuecomment-1262096612"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "DROP ROW POLICY IF EXISTS row_level_policy_prewhere_policy0 ON row_level_policy_prewhere"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_level_policy_prewhere"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Int16"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "row_level_policy_prewhere"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "y"
-        ]
+        "type": "Identifier",
+        "name": "row_level_policy_prewhere"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "createRowPolicy",
-    "targets": [
-      {
-        "names": [
-          "row_level_policy_prewhere_policy0"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "table": "row_level_policy_prewhere"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "if_exists": true,
+      "row_policy_names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "row_level_policy_prewhere_policy0",
+            "table": "row_level_policy_prewhere"
+          }
+        ]
       }
-    ],
-    "hasRowKeyword": true,
-    "using": {
-      "kind": "binaryExpr",
-      "op": ">=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "x"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "row_level_policy_prewhere"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int16"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
         ]
       },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
       }
-    },
-    "to": {
-      "kind": "names",
-      "names": [
-        "default"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "row_level_policy_prewhere"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "y"
+        },
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateRowPolicyQuery",
+      "names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "row_level_policy_prewhere_policy0",
+            "table": "row_level_policy_prewhere"
+          }
+        ]
+      },
+      "filters": [
+        {
+          "filter_type": "SELECT_FILTER",
+          "condition": {
+            "type": "Function",
+            "name": "greaterOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          }
+        }
+      ],
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "default"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "row_level_policy_prewhere"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "y"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "foo"
+              }
+            ]
+          }
+        }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "row_level_policy_prewhere"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "row_level_policy_prewhere"
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "y"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "foo"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "row_level_policy_prewhere"
     }
   }
 ]

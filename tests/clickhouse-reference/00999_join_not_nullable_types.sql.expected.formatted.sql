@@ -1,4 +1,4 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT *
 FROM
@@ -16,7 +16,8 @@ FULL JOIN (
             ['right'] AS ar,
             number AS right_number
         FROM `system`.numbers
-        LIMIT 1, 2
+        LIMIT 2
+        OFFSET 1
     ) AS js2
     USING (number)
 ORDER BY number ASC;
@@ -35,7 +36,8 @@ FULL JOIN (
             ['right'] AS ar,
             number AS right_number
         FROM `system`.numbers
-        LIMIT 1, 2
+        LIMIT 2
+        OFFSET 1
     ) AS js2
     ON left_number = right_number
 ORDER BY left_number ASC;

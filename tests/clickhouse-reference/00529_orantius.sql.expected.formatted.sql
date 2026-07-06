@@ -23,7 +23,7 @@ SELECT arrayConcat([NULL, ''], [''], [NULL]);
 
 SELECT CAST(NULL AS Nullable(UUID));
 
-SELECT arrayMap(x -> substring('abc', x), [1, 2, 3]);
+SELECT arrayMap((x -> substring('abc', x)), [1, 2, 3]);
 
 SELECT 1 AS x
 WHERE 1 AS x;
@@ -34,14 +34,14 @@ FROM (
     )
 HAVING count() > 0 AS x;
 
-SELECT a.1 - 1
+SELECT (a).1 - 1
 FROM (
         SELECT (1, 2) AS a
     );
 
 SELECT
-    a.1 - 1,
-    a.1 + 1
+    (a).1 - 1,
+    (a).1 + 1
 FROM (
         SELECT (1, 2) AS a
     );

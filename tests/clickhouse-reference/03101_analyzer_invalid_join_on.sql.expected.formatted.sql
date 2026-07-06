@@ -3,21 +3,21 @@ DROP TABLE IF EXISTS t1;
 
 DROP TABLE IF EXISTS t2;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t1
 (
     c3 String,
     PRIMARY KEY(c3)
 )
-ENGINE = MergeTree;
+ENGINE = MergeTree();
 
 CREATE TABLE t2
 (
     c11 String,
     PRIMARY KEY(c11)
 )
-ENGINE = MergeTree;
+ENGINE = MergeTree();
 
 INSERT INTO t1;
 

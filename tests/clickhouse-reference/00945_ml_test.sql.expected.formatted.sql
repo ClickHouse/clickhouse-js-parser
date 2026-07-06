@@ -8,15 +8,15 @@ CREATE TABLE IF NOT EXISTS defaults
     predict1 Float64,
     predict2 Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults;
 
 DROP TABLE IF EXISTS model;
 
 CREATE TABLE model
-ENGINE = Memory AS
-SELECT stochasticLogisticRegressionState(0.1, 0.0, 1.0, 'SGD')(target, param1, param2) AS state
+ENGINE = Memory() AS
+SELECT stochasticLogisticRegressionState(0.1, 0., 1., 'SGD')(target, param1, param2) AS state
 FROM defaults;
 
 SELECT ans < 1.1

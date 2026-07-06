@@ -1,5 +1,5 @@
 -- Tags: memory-engine
-SET create_table_empty_primary_key_by_default = 0;
+SET create_table_empty_primary_key_by_default = '0';
 
 SET default_table_engine = 'None';
 
@@ -78,7 +78,7 @@ SHOW CREATE TABLE numbers2;
 DROP TABLE numbers2;
 
 CREATE TABLE numbers3
-ENGINE = Log AS
+ENGINE = Log() AS
 SELECT number
 FROM numbers(10);
 
@@ -152,7 +152,7 @@ FROM test_table;
 CREATE TABLE t1 AS test_view;
 
 CREATE TABLE t2 AS test_view
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE t1;
 
@@ -168,7 +168,7 @@ CREATE DATABASE test_02184
 ORDER BY kek; -- {serverError UNKNOWN_ELEMENT_IN_AST}
 
 CREATE DATABASE test_02184
-SETTINGS x = 1; -- {serverError UNKNOWN_SETTING}
+SETTINGS x = '1'; -- {serverError UNKNOWN_SETTING}
 
 CREATE TABLE mt
 (
@@ -191,19 +191,19 @@ CREATE TEMPORARY TABLE tmp
     n int
 );
 
-SHOW CREATE TABLE tmp;
+SHOW CREATE TEMPORARY TABLE tmp;
 
 CREATE TEMPORARY TABLE tmp1
 (
     n int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TEMPORARY TABLE tmp2
 (
     n int
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TEMPORARY TABLE tmp2
 (
@@ -229,7 +229,7 @@ CREATE TABLE log1 AS log;
 SHOW CREATE TABLE log1;
 
 CREATE TABLE mem AS log1
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE mem;
 
@@ -251,7 +251,7 @@ ORDER BY n AS
 SELECT 1 AS n;
 
 CREATE TABLE mem
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT 1 AS n;
 
 SHOW CREATE TABLE mem;
@@ -261,7 +261,7 @@ CREATE TABLE val AS values('n int', 1, 2);
 CREATE TABLE val2 AS val;
 
 CREATE TABLE log AS val
-ENGINE = Log;
+ENGINE = Log();
 
 SHOW CREATE TABLE val;
 
@@ -281,16 +281,16 @@ CREATE TABLE kek
 (
     n int
 )
-SETTINGS log_queries = 1;
+SETTINGS log_queries = '1';
 
 CREATE TABLE lol
 (
     n int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n
-SETTINGS min_bytes_for_wide_part = 123
-SETTINGS log_queries = 1;
+SETTINGS min_bytes_for_wide_part = '123'
+SETTINGS log_queries = '1';
 
 SHOW CREATE TABLE kek;
 
@@ -307,4 +307,4 @@ CREATE TEMPORARY TABLE tmp_log
     n int
 );
 
-SHOW CREATE TABLE tmp_log;
+SHOW CREATE TEMPORARY TABLE tmp_log;

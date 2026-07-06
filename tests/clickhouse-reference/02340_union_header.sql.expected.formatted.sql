@@ -33,7 +33,7 @@ FROM
             NULL,
             -2
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             100 AS a,
             -9223372036854775808 AS b,
@@ -46,10 +46,10 @@ LEFT JOIN (
     ) AS js2
     USING (a, b)
 ORDER BY
-    a DESC,
+    a DESC NULLS FIRST,
     '-0.02' ASC,
-    b ASC,
-    c DESC,
-    1048575 ASC,
+    b ASC NULLS FIRST,
+    c DESC NULLS FIRST,
+    1048575 ASC NULLS LAST,
     d DESC
-SETTINGS enable_positional_arguments = 0;
+SETTINGS enable_positional_arguments = '0';

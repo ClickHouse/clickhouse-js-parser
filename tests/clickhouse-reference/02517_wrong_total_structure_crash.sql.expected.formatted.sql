@@ -9,7 +9,7 @@ CREATE OR REPLACE TABLE alias10__fuzz_13
 )
 ENGINE = Distributed(test_shard_localhost, currentDatabase(), alias_local10);
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE OR REPLACE TABLE alias_local10
 (
@@ -21,7 +21,7 @@ CREATE OR REPLACE TABLE alias_local10
 )
 ENGINE = MergeTree(EventDate, (Id, EventDate), 8192);
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 SELECT field1
 FROM alias10__fuzz_13
@@ -35,7 +35,7 @@ CREATE OR REPLACE TABLE local
 (
     x Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE OR REPLACE TABLE distributed
 (

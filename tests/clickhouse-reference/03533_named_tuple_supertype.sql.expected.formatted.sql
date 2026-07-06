@@ -1,11 +1,11 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE named_tuples_03533_1
 (
     a Tuple(s String, i Int64),
     b Tuple(s String, i Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO named_tuples_03533_1;
 
@@ -13,7 +13,7 @@ SELECT
     x,
     toTypeName(x)
 FROM (
-        SELECT arrayFilter(x -> ((x.i) > 10), [if(a.i > 0, a, b)]) AS x
+        SELECT arrayFilter((x -> x.i > 10), [if(a.i > 0, a, b)]) AS x
         FROM named_tuples_03533_1
     );
 
@@ -22,7 +22,7 @@ CREATE TABLE named_tuples_03533_2
     a Tuple(s String, i Int64),
     b Tuple(x String, y Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO named_tuples_03533_2;
 

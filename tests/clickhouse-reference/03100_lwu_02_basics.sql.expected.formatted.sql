@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database
 -- no-replicated-database: SYSTEM STOP MERGES works only on one replica.
-SET insert_keeper_fault_injection_probability = 0.0;
+SET insert_keeper_fault_injection_probability = 0.;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
-DROP TABLE IF EXISTS t_shared;
+DROP TABLE IF EXISTS t_shared SYNC;
 
 CREATE TABLE t_shared
 (
@@ -43,4 +43,4 @@ SELECT *
 FROM t_shared
 ORDER BY id ASC;
 
-DROP TABLE t_shared;
+DROP TABLE t_shared SYNC;

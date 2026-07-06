@@ -8,8 +8,8 @@ CREATE TABLE t_memory_compressed
     arr Array(LowCardinality(String)),
     m Map(String, String)
 )
-ENGINE = Memory
-SETTINGS compress = 1;
+ENGINE = Memory()
+SETTINGS compress = '1';
 
 INSERT INTO t_memory_compressed;
 

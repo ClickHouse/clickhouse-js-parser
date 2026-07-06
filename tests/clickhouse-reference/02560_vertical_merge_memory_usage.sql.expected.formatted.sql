@@ -304,9 +304,9 @@ CREATE TABLE tvm
     c298 UInt64,
     c299 UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 10, min_bytes_for_wide_part = 0, vertical_merge_algorithm_min_rows_to_activate = 1, max_merge_delayed_streams_for_parallel_write = 1000;
+SETTINGS min_rows_for_wide_part = '10', min_bytes_for_wide_part = '0', vertical_merge_algorithm_min_rows_to_activate = '1', max_merge_delayed_streams_for_parallel_write = '1000';
 
 INSERT INTO tvm SELECT
     number + 0,
@@ -613,7 +613,7 @@ FROM numbers(20);
 
 OPTIMIZE TABLE tvm FINAL;
 
-SYSTEM flush logs part_log;
+SYSTEM FLUSH LOGS part_log;
 
 -- should be about 4MB
 SELECT

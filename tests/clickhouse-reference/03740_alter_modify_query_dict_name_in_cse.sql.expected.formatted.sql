@@ -10,15 +10,15 @@ CREATE TABLE src
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE TABLE dst
 (
     key Int
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE DICTIONARY dict
 (
@@ -26,7 +26,7 @@ CREATE DICTIONARY dict
     value Int
 )
 PRIMARY KEY key
-SOURCE(clickhouse(query 'select 0 key, 0 value'))
+SOURCE(clickhouse(QUERY 'select 0 key, 0 value'))
 LAYOUT(DIRECT());
 
 CREATE MATERIALIZED VIEW mv

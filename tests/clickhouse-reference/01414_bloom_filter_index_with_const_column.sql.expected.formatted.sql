@@ -135,13 +135,13 @@ CREATE TABLE test_bloom_filter_index
     IslandID FixedString(16),
     RequestNum UInt32,
     RequestTry UInt8,
-    INDEX test1 RegionID TYPE bloom_filter GRANULARITY 8129
+    INDEX test1 RegionID TYPE bloom_filter() GRANULARITY 8129
 )
 ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
 SAMPLE BY intHash32(UserID)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 SELECT UserID
 FROM test_bloom_filter_index
@@ -156,7 +156,7 @@ CREATE TABLE test_bloom_filter_index
     uint8 UInt8,
     uint16 UInt16,
     index_column UInt64,
-    INDEX test1 index_column TYPE bloom_filter GRANULARITY 1
+    INDEX test1 index_column TYPE bloom_filter() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
@@ -170,7 +170,7 @@ FROM numbers(10000);
 
 SELECT *
 FROM test_bloom_filter_index
-WHERE (`uint16`, `index_column`) IN (
+WHERE (uint16, index_column) IN (
         SELECT
             toUInt16(2),
             toUInt64(2)

@@ -10,7 +10,7 @@ CREATE TABLE replicated_constraints1
     CONSTRAINT a_constraint CHECK a < 10
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00988/alter_constraints', 'r1')
-ORDER BY (a);
+ORDER BY a;
 
 CREATE TABLE replicated_constraints2
 (
@@ -19,7 +19,7 @@ CREATE TABLE replicated_constraints2
     CONSTRAINT a_constraint CHECK a < 10
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00988/alter_constraints', 'r2')
-ORDER BY (a);
+ORDER BY a;
 
 INSERT INTO replicated_constraints1;
 
@@ -31,13 +31,13 @@ SYSTEM SYNC REPLICA replicated_constraints2;
 
 INSERT INTO replicated_constraints1; -- { serverError VIOLATED_CONSTRAINT }
 
-ALTER TABLE replicated_constraints1 DROP CONSTRAINT a_constraint SETTINGS alter_sync = 2;
+ALTER TABLE replicated_constraints1 DROP CONSTRAINT a_constraint SETTINGS alter_sync = '2';
 
 INSERT INTO replicated_constraints2;
 
-ALTER TABLE replicated_constraints1 ADD CONSTRAINT b_constraint CHECK b > 10 SETTINGS alter_sync = 2;
+ALTER TABLE replicated_constraints1 ADD CONSTRAINT b_constraint CHECK b > 10 SETTINGS alter_sync = '2';
 
-ALTER TABLE replicated_constraints2 ADD CONSTRAINT a_constraint CHECK a < 10 SETTINGS alter_sync = 2;
+ALTER TABLE replicated_constraints2 ADD CONSTRAINT a_constraint CHECK a < 10 SETTINGS alter_sync = '2';
 
 INSERT INTO replicated_constraints1; -- { serverError VIOLATED_CONSTRAINT }
 

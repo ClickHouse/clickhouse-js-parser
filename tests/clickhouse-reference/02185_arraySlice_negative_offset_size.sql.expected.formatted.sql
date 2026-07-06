@@ -18,7 +18,7 @@ CREATE TABLE t
     l Int8,
     r Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 

@@ -19,4 +19,4 @@ CREATE ROW POLICY rp ON test_generic_events_all USING APIKey > 35 TO CURRENT_USE
 SELECT OperatingSystem
 FROM test_generic_events_all
 PREWHERE APIKey = 42
-SETTINGS additional_table_filters = map('test_generic_events_all', 'APIKey > 40');
+SETTINGS additional_table_filters = [('test_generic_events_all', 'APIKey > 40')];

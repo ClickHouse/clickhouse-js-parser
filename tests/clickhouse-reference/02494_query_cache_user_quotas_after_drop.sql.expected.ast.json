@@ -1,164 +1,180 @@
 [
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CACHE",
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: Messes with internal cache",
-      "-- Tests per-user quotas of the query cache. Settings 'query_cache_max_size_in_bytes' and 'query_cache_max_entries' are actually supposed to",
-      "-- be used in a settings profile, together with a readonly constraint. For simplicity, test both settings stand-alone in a stateless test",
-      "-- instead of an integration test - the relevant logic will still be covered by that."
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CACHE"
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_entries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_cache_max_entries": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Run SELECT with quota that current user may write only 1 entry in the query cache"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "a"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "b"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "a"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_cache"
-    },
-    "trailingComments": [
-      "-- expect 1 entry"
-    ]
+        }
+      ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_cache_max_entries",
-        "value": {
-          "kind": "columnRef",
-          "parts": [
-            "DEFAULT"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "b"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_cache",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "default_settings": [
+        "query_cache_max_entries"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "c"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "d"
+            }
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "use_query_cache": true
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "--"
+            }
           ]
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Run SELECTs again but w/o quota"
-    ]
+      ]
+    }
   },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "c"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "d"
-      }
-    ],
-    "settings": [
-      {
-        "name": "use_query_cache",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "--"
-      }
-    ],
-    "leadingComments": [
-      "-- Run the same as above after a DROP QUERY CACHE."
-    ],
-    "trailingComments": [
-      "-- SELECT '---';"
-    ]
-  }
+  "<AST Error>"
 ]

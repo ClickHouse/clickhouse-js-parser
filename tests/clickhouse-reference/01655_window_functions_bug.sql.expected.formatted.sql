@@ -1,5 +1,5 @@
 SELECT
-    round((countIf(rating = 5)) - (countIf(rating < 5)), 4) AS nps,
+    round(countIf(rating = 5) - countIf(rating < 5), 4) AS nps,
     dense_rank() OVER (ORDER BY nps DESC) AS rank
 FROM (
         SELECT

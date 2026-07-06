@@ -15,10 +15,10 @@ DROP VIEW IF EXISTS dst_mv_1;
 DROP VIEW IF EXISTS dst_mv_2;
 
 CREATE TABLE src_table AS `system`.numbers
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW dst_mv_1
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT
     *,
@@ -47,7 +47,7 @@ CREATE TABLE dest_table
     Id UInt64,
     Units Float32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE left_table AS dest_table;
 

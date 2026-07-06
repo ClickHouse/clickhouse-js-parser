@@ -7,9 +7,9 @@ CREATE TABLE tab
 (
     id Int32,
     vec Array(Float32),
-    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1)
+    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 SELECT granularity
@@ -26,7 +26,7 @@ CREATE TABLE tab
     id Int32,
     vec Array(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
-ALTER TABLE tab ADD INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1);
+ALTER TABLE tab ADD INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1) GRANULARITY 100000000;

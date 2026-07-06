@@ -6,7 +6,7 @@ CREATE TABLE t0
 ENGINE = MergeTree()
 ORDER BY tuple();
 
-SET query_plan_enable_optimizations = 0;
+SET query_plan_enable_optimizations = '0';
 
 ALTER TABLE t0 MODIFY STATISTICS c0 TYPE Uniq, CountMin;
 

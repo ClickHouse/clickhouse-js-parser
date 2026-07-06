@@ -11,18 +11,18 @@ CREATE TABLE test
     i9 Int64,
     i10 Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE VIEW test_view
 AS
 SELECT *
 FROM test;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
-SET serialize_query_plan = 0;
+SET serialize_query_plan = '0';
 
 SELECT max(i1)
 FROM remote('localhost', currentDatabase(), test_view)

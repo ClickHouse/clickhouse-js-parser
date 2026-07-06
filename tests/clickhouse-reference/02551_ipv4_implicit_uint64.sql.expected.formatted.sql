@@ -2,7 +2,7 @@ CREATE TABLE ip4test
 (
     ip IPv4
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ip4test;
 

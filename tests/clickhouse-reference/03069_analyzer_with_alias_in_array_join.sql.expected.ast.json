@@ -1,70 +1,73 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/4432"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "zz",
-        "expr": {
-          "kind": "arrayLiteral",
-          "elements": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "Literal",
+              "alias": "zz",
+              "value_type": "Array",
+              "value": [
+                {
+                  "value_type": "UInt64",
+                  "value": "1"
+                },
+                {
+                  "value_type": "UInt64",
+                  "value": "2"
+                }
+              ]
             }
           ],
-          "source": "[1, 2]"
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "one"
-      },
-      "kind": "arrayJoinExpr",
-      "joinType": "ARRAY",
-      "expressions": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "zz"
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "one",
+                    "database": "system"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "array_join": {
+                  "type": "ArrayJoin",
+                  "kind": "INNER",
+                  "expressions": [
+                    {
+                      "type": "Identifier",
+                      "alias": "x",
+                      "name": "zz"
+                    }
+                  ]
+                }
+              }
             ]
-          },
-          "alias": "x"
+          }
         }
       ]
     }

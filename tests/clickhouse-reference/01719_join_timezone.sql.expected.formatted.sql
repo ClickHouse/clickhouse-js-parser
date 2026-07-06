@@ -6,7 +6,7 @@ CREATE TABLE test
     i UInt8
 )
 ENGINE = MergeTree()
-ORDER BY (i)
+ORDER BY i
 PARTITION BY toYYYYMM(timestamp);
 
 INSERT INTO test;

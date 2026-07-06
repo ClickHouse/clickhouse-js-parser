@@ -7,14 +7,14 @@ CREATE TABLE mt1
 (
     n Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 CREATE TABLE mt2
 (
     n Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n;
 
 COMMIT; -- { serverError INVALID_TRANSACTION } -- no transaction
@@ -143,7 +143,7 @@ SELECT
     sum(n)
 FROM mt1;
 
-SET TRANSACTION snapshot 1;
+SET TRANSACTION SNAPSHOT 1;
 
 SELECT
     'snapshot1',
@@ -151,9 +151,9 @@ SELECT
     sum(n)
 FROM mt1;
 
-SET TRANSACTION snapshot 3;
+SET TRANSACTION SNAPSHOT 3;
 
-SET throw_on_unsupported_query_inside_transaction = 0;
+SET throw_on_unsupported_query_inside_transaction = '0';
 
 SELECT
     'snapshot3',
@@ -166,9 +166,9 @@ SELECT
     )
 FROM mt1;
 
-SET throw_on_unsupported_query_inside_transaction = 1;
+SET throw_on_unsupported_query_inside_transaction = '1';
 
-SET TRANSACTION snapshot 1000000000000000;
+SET TRANSACTION SNAPSHOT 1000000000000000;
 
 SELECT
     'snapshot100500',
@@ -176,13 +176,13 @@ SELECT
     sum(n)
 FROM mt1;
 
-SET TRANSACTION snapshot 5; -- { serverError INVALID_TRANSACTION }
+SET TRANSACTION SNAPSHOT 5; -- { serverError INVALID_TRANSACTION }
 
 CREATE TABLE m
 (
     n int
 )
-ENGINE = Memory; -- { serverError NOT_IMPLEMENTED }
+ENGINE = Memory(); -- { serverError NOT_IMPLEMENTED }
 
 INSERT INTO m; -- { serverError NOT_IMPLEMENTED }
 

@@ -4,14 +4,14 @@ REFRESH AFTER 10 SECOND
 (
     x UInt64
 )
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT number AS x
 FROM numbers(3)
 UNION ALL
 SELECT rand64() AS x;
 
-SYSTEM WAIT VIEW 03221_rmv;
+SYSTEM WAIT VIEW `03221_rmv`;
 
 SELECT
     read_rows,

@@ -21,7 +21,7 @@ WHERE database = currentDatabase()
     AND active;
 
 -- This query is fast without failpoint: should take < 1 sec
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT *
 FROM t_03176
 ORDER BY k ASC
@@ -30,7 +30,7 @@ SETTINGS log_comment = '03176_q1'
 FORMAT Null;
 
 -- Now the query should be cancelled
-EXPLAIN indexes = 1
+EXPLAIN indexes = '1'
 SELECT *
 FROM t_03176
 ORDER BY k ASC
@@ -48,11 +48,11 @@ SELECT
     type = 'QueryFinish',
     intDiv(query_duration_ms, 2000),
     exception_code != 0,
-    (position(stack_trace, 'selectPartsToRead') > 0
-    OR position(stack_trace, 'filterPartsByPartition') > 0) AS has_selectPartsToRead
+    position(stack_trace, 'selectPartsToRead') > 0
+    OR position(stack_trace, 'filterPartsByPartition') > 0 AS has_selectPartsToRead
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND like(log_comment, '03176_q_')
+    AND log_comment LIKE '03176_q_'
     AND type IN ('QueryFinish', 'ExceptionBeforeStart')
 ORDER BY log_comment ASC;
 

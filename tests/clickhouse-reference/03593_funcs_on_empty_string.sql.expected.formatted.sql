@@ -347,7 +347,7 @@ SELECT lower('');
 
 SELECT lowerUTF8('');
 
-SELECT ltrim('');
+SELECT trimLeft('');
 
 SELECT mapFromString('');
 
@@ -521,7 +521,7 @@ SELECT reverse('');
 
 SELECT reverseUTF8('');
 
-SELECT rtrim('');
+SELECT trimRight('');
 
 SELECT singleValueOrNull('');
 
@@ -721,7 +721,7 @@ SELECT topLevelDomain('');
 
 SELECT topLevelDomainRFC('');
 
-SELECT trim('');
+SELECT trimBoth('');
 
 SELECT trimBoth('');
 

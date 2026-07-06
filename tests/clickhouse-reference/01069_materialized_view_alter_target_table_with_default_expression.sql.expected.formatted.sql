@@ -8,14 +8,14 @@ CREATE TABLE mv_source
 (
     a UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE mv_target
 (
     a UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE MATERIALIZED VIEW mv

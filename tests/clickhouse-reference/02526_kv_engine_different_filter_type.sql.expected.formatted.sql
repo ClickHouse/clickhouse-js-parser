@@ -8,7 +8,7 @@ CREATE TABLE `02526_keeper_map`
     key String,
     value UInt32
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/02526_kv_filter_types'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/02526_kv_filter_types')
 PRIMARY KEY key;
 
 INSERT INTO `02526_keeper_map` SELECT *
@@ -30,7 +30,7 @@ CREATE TABLE `02526_rocksdb`
     key String,
     value UInt32
 )
-ENGINE = EmbeddedRocksDB
+ENGINE = EmbeddedRocksDB()
 PRIMARY KEY key;
 
 INSERT INTO `02526_rocksdb` SELECT *

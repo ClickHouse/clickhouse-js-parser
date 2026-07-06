@@ -21,14 +21,14 @@ CREATE TABLE users
 (
     user_id UUID
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE orders
 (
     order_id UUID,
     user_id UUID
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -44,7 +44,7 @@ FROM
         SELECT *
         FROM users
     ) AS t1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT *
         FROM orders
     ) AS t2

@@ -1,238 +1,275 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/55803"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "broken_table"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "broken_view"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "broken_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "start",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "6"
-            }
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "broken_table"
       },
-      {
-        "kind": "columnDef",
-        "name": "end",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "6"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplacingMergeTree",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "start"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "start"
-          ]
-        }
-      }
-    ]
+      "if_exists": true
+    }
   },
   {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "broken_view"
-    },
-    "asQuery": {
-      "kind": "union",
-      "queries": [
-        {
-          "kind": "select",
-          "select": [
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "broken_view"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "broken_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "start",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "6"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "end",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "6"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplacingMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
+              "type": "Identifier",
+              "name": "start"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "start"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "broken_view"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "alias": "start",
+                "name": "t.start",
+                "name_parts": [
                   "t",
                   "start"
                 ]
               },
-              "alias": "start"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
+              {
+                "type": "Identifier",
+                "alias": "end",
+                "name": "t.end",
+                "name_parts": [
                   "t",
                   "end"
                 ]
               },
-              "alias": "end"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "castExpr",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "dateDiff",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "second"
+              {
+                "type": "Function",
+                "alias": "total_sec",
+                "name": "CAST",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "dateDiff",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "second"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t.start",
+                        "name_parts": [
+                          "t",
+                          "start"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t.end",
+                        "name_parts": [
+                          "t",
+                          "end"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "float"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "alias": "t",
+                      "name": "broken_table"
                     },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t",
-                        "start"
-                      ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "t",
-                        "end"
-                      ]
-                    }
-                  ]
-                },
-                "type": "float"
-              },
-              "alias": "total_sec"
+                    "final": true
+                  }
+                }
+              ]
             }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "broken_table",
-            "final": true,
-            "alias": "t"
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "alias": "start",
+                "value_type": "Null",
+                "value": null
+              },
+              {
+                "type": "Literal",
+                "alias": "end",
+                "value_type": "Null",
+                "value": null
+              },
+              {
+                "type": "Literal",
+                "alias": "total_sec",
+                "value_type": "Null",
+                "value": null
+              }
+            ]
           }
-        },
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "NULL",
-                "value": "NULL"
-              },
-              "alias": "start"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "NULL",
-                "value": "NULL"
-              },
-              "alias": "end"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "NULL",
-                "value": "NULL"
-              },
-              "alias": "total_sec"
-            }
-          ]
-        }
-      ]
+        ]
+      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v",
-          "start"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "v",
-          "total_sec"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "broken_view",
-      "final": true,
-      "alias": "v"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "isNotNull",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "v",
-            "start"
-          ]
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "v.start",
+              "name_parts": [
+                "v",
+                "start"
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "v.total_sec",
+              "name_parts": [
+                "v",
+                "total_sec"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "v",
+                    "name": "broken_view"
+                  },
+                  "final": true
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "isNotNull",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "v.start",
+                "name_parts": [
+                  "v",
+                  "start"
+                ]
+              }
+            ]
+          }
         }
       ]
     }

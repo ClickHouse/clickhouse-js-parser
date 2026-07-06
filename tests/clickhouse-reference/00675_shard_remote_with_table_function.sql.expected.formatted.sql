@@ -5,7 +5,7 @@ CREATE TABLE remote_test
 (
     a1 UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO FUNCTION remote('127.0.0.1', currentDatabase(), remote_test);
 

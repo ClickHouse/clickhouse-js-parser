@@ -6,7 +6,7 @@ CREATE TABLE nested_test
     `nest.col1` Array(String),
     `nest.col2` Array(Int8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 ALTER TABLE nested_test ADD COLUMN `nest.col3` Array(LowCardinality(String));

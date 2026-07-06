@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -6,7 +6,7 @@ CREATE TABLE test
 (
     val LowCardinality(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY val;
 
 INSERT INTO test;

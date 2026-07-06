@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -19,7 +19,7 @@ SELECT
     value
 FROM
     test_table
-ARRAY JOIN [[1,2,3]] AS value_element, value_element AS value; -- { serverError UNKNOWN_IDENTIFIER }
+ARRAY JOIN [[1, 2, 3]] AS value_element, value_element AS value; -- { serverError UNKNOWN_IDENTIFIER }
 
 SELECT
     id,
@@ -27,7 +27,7 @@ SELECT
     value
 FROM
     test_table
-ARRAY JOIN [[1,2,3]] AS value_element
+ARRAY JOIN [[1, 2, 3]] AS value_element
 ARRAY JOIN value_element AS value;
 
 SELECT
@@ -36,13 +36,13 @@ SELECT
 FROM
     test_table
 ARRAY JOIN [1048577] AS value_element
-ARRAY JOIN arrayMap(x -> value_element, ['']) AS value;
+ARRAY JOIN arrayMap((x -> value_element), ['']) AS value;
 
-SELECT arrayFilter(x -> notEmpty(concat(x)), [NULL, NULL])
+SELECT arrayFilter((x -> notEmpty(concat(x))), [NULL, NULL])
 FROM
     `system`.one
 ARRAY JOIN [1048577] AS elem
-ARRAY JOIN arrayMap(x -> splitByChar(x, elem), ['']) AS unused; -- { serverError ILLEGAL_COLUMN }
+ARRAY JOIN arrayMap((x -> splitByChar(x, elem)), ['']) AS unused; -- { serverError ILLEGAL_COLUMN }
 
 -- { echoOff }
 DROP TABLE test_table;

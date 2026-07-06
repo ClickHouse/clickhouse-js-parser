@@ -13,8 +13,8 @@ SETTINGS format_csv_delimiter = ';';
 INSERT INTO test_02152 SELECT
     1,
     'Hello',
-    [1,2,3],
-    tuple(2, 'World', [4,5,6]);
+    [1, 2, 3],
+    tuple(2, 'World', [4, 5, 6]);
 
 SELECT *
 FROM test_02152;

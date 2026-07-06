@@ -5,7 +5,7 @@ CREATE TABLE null_subcolumns
     id UInt32,
     n Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO null_subcolumns;
@@ -32,7 +32,7 @@ CREATE TABLE map_subcolumns
     id UInt32,
     m Map(String, UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO map_subcolumns;

@@ -4,18 +4,18 @@ CREATE TABLE merge_tree
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO merge_tree;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
-SET max_rows_to_read = 1;
+SET max_rows_to_read = '1';
 
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT count()
 FROM merge_tree

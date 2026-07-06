@@ -6,7 +6,7 @@ CREATE TABLE count_lc_test
     arr Array(LowCardinality(String)),
     num UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (s, arr);
 
 INSERT INTO count_lc_test (num, arr);
@@ -53,5 +53,5 @@ CREATE TABLE count_lc_test
     arr Array(String),
     num UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (s, arr);

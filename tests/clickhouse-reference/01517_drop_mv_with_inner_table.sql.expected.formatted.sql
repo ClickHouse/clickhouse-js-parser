@@ -8,16 +8,16 @@ SET send_logs_level = 'fatal';
 DROP DATABASE IF EXISTS db_01517_atomic;
 
 CREATE DATABASE db_01517_atomic
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE db_01517_atomic.source
 (
     key Int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW db_01517_atomic.mv
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT *
 FROM db_01517_atomic.source;
@@ -25,7 +25,7 @@ FROM db_01517_atomic.source;
 DROP TABLE db_01517_atomic.mv;
 
 -- ensure that the inner had been removed after sync drop
-DROP TABLE db_01517_atomic.source;
+DROP TABLE db_01517_atomic.source SYNC;
 
 SHOW TABLES FROM db_01517_atomic;
 
@@ -35,22 +35,22 @@ SHOW TABLES FROM db_01517_atomic;
 DROP DATABASE IF EXISTS db_01517_atomic_sync;
 
 CREATE DATABASE db_01517_atomic_sync
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE db_01517_atomic_sync.source
 (
     key Int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW db_01517_atomic_sync.mv
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT *
 FROM db_01517_atomic_sync.source;
 
 -- drops it and hangs with Atomic engine, due to recursive DROP
-DROP TABLE db_01517_atomic_sync.mv;
+DROP TABLE db_01517_atomic_sync.mv SYNC;
 
 SHOW TABLES FROM db_01517_atomic_sync;
 
@@ -59,26 +59,26 @@ SHOW TABLES FROM db_01517_atomic_sync;
 ---
 DROP DATABASE IF EXISTS db_01517_ordinary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE db_01517_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE TABLE db_01517_ordinary.source
 (
     key Int
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE MATERIALIZED VIEW db_01517_ordinary.mv
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT *
 FROM db_01517_ordinary.source;
 
 -- drops it and hangs with Atomic engine, due to recursive DROP
-DROP TABLE db_01517_ordinary.mv;
+DROP TABLE db_01517_ordinary.mv SYNC;
 
 SHOW TABLES FROM db_01517_ordinary;
 

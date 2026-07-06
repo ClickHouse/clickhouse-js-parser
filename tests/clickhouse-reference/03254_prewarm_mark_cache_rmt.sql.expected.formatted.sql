@@ -11,7 +11,7 @@ CREATE TABLE t_prewarm_cache_rmt_1
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03254_prewarm_mark_cache_smt/t_prewarm_cache', '1')
 ORDER BY a
-SETTINGS prewarm_mark_cache = 1;
+SETTINGS prewarm_mark_cache = '1';
 
 CREATE TABLE t_prewarm_cache_rmt_2
 (
@@ -21,7 +21,7 @@ CREATE TABLE t_prewarm_cache_rmt_2
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03254_prewarm_mark_cache_smt/t_prewarm_cache', '2')
 ORDER BY a
-SETTINGS prewarm_mark_cache = 1;
+SETTINGS prewarm_mark_cache = '1';
 
 SYSTEM CLEAR MARK CACHE;
 
@@ -65,5 +65,5 @@ SELECT ProfileEvents['LoadedMarksCount'] > 0
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, 'SELECT count() FROM t_prewarm_cache%')
+    AND query LIKE 'SELECT count() FROM t_prewarm_cache%'
 ORDER BY event_time_microseconds ASC;

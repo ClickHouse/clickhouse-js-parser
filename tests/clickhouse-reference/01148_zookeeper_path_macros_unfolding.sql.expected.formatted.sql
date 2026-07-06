@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS rmt2;
 
 DROP TABLE IF EXISTS rmt3;
 
-SET database_replicated_allow_replicated_engine_arguments = 1;
+SET database_replicated_allow_replicated_engine_arguments = '1';
 
 CREATE TABLE rmt
 (
@@ -56,14 +56,14 @@ SET distributed_ddl_output_mode = 'none';
 DROP DATABASE IF EXISTS test_01148_atomic;
 
 CREATE DATABASE test_01148_atomic
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE TABLE test_01148_atomic.rmt2 ON CLUSTER test_shard_localhost
 (
     n int,
     PRIMARY KEY(n)
 )
-ENGINE = ReplicatedMergeTree;
+ENGINE = ReplicatedMergeTree();
 
 CREATE TABLE test_01148_atomic.rmt3 AS test_01148_atomic.rmt2; -- { serverError BAD_ARGUMENTS }
 
@@ -77,11 +77,11 @@ SHOW CREATE TABLE test_01148_atomic.rmt3;
 
 DROP DATABASE IF EXISTS test_01148_ordinary;
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 -- Creation of a database with Ordinary engine emits a warning.
 CREATE DATABASE test_01148_ordinary
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 RENAME TABLE test_01148_atomic.rmt3 TO test_01148_ordinary.rmt3; -- { serverError NOT_IMPLEMENTED }
 
@@ -103,9 +103,9 @@ CREATE TABLE imdb_01148.movie_directors
     director_id UInt64,
     movie_id UInt64
 )
-ENGINE = ReplicatedMergeTree
+ENGINE = ReplicatedMergeTree()
 ORDER BY (director_id, movie_id)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE imdb_01148.anything AS imdb_01148.movie_directors;
 

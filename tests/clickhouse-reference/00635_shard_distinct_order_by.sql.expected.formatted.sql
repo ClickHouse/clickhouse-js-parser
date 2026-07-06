@@ -7,7 +7,7 @@ CREATE TABLE data
     x Int8,
     y Int8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO data;

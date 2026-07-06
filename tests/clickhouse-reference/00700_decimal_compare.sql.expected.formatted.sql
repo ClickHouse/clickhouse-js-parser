@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS decimal
     i Decimal128(18),
     j dec(4, 2)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c, d, e, f, g, h, i, j);
 
@@ -97,7 +97,7 @@ FROM decimal
 WHERE a IN (42)
     AND b IN (42)
     AND g IN (42)
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     a,
@@ -229,39 +229,39 @@ ORDER BY a ASC;
 
 SELECT
     toUInt32(2147483648) AS x,
-    a == x
+    a = x
 FROM decimal
 WHERE a = 42; -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     toUInt64(2147483648) AS x,
-    b == x,
-    x == ((b - 42) + x)
+    b = x,
+    x = b - 42 + x
 FROM decimal
 WHERE a = 42;
 
 SELECT
     toUInt64(9223372036854775808) AS x,
-    b == x
+    b = x
 FROM decimal
 WHERE a = 42; -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     toUInt64(9223372036854775808) AS x,
-    c == x,
-    x == ((c - 42) + x)
+    c = x,
+    x = c - 42 + x
 FROM decimal
 WHERE a = 42;
 
 SELECT
     g = 10000,
-    (g - g + 10000) == 10000
+    g - g + 10000 = 10000
 FROM decimal
 WHERE a = 42;
 
 SELECT
     10000 = g,
-    10000 = (g - g + 10000)
+    10000 = g - g + 10000
 FROM decimal
 WHERE a = 42;
 
@@ -275,13 +275,13 @@ WHERE a = 42; -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     h = 30000,
-    (h - g + 30000) = 30000
+    h - g + 30000 = 30000
 FROM decimal
 WHERE a = 42;
 
 SELECT
     30000 = h,
-    30000 = (h - g + 30000)
+    30000 = h - g + 30000
 FROM decimal
 WHERE a = 42;
 
@@ -291,13 +291,13 @@ WHERE a = 42; -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     i = 10000000000,
-    (i - g + 10000000000) = 10000000000
+    i - g + 10000000000 = 10000000000
 FROM decimal
 WHERE a = 42;
 
 SELECT
     10000000000 = i,
-    10000000000 = (i - g + 10000000000)
+    10000000000 = i - g + 10000000000
 FROM decimal
 WHERE a = 42;
 

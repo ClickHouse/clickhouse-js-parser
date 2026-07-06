@@ -5,14 +5,14 @@ CREATE TABLE x
 (
     dt DateTime,
     i Int32 DEFAULT 42 TTL dt + toIntervalDay(1),
-    INDEX idx i TYPE set(100)
+    INDEX idx i TYPE set(100) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dt
 PARTITION BY indexHint(dt)
-SETTINGS index_granularity = 8192, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '8192', min_bytes_for_wide_part = '0';
 
-SYSTEM stop merges x;
+SYSTEM STOP MERGES x;
 
 INSERT INTO x;
 
@@ -20,7 +20,7 @@ SELECT i
 FROM x
 WHERE i = 1;
 
-SYSTEM start merges x;
+SYSTEM START MERGES x;
 
 OPTIMIZE TABLE x FINAL;
 
@@ -37,16 +37,16 @@ CREATE TABLE x
 )
 ENGINE = ReplacingMergeTree(i)
 ORDER BY dt
-SETTINGS index_granularity = 8192, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '8192', min_bytes_for_wide_part = '0';
 
 CREATE TABLE x
 (
     dt DateTime,
     i Int32 DEFAULT 42 TTL dt + toIntervalDay(1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dt
-SETTINGS index_granularity = 8192, min_bytes_for_wide_part = 0;
+SETTINGS index_granularity = '8192', min_bytes_for_wide_part = '0';
 
 INSERT INTO x;
 

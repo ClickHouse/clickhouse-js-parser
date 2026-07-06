@@ -1,4 +1,4 @@
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 DROP TABLE IF EXISTS test_limit_by_validation;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_limit_by_validation
     c1 Int32,
     c2 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_limit_by_validation;
 

@@ -1,9 +1,9 @@
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT count() > 0
 FROM `system`.`settings`;
 
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     result_rows,
@@ -11,7 +11,7 @@ SELECT
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND event_date >= today() - 1
-    AND like(lower(query), '%select count() > 0 from system.settings%')
+    AND lower(query) LIKE '%select count() > 0 from system.settings%'
     AND type = 'QueryFinish'
 ORDER BY query_start_time DESC
 LIMIT 1;

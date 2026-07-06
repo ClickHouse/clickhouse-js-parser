@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT *
 FROM
@@ -8,7 +8,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS val
         FROM `system`.one
     )
@@ -21,7 +21,7 @@ FROM
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS val
         FROM `system`.one
     )
@@ -34,7 +34,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
@@ -47,7 +47,7 @@ FROM
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
@@ -60,7 +60,7 @@ FROM
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS val
         FROM `system`.one
     )
@@ -73,7 +73,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
@@ -86,7 +86,7 @@ FROM
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
@@ -99,7 +99,7 @@ FROM
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
@@ -112,7 +112,7 @@ FROM
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
@@ -125,7 +125,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS val
         FROM `system`.one
     )
@@ -138,7 +138,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS rval
         FROM `system`.one
     )
@@ -151,46 +151,7 @@ FROM
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
-LEFT JOIN (
-        SELECT dummy AS rval
-        FROM `system`.one
-    )
-    ON val + 0 = rval * 1
-ORDER BY `all` ASC;
-
-SELECT *
-FROM
-    (
-        SELECT dummy AS val
-        FROM `system`.one
-    )
-LEFT JOIN (
-        SELECT toLowCardinality(dummy) AS rval
-        FROM `system`.one
-    )
-    ON val + 0 = rval * 1
-ORDER BY `all` ASC;
-
-SELECT *
-FROM
-    (
-        SELECT toLowCardinality(dummy) AS val
-        FROM `system`.one
-    )
-LEFT JOIN (
-        SELECT toLowCardinality(dummy) AS rval
-        FROM `system`.one
-    )
-    ON val + 0 = rval * 1
-ORDER BY `all` ASC;
-
-SELECT *
-FROM
-    (
-        SELECT toLowCardinality(toNullable(dummy)) AS val
-        FROM `system`.one
-    )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT dummy AS rval
         FROM `system`.one
     )
@@ -203,20 +164,7 @@ FROM
         SELECT dummy AS val
         FROM `system`.one
     )
-LEFT JOIN (
-        SELECT toLowCardinality(toNullable(dummy)) AS rval
-        FROM `system`.one
-    )
-    ON val + 0 = rval * 1
-ORDER BY `all` ASC;
-
-SELECT *
-FROM
-    (
-        SELECT toLowCardinality(toNullable(dummy)) AS val
-        FROM `system`.one
-    )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(dummy) AS rval
         FROM `system`.one
     )
@@ -229,7 +177,33 @@ FROM
         SELECT toLowCardinality(dummy) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
+        SELECT toLowCardinality(dummy) AS rval
+        FROM `system`.one
+    )
+    ON val + 0 = rval * 1
+ORDER BY `all` ASC;
+
+SELECT *
+FROM
+    (
+        SELECT toLowCardinality(toNullable(dummy)) AS val
+        FROM `system`.one
+    )
+ANY LEFT JOIN (
+        SELECT dummy AS rval
+        FROM `system`.one
+    )
+    ON val + 0 = rval * 1
+ORDER BY `all` ASC;
+
+SELECT *
+FROM
+    (
+        SELECT dummy AS val
+        FROM `system`.one
+    )
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(dummy)) AS rval
         FROM `system`.one
     )
@@ -242,7 +216,33 @@ FROM
         SELECT toLowCardinality(toNullable(dummy)) AS val
         FROM `system`.one
     )
-LEFT JOIN (
+ANY LEFT JOIN (
+        SELECT toLowCardinality(dummy) AS rval
+        FROM `system`.one
+    )
+    ON val + 0 = rval * 1
+ORDER BY `all` ASC;
+
+SELECT *
+FROM
+    (
+        SELECT toLowCardinality(dummy) AS val
+        FROM `system`.one
+    )
+ANY LEFT JOIN (
+        SELECT toLowCardinality(toNullable(dummy)) AS rval
+        FROM `system`.one
+    )
+    ON val + 0 = rval * 1
+ORDER BY `all` ASC;
+
+SELECT *
+FROM
+    (
+        SELECT toLowCardinality(toNullable(dummy)) AS val
+        FROM `system`.one
+    )
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(dummy)) AS rval
         FROM `system`.one
     )
@@ -256,7 +256,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT number AS r
         FROM `system`.numbers
         LIMIT 3
@@ -271,7 +271,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT number AS r
         FROM `system`.numbers
         LIMIT 3
@@ -286,7 +286,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(number) AS r
         FROM `system`.numbers
         LIMIT 3
@@ -301,7 +301,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(number) AS r
         FROM `system`.numbers
         LIMIT 3
@@ -316,7 +316,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(number) AS r
         FROM `system`.numbers
         LIMIT 3
@@ -331,7 +331,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(number)) AS r
         FROM `system`.numbers
         LIMIT 3
@@ -346,7 +346,7 @@ FROM
         FROM `system`.numbers
         LIMIT 3
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT toLowCardinality(toNullable(number)) AS r
         FROM `system`.numbers
         LIMIT 3

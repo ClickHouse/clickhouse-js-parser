@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH A AS (
     SELECT *
@@ -23,8 +23,8 @@ FROM
     A
 PASTE JOIN B AS B
 PASTE JOIN C AS C
-WHERE A.number % 2 == 0
-SETTINGS query_plan_filter_push_down = 1;
+WHERE A.number % 2 = 0
+SETTINGS query_plan_filter_push_down = '1';
 
 SELECT '---------------------';
 
@@ -51,5 +51,5 @@ FROM
     A
 PASTE JOIN B AS B
 PASTE JOIN C AS C
-WHERE A.number % 2 == 0
-SETTINGS query_plan_filter_push_down = 0;
+WHERE A.number % 2 = 0
+SETTINGS query_plan_filter_push_down = '0';

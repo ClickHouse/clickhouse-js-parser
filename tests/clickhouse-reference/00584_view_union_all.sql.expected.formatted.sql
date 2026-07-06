@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS Test_00584;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE Test_00584
 (
@@ -13,7 +13,7 @@ ENGINE = MergeTree(createdDate, str, 8192);
 
 INSERT INTO Test_00584;
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 CREATE VIEW TestView
 AS

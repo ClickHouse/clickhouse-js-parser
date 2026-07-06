@@ -1,234 +1,291 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_queries": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel, no-replicated-database",
-      "-- Tag no-parallel: due to attaching to system.query_log",
-      "-- Tag no-replicated-database: Replicated database will has extra queries",
-      "-- Attach MV to system.query_log and check that writing query_log will not fail"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "log_proxy_02572"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "log_proxy_02572"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "push_to_logs_proxy_mv_02572"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "push_to_logs_proxy_mv_02572"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM flush logs query_log",
-    "leadingComments": [
-      "-- create log tables"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "log_proxy_02572"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "engine": {
-      "name": "Distributed",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_shard_localhost"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "receiver_02572"
+          "table": "query_log"
         }
       ]
     }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "push_to_logs_proxy_mv_02572"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "log_proxy_02572"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "log_proxy_02572"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Distributed",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "test_shard_localhost"
+            },
+            {
+              "type": "Function",
+              "name": "currentDatabase",
+              "arguments": []
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "receiver_02572"
+            }
+          ]
+        }
+      },
+      "as_database": "system",
+      "as_table": "query_log"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "push_to_logs_proxy_mv_02572"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "query_log",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "log_proxy_02572"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "asterisk"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ]
         }
       ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "query_log"
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "log_proxy_02572"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "push_to_logs_proxy_mv_02572"
       }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "log_proxy_02572"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "push_to_logs_proxy_mv_02572"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_queries": "0"
+      }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_queries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "replaceAll",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "query"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "\\n"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "\\\\n"
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "lower",
-        "args": [
-          {
-            "kind": "castExpr",
-            "expr": {
-              "kind": "columnRef",
-              "parts": [
-                "type"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "replaceAll",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "query"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "\n"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "\\n"
+                }
               ]
             },
-            "type": "String",
-            "operator": true
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "errorCodeToName",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "exception_code"
+            {
+              "type": "Function",
+              "name": "lower",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "CAST",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "type"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "String"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "errorCodeToName",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "exception_code"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "current_database"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "currentDatabase",
-        "args": []
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "current_database"
+              },
+              {
+                "type": "Function",
+                "name": "currentDatabase",
+                "arguments": []
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "format": "CSV",
-    "leadingComments": [
-      "-- lower() to pass through clickhouse-test \"exception\" check"
-    ]
+        }
+      ],
+      "format": "CSV"
+    }
   }
 ]

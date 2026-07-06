@@ -121,15 +121,13 @@ FROM otel_logs
 -- 2
 WITH sub AS (
     -- 3
-    SELECT 1 -- 4
+    SELECT 1
 ), -- 5
 
--- 7
+  -- 7
   42
   -- 6
-  * 2
-  -- 8
-  AS magic_number -- 9
+  * 2 AS magic_number -- 8 -- 9
 
 SELECT
     -- 10

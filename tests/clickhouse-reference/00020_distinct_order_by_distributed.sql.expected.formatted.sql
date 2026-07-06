@@ -1,5 +1,5 @@
 -- Tags: stateful, distributed
-SET max_rows_to_sort = 10000;
+SET max_rows_to_sort = '10000';
 
 SELECT count()
 FROM (

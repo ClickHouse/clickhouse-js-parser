@@ -1,4 +1,4 @@
-SELECT arrayMap(x -> finalizeAggregation(x), state)
+SELECT arrayMap((x -> finalizeAggregation(x)), state)
 FROM (
         SELECT
             groupArrayResample(9223372036854775806, 1048575, 65537)(number, number % 3),

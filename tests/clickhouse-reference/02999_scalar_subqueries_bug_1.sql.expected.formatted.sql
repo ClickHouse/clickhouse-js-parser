@@ -4,7 +4,7 @@ CREATE TABLE t_table_select
 (
     id UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_table_select (id) SELECT number
@@ -20,13 +20,13 @@ SELECT
     b.id
 FROM
     remote('127.0.0.{1,2}', currentDatabase(), t_table_select) AS a
-LEFT JOIN (
+GLOBAL LEFT JOIN (
         SELECT id
         FROM remote('127.0.0.{1,2}', currentDatabase(), t_table_select) AS b
-        WHERE (b.id % 10) = 0
+        WHERE b.id % 10 = 0
     ) AS b
     ON b.id = a.id
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT *
 FROM t_test

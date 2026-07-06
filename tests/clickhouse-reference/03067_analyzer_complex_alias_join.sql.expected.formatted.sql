@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH d AS (
     SELECT
@@ -25,4 +25,4 @@ FROM
     ) AS t2
 LEFT JOIN d
     USING (s)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';

@@ -1,15 +1,15 @@
 DROP TABLE IF EXISTS userid_test;
 
-SET use_index_for_in_with_subqueries = 1;
+SET use_index_for_in_with_subqueries = '1';
 
 CREATE TABLE userid_test
 (
     userid UInt64
 )
 ENGINE = MergeTree()
-ORDER BY (userid)
-PARTITION BY (intDiv(userid, 500))
-SETTINGS index_granularity = 8192;
+ORDER BY userid
+PARTITION BY intDiv(userid, 500)
+SETTINGS index_granularity = '8192';
 
 INSERT INTO userid_test;
 
@@ -19,7 +19,7 @@ CREATE TABLE userid_set
 (
     userid UInt64
 )
-ENGINE = Set;
+ENGINE = Set();
 
 INSERT INTO userid_set;
 

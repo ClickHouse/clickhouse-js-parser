@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS src;
 
@@ -11,7 +11,7 @@ CREATE TABLE src
     a Tuple(b Tuple(c UInt32)),
     json JSON(`x.y` UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst
 (
@@ -19,7 +19,7 @@ CREATE TABLE dst
     x UInt32,
     z UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW view
 TO dst

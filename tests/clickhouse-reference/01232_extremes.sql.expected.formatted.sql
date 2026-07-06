@@ -1,7 +1,7 @@
 -- Tags: no-parallel
 SET send_logs_level = 'error';
 
-SET extremes = 1;
+SET extremes = '1';
 
 SELECT *
 FROM remote('127.0.0.1', numbers(2));
@@ -79,14 +79,14 @@ CREATE TABLE shard_0.num_01232
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 CREATE TABLE shard_1.num_01232
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO shard_0.num_01232 SELECT number
@@ -105,14 +105,14 @@ CREATE TABLE shard_0.num2_01232
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 CREATE TABLE shard_1.num2_01232
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO shard_0.num2_01232 SELECT number

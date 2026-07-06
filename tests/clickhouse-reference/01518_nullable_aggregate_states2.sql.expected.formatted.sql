@@ -18,7 +18,7 @@ CREATE TABLE testNullableStates
     int16 Nullable(Int16),
     int8 Nullable(Int8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY toStartOfDay(ts);
 

@@ -13,14 +13,14 @@ CREATE TABLE shard_0.tbl
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 CREATE TABLE shard_1.tbl
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 CREATE TABLE distr
@@ -29,15 +29,15 @@ CREATE TABLE distr
 )
 ENGINE = Distributed(test_cluster_two_shards_different_databases, '', tbl);
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
-SET insert_distributed_one_random_shard = 1;
+SET insert_distributed_one_random_shard = '1';
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
-SET max_insert_block_size = 1;
+SET max_insert_block_size = '1';
 
-SET min_insert_block_size_rows = 1;
+SET min_insert_block_size_rows = '1';
 
 INSERT INTO distr SELECT number
 FROM numbers(100);

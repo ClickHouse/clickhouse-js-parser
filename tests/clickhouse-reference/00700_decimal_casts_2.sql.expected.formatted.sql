@@ -26,7 +26,7 @@ SELECT toDecimal64(toDecimal64('-92233720368547758.1', 1), 2); -- { serverError 
 SELECT
     toDecimal128('9223372036854775807', 6) AS x,
     toInt64(x),
-    toInt64(negate(x));
+    toInt64(-x);
 
 SELECT
     toDecimal128('9223372036854775809', 6) AS x,
@@ -34,47 +34,47 @@ SELECT
 
 SELECT
     toDecimal128('9223372036854775809', 6) AS x,
-    toInt64(negate(x)); -- { serverError DECIMAL_OVERFLOW }
+    toInt64(-x); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     toDecimal64('922337203685477580', 0) * 10 AS x,
     toInt64(x),
-    toInt64(negate(x));
+    toInt64(-x);
 
 SELECT
     toDecimal64(toDecimal64('92233720368547758.0', 1), 2) AS x,
     toInt64(x),
-    toInt64(negate(x));
+    toInt64(-x);
 
 SELECT
     toDecimal128('2147483647', 10) AS x,
     toInt32(x),
-    toInt32(negate(x));
+    toInt32(-x);
 
 SELECT
     toDecimal128('2147483649', 10) AS x,
     toInt32(x),
-    toInt32(negate(x)); -- { serverError DECIMAL_OVERFLOW }
+    toInt32(-x); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     toDecimal64('2147483647', 2) AS x,
     toInt32(x),
-    toInt32(negate(x));
+    toInt32(-x);
 
 SELECT
     toDecimal64('2147483649', 2) AS x,
     toInt32(x),
-    toInt32(negate(x)); -- { serverError DECIMAL_OVERFLOW }
+    toInt32(-x); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT
     toDecimal128('92233720368547757.99', 2) AS x,
     toInt64(x),
-    toInt64(negate(x));
+    toInt64(-x);
 
 SELECT
     toDecimal64('2147483640.99', 2) AS x,
     toInt32(x),
-    toInt32(negate(x));
+    toInt32(-x);
 
 SELECT
     toDecimal128('-0.9', 8) AS x,
@@ -296,38 +296,38 @@ SELECT toDecimal64(1 / 0, 1); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal128(0 / 0, 2); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(1 / 0, 'Decimal(9, 0)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(1 / 0 AS Decimal(9, 0)); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(1 / 0, 'Decimal(18, 1)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(1 / 0 AS Decimal(18, 1)); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(1 / 0, 'Decimal(38, 2)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(1 / 0 AS Decimal(38, 2)); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(0 / 0, 'Decimal(9, 3)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(0 / 0 AS Decimal(9, 3)); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(0 / 0, 'Decimal(18, 4)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(0 / 0 AS Decimal(18, 4)); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT CAST(0 / 0, 'Decimal(38, 5)'); -- { serverError DECIMAL_OVERFLOW }
+SELECT CAST(0 / 0 AS Decimal(38, 5)); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal32(10000.1, 6); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal64(10000.1, 18); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal128(1000000000000000000000.1, 18); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal128(1e21, 18); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal32(-10000.1, 6); -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal64(-10000.1, 18); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal128(-1000000000000000000000.1, 18); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal128(-1e21, 18); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal32(2147483647.0 + 1.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal32(2147483647. + 1., 0); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal64(9223372036854775807.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal64(9223372036854776000., 0); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal128(170141183460469231731687303715884105729.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal128(1.7014118346046923e38, 0); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal32(-2147483647.0 - 1.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal32(-2147483647. - 1., 0); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal64(-9223372036854775807.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal64(-9223372036854776000., 0); -- { serverError DECIMAL_OVERFLOW }
 
-SELECT toDecimal128(-170141183460469231731687303715884105729.0, 0); -- { serverError DECIMAL_OVERFLOW }
+SELECT toDecimal128(-1.7014118346046923e38, 0); -- { serverError DECIMAL_OVERFLOW }

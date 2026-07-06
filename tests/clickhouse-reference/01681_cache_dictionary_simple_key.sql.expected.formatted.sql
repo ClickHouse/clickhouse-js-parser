@@ -9,7 +9,7 @@ CREATE TABLE `01681_database_for_cache_dictionary`.simple_key_simple_attributes_
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01681_database_for_cache_dictionary`.simple_key_simple_attributes_source_table;
 
@@ -27,7 +27,7 @@ PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'simple_key_simple_attributes_source_table'))
 LIFETIME(MIN 1 MAX 1000)
 LAYOUT(CACHE(SIZE_IN_CELLS 10))
-SETTINGS(dictionary_use_async_executor = 1, max_threads = 8);
+SETTINGS(dictionary_use_async_executor = '1', max_threads = '8');
 
 SELECT
     dictGet('01681_database_for_cache_dictionary.cache_dictionary_simple_key_simple_attributes', 'value_first', number) AS value_first,
@@ -71,7 +71,7 @@ CREATE TABLE `01681_database_for_cache_dictionary`.simple_key_complex_attributes
     value_first String,
     value_second Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01681_database_for_cache_dictionary`.simple_key_complex_attributes_source_table;
 
@@ -144,7 +144,7 @@ INSERT INTO `01681_database_for_cache_dictionary`.simple_key_hierarchy_table;
 CREATE DICTIONARY `01681_database_for_cache_dictionary`.cache_dictionary_simple_key_hierarchy
 (
     id UInt64,
-    parent_id UInt64
+    parent_id UInt64 HIERARCHICAL
 )
 PRIMARY KEY id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'simple_key_hierarchy_table'))

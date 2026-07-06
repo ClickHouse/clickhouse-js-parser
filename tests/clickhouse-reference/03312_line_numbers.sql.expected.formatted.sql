@@ -23,13 +23,13 @@ ORDER BY
 SELECT 'Ok'
 FROM `system`.text_log
 WHERE event_date >= yesterday()
-    AND like(message, '%(query 1, line 4)%')
-    AND like(message, '%This is the first query%')
+    AND message LIKE '%(query 1, line 4)%'
+    AND message LIKE '%This is the first query%'
 LIMIT 1;
 
 SELECT 'Ok'
 FROM `system`.text_log
 WHERE event_date >= yesterday()
-    AND like(message, '%(query 2, line 8)%')
-    AND like(message, '%This is the second query%')
+    AND message LIKE '%(query 2, line 8)%'
+    AND message LIKE '%This is the second query%'
 LIMIT 1;

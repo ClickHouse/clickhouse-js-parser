@@ -4,11 +4,11 @@ DROP TABLE IF EXISTS probe0;
 
 SET session_timezone = 'UTC';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'full_sorting_merge';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 CREATE TABLE events0
 ENGINE = MergeTree()
@@ -33,7 +33,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-INNER JOIN events0 AS e
+ASOF INNER JOIN events0 AS e
     ON p.begin >= e.begin
 ORDER BY p.begin ASC;
 
@@ -42,17 +42,17 @@ SELECT
     e.value
 FROM
     probe0 AS p
-INNER JOIN events0 AS e
+ASOF INNER JOIN events0 AS e
     USING (begin)
 ORDER BY p.begin ASC
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 SELECT
     p.begin,
     e.value
 FROM
     probe0 AS p
-LEFT JOIN events0 AS e
+ASOF LEFT JOIN events0 AS e
     ON p.begin >= e.begin
 ORDER BY p.begin ASC;
 
@@ -61,17 +61,17 @@ SELECT
     e.value
 FROM
     probe0 AS p
-LEFT JOIN events0 AS e
+ASOF LEFT JOIN events0 AS e
     USING (begin)
 ORDER BY p.begin ASC
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 SELECT
     p.begin,
     e.value
 FROM
     probe0 AS p
-RIGHT JOIN events0 AS e
+ASOF RIGHT JOIN events0 AS e
     ON p.begin >= e.begin
 ORDER BY e.begin ASC; -- { serverError NOT_IMPLEMENTED}
 
@@ -80,7 +80,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-RIGHT JOIN events0 AS e
+ASOF RIGHT JOIN events0 AS e
     USING (begin)
 ORDER BY e.begin ASC; -- { serverError NOT_IMPLEMENTED}
 
@@ -89,7 +89,7 @@ SELECT
     e.value
 FROM
     probe0 AS p
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT *
         FROM events0
         WHERE log(value + 5) > 10

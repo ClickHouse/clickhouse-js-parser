@@ -8,4 +8,4 @@ CREATE TABLE table_with_enum_column_for_json_insert
 )
 ENGINE = Memory();
 
-INSERT INTO table_with_enum_column_for_json_insert;
+INSERT INTO table_with_enum_column_for_json_insert FORMAT JSONEachRow;

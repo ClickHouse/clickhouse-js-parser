@@ -31,19 +31,19 @@ ENGINE = MergeTree();
 WITH cte_0 AS (
     SELECT
         subq_0.c6 AS c2,
-        multiIf(0 <> 0, ((
+        multiIf(0 != 0, (
             SELECT c_zeij
             FROM t_q1ht4gq_5
             ORDER BY c_zeij ASC
             LIMIT 1
             OFFSET 1
-        ) + subq_0.c4), ((
+        ) + subq_0.c4, (
             SELECT c_zeij
             FROM t_q1ht4gq_5
             ORDER BY c_zeij ASC
             LIMIT 1
             OFFSET 1
-        ) + subq_0.c4)) AS c4
+        ) + subq_0.c4) AS c4
     FROM (
             SELECT
                 ref_0.c_nkt AS c4,
@@ -54,10 +54,10 @@ WITH cte_0 AS (
 
 SELECT ref_12.c_zeij AS c3
 FROM t_q1ht4gq_5 AS ref_12
-WHERE (ref_12.c_jz NOT IN (
+WHERE ref_12.c_jz NOT IN (
         SELECT ref_14.c_mc2 AS c0
         FROM
             t_q1ht4gq_5 AS ref_14
         CROSS JOIN cte_0 AS ref_15
         WHERE ref_15.c4 > ref_15.c2
-    ));
+    );

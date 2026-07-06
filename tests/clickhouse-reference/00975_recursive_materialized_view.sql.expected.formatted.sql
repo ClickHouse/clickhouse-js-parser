@@ -10,13 +10,13 @@ CREATE TABLE src
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst1
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW src_to_dst1
 TO dst1
@@ -25,7 +25,7 @@ SELECT x + 1 AS x
 FROM src;
 
 CREATE MATERIALIZED VIEW dst2
-ENGINE = Memory
+ENGINE = Memory()
 AS
 SELECT x + 1 AS x
 FROM dst1;

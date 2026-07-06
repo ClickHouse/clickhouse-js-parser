@@ -10,15 +10,15 @@ DROP TABLE IF EXISTS constraint_test_constants_repl;
 
 DROP TABLE IF EXISTS constraint_test_constants;
 
-SET convert_query_to_cnf = 1;
+SET convert_query_to_cnf = '1';
 
-SET optimize_using_constraints = 1;
+SET optimize_using_constraints = '1';
 
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET optimize_substitute_columns = 1;
+SET optimize_substitute_columns = '1';
 
-SET optimize_append_index = 1;
+SET optimize_append_index = '1';
 
 CREATE TABLE constraint_test_assumption
 (
@@ -28,7 +28,7 @@ CREATE TABLE constraint_test_assumption
     CONSTRAINT c2 ASSUME URL > 'zzz'
     AND startsWith(URL, 'test') = true
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 --- Add wrong rows in order to check optimization
 INSERT INTO constraint_test_assumption (URL, a);
@@ -57,29 +57,29 @@ WHERE domainWithoutWWW(URL) = 'nothing'; --- not optimized -> 0
 
 SELECT count()
 FROM constraint_test_assumption
-WHERE (domainWithoutWWW(URL) = 'bigmir.net'
-    AND URL > 'zzz'); ---> assumption -> 4
+WHERE domainWithoutWWW(URL) = 'bigmir.net'
+    AND URL > 'zzz'; ---> assumption -> 4
 
 SELECT count()
 FROM constraint_test_assumption
-WHERE (domainWithoutWWW(URL) = 'bigmir.net'
-    AND NOT URL <= 'zzz'); ---> assumption -> 4
+WHERE domainWithoutWWW(URL) = 'bigmir.net'
+    AND NOT URL <= 'zzz'; ---> assumption -> 4
 
 SELECT count()
 FROM constraint_test_assumption
-WHERE (domainWithoutWWW(URL) = 'bigmir.net'
-    AND URL > 'zzz')
-    OR (a = 10
-    AND a + 5 < 100); ---> assumption -> 4
+WHERE domainWithoutWWW(URL) = 'bigmir.net'
+    AND URL > 'zzz'
+    OR a = 10
+    AND a + 5 < 100; ---> assumption -> 4
 
 SELECT count()
 FROM constraint_test_assumption
-WHERE (domainWithoutWWW(URL) = 'bigmir.net'
-    AND URL = '111'); ---> assumption & no assumption -> 0
+WHERE domainWithoutWWW(URL) = 'bigmir.net'
+    AND URL = '111'; ---> assumption & no assumption -> 0
 
 SELECT count()
 FROM constraint_test_assumption
-WHERE (startsWith(URL, 'test') = true); ---> assumption -> 4
+WHERE startsWith(URL, 'test') = true; ---> assumption -> 4
 
 DROP TABLE constraint_test_assumption;
 
@@ -93,7 +93,7 @@ CREATE TABLE constraint_test_transitivity
     AND c = d,
     CONSTRAINT c2 ASSUME b = c
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_transitivity (a, b, c, d);
 
@@ -114,7 +114,7 @@ CREATE TABLE constraint_test_strong_connectivity
     AND c <= d
     AND d <= a
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_strong_connectivity (a, b, c, d);
 
@@ -150,7 +150,7 @@ CREATE TABLE constraint_test_transitivity2
     AND c > d
     AND a >= d
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_transitivity2 (a, b, c, d);
 
@@ -188,7 +188,7 @@ CREATE TABLE constraint_test_transitivity3
     CONSTRAINT c1 ASSUME b > 10
     AND 1 > a
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_transitivity3 (a, b, c);
 
@@ -211,7 +211,7 @@ CREATE TABLE constraint_test_constants_repl
     CONSTRAINT c1 ASSUME a - b = 10
     AND c + d = 20
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_constants_repl (a, b, c, d);
 
@@ -229,7 +229,7 @@ WHERE a - b = c + d; ---> assumption -> 0
 
 SELECT count()
 FROM constraint_test_constants_repl
-WHERE ((a - b)) * 2 = c + d; ---> assumption -> 1
+WHERE (a - b) * 2 = c + d; ---> assumption -> 1
 
 DROP TABLE constraint_test_constants_repl;
 
@@ -241,7 +241,7 @@ CREATE TABLE constraint_test_constants
     CONSTRAINT c1 ASSUME b > 10
     AND a >= 10
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO constraint_test_constants (a, b, c);
 
@@ -281,91 +281,91 @@ WHERE 11 <= a; ---> assumption -> 0
 EXPLAIN SYNTAX
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100));
+    OR c > 100);
 
 -- EXPLAIN QUERY TREE SELECT count() FROM constraint_test_constants WHERE (a > 100 OR b > 100 OR c > 100) AND (a <= 100 OR b > 100 OR c > 100); ---> the order of the generated checks is not consistent
 EXPLAIN SYNTAX
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100));
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100);
 
 EXPLAIN QUERY TREE
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100))
-SETTINGS enable_analyzer = 1;
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100)
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100))
-    AND (c > 100);
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100)
+    AND c > 100;
 
 EXPLAIN QUERY TREE
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100))
-    AND (c > 100)
-SETTINGS enable_analyzer = 1;
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100)
+    AND c > 100
+SETTINGS enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100))
-    AND (c <= 100);
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100)
+    AND c <= 100;
 
 EXPLAIN QUERY TREE
 SELECT count()
 FROM constraint_test_constants
-WHERE ((a > 100
+WHERE (a > 100
     OR b > 100
-    OR c > 100))
-    AND ((a <= 100
+    OR c > 100)
+    AND (a <= 100
     OR b > 100
-    OR c > 100))
-    AND ((NOT b > 100
-    OR c > 100))
-    AND (c <= 100)
-SETTINGS enable_analyzer = 1;
+    OR c > 100)
+    AND (NOT b > 100
+    OR c > 100)
+    AND c <= 100
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE constraint_test_constants;

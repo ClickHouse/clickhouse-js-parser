@@ -1,20 +1,20 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_optimize_join_order_limit = 10;
+SET query_plan_optimize_join_order_limit = '10';
 
-SET use_statistics = 1;
+SET use_statistics = '1';
 
-SET correlated_subqueries_substitute_equivalent_expressions = 0;
+SET correlated_subqueries_substitute_equivalent_expressions = '0';
 
-SET correlated_subqueries_use_in_memory_buffer = 1;
+SET correlated_subqueries_use_in_memory_buffer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET query_plan_optimize_join_order_algorithm = 'dpsize';
 
 SET query_plan_join_swap_table = 'auto';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 CREATE TABLE lineitem
 (
@@ -23,7 +23,7 @@ CREATE TABLE lineitem
     l_quantity Decimal(15, 2),
     l_extendedprice Decimal(15, 2)
 )
-ORDER BY (l_orderkey)
+ORDER BY l_orderkey
 SETTINGS auto_statistics_types = 'uniq';
 
 INSERT INTO lineitem SELECT
@@ -37,17 +37,17 @@ CREATE TABLE part
 (
     p_partkey Int32
 )
-ORDER BY (p_partkey)
+ORDER BY p_partkey
 SETTINGS auto_statistics_types = 'uniq';
 
 INSERT INTO part SELECT *
 FROM numbers(10000);
 
-EXPLAIN actions = 1, keep_logical_steps = 1
-SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
+EXPLAIN actions = '1', keep_logical_steps = '1'
+SELECT sum(l_extendedprice) / 7. AS avg_yearly
 FROM
-    lineitem
-CROSS JOIN part
+    lineitem,
+    part
 WHERE p_partkey = l_partkey
     AND l_quantity < (
         SELECT 0.2 * avg(l_quantity)
@@ -57,29 +57,31 @@ WHERE p_partkey = l_partkey
 
 SELECT `explain`
 FROM (
-        EXPLAIN actions = 1, keep_logical_steps = 1
-        SELECT sum(l_extendedprice) / 7.0 AS avg_yearly
-        FROM (
-                SELECT
-                    l_quantity,
-                    p_partkey,
-                    l_extendedprice
-                FROM
-                    lineitem
-                CROSS JOIN part
-                WHERE p_partkey = l_partkey
-            ) AS lp
-        WHERE l_quantity < (
-                SELECT 0.2 * avg(l_quantity)
-                FROM lineitem
-                WHERE l_partkey = p_partkey
-            )
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1, keep_logical_steps = 1', (
+                SELECT sum(l_extendedprice) / 7. AS avg_yearly
+                FROM (
+                        SELECT
+                            l_quantity,
+                            p_partkey,
+                            l_extendedprice
+                        FROM
+                            lineitem,
+                            part
+                        WHERE p_partkey = l_partkey
+                    ) AS lp
+                WHERE l_quantity < (
+                        SELECT 0.2 * avg(l_quantity)
+                        FROM lineitem
+                        WHERE l_partkey = p_partkey
+                    )
+            ))
     )
-WHERE ilike(`explain`, '%ReadFrom%')
-    OR ilike(`explain`, '%JoinLogical%')
-    OR ilike(`explain`, '% Type: %')
-    OR ilike(`explain`, '%Save%');
+WHERE `explain` ILIKE '%ReadFrom%'
+    OR `explain` ILIKE '%JoinLogical%'
+    OR `explain` ILIKE '% Type: %'
+    OR `explain` ILIKE '%Save%';
 
-SET query_plan_optimize_join_order_limit = 0;
+SET query_plan_optimize_join_order_limit = '0';
 
 SELECT '-- No join order optimization --';

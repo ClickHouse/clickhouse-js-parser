@@ -1,920 +1,1140 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source_data"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "--- See also tests/queries/0_stateless/01581_deduplicate_by_columns_replicated.sql",
-      "--- local case",
-      "-- Just in case if previous tests run left some stuff behind."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source_data"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "pk",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "sk",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "partition_key",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "primaryKeyInSchema": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "pk"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "sk"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "source_data"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
+        "type": "Identifier",
+        "name": "source_data"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "TOTAL rows"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "source_data"
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "pk",
-        "type": {
-          "name": "Int32"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source_data"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "pk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "sk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "partition_key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
         }
       },
-      {
-        "kind": "columnDef",
-        "name": "sk",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "partition_key",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "mat",
-        "type": {
-          "name": "UInt32"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "12345"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "alias",
-        "type": {
-          "name": "UInt32"
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
         },
-        "defaultKind": "ALIAS",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "primaryKeyInSchema": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "binaryExpr",
-      "op": "+",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "partition_key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      },
-      "parenthesized": true
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "pk"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "toString",
-          "args": [
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
             {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "sk"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "10"
-              }
+              "type": "Identifier",
+              "name": "pk"
+            },
+            {
+              "type": "Identifier",
+              "name": "sk"
             }
           ]
         }
       }
-    ],
-    "leadingComments": [
-      "-- table with duplicates on MATERIALIZED columns"
-    ],
-    "trailingComments": [
-      "-- silly order key to ensure that key column is checked even when it is a part of expression. See [1] below."
-    ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "mat"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "alias"
-        ]
-      }
-    ],
-    "leadingComments": [
-      "-- ERROR cases"
-    ],
-    "trailingComments": [
-      "-- { serverError NO_SUCH_COLUMN_IN_TABLE } -- alias column is present"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError THERE_IS_NO_COLUMN } -- primary key column is missing"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "pk",
-              "sk",
-              "val",
-              "mat",
-              "alias",
-              "partition_key"
-            ]
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError EMPTY_LIST_OF_COLUMNS_QUERIED } -- list is empty"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "pk"
-            ]
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError THERE_IS_NO_COLUMN } -- primary key column is missing [1]"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "sk"
-            ]
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError THERE_IS_NO_COLUMN } -- sorting key column is missing [1]"
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "partition_key"
-            ]
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError THERE_IS_NO_COLUMN } -- partitioning column is missing [1]"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "full_duplicates"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+        "type": "Identifier",
+        "name": "source_data"
+      },
+      "columns": [
         {
-          "kind": "asterisk"
+          "type": "Identifier",
+          "name": "pk"
+        },
+        {
+          "type": "Identifier",
+          "name": "sk"
+        },
+        {
+          "type": "Identifier",
+          "name": "val"
         }
       ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source_data"
-      }
+      "format": "Values"
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "final": true,
-    "deduplicate": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    }
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk"
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "mat"
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "mat"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "partition_key"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "--DROP TABLE full_duplicates;",
-      "-- Now to the partial duplicates when MATERIALIZED column alway has unique value."
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "pk",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "sk",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "val",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "partition_key",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "mat",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "rand",
-          "args": []
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "alias",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "ALIAS",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "primaryKeyInSchema": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "pk"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "sk"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "partial_duplicates"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source_data"
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    }
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "val"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "mat"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk"
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "except",
-            "columns": [
-              "mat"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "TOTAL rows"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "source_data"
+                  }
+                }
+              }
             ]
           }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
+        }
+      ]
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnsExpr",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "String",
-            "value": ".*"
+            "type": "ColumnDeclaration",
+            "name": "pk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "sk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "partition_key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "mat",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "12345"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
           }
         ],
-        "transformers": [
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "plus",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "partition_key"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ]
+        },
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "pk"
+            },
+            {
+              "type": "Function",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "multiply",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "sk"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
           {
-            "kind": "except",
-            "columns": [
-              "mat"
+            "type": "Identifier",
+            "name": "pk"
+          },
+          {
+            "type": "Identifier",
+            "name": "sk"
+          },
+          {
+            "type": "Identifier",
+            "name": "val"
+          },
+          {
+            "type": "Identifier",
+            "name": "mat"
+          },
+          {
+            "type": "Identifier",
+            "name": "alias"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Identifier",
+            "name": "sk"
+          },
+          {
+            "type": "Identifier",
+            "name": "val"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "pk"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "sk"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "val"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "mat"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "alias"
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "partition_key"
+                  }
+                ]
+              }
             ]
           }
         ]
       }
-    ]
+    }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "pk"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "sk"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
-    },
-    "final": true,
-    "deduplicate": true,
-    "deduplicateBy": [
-      {
-        "kind": "functionCall",
-        "name": "COLUMNS",
-        "args": [
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
           {
-            "kind": "literal",
-            "type": "String",
-            "value": ".*k"
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "pk"
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "full_duplicates"
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "partial_duplicates"
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "sk"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "source_data"
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "partition_key"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source_data"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "final": true,
+      "deduplicate": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "full_duplicates"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "mat"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Identifier",
+            "name": "pk"
+          },
+          {
+            "type": "Identifier",
+            "name": "sk"
+          },
+          {
+            "type": "Identifier",
+            "name": "val"
+          },
+          {
+            "type": "Identifier",
+            "name": "mat"
+          },
+          {
+            "type": "Identifier",
+            "name": "partition_key"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "pk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "sk",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "val",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "partition_key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "mat",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "rand",
+              "arguments": []
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "primary_key": {
+          "type": "Identifier",
+          "name": "pk"
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "pk"
+            },
+            {
+              "type": "Identifier",
+              "name": "sk"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source_data"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "partial_duplicates"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Identifier",
+            "name": "pk"
+          },
+          {
+            "type": "Identifier",
+            "name": "sk"
+          },
+          {
+            "type": "Identifier",
+            "name": "val"
+          },
+          {
+            "type": "Identifier",
+            "name": "mat"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Asterisk",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "mat"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "partial_duplicates"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "ColumnsRegexpMatcher",
+            "pattern": ".*",
+            "transformers": [
+              {
+                "type": "ColumnsExceptTransformer",
+                "columns": [
+                  {
+                    "type": "Identifier",
+                    "name": "mat"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "Identifier",
+            "name": "pk"
+          },
+          {
+            "type": "Identifier",
+            "name": "sk"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      },
+      "final": true,
+      "deduplicate": true,
+      "deduplicate_by_columns": {
+        "type": "ExpressionList",
+        "children": [
+          {
+            "type": "ColumnsRegexpMatcher",
+            "pattern": ".*k"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "full_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "partial_duplicates"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "source_data"
+      }
     }
   }
 ]

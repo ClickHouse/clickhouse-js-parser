@@ -5,7 +5,7 @@ CREATE TABLE limit_by
     id Int,
     val Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO limit_by;

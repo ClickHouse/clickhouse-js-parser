@@ -8,7 +8,7 @@ CREATE TABLE dict_src_neg
     u64 UInt64,
     i32n Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_neg;
 
@@ -20,7 +20,7 @@ CREATE DICTIONARY dict_neg
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_neg'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys(toString(number), 'u64', toUInt64(7))
@@ -53,7 +53,7 @@ CREATE TABLE dict_src_simple_kv
     id UInt64,
     attr Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_simple_kv;
 
@@ -64,7 +64,7 @@ CREATE DICTIONARY dict_simple_kv
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_simple_kv'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys('dict_simple_kv', 'attr', toUInt32(10));
@@ -81,7 +81,7 @@ CREATE TABLE dict_src_complex2_kv
     k2 String,
     attr Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_complex2_kv;
 
@@ -93,7 +93,7 @@ CREATE DICTIONARY dict_complex2_kv
 )
 PRIMARY KEY k1, k2
 SOURCE(clickhouse(TABLE 'dict_src_complex2_kv'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 SELECT dictGetKeys('dict_complex2_kv', 'attr', 10);
@@ -109,7 +109,7 @@ CREATE TABLE dict_src_complex1_kv
     k1 UInt64,
     attr Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_complex1_kv;
 
@@ -120,7 +120,7 @@ CREATE DICTIONARY dict_complex1_kv
 )
 PRIMARY KEY k1
 SOURCE(clickhouse(TABLE 'dict_src_complex1_kv'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 SELECT dictGetKeys('dict_complex1_kv', 'attr', 1);
@@ -143,7 +143,7 @@ CREATE TABLE dict_src_complex_wide_kv
     a8 DateTime64(3),
     attr Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_complex_wide_kv;
 
@@ -161,7 +161,7 @@ CREATE DICTIONARY dict_complex_wide_kv
 )
 PRIMARY KEY a1, a2, a3, a4, a5, a6, a7, a8
 SOURCE(clickhouse(TABLE 'dict_src_complex_wide_kv'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(COMPLEX_KEY_HASHED());
 
 SELECT dictGetKeys('dict_complex_wide_kv', 'attr', 10);
@@ -195,7 +195,7 @@ CREATE TABLE dict_src_types
     n_i32 Nullable(Int32),
     n_str Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_types;
 
@@ -224,7 +224,7 @@ CREATE DICTIONARY dict_types
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_types'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys('dict_types', 'i8', '-128');
@@ -253,9 +253,9 @@ SELECT dictGetKeys('dict_types', 'f64', nan);
 
 SELECT dictGetKeys('dict_types', 'arr_u64', []);
 
-SELECT dictGetKeys('dict_types', 'arr_u64', [1,2]);
+SELECT dictGetKeys('dict_types', 'arr_u64', [1, 2]);
 
-SELECT dictGetKeys('dict_types', 'arr_nested', [[1,2],[3]]);
+SELECT dictGetKeys('dict_types', 'arr_nested', [[1, 2], [3]]);
 
 SELECT dictGetKeys('dict_types', 'arr_u64', '[]');
 
@@ -300,7 +300,7 @@ CREATE TABLE dict_src_valexpr
     i32n Nullable(Int32),
     u64 UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_valexpr;
 
@@ -313,21 +313,21 @@ CREATE DICTIONARY dict_valexpr
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_valexpr'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys('dict_valexpr', 's', 'alpha');
 
 SELECT dictGetKeys('dict_valexpr', 's', v)
 FROM (
-        SELECT arrayJoin(['alpha','beta','zzz']) AS v
+        SELECT arrayJoin(['alpha', 'beta', 'zzz']) AS v
     );
 
 SELECT dictGetKeys('dict_valexpr', 's', CAST('alpha' AS LowCardinality(String)));
 
 SELECT dictGetKeys('dict_valexpr', 's', CAST(v AS LowCardinality(String)))
 FROM (
-        SELECT arrayJoin(['alpha','beta','zzz']) AS v
+        SELECT arrayJoin(['alpha', 'beta', 'zzz']) AS v
     );
 
 SELECT dictGetKeys('dict_valexpr', 'i32n', CAST(NULL AS Nullable(Int32)));
@@ -358,7 +358,7 @@ CREATE TABLE dict_src_match
     id UInt64,
     grp String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO dict_src_match;
 
@@ -369,24 +369,24 @@ CREATE DICTIONARY dict_match
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'dict_src_match'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 SELECT dictGetKeys('dict_match', 'grp', 'Z');
 
 SELECT dictGetKeys('dict_match', 'grp', v)
 FROM (
-        SELECT arrayJoin(['Z','Y']) AS v
+        SELECT arrayJoin(['Z', 'Y']) AS v
     );
 
 SELECT dictGetKeys('dict_match', 'grp', v)
 FROM (
-        SELECT arrayJoin(['B','C']) AS v
+        SELECT arrayJoin(['B', 'C']) AS v
     );
 
 SELECT dictGetKeys('dict_match', 'grp', 'A');
 
 SELECT dictGetKeys('dict_match', 'grp', v)
 FROM (
-        SELECT arrayJoin(['A','B','A']) AS v
+        SELECT arrayJoin(['A', 'B', 'A']) AS v
     );

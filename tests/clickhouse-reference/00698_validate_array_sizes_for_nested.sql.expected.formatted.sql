@@ -8,7 +8,7 @@ CREATE TABLE mergetree_00698
     `n.x` Array(UInt64),
     `n.y` Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k;
 
 INSERT INTO mergetree_00698; -- { serverError SIZES_OF_ARRAYS_DONT_MATCH }

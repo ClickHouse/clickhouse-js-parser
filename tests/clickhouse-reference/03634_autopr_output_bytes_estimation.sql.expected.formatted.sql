@@ -1,15 +1,15 @@
 -- Tags: stateful, long, no-msan
-SET enable_parallel_replicas = 0, automatic_parallel_replicas_mode = 2, parallel_replicas_local_plan = 1, parallel_replicas_index_analysis_only_on_coordinator = 1, parallel_replicas_for_non_replicated_merge_tree = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'parallel_replicas';
+SET enable_parallel_replicas = '0', automatic_parallel_replicas_mode = '2', parallel_replicas_local_plan = '1', parallel_replicas_index_analysis_only_on_coordinator = '1', parallel_replicas_for_non_replicated_merge_tree = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'parallel_replicas';
 
 -- External aggregation is not supported as of now
-SET max_bytes_before_external_group_by = 0, max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0', max_bytes_ratio_before_external_group_by = '0';
 
 -- Override randomized max_threads to avoid timeout on slow builds (ASan)
-SET max_threads = 0;
+SET max_threads = '0';
 
 SELECT COUNT(*)
 FROM test.hits
-WHERE AdvEngineID <> 0
+WHERE AdvEngineID != 0
 FORMAT Null
 SETTINGS log_comment = 'query_1';
 
@@ -19,7 +19,7 @@ SELECT
     MobilePhoneModel,
     COUNTDistinct(UserID) AS u
 FROM test.hits
-WHERE MobilePhoneModel <> ''
+WHERE MobilePhoneModel != ''
 GROUP BY MobilePhoneModel
 ORDER BY u DESC
 LIMIT 10
@@ -30,7 +30,7 @@ SELECT
     SearchPhrase,
     COUNT(*) AS c
 FROM test.hits
-WHERE SearchPhrase <> ''
+WHERE SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -49,7 +49,7 @@ SETTINGS log_comment = 'query_15';
 
 SELECT COUNT(*)
 FROM test.hits
-WHERE like(URL, '%google%')
+WHERE URL LIKE '%google%'
 FORMAT Null
 SETTINGS log_comment = 'query_20';
 
@@ -58,8 +58,8 @@ SELECT
     MIN(URL),
     COUNT(*) AS c
 FROM test.hits
-WHERE like(URL, '%google%')
-    AND SearchPhrase <> ''
+WHERE URL LIKE '%google%'
+    AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -73,9 +73,9 @@ SELECT
     COUNT(*) AS c,
     COUNTDistinct(UserID)
 FROM test.hits
-WHERE like(Title, '%Google%')
-    AND notLike(URL, '%.google.%')
-    AND SearchPhrase <> ''
+WHERE Title LIKE '%Google%'
+    AND URL NOT LIKE '%.google.%'
+    AND SearchPhrase != ''
 GROUP BY SearchPhrase
 ORDER BY c DESC
 LIMIT 10
@@ -84,7 +84,7 @@ SETTINGS log_comment = 'query_22';
 
 SELECT *
 FROM test.hits
-WHERE like(URL, '%google%')
+WHERE URL LIKE '%google%'
 ORDER BY EventTime ASC
 LIMIT 10
 FORMAT Null
@@ -96,7 +96,7 @@ SELECT
     COUNT(*) AS c,
     MIN(Referer)
 FROM test.hits
-WHERE Referer <> ''
+WHERE Referer != ''
 GROUP BY k
 HAVING COUNT(*) > 100000
 ORDER BY l DESC
@@ -119,23 +119,23 @@ SETTINGS log_comment = 'query_34';
 
 SELECT URL
 FROM test.hits
-WHERE like(URL, '%yandex%')
+WHERE URL LIKE '%yandex%'
 ORDER BY URL DESC
 FORMAT Null
 SETTINGS log_comment = 'query_43';
 
 -- Unsupported case: filtering by set built from subquery
 --SELECT * FROM test.hits WHERE CounterID IN (SELECT CounterID % 1000 FROM test.hits) FORMAT Null SETTINGS log_comment='query_44';
-SET enable_parallel_replicas = 0, automatic_parallel_replicas_mode = 0;
+SET enable_parallel_replicas = '0', automatic_parallel_replicas_mode = '0';
 
 SYSTEM FLUSH LOGS query_log;
 
 -- Just checking that the estimation is not too far off
-WITH [96, 500000, 11189312, 2359808, 64, 29920, 82456, 20000, 31064320, 275251200, 48271331/*, 641835*/] AS expected_bytes,
+WITH [96, 500000, 11189312, 2359808, 64, 29920, 82456, 20000, 31064320, 275251200, 48271331] AS expected_bytes,
 
-arrayJoin(arrayMap(x -> (untuple(x.1), x.2), arrayZip(res, expected_bytes))) AS res
+arrayJoin(arrayMap((x -> (untuple((x).1), (x).2)), arrayZip(res, expected_bytes))) AS res
 
-SELECT format('{} {} {}', res.1, res.2, res.3)
+SELECT format('{} {} {}', (res).1, (res).2, (res).3)
 FROM (
         SELECT groupArray((log_comment, output_bytes)) AS res
         FROM (
@@ -143,14 +143,14 @@ FROM (
                     log_comment,
                     ProfileEvents['RuntimeDataflowStatisticsOutputBytes'] AS output_bytes
                 FROM `system`.query_log
-                WHERE (event_date >= yesterday())
-                    AND (event_time >= (NOW() - toIntervalMinute(15)))
-                    AND (current_database = currentDatabase())
-                    AND (like(log_comment, 'query_%'))
-                    AND (type = 'QueryFinish')
+                WHERE event_date >= yesterday()
+                    AND event_time >= NOW() - toIntervalMinute(15)
+                    AND current_database = currentDatabase()
+                    AND log_comment LIKE 'query_%'
+                    AND type = 'QueryFinish'
                 ORDER BY event_time_microseconds ASC
             )
     )
-WHERE (greatest(res.2, res.3) / least(res.2, res.3)) > 2.5
-    AND NOT(res.2 < 100
-    AND res.3 < 100);
+WHERE greatest((res).2, (res).3) / least((res).2, (res).3) > 2.5
+    AND NOT((res).2 < 100
+    AND (res).3 < 100);

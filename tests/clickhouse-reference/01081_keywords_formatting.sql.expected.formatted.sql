@@ -1,1 +1,1 @@
-SELECT ((1 AS `interval`)) + `interval`;
+SELECT (1 AS `interval`) + `interval`;

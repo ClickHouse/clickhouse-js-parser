@@ -6,7 +6,7 @@ CREATE TABLE t
     b Int,
     c Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t SELECT

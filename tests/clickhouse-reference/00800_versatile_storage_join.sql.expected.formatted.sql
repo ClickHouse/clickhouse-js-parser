@@ -76,7 +76,7 @@ CREATE TABLE join_any_left_null
     k UInt64
 )
 ENGINE = Join(`ANY`, `LEFT`, k)
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 INSERT INTO join_any_left_null;
 
@@ -109,34 +109,34 @@ SELECT
 
 USE default;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_any_inner;
+DROP TABLE CLICKHOUSE_DATABASE.join_any_inner;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_any_left;
+DROP TABLE CLICKHOUSE_DATABASE.join_any_left;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_any_left_null;
+DROP TABLE CLICKHOUSE_DATABASE.join_any_left_null;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_all_inner;
+DROP TABLE CLICKHOUSE_DATABASE.join_all_inner;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_all_left;
+DROP TABLE CLICKHOUSE_DATABASE.join_all_left;
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_string_key;
+DROP TABLE CLICKHOUSE_DATABASE.join_string_key;
 
 -- test provided by Alexander Zaitsev
-DROP TABLE IF EXISTS {CLICKHOUSE_DATABASE:Identifier}.join_test;
+DROP TABLE IF EXISTS CLICKHOUSE_DATABASE.join_test;
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.join_test
+CREATE TABLE CLICKHOUSE_DATABASE.join_test
 (
     a UInt8,
     b UInt8
 )
 ENGINE = Join(`ANY`, `LEFT`, a);
 
-USE {CLICKHOUSE_DATABASE:Identifier};
+USE CLICKHOUSE_DATABASE;
 
 SELECT joinGet('join_test', 'b', 1);
 
 USE `system`;
 
-SELECT joinGet(concat({CLICKHOUSE_DATABASE:String}, '.join_test'), 'b', 1);
+SELECT joinGet('placeholder' || '.join_test', 'b', 1);
 
-DROP TABLE {CLICKHOUSE_DATABASE:Identifier}.join_test;
+DROP TABLE CLICKHOUSE_DATABASE.join_test;

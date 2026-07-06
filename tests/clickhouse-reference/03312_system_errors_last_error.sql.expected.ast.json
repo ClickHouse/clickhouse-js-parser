@@ -1,120 +1,134 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- Tag no-parallel: The test checks system.errors values which are global",
-      "-- For the old analyzer last_error_message is slightly different."
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "throwIf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO}"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "last_error_message"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "last_error_format_string"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "errors"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "name"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "FUNCTION_THROW_IF_VALUE_IS_NON_ZERO"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "last_error_time"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "now",
-              "args": []
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "throwIf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
             }
-          }
-        },
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "unaryExpr",
-          "op": "NOT",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "remote"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "last_error_message"
+            },
+            {
+              "type": "Identifier",
+              "name": "last_error_format_string"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "errors",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "name"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "FUNCTION_THROW_IF_VALUE_IS_NON_ZERO"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greater",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "last_error_time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "now",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "not",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "remote"
+                  }
+                ]
+              }
             ]
           }
         }
       ]
-    },
-    "leadingComments": [
-      "-- We expect an extended error message here like \"Value passed to 'throwIf' function is non-zero: while executing throwIf(1)\",",
-      "-- and not just \"Value passed to 'throwIf' function is non-zero\"."
-    ]
+    }
   }
 ]

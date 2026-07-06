@@ -9,23 +9,23 @@ CREATE TABLE test_table
     key UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key
-SETTINGS merge_tree_clear_old_parts_interval_seconds = 30;
+SETTINGS merge_tree_clear_old_parts_interval_seconds = '30';
 
 CREATE TABLE t2
 (
     key UInt64,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_table;
 
-SET throw_on_unsupported_query_inside_transaction = 0;
+SET throw_on_unsupported_query_inside_transaction = '0';
 
 OPTIMIZE TABLE test_table FINAL DEDUPLICATE BY key, value
 PARALLEL WITH
-OPTIMIZE TABLE t2 SETTINGS max_threads = 10; -- { serverError INVALID_TRANSACTION, NOT_IMPLEMENTED }
+OPTIMIZE TABLE t2 SETTINGS max_threads = '10'; -- { serverError INVALID_TRANSACTION, NOT_IMPLEMENTED }
 
 TRUNCATE TABLE test_table;

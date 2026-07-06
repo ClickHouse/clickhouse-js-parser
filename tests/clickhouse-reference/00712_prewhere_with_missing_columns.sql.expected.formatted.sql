@@ -5,7 +5,7 @@ CREATE TABLE mergetree_00712
     x UInt8,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO mergetree_00712;

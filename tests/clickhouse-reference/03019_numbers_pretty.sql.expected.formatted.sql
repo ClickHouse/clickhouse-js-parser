@@ -1,9 +1,9 @@
-SET output_format_pretty_row_numbers = 0;
+SET output_format_pretty_row_numbers = '0';
 
-SELECT 1.23e9
+SELECT 1230000000.
 FORMAT Pretty;
 
-SELECT -1.23e9
+SELECT -1230000000.
 FORMAT Pretty;
 
 SELECT inf

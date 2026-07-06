@@ -1,1 +1,1 @@
-SELECT dumpColumnStructure(['Hello', 'World']::Array(LowCardinality(String)));
+SELECT dumpColumnStructure(CAST('[''Hello'', ''World'']' AS Array(LowCardinality(String))));

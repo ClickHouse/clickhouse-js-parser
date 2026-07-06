@@ -1,6 +1,6 @@
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t_func_to_subcolumns_map_2;
 
@@ -9,7 +9,7 @@ CREATE TABLE t_func_to_subcolumns_map_2
     id UInt64,
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t_func_to_subcolumns_map_2;
@@ -28,16 +28,16 @@ CREATE TABLE t_func_to_subcolumns_join
     n Nullable(String),
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_func_to_subcolumns_join;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     id,
-    isNull(`right`.n)
+    `right`.n IS NULL
 FROM
     t_func_to_subcolumns_join AS `left`
 FULL JOIN (
@@ -62,7 +62,7 @@ CREATE TABLE t_func_to_subcolumns_use_nulls
     arr Array(UInt64),
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_func_to_subcolumns_use_nulls SELECT
@@ -79,6 +79,6 @@ WITH ROLLUP
 HAVING n <= 4
     OR isNull(n)
 ORDER BY n ASC
-SETTINGS group_by_use_nulls = 1;
+SETTINGS group_by_use_nulls = '1';
 
 DROP TABLE t_func_to_subcolumns_use_nulls;

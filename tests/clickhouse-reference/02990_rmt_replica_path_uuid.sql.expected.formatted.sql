@@ -8,7 +8,7 @@ SET send_logs_level = 'fatal';
 
 DROP TABLE IF EXISTS x;
 
-ATTACH TABLE x
+ATTACH TABLE x UUID 'aaaaaaaa-1111-2222-3333-aaaaaaaaaaaa'
 (
     key Int
 )
@@ -35,7 +35,7 @@ CREATE TABLE x
 ENGINE = ReplicatedMergeTree('/tables/{database}/{uuid}', 'r1')
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
-CREATE TABLE x
+CREATE TABLE x UUID 'aaaaaaaa-1111-2222-3333-aaaaaaaaaaaa'
 (
     key Int
 )

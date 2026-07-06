@@ -6,7 +6,7 @@ CREATE TABLE t
     price_sold Float32,
     date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY item_id;
 
 SELECT item_id
@@ -86,7 +86,8 @@ FROM
             item_id AS id,
             SUM(price_sold) AS recent
         FROM t
-        WHERE (and(greaterOrEquals(date, '2019-12-16'), lessOrEquals(date, '2020-03-08')))
+        WHERE date >= '2019-12-16'
+            AND date <= '2020-03-08'
         GROUP BY id
         WITH TOTALS
         ORDER BY id ASC
@@ -96,7 +97,8 @@ FULL JOIN (
             item_id AS id,
             SUM(price_sold) AS yago
         FROM t
-        WHERE (and(greaterOrEquals(date, '2018-12-17'), lessOrEquals(date, '2019-03-10')))
+        WHERE date >= '2018-12-17'
+            AND date <= '2019-03-10'
         GROUP BY id
         WITH TOTALS
         ORDER BY id ASC

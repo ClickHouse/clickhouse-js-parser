@@ -5,7 +5,7 @@ CREATE TABLE table
     uid UUID,
     date DateTime('Asia/Kamchatka')
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY date;
 
 INSERT INTO table;

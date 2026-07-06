@@ -4,10 +4,10 @@ SET max_rows_to_read = '55M';
 DROP TABLE IF EXISTS group_uniq_arr_int;
 
 CREATE TABLE group_uniq_arr_int
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     g AS id,
-    if(c == 0, [v], if(c == 1, emptyArrayInt64(), [v, v])) AS v
+    if(c = 0, [v], if(c = 1, emptyArrayInt64(), [v, v])) AS v
 FROM (
         SELECT
             intDiv(number % 1000000, 100) AS v,

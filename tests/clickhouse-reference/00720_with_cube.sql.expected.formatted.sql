@@ -6,7 +6,7 @@ CREATE TABLE `cube`
     b Int32,
     s Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `cube`;
 
@@ -20,7 +20,10 @@ SELECT
     sum(s),
     count()
 FROM `cube`
-GROUP BY CUBE(a, b)
+GROUP BY
+    a,
+    b
+WITH CUBE
 ORDER BY
     a ASC,
     b ASC;
@@ -31,7 +34,10 @@ SELECT
     sum(s),
     count()
 FROM `cube`
-GROUP BY CUBE(a, b)
+GROUP BY
+    a,
+    b
+WITH CUBE
 WITH TOTALS
 ORDER BY
     a ASC,
@@ -66,6 +72,6 @@ ORDER BY
     a ASC,
     b ASC;
 
-SET group_by_two_level_threshold = 1;
+SET group_by_two_level_threshold = '1';
 
 DROP TABLE `cube`;

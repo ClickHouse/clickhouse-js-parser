@@ -2,7 +2,7 @@
 -- FIXME no-shared-catalog: STOP MERGES will only stop them on the current replica, the second one will continue to merge
 DROP TABLE IF EXISTS t_update_materialized;
 
-SET apply_mutations_on_fly = 1;
+SET apply_mutations_on_fly = '1';
 
 CREATE TABLE t_update_materialized
 (

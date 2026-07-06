@@ -1,78 +1,83 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "normalized_query_hash"
-          ]
-        },
-        "alias": "a"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "normalizedQueryHash",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "query"
+              "type": "Identifier",
+              "alias": "a",
+              "name": "normalized_query_hash"
+            },
+            {
+              "type": "Function",
+              "alias": "b",
+              "name": "normalizedQueryHash",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "query"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "a"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "b"
+                }
               ]
             }
-          ]
-        },
-        "alias": "b"
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "b"
-          ]
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "processes"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "query"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "SELECT normalized_query_hash AS a, normalizedQueryHash(query) AS b, a = b FROM system.processes WHERE query LIKE%"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "processes",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "query"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "SELECT normalized_query_hash AS a, normalizedQueryHash(query) AS b, a = b FROM system.processes WHERE query LIKE%"
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
         }
       ]
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
     }
   }
 ]

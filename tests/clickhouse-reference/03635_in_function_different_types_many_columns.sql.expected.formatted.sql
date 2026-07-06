@@ -8,9 +8,9 @@ CREATE TABLE test_table
     id UInt64,
     value UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, value)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '1Mi', add_minmax_index_for_numeric_columns = 0;
+SETTINGS index_granularity = '8192', index_granularity_bytes = '1Mi', add_minmax_index_for_numeric_columns = '0';
 
 ;
 
@@ -19,7 +19,7 @@ INSERT INTO test_table SELECT
     number
 FROM numbers(10);
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT id
 FROM test_table
 WHERE (id, value) IN (
@@ -29,7 +29,7 @@ WHERE (id, value) IN (
         FROM numbers(5)
     );
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT id
 FROM test_table
 WHERE (id, value) IN (
@@ -39,7 +39,7 @@ WHERE (id, value) IN (
         FROM numbers(5)
     );
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT id
 FROM test_table
 WHERE (id, value) IN (
@@ -53,7 +53,7 @@ WHERE (id, value) IN (
         FROM numbers(5)
     );
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT id
 FROM test_table
 WHERE (id, value) IN (

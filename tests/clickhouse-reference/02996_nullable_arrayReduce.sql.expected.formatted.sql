@@ -13,11 +13,11 @@ SELECT arrayReduce(toLowCardinality('median'), [toLowCardinality(toNullable(8))]
 
 -- { echoOn }
 SELECT
-    arrayReduce('sum', []::Array(UInt8)) AS a,
+    arrayReduce('sum', CAST('[]' AS Array(UInt8))) AS a,
     toTypeName(a);
 
 SELECT
-    arrayReduce('sumOrNull', []::Array(UInt8)) AS a,
+    arrayReduce('sumOrNull', CAST('[]' AS Array(UInt8))) AS a,
     toTypeName(a);
 
 SELECT

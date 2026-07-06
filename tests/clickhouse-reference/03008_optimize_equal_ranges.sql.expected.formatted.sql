@@ -6,18 +6,18 @@ CREATE TABLE t_optimize_equal_ranges
     b String,
     c UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
-SET max_block_size = 1024;
+SET max_block_size = '1024';
 
-SET max_bytes_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
-SET optimize_aggregation_in_order = 0;
+SET optimize_aggregation_in_order = '0';
 
-SET optimize_use_projections = 0;
+SET optimize_use_projections = '0';
 
 INSERT INTO t_optimize_equal_ranges SELECT
     0,
@@ -43,7 +43,7 @@ SELECT
 FROM t_optimize_equal_ranges
 GROUP BY a
 ORDER BY a ASC
-SETTINGS max_threads = 16;
+SETTINGS max_threads = '16';
 
 SELECT
     a,
@@ -51,7 +51,7 @@ SELECT
 FROM t_optimize_equal_ranges
 GROUP BY a
 ORDER BY a ASC
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SELECT
     a,
@@ -59,7 +59,7 @@ SELECT
 FROM t_optimize_equal_ranges
 GROUP BY a
 ORDER BY a ASC
-SETTINGS max_threads = 16;
+SETTINGS max_threads = '16';
 
 SELECT
     a,
@@ -67,7 +67,7 @@ SELECT
 FROM t_optimize_equal_ranges
 GROUP BY a
 ORDER BY a ASC
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -78,7 +78,7 @@ SELECT
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND like(query, '%SELECT%FROM%t_optimize_equal_ranges%')
+    AND query LIKE '%SELECT%FROM%t_optimize_equal_ranges%'
 ORDER BY
     func ASC,
     threads ASC;

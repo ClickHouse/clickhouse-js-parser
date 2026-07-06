@@ -1,403 +1,414 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "Float64"
-        },
-        "codec": [
-          {
-            "name": "Delta"
-          },
-          {
-            "name": "LZ4"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "uuid",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "time",
-        "type": {
-          "name": "DateTime64",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "3"
-            },
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        },
-        "codec": [
-          {
-            "name": "DoubleDelta"
-          },
-          {
-            "name": "LZ4"
-          }
-        ]
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "uuid"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "uuid"
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "Delta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "uuid",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "time",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "3"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
+                }
+              ]
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "DoubleDelta",
+                  "arguments": []
+                },
+                {
+                  "type": "Function",
+                  "name": "LZ4",
+                  "arguments": []
+                }
+              ]
+            }
+          }
         ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "time"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "uuid"
+        }
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          }
-        ]
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMax",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMax",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMin",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMin",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMinIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "!=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "time"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-01-01 00:00:00.000"
-            }
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "argMaxIf",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "value"
-            ]
-          },
-          {
-            "kind": "functionCall",
-            "name": "toNullable",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "time"
-                ]
-              }
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "!=",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "time"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "String",
-              "value": "2021-01-01 00:00:59.000"
-            }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+      "columns": [
         {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "fromUnixTimestamp64Milli",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1609459200000"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
-              }
-            ]
-          },
-          "parenthesized": true
+          "type": "Identifier",
+          "name": "uuid"
         },
         {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "time"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "fromUnixTimestamp64Milli",
-            "args": [
+          "type": "Identifier",
+          "name": "time"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "time"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "time"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMax",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "time"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMax",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMin",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "time"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMin",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMinIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "notEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-01-01 00:00:00.000"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "argMaxIf",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                {
+                  "type": "Function",
+                  "name": "toNullable",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "notEquals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "time"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2021-01-01 00:00:59.000"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1609459260000"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
               }
             ]
           },
-          "parenthesized": true
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "fromUnixTimestamp64Milli",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1609459200000"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "less",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "time"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "fromUnixTimestamp64Milli",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1609459260000"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         }
-      ]
-    },
-    "format": "Vertical"
+      ],
+      "format": "Vertical"
+    }
   }
 ]

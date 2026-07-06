@@ -42,30 +42,30 @@ WHERE (s1, s2) = CAST((
 
 SELECT id
 FROM t1
-WHERE (s1, null) = ('a', null);
+WHERE (s1, NULL) = ('a', NULL);
 
 SELECT id
 FROM t1
-WHERE (s1, null) = '(''a'',null)';
+WHERE (s1, NULL) = '(''a'',null)';
 
 SELECT id
 FROM t1
-WHERE (s1, null) = CAST((
+WHERE (s1, NULL) = CAST((
         SELECT
             s1,
             s2
         FROM t1
         WHERE s1 = 'e'
-            AND isNull(s2)
+            AND s2 IS NULL
     ) AS text);
 
 SELECT id
 FROM t2
-WHERE (s1, null) = ('z', null);
+WHERE (s1, NULL) = ('z', NULL);
 
 SELECT id
 FROM t2
-WHERE (s1, null) = '(''z'',null)';
+WHERE (s1, NULL) = '(''z'',null)';
 
 DROP TABLE t1;
 

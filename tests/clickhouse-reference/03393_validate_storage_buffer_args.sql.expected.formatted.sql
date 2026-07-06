@@ -8,7 +8,7 @@ CREATE TABLE invalid
 (
     c0 Int
 )
-ENGINE = Buffer(x, x, -1, 1, 1e6, 1, 1, 1, 1); -- {serverError BAD_ARGUMENTS} must be non-negative value
+ENGINE = Buffer(x, x, -1, 1, 1000000., 1, 1, 1, 1); -- {serverError BAD_ARGUMENTS} must be non-negative value
 
 CREATE TABLE invalid
 (
@@ -20,4 +20,4 @@ CREATE TABLE invalid
 (
     c0 Int
 )
-ENGINE = Buffer(x, x, 1, 1, 1, 1, 1, -1e6, 1); -- {serverError BAD_ARGUMENTS} must be non-negative value
+ENGINE = Buffer(x, x, 1, 1, 1, 1, 1, -1000000., 1); -- {serverError BAD_ARGUMENTS} must be non-negative value

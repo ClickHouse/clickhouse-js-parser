@@ -1,8 +1,8 @@
 -- Tags: no-object-storage
 -- no-object-storage since the output of the pipeline depends on the read method
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET max_threads = 4;
+SET max_threads = '4';
 
 DROP TABLE IF EXISTS trivial_count;
 

@@ -1,153 +1,190 @@
 [
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "table_x",
-        "query": {
-          "kind": "select",
-          "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "col_a"
-              ]
+              "type": "WithElement",
+              "name": "table_x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "col_a"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "col_b"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "subquery": {
+                                "type": "Subquery",
+                                "query": {
+                                  "type": "SelectWithUnionQuery",
+                                  "selects": [
+                                    {
+                                      "type": "SelectQuery",
+                                      "select": [
+                                        {
+                                          "type": "Literal",
+                                          "alias": "col_a",
+                                          "value_type": "String",
+                                          "value": "a"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "alias": "col_b",
+                                          "value_type": "Array",
+                                          "value": [
+                                            {
+                                              "value_type": "String",
+                                              "value": "b"
+                                            },
+                                            {
+                                              "value_type": "String",
+                                              "value": "c"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "array_join": {
+                              "type": "ArrayJoin",
+                              "kind": "INNER",
+                              "expressions": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "col_b"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "col_b"
+              "type": "Subquery",
+              "alias": "group_a",
+              "query": {
+                "type": "SelectWithUnionQuery",
+                "selects": [
+                  {
+                    "type": "SelectQuery",
+                    "select": [
+                      {
+                        "type": "Function",
+                        "name": "groupArray",
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "tuple",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "col_a"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "col_b"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "from": {
+                      "type": "TablesInSelectQuery",
+                      "children": [
+                        {
+                          "type": "TablesInSelectQueryElement",
+                          "table_expression": {
+                            "type": "TableExpression",
+                            "database_and_table_name": {
+                              "type": "TableIdentifier",
+                              "name": "table_x"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "group_a"
+            },
+            {
+              "type": "Function",
+              "name": "groupArray",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "tuple",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "col_a"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "col_b"
+                    }
+                  ]
+                }
               ]
             }
           ],
           "from": {
-            "left": {
-              "kind": "subqueryFrom",
-              "query": {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "a"
-                    },
-                    "alias": "col_a"
-                  },
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "arrayLiteral",
-                      "elements": [
-                        {
-                          "kind": "literal",
-                          "type": "String",
-                          "value": "b"
-                        },
-                        {
-                          "kind": "literal",
-                          "type": "String",
-                          "value": "c"
-                        }
-                      ],
-                      "source": "['b', 'c']"
-                    },
-                    "alias": "col_b"
-                  }
-                ]
-              }
-            },
-            "kind": "arrayJoinExpr",
-            "joinType": "ARRAY",
-            "expressions": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "col_b"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "table_x"
+                  }
+                }
               }
             ]
           }
         }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "group_a",
-        "expr": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "functionCall",
-                "name": "groupArray",
-                "args": [
-                  {
-                    "kind": "tupleLiteral",
-                    "elements": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "col_a"
-                        ]
-                      },
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "col_b"
-                        ]
-                      }
-                    ],
-                    "source": "(col_a, col_b)"
-                  }
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "table_x"
-            }
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "group_a"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "groupArray",
-        "args": [
-          {
-            "kind": "tupleLiteral",
-            "elements": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "col_a"
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "col_b"
-                ]
-              }
-            ],
-            "source": "(col_a, col_b)"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "table_x"
+      ]
     }
   }
 ]

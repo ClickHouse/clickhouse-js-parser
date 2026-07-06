@@ -13,7 +13,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniq(x, arrayMap(elem -> [elem, elem], x))
+SELECT uniq(x, arrayMap((elem -> [elem, elem]), x))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
@@ -28,7 +28,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniq((x, arrayMap(elem -> [elem, elem], x)))
+SELECT uniq((x, arrayMap((elem -> [elem, elem]), x)))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
@@ -58,7 +58,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniqExact(x, arrayMap(elem -> [elem, elem], x))
+SELECT uniqExact(x, arrayMap((elem -> [elem, elem]), x))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
@@ -73,7 +73,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniqExact((x, arrayMap(elem -> [elem, elem], x)))
+SELECT uniqExact((x, arrayMap((elem -> [elem, elem]), x)))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
@@ -103,7 +103,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniqUpTo(3)(x, arrayMap(elem -> [elem, elem], x))
+SELECT uniqUpTo(3)(x, arrayMap((elem -> [elem, elem]), x))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
@@ -118,7 +118,7 @@ FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );
 
-SELECT uniqUpTo(3)((x, arrayMap(elem -> [elem, elem], x)))
+SELECT uniqUpTo(3)((x, arrayMap((elem -> [elem, elem]), x)))
 FROM (
         SELECT arrayJoin([[], ['a'], ['a', 'b'], []]) AS x
     );

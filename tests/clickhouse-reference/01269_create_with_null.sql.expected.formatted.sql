@@ -76,14 +76,14 @@ CREATE TABLE cannot_be_nullable
     n Int8,
     a Array(UInt8)
 )
-ENGINE = Memory; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+ENGINE = Memory(); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 CREATE TABLE cannot_be_nullable
 (
     n Int8,
     a Array(UInt8) NOT NULL
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE cannot_be_nullable;
 

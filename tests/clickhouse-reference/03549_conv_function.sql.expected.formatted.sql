@@ -78,4 +78,5 @@ SELECT
     conv(toString(number), 10, 36),
     conv(toString(number), 10, 2)
 FROM `system`.numbers
-WHERE and(greaterOrEquals(number, 10), lessOrEquals(number, 15));
+WHERE number >= 10
+    AND number <= 15;

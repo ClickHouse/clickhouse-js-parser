@@ -1,4 +1,4 @@
-SET output_format_pretty_fallback_to_vertical = 0;
+SET output_format_pretty_fallback_to_vertical = '0';
 
 -- Testing integer formats
 SELECT printf('%%d: %d', 123);
@@ -18,7 +18,7 @@ SELECT printf('%%o: %o', 123);
 SELECT printf('%%x: %x', 123);
 
 -- Testing floating point formats
-SELECT printf('%%f: %f', 0.0);
+SELECT printf('%%f: %f', 0.);
 
 SELECT printf('%%f: %f', 123.456);
 

@@ -1,7 +1,7 @@
-SELECT like('hello', 'hell%');
+SELECT 'hello' LIKE 'hell%';
 
-SELECT ilike('HELLO', 'hell%');
+SELECT 'HELLO' ILIKE 'hell%';
 
-SELECT ilike('world', 'Wo%Ld');
+SELECT 'world' ILIKE 'Wo%Ld';
 
-SELECT like('world', 'Wo%Ld');
+SELECT 'world' LIKE 'Wo%Ld';

@@ -7,7 +7,7 @@ CREATE TABLE product_groups
     group_id Int64,
     group_name String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE products
 (
@@ -16,7 +16,7 @@ CREATE TABLE products
     price DECIMAL(11, 2),
     group_id Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO product_groups;
 
@@ -61,4 +61,4 @@ FROM (
         ORDER BY number ASC
         LIMIT 10
     )
-SETTINGS max_block_size = 100;
+SETTINGS max_block_size = '100';

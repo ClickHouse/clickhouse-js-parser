@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS saved_intervals_tmp;
 
 CREATE TABLE saved_intervals_tmp
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     number AS EventID,
     toIntervalSecond(number + 1) AS v1,
@@ -49,7 +49,7 @@ CREATE TABLE t1
 (
     v1 IntervalMinute
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1 WITH toDateTime64('2023-01-01 00:00:00.000000001', 9, 'US/Eastern') AS c
 

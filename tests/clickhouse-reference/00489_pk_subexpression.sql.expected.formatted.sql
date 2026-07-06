@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS pk;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 -- NOTE: here the timezone is pinned to UTC, to avoid issues with "partial
 -- timezones" (timezones that does not starts from 00:00), like
@@ -26,28 +26,30 @@ ENGINE = MergeTree(d, (toStartOfMinute(x, 'UTC'), y, z), 1);
 
 INSERT INTO pk (x, y, z);
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 -- Test inferred limit
-SET max_rows_to_read = 5;
+SET max_rows_to_read = '5';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE and(greaterOrEquals(x, toDateTime(0)), lessOrEquals(x, toDateTime(59)));
+WHERE x >= toDateTime(0)
+    AND x <= toDateTime(59);
 
-SET max_rows_to_read = 9;
+SET max_rows_to_read = '9';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE and(greaterOrEquals(x, toDateTime(120)), lessOrEquals(x, toDateTime(240)));
+WHERE x >= toDateTime(120)
+    AND x <= toDateTime(240);
 
 SELECT
     toUInt32(x),
@@ -57,14 +59,15 @@ FROM pk
 WHERE x = toDateTime(1);
 
 -- Index works on interval 00:01:00 - 00:01:59
-SET max_rows_to_read = 4;
+SET max_rows_to_read = '4';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE (and(greaterOrEquals(x, toDateTime(60)), lessOrEquals(x, toDateTime(119))))
+WHERE (x >= toDateTime(60)
+    AND x <= toDateTime(119))
     AND y = 11;
 
 SELECT
@@ -72,7 +75,8 @@ SELECT
     y,
     z
 FROM pk
-WHERE (and(greaterOrEquals(x, toDateTime(60)), lessOrEquals(x, toDateTime(120))))
+WHERE (x >= toDateTime(60)
+    AND x <= toDateTime(120))
     AND y = 11;
 
 DROP TABLE pk;

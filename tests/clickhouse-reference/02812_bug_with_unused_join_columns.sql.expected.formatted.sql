@@ -4,4 +4,4 @@ FROM
 INNER JOIN `system`.aggregate_function_combinators AS comb
     USING (name)
 WHERE is_aggregate
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

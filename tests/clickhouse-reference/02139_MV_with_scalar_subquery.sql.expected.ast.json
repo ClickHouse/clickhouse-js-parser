@@ -1,411 +1,559 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/9587#issuecomment-944431385"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "source_null"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "table": "source"
-    },
-    "engine": {
-      "name": "Null"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "dest_a"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "count",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "min",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "max",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "count_subquery",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "min_subquery",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "max_subquery",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_null"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "source_null"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source"
-      }
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "mv_a"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "dest_a"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "count",
-            "args": []
-          },
-          "alias": "count"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "min",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "a"
-                ]
-              }
-            ]
-          },
-          "alias": "min"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "max",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "a"
-                ]
-              }
-            ]
-          },
-          "alias": "max"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "functionCall",
-                  "name": "count",
-                  "args": []
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "source_null"
-              }
-            }
-          },
-          "alias": "count_subquery"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "functionCall",
-                  "name": "min",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "source_null"
-              }
-            }
-          },
-          "alias": "min_subquery"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "functionCall",
-                  "name": "max",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "source_null"
-              }
-            }
-          },
-          "alias": "max_subquery"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "source_null"
-      },
-      "groupBy": {
-        "kind": "expressions",
-        "items": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "count_subquery"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "min_subquery"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "max_subquery"
-            ]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_trivial_insert_select",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "source"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "source"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2000"
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
           }
         ]
       },
-      "settings": [
-        {
-          "name": "min_insert_block_size_rows",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1500"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source_null"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Null",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      },
+      "as_table": "source"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "dest_a"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "count",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "min",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "max",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "count_subquery",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "min_subquery",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "max_subquery",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_null"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "source_null"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "mv_a"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "count",
+                "name": "count",
+                "arguments": []
+              },
+              {
+                "type": "Function",
+                "alias": "min",
+                "name": "min",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "max",
+                "name": "max",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Subquery",
+                "alias": "count_subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "count",
+                          "arguments": []
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "source_null"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Subquery",
+                "alias": "min_subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "min",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "a"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "source_null"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "Subquery",
+                "alias": "max_subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "max",
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "a"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "source_null"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "source_null"
+                    }
+                  }
+                }
+              ]
+            },
+            "group_by": [
+              {
+                "type": "Identifier",
+                "name": "count_subquery"
+              },
+              {
+                "type": "Identifier",
+                "name": "min_subquery"
+              },
+              {
+                "type": "Identifier",
+                "name": "max_subquery"
+              }
+            ]
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "dest_a"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_trivial_insert_select": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "source"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "min_insert_block_size_rows": "1500",
+          "max_insert_block_size": "1500"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "min_insert_block_size_rows": "1500",
+                "max_insert_block_size": "1500"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "name": "max_insert_block_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1500"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "source"
+                  }
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "source"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dest_a"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dest_a"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "dest_a"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "count"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "dest_a"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "count"
+              },
+              "direction": "DESC"
+            }
           ]
-        },
-        "direction": "DESC"
-      }
-    ]
+        }
+      ]
+    }
   }
 ]

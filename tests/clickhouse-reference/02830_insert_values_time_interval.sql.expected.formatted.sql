@@ -19,9 +19,9 @@ CREATE TABLE t1
     n int,
     dt DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET input_format_values_interpret_expressions = 0;
+SET input_format_values_interpret_expressions = '0';
 
 INSERT INTO t1;
 

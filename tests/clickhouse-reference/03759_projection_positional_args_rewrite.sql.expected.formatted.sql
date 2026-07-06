@@ -1,7 +1,7 @@
 -- Verify that projections with positional GROUP BY arguments are rewritten
 -- to use actual column names, so they survive DETACH/ATTACH (server restart).
 -- https://s3.amazonaws.com/clickhouse-test-reports/json.html?PR=96357&sha=76567a89617ff50443418c3f4297fab8183d22d5&name_0=PR&name_1=Stress%20test%20%28amd_tsan%29
-SET enable_positional_arguments_for_projections = 1;
+SET enable_positional_arguments_for_projections = '1';
 
 -- Test 1: CREATE TABLE with positional GROUP BY in projection
 DROP TABLE IF EXISTS test_proj_positional;
@@ -10,21 +10,16 @@ CREATE TABLE test_proj_positional
 (
     a UInt64,
     b String,
-    PROJECTION test_projection (    SELECT
-        b,
-        a
-    GROUP BY
-        1,
-        2)
+    PROJECTION test_projection (SELECT b, a GROUP BY 1, 2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_proj_positional;
 
 DETACH TABLE test_proj_positional;
 
-SET enable_positional_arguments_for_projections = 0;
+SET enable_positional_arguments_for_projections = '0';
 
 ATTACH TABLE test_proj_positional;
 
@@ -39,14 +34,9 @@ CREATE TABLE test_proj_positional
     a UInt64,
     b String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
-ALTER TABLE test_proj_positional ADD PROJECTION test_projection (SELECT
-    b,
-    a
-GROUP BY
-    1,
-    2);
+ALTER TABLE test_proj_positional ADD PROJECTION test_projection (SELECT b, a GROUP BY 1, 2);
 
 INSERT INTO test_proj_positional;

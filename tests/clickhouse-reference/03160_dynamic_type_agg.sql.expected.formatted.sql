@@ -1,10 +1,10 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
 CREATE TABLE t
 (
     d Dynamic
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t SELECT sumState(number) AS d
 FROM numbers(100);

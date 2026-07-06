@@ -12,14 +12,14 @@ GROUP BY 1;
 SELECT mapFromArrays([toLowCardinality(toNullable(1)), toLowCardinality(toNullable(2))], [3, 4])
 GROUP BY 1;
 
-SELECT mapFromArrays([toLowCardinality(toNullable(1)), toLowCardinality(cast(NULL as Nullable(Int32)))], [3, 4])
+SELECT mapFromArrays([toLowCardinality(toNullable(1)), toLowCardinality(CAST(NULL AS Nullable(Int32)))], [3, 4])
 GROUP BY 1; -- { serverError BAD_ARGUMENTS }
 
-SELECT mapFromArrays([toLowCardinality(toNullable('x')), toLowCardinality(cast(NULL as Nullable(String)))], [3, 4])
+SELECT mapFromArrays([toLowCardinality(toNullable('x')), toLowCardinality(CAST(NULL AS Nullable(String)))], [3, 4])
 GROUP BY 1; -- { serverError BAD_ARGUMENTS }
 
 -- Run tests on tables
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS `03399_lc_nullable_int_simple`;
 
@@ -28,7 +28,7 @@ CREATE TABLE `03399_lc_nullable_int_simple`
     k Array(LowCardinality(Nullable(Int32))),
     v Array(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     [1, 2],
     [3, 4];
@@ -47,13 +47,13 @@ CREATE TABLE `03399_lc_nullable_int_mixed`
     k Array(LowCardinality(Nullable(Int32))),
     v Array(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     [1, 2],
     [3, 4]
 UNION ALL
 SELECT
-    [5, null],
+    [5, NULL],
     [7, 8];
 
 SELECT mapFromArrays(k, v)
@@ -70,7 +70,7 @@ CREATE TABLE `03399_lc_nullable_string_simple`
     k Array(LowCardinality(Nullable(String))),
     v Array(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     ['a', 'b'],
     [1, 2];
@@ -89,7 +89,7 @@ CREATE TABLE `03399_lc_nullable_string_mixed`
     k Array(LowCardinality(Nullable(String))),
     v Array(Int32)
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     ['a', 'b'],
     [1, 2]

@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS test_distributed;
 
 DROP TABLE IF EXISTS test_local;
 
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 -- https://github.com/ClickHouse/ClickHouse/issues/36279
 CREATE TABLE test_local
@@ -27,7 +27,7 @@ INSERT INTO test_distributed SELECT
 FROM `system`.numbers
 LIMIT 1;
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT COUNT() AS count
 FROM
@@ -35,12 +35,12 @@ FROM
 INNER JOIN (
         SELECT text
         FROM test_distributed
-        WHERE (ilike(text, '%text-for-search%'))
-            AND (ilike(text2, '%text-for-search%'))
+        WHERE text ILIKE '%text-for-search%'
+            AND text2 ILIKE '%text-for-search%'
     )
     USING (text)
-WHERE (ilike(text, '%text-for-search%'))
-    AND (ilike(text2, '%text-for-search%'));
+WHERE text ILIKE '%text-for-search%'
+    AND text2 ILIKE '%text-for-search%';
 
 DROP TABLE IF EXISTS user_local;
 
@@ -55,7 +55,7 @@ CREATE TABLE user_local
     name String,
     age Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY name;
 
 CREATE TABLE user_all
@@ -73,7 +73,7 @@ CREATE TABLE event
     content String,
     created_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY user_id;
 
 INSERT INTO user_local (id, name, age);
@@ -87,6 +87,6 @@ FROM
     user_all AS u
 LEFT JOIN event AS e
     ON u.id = e.user_id
-WHERE ((u.age >= 20
-    AND u.age < 30))
+WHERE (u.age >= 20
+    AND u.age < 30)
     AND e.created_time > '2022-01-01';

@@ -1,14 +1,14 @@
 SELECT 1 IN (tuple(1, 2, 3, 4, 5))
-SETTINGS max_temporary_columns = 2;
+SETTINGS max_temporary_columns = '2';
 
 SELECT (1, 2) IN (tuple(tuple(1, 2), tuple(3, 4), tuple(5, 6), tuple(7, 8), tuple(9, 10)))
-SETTINGS max_temporary_columns = 4;
+SETTINGS max_temporary_columns = '4';
 
 SELECT 1 IN (array(1, 2, 3, 4, 5))
-SETTINGS max_temporary_columns = 3;
+SETTINGS max_temporary_columns = '3';
 
 SELECT (1, 2) IN (array(tuple(1, 2), tuple(3, 4), tuple(5, 6), tuple(7, 8), tuple(9, 10)))
-SETTINGS max_temporary_columns = 4;
+SETTINGS max_temporary_columns = '4';
 
 SELECT (1, 2) IN (tuple(1, 2));
 

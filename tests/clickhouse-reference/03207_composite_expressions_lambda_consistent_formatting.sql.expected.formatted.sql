@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SELECT [1, (x -> 1)]; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT [1, x -> 1]; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT (1, (x -> 1)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT (1, x -> 1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT map(1, (x -> 1)); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 

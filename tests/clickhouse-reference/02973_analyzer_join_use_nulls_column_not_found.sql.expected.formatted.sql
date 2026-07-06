@@ -1,4 +1,4 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT '--';
 
@@ -16,7 +16,7 @@ FROM (
                     1 AS a,
                     3 AS c
             ) AS d2
-            ON (d1.a = d2.a)
+            ON d1.a = d2.a
     );
 
 WITH d1 AS (
@@ -38,7 +38,7 @@ joined AS (
     FROM
         d1
     INNER JOIN d2
-        ON (d1.a = d2.a)
+        ON d1.a = d2.a
 )
 
 SELECT c
@@ -102,7 +102,7 @@ FULL JOIN a
 FULL JOIN a AS a1
     ON a1.key = a.key
 ORDER BY 1 ASC
-SETTINGS join_use_nulls = 0;
+SETTINGS join_use_nulls = '0';
 
 WITH a AS (
     SELECT

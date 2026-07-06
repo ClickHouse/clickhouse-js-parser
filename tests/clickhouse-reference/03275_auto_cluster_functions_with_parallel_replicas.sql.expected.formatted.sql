@@ -1,16 +1,16 @@
 -- Tags: no-fasttest
 -- Tag no-fasttest: Depends on Minio
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 1;
+SET enable_parallel_replicas = '1';
 
-SET max_parallel_replicas = 4;
+SET max_parallel_replicas = '4';
 
 SET cluster_for_parallel_replicas = 'test_cluster_two_shards';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 SET parallel_replicas_for_cluster_engines = true;
 
@@ -42,7 +42,7 @@ SELECT number
 FROM
     `system`.numbers AS n
 INNER JOIN s3('http://localhost:11111/test/a.tsv', 'TSV') AS s
-    ON (toInt64(n.number) = toInt64(s.c1));
+    ON toInt64(n.number) = toInt64(s.c1);
 
 EXPLAIN
 SELECT number
@@ -52,7 +52,7 @@ INNER JOIN (
         SELECT *
         FROM s3('http://localhost:11111/test/a.tsv', 'TSV')
     ) AS s
-    ON (toInt64(n.number) = toInt64(s.c1));
+    ON toInt64(n.number) = toInt64(s.c1);
 
 SELECT count()
 FROM s3('http://localhost:11111/test/a.tsv', 'TSV');
@@ -65,7 +65,7 @@ CREATE TABLE dupe_test_with_auto_functions
     n2 String,
     n3 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 INSERT INTO dupe_test_with_auto_functions SELECT *
@@ -82,7 +82,7 @@ CREATE TABLE insert_with_url_function
     n2 String,
     n3 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 INSERT INTO insert_with_url_function SELECT *
@@ -101,7 +101,7 @@ CREATE TABLE dupe_test_without_cluster_functions
     n2 String,
     n3 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 INSERT INTO dupe_test_without_cluster_functions SELECT *
@@ -118,7 +118,7 @@ CREATE TABLE dupe_test_with_cluster_function
     n2 String,
     n3 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n1;
 
 INSERT INTO dupe_test_with_cluster_function SELECT *

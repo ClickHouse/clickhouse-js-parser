@@ -4,7 +4,7 @@ CREATE TABLE const_node
 (
     v Nullable(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 SYSTEM STOP MERGES const_node;

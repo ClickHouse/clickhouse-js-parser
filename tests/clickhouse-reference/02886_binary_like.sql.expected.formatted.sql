@@ -1,47 +1,47 @@
-SELECT like('aяb', 'a_b');
+SELECT 'aяb' LIKE 'a_b';
 
-SELECT like('a\0b', 'a_b');
+SELECT 'a\0b' LIKE 'a_b';
 
-SELECT like('a\0b', 'a\0b');
+SELECT 'a\0b' LIKE 'a\0b';
 
-SELECT like('a\0b', 'a%\0b');
+SELECT 'a\0b' LIKE 'a%\0b';
 
-SELECT like('a�b', 'a%�b');
+SELECT 'a�b' LIKE 'a%�b';
 
-SELECT like('a�b', 'a%��b');
+SELECT 'a�b' LIKE 'a%��b';
 
-SELECT like('a�b', '%a��b');
+SELECT 'a�b' LIKE '%a��b';
 
-SELECT like('a��b', '%a��b');
+SELECT 'a��b' LIKE '%a��b';
 
-SELECT like(materialize('aяb'), 'a_b');
+SELECT materialize('aяb') LIKE 'a_b';
 
-SELECT like(materialize('a\0b'), 'a_b');
+SELECT materialize('a\0b') LIKE 'a_b';
 
-SELECT like(materialize('a\0b'), 'a\0b');
+SELECT materialize('a\0b') LIKE 'a\0b';
 
-SELECT like(materialize('a\0b'), 'a%\0b');
+SELECT materialize('a\0b') LIKE 'a%\0b';
 
-SELECT like(materialize('a�b'), 'a%�b');
+SELECT materialize('a�b') LIKE 'a%�b';
 
-SELECT like(materialize('a�b'), 'a%��b');
+SELECT materialize('a�b') LIKE 'a%��b';
 
-SELECT like(materialize('a�b'), '%a��b');
+SELECT materialize('a�b') LIKE '%a��b';
 
-SELECT like(materialize('a��b'), '%a��b');
+SELECT materialize('a��b') LIKE '%a��b';
 
-SELECT like(materialize('aяb'), materialize('a_b'));
+SELECT materialize('aяb') LIKE materialize('a_b');
 
-SELECT like(materialize('a\0b'), materialize('a_b'));
+SELECT materialize('a\0b') LIKE materialize('a_b');
 
-SELECT like(materialize('a\0b'), materialize('a\0b'));
+SELECT materialize('a\0b') LIKE materialize('a\0b');
 
-SELECT like(materialize('a\0b'), materialize('a%\0b'));
+SELECT materialize('a\0b') LIKE materialize('a%\0b');
 
-SELECT like(materialize('a�b'), materialize('a%�b'));
+SELECT materialize('a�b') LIKE materialize('a%�b');
 
-SELECT like(materialize('a�b'), materialize('a%��b'));
+SELECT materialize('a�b') LIKE materialize('a%��b');
 
-SELECT like(materialize('a�b'), materialize('%a��b'));
+SELECT materialize('a�b') LIKE materialize('%a��b');
 
-SELECT like(materialize('a��b'), materialize('%a��b'));
+SELECT materialize('a��b') LIKE materialize('%a��b');

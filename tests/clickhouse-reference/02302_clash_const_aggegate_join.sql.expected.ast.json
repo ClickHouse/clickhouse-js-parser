@@ -1,286 +1,460 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "e"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "e"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "t",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toDate",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "t"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/36891"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "e"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+        "type": "Identifier",
+        "name": "e"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "e"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "t",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+        "partition_by": {
+          "type": "Function",
+          "name": "toDate",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "t"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "e"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2020-02-01 12:00:01"
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              },
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-02-01 12:00:01"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toIntervalMonth",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sumIf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                },
+                {
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "if",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "2020-01-01 00:00:00"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "1970-01-01 00:00:00"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "toIntervalMonth",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2021-07-19T13:00:00"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2021-07-19T13:59:59"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
                 ]
               }
             ]
           }
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sumIf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "any",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                {
-                  "kind": "functionCall",
+                  "type": "Function",
                   "name": "toDateTime",
-                  "args": [
+                  "arguments": [
                     {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-01-01 00:00:00"
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2020-01-01T00:00:00"
                     },
                     {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "UTC"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1970-01-01 00:00:00"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
+                      "type": "Literal",
+                      "value_type": "String",
                       "value": "UTC"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "columnRef",
-              "parts": [
-                "t"
-              ]
             }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
-            }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2021-07-19T13:00:00"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          "prewhere": {
+            "type": "Function",
+            "name": "greaterOrEquals",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2021-07-19T13:59:59"
+                "type": "Identifier",
+                "name": "t"
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2021-07-19T13:00:00"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "UTC"
+                  }
+                ]
               }
             ]
           }
@@ -289,268 +463,197 @@
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "2020-01-01T00:00:00"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
-            }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        }
-      }
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": ">=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "t"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "toDateTime",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "2021-07-19T13:00:00"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "UTC"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sumIf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          },
-          {
-            "kind": "binaryExpr",
-            "op": ">",
-            "left": {
-              "kind": "functionCall",
-              "name": "if",
-              "args": [
+              "type": "Function",
+              "name": "sumIf",
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
+                  "type": "Literal",
+                  "value_type": "UInt64",
                   "value": "1"
                 },
                 {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
+                  "type": "Function",
+                  "name": "greater",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2020-01-01 00:00:00"
+                      "type": "Function",
+                      "name": "if",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "2020-01-01 00:00:00"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "toDateTime",
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "1970-01-01 00:00:00"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "UTC"
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "UTC"
-                    }
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toDateTime",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "1970-01-01 00:00:00"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "UTC"
+                      "type": "Identifier",
+                      "name": "t"
                     }
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "columnRef",
-              "parts": [
-                "t"
-              ]
             }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
-            }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2020-01-01 00:00:00"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "<=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t"
-            ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "2021-07-19T13:59:59"
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2020-01-01 00:00:00"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
+                ]
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "UTC"
+                "type": "Function",
+                "name": "lessOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "t"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toDateTime",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "2021-07-19T13:59:59"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "UTC"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -559,331 +662,427 @@
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "toDateTime",
-            "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toDateTime",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "2020-01-01 00:00:00"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "literal",
-                "type": "String",
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "greaterOrEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "t"
+              },
+              {
+                "type": "Function",
+                "name": "toDateTime",
+                "arguments": [
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "2020-01-01 00:00:00"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "2020-01-01 00:00:00"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "t"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
                 "value": "2020-01-01 00:00:00"
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
-            }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
         }
-      }
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": ">=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "t"
-        ]
-      },
-      "right": {
-        "kind": "functionCall",
-        "name": "toDateTime",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-01-01 00:00:00"
-          }
-        ]
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "2020-01-01 00:00:00"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "x"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
+          "prewhere": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "x"
+              }
             ]
           }
         }
-      }
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "t"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "2020-01-01 00:00:00"
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "x"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "1"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "e"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "joinKey"
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "a"
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "da",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "joinKey",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
+          "prewhere": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "a"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "1"
+              }
             ]
           }
         }
-      }
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toString",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "x"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "e"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "joinKey"
-            }
-          ]
-        },
-        "alias": "da"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "joinKey"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        }
-      }
-    },
-    "prewhere": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "toString",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "a"
-            ]
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "1"
-      }
+      ]
     }
   }
 ]

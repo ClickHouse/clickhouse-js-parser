@@ -1,4 +1,4 @@
-SET optimize_use_projections = 1;
+SET optimize_use_projections = '1';
 
 DROP TABLE IF EXISTS t;
 
@@ -6,16 +6,15 @@ CREATE TABLE t
 (
     i int,
     j int,
-    PROJECTION x (    SELECT *
-    ORDER BY j ASC)
+    PROJECTION x (SELECT * ORDER BY j)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
 PARTITION BY i;
 
 INSERT INTO t;
 
-ALTER TABLE t DROP PARTITION 1;
+ALTER TABLE t DETACH PARTITION 1;
 
 ALTER TABLE t ATTACH PARTITION 1;
 

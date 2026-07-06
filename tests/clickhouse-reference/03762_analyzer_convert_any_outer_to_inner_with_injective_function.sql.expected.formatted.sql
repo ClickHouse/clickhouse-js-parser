@@ -1,10 +1,10 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET query_plan_join_swap_table = 0, query_plan_optimize_join_order_limit = 1; -- Changes query plan
+SET query_plan_join_swap_table = '0', query_plan_optimize_join_order_limit = '1'; -- Changes query plan
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 CREATE TABLE users
 (
@@ -12,7 +12,7 @@ CREATE TABLE users
     name String,
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 
@@ -21,11 +21,11 @@ INSERT INTO users;
 INSERT INTO users;
 
 -- reverse is an injective function, thus it can be converted to INNER JOIN
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT *
 FROM
     users AS u1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             sum(age)::Nullable(Int64) AS age_sum,
             name
@@ -36,11 +36,11 @@ LEFT JOIN (
 WHERE uid < age_sum;
 
 -- upper is not an injective function, thus it cannot be converted to INNER JOIN
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT *
 FROM
     users AS u1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             sum(age)::Nullable(Int64) AS age_sum,
             name
@@ -54,11 +54,11 @@ WHERE uid < age_sum;
 -- The aim for them is to verify that the presence of a non equivalence condition prevents the
 -- conversion to INNER JOIN, even if the columns used by the non equivalence condition are used
 -- as grouping keys. Uniqueness of matching rows cannot be guaranteed in this case.
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT *
 FROM
     users AS u1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             sum(age)::Nullable(Int64) AS age_sum,
             name,
@@ -72,11 +72,11 @@ LEFT JOIN (
     AND u1.age = u2.uid
 WHERE uid < age_sum;
 
-EXPLAIN actions = 1, keep_logical_steps = 1
+EXPLAIN actions = '1', keep_logical_steps = '1'
 SELECT *
 FROM
     users AS u1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             sum(age)::Nullable(Int64) AS age_sum,
             name,

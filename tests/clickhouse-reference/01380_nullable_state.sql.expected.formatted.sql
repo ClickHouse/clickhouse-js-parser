@@ -85,7 +85,7 @@ SELECT
     k,
     finalizeAggregation(uniqState(x))
 FROM (
-        WITH toNullable(if(number = 3, 3, 1)) AS d
+        WITH toNullable(number = 3 ? 3 : 1) AS d
 
         SELECT
             intDiv(number, 3) AS k,
@@ -102,7 +102,7 @@ SELECT
     k,
     finalizeAggregation(quantilesTimingState(0.5)(x))
 FROM (
-        WITH toNullable(if(number = 3, 3, 1)) AS d
+        WITH toNullable(number = 3 ? 3 : 1) AS d
 
         SELECT
             intDiv(number, 3) AS k,

@@ -1,244 +1,284 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t1"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "Int64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
       },
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'Asia/Istanbul'"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "asQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "ttt",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "42"
-          }
-        },
-        {
-          "kind": "cteExpr",
-          "name": "start_date",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toDate",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "s"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "kind": "cteSubquery",
-          "name": "_table",
-          "query": {
-            "kind": "union",
-            "queries": [
-              {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "alias",
-                    "expr": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    },
-                    "alias": "number"
-                  }
-                ]
-              },
-              {
-                "kind": "select",
-                "select": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  }
-                ],
-                "from": {
-                  "kind": "tableRef",
-                  "table": "_table"
-                },
-                "where": {
-                  "kind": "binaryExpr",
-                  "op": "<",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      ],
-      "recursive": true,
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ttt"
-          ]
-        }
-      ],
-      "from": {
-        "left": {
-          "kind": "tableRef",
-          "table": "t1"
-        },
-        "kind": "joinExpr",
-        "joinType": "INNER",
-        "right": {
-          "kind": "tableRef",
-          "table": "_table"
-        },
-        "constraint": {
-          "kind": "on",
-          "expr": {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "t1",
-                    "a"
-                  ]
-                },
-                "right": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "_table",
-                    "number"
-                  ]
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "start_date"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "2024-09-23"
-                }
-              }
-            ]
-          }
-        }
-      },
-      "parenthesized": true
+      "if_exists": true
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t1"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "Asia/Istanbul"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "recursive_with": true,
+            "with": [
+              {
+                "type": "Literal",
+                "alias": "ttt",
+                "value_type": "UInt64",
+                "value": "42"
+              },
+              {
+                "type": "Function",
+                "alias": "start_date",
+                "name": "toDate",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "s"
+                  }
+                ]
+              },
+              {
+                "type": "WithElement",
+                "name": "_table",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Literal",
+                            "alias": "number",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "plus",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "number"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "1"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "_table"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "where": {
+                          "type": "Function",
+                          "name": "less",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "10"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Identifier",
+                "name": "ttt"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "t1"
+                    }
+                  }
+                },
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_join": {
+                    "type": "TableJoin",
+                    "kind": "INNER",
+                    "on": {
+                      "type": "Function",
+                      "name": "and",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "equals",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "t1.a",
+                              "name_parts": [
+                                "t1",
+                                "a"
+                              ]
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "_table.number",
+                              "name_parts": [
+                                "_table",
+                                "number"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Function",
+                          "name": "equals",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "start_date"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "2024-09-23"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "_table"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      }
     }
   }
 ]

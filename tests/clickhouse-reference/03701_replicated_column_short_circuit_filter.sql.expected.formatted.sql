@@ -6,5 +6,5 @@ FROM
 ARRAY JOIN range(number) AS x
 WHERE number != 2
 SETTINGS
-    enable_lazy_columns_replication = 1,
-    query_plan_filter_push_down = 0;
+    enable_lazy_columns_replication = '1',
+    query_plan_filter_push_down = '0';

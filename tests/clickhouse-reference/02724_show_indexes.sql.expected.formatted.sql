@@ -12,28 +12,28 @@ CREATE TABLE tbl
     c UInt64,
     d UInt64,
     e UInt64,
-    INDEX mm1_idx tuple(a, c, d) TYPE minmax,
-    INDEX mm2_idx tuple(c, d, e) TYPE minmax,
-    INDEX set_idx e TYPE set(100),
-    INDEX blf_idx tuple(d, b) TYPE bloom_filter(0.8)
+    INDEX mm1_idx (a, c, d) TYPE minmax() GRANULARITY 1,
+    INDEX mm2_idx (c, d, e) TYPE minmax() GRANULARITY 1,
+    INDEX set_idx e TYPE set(100) GRANULARITY 1,
+    INDEX blf_idx (d, b) TYPE bloom_filter(0.8) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (c, a)
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 SELECT '--- Aliases of SHOW INDEX';
 
-SHOW INDEX FROM tbl;
+SHOW INDEXES FROM tbl;
 
 SHOW INDEXES FROM tbl;
 
-SHOW INDICES FROM tbl;
+SHOW INDEXES FROM tbl;
 
-SHOW KEYS FROM tbl;
+SHOW INDEXES FROM tbl;
 
-SHOW EXTENDED INDEX FROM tbl;
+SHOW EXTENDED INDEXES FROM tbl;
 
-SHOW INDEX FROM tbl WHERE like(index_type, '%minmax%');
+SHOW INDEXES FROM tbl WHERE index_type LIKE '%minmax%';
 
 DROP TABLE IF EXISTS `$4@^7`;
 
@@ -41,11 +41,11 @@ CREATE TABLE `$4@^7`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SHOW INDEX FROM `$4@^7`;
+SHOW INDEXES FROM `$4@^7`;
 
 DROP TABLE `$4@^7`;
 
@@ -55,11 +55,11 @@ CREATE TABLE `NULL`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SHOW INDEX FROM `NULL`;
+SHOW INDEXES FROM `NULL`;
 
 DROP TABLE `NULL`;
 
@@ -72,16 +72,16 @@ CREATE TABLE `tab.with.dots`
     c UInt64,
     d UInt64,
     e UInt64,
-    INDEX mm1_idx tuple(a, c, d) TYPE minmax,
-    INDEX mm2_idx tuple(c, d, e) TYPE minmax,
-    INDEX set_idx e TYPE set(100),
-    INDEX blf_idx tuple(d, b) TYPE bloom_filter(0.8)
+    INDEX mm1_idx (a, c, d) TYPE minmax() GRANULARITY 1,
+    INDEX mm2_idx (c, d, e) TYPE minmax() GRANULARITY 1,
+    INDEX set_idx e TYPE set(100) GRANULARITY 1,
+    INDEX blf_idx (d, b) TYPE bloom_filter(0.8) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (c, a)
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SHOW INDEX FROM `tab.with.dots`;
+SHOW INDEXES FROM `tab.with.dots`;
 
 DROP TABLE `tab.with.dots`;
 
@@ -93,13 +93,13 @@ CREATE TABLE `'`.`'`
 (
     c String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SHOW INDEX FROM `'` FROM `'`;
+SHOW INDEXES FROM `'`.`'`;
 
-SHOW INDEX FROM `'`.`'`; -- abbreviated form
+SHOW INDEXES FROM `'`.`'`; -- abbreviated form
 
 DROP TABLE `'`.`'`;
 
@@ -117,15 +117,15 @@ CREATE TABLE database_123456789abcde.tbl
 (
     a UInt64,
     b UInt64,
-    INDEX mmi_idx b TYPE minmax
+    INDEX mmi_idx b TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY a
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
-SHOW INDEX FROM tbl FROM database_123456789abcde;
+SHOW INDEXES FROM database_123456789abcde.tbl;
 
-SHOW INDEX FROM database_123456789abcde.tbl;
+SHOW INDEXES FROM database_123456789abcde.tbl;
 
 DROP DATABASE database_123456789abcde;
 

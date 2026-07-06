@@ -52,7 +52,7 @@ CREATE DICTIONARY IF NOT EXISTS db_01501.cache_dict
 )
 PRIMARY KEY KeyField
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_cache_dict' DB 'db_01501'))
-LIFETIME(5)
+LIFETIME(MIN 0 MAX 5)
 LAYOUT(CACHE(SIZE_IN_CELLS 20));
 
 INSERT INTO db_01501.table_cache_dict;
@@ -68,7 +68,7 @@ INSERT INTO db_01501.table_cache_dict;
 SELECT arrayDistinct(groupArray(dictGetUInt8('db_01501.cache_dict', 'UInt8_', toUInt64(number))))
 FROM numbers(10);
 
-SYSTEM reload dictionaries;
+SYSTEM RELOAD DICTIONARIES;
 
 SELECT arrayDistinct(groupArray(dictGetUInt16('db_01501.cache_dict', 'UInt16_', toUInt64(number))))
 FROM numbers(10);

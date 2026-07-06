@@ -43,14 +43,14 @@ CREATE TABLE test
     n int,
     m DEFAULT n IN ('default.table_name')
 )
-ENGINE = Memory; -- { serverError TYPE_MISMATCH }
+ENGINE = Memory(); -- { serverError TYPE_MISMATCH }
 
 CREATE TABLE test
 (
     n int,
     m DEFAULT in(n, 'default.table_name')
 )
-ENGINE = Memory; -- { serverError TYPE_MISMATCH }
+ENGINE = Memory(); -- { serverError TYPE_MISMATCH }
 
 DROP TABLE dep;
 

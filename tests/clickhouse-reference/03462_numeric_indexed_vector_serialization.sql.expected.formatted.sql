@@ -23,12 +23,7 @@ WITH (
         FROM uin_value_details_int32_float64
     ) AS vec_2
 
-SELECT arrayJoin([
-    numericIndexedVectorToMap(vec_1)
-    , numericIndexedVectorToMap(vec_2)
-    , numericIndexedVectorToMap(CAST(CAST(vec_1, 'String'), 'AggregateFunction(groupNumericIndexedVector, UInt32, Float64)'))
-    , numericIndexedVectorToMap(CAST(CAST(vec_2, 'String'), 'AggregateFunction(groupNumericIndexedVector, UInt32, Float64)'))
-]);
+SELECT arrayJoin([numericIndexedVectorToMap(vec_1), numericIndexedVectorToMap(vec_2), numericIndexedVectorToMap(CAST(CAST(vec_1 AS String) AS AggregateFunction(groupNumericIndexedVector, UInt32, Float64))), numericIndexedVectorToMap(CAST(CAST(vec_2 AS String) AS AggregateFunction(groupNumericIndexedVector, UInt32, Float64)))]);
 
 DROP TABLE IF EXISTS vector_int32_float64;
 
@@ -44,12 +39,12 @@ ORDER BY ds;
 INSERT INTO vector_int32_float64 (ds, vec_str, vec) SELECT
     ds,
     groupNumericIndexedVectorState(uin, value) AS vec,
-    CAST(vec, 'String') AS vec_str
+    CAST(vec AS String) AS vec_str
 FROM uin_value_details_int32_float64
 GROUP BY ds;
 
 SELECT
     ds,
     numericIndexedVectorToMap(vec),
-    numericIndexedVectorToMap(CAST(vec_str, 'AggregateFunction(groupNumericIndexedVector, UInt32, Float64)'))
+    numericIndexedVectorToMap(CAST(vec_str AS AggregateFunction(groupNumericIndexedVector, UInt32, Float64)))
 FROM vector_int32_float64;

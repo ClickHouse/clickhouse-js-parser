@@ -5,7 +5,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             intDiv(number, 2) AS k,
             number AS joined

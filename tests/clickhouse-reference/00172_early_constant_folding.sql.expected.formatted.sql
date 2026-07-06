@@ -1,17 +1,7 @@
 -- Tags: stateful, no-parallel-replicas
-SET max_threads = 10;
+SET max_threads = '10';
 
-SET optimize_use_implicit_projections = 1;
-
-EXPLAIN PIPELINE
-SELECT count(JavaEnable)
-FROM test.hits
-WHERE WatchID = 1
-    OR Title = 'next'
-    OR URL = 'prev'
-    OR URL = '???'
-    OR 1
-SETTINGS enable_analyzer = 0;
+SET optimize_use_implicit_projections = '1';
 
 EXPLAIN PIPELINE
 SELECT count(JavaEnable)
@@ -21,4 +11,14 @@ WHERE WatchID = 1
     OR URL = 'prev'
     OR URL = '???'
     OR 1
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '0';
+
+EXPLAIN PIPELINE
+SELECT count(JavaEnable)
+FROM test.hits
+WHERE WatchID = 1
+    OR Title = 'next'
+    OR URL = 'prev'
+    OR URL = '???'
+    OR 1
+SETTINGS enable_analyzer = '1';

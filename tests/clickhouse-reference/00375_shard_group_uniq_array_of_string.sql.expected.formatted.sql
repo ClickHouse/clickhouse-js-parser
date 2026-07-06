@@ -2,10 +2,10 @@
 DROP TABLE IF EXISTS group_uniq_str;
 
 CREATE TABLE group_uniq_str
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     number % 10 AS id,
-    toString(intDiv((number % 10000), 10)) AS v
+    toString(intDiv(number % 10000, 10)) AS v
 FROM `system`.numbers
 LIMIT 10000000;
 
@@ -22,7 +22,7 @@ FROM `system`.numbers
 LIMIT 10000000;
 
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT length(groupUniqArray(v))
 FROM group_uniq_str

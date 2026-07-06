@@ -8,12 +8,12 @@ CREATE TABLE gen
     number UInt32,
     merged_at DateTime
 )
-ENGINE = GenerateRandom;
+ENGINE = GenerateRandom();
 
 CREATE TABLE github_events AS gen
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (event_type, repo_name, created_at)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO github_events SELECT *
 FROM gen
@@ -25,7 +25,7 @@ OPTIMIZE TABLE github_events FINAL;
 
 SELECT count()
 FROM github_events
-WHERE (repo_name = 'apache/pulsar')
-    AND (toString(event_type) IN ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent', 'IssueCommentEvent'))
-    AND (actor_login NOT IN ('github-actions[bot]', 'codecov-commenter'))
-    AND (number = 9276);
+WHERE repo_name = 'apache/pulsar'
+    AND toString(event_type) IN ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent', 'IssueCommentEvent')
+    AND actor_login NOT IN ('github-actions[bot]', 'codecov-commenter')
+    AND number = 9276;

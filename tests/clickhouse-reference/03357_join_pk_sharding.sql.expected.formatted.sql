@@ -1,5 +1,5 @@
 -- Tags: long, no-asan, no-msan
-SET use_statistics = 0;
+SET use_statistics = '0';
 
 DROP TABLE IF EXISTS tab_l;
 
@@ -14,7 +14,7 @@ CREATE TABLE tab_l
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a * 2, b + c);
 
 CREATE TABLE tab_m
@@ -24,7 +24,7 @@ CREATE TABLE tab_m
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (c + d, b * 2);
 
 CREATE TABLE tab_r
@@ -34,7 +34,7 @@ CREATE TABLE tab_r
     c UInt32,
     d UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a * 2, c * 2);
 
 INSERT INTO tab_l SELECT
@@ -42,35 +42,35 @@ INSERT INTO tab_l SELECT
     number,
     number,
     number
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 INSERT INTO tab_m SELECT
     number,
     number,
     number,
     number
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 INSERT INTO tab_r SELECT
     number,
     number,
     number,
     number
-FROM numbers(1e6);
+FROM numbers(1000000.);
 
 --select explain e from (explain actions = 1 )
 --where e like '%ReadFromMergeTree%' or e like '%Expression%' or e like '%Join%' or e like '%Clauses%' or e like '%Sharding%';
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET query_plan_join_shard_by_pk_ranges = 1;
+SET query_plan_join_shard_by_pk_ranges = '1';
 
-SET allow_experimental_parallel_reading_from_replicas = 0;
+SET allow_experimental_parallel_reading_from_replicas = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
-SET max_threads = 4;
+SET max_threads = '4';
 
 -- { echo On }
 -- two tables
@@ -87,19 +87,21 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        INNER JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.b + l.c = m.b * 2
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                INNER JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.b + l.c = m.b * 2
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
 -- three tables
 SELECT *
@@ -119,24 +121,26 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        INNER JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.d = m.a
-            AND l.b + l.c = m.b * 2
-        INNER JOIN tab_r AS r
-            ON l.a * 2 = r.a * 2
-            AND l.b + l.c = r.c * 2
-            AND l.d = r.d
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                INNER JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.d = m.a
+                    AND l.b + l.c = m.b * 2
+                INNER JOIN tab_r AS r
+                    ON l.a * 2 = r.a * 2
+                    AND l.b + l.c = r.c * 2
+                    AND l.d = r.d
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
 --- three tables, where m table matches one key, so that r table can match only one key as well
 SELECT *
@@ -155,23 +159,25 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        INNER JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.d = m.a
-        INNER JOIN tab_r AS r
-            ON l.a * 2 = r.a * 2
-            AND l.b + l.c = r.c * 2
-            AND l.d = r.d
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                INNER JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.d = m.a
+                INNER JOIN tab_r AS r
+                    ON l.a * 2 = r.a * 2
+                    AND l.b + l.c = r.c * 2
+                    AND l.d = r.d
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
 --- three tables, right table matches one key
 SELECT *
@@ -190,23 +196,25 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        INNER JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.d = m.a
-            AND l.b + l.c = m.b * 2
-        INNER JOIN tab_r AS r
-            ON l.a * 2 = r.a * 2
-            AND l.d = r.d
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                INNER JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.d = m.a
+                    AND l.b + l.c = m.b * 2
+                INNER JOIN tab_r AS r
+                    ON l.a * 2 = r.a * 2
+                    AND l.d = r.d
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
 --- three tables, tab_m table matches noting, so right table can match both keys
 SELECT *
@@ -224,24 +232,26 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        INNER JOIN tab_m AS m
-            ON l.d = m.a
-        INNER JOIN tab_r AS r
-            ON l.a * 2 = r.a * 2
-            AND l.b + l.c = r.c * 2
-            AND l.d = r.d
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                INNER JOIN tab_m AS m
+                    ON l.d = m.a
+                INNER JOIN tab_r AS r
+                    ON l.a * 2 = r.a * 2
+                    AND l.b + l.c = r.c * 2
+                    AND l.d = r.d
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 -- two tables
 SELECT *
@@ -257,19 +267,21 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        RIGHT JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.b + l.c = m.b * 2
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                RIGHT JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.b + l.c = m.b * 2
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';
 
 -- three tables
 SELECT *
@@ -289,21 +301,23 @@ OFFSET 999990;
 
 SELECT `explain` AS e
 FROM (
-        EXPLAIN actions = 1
         SELECT *
-        FROM
-            tab_l AS l
-        LEFT JOIN tab_m AS m
-            ON l.a * 2 = m.c + m.d
-            AND l.d = m.a
-            AND l.b + l.c = m.b * 2
-        LEFT JOIN tab_r AS r
-            ON l.a * 2 = r.a * 2
-            AND l.b + l.c = r.c * 2
-            AND l.d = r.d
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT *
+                FROM
+                    tab_l AS l
+                LEFT JOIN tab_m AS m
+                    ON l.a * 2 = m.c + m.d
+                    AND l.d = m.a
+                    AND l.b + l.c = m.b * 2
+                LEFT JOIN tab_r AS r
+                    ON l.a * 2 = r.a * 2
+                    AND l.b + l.c = r.c * 2
+                    AND l.d = r.d
+            ))
     )
-WHERE like(e, '%ReadFromMergeTree%')
-    OR like(e, '%Expression%')
-    OR like(e, '%Join%')
-    OR like(e, '%Clauses%')
-    OR like(e, '%Sharding%');
+WHERE e LIKE '%ReadFromMergeTree%'
+    OR e LIKE '%Expression%'
+    OR e LIKE '%Join%'
+    OR e LIKE '%Clauses%'
+    OR e LIKE '%Sharding%';

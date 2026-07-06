@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS date_table_pv;
 
@@ -21,7 +21,7 @@ CREATE VIEW date_pv
 AS
 SELECT *
 FROM date_table_pv
-WHERE dt = {dtparam:Date};
+WHERE dt = '2020-01-01';
 
 SELECT id
 FROM date_pv(dtparam = today());
@@ -76,7 +76,7 @@ CREATE VIEW date32_pv
 AS
 SELECT *
 FROM date32_table_pv
-WHERE dt = {dtparam:Date32};
+WHERE dt = '2020-01-01';
 
 SELECT id
 FROM date32_pv(dtparam = today());
@@ -132,7 +132,7 @@ CREATE VIEW uuid_pv
 AS
 SELECT *
 FROM uuid_table_pv
-WHERE uu = {uuidparam:UUID};
+WHERE uu = '00000000-0000-0000-0000-000000000000';
 
 SELECT id
 FROM uuid_pv(uuidparam = serverUUID());
@@ -173,8 +173,8 @@ CREATE VIEW date_pv2
 AS
 SELECT *
 FROM date_table_pv
-WHERE dt = {dtparam:Date}
-    AND id = {intparam:Int32};
+WHERE dt = '2020-01-01'
+    AND id = 0;
 
 SELECT id
 FROM date_pv2(dtparam = today(), intparam = 1);
@@ -209,7 +209,7 @@ CREATE VIEW ipv4_pv
 AS
 SELECT *
 FROM ipv4_table_pv
-WHERE ipaddr = {ipv4param:IPv4};
+WHERE ipaddr = '0.0.0.0';
 
 SELECT id
 FROM ipv4_pv(ipv4param = '116.106.34.242');

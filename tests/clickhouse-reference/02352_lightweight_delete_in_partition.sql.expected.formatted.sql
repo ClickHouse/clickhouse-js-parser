@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS t_merge_tree;
+DROP TABLE IF EXISTS t_merge_tree SYNC;
 
-DROP TABLE IF EXISTS t_replicated_merge_tree;
+DROP TABLE IF EXISTS t_replicated_merge_tree SYNC;
 
 CREATE TABLE t_merge_tree
 (
@@ -56,6 +56,6 @@ DELETE FROM t_merge_tree IN PARTITION '2024-08-01' WHERE id = '1';
 
 DELETE FROM t_replicated_merge_tree IN PARTITION '2024-08-01' WHERE id = '1';
 
-DROP TABLE t_merge_tree;
+DROP TABLE t_merge_tree SYNC;
 
-DROP TABLE t_replicated_merge_tree;
+DROP TABLE t_replicated_merge_tree SYNC;

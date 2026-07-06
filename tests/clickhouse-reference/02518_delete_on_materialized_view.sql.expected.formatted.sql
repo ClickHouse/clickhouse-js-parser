@@ -6,11 +6,11 @@ CREATE TABLE kek
 (
     a UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 CREATE MATERIALIZED VIEW kekv
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 AS
 SELECT *

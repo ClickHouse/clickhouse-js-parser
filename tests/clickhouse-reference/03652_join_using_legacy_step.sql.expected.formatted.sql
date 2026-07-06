@@ -1,6 +1,6 @@
-SET query_plan_use_new_logical_join_step = 0;
+SET query_plan_use_new_logical_join_step = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t1;
 
@@ -14,7 +14,7 @@ CREATE TABLE t1
 (
     x Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -22,7 +22,7 @@ CREATE TABLE t2
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
@@ -30,7 +30,7 @@ CREATE TABLE t3
 (
     x UInt16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t3;
 
@@ -38,7 +38,7 @@ CREATE TABLE t4
 (
     x UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t4;
 

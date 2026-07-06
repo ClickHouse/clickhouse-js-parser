@@ -1,105 +1,101 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/57321"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "ver"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "max",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "ver"
-              ]
+              "type": "Identifier",
+              "name": "ver"
+            },
+            {
+              "type": "Function",
+              "alias": "ver_max",
+              "name": "max",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "ver"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition"
+              }
             }
           ],
-          "window": {}
-        },
-        "alias": "ver_max"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "union",
-        "queries": [
-          {
-            "kind": "select",
-            "select": [
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                },
-                "alias": "ver"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "ver",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "ver",
+                              "value_type": "UInt64",
+                              "value": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
           },
-          {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                },
-                "alias": "ver"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ver"
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "ver"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "ver"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "ver"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

@@ -5,7 +5,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -14,21 +14,21 @@ DROP ROW POLICY IF EXISTS test_row_policy ON test_table;
 
 CREATE ROW POLICY test_row_policy ON test_table USING id >= 5 TO ALL;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT
     id,
     value
 FROM test_table
 PREWHERE id = 5
-SETTINGS enable_analyzer = 0;
+SETTINGS enable_analyzer = '0';
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT
     id,
     value
 FROM test_table
 PREWHERE id = 5
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 DROP ROW POLICY test_row_policy ON test_table;
 

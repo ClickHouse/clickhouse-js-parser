@@ -13,7 +13,7 @@ CREATE TABLE t
     a1 Array(Float32),
     a2 Array(UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t;

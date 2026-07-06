@@ -1,140 +1,172 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "Int8"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int8"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "arrayJoin",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "arrayLiteral",
-              "elements": [
+              "type": "Function",
+              "alias": "row",
+              "name": "arrayJoin",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "tuple",
-                  "args": [
+                  "type": "Function",
+                  "name": "array",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "binaryExpr",
-                      "op": "<",
-                      "left": {
-                        "kind": "binaryExpr",
-                        "op": "*",
-                        "left": {
-                          "kind": "functionCall",
-                          "name": "toNullable",
-                          "args": [
+                      "type": "Function",
+                      "name": "tuple",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "less",
+                          "is_operator": true,
+                          "arguments": [
                             {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "10"
+                              "type": "Function",
+                              "name": "multiply",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "toNullable",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "10"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "toLowCardinality",
+                                  "arguments": [
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "20"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "materialize",
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "30"
+                                }
+                              ]
                             }
                           ]
-                        },
-                        "right": {
-                          "kind": "functionCall",
-                          "name": "toLowCardinality",
-                          "args": [
-                            {
-                              "kind": "literal",
-                              "type": "UInt64",
-                              "value": "20"
-                            }
-                          ]
-                        },
-                        "parenthesized": true
-                      },
-                      "right": {
-                        "kind": "functionCall",
-                        "name": "materialize",
-                        "args": [
-                          {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "30"
-                          }
-                        ]
-                      }
+                        }
+                      ]
                     }
                   ]
                 }
-              ],
-              "source": "[tuple((toNullable(10) * toLowCardinality(20)) < materialize(30))]"
+              ]
             }
-          ]
-        },
-        "alias": "row"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "tupleElement",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "row"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "tupleElement",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "row"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
           }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
+        }
+      ]
     }
   }
 ]

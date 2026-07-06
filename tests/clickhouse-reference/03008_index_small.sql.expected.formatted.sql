@@ -5,11 +5,11 @@ CREATE TABLE test
     a UInt8,
     b UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 1, primary_key_ratio_of_unique_prefix_values_to_skip_suffix_columns = 0.01;
+SETTINGS index_granularity = '1', primary_key_ratio_of_unique_prefix_values_to_skip_suffix_columns = 0.01;
 
-SET optimize_move_to_prewhere = 0;
+SET optimize_move_to_prewhere = '0';
 
 INSERT INTO test SELECT
     number DIV 2,

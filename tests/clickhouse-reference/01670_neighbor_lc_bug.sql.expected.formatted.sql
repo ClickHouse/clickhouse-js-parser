@@ -1,6 +1,6 @@
-SET allow_deprecated_error_prone_window_functions = 1;
+SET allow_deprecated_error_prone_window_functions = '1';
 
-SET output_format_pretty_row_numbers = 0;
+SET output_format_pretty_row_numbers = '0';
 
 SELECT
     neighbor(n, -2) AS int,
@@ -10,7 +10,7 @@ FROM (
         SELECT
             number % 5 AS n,
             toString(n) AS s,
-            CAST(s, 'LowCardinality(String)') AS lcs
+            CAST(s AS LowCardinality(String)) AS lcs
         FROM numbers(10)
     );
 
@@ -22,7 +22,7 @@ CREATE TABLE neighbor_test
     val_string String,
     val_low LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY rowNr
 PARTITION BY tuple();
 
@@ -51,5 +51,5 @@ ORDER BY
     val_low ASC,
     low_m1 ASC,
     low_p1 ASC
-SETTINGS output_format_pretty_color = 1
+SETTINGS output_format_pretty_color = '1'
 FORMAT PrettyCompact;

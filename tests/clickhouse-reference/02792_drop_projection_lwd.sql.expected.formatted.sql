@@ -1,4 +1,4 @@
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 DROP TABLE IF EXISTS t_projections_lwd;
 
@@ -6,10 +6,9 @@ CREATE TABLE t_projections_lwd
 (
     a UInt32,
     b UInt32,
-    PROJECTION p (    SELECT *
-    ORDER BY b ASC)
+    PROJECTION p (SELECT * ORDER BY b)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO t_projections_lwd SELECT

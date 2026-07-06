@@ -8,7 +8,7 @@ CREATE TABLE t_00472
 (
     x UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE VIEW IF NOT EXISTS mv_00472
 AS

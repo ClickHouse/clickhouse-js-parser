@@ -18,7 +18,7 @@ SELECT
     count() AS amount,
     a,
     b,
-    GROUPING(a, b)
+    grouping(a, b)
 FROM test02416
 GROUP BY GROUPING SETS ((a, b), (a), ())
 ORDER BY (amount, a, b) ASC;
@@ -27,9 +27,12 @@ SELECT
     count() AS amount,
     a,
     b,
-    GROUPING(a, b)
+    grouping(a, b)
 FROM test02416
-GROUP BY ROLLUP(a, b)
+GROUP BY
+    a,
+    b
+WITH ROLLUP
 ORDER BY (amount, a, b) ASC;
 
 -- { echoOff }

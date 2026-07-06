@@ -2,6 +2,6 @@ CREATE TABLE tab
 (
     column Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE tab;

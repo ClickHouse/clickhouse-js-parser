@@ -1,251 +1,250 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "repro_hits"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "repro_hits"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "repro_hits"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "date",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "repro_hits"
       },
-      {
-        "kind": "columnDef",
-        "name": "metric",
-        "type": {
-          "name": "Float64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "date"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "date"
-          ]
-        },
-        "alias": "period"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        },
-        "alias": "having_check"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "date"
-              ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "date",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
             }
-          ]
-        },
-        "alias": "period_start"
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "metric",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            }
+          }
+        ]
       },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "addDays",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "date"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "max",
-              "args": [
+              "type": "Identifier",
+              "alias": "period",
+              "name": "date"
+            },
+            {
+              "type": "Literal",
+              "alias": "having_check",
+              "value_type": "UInt64",
+              "value": "1"
+            },
+            {
+              "type": "Function",
+              "alias": "period_start",
+              "name": "min",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "date"
-                  ]
+                  "type": "Identifier",
+                  "name": "date"
                 }
               ]
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          ]
-        },
-        "alias": "period_end"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "dateDiff",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "second"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "period_start"
+              "type": "Function",
+              "alias": "period_end",
+              "name": "addDays",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "max",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "date"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
               ]
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "period_end"
+              "type": "Function",
+              "alias": "total_duration",
+              "name": "dateDiff",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "second"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "period_start"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "period_end"
+                }
               ]
-            }
-          ]
-        },
-        "alias": "total_duration"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
-                "metric"
+              "type": "Function",
+              "alias": "metric_",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "metric"
+                }
               ]
             }
-          ]
-        },
-        "alias": "metric_"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "repro_hits"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "period"
-          ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "repro_hits"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "period"
+            }
+          ],
+          "having": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "having_check"
+              },
+              {
+                "type": "Literal",
+                "value_type": "Int64",
+                "value": "-1"
+              }
+            ]
+          }
         }
       ]
-    },
-    "having": {
-      "kind": "binaryExpr",
-      "op": "!=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "having_check"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "Int64",
-        "value": "-1"
-      }
-    },
-    "leadingComments": [
-      "-- From https://github.com/ClickHouse/ClickHouse/issues/12513#issue-657202535"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "min",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+              "type": "Function",
+              "alias": "min_number",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "number"
+                }
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "having": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "min_number"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "alias": "min_number"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "having": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "1"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "min_number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   }
 ]

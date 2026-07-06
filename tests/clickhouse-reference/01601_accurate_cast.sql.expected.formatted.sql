@@ -70,7 +70,7 @@ SELECT accurateCast('12', 'FixedString(2)');
 
 SELECT accurateCast(-1, 'DateTime'); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT accurateCast(0xFFFFFFFF + 1, 'DateTime'); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT accurateCast(4294967295 + 1, 'DateTime'); -- { serverError CANNOT_CONVERT_TYPE }
 
 SELECT accurateCast('1xxx', 'DateTime'); -- { serverError CANNOT_PARSE_DATETIME }
 
@@ -80,7 +80,7 @@ SELECT toString(accurateCast(19, 'DateTime'), 'UTC');
 
 SELECT accurateCast(-1, 'Date'); -- { serverError CANNOT_CONVERT_TYPE }
 
-SELECT accurateCast(0xFFFFFFFF + 1, 'Date'); -- { serverError CANNOT_CONVERT_TYPE }
+SELECT accurateCast(4294967295 + 1, 'Date'); -- { serverError CANNOT_CONVERT_TYPE }
 
 SELECT accurateCast('1xxx', 'Date'); -- { serverError CANNOT_PARSE_DATE }
 

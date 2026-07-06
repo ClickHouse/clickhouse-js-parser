@@ -77,18 +77,18 @@ CREATE DICTIONARY db_01268.dict1
 PRIMARY KEY key_column
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_for_dict1' PASSWORD '' DB 'database_for_dict_01268'))
 LAYOUT(DIRECT())
-SETTINGS(max_result_bytes = 1);
+SETTINGS(max_result_bytes = '1');
 
 CREATE DICTIONARY db_01268.dict2
 (
     region_id UInt64 DEFAULT 0,
-    parent_region UInt64 DEFAULT 0,
+    parent_region UInt64 DEFAULT 0 HIERARCHICAL,
     region_name String DEFAULT ''
 )
 PRIMARY KEY region_id
 SOURCE(clickhouse(HOST 'localhost' PORT tcpPort() USER 'default' TABLE 'table_for_dict2' PASSWORD '' DB 'database_for_dict_01268'))
 LAYOUT(DIRECT())
-SETTINGS(dictionary_use_async_executor = 1, max_threads = 8);
+SETTINGS(dictionary_use_async_executor = '1', max_threads = '8');
 
 CREATE DICTIONARY db_01268.dict3
 (

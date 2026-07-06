@@ -6,21 +6,21 @@ CREATE TABLE t
 (
     x String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE nt
 (
     x Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t (x);
 
 INSERT INTO nt (x);
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     'n rj n',

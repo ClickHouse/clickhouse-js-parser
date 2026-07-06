@@ -2,8 +2,8 @@
 CREATE TABLE t0
 (
     c0 Int,
-    INDEX i0 tuple(c0, c0) TYPE hypothesis
+    INDEX i0 (c0, c0) TYPE hypothesis() GRANULARITY 1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS allow_suspicious_indices = 1; -- { serverError INCORRECT_QUERY }
+SETTINGS allow_suspicious_indices = '1'; -- { serverError INCORRECT_QUERY }

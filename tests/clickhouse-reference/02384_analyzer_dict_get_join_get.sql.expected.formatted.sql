@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -7,7 +7,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -20,7 +20,7 @@ CREATE DICTIONARY test_dictionary
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SELECT *

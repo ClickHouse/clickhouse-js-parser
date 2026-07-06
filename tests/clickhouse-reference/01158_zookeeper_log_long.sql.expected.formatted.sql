@@ -2,9 +2,9 @@
 -- Tag no-replicated-database: Fails due to additional replicas or shards
 -- no-shared-merge-tree: depends on structure in zookeeper of replicated merge tree
 -- no-async-insert: Test expects new part for each insert
-SET insert_keeper_fault_injection_probability = 0; -- disable fault injection; part ids are non-deterministic in case of insert retries
+SET insert_keeper_fault_injection_probability = '0'; -- disable fault injection; part ids are non-deterministic in case of insert retries
 
-DROP TABLE IF EXISTS rmt;
+DROP TABLE IF EXISTS rmt SYNC;
 
 -- cleanup code will perform extra Exists
 -- (so the .reference will not match)
@@ -14,13 +14,13 @@ CREATE TABLE rmt
 )
 ENGINE = ReplicatedMergeTree('/test/01158/{database}/rmt', '1')
 ORDER BY n
-SETTINGS cleanup_delay_period = 86400, max_cleanup_delay_period = 86400, replicated_can_become_leader = 0;
+SETTINGS cleanup_delay_period = '86400', max_cleanup_delay_period = '86400', replicated_can_become_leader = '0';
 
-SYSTEM sync replica rmt;
+SYSTEM SYNC REPLICA rmt;
 
 INSERT INTO rmt;
 
-SYSTEM flush logs zookeeper_log, query_log;
+SYSTEM FLUSH LOGS zookeeper_log, query_log;
 
 SELECT
     address,
@@ -42,7 +42,7 @@ SELECT
     stat_dataLength,
     stat_numChildren
 FROM `system`.zookeeper_log
-WHERE like(path, concat('/test/01158/', currentDatabase(), '/rmt/log%'))
+WHERE path LIKE '/test/01158/' || currentDatabase() || '/rmt/log%'
     AND op_num NOT IN (3, 4, 12, 500)
 ORDER BY
     xid ASC,
@@ -84,9 +84,9 @@ WHERE event_time >= cutoff_time
             xid
         FROM `system`.zookeeper_log
         WHERE event_time >= cutoff_time
-            AND path = concat('/test/01158/', currentDatabase(), '/rmt/replicas/1/parts/all_0_0_0')
-            AND ((query_id = ''
-            OR query_id IN (query_ids)))
+            AND path = '/test/01158/' || currentDatabase() || '/rmt/replicas/1/parts/all_0_0_0'
+            AND (query_id = ''
+            OR query_id IN (query_ids))
     )
 ORDER BY
     xid ASC,
@@ -128,30 +128,30 @@ WHERE event_time >= cutoff_time
             xid
         FROM `system`.zookeeper_log
         WHERE event_time >= cutoff_time
-            AND like(path, concat('/test/01158/', currentDatabase(), '/rmt/blocks/%'))
+            AND path LIKE '/test/01158/' || currentDatabase() || '/rmt/blocks/%'
             AND op_num NOT IN (1, 12, 500)
-            AND ((query_id = ''
-            OR query_id IN (query_ids)))
+            AND (query_id = ''
+            OR query_id IN (query_ids))
     )
 ORDER BY
     xid ASC,
     type ASC,
     request_idx ASC;
 
-DROP TABLE rmt;
+DROP TABLE rmt SYNC;
 
-SYSTEM flush logs zookeeper_log;
+SYSTEM FLUSH LOGS zookeeper_log;
 
 SELECT count() > 0
 FROM `system`.zookeeper_log
-WHERE like(path, concat('/test/01158/', currentDatabase(), '/rmt%'))
+WHERE path LIKE '/test/01158/' || currentDatabase() || '/rmt%'
     AND duration_microseconds > 0;
 
-SYSTEM flush logs aggregated_zookeeper_log;
+SYSTEM FLUSH LOGS aggregated_zookeeper_log;
 
 SELECT
     sum(errors[0]) > 0,
     sum(average_latency) > 0
 FROM `system`.aggregated_zookeeper_log
-WHERE parent_path = concat('/test/01158/', currentDatabase(), '/rmt')
+WHERE parent_path = '/test/01158/' || currentDatabase() || '/rmt'
     AND operation = 'Create';

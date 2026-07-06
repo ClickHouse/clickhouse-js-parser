@@ -5,7 +5,7 @@ CREATE TABLE welch_ttest
     `left` Float64,
     `right` UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO welch_ttest;
 
@@ -17,7 +17,7 @@ CREATE TABLE welch_ttest
     `left` Float64,
     `right` Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO welch_ttest;
 
@@ -55,7 +55,7 @@ CREATE TABLE student_ttest
     `left` Float64,
     `right` Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO student_ttest;
 
@@ -86,7 +86,7 @@ CREATE TABLE onesample_ttest
 (
     value Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO onesample_ttest;
 

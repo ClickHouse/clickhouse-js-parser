@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS github_events;
 
@@ -59,7 +59,7 @@ CREATE TABLE github_events
     release_name String,
     review_state Enum8('none' = 0, 'approved' = 1, 'changes_requested' = 2, 'commented' = 3, 'dismissed' = 4, 'pending' = 5)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (event_type, repo_name, created_at);
 
 WITH top_repos AS (
@@ -143,7 +143,7 @@ last_month AS (
 
 SELECT
     d.repo_name,
-    columns('count')
+    COLUMNS('count')
 FROM
     last_day AS d
 INNER JOIN last_week AS w
@@ -151,7 +151,7 @@ INNER JOIN last_week AS w
 INNER JOIN last_month AS m
     ON d.repo_name = m.repo_name;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE github_events__fuzz_0
 (
@@ -210,40 +210,40 @@ CREATE TABLE github_events__fuzz_0
     release_name String,
     review_state Int16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (event_type, repo_name, created_at)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 EXPLAIN PIPELINE header = true, compact = true
 WITH top_repos AS (
     SELECT repo_name
     FROM github_events__fuzz_0
-    WHERE (event_type = 'WatchEvent')
-        AND (toDate(created_at) = (today() - 1))
+    WHERE event_type = 'WatchEvent'
+        AND toDate(created_at) = today() - 1
     GROUP BY repo_name
     ORDER BY count() DESC
     LIMIT 100
     UNION DISTINCT
     SELECT repo_name
     FROM github_events__fuzz_0
-    WHERE (event_type = 'WatchEvent')
-        AND (toMonday(created_at) = toMonday(today() - toIntervalWeek(1)))
+    WHERE event_type = 'WatchEvent'
+        AND toMonday(created_at) = toMonday(today() - toIntervalWeek(1))
     GROUP BY repo_name
     ORDER BY count() DESC
     LIMIT 100
     UNION DISTINCT
     SELECT repo_name
     FROM github_events__fuzz_0
-    PREWHERE (event_type = 'WatchEvent')
-        AND (toStartOfMonth(created_at) = (toStartOfMonth(today()) - toIntervalMonth(1)))
+    PREWHERE event_type = 'WatchEvent'
+        AND toStartOfMonth(created_at) = toStartOfMonth(today()) - toIntervalMonth(1)
     GROUP BY repo_name
     ORDER BY count() DESC
     LIMIT 100
     UNION DISTINCT
     SELECT repo_name
     FROM github_events
-    WHERE (event_type = 'WatchEvent')
-        AND (toYear(created_at) = (toYear(today()) - 1))
+    WHERE event_type = 'WatchEvent'
+        AND toYear(created_at) = toYear(today()) - 1
     GROUP BY repo_name
     ORDER BY count() DESC
     LIMIT 100
@@ -255,11 +255,11 @@ last_day AS (
         count() AS count_last_day,
         rowNumberInAllBlocks() + 1 AS position_last_day
     FROM github_events
-    WHERE (repo_name IN (
+    WHERE repo_name IN (
             SELECT repo_name
             FROM top_repos
-        ))
-        AND (toDate(created_at) = (today() - 1))
+        )
+        AND toDate(created_at) = today() - 1
     GROUP BY repo_name
     ORDER BY count_last_day DESC
 ),
@@ -270,11 +270,11 @@ last_week AS (
         count() AS count_last_week,
         rowNumberInAllBlocks() + 1 AS position_last_week
     FROM github_events
-    WHERE (repo_name IN (
+    WHERE repo_name IN (
             SELECT repo_name
             FROM top_repos
-        ))
-        AND (toMonday(created_at) = (toMonday(today()) - toIntervalWeek(2)))
+        )
+        AND toMonday(created_at) = toMonday(today()) - toIntervalWeek(2)
     GROUP BY repo_name
     ORDER BY count_last_week DESC
 ),
@@ -285,9 +285,9 @@ last_month AS (
         count() AS count_last_month,
         rowNumberInAllBlocks() + 1 AS position_last_month
     FROM github_events__fuzz_0
-    WHERE ('deleted' = 4)
+    WHERE 'deleted' = 4
         AND in(repo_name)
-        AND (toStartOfMonth(created_at) = (toStartOfMonth(today()) - toIntervalMonth(1)))
+        AND toStartOfMonth(created_at) = toStartOfMonth(today()) - toIntervalMonth(1)
     GROUP BY repo_name
     ORDER BY count_last_month DESC
 )

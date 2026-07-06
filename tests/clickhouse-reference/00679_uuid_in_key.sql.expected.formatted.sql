@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS uuid
     created_at DateTime,
     id UUID
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (created_at, id)
 PARTITION BY toDate(created_at);
 

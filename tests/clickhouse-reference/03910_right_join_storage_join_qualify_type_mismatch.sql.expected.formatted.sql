@@ -10,9 +10,9 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/96101
 -- https://github.com/ClickHouse/ClickHouse/issues/95678
 -- https://github.com/ClickHouse/ClickHouse/issues/89802
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_use_new_logical_join_step = 0;
+SET query_plan_use_new_logical_join_step = '0';
 
 DROP TABLE IF EXISTS t1;
 
@@ -23,7 +23,7 @@ CREATE TABLE t1
     x Nullable(UInt32),
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE right_join
 (

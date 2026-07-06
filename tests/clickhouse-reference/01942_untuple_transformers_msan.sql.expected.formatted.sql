@@ -1,7 +1,7 @@
 SELECT
     untuple(tuple(100.0000991821289)),
     NULL,
-    untuple((toDateTime(9223372036854775806, -1, NULL, NULL, toDateTime(NULL, NULL)), * EXCEPT b)),
+    untuple((toDateTime(9223372036854775806, -1, NULL, NULL, toDateTime(NULL, NULL)), * EXCEPT (b))),
     NULL
 FROM (
         SELECT

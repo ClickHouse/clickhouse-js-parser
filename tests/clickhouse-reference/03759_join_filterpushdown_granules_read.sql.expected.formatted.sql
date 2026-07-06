@@ -7,16 +7,16 @@ CREATE TABLE t_mem
     a Int32,
     b Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_mt
 (
     a Int32,
     b Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 1024, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '1024', index_granularity_bytes = '10Mi';
 
 INSERT INTO t_mem SELECT
     number,
@@ -35,21 +35,21 @@ AS
 SELECT
     a,
     b,
-    concat('aaa_', toString(a))
+    'aaa_' || toString(a)
 FROM t_mt;
 
 CREATE TEMPORARY TABLE start_ts AS
-(SELECT now() AS ts);
+SELECT now() AS ts;
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET query_plan_join_swap_table = false;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_filter_push_down = 1;
+SET query_plan_filter_push_down = '1';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT *
 FROM
@@ -105,14 +105,14 @@ WHERE t2_a < 2000
 SETTINGS log_comment = 'right_join_view'
 FORMAT Null;
 
-SYSTEM FLUSH LOGS system.query_log;
+SYSTEM FLUSH LOGS `system`.query_log;
 
 SELECT
-    if(ProfileEvents['SelectedMarks'] == 2, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarks'], query_id)),
-    if(ProfileEvents['SelectedMarksTotal'] == 5, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarksTotal'], query_id)),
-    if(ProfileEvents['JoinProbeTableRowCount'] == 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinProbeTableRowCount'], query_id)),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 5000, 'ok', format('error: {} @ {}', ProfileEvents['JoinBuildTableRowCount'], query_id)),
-    if(ProfileEvents['JoinResultRowCount'] == 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinResultRowCount'], query_id))
+    if(ProfileEvents['SelectedMarks'] = 2, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarks'], query_id)),
+    if(ProfileEvents['SelectedMarksTotal'] = 5, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarksTotal'], query_id)),
+    if(ProfileEvents['JoinProbeTableRowCount'] = 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinProbeTableRowCount'], query_id)),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 5000, 'ok', format('error: {} @ {}', ProfileEvents['JoinBuildTableRowCount'], query_id)),
+    if(ProfileEvents['JoinResultRowCount'] = 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinResultRowCount'], query_id))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()
@@ -125,11 +125,11 @@ WHERE type = 'QueryFinish'
     AND log_comment IN ('left_join', 'left_join_view');
 
 SELECT
-    if(ProfileEvents['SelectedMarks'] == 2, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarks'], query_id)),
-    if(ProfileEvents['SelectedMarksTotal'] == 5, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarksTotal'], query_id)),
-    if(ProfileEvents['JoinProbeTableRowCount'] == 5000, 'ok', format('error: {} @ {}', ProfileEvents['JoinProbeTableRowCount'], query_id)),
-    if(ProfileEvents['JoinBuildTableRowCount'] == 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinBuildTableRowCount'], query_id)),
-    if(ProfileEvents['JoinResultRowCount'] == 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinResultRowCount'], query_id))
+    if(ProfileEvents['SelectedMarks'] = 2, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarks'], query_id)),
+    if(ProfileEvents['SelectedMarksTotal'] = 5, 'ok', format('error: {} @ {}', ProfileEvents['SelectedMarksTotal'], query_id)),
+    if(ProfileEvents['JoinProbeTableRowCount'] = 5000, 'ok', format('error: {} @ {}', ProfileEvents['JoinProbeTableRowCount'], query_id)),
+    if(ProfileEvents['JoinBuildTableRowCount'] = 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinBuildTableRowCount'], query_id)),
+    if(ProfileEvents['JoinResultRowCount'] = 2000, 'ok', format('error: {} @ {}', ProfileEvents['JoinResultRowCount'], query_id))
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND current_database = currentDatabase()

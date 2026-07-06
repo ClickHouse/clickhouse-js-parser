@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS row_limits_test;
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
-SET max_rows_to_read = 20;
+SET max_rows_to_read = '20';
 
 SET read_overflow_mode = 'throw';
 
@@ -31,9 +31,9 @@ SELECT count()
 FROM numbers(31);
 
 -- the same for uneven block sizes
-SET max_block_size = 11;
+SET max_block_size = '11';
 
-SET max_block_size = 9;
+SET max_block_size = '9';
 
 -- When reaching row limits, make sure we don't do a large amount of range scans and continue
 -- processing all parts when we don't need to. For instance, we create 3 parts below with 10,000 rows in each
@@ -49,9 +49,9 @@ CREATE TABLE row_limits_fail_fast
 )
 ENGINE = MergeTree()
 ORDER BY key
-SETTINGS index_granularity = 100;
+SETTINGS index_granularity = '100';
 
-SET max_rows_to_read = 0; -- so we don't hit row limits when populating data
+SET max_rows_to_read = '0'; -- so we don't hit row limits when populating data
 
 -- Insert multiple parts with significant data. Multiple parts is important because row limit checks
 -- are checked per part when determining what ranges need to be read for the query.
@@ -73,7 +73,7 @@ FROM numbers(10000);
 -- to keep the number of parts predictable
 SYSTEM STOP MERGES row_limits_fail_fast;
 
-SET max_rows_to_read = 1000;
+SET max_rows_to_read = '1000';
 
 -- Should fail fast during PK filtering - query selects more rows than limit
 SELECT count()
@@ -87,10 +87,11 @@ WHERE key < 500;
 -- Test with specific key ranges
 SELECT count()
 FROM row_limits_fail_fast
-WHERE and(greaterOrEquals(key, 1000), lessOrEquals(key, 1500));
+WHERE key >= 1000
+    AND key <= 1500;
 
 -- Test explicit scan to verify fail-fast during data reading
-SET max_rows_to_read = 100;
+SET max_rows_to_read = '100';
 
 SELECT *
 FROM row_limits_fail_fast
@@ -98,25 +99,25 @@ WHERE key < 200
 FORMAT Null; -- { serverError TOO_MANY_ROWS }
 
 -- Test with selective filter - needs at least 1 granule
-SET max_rows_to_read = 150;
+SET max_rows_to_read = '150';
 
 SELECT count()
 FROM row_limits_fail_fast
 WHERE key IN (1, 2, 3, 4, 5);
 
-SET max_rows_to_read_leaf = 1000;
+SET max_rows_to_read_leaf = '1000';
 
 SET read_overflow_mode_leaf = 'throw';
 
 -- Reset and test break mode still works and we fail fast
-SET max_rows_to_read = 600;
+SET max_rows_to_read = '600';
 
-SET max_rows_to_read_leaf = 0;
+SET max_rows_to_read_leaf = '0';
 
 -- Test fail-fast with multiple threads
-SET max_threads = 4;
+SET max_threads = '4';
 
-SET max_rows_to_read = 500;
+SET max_rows_to_read = '500';
 
 SELECT count()
 FROM row_limits_fail_fast

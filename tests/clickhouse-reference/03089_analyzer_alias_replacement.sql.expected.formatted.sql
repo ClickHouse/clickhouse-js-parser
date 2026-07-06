@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/61950
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH dummy + 1 AS dummy
 
@@ -10,4 +10,4 @@ WITH dummy + 3 AS dummy
 
 SELECT dummy + 1 AS y
 FROM `system`.one
-SETTINGS enable_global_with_statement = 1;
+SETTINGS enable_global_with_statement = '1';

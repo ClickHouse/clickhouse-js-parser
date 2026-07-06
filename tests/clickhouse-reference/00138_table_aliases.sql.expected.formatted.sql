@@ -9,7 +9,7 @@ FROM
         SELECT 1 AS k
         FROM `system`.one
     ) AS xxx
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             1 AS k,
             'Hello' AS s

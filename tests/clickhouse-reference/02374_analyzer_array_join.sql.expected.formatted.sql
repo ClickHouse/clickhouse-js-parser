@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_table
     value_array Array(UInt64),
     value_array_array Array(Array(UInt64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_table;
@@ -63,7 +63,7 @@ ARRAY JOIN value_1 AS value_2;
 SELECT 1 AS value
 FROM
     test_table
-ARRAY JOIN [1,2,3] AS value;
+ARRAY JOIN [1, 2, 3] AS value;
 
 SELECT
     id,
@@ -127,15 +127,15 @@ ARRAY JOIN value_array_array_inner_element AS value_array_array_inner_inner_elem
 SELECT 1
 FROM
     `system`.one
-ARRAY JOIN arrayMap(x -> ignore(*), []);
+ARRAY JOIN arrayMap((x -> ignore(*)), []);
 
-SELECT arrayFilter(x -> notEmpty(concat(x, 'hello')), [''])
+SELECT arrayFilter((x -> notEmpty(concat(x, 'hello'))), [''])
 FROM
     `system`.one
-ARRAY JOIN [0] AS elem, arrayMap(x -> concat(x, ignore(ignore(toLowCardinality('03147_parquet_memory_tracking.parquet'), 37, 37, toUInt128(37), 37, 37, toLowCardinality(37), 37), 8, ignore(ignore(1., 36, 8, 8)), *), 'hello'), ['']) AS unused
+ARRAY JOIN [0] AS elem, arrayMap((x -> concat(x, ignore(ignore(toLowCardinality('03147_parquet_memory_tracking.parquet'), 37, 37, toUInt128(37), 37, 37, toLowCardinality(37), 37), 8, ignore(ignore(1., 36, 8, 8)), *), 'hello')), ['']) AS unused
 WHERE NOT ignore(elem)
 GROUP BY
-    sum(ignore(ignore(ignore(1., 1, 36, 8, 8), ignore(52, 37, 37, '03147_parquet_memory_tracking.parquet', 37, 37, toUInt256(37), 37, 37, toNullable(37), 37, 37), 1., 1, 36, 8, 8), emptyArrayToSingle(arrayMap(x -> toString(x), arrayMap(x -> nullIf(x, 2), arrayJoin([[1]])))))),
+    sum(ignore(ignore(ignore(1., 1, 36, 8, 8), ignore(52, 37, 37, '03147_parquet_memory_tracking.parquet', 37, 37, toUInt256(37), 37, 37, toNullable(37), 37, 37), 1., 1, 36, 8, 8), emptyArrayToSingle(arrayMap((x -> toString(x)), arrayMap((x -> nullIf(x, 2)), arrayJoin([[1]])))))) IGNORE NULLS,
     modulo(toLowCardinality('03147_parquet_memory_tracking.parquet'), number, toLowCardinality(3)); -- { serverError UNKNOWN_IDENTIFIER }
 
 -- { echoOff }

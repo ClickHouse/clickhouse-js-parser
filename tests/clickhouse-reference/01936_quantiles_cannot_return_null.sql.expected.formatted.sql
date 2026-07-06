@@ -1,4 +1,4 @@
-SET aggregate_functions_null_for_empty = 0;
+SET aggregate_functions_null_for_empty = '0';
 
 SELECT quantiles(0.95)(x)
 FROM (
@@ -13,4 +13,4 @@ FROM (
         WHERE number > 10
     );
 
-SET aggregate_functions_null_for_empty = 1;
+SET aggregate_functions_null_for_empty = '1';

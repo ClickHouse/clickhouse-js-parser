@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE mister_table
 (
@@ -18,7 +18,7 @@ CREATE MATERIALIZED VIEW mister_view
 ENGINE = MergeTree()
 ORDER BY tuple()
 AS
-(SELECT mister_table_2.c0.`null` AS c0
-FROM mister_table_2);
+SELECT mister_table_2.c0.`null` AS c0
+FROM mister_table_2;
 
 INSERT INTO mister_table_2;

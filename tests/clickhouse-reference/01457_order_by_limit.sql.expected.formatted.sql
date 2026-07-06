@@ -5,7 +5,7 @@ CREATE TABLE order_by_another
     a Nullable(UInt64),
     b UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO order_by_another;
@@ -15,7 +15,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a ASC,
+    a ASC NULLS LAST,
     b ASC
 LIMIT 4;
 
@@ -24,7 +24,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a ASC,
+    a ASC NULLS FIRST,
     b ASC
 LIMIT 4;
 
@@ -33,7 +33,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a DESC,
+    a DESC NULLS LAST,
     b ASC
 LIMIT 4;
 
@@ -42,7 +42,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a DESC,
+    a DESC NULLS FIRST,
     b ASC
 LIMIT 4;
 
@@ -51,7 +51,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a ASC,
+    a ASC NULLS LAST,
     b DESC
 LIMIT 4;
 
@@ -60,7 +60,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a ASC,
+    a ASC NULLS FIRST,
     b DESC
 LIMIT 4;
 
@@ -69,7 +69,7 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a DESC,
+    a DESC NULLS LAST,
     b DESC
 LIMIT 4;
 
@@ -78,6 +78,6 @@ SELECT
     b
 FROM order_by_another
 ORDER BY
-    a DESC,
+    a DESC NULLS FIRST,
     b DESC
 LIMIT 4;

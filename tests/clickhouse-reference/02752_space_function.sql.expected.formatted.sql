@@ -1,58 +1,58 @@
 SELECT
-    space(3::UInt8),
-    length(space(3::UInt8));
+    space(CAST('3' AS UInt8)),
+    length(space(CAST('3' AS UInt8)));
 
 SELECT
-    space(3::UInt16),
-    length(space(3::UInt16));
+    space(CAST('3' AS UInt16)),
+    length(space(CAST('3' AS UInt16)));
 
 SELECT
-    space(3::UInt32),
-    length(space(3::UInt32));
+    space(CAST('3' AS UInt32)),
+    length(space(CAST('3' AS UInt32)));
 
 SELECT
-    space(3::UInt64),
-    length(space(3::UInt64));
+    space(CAST('3' AS UInt64)),
+    length(space(CAST('3' AS UInt64)));
 
 SELECT
-    space(3::Int8),
-    length(space(3::Int8));
+    space(CAST('3' AS Int8)),
+    length(space(CAST('3' AS Int8)));
 
 SELECT
-    space(3::Int16),
-    length(space(3::Int16));
+    space(CAST('3' AS Int16)),
+    length(space(CAST('3' AS Int16)));
 
 SELECT
-    space(3::Int32),
-    length(space(3::Int32));
+    space(CAST('3' AS Int32)),
+    length(space(CAST('3' AS Int32)));
 
 SELECT
-    space(3::Int64),
-    length(space(3::Int64));
+    space(CAST('3' AS Int64)),
+    length(space(CAST('3' AS Int64)));
 
 SELECT
-    space(-3::Int8),
-    length(space(-3::Int8));
+    space(CAST('-3' AS Int8)),
+    length(space(CAST('-3' AS Int8)));
 
 SELECT
-    space(-3::Int16),
-    length(space(-3::Int16));
+    space(CAST('-3' AS Int16)),
+    length(space(CAST('-3' AS Int16)));
 
 SELECT
-    space(-3::Int32),
-    length(space(-3::Int32));
+    space(CAST('-3' AS Int32)),
+    length(space(CAST('-3' AS Int32)));
 
 SELECT
-    space(-3::Int64),
-    length(space(-3::Int64));
+    space(CAST('-3' AS Int64)),
+    length(space(CAST('-3' AS Int64)));
 
 SELECT space('abc'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT space(['abc']); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT space(('abc')); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT space('abc'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT space(30303030303030303030303030303030::UInt64); -- { serverError TOO_LARGE_STRING_SIZE }
+SELECT space(CAST('30303030303030303030303030303030' AS UInt64)); -- { serverError TOO_LARGE_STRING_SIZE }
 
 SELECT space(NULL);
 
@@ -73,28 +73,28 @@ ENGINE = Memory();
 
 INSERT INTO defaults;
 
-SELECT space(30::UInt8)
+SELECT space(CAST('30' AS UInt8))
 FROM defaults;
 
-SELECT space(30::UInt16)
+SELECT space(CAST('30' AS UInt16))
 FROM defaults;
 
-SELECT space(30::UInt32)
+SELECT space(CAST('30' AS UInt32))
 FROM defaults;
 
-SELECT space(30::UInt64)
+SELECT space(CAST('30' AS UInt64))
 FROM defaults;
 
-SELECT space(30::Int8)
+SELECT space(CAST('30' AS Int8))
 FROM defaults;
 
-SELECT space(30::Int16)
+SELECT space(CAST('30' AS Int16))
 FROM defaults;
 
-SELECT space(30::Int32)
+SELECT space(CAST('30' AS Int32))
 FROM defaults;
 
-SELECT space(30::Int64)
+SELECT space(CAST('30' AS Int64))
 FROM defaults;
 
 SELECT

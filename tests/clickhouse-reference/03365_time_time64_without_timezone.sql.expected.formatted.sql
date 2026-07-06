@@ -1,4 +1,4 @@
-SET use_legacy_to_time = 0;
+SET use_legacy_to_time = '0';
 
 -- 1. Test toTime with various types of inputs and timezone parameter
 SELECT toTime('12:34:56', 'UTC'); -- { serverError NUMBER_OF_ARGUMENTS_DOESNT_MATCH }
@@ -55,10 +55,10 @@ CREATE TABLE test_time
 (
     t Time('UTC')
 )
-ENGINE = MergeTree; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+ENGINE = MergeTree(); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 CREATE TABLE test_time64
 (
     t Time64(3, 'UTC')
 )
-ENGINE = MergeTree; -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+ENGINE = MergeTree(); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }

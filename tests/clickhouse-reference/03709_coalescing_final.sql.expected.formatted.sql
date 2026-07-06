@@ -10,7 +10,7 @@ CREATE TABLE test_table
 ENGINE = CoalescingMergeTree()
 ORDER BY key;
 
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 INSERT INTO test_table SELECT
     1,

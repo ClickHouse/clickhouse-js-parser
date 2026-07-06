@@ -11,7 +11,7 @@ CREATE TABLE test_fetch
     a Int32,
     b Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_fetch;
 

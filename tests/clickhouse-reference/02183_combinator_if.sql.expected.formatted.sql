@@ -12,7 +12,7 @@ SELECT anyIf('Hello', arrayJoin([1, NULL]) = 0);
 
 SELECT anyIf('Hello', arrayJoin([1, NULL]) = 1);
 
-SELECT anyIf('Hello', isNull(arrayJoin([1, NULL])));
+SELECT anyIf('Hello', arrayJoin([1, NULL]) IS NULL);
 
 SELECT
     number,
@@ -77,7 +77,7 @@ FROM remote('127.0.0.{1,2}', `system`.one);
 SELECT anyIf('Hello', arrayJoin([1, NULL]) = 1)
 FROM remote('127.0.0.{1,2}', `system`.one);
 
-SELECT anyIf('Hello', isNull(arrayJoin([1, NULL])))
+SELECT anyIf('Hello', arrayJoin([1, NULL]) IS NULL)
 FROM remote('127.0.0.{1,2}', `system`.one);
 
 SELECT

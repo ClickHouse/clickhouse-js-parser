@@ -1,26 +1,26 @@
 -- { echoOn }
 SELECT
-    ltrim('   leading   '),
+    trimLeft('   leading   '),
     trimLeft('   leading   ');
 
 SELECT
-    ltrim('xxleadingxx', 'x'),
+    trimLeft('xxleadingxx', 'x'),
     trimLeft('xxleadingxx', 'x');
 
 SELECT
-    rtrim('   trailing   '),
+    trimRight('   trailing   '),
     trimRight('   trailing   ');
 
 SELECT
-    rtrim('xxtrailingxx', 'x'),
+    trimRight('xxtrailingxx', 'x'),
     trimRight('xxtrailingxx', 'x');
 
 SELECT
-    trim('   both   '),
+    trimBoth('   both   '),
     trimBoth('   both   ');
 
 SELECT
-    trim('$$both$$', '$'),
+    trimBoth('$$both$$', '$'),
     trimBoth('$$both$$', '$');
 
 SELECT
@@ -52,21 +52,21 @@ SELECT
     trimBoth('$$both$$', '$$');
 
 SELECT
-    ltrim('\t  abc', '\t '),
+    trimLeft('\t  abc', '\t '),
     trimLeft('\t  abc', '\t ');
 
 SELECT
-    rtrim('abc\t  ', '\t '),
+    trimRight('abc\t  ', '\t '),
     trimRight('abc\t  ', '\t ');
 
 SELECT
-    TrIm('  x  '),
+    trimBoth('  x  '),
     trimBoth('  x  ');
 
 SELECT
-    LTRIM('  x  '),
+    trimLeft('  x  '),
     trimLeft('  x  ');
 
 SELECT
-    RTRIM('  x  '),
+    trimRight('  x  '),
     trimRight('  x  ');

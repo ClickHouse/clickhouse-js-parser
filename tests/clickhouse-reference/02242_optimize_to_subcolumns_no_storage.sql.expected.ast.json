@@ -1,115 +1,151 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "optimize_functions_to_subcolumns",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "optimize_functions_to_subcolumns": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "left": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
             }
           ],
-          "alias": "n1"
-        },
-        "kind": "joinExpr",
-        "joinType": "CROSS",
-        "right": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ],
-          "alias": "n2"
-        }
-      },
-      "kind": "joinExpr",
-      "joinType": "CROSS",
-      "right": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "4"
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "n1",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "2"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "n2",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "3"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "alias": "n3",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "4"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "n1.number",
+                    "name_parts": [
+                      "n1",
+                      "number"
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "n2.number",
+                    "name_parts": [
+                      "n2",
+                      "number"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "n2.number",
+                    "name_parts": [
+                      "n2",
+                      "number"
+                    ]
+                  },
+                  {
+                    "type": "Identifier",
+                    "name": "n3.number",
+                    "name_parts": [
+                      "n3",
+                      "number"
+                    ]
+                  }
+                ]
+              }
+            ]
           }
-        ],
-        "alias": "n3"
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "n1",
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "n2",
-              "number"
-            ]
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "n2",
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "n3",
-              "number"
-            ]
-          },
-          "parenthesized": true
         }
       ]
     }

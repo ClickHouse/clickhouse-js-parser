@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_table
     c1 String,
     c2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c1;
 
 INSERT INTO test_table;

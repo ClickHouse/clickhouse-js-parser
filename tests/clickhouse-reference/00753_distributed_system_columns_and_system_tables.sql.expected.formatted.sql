@@ -18,7 +18,7 @@ WHERE database = currentDatabase()
 
 INSERT INTO check_system_tables SELECT *
 FROM numbers(1)
-SETTINGS prefer_localhost_replica = 0;
+SETTINGS prefer_localhost_replica = '0';
 
 SELECT
     total_bytes > 0,

@@ -4,7 +4,7 @@ CREATE TABLE `array`
 (
     arr Array(Nullable(Float64))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `array` (arr);
 
@@ -14,10 +14,10 @@ WHERE arr > [12.2];
 
 SELECT *
 FROM `array`
-WHERE arr > [null, 12.2];
+WHERE arr > [NULL, 12.2];
 
 SELECT *
 FROM `array`
-WHERE arr > [null, 12];
+WHERE arr > [NULL, 12];
 
 DROP TABLE `array`;

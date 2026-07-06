@@ -8,13 +8,13 @@ CREATE TABLE src
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dst
 (
     x UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW mv
 TO dst
@@ -22,7 +22,7 @@ AS
 SELECT x
 FROM src;
 
-SET check_referential_table_dependencies = 1;
+SET check_referential_table_dependencies = '1';
 
 -- Can't drop because of referential dependencies
 DROP TABLE src; -- { serverError HAVE_DEPENDENT_OBJECTS }
@@ -32,4 +32,4 @@ DROP TABLE dst; -- { serverError HAVE_DEPENDENT_OBJECTS }
 -- Ok to drop in the correct order
 DROP TABLE mv;
 
-SET check_referential_table_dependencies = 0;
+SET check_referential_table_dependencies = '0';

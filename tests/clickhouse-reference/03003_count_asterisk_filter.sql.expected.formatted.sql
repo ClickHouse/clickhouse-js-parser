@@ -4,7 +4,7 @@ CREATE TABLE users
     name Nullable(String),
     age Int16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO users;
 

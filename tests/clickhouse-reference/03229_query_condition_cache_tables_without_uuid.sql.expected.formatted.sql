@@ -6,7 +6,7 @@
 DROP DATABASE IF EXISTS memory_db;
 
 CREATE DATABASE memory_db
-ENGINE = Memory;
+ENGINE = Memory();
 
 USE memory_db;
 
@@ -15,9 +15,9 @@ CREATE TABLE tab
     id Int32,
     val Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 8;
+SETTINGS index_granularity = '8';
 
 INSERT INTO tab SELECT
     number,
@@ -29,7 +29,7 @@ SELECT uuid
 FROM `system`.parts
 WHERE database = 'memory_db';
 
-SET use_query_condition_cache = 1;
+SET use_query_condition_cache = '1';
 
 SYSTEM CLEAR QUERY CONDITION CACHE;
 

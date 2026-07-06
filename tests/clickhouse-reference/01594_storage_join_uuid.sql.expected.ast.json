@@ -1,210 +1,255 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "joint"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- the test from simPod, https://github.com/ClickHouse/ClickHouse/issues/5608"
-    ],
-    "trailingComments": [
-      "-- the table name from the original issue."
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "joint"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UUID"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "joint"
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "LowCardinality",
-          "args": [
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "joint"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UUID"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "LowCardinality",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "String"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Join",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "type",
-              "type": {
-                "name": "String"
-              }
+              "type": "Identifier",
+              "name": "ANY"
+            },
+            {
+              "type": "Identifier",
+              "name": "LEFT"
+            },
+            {
+              "type": "Identifier",
+              "name": "id"
             }
           ]
         }
       }
-    ],
-    "engine": {
-      "name": "Join",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "ANY"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "LEFT"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      ]
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UUID"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "DateTime"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toDate",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "d"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
       "table": {
-        "kind": "tableRef",
-        "table": "joint"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "id"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "t"
+        "type": "Identifier",
+        "name": "t"
       },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "tableRef",
-        "table": "joint"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t",
-              "id"
-            ]
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UUID"
+            }
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "joint",
-              "id"
+          {
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toDate",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "d"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "joint"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "ANY",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t.id",
+                        "name_parts": [
+                          "t",
+                          "id"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "joint.id",
+                        "name_parts": [
+                          "joint",
+                          "id"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "joint"
+                  }
+                }
+              }
             ]
           }
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "joint"
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "joint"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      }
     }
   }
 ]

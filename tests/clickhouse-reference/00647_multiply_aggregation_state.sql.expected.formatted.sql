@@ -63,7 +63,7 @@ CREATE TABLE mult_aggregation
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO mult_aggregation;
 

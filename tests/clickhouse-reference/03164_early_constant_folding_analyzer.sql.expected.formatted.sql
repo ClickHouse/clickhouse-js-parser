@@ -22,7 +22,7 @@ CREATE TABLE checks
     instance_id String,
     date Date MATERIALIZED toDate(check_start_time)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (date, pull_request_number, commit_sha, check_name, test_name, check_start_time);
 
 INSERT INTO checks SELECT *
@@ -31,12 +31,14 @@ LIMIT 1;
 
 SELECT trimLeft(`explain`)
 FROM (
-        EXPLAIN
-        SELECT count(1)
-        FROM checks
-        WHERE isNotNull(test_name)
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT count(1)
+                FROM checks
+                WHERE test_name IS NOT NULL
+            ))
     )
-WHERE like(`explain`, '%ReadFromPreparedSource%')
+WHERE `explain` LIKE '%ReadFromPreparedSource%'
 SETTINGS
-    enable_analyzer = 1,
-    enable_parallel_replicas = 0;
+    enable_analyzer = '1',
+    enable_parallel_replicas = '0';

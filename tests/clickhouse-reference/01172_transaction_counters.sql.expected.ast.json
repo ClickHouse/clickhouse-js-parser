@@ -1,1348 +1,1625 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-ordinary-database, no-encrypted-storage"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "n",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "creation_tid",
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "transactionID",
-          "args": []
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "n"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "old_parts_lifetime",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3600"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "transactionID",
-        "args": []
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM stop merges txn_counters",
-    "leadingComments": [
-      "-- stop background cleanup"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "throw_on_unsupported_query_inside_transaction",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "transactionControl",
-    "action": "begin"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
+        "type": "Identifier",
+        "name": "txn_counters"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "system",
-          "parts",
-          "name"
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "txn_counters",
-            "creation_tid"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "creation_tid"
-          ]
-        }
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "parts"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "txn_counters",
-              "_part"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "system",
-              "parts",
-              "name"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "2"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "creation_csn"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_tid"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_csn"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "transactionControl",
-    "action": "rollback"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "3"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "system",
-          "parts",
-          "name"
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "txn_counters",
-            "creation_tid"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "creation_tid"
-          ]
-        }
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "parts"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "txn_counters",
-              "_part"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "system",
-              "parts",
-              "name"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "creation_csn"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_tid"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_csn"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "5"
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "tupleElement",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "transactionID",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "serverUUID",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "transactionControl",
-    "action": "commit"
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
+      "if_exists": true
     }
   },
   {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "n",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "creation_tid",
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "transactionID",
+              "arguments": []
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "n"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "old_parts_lifetime": "3600"
+          }
+        }
+      }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ]
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "format": "Values"
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "6"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "system",
-          "parts",
-          "name"
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "txn_counters",
-            "creation_tid"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "creation_tid"
-          ]
-        }
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "txn_counters"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "parts"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "txn_counters",
-              "_part"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "system",
-              "parts",
-              "name"
-            ]
-          }
-        }
-      }
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "7"
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "name"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_tid"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "removal_csn"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "parts"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "table"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "txn_counters"
-          }
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "active"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "system",
-            "parts",
-            "name"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "8"
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "==",
-        "left": {
-          "kind": "functionCall",
-          "name": "tupleElement",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
+              "type": "Function",
               "name": "transactionID",
-              "args": []
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
+              "arguments": []
             }
           ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "serverUUID",
-          "args": []
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
       "table": {
-        "kind": "tableRef",
-        "table": "txn_counters"
+        "type": "Identifier",
+        "name": "txn_counters"
       }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "n"
-        ]
-      }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partition": {
-          "partitionKind": "id",
-          "id": {
-            "kind": "literal",
-            "type": "String",
-            "value": "all"
-          }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "throw_on_unsupported_query_inside_transaction": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TransactionControl",
+      "action": "BEGIN"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
         }
-      }
-    ]
+      ],
+      "format": "Values"
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM flush logs transactions_info_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "indexOf",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            },
+            {
+              "type": "Identifier",
+              "name": "system.parts.name",
+              "name_parts": [
+                "system",
+                "parts",
+                "name"
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "arraySort",
-                  "args": [
-                    {
-                      "kind": "functionCall",
-                      "name": "groupUniqArray",
-                      "args": [
-                        {
-                          "kind": "columnRef",
-                          "parts": [
-                            "tid"
-                          ]
-                        }
-                      ]
-                    }
+                  "type": "Identifier",
+                  "name": "txn_counters.creation_tid",
+                  "name_parts": [
+                    "txn_counters",
+                    "creation_tid"
                   ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "transactions_info_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "table"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "txn_counters"
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "tid"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "type"
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "!=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "thread_id"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "kind": "naryExpr",
-        "op": "OR",
-        "operands": [
-          {
-            "kind": "binaryExpr",
-            "op": "=",
-            "left": {
-              "kind": "functionCall",
-              "name": "length",
-              "args": [
+                },
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
+                  "type": "Identifier",
+                  "name": "system.parts.creation_tid",
+                  "name_parts": [
+                    "system",
+                    "parts",
+                    "creation_tid"
                   ]
                 }
               ]
-            },
-            "right": {
-              "kind": "functionCall",
-              "name": "length",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "queryID",
-                  "args": []
-                }
-              ]
-            }
-          },
-          {
-            "kind": "naryExpr",
-            "op": "AND",
-            "operands": [
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "type"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "Commit"
-                }
-              },
-              {
-                "kind": "binaryExpr",
-                "op": "=",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": ""
-                }
-              }
-            ]
-          }
-        ],
-        "trailingComments": [
-          "-- ignore fault injection after commit"
-        ]
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "!=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "tid_hash"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "csn"
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "transactions_info_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "inExpr",
-          "negated": false,
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "tid"
-            ]
-          },
-          "values": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "tid"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "transactions_info_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "table"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "txn_counters"
-                    }
-                  },
-                  {
-                    "kind": "unaryExpr",
-                    "op": "NOT",
-                    "expr": {
-                      "kind": "naryExpr",
-                      "op": "AND",
-                      "operands": [
-                        {
-                          "kind": "binaryExpr",
-                          "op": "=",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "tupleElement",
-                            "args": [
-                              {
-                                "kind": "columnRef",
-                                "parts": [
-                                  "tid"
-                                ]
-                              },
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "1"
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          }
-                        },
-                        {
-                          "kind": "binaryExpr",
-                          "op": "=",
-                          "left": {
-                            "kind": "functionCall",
-                            "name": "tupleElement",
-                            "args": [
-                              {
-                                "kind": "columnRef",
-                                "parts": [
-                                  "tid"
-                                ]
-                              },
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "2"
-                              }
-                            ]
-                          },
-                          "right": {
-                            "kind": "literal",
-                            "type": "UInt64",
-                            "value": "1"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "database"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "currentDatabase",
-                "args": []
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "table"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "String",
-                "value": "txn_counters"
-              }
             }
           ],
-          "parenthesized": true
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "txn_counters"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "txn_counters._part",
+                        "name_parts": [
+                          "txn_counters",
+                          "_part"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.parts.name",
+                        "name_parts": [
+                          "system",
+                          "parts",
+                          "name"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "txn_counters"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "2"
+            },
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "creation_csn"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_tid"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_csn"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TransactionControl",
+      "action": "ROLLBACK"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "3"
+            },
+            {
+              "type": "Identifier",
+              "name": "system.parts.name",
+              "name_parts": [
+                "system",
+                "parts",
+                "name"
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "txn_counters.creation_tid",
+                  "name_parts": [
+                    "txn_counters",
+                    "creation_tid"
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "system.parts.creation_tid",
+                  "name_parts": [
+                    "system",
+                    "parts",
+                    "creation_tid"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "txn_counters"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "txn_counters._part",
+                        "name_parts": [
+                          "txn_counters",
+                          "_part"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.parts.name",
+                        "name_parts": [
+                          "system",
+                          "parts",
+                          "name"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "4"
+            },
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "creation_csn"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_tid"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_csn"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "5"
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "transactionID",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "serverUUID",
+                  "arguments": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TransactionControl",
+      "action": "COMMIT"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "6"
+            },
+            {
+              "type": "Identifier",
+              "name": "system.parts.name",
+              "name_parts": [
+                "system",
+                "parts",
+                "name"
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "txn_counters.creation_tid",
+                  "name_parts": [
+                    "txn_counters",
+                    "creation_tid"
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "system.parts.creation_tid",
+                  "name_parts": [
+                    "system",
+                    "parts",
+                    "creation_tid"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "txn_counters"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "txn_counters._part",
+                        "name_parts": [
+                          "txn_counters",
+                          "_part"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "system.parts.name",
+                        "name_parts": [
+                          "system",
+                          "parts",
+                          "name"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "7"
+            },
+            {
+              "type": "Identifier",
+              "name": "name"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_tid"
+            },
+            {
+              "type": "Identifier",
+              "name": "removal_csn"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "parts",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "table"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "txn_counters"
+                  }
+                ]
+              },
+              {
+                "type": "Identifier",
+                "name": "active"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "system.parts.name",
+                "name_parts": [
+                  "system",
+                  "parts",
+                  "name"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8"
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "tupleElement",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "transactionID",
+                      "arguments": []
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "3"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "serverUUID",
+                  "arguments": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "partition": {
+            "type": "Partition_ID",
+            "id": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "all"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "transactions_info_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "indexOf",
+              "arguments": [
+                {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "arraySort",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "groupUniqArray",
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "tid"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "transactions_info_log",
+                                  "database": "system"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "where": {
+                          "type": "Function",
+                          "name": "and",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "equals",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "database"
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "currentDatabase",
+                                  "arguments": []
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "name": "equals",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "table"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "txn_counters"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Identifier",
+                  "name": "tid"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "type"
+            },
+            {
+              "type": "Function",
+              "name": "notEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "thread_id"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "or",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "length",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "query_id"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "length",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "queryID",
+                          "arguments": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "and",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "type"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "Commit"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "query_id"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": ""
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "notEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "tid_hash"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "csn"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "0"
+                }
+              ]
+            },
+            {
+              "type": "Identifier",
+              "name": "part"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "transactions_info_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "in",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tid"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "tid"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "transactions_info_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "table"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "txn_counters"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "not",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "and",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "equals",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "tupleElement",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "tid"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "1"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Function",
+                                        "name": "equals",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Function",
+                                            "name": "tupleElement",
+                                            "is_operator": true,
+                                            "arguments": [
+                                              {
+                                                "type": "Identifier",
+                                                "name": "tid"
+                                              },
+                                              {
+                                                "type": "Literal",
+                                                "value_type": "UInt64",
+                                                "value": "2"
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "1"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "and",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "database"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "table"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "txn_counters"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "txn_counters"
+      }
     }
   }
 ]

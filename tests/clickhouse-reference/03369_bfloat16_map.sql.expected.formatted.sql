@@ -7,7 +7,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY (c1, c0)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t0 (c0, c1);
 

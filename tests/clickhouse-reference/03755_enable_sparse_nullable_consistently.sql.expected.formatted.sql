@@ -8,9 +8,9 @@ CREATE TABLE t
     s Nullable(String),
     t Tuple(a Nullable(String), b Nullable(UInt64))
 )
-ENGINE = MergeTree
-ORDER BY tuple()
-SETTINGS index_granularity = 10, min_bytes_for_wide_part = 0, ratio_of_defaults_for_sparse_serialization = 0.1, serialization_info_version = 'with_types', nullable_serialization_version = 'basic';
+ENGINE = MergeTree()
+ORDER BY ()
+SETTINGS index_granularity = '10', min_bytes_for_wide_part = '0', ratio_of_defaults_for_sparse_serialization = 0.1, serialization_info_version = 'with_types', nullable_serialization_version = 'basic';
 
 INSERT INTO t (id);
 
@@ -18,8 +18,8 @@ SELECT
     column,
     substreams
 FROM `system`.parts_columns
-WHERE (database = currentDatabase())
-    AND (table = 't')
+WHERE database = currentDatabase()
+    AND table = 't'
     AND active;
 
 DROP TABLE t;

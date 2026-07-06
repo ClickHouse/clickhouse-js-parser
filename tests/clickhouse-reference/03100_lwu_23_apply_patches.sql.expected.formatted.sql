@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database, long
 -- Tag no-replicated-database: profile events for mutations may differ because of additional replicas.
-DROP TABLE IF EXISTS t_apply_patches;
+DROP TABLE IF EXISTS t_apply_patches SYNC;
 
-DROP TABLE IF EXISTS t_apply_patches_smt;
+DROP TABLE IF EXISTS t_apply_patches_smt SYNC;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE t_apply_patches
 (
@@ -13,11 +13,11 @@ CREATE TABLE t_apply_patches
     c UInt64,
     d UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, ratio_of_defaults_for_sparse_serialization = 1.0, enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', ratio_of_defaults_for_sparse_serialization = 1., enable_block_number_column = '1', enable_block_offset_column = '1';
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 INSERT INTO t_apply_patches SELECT
     number,
@@ -57,7 +57,7 @@ GROUP BY
 ORDER BY
     b ASC,
     c ASC
-SETTINGS apply_patch_parts = 0;
+SETTINGS apply_patch_parts = '0';
 
 SYSTEM FLUSH LOGS part_log;
 
@@ -79,7 +79,7 @@ CREATE TABLE t_apply_patches_smt
 )
 ENGINE = ReplicatedMergeTree('/zookeeper/{database}/t_apply_patches_smt/', '1')
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0, min_bytes_for_full_part_storage = 0, ratio_of_defaults_for_sparse_serialization = 1.0, enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS min_bytes_for_wide_part = '0', min_bytes_for_full_part_storage = '0', ratio_of_defaults_for_sparse_serialization = 1., enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO t_apply_patches_smt SELECT
     number,

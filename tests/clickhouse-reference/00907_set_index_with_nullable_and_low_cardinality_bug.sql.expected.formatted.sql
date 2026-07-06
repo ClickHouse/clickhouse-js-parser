@@ -7,10 +7,10 @@ CREATE TABLE null_lc_set_index
     user LowCardinality(Nullable(String)),
     INDEX test_user_idx user TYPE set(0) GRANULARITY 8192
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (timestamp, action, cityHash64(user))
 PARTITION BY toYYYYMMDD(timestamp)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO null_lc_set_index;
 

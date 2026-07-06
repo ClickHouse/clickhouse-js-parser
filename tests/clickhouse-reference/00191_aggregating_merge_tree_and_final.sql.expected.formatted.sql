@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS aggregating_00191;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE aggregating_00191
 (
@@ -26,7 +26,8 @@ INSERT INTO aggregating_00191 (k, u) SELECT
 FROM (
         SELECT *
         FROM `system`.numbers
-        LIMIT 500, 1000
+        LIMIT 1000
+        OFFSET 500
     )
 GROUP BY k;
 

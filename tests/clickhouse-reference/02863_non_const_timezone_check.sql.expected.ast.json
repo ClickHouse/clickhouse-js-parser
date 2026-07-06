@@ -1,536 +1,754 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "Dates"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "Dates"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "date",
-        "type": {
-          "name": "DateTime",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "'UTC'"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "date"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "Dates"
-      }
+        "type": "Identifier",
+        "name": "Dates"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "formatDateTime",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Dates"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+            "type": "ColumnDeclaration",
+            "name": "date",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "date"
-                  ]
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "UTC"
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
+              ]
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "%H%i%S"
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "America/Los_Angeles"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "Europe/Amsterdam"
-              }
-            ]
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "date"
         }
-      ]
+      }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "formatDateTime",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "Dates"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "formatDateTime",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "materialize",
-                  "args": [
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Identifier",
+                            "name": "date"
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%H%i%S"
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "date"
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "America/Los_Angeles"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Europe/Amsterdam"
                     }
                   ]
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
+              ]
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "%H%i%S"
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
                 }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "America/Los_Angeles"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "Europe/Amsterdam"
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "formatDateTime",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "formatDateTime",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "materialize",
-                  "args": [
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "materialize",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "date"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%H%i%S"
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "date"
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "America/Los_Angeles"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Europe/Amsterdam"
                     }
                   ]
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
+              ]
             }
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "%H%i%S"
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
                 }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": ""
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "Europe/Amsterdam"
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      ]
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toString",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "date"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
-            }
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "America/Los_Angeles"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "Europe/Amsterdam"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toString",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "formatDateTime",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "materialize",
-                  "args": [
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "materialize",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "date"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%H%i%S"
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "date"
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": ""
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Europe/Amsterdam"
                     }
                   ]
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
+              ]
             }
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
                 }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "America/Los_Angeles"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "Europe/Amsterdam"
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "toString",
-        "args": [
-          {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toString",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "materialize",
-                  "args": [
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Identifier",
+                            "name": "date"
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "date"
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
                       ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "America/Los_Angeles"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Europe/Amsterdam"
                     }
                   ]
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "Dates"
-              }
+              ]
             }
-          },
-          {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
                 }
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "America/Los_Angeles"
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": ""
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "numbers",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
         }
       ]
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "Dates"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "materialize",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "date"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "America/Los_Angeles"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "Europe/Amsterdam"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "toString",
+              "arguments": [
+                {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "name": "materialize",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "date"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "Dates"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "modulo",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "number"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "America/Los_Angeles"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": ""
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "numbers",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "5"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "Dates"
+      }
     }
   }
 ]

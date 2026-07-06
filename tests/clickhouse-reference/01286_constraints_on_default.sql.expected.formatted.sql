@@ -8,7 +8,7 @@ CREATE TABLE default_constraints
     y UInt8 DEFAULT x + 1,
     CONSTRAINT c CHECK y < 5
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO default_constraints (x) SELECT number
 FROM `system`.numbers

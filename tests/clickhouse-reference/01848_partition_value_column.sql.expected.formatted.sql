@@ -9,40 +9,40 @@ CREATE TABLE tbl
     j String,
     v Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
 PARTITION BY (toDate(dt), i % 2, length(j))
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO tbl;
 
-SET optimize_use_implicit_projections = 1;
+SET optimize_use_implicit_projections = '1';
 
 SELECT count()
 FROM tbl
 WHERE _partition_value = ('2021-04-01', 1, 2)
-SETTINGS max_rows_to_read = 1;
+SETTINGS max_rows_to_read = '1';
 
 SELECT count()
 FROM tbl
-WHERE _partition_value.1 = '2021-04-01'
-SETTINGS max_rows_to_read = 4;
+WHERE (_partition_value).1 = '2021-04-01'
+SETTINGS max_rows_to_read = '4';
 
 SELECT count()
 FROM tbl
-WHERE _partition_value.2 = 0
-SETTINGS max_rows_to_read = 4;
+WHERE (_partition_value).2 = 0
+SETTINGS max_rows_to_read = '4';
 
 SELECT count()
 FROM tbl
-WHERE _partition_value.3 = 4
-SETTINGS max_rows_to_read = 1;
+WHERE (_partition_value).3 = 4
+SETTINGS max_rows_to_read = '1';
 
 CREATE TABLE tbl2
 (
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO tbl2;

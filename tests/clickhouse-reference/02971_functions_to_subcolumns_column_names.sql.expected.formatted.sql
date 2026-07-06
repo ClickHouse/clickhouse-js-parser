@@ -5,15 +5,15 @@ CREATE TABLE t_column_names
     arr Array(UInt64),
     n Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_column_names;
 
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-EXPLAIN QUERY TREE dump_tree = 0, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '0', dump_ast = '1'
 SELECT
     length(arr),
     isNull(n)

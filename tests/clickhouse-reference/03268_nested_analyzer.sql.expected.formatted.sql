@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET output_format_pretty_named_tuples_as_json = 0;
+SET output_format_pretty_named_tuples_as_json = '0';
 
 -- {echoOn }
 SELECT nested(['a', 'b'], [1, 2], [3, 4]);
@@ -40,7 +40,7 @@ CREATE TABLE test
     `struct.x` DEFAULT [0],
     `struct.y` ALIAS [1]
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test (x);
 

@@ -6,7 +6,7 @@ CREATE TABLE merge_tree_in_subqueries
     name String,
     num UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, name);
 
 INSERT INTO merge_tree_in_subqueries;
@@ -20,7 +20,7 @@ INSERT INTO merge_tree_in_subqueries;
 INSERT INTO merge_tree_in_subqueries;
 
 -- Index scans.
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 SELECT *
 FROM merge_tree_in_subqueries
@@ -35,16 +35,18 @@ FROM merge_tree_in_subqueries
 WHERE id IN (
         SELECT *
         FROM `system`.numbers
-        LIMIT 2, 3
+        LIMIT 3
+        OFFSET 2
     )
 ORDER BY id ASC;
 
 SELECT *
 FROM merge_tree_in_subqueries
 WHERE name IN (
-        SELECT concat('test', toString(number))
+        SELECT 'test' || toString(number)
         FROM `system`.numbers
-        LIMIT 2, 3
+        LIMIT 3
+        OFFSET 2
     )
 ORDER BY id ASC;
 
@@ -54,15 +56,16 @@ SELECT
 FROM merge_tree_in_subqueries
 WHERE (value, id2) IN (
         SELECT
-            concat('test', toString(number)),
+            'test' || toString(number),
             number
         FROM `system`.numbers
-        LIMIT 2, 3
+        LIMIT 3
+        OFFSET 2
     )
 ORDER BY id ASC;
 
 -- Non-index scans.
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
 SELECT
     id AS id2,

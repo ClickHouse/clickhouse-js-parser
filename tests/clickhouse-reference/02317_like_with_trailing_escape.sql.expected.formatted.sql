@@ -11,9 +11,9 @@ ORDER BY haystack;
 INSERT INTO tab;
 
 -- const pattern
-SELECT like(haystack, 'pattern\\')
+SELECT haystack LIKE 'pattern\\'
 FROM tab; -- { serverError CANNOT_PARSE_ESCAPE_SEQUENCE }
 
 -- non-const pattern
-SELECT like(haystack, pattern)
+SELECT haystack LIKE pattern
 FROM tab; -- { serverError CANNOT_PARSE_ESCAPE_SEQUENCE }

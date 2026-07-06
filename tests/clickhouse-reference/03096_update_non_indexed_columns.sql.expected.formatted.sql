@@ -7,12 +7,12 @@ CREATE TABLE test_03096
     b UInt32,
     c UInt32,
     d UInt32 MATERIALIZED 0,
-    sum UInt32 MATERIALIZED (a + b) + c,
-    INDEX idx tuple(c, d) TYPE minmax GRANULARITY 1
+    sum UInt32 MATERIALIZED a + b + c,
+    INDEX idx (c, d) TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test_03096 SELECT
     number,
@@ -27,13 +27,13 @@ SELECT count()
 FROM test_03096
 WHERE b = 0;
 
-ALTER TABLE test_03096 UPDATE b = 100 WHERE b = 0 SETTINGS mutations_sync = 2;
+ALTER TABLE test_03096 UPDATE b = 100 WHERE b = 0 SETTINGS mutations_sync = '2';
 
 SELECT
-    latest_fail_reason == '',
-    is_done == 1
+    latest_fail_reason = '',
+    is_done = 1
 FROM `system`.mutations
 WHERE table = 'test_03096'
     AND database = currentDatabase();
 
-ALTER TABLE test_03096 UPDATE b = 123 WHERE c = 0 SETTINGS mutations_sync = 2;
+ALTER TABLE test_03096 UPDATE b = 123 WHERE c = 0 SETTINGS mutations_sync = '2';

@@ -10,11 +10,11 @@ CREATE TABLE `right`
 )
 ORDER BY tuple();
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT
     `left`.x,
-    (isNull(`right`.x))::Boolean
+    (`right`.x IS NULL)::Boolean
 FROM
     `left`
 LEFT JOIN `right`
@@ -40,12 +40,12 @@ GROUP BY
 FORMAT Null;
 
 SELECT
-    (isNull(number))::Boolean,
+    (number IS NULL)::Boolean,
     now()
 FROM numbers(2)
 GROUP BY
-    (isNull(number))::Boolean,
+    (number IS NULL)::Boolean,
     now()
 FORMAT Null;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

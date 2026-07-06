@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS test_move_partition_src
 ENGINE = MergeTree()
 ORDER BY (pk, val)
 PARTITION BY pk
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE IF NOT EXISTS test_move_partition_dest
 (
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS test_move_partition_dest
 ENGINE = MergeTree()
 ORDER BY (pk, val)
 PARTITION BY pk
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO test_move_partition_src SELECT
     number % 2,

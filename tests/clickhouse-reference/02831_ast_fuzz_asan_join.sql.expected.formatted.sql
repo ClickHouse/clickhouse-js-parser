@@ -16,7 +16,7 @@ FULL JOIN (
     ) AS js2
     ON js1.k = js2.k
 ORDER BY
-    inf DESC,
-    js1.k ASC,
+    inf DESC NULLS FIRST,
+    js1.k ASC NULLS LAST,
     js2.k ASC
 FORMAT Null;

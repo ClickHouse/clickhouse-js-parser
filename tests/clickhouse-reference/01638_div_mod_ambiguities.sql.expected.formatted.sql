@@ -10,7 +10,7 @@ FROM (
     )
 FORMAT TSVWithNames;
 
-SELECT `DIV` MOD 1
+SELECT `DIV` % 1
 FROM (
         SELECT 1 AS `DIV`
     )

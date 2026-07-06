@@ -6,11 +6,11 @@ CREATE TABLE wide_to_comp
     b Int,
     c Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS vertical_merge_algorithm_min_rows_to_activate = 1, vertical_merge_algorithm_min_columns_to_activate = 1, min_bytes_for_wide_part = 0, min_rows_for_wide_part = 0, merge_max_block_size = 8192, index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS vertical_merge_algorithm_min_rows_to_activate = '1', vertical_merge_algorithm_min_columns_to_activate = '1', min_bytes_for_wide_part = '0', min_rows_for_wide_part = '0', merge_max_block_size = '8192', index_granularity = '8192', index_granularity_bytes = '10Mi';
 
-SYSTEM STOP merges wide_to_comp;
+SYSTEM STOP MERGES wide_to_comp;
 
 INSERT INTO wide_to_comp SELECT
     number,
@@ -27,9 +27,9 @@ WHERE table = 'wide_to_comp'
     AND active
 ORDER BY name ASC;
 
-ALTER TABLE wide_to_comp MODIFY SETTING min_rows_for_wide_part = 10000000;
+ALTER TABLE wide_to_comp MODIFY SETTING min_rows_for_wide_part = '10000000';
 
-SYSTEM START merges wide_to_comp;
+SYSTEM START MERGES wide_to_comp;
 
 OPTIMIZE TABLE wide_to_comp FINAL;
 

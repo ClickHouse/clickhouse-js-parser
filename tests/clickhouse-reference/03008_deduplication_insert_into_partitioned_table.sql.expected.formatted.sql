@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS partitioned_table;
 
 DROP TABLE IF EXISTS mv_table;
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
 CREATE TABLE partitioned_table
 (

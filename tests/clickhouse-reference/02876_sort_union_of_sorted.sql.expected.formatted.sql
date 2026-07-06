@@ -6,14 +6,14 @@ CREATE TABLE table1
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE table2
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO table1 SELECT number
@@ -24,37 +24,37 @@ FROM numbers_mt(11, 10);
 
 SELECT *
 FROM (
-(        SELECT *
+        SELECT *
         FROM table1
-        ORDER BY number ASC)
+        ORDER BY number ASC
         UNION ALL
-(        SELECT *
+        SELECT *
         FROM table2
-        ORDER BY number ASC)
+        ORDER BY number ASC
     )
 ORDER BY number ASC;
 
 SELECT *
 FROM (
-(        SELECT *
+        SELECT *
         FROM table1
-        ORDER BY number ASC)
+        ORDER BY number ASC
         UNION ALL
-(        SELECT *
+        SELECT *
         FROM table2
-        ORDER BY number ASC)
+        ORDER BY number ASC
     )
 ORDER BY number DESC;
 
 SELECT *
 FROM (
-(        SELECT *
+        SELECT *
         FROM table1
-        ORDER BY number DESC)
+        ORDER BY number DESC
         UNION ALL
-(        SELECT *
+        SELECT *
         FROM table2
-        ORDER BY number DESC)
+        ORDER BY number DESC
     )
 ORDER BY number DESC;
 

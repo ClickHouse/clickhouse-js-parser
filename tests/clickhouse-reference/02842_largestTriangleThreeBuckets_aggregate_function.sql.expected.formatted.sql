@@ -1,4 +1,4 @@
-SET allow_deprecated_error_prone_window_functions = 1;
+SET allow_deprecated_error_prone_window_functions = '1';
 
 DROP TABLE IF EXISTS largestTriangleThreeBucketsTestFloat64Float64;
 
@@ -7,7 +7,7 @@ CREATE TABLE largestTriangleThreeBucketsTestFloat64Float64
     x Float64,
     y Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (y, x);
 
 INSERT INTO largestTriangleThreeBucketsTestFloat64Float64;
@@ -33,7 +33,7 @@ CREATE TABLE largestTriangleThreeBucketsTestDecimal64Decimal64
     x Decimal64(2),
     y Decimal64(2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (y, x);
 
 INSERT INTO largestTriangleThreeBucketsTestDecimal64Decimal64 (x, y);
@@ -50,7 +50,7 @@ CREATE TABLE largestTriangleThreeBucketsTestDateTime64Float64
     x DateTime64(3),
     y Float64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (y, x);
 
 INSERT INTO largestTriangleThreeBucketsTestDateTime64Float64 (x, y);
@@ -68,20 +68,21 @@ CREATE TABLE largestTriangleTreeBucketsBucketSizeTest
     x UInt32,
     y UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO largestTriangleTreeBucketsBucketSizeTest (x, y) SELECT
-    (number + 1) AS x,
-    (x % 1000) AS y
+    number + 1 AS x,
+    x % 1000 AS y
 FROM numbers(9999);
 
 SELECT
     arrayJoin(lttb(1000)(x, y)) AS point,
-    point.1 AS point_x,
+    tupleElement(point, 1) AS point_x,
     point_x - neighbor(point_x, -1) AS point_x_diff_with_previous_row
 FROM largestTriangleTreeBucketsBucketSizeTest
-LIMIT 990, 10;
+LIMIT 10
+OFFSET 990;
 
 SELECT largestTriangleThreeBuckets(1)(0, '1900-01-01 00:00:00'::DateTime64);
 

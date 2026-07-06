@@ -2,19 +2,19 @@ CREATE TABLE tab
 (
     x Nullable(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS allow_nullable_key = 1, index_granularity = 2;
+SETTINGS allow_nullable_key = '1', index_granularity = '2';
 
 INSERT INTO tab SELECT number
 FROM numbers(4);
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
-SET max_rows_to_read = 2;
+SET max_rows_to_read = '2';
 
 -- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures.
-SET parallel_replicas_index_analysis_only_on_coordinator = 0;
+SET parallel_replicas_index_analysis_only_on_coordinator = '0';
 
 SELECT x + 1
 FROM tab
@@ -23,17 +23,17 @@ ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::Nullable(UInt8)) <= 2
+WHERE plus(x, CAST('1' AS Nullable(UInt8))) <= 2
 ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::LowCardinality(UInt8)) <= 2
+WHERE plus(x, CAST('1' AS LowCardinality(UInt8))) <= 2
 ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::LowCardinality(Nullable(UInt8))) <= 2
+WHERE plus(x, CAST('1' AS LowCardinality(Nullable(UInt8)))) <= 2
 ORDER BY x ASC;
 
 SELECT 1 + x
@@ -43,51 +43,51 @@ ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::Nullable(UInt8), x) <= 2
+WHERE plus(CAST('1' AS Nullable(UInt8)), x) <= 2
 ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::LowCardinality(UInt8), x) <= 2
+WHERE plus(CAST('1' AS LowCardinality(UInt8)), x) <= 2
 ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::LowCardinality(Nullable(UInt8)), x) <= 2
+WHERE plus(CAST('1' AS LowCardinality(Nullable(UInt8))), x) <= 2
 ORDER BY x ASC;
 
 DROP TABLE tab;
 
-SET max_rows_to_read = 100;
+SET max_rows_to_read = '100';
 
 CREATE TABLE tab
 (
     x LowCardinality(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS allow_nullable_key = 1, index_granularity = 2;
+SETTINGS allow_nullable_key = '1', index_granularity = '2';
 
 CREATE TABLE tab
 (
     x UInt128
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS allow_nullable_key = 1, index_granularity = 2;
+SETTINGS allow_nullable_key = '1', index_granularity = '2';
 
 SELECT x + 1
 FROM tab
-WHERE (x + 1::LowCardinality(UInt8)) <= -9223372036854775808
+WHERE x + CAST('1' AS LowCardinality(UInt8)) <= -9223372036854775808
 ORDER BY x ASC;
 
 CREATE TABLE tab
 (
     x DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS allow_nullable_key = 1, index_granularity = 2;
+SETTINGS allow_nullable_key = '1', index_granularity = '2';
 
 INSERT INTO tab SELECT toDateTime('2022-02-02') + number
 FROM numbers(4);
@@ -99,17 +99,17 @@ ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::Nullable(UInt8)) <= toDateTime('2022-02-02') + 2
+WHERE plus(x, CAST('1' AS Nullable(UInt8))) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::LowCardinality(UInt8)) <= toDateTime('2022-02-02') + 2
+WHERE plus(x, CAST('1' AS LowCardinality(UInt8))) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE plus(x, 1::LowCardinality(Nullable(UInt8))) <= toDateTime('2022-02-02') + 2
+WHERE plus(x, CAST('1' AS LowCardinality(Nullable(UInt8)))) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT 1 + x
@@ -119,20 +119,20 @@ ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::Nullable(UInt8), x) <= toDateTime('2022-02-02') + 2
+WHERE plus(CAST('1' AS Nullable(UInt8)), x) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::LowCardinality(UInt8), x) <= toDateTime('2022-02-02') + 2
+WHERE plus(CAST('1' AS LowCardinality(UInt8)), x) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT 1 + x
 FROM tab
-WHERE plus(1::LowCardinality(Nullable(UInt8)), x) <= toDateTime('2022-02-02') + 2
+WHERE plus(CAST('1' AS LowCardinality(Nullable(UInt8))), x) <= toDateTime('2022-02-02') + 2
 ORDER BY x ASC;
 
 SELECT x + 1
 FROM tab
-WHERE (x + CAST('1', 'Nullable(UInt8)')) <= -2147483647
-ORDER BY x ASC;
+WHERE x + CAST('1' AS Nullable(UInt8)) <= -2147483647
+ORDER BY x ASC NULLS FIRST;

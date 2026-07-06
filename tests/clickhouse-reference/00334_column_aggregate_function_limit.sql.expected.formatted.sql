@@ -6,7 +6,7 @@ CREATE TABLE ontime
     Carrier String,
     FlightNum String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO ontime;
 

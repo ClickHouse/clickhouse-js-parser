@@ -1,14 +1,14 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 -- Illegal column String of first argument of function concatWithSeparator. Must be a constant String.
 SELECT concatWithSeparator('a', 'b')
 GROUP BY 'a';
 
 -- use-of-uninitialized-value
-SELECT concatWithSeparator('|', 'a', concatWithSeparator('|', CAST('a', 'LowCardinality(String)')))
+SELECT concatWithSeparator('|', 'a', concatWithSeparator('|', CAST('a' AS LowCardinality(String))))
 GROUP BY 'a';
 
-SELECT concatWithSeparator('|', 'a', concatWithSeparator('|', CAST('x', 'LowCardinality(String)')))
+SELECT concatWithSeparator('|', 'a', concatWithSeparator('|', CAST('x' AS LowCardinality(String))))
 GROUP BY 'a';
 
 -- should be const like for the query w/o GROUP BY
@@ -49,7 +49,7 @@ CREATE TABLE ttt
     hr DateTime,
     ts DateTime
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     '2000-01-01' AS d,
     d;

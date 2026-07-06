@@ -4,7 +4,7 @@ CREATE TABLE map_lc
 (
     kv Map(LowCardinality(String), LowCardinality(String))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO map_lc SELECT map('a', 'b');
 

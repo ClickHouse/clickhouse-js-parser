@@ -4,7 +4,7 @@ CREATE TABLE src
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO src SELECT 0
@@ -16,7 +16,7 @@ CREATE TABLE dst
 (
     x UInt64
 )
-ENGINE = CoalescingMergeTree
+ENGINE = CoalescingMergeTree()
 ORDER BY tuple();
 
 INSERT INTO dst SELECT *
@@ -28,7 +28,7 @@ CREATE TABLE dst
 (
     x UInt64
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY tuple();
 
 DROP TABLE src;

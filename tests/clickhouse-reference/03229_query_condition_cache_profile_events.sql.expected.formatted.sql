@@ -2,12 +2,12 @@
 -- Tag no-parallel: Messes with internal cache
 -- add_minmax_index_for_numeric_columns=0: Would use the index instead (used before the QueryConditionCache)
 -- Does additional QCC lookups that the test doesn't expect
-SET automatic_parallel_replicas_mode = 0;
+SET automatic_parallel_replicas_mode = '0';
 
 -- w/o local plan for parallel replicas the test will fail in ParallelReplicas CI run since filter steps will be executed as part of remote queries
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 -- Tests that queries with enabled query condition cache correctly populate profile events
 SELECT '--- with move to PREWHERE';
@@ -21,9 +21,9 @@ CREATE TABLE tab
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS add_minmax_index_for_numeric_columns = 0;
+SETTINGS add_minmax_index_for_numeric_columns = '0';
 
 INSERT INTO tab SELECT
     number,

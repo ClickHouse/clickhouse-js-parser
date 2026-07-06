@@ -1,9 +1,9 @@
 -- Tags: no-fasttest, long
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET use_variant_as_common_type = 1;
+SET use_variant_as_common_type = '1';
 
 SET session_timezone = 'UTC';
 
@@ -14,7 +14,7 @@ CREATE TABLE test
     id UInt64,
     json JSON(max_dynamic_paths = 2, `a.b.c` UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 TRUNCATE TABLE test;
 
@@ -30,32 +30,32 @@ FROM numbers(5, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number))))
+    toJSONString(map('a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number)))
 FROM numbers(10, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('b.b.d', number::UInt32, 'b.b.e', concat('str_', toString(number))))
+    toJSONString(map('b.b.d', number::UInt32, 'b.b.e', 'str_' || toString(number)))
 FROM numbers(15, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number))))
+    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number)))
 FROM numbers(20, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', concat('str_', toString(number)), concat('b.b._', toString(number)), number::UInt32))
+    toJSONString(map('a.b.c', number, 'a.b.d', number::UInt32, 'a.b.e', 'str_' || toString(number), 'b.b._' || toString(number), number::UInt32))
 FROM numbers(25, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', range(number % 1)::Array(UInt32), 'a.b.e', concat('str_', toString(number)), 'd.a', number::UInt32, 'd.c', toDate(number)))
+    toJSONString(map('a.b.c', number, 'a.b.d', range(number % 1)::Array(UInt32), 'a.b.e', 'str_' || toString(number), 'd.a', number::UInt32, 'd.c', toDate(number)))
 FROM numbers(30, 5);
 
 INSERT INTO test SELECT
     number,
-    toJSONString(map('a.b.c', number, 'a.b.d', toDateTime(number), 'a.b.e', concat('str_', toString(number)), 'd.a', range(number % 5 + 1)::Array(UInt32), 'd.b', number::UInt32))
+    toJSONString(map('a.b.c', number, 'a.b.d', toDateTime(number), 'a.b.e', 'str_' || toString(number), 'd.a', range(number % 5 + 1)::Array(UInt32), 'd.b', number::UInt32))
 FROM numbers(35, 5);
 
 SELECT DISTINCT arrayJoin(JSONAllPathsWithTypes(json)) AS paths_with_types
@@ -101,11 +101,11 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 ORDER BY id ASC
 FORMAT JSONColumns;
@@ -150,11 +150,11 @@ SELECT
     json.d.c,
     json.d.c.:Date,
     json.d.c.:UUID,
-    json.`^n`,
-    json.`^a`,
-    json.`^a`.b,
-    json.`^b`,
-    json.`^d`
+    json.^n,
+    json.^a,
+    json.^a.b,
+    json.^b,
+    json.^d
 FROM test
 ORDER BY id ASC
 FORMAT JSONColumns;
@@ -552,7 +552,7 @@ ORDER BY id ASC
 FORMAT JSONColumns;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.c
 FROM test
 ORDER BY id ASC
@@ -560,21 +560,21 @@ FORMAT JSONColumns;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.c
 FROM test
 ORDER BY id ASC
 FORMAT JSONColumns;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d
 FROM test
 ORDER BY id ASC
 FORMAT JSONColumns;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
 FROM test
@@ -582,7 +582,7 @@ ORDER BY id ASC
 FORMAT JSONColumns;
 
 SELECT
-    json.`^a`,
+    json.^a,
     json.a.b.d,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
@@ -592,7 +592,7 @@ FORMAT JSONColumns;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d
 FROM test
 ORDER BY id ASC
@@ -600,7 +600,7 @@ FORMAT JSONColumns;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d.:Int64,
     json.a.b.d.:Date
 FROM test
@@ -609,7 +609,7 @@ FORMAT JSONColumns;
 
 SELECT
     json,
-    json.`^a`,
+    json.^a,
     json.a.b.d,
     json.a.b.d.:Int64,
     json.a.b.d.:Date

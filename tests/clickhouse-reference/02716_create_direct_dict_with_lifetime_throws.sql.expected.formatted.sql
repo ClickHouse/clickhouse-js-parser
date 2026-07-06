@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS dict_source
     key UInt64,
     value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE DICTIONARY dict
@@ -12,6 +12,6 @@ CREATE DICTIONARY dict
     value String
 )
 PRIMARY KEY key
-SOURCE(clickhouse(table 'dict_source'))
-LIFETIME(0)
+SOURCE(clickhouse(TABLE 'dict_source'))
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(DIRECT()); -- { serverError BAD_ARGUMENTS }

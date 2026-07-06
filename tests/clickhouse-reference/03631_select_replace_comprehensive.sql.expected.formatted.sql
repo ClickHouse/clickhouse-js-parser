@@ -2,7 +2,7 @@
 -- This test verifies comprehensive fix for SELECT * REPLACE in all applicable clauses
 -- See issue: https://github.com/ClickHouse/ClickHouse/issues/85313
 -- See PR: https://github.com/ClickHouse/ClickHouse/pull/87630
-SET allow_experimental_analyzer = 1;
+SET allow_experimental_analyzer = '1';
 
 -- Setup test tables
 DROP TABLE IF EXISTS test_replace_main;
@@ -16,7 +16,7 @@ CREATE TABLE test_replace_main
     b UInt32,
     c String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_replace_main;
 
@@ -26,7 +26,7 @@ CREATE TABLE test_replace_merge
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_replace_merge;
@@ -43,7 +43,7 @@ CREATE TABLE test_arith
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_arith;
 
@@ -67,11 +67,11 @@ CREATE TABLE test_replace_str
     id UInt32,
     s String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_replace_str;
 
-SELECT * REPLACE (concat(s, '_suffix') AS s)
+SELECT * REPLACE (s || '_suffix' AS s)
 FROM test_replace_str
 WHERE s = 'hello_suffix';
 
@@ -102,7 +102,7 @@ CREATE TABLE test_limit_by
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_limit_by;
 
@@ -124,7 +124,7 @@ FROM test_replace_main
 WHERE b > 250
 ORDER BY id ASC;
 
-SELECT * REPLACE (a AS b, concat('replaced_', c) AS c)
+SELECT * REPLACE (a AS b, 'replaced_' || c AS c)
 FROM test_replace_main
 WHERE b > 150
 ORDER BY id ASC;
@@ -137,7 +137,7 @@ FROM (
     )
 ORDER BY id ASC;
 
-SELECT * REPLACE (concat(c, '_suffix') AS c)
+SELECT * REPLACE (c || '_suffix' AS c)
 FROM test_replace_main
 WHERE c = 'beta_suffix'
 ORDER BY id ASC;
@@ -161,7 +161,7 @@ CREATE TABLE test_group_by
     category String,
     value UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_group_by;
 
@@ -184,7 +184,7 @@ CREATE TABLE test_group_by_sub
     category String,
     value UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_group_by_sub;
 
@@ -193,7 +193,7 @@ SELECT
     total
 FROM (
         SELECT
-            concat(category, '_modified') AS category,
+            category || '_modified' AS category,
             sum(value) AS total
         FROM test_group_by_sub
         GROUP BY category
@@ -209,12 +209,12 @@ CREATE TABLE test_group_by_direct
     category String,
     value UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_group_by_direct;
 
 SELECT
-    concat(category, '_modified') AS category,
+    category || '_modified' AS category,
     sum(value) AS total
 FROM test_group_by_direct
 GROUP BY category
@@ -230,7 +230,7 @@ CREATE TABLE test_having
     category String,
     amount UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_having;
 
@@ -254,7 +254,7 @@ CREATE TABLE test_having_sub
     category String,
     amount UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_having_sub;
 
@@ -280,7 +280,7 @@ CREATE TABLE test_having_direct
     category String,
     amount UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_having_direct;
 

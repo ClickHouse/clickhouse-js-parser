@@ -6,10 +6,10 @@ CREATE TABLE test_tuple_filter__fuzz_2
     value LowCardinality(String),
     log_date LowCardinality(Date)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY log_date
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO test_tuple_filter__fuzz_2 SELECT
     number,

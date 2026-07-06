@@ -1,1028 +1,1271 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_multiple_prewhere_read_steps",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_multiple_prewhere_read_steps": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Sparse serialization for Nullable(Tuple) columns not supported yet"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_nullable_tuple_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_nullable_tuple_type": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "tup",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Tuple",
-                "args": [
-                  {
-                    "kind": "namedField",
-                    "name": "u",
-                    "type": {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "tup",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "TupleDataType",
+                  "name": "Tuple",
+                  "arguments": [
+                    {
+                      "type": "DataType",
                       "name": "UInt64"
-                    }
-                  },
-                  {
-                    "kind": "namedField",
-                    "name": "s",
-                    "type": {
+                    },
+                    {
+                      "type": "DataType",
                       "name": "String"
                     }
+                  ],
+                  "element_names": [
+                    "u",
+                    "s"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "ratio_of_defaults_for_sparse_serialization": "0",
+            "nullable_serialization_version": "allow_sparse",
+            "min_bytes_for_wide_part": "0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "tup"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "tup"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tup"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tup.s",
+                    "name_parts": [
+                      "tup",
+                      "s"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "a"
                   }
                 ]
               }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "settings": [
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "nullable_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "allow_sparse"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "nullable_tuple_sparse"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "tup"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "tup"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "tup"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "tup",
-              "s"
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "a"
           }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "tup",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Tuple",
-                "args": [
-                  {
-                    "kind": "namedField",
-                    "name": "u",
-                    "type": {
-                      "name": "UInt64"
-                    }
-                  },
-                  {
-                    "kind": "namedField",
-                    "name": "s",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "settings": [
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "nullable_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "allow_sparse"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "nullable_tuple_sparse_2"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "==",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "toString",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "source": "(number, toString(number))"
-            },
-            {
-              "kind": "literal",
-              "type": "NULL",
-              "value": "NULL"
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
-          }
-        ]
-      }
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse_2"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse_2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "unaryExpr",
-            "op": "NOT",
-            "expr": {
-              "kind": "functionCall",
-              "name": "isNull",
-              "args": [
+            "type": "ColumnDeclaration",
+            "name": "tup",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "tup"
+                  "type": "TupleDataType",
+                  "name": "Tuple",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "UInt64"
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "String"
+                    }
+                  ],
+                  "element_names": [
+                    "u",
+                    "s"
                   ]
                 }
               ]
             }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "ratio_of_defaults_for_sparse_serialization": "0",
+            "nullable_serialization_version": "allow_sparse",
+            "min_bytes_for_wide_part": "0"
+          }
+        }
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "nullable_tuple_sparse_2"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "functionCall",
-            "name": "isNull",
-            "args": [
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "tup"
+                "type": "Function",
+                "name": "if",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "tuple",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "toString",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Null",
+                    "value": null
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "not",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "isNull",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "tup"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "isNull",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tup"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "null_s",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toUInt64",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "isNull",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "tup.s",
+                          "name_parts": [
+                            "tup",
+                            "s"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "null_u",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toUInt64",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "isNull",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "tup.u",
+                          "name_parts": [
+                            "tup",
+                            "u"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tup"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "isNull",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tup.s",
+                    "name_parts": [
+                      "tup",
+                      "s"
+                    ]
+                  }
                 ]
               }
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
+        }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "tup.s",
+                "name_parts": [
+                  "tup",
+                  "s"
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "functionCall",
-                  "name": "isNull",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "tup",
-                        "s"
-                      ]
-                    }
+                  "type": "Identifier",
+                  "name": "tup.u",
+                  "name_parts": [
+                    "tup",
+                    "u"
                   ]
                 }
               ]
             }
-          ]
-        },
-        "alias": "null_s"
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "sum",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toUInt64",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "isNull",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "tup",
-                        "u"
-                      ]
-                    }
-                  ]
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
                 }
-              ]
-            }
-          ]
-        },
-        "alias": "null_u"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "not",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "isNull",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "tup"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "tup"
+              "type": "Identifier",
+              "name": "tup.u",
+              "name_parts": [
+                "tup",
+                "u"
               ]
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "isNull",
-          "args": [
+            },
             {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "tup.s",
+              "name_parts": [
                 "tup",
                 "s"
               ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "nullable_tuple_sparse_2"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "tup.u",
+                "name_parts": [
+                  "tup",
+                  "u"
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "Tuple",
+                "value": [
+                  {
+                    "value_type": "UInt64",
+                    "value": "0"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "5"
+                  },
+                  {
+                    "value_type": "UInt64",
+                    "value": "10"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "tup.u",
+                "name_parts": [
+                  "tup",
+                  "u"
+                ]
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "tup",
-          "s"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure"
       },
-      "right": {
-        "kind": "literal",
-        "type": "String",
-        "value": "10"
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "t",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "TupleDataType",
+                  "name": "Tuple",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "UInt32"
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "UInt64"
+                    }
+                  ],
+                  "element_names": [
+                    "x",
+                    "y"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "primary_key": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "ratio_of_defaults_for_sparse_serialization": "0",
+            "nullable_serialization_version": "allow_sparse",
+            "min_bytes_for_wide_part": "0"
+          }
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "columnRef",
-            "parts": [
-              "tup",
-              "u"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "where": {
-      "kind": "unaryExpr",
-      "op": "NOT",
-      "expr": {
-        "kind": "functionCall",
-        "name": "isNull",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "tup"
-            ]
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "if",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "tuple",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "123456789"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Null",
+                    "value": null
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "tup",
-          "u"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "tup",
-          "s"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "nullable_tuple_sparse_2"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "tup",
-          "u"
-        ]
-      },
-      "values": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Function",
+              "name": "dumpColumnStructure",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_structure"
+                  }
+                }
+              }
+            ]
+          }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "tup",
-            "u"
-          ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure_2"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure_2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "t",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nullable",
+              "arguments": [
+                {
+                  "type": "TupleDataType",
+                  "name": "Tuple",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "UInt32"
+                    },
+                    {
+                      "type": "DataType",
+                      "name": "UInt64"
+                    }
+                  ],
+                  "element_names": [
+                    "x",
+                    "y"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "primary_key": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        }
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "direction": "ASC"
+        "primary_key": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": []
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "ratio_of_defaults_for_sparse_serialization": "0",
+            "nullable_serialization_version": "allow_sparse",
+            "min_bytes_for_wide_part": "0"
+          }
+        }
       }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_structure"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_structure"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "t",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Tuple",
-                "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_structure_2"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "if",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "namedField",
-                    "name": "x",
-                    "type": {
-                      "name": "UInt32"
-                    }
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "modulo",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
                   },
                   {
-                    "kind": "namedField",
-                    "name": "y",
-                    "type": {
-                      "name": "UInt64"
-                    }
+                    "type": "Function",
+                    "name": "tuple",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "multiply",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "123456789"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "Tuple",
+                    "value": [
+                      {
+                        "value_type": "UInt64",
+                        "value": "0"
+                      },
+                      {
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
                   }
                 ]
               }
-            }
-          ]
-        }
-      }
-    ],
-    "primaryKeyInSchema": [],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "settings": [
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "nullable_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "allow_sparse"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_structure"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "==",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            {
-              "kind": "tupleLiteral",
-              "elements": [
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "123456789"
-                  }
-                }
-              ],
-              "source": "(number, number * 123456789)"
-            },
-            {
-              "kind": "literal",
-              "type": "NULL",
-              "value": "NULL"
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "dumpColumnStructure",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_structure"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_structure_2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_structure_2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "t",
-        "type": {
-          "name": "Nullable",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "Tuple",
-                "args": [
-                  {
-                    "kind": "namedField",
-                    "name": "x",
-                    "type": {
-                      "name": "UInt32"
-                    }
-                  },
-                  {
-                    "kind": "namedField",
-                    "name": "y",
-                    "type": {
-                      "name": "UInt64"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
                     }
                   }
-                ]
-              }
+                }
+              ]
             }
-          ]
-        }
-      }
-    ],
-    "primaryKeyInSchema": [],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "settings": [
-      {
-        "name": "ratio_of_defaults_for_sparse_serialization",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      },
-      {
-        "name": "nullable_serialization_version",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "allow_sparse"
-        }
-      },
-      {
-        "name": "min_bytes_for_wide_part",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_structure_2"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "==",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            },
-            {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "binaryExpr",
-                  "op": "*",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "123456789"
-                  }
-                }
-              ],
-              "source": "(number, number * 123456789)"
-            },
-            {
-              "kind": "tupleLiteral",
-              "elements": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              ],
-              "source": "(0, 0)"
-            }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "distinct": {
-      "kind": "distinct"
-    },
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "dumpColumnStructure",
-        "args": [
-          {
-            "kind": "asterisk"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "distinct": true,
+          "select": [
+            {
+              "type": "Function",
+              "name": "dumpColumnStructure",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_structure_2"
+                  }
+                }
+              }
+            ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_structure_2"
+        }
+      ]
     }
   }
 ]

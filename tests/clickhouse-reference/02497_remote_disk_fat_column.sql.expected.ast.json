@@ -1,218 +1,217 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_fixed_string_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_fixed_string_types": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-settings, no-fasttest, no-tsan, no-asan, no-msan"
-    ]
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "fat_granularity"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "fat",
-        "type": {
-          "name": "FixedString",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "160000"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "storage_policy",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "s3_cache"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "10G"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "fat_granularity"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "functionCall",
-              "name": "toString",
-              "args": [
+        "type": "Identifier",
+        "name": "fat_granularity"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "fat",
+            "data_type": {
+              "type": "DataType",
+              "name": "FixedString",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "160000"
                 }
               ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "_"
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
           }
         ]
       },
-      "settings": [
-        {
-          "name": "max_block_size",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "3000"
-          }
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "name": "max_insert_threads",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "8"
-          }
+        "order_by": {
+          "type": "Identifier",
+          "name": "x"
         },
-        {
-          "name": "min_insert_block_size_rows",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "storage_policy": "s3_cache"
           }
-        },
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "10G"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "fat_granularity"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "max_block_size": "3000",
+          "max_insert_threads": "8",
+          "min_insert_block_size_rows": "0",
+          "min_insert_block_size_bytes": "0"
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "toString",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "_"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "settings": {
+              "type": "Settings",
+              "changes": {
+                "max_block_size": "3000",
+                "max_insert_threads": "8",
+                "min_insert_block_size_rows": "0",
+                "min_insert_block_size_bytes": "0"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "name": "min_insert_block_size_bytes",
-          "value": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "x"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "fat_granularity"
+                  }
+                }
+              }
+            ]
+          },
+          "prewhere": {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "fat"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "256\\_%"
+              }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_threads": "2"
+            }
           }
         }
       ]
     }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "fat_granularity"
-    },
-    "prewhere": {
-      "kind": "functionCall",
-      "name": "like",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "fat"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "256\\\\_%"
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Too large sizes of FixedString to deserialize"
-    ]
   }
 ]

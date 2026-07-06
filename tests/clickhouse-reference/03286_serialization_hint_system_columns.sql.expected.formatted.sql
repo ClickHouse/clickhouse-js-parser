@@ -6,7 +6,7 @@ CREATE TABLE t_serialization_hints
     b UInt64,
     c Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9;
 

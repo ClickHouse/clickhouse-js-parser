@@ -5,7 +5,7 @@ CREATE TABLE where_qualified
     a UInt32,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO where_qualified;
 

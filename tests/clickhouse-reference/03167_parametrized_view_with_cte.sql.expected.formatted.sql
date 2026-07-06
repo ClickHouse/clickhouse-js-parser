@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE OR REPLACE VIEW param_test
 AS
-SELECT {test_str:String} AS s_result;
+SELECT 'placeholder' AS s_result;
 
 WITH 'OK' AS s
 
@@ -31,7 +31,7 @@ WITH (
 SELECT *
 FROM param_test(test_str = s);
 
-WITH CAST(123, 'String') AS s
+WITH CAST(123 AS String) AS s
 
 SELECT *
 FROM param_test(test_str = s);

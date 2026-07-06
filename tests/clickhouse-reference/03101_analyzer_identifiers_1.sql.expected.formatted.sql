@@ -1,12 +1,12 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23194
 -- This test add query-templates for fuzzer
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE:Identifier};
+CREATE DATABASE CLICKHOUSE_DATABASE;
 
-USE {CLICKHOUSE_DATABASE:Identifier};
+USE CLICKHOUSE_DATABASE;
 
 CREATE TABLE table
 (
@@ -21,9 +21,9 @@ FROM table AS t;
 USE default;
 
 SELECT column
-FROM {CLICKHOUSE_DATABASE:Identifier}.table;
+FROM CLICKHOUSE_DATABASE.table;
 
-SELECT {CLICKHOUSE_DATABASE:Identifier}.table.column
+SELECT CLICKHOUSE_DATABASE.table.column
 FROM table;
 
 --
@@ -36,13 +36,13 @@ FROM
         SELECT
             x,
             y
-        FROM VALUES('x UInt16, y UInt16', (0,1))
-    ) AS t1
-CROSS JOIN (
+        FROM VALUES('x UInt16, y UInt16', (0, 1))
+    ) AS t1,
+    (
         SELECT
             x,
             z
-        FROM VALUES('x UInt16, z UInt16', (2,3))
+        FROM VALUES('x UInt16, z UInt16', (2, 3))
     ) AS t2;
 
 SELECT '---';

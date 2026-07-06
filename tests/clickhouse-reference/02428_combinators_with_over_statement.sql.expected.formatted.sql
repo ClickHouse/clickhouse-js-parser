@@ -5,9 +5,9 @@ CREATE TABLE test
     x AggregateFunction(uniq, UInt64),
     y Int64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET max_insert_threads = 1;
+SET max_insert_threads = '1';
 
 INSERT INTO test SELECT
     uniqState(number) AS x,

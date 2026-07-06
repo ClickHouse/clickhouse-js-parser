@@ -1,329 +1,388 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_full_text_index",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_full_text_index": "1"
       }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Some tests for lightweight deleted on a column with text index"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "FixedString",
-          "args": [
-            {
-              "kind": "literal",
-              "value": "37"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "idx",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        "indexType": {
-          "name": "text",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "tokenizer"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "array",
-                "args": []
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "delete",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "literal",
-      "type": "Bool",
-      "value": "1"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
-        ]
-      }
-    ]
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "FixedString",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "37"
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "idx",
+            "expression": {
+              "type": "Identifier",
+              "name": "s"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "text",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "equals",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "tokenizer"
+                    },
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "arguments": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "granularity": 100000000
+          }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
       }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
         {
-          "kind": "castExpr",
-          "expr": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DeleteQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "predicate": {
+        "type": "Literal",
+        "value_type": "Bool",
+        "value": true
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "CAST",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "String"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "s"
+        }
+      ],
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "generateRandom",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "s FixedString(37)"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "12734763443271340066"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "25"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "3"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "tab"
+                  }
+                }
+              }
             ]
           },
-          "type": "String"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
+          "where": {
+            "type": "Function",
+            "name": "hasAllTokens",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "s"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "was"
+              }
+            ]
           }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "s"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "generateRandom",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "s FixedString(37)"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "12734763443271340066"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "25"
-          },
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
-          }
-        ]
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      }
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "final": true
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "hasAllTokens",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "was"
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
     }
   }
 ]

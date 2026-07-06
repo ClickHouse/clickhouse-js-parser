@@ -8,7 +8,7 @@ CREATE TABLE moving_sum_num
     dt DateTime,
     v UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (k, dt);
 
 INSERT INTO moving_sum_num SELECT
@@ -41,9 +41,9 @@ FORMAT TabSeparatedWithNames;
 
 -- Result of function 'groupArrayMovingSum' depends on the order of merging
 -- aggregate states which is implementation defined in external aggregation.
-SET max_bytes_before_external_group_by = 0;
+SET max_bytes_before_external_group_by = '0';
 
-SET max_bytes_ratio_before_external_group_by = 0;
+SET max_bytes_ratio_before_external_group_by = '0';
 
 SELECT
     k,
@@ -102,7 +102,7 @@ ORDER BY k ASC
 FORMAT TabSeparatedWithNamesAndTypes;
 
 CREATE TABLE moving_sum_dec
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT
     k,
     dt,

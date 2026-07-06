@@ -10,7 +10,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             number % 2 AS k1,
             toString(number % 6) AS k2,

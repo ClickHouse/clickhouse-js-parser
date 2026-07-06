@@ -5,9 +5,9 @@ CREATE TEMPORARY TABLE table_merge_tree_02525
     id UInt64,
     info String
 )
-ENGINE = MergeTree
-ORDER BY id
-PRIMARY KEY id;
+ENGINE = MergeTree()
+PRIMARY KEY id
+ORDER BY id;
 
 INSERT INTO table_merge_tree_02525;
 
@@ -32,7 +32,7 @@ CREATE TEMPORARY TABLE table_log_02525
     id UInt64,
     info String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO table_log_02525;
 
@@ -48,7 +48,7 @@ CREATE TEMPORARY TABLE table_stripe_log_02525
     id UInt64,
     info String
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 INSERT INTO table_stripe_log_02525;
 
@@ -64,7 +64,7 @@ CREATE TEMPORARY TABLE table_tiny_log_02525
     id UInt64,
     info String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO table_tiny_log_02525;
 
@@ -81,8 +81,8 @@ CREATE TEMPORARY TABLE table_replicated_merge_tree_02525
     info String
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_02525/table_replicated_merge_tree_02525', 'r1')
-ORDER BY id
-PRIMARY KEY id; -- { serverError INCORRECT_QUERY }
+PRIMARY KEY id
+ORDER BY id; -- { serverError INCORRECT_QUERY }
 
 DROP TEMPORARY TABLE IF EXISTS table_keeper_map_02525;
 
@@ -91,5 +91,5 @@ CREATE TEMPORARY TABLE table_keeper_map_02525
     key String,
     value UInt32
 )
-ENGINE = KeeperMap(concat('/', currentDatabase(), '/test02525'))
+ENGINE = KeeperMap('/' || currentDatabase() || '/test02525')
 PRIMARY KEY key; -- { serverError INCORRECT_QUERY }

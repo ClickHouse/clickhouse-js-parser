@@ -1,5 +1,5 @@
 -- Tags: no-shared-merge-tree
-SET alter_sync = 2;
+SET alter_sync = '2';
 
 -- {echoOn}
 DROP TABLE IF EXISTS test;
@@ -8,7 +8,7 @@ CREATE TABLE test
 (
     a Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test;
@@ -21,7 +21,7 @@ WHERE table = 'test'
     AND active
     AND database = currentDatabase();
 
-ALTER TABLE test DROP PART 'all_1_1_1';
+ALTER TABLE test DETACH PART 'all_1_1_1';
 
 ALTER TABLE test ATTACH PART 'all_1_1_1';
 

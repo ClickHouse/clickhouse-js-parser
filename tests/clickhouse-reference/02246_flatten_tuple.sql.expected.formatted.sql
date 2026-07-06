@@ -3,13 +3,13 @@ DROP TABLE IF EXISTS t_flatten_tuple;
 
 DROP TABLE IF EXISTS t_flatten_object;
 
-SET flatten_nested = 0;
+SET flatten_nested = '0';
 
 CREATE TABLE t_flatten_tuple
 (
     t Tuple(t1 Nested(a UInt32, s String), b UInt32, t2 Tuple(k String, v UInt32))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_flatten_tuple;
 

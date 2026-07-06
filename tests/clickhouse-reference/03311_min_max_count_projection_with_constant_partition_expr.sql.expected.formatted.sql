@@ -6,8 +6,8 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-PARTITION BY (EXISTS((
+PARTITION BY exists((
     SELECT 1
-)));
+));
 
 DROP TABLE t0;

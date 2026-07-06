@@ -10,13 +10,13 @@ CREATE TABLE order_by_const
     c UInt64,
     d UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (a, b)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 TRUNCATE TABLE order_by_const;
 
-SYSTEM stop merges order_by_const;
+SYSTEM STOP MERGES order_by_const;
 
 INSERT INTO order_by_const (a, b, c, d);
 
@@ -27,7 +27,7 @@ INSERT INTO order_by_const (a, b, c, d);
 -- output 1 sorted stream
 SELECT row_number() OVER (ORDER BY 1 ASC, a ASC)
 FROM order_by_const
-SETTINGS query_plan_enable_multithreading_after_window_functions = 0;
+SETTINGS query_plan_enable_multithreading_after_window_functions = '0';
 
 DROP TABLE order_by_const;
 
@@ -42,8 +42,8 @@ FROM numbers(10); -- { serverError BAD_ARGUMENTS }
 -- default arguments of lagInFrame can be a subtype of the argument
 SELECT
     number,
-    lagInFrame(toNullable(number), 2, NULL),
-    lagInFrame(number, 2, 1)
+    lagInFrame(toNullable(number), 2, NULL) OVER w,
+    lagInFrame(number, 2, 1) OVER w
 FROM numbers(10)
 WINDOW w AS (ORDER BY number ASC);
 
@@ -52,4 +52,4 @@ SELECT
     number,
     row_number() OVER (PARTITION BY number ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
 FROM numbers(4)
-SETTINGS max_block_size = 2;
+SETTINGS max_block_size = '2';

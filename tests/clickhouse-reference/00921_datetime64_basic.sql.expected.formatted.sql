@@ -12,7 +12,7 @@ SELECT toDateTime64('2019-09-16 19:20:11.234', 'abc'); -- { serverError ILLEGAL_
 
 SELECT toDateTime64('2019-09-16 19:20:11.234', 100); -- { serverError ARGUMENT_OUT_OF_BOUND } # too big scale
 
-SELECT toDateTime64(CAST([['CLb5Ph ']], 'String'), uniqHLL12('2Gs1V', 752)); -- { serverError ILLEGAL_COLUMN } # non-const string and non-const scale
+SELECT toDateTime64(CAST([['CLb5Ph ']] AS String), uniqHLL12('2Gs1V', 752)); -- { serverError ILLEGAL_COLUMN } # non-const string and non-const scale
 
 SELECT toDateTime64('2019-09-16 19:20:11.234', 3, 'qqq'); -- { serverError BAD_ARGUMENTS } # invalid timezone
 
@@ -32,13 +32,13 @@ WITH 'UTC' AS timezone
 
 SELECT
     timezone,
-    timeZoneOf(now64(3, timezone)) == timezone;
+    timeZoneOf(now64(3, timezone)) = timezone;
 
 WITH 'Europe/Minsk' AS timezone
 
 SELECT
     timezone,
-    timeZoneOf(now64(3, timezone)) == timezone;
+    timeZoneOf(now64(3, timezone)) = timezone;
 
 SELECT toDateTime64('2019-09-16 19:20:11', 3, 'UTC'); -- this now works OK and produces timestamp with no subsecond part
 

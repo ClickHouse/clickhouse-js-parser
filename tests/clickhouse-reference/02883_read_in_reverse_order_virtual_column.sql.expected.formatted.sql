@@ -5,7 +5,7 @@ CREATE TABLE t_reverse_order_virt_col
     order_0 Decimal(76, 53),
     p_time Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY order_0
 PARTITION BY toYYYYMM(p_time);
 

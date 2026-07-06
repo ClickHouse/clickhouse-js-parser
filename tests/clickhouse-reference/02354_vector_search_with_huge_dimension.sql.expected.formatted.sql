@@ -1,6 +1,6 @@
 -- Tags: no-fasttest, no-ordinary-database
 -- Tests vector search over vectors with a huge dimension (32k)
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -9,11 +9,11 @@ CREATE TABLE tab
     id Int32,
     attr1 Int32,
     vec Array(Float32),
-    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 32768)
+    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 32768) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO tab SELECT
     number,
@@ -25,15 +25,17 @@ SELECT '-- Plan must contain vector index usage';
 
 SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT id
-        FROM tab
-        ORDER BY L2Distance(vec, arrayWithConstant(32768, 0.2)) ASC
-        LIMIT 3
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT id
+                FROM tab
+                ORDER BY L2Distance(vec, arrayWithConstant(32768, 0.2)) ASC
+                LIMIT 3
+            ))
     )
-WHERE ilike(`explain`, '%Skip%')
-    OR ilike(`explain`, '%Name: idx%')
-    OR ilike(`explain`, '%vector_similarity%');
+WHERE `explain` ILIKE '%Skip%'
+    OR `explain` ILIKE '%Name: idx%'
+    OR `explain` ILIKE '%vector_similarity%';
 
 -- Nearest vectors to [0.9,0.9...,0.9] are [0.9,...], [0.8,...], [0.7,...]
 SELECT id

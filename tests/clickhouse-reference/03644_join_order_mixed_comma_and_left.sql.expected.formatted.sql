@@ -4,13 +4,13 @@ DROP TABLE IF EXISTS n2;
 
 DROP TABLE IF EXISTS n3;
 
-SET query_plan_optimize_join_order_limit = 16;
+SET query_plan_optimize_join_order_limit = '16';
 
 CREATE TABLE n1
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO n1 SELECT number
@@ -20,7 +20,7 @@ CREATE TABLE n2
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO n2 SELECT number
@@ -30,7 +30,7 @@ CREATE TABLE n3
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 INSERT INTO n3 SELECT number
@@ -38,8 +38,8 @@ FROM numbers(2);
 
 SELECT *
 FROM
-    n1
-CROSS JOIN n2
+    n1,
+    n2
 LEFT JOIN n3
     ON n1.number = n3.number
 ORDER BY

@@ -9,7 +9,7 @@ CREATE TABLE test_log
     s String,
     a Array(Nullable(String))
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE test_tiny_log
 (
@@ -17,7 +17,7 @@ CREATE TABLE test_tiny_log
     s String,
     a Array(Nullable(String))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_log;
 

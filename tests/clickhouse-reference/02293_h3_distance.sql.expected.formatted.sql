@@ -7,7 +7,7 @@ CREATE TABLE h3_indexes
     start String,
     `end` String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- test values taken from h3 library test suite
 INSERT INTO h3_indexes;

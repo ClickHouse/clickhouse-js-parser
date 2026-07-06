@@ -1,8 +1,8 @@
-SET insert_keeper_max_retries = 100;
+SET insert_keeper_max_retries = '100';
 
-SET insert_keeper_retry_max_backoff_ms = 10;
+SET insert_keeper_retry_max_backoff_ms = '10';
 
-DROP TABLE IF EXISTS table1;
+DROP TABLE IF EXISTS table1 SYNC;
 
 CREATE TABLE table1
 (
@@ -45,7 +45,7 @@ FROM table1
 WHERE id % 200 < 0
 ORDER BY id ASC;
 
-DROP TABLE IF EXISTS table2;
+DROP TABLE IF EXISTS table2 SYNC;
 
 CREATE TABLE table2
 (
@@ -72,7 +72,7 @@ WHERE table = 'table2'
     AND database = currentDatabase()
 ORDER BY p ASC;
 
-DROP TABLE IF EXISTS table3;
+DROP TABLE IF EXISTS table3 SYNC;
 
 CREATE TABLE table3
 (
@@ -81,7 +81,7 @@ CREATE TABLE table3
 )
 ENGINE = MergeTree()
 ORDER BY id
-PARTITION BY (id % 200, (id % 200) % 10, toInt32(round((id % 200) / 2, 0)));
+PARTITION BY (id % 200, id % 200 % 10, toInt32(round(id % 200 / 2, 0)));
 
 INSERT INTO table3 SELECT
     number - 205,
@@ -103,14 +103,14 @@ DETACH TABLE table3;
 
 ATTACH TABLE table3;
 
-DROP TABLE IF EXISTS table4;
+DROP TABLE IF EXISTS table4 SYNC;
 
 CREATE TABLE table4
 (
     id Int64,
     v UInt64,
     s String,
-    INDEX a tuple(id * 2, s) TYPE minmax GRANULARITY 3
+    INDEX a (id * 2, s) TYPE minmax() GRANULARITY 3
 )
 ENGINE = MergeTree()
 ORDER BY v
@@ -134,10 +134,10 @@ SELECT
 FROM table1
 ORDER BY v ASC;
 
-DROP TABLE table1;
+DROP TABLE table1 SYNC;
 
-DROP TABLE table2;
+DROP TABLE table2 SYNC;
 
-DROP TABLE table3;
+DROP TABLE table3 SYNC;
 
-DROP TABLE table4;
+DROP TABLE table4 SYNC;

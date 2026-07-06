@@ -9,7 +9,7 @@ CREATE TABLE columns_transformers
     b_bytes int,
     c_bytes int
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO columns_transformers;
 

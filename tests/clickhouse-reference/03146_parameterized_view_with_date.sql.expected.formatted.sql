@@ -15,7 +15,7 @@ CREATE VIEW pv
 AS
 SELECT *
 FROM table_pv
-WHERE timestamp_field > {timestamp_param:DateTime};
+WHERE timestamp_field > '2020-01-01 00:00:00';
 
 SELECT *
 FROM pv(timestamp_param = toDateTime('2024-04-01 00:00:01'));

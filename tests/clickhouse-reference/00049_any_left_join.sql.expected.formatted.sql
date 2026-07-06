@@ -5,7 +5,7 @@ FROM (
             joined
         FROM
             `system`.numbers
-        LEFT JOIN (
+        ANY LEFT JOIN (
                 SELECT
                     number * 2 AS number,
                     number * 10 + 1 AS joined

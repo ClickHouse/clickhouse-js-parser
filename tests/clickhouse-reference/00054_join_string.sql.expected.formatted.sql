@@ -5,7 +5,7 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     ) AS js1
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             reinterpretAsString(intDiv(number, 2) + reinterpretAsUInt8('A')) AS k,
             number AS joined

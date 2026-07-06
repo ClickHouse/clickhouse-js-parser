@@ -8,7 +8,7 @@ CREATE TABLE subcolumns
     lc LowCardinality(String),
     nested Nested(col1 String, col2 Nullable(UInt32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 SETTINGS min_bytes_for_wide_part = '10M';
 
@@ -54,9 +54,9 @@ CREATE TABLE subcolumns
     lc LowCardinality(String),
     nested Nested(col1 String, col2 Nullable(UInt32))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 -- SELECT nested.col1, nested.col2, nested.size0, nested.size0, nested.col2.null FROM subcolumns;
 DROP TABLE subcolumns;

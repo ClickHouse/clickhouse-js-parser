@@ -4,9 +4,9 @@ CREATE TABLE count
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO count SELECT *
 FROM numbers(1234567);
@@ -39,7 +39,8 @@ LIMIT 1;
 
 SELECT arrayJoin([count(), count()])
 FROM count
-LIMIT 1, 1;
+LIMIT 1
+OFFSET 1;
 
 SELECT arrayJoin([count(), count()]) AS x
 FROM count

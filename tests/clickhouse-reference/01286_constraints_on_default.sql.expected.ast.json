@@ -1,264 +1,339 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "default_constraints"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: no-async-insert",
-      "-- - no-async-insert -- due to INSERT is performed in background the connection is preserved, and last CREATE TEMPORARY TABLE will fail with TABLE_ALREADY_EXISTS"
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "default_constraints"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt8"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "default_constraints"
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "UInt8"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      },
-      {
-        "kind": "constraintDef",
-        "name": "c",
-        "constraintType": "CHECK",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "y"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
-          }
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "default_constraints"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
+        "type": "Identifier",
+        "name": "default_constraints"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "type": "Constraint",
+            "name": "c",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "y"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
+                }
+              ]
+            }
+          }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "default_constraints"
+      },
+      "columns": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
+          "type": "Identifier",
+          "name": "x"
         }
       ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5"
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError VIOLATED_CONSTRAINT }"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "default_constraints"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError VIOLATED_CONSTRAINT }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "y"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "throwIf",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "unaryExpr",
-            "op": "NOT",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "<",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "y"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "5"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "number"
               }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "5"
             }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "default_constraints"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "default_constraints"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "default_constraints"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "default_constraints"
-    },
-    "temporary": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt8"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "default_constraints"
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "UInt8"
-        },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "x"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "y"
+            },
+            {
+              "type": "Function",
+              "name": "throwIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "not",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "less",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "y"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "default_constraints"
+                  }
+                }
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
           }
         }
-      },
-      {
-        "kind": "constraintDef",
-        "name": "c",
-        "constraintType": "CHECK",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "<",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "y"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "default_constraints"
+                  }
+                }
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "5"
           }
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "default_constraints"
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "temporary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "default_constraints"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        ],
+        "constraints": [
+          {
+            "type": "Constraint",
+            "name": "c",
+            "constraint_type": "CHECK",
+            "expression": {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "y"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
   }
 ]

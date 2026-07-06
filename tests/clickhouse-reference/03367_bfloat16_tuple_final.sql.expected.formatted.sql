@@ -5,7 +5,7 @@ CREATE TABLE t0
     c0 Tuple(BFloat16)
 )
 ENGINE = SummingMergeTree()
-ORDER BY (c0);
+ORDER BY c0;
 
 INSERT INTO t0 (c0);
 

@@ -101,33 +101,33 @@ SELECT countSubstringsCaseInsensitive('aaaa', 'AA');
 
 SELECT countSubstringsCaseInsensitive(upper(char(number)), lower(char(number)))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitive(concat(toString(number), 'aaa111'), char(number))
 FROM numbers(100)
-WHERE number = 0x41;
+WHERE number = 65;
 
 SELECT countSubstringsCaseInsensitive(concat(toString(number), 'aaa111aa1'), char(number))
 FROM numbers(100)
-WHERE number = 0x41;
+WHERE number = 65;
 
 SELECT countSubstringsCaseInsensitive('aab', char(number))
 FROM numbers(100)
-WHERE number >= 0x41
-    AND number <= 0x43; -- A..C
+WHERE number >= 65
+    AND number <= 67; -- A..C
 
 SELECT countSubstringsCaseInsensitive('abaa', char(number))
 FROM numbers(100)
-WHERE number = 0x41;
+WHERE number = 65;
 
 SELECT countSubstringsCaseInsensitive('abaaaa', char(number))
 FROM numbers(100)
-WHERE number = 0x41;
+WHERE number = 65;
 
 SELECT countSubstringsCaseInsensitive(char(number), 'a')
 FROM numbers(100)
-WHERE number >= 0x41
-    AND number <= 0x43;
+WHERE number >= 65
+    AND number <= 67;
 
 SELECT countSubstringsCaseInsensitiveUTF8('фуу', 'Ф');
 
@@ -151,53 +151,53 @@ SELECT countSubstringsCaseInsensitiveUTF8('яяяя', 'ЯЯ');
 -- for the haystack we use number as-is, for needle we just add dependency from number to go to vectorVector code
 SELECT countSubstringsCaseInsensitiveUTF8(upperUTF8(concat(char(number), 'я')), lowerUTF8(concat(substringUTF8(char(number), 2), 'Я')))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8(concat(toString(number), 'ЯЯЯ111'), concat(substringUTF8(char(number), 2), 'я'))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8(concat(toString(number), 'яяя111яя1'), concat(substringUTF8(char(number), 2), 'Я'))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT
     'intersect',
     countSubstringsCaseInsensitiveUTF8(concat(toString(number), 'яяяяяяяя'), concat(substringUTF8(char(number), 2), 'Яя'))
 FROM numbers(100)
-WHERE number = 0x41
+WHERE number = 65
 FORMAT CSV; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8('ЯЯb', concat(substringUTF8(char(number), 2), 'я'))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8('ЯbЯЯ', concat(substringUTF8(char(number), 2), 'я'))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8('ЯbЯЯЯЯ', concat(substringUTF8(char(number), 2), 'я'))
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT
     'intersect',
     countSubstringsCaseInsensitiveUTF8('ЯЯЯЯЯЯЯЯ', concat(substringUTF8(char(number), 2), 'Яя'))
 FROM numbers(100)
-WHERE number = 0x41
+WHERE number = 65
 FORMAT CSV; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8(concat(char(number), 'я'), 'Я')
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT countSubstringsCaseInsensitiveUTF8(concat(char(number), 'б'), 'Я')
 FROM numbers(100)
-WHERE number = 0x41; -- A
+WHERE number = 65; -- A
 
 SELECT
     'intersect',
     countSubstringsCaseInsensitiveUTF8(concat(char(number), repeat('я', 8)), 'яЯ')
 FROM numbers(100)
-WHERE number = 0x41
+WHERE number = 65
 FORMAT CSV; -- A

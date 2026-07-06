@@ -7,7 +7,7 @@ CREATE TABLE t1
     key String,
     attr UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE t2
@@ -15,7 +15,7 @@ CREATE TABLE t2
     key String,
     attr UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 INSERT INTO t1;
@@ -36,5 +36,5 @@ INNER JOIN (
     USING (key1)
 ORDER BY a.attr ASC
 SETTINGS
-    enable_analyzer = 1,
-    analyzer_compatibility_join_using_top_level_identifier = 1;
+    enable_analyzer = '1',
+    analyzer_compatibility_join_using_top_level_identifier = '1';

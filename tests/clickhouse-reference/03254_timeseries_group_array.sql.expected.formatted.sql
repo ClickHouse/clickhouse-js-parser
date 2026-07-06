@@ -10,21 +10,13 @@ INSERT INTO ts_raw_data SELECT
     arrayJoin(*).1::DateTime64(3, 'UTC') AS timestamp,
     arrayJoin(*).2 AS value
 FROM (
-        SELECT [
-(1734955421.020, 0),
-(1734955436.020, 5),
-(1734955451.020, 3),
-(1734955451.020, 2),
-(1734955435.020, 4),
-(1734955436.020, 3),
-(1734955511.020, 5)
-]
+        SELECT [(1734955421.02, 0), (1734955436.02, 5), (1734955451.02, 3), (1734955451.02, 2), (1734955435.02, 4), (1734955436.02, 3), (1734955511.02, 5)]
     );
 
 SELECT *
 FROM ts_raw_data;
 
-SET allow_experimental_time_series_aggregate_functions = 1;
+SET allow_experimental_time_series_aggregate_functions = '1';
 
 SELECT
     'groupArray: ',

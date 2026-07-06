@@ -1,6 +1,6 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS tab1;
 
@@ -15,7 +15,7 @@ CREATE TABLE tab1
     a1 Int32,
     b1 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a1;
 
 CREATE TABLE tab2
@@ -23,7 +23,7 @@ CREATE TABLE tab2
     a2 Int32,
     b2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a2;
 
 CREATE TABLE tab3
@@ -31,7 +31,7 @@ CREATE TABLE tab3
     a3 Int32,
     b3 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a3;
 
 CREATE TABLE tab1_copy
@@ -39,7 +39,7 @@ CREATE TABLE tab1_copy
     a1 Int32,
     b1 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a1;
 
 INSERT INTO tab1;
@@ -53,7 +53,7 @@ INSERT INTO tab1_copy;
 SELECT a1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 = a2;
 
 SELECT
@@ -61,7 +61,7 @@ SELECT
     b1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 = a2;
 
 SELECT
@@ -69,7 +69,7 @@ SELECT
     a2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 = a2;
 
 SELECT
@@ -77,7 +77,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 = a2;
 
 SELECT
@@ -86,13 +86,13 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 = a2;
 
 SELECT b1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON toInt32(a1 + 1) = a2;
 
 SELECT
@@ -100,7 +100,7 @@ SELECT
     a2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON toInt32(a1 + 1) = a2;
 
 SELECT
@@ -108,19 +108,19 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON toInt32(a1 + 1) = a2;
 
 SELECT a1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1;
 
 SELECT a2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1;
 
 SELECT
@@ -130,7 +130,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1;
 
 SELECT
@@ -141,7 +141,7 @@ SELECT
     a2 + 1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1;
 
 SELECT
@@ -151,7 +151,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON a1 + 4 = b2 + 2;
 
 SELECT
@@ -159,7 +159,7 @@ SELECT
     b2
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a2 = a3
     AND b2 = b3;
 
@@ -168,7 +168,7 @@ SELECT
     b3
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a2 = a3
     AND b2 = b3;
 
@@ -179,14 +179,14 @@ SELECT
     b3
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a2 = a3
     AND b2 = b3;
 
 SELECT a1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     AND a1 + 4 = b2 + 2;
 
@@ -195,7 +195,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     AND a1 + 4 = b2 + 2;
 
@@ -206,7 +206,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     AND a1 + 4 = b2 + 2;
 
@@ -215,7 +215,7 @@ SELECT
     b2 + 1
 FROM
     tab1
-LEFT JOIN tab2
+ANY LEFT JOIN tab2
     ON b1 + 1 = a2 + 1
     AND a1 + 4 = b2 + 2;
 
@@ -226,7 +226,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON `first`.b1 = second_.a2;
 
 SELECT
@@ -236,7 +236,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON second_.a2 = `first`.b1;
 
 SELECT
@@ -246,7 +246,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON tab1.b1 = tab2.a2;
 
 SELECT
@@ -256,7 +256,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON tab2.a2 = tab1.b1;
 
 SELECT
@@ -266,7 +266,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON `first`.b1 = tab2.a2;
 
 SELECT
@@ -276,7 +276,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON tab2.a2 = `first`.b1;
 
 SELECT
@@ -286,7 +286,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON tab1.b1 = second_.a2;
 
 SELECT
@@ -296,7 +296,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON second_.a2 = tab1.b1;
 
 SELECT
@@ -306,7 +306,7 @@ SELECT
     second_.b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON b1 = a2;
 
 SELECT
@@ -316,7 +316,7 @@ SELECT
     tab2.b2
 FROM
     tab1 AS `first`
-LEFT JOIN tab2 AS second_
+ANY LEFT JOIN tab2 AS second_
     ON b1 = a2;
 
 SELECT
@@ -324,7 +324,7 @@ SELECT
     b2
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a2 + b2 = a3 + b3;
 
 SELECT
@@ -332,7 +332,7 @@ SELECT
     b2
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a3 + tab3.b3 = a2 + b2;
 
 SELECT
@@ -340,7 +340,7 @@ SELECT
     b2
 FROM
     tab2 AS second_
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a3 + b3 = a2 + second_.b2;
 
 SELECT
@@ -348,7 +348,7 @@ SELECT
     b2
 FROM
     tab2 AS second_
-LEFT JOIN tab3 AS third
+ANY LEFT JOIN tab3 AS third
     ON third.a3 + tab3.b3 = tab2.a2 + second_.b2;
 
 SELECT
@@ -356,7 +356,7 @@ SELECT
     tab1_copy.a1
 FROM
     tab1
-LEFT JOIN tab1_copy
+ANY LEFT JOIN tab1_copy
     ON tab1.b1 + 3 = tab1_copy.b1 + 2
 FORMAT JSONEachRow;
 
@@ -365,7 +365,7 @@ SELECT
     copy.a1
 FROM
     tab1
-LEFT JOIN tab1_copy AS copy
+ANY LEFT JOIN tab1_copy AS copy
     ON tab1.b1 + 3 = tab1_copy.b1 + 2
 FORMAT JSONEachRow;
 
@@ -374,14 +374,14 @@ SELECT
     tab1_copy.a1
 FROM
     tab1
-LEFT JOIN tab1_copy AS copy
+ANY LEFT JOIN tab1_copy AS copy
     ON tab1.b1 + 3 = tab1_copy.b1 + 2
 FORMAT JSONEachRow;
 
 SELECT a1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -390,7 +390,7 @@ LEFT JOIN (
 SELECT a1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT a2
         FROM tab2
     )
@@ -401,7 +401,7 @@ SELECT
     b1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -414,7 +414,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -425,7 +425,7 @@ SELECT
     a2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT a2
         FROM tab2
     )
@@ -434,7 +434,7 @@ LEFT JOIN (
 SELECT b1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -447,7 +447,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -459,7 +459,7 @@ SELECT
     a2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     )
@@ -472,7 +472,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 AS z
@@ -487,7 +487,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 + 1 AS z
@@ -502,7 +502,7 @@ SELECT
     b2
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 + 1 AS z
@@ -518,7 +518,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     ) AS second_
@@ -531,7 +531,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 AS z
@@ -546,7 +546,7 @@ SELECT
     b2
 FROM
     tab1 AS `first`
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             *,
             a2 + 1 AS z
@@ -561,7 +561,7 @@ SELECT
     second_.b2
 FROM
     tab1 AS `first`
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab2
     ) AS second_
@@ -572,7 +572,7 @@ SELECT
     s.a1
 FROM
     tab1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM tab1_copy
     ) AS s

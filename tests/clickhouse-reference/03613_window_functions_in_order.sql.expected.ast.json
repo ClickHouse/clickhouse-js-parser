@@ -1,316 +1,440 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "index_granularity",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true,
-    "leadingComments": [
-      "-- Tags: no-parallel-replicas",
-      "-- Optimization doen't work with parallel replicas"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "%",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "number"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "12345"
-          }
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers_mt",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "Float64",
-            "value": "1e7"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4"
-        }
+        "type": "Identifier",
+        "name": "t"
       },
-      {
-        "name": "optimize_read_in_order",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "countIf",
-        "args": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "functionCall",
-            "name": "like",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
-              },
-              {
-                "kind": "literal",
-                "type": "String",
-                "value": "%ScatterByPartitionTransform%"
-              }
-            ]
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
           }
         ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "explainType": "PIPELINE",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "ROW_NUMBER",
-                "args": [],
-                "window": {
-                  "partitionBy": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  ],
-                  "orderBy": [
-                    {
-                      "kind": "orderByItem",
-                      "expr": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "b"
-                        ]
-                      },
-                      "direction": "DESC"
-                    }
-                  ]
-                }
-              },
-              "alias": "rn"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "t"
-          },
-          "settings": [
-            {
-              "name": "query_plan_reuse_storage_ordering_for_window_functions",
-              "value": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            }
-          ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "index_granularity": "8192"
+          }
         }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "countIf",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "functionCall",
-            "name": "like",
-            "args": [
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "explain"
-                ]
+                "type": "Identifier",
+                "name": "number"
               },
               {
-                "kind": "literal",
-                "type": "String",
-                "value": "%ScatterByPartitionTransform%"
+                "type": "Function",
+                "name": "modulo",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "12345"
+                  }
+                ]
               }
-            ]
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers_mt",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "Float64",
+                          "value": 10000000
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "explain",
-        "explainType": "PIPELINE",
-        "query": {
-          "kind": "select",
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_threads": "4",
+        "optimize_read_in_order": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "ROW_NUMBER",
-                "args": [],
-                "window": {
-                  "partitionBy": [
+              "type": "Function",
+              "name": "countIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "like",
+                  "is_operator": true,
+                  "arguments": [
                     {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  ],
-                  "orderBy": [
+                      "type": "Identifier",
+                      "name": "explain"
+                    },
                     {
-                      "kind": "orderByItem",
-                      "expr": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "b"
-                        ]
-                      },
-                      "direction": "DESC"
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "%ScatterByPartitionTransform%"
                     }
                   ]
                 }
-              },
-              "alias": "rn"
+              ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "t"
-          },
-          "settings": [
-            {
-              "name": "query_plan_reuse_storage_ordering_for_window_functions",
-              "value": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN PIPELINE"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "a"
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "b"
+                                                },
+                                                {
+                                                  "type": "Function",
+                                                  "alias": "rn",
+                                                  "name": "ROW_NUMBER",
+                                                  "is_window_function": true,
+                                                  "kind": "WINDOW_FUNCTION",
+                                                  "arguments": [],
+                                                  "window_definition": {
+                                                    "type": "WindowDefinition",
+                                                    "partition_by": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "a"
+                                                      }
+                                                    ],
+                                                    "order_by": [
+                                                      {
+                                                        "type": "OrderByElement",
+                                                        "expression": {
+                                                          "type": "Identifier",
+                                                          "name": "b"
+                                                        },
+                                                        "direction": "DESC"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "t"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "settings": {
+                                                "type": "Settings",
+                                                "changes": {
+                                                  "query_plan_reuse_storage_ordering_for_window_functions": "0"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "countIf",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "like",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "explain"
+                    },
+                    {
+                      "type": "Literal",
+                      "value_type": "String",
+                      "value": "%ScatterByPartitionTransform%"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "viewExplain",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": "EXPLAIN PIPELINE"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "String",
+                                        "value": ""
+                                      },
+                                      {
+                                        "type": "Subquery",
+                                        "query": {
+                                          "type": "SelectWithUnionQuery",
+                                          "selects": [
+                                            {
+                                              "type": "SelectQuery",
+                                              "select": [
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "a"
+                                                },
+                                                {
+                                                  "type": "Identifier",
+                                                  "name": "b"
+                                                },
+                                                {
+                                                  "type": "Function",
+                                                  "alias": "rn",
+                                                  "name": "ROW_NUMBER",
+                                                  "is_window_function": true,
+                                                  "kind": "WINDOW_FUNCTION",
+                                                  "arguments": [],
+                                                  "window_definition": {
+                                                    "type": "WindowDefinition",
+                                                    "partition_by": [
+                                                      {
+                                                        "type": "Identifier",
+                                                        "name": "a"
+                                                      }
+                                                    ],
+                                                    "order_by": [
+                                                      {
+                                                        "type": "OrderByElement",
+                                                        "expression": {
+                                                          "type": "Identifier",
+                                                          "name": "b"
+                                                        },
+                                                        "direction": "DESC"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ],
+                                              "from": {
+                                                "type": "TablesInSelectQuery",
+                                                "children": [
+                                                  {
+                                                    "type": "TablesInSelectQueryElement",
+                                                    "table_expression": {
+                                                      "type": "TableExpression",
+                                                      "database_and_table_name": {
+                                                        "type": "TableIdentifier",
+                                                        "name": "t"
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "settings": {
+                                                "type": "Settings",
+                                                "changes": {
+                                                  "query_plan_reuse_storage_ordering_for_window_functions": "1"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

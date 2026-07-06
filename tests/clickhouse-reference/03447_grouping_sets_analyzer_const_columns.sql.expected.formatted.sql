@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     grouping(key_a),
@@ -44,4 +44,4 @@ FROM (
     )
 GROUP BY GROUPING SETS ((key_b), (key_a, key_b))
 ORDER BY (grouping(key_a), grouping(key_b), key_a, key_b) ASC
-SETTINGS allow_experimental_analyzer = 0;
+SETTINGS allow_experimental_analyzer = '0';

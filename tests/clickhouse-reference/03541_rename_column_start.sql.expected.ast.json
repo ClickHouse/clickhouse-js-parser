@@ -1,135 +1,171 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "b",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/rmt"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: zookeeper"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "rmt"
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/rmt"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
+        }
       }
     }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES rmt"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "format": "Values"
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "b",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          }
-        ],
-        "where": {
-          "kind": "binaryExpr",
-          "op": "!=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "a"
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "notEquals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
             ]
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "b",
+              "expression": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "RENAME_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "b"
+          },
+          "rename_to": {
+            "type": "Identifier",
+            "name": "c"
           }
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
       }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "RENAME_COLUMN",
-        "oldName": "b",
-        "newName": "c"
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError BAD_ARGUMENTS};"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START MERGES rmt"
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "rmt"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "rmt"
+      },
+      "sync": true
     }
   }
 ]

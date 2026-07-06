@@ -1,263 +1,315 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "bug_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "date_column",
-        "type": {
-          "name": "Date"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c1",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c2",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "date_column"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c1"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c2"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "bug_table"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "distributed_bug_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "date_column",
-        "type": {
-          "name": "Date"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bug_table"
       },
-      {
-        "kind": "columnDef",
-        "name": "c1",
-        "type": {
-          "name": "String"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "date_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "c2",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Distributed",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "test_cluster_two_shards"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "bug_table"
-        },
-        {
-          "kind": "functionCall",
-          "name": "cityHash64",
-          "args": [
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "c1"
-              ]
+              "type": "Identifier",
+              "name": "date_column"
             }
           ]
-        }
-      ]
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_product_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "allow"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "prefer_localhost_replica",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "alias_1",
-        "query": {
-          "kind": "select",
-          "select": [
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "c1"
-              ]
+              "type": "Identifier",
+              "name": "c1"
             },
             {
-              "kind": "columnRef",
-              "parts": [
-                "c2"
-              ]
+              "type": "Identifier",
+              "name": "c2"
             }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "distributed_bug_table"
-          }
+          ]
         }
       }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "c1"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "alias_1"
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "c2"
-        ]
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
-          "distinct": {
-            "kind": "distinct"
-          },
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "c2"
-              ]
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "alias_1"
-          }
-        }
-      }
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "prefer_localhost_replica",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "bug_table"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "distributed_bug_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "date_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "Date"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Distributed",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "test_cluster_two_shards"
+            },
+            {
+              "type": "Function",
+              "name": "currentDatabase",
+              "arguments": []
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "bug_table"
+            },
+            {
+              "type": "Function",
+              "name": "cityHash64",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "c1"
+                }
+              ]
+            }
+          ]
         }
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_product_mode": "allow"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "prefer_localhost_replica": "1"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "alias_1",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "c1"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "c2"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "distributed_bug_table"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "c1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "alias_1"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "in",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "c2"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "distinct": true,
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "c2"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "alias_1"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "prefer_localhost_replica": "0"
+      }
+    }
   }
 ]

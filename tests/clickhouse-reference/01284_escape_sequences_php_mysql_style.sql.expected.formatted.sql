@@ -4,10 +4,10 @@ SELECT
     'a\\_\\c\\l\\i\\c\\k\\h\\o\\u\\s\\e';
 
 SELECT
-    like('aXb', 'a_b'),
-    like('aXb', 'a\\_b'),
-    like('a_b', 'a\\_b'),
-    like('a_b', 'a\\_b');
+    'aXb' LIKE 'a_b',
+    'aXb' LIKE 'a\\_b',
+    'a_b' LIKE 'a\\_b',
+    'a_b' LIKE 'a\\_b';
 
 SELECT
     match('Hello', '\\w+'),

@@ -6,7 +6,7 @@ CREATE TABLE defaults
     b DEFAULT 0,
     c DEFAULT identity(b)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO defaults (a);
 
@@ -17,7 +17,7 @@ DROP TABLE defaults;
 
 DROP TABLE IF EXISTS elog_cut;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE elog_cut
 (

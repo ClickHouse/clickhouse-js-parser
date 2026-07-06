@@ -1,6 +1,6 @@
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     k,
@@ -12,7 +12,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -30,7 +30,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -48,7 +48,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -66,7 +66,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -82,7 +82,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -101,7 +101,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -119,7 +119,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -137,7 +137,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -155,7 +155,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -171,7 +171,7 @@ FROM
             arrayJoin([1, 2, 3]) AS k,
             'Hello' AS x
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             range(k) AS y,
             arrayJoin([3, 4, 5]) AS k
@@ -191,7 +191,7 @@ CREATE TABLE t1_00203
     k3 UInt32,
     val_t1 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE t2_00203
 (
@@ -200,7 +200,7 @@ CREATE TABLE t2_00203
     k2 UInt32,
     k1 UInt32
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t1_00203;
 
@@ -214,7 +214,7 @@ SELECT
     val_t2
 FROM
     t1_00203
-FULL JOIN t2_00203
+ANY FULL JOIN t2_00203
     USING (k3, k1, k2)
 ORDER BY
     k1 ASC,
@@ -229,14 +229,14 @@ SELECT
     val_t2
 FROM
     t1_00203
-RIGHT JOIN t2_00203
+ANY RIGHT JOIN t2_00203
     USING (k3, k1, k2)
 ORDER BY
     k1 ASC,
     k2 ASC,
     k3 ASC;
 
-SET any_join_distinct_right_table_keys = 0;
+SET any_join_distinct_right_table_keys = '0';
 
 DROP TABLE t1_00203;
 

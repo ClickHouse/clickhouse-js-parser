@@ -1,75 +1,75 @@
-SELECT like(arrayJoin(['hello', 'world']), 'hello');
+SELECT arrayJoin(['hello', 'world']) LIKE 'hello';
 
-SELECT like(arrayJoin(['hello', 'world']), 'world');
+SELECT arrayJoin(['hello', 'world']) LIKE 'world';
 
-SELECT like(arrayJoin(['hello', 'world']), 'xyz');
+SELECT arrayJoin(['hello', 'world']) LIKE 'xyz';
 
-SELECT like(arrayJoin(['hello', 'world']), 'hell');
+SELECT arrayJoin(['hello', 'world']) LIKE 'hell';
 
-SELECT like(arrayJoin(['hello', 'world']), 'orld');
+SELECT arrayJoin(['hello', 'world']) LIKE 'orld';
 
-SELECT like(arrayJoin(['hello', 'world']), '%hello%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%hello%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%world%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%world%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%xyz%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%xyz%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%hell%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%hell%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%orld%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%orld%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%hello');
+SELECT arrayJoin(['hello', 'world']) LIKE '%hello';
 
-SELECT like(arrayJoin(['hello', 'world']), '%world');
+SELECT arrayJoin(['hello', 'world']) LIKE '%world';
 
-SELECT like(arrayJoin(['hello', 'world']), '%xyz');
+SELECT arrayJoin(['hello', 'world']) LIKE '%xyz';
 
-SELECT like(arrayJoin(['hello', 'world']), '%hell');
+SELECT arrayJoin(['hello', 'world']) LIKE '%hell';
 
-SELECT like(arrayJoin(['hello', 'world']), '%orld');
+SELECT arrayJoin(['hello', 'world']) LIKE '%orld';
 
-SELECT like(arrayJoin(['hello', 'world']), 'hello%');
+SELECT arrayJoin(['hello', 'world']) LIKE 'hello%';
 
-SELECT like(arrayJoin(['hello', 'world']), 'world%');
+SELECT arrayJoin(['hello', 'world']) LIKE 'world%';
 
-SELECT like(arrayJoin(['hello', 'world']), 'xyz%');
+SELECT arrayJoin(['hello', 'world']) LIKE 'xyz%';
 
-SELECT like(arrayJoin(['hello', 'world']), 'hell%');
+SELECT arrayJoin(['hello', 'world']) LIKE 'hell%';
 
-SELECT like(arrayJoin(['hello', 'world']), 'orld%');
+SELECT arrayJoin(['hello', 'world']) LIKE 'orld%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%he%o%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%he%o%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%w%ld%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%w%ld%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%x%z%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%x%z%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%hell_');
+SELECT arrayJoin(['hello', 'world']) LIKE '%hell_';
 
-SELECT like(arrayJoin(['hello', 'world']), '_orld%');
+SELECT arrayJoin(['hello', 'world']) LIKE '_orld%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%he__o%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%he__o%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%w__ld%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%w__ld%';
 
-SELECT like(arrayJoin(['hello', 'world']), 'hell_');
+SELECT arrayJoin(['hello', 'world']) LIKE 'hell_';
 
-SELECT like(arrayJoin(['hello', 'world']), '_orld');
+SELECT arrayJoin(['hello', 'world']) LIKE '_orld';
 
-SELECT like(arrayJoin(['hello', 'world']), 'helloworld');
+SELECT arrayJoin(['hello', 'world']) LIKE 'helloworld';
 
-SELECT like(arrayJoin(['hello', 'world']), '%helloworld%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%helloworld%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%elloworl%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%elloworl%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%ow%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%ow%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%o%w%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%o%w%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%o%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%o%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%l%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%l%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%l%o%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%l%o%';
 
-SELECT like(arrayJoin(['hello', 'world']), '%o%l%');
+SELECT arrayJoin(['hello', 'world']) LIKE '%o%l%';

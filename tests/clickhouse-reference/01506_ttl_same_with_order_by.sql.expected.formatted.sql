@@ -8,7 +8,7 @@ CREATE TABLE derived_metrics_local
 ENGINE = SummingMergeTree()
 ORDER BY (toStartOfHour(timestamp), timestamp)
 PARTITION BY toYYYYMMDD(timestamp)
-TTL toStartOfHour(timestamp) + toIntervalHour(1);
+TTL toStartOfHour(timestamp) + toIntervalHour(1) GROUP BY toStartOfHour(timestamp) SET bytes = max(bytes);
 
 SYSTEM STOP MERGES derived_metrics_local;
 
@@ -36,7 +36,7 @@ CREATE TABLE derived_metrics_local
 ENGINE = SummingMergeTree()
 ORDER BY (timestamp_h, timestamp)
 PARTITION BY toYYYYMMDD(timestamp)
-TTL toStartOfHour(timestamp) + toIntervalHour(1);
+TTL toStartOfHour(timestamp) + toIntervalHour(1) GROUP BY timestamp_h SET bytes = max(bytes), timestamp = toStartOfHour(any(timestamp));
 
 INSERT INTO derived_metrics_local;
 
@@ -57,7 +57,7 @@ CREATE TABLE derived_metrics_local
 )
 ENGINE = MergeTree()
 ORDER BY (toStartOfHour(timestamp), timestamp)
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO derived_metrics_local;
 
@@ -73,7 +73,7 @@ ENGINE = MergeTree()
 ORDER BY (toStartOfHour(timestamp), timestamp)
 PARTITION BY toYYYYMMDD(timestamp)
 TTL toStartOfHour(timestamp) + toIntervalHour(1)
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 SELECT count()
 FROM derived_metrics_local;

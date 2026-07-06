@@ -10,7 +10,7 @@ FROM (
 
         entropy(toString(number)) AS e5,
 
-        entropy(if(number % 2, 'hello', 'world'), range(number % 5)) AS e6,
+        entropy(number % 2 ? 'hello' : 'world', range(number % 5)) AS e6,
 
         entropy(number, number + 1, number - 1) AS e7,
 

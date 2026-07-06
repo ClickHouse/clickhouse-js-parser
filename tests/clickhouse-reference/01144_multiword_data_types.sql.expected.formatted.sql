@@ -21,15 +21,15 @@ CREATE TABLE multiword_types
     o NATIONAL CHARACTER VARYING,
     p NATIONAL CHAR VARYING
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE multiword_types;
 
 INSERT INTO multiword_types (a);
 
-SELECT toTypeName(tuple(*))
+SELECT toTypeName((*,))
 FROM multiword_types
-SETTINGS enable_named_columns_in_function_tuple = 0;
+SETTINGS enable_named_columns_in_function_tuple = '0';
 
 CREATE TABLE unsigned_types
 (
@@ -46,19 +46,19 @@ CREATE TABLE unsigned_types
     k INTEGER UNSIGNED,
     l BIGINT UNSIGNED
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SHOW CREATE TABLE unsigned_types;
 
 INSERT INTO unsigned_types (a);
 
-SELECT toTypeName(tuple(*))
+SELECT toTypeName((*,))
 FROM unsigned_types
-SETTINGS enable_named_columns_in_function_tuple = 0;
+SETTINGS enable_named_columns_in_function_tuple = '0';
 
 SELECT
     CAST('42' AS DOUBLE PRECISION),
-    CAST(42, 'NATIONAL CHARACTER VARYING'),
+    CAST(42 AS NATIONAL CHARACTER VARYING),
     CAST(-1 AS TINYINT UNSIGNED),
     CAST(65535, ' sMaLlInT  signed ');
 

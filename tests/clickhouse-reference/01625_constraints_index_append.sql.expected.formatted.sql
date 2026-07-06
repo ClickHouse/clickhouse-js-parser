@@ -3,7 +3,7 @@
 DROP DATABASE IF EXISTS db_memory_01625;
 
 CREATE DATABASE db_memory_01625
-ENGINE = Memory;
+ENGINE = Memory();
 
 USE db_memory_01625;
 
@@ -22,103 +22,119 @@ ORDER BY i;
 
 INSERT INTO index_append_test_test;
 
-SET convert_query_to_cnf = 1;
+SET convert_query_to_cnf = '1';
 
-SET optimize_using_constraints = 1;
+SET optimize_using_constraints = '1';
 
-SET optimize_move_to_prewhere = 1;
+SET optimize_move_to_prewhere = '1';
 
-SET optimize_substitute_columns = 1;
+SET optimize_substitute_columns = '1';
 
-SET optimize_append_index = 1;
-
-SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
-FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a = 0
-    )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 0;
+SET optimize_append_index = '1';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a < 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a = 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '0';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a >= 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a < 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '0';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE 2 * b < 100
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a >= 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '0';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE 2 * b < 100
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '0';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a < 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a = 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '1';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE a >= 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a < 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '1';
 
 SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
 FROM (
-        EXPLAIN actions = 1
-        SELECT i
-        FROM index_append_test_test
-        WHERE 2 * b < 100
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE a >= 0
+            ))
     )
-WHERE like(`explain`, '%Prewhere%')
-    OR like(`explain`, '%Filter column%')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '1';
+
+SELECT replaceRegexpAll(`explain`, '__table1\\.|_UInt8', '')
+FROM (
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT i
+                FROM index_append_test_test
+                WHERE 2 * b < 100
+            ))
+    )
+WHERE `explain` LIKE '%Prewhere%'
+    OR `explain` LIKE '%Filter column%'
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE index_append_test_test;
 

@@ -15,10 +15,10 @@ CREATE TABLE shard_0.test
     name String,
     dtm UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY dtm
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE shard_1.test
 (
@@ -26,10 +26,10 @@ CREATE TABLE shard_1.test
     name String,
     dtm UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY dtm
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE test_dist
 (
@@ -48,7 +48,7 @@ FROM numbers(6);
 INSERT INTO shard_1.test SELECT
     number + 3,
     number,
-    ((number + 1)) % 3
+    (number + 1) % 3
 FROM numbers(6);
 
 -- { echoOn }
@@ -68,7 +68,7 @@ WHERE id IN (
         WHERE dtm != 1
         SETTINGS distributed_product_mode = 'allow'
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM test_dist AS a
@@ -78,23 +78,7 @@ WHERE id IN (
         WHERE dtm != 1
         SETTINGS distributed_product_mode = 'local'
     )
-SETTINGS enable_analyzer = 1;
-
-SELECT count()
-FROM test_dist AS a
-WHERE id IN (
-        SELECT id
-        FROM test_dist
-        WHERE dtm != 1
-        SETTINGS distributed_product_mode = 'local'
-    )
-    AND id IN (
-        SELECT id
-        FROM test_dist
-        WHERE dtm != 2
-        SETTINGS distributed_product_mode = 'local'
-    )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM test_dist AS a
@@ -108,9 +92,25 @@ WHERE id IN (
         SELECT id
         FROM test_dist
         WHERE dtm != 2
+        SETTINGS distributed_product_mode = 'local'
+    )
+SETTINGS enable_analyzer = '1';
+
+SELECT count()
+FROM test_dist AS a
+WHERE id IN (
+        SELECT id
+        FROM test_dist
+        WHERE dtm != 1
+        SETTINGS distributed_product_mode = 'local'
+    )
+    AND id IN (
+        SELECT id
+        FROM test_dist
+        WHERE dtm != 2
         SETTINGS distributed_product_mode = 'allow'
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM test_dist AS a
@@ -126,7 +126,7 @@ WHERE id IN (
         WHERE dtm != 2
         SETTINGS distributed_product_mode = 'local'
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT count()
 FROM test_dist AS a
@@ -142,4 +142,4 @@ WHERE id IN (
         WHERE dtm != 2
         SETTINGS distributed_product_mode = 'allow'
     )
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

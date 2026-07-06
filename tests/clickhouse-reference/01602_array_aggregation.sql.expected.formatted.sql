@@ -1,18 +1,18 @@
 SELECT
     'Array min ',
-    (arrayMin(array(1, 2, 3, 4, 5, 6)));
+    arrayMin(array(1, 2, 3, 4, 5, 6));
 
 SELECT
     'Array max ',
-    (arrayMax(array(1, 2, 3, 4, 5, 6)));
+    arrayMax(array(1, 2, 3, 4, 5, 6));
 
 SELECT
     'Array sum ',
-    (arraySum(array(1, 2, 3, 4, 5, 6)));
+    arraySum(array(1, 2, 3, 4, 5, 6));
 
 SELECT
     'Array avg ',
-    (arrayAvg(array(1, 2, 3, 4, 5, 6)));
+    arrayAvg(array(1, 2, 3, 4, 5, 6));
 
 SELECT arrayMin([[3], [1], [2]]);
 
@@ -24,7 +24,7 @@ CREATE TABLE test_aggregation
 (
     x Array(Int)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_aggregation;
 
@@ -46,30 +46,30 @@ CREATE TABLE test_aggregation
 (
     x Array(Decimal64(8))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
-WITH ['2023-04-05 00:25:23', '2023-04-05 00:25:24']::Array(DateTime) AS dt
-
-SELECT
-    arrayMax(dt),
-    arrayMin(dt),
-    arrayDifference(dt);
-
-WITH ['2023-04-05 00:25:23.123', '2023-04-05 00:25:24.124']::Array(DateTime64(3)) AS dt
+WITH CAST('[''2023-04-05 00:25:23'', ''2023-04-05 00:25:24'']' AS Array(DateTime)) AS dt
 
 SELECT
     arrayMax(dt),
     arrayMin(dt),
     arrayDifference(dt);
 
-WITH ['2023-04-05', '2023-04-06']::Array(Date) AS d
+WITH CAST('[''2023-04-05 00:25:23.123'', ''2023-04-05 00:25:24.124'']' AS Array(DateTime64(3))) AS dt
+
+SELECT
+    arrayMax(dt),
+    arrayMin(dt),
+    arrayDifference(dt);
+
+WITH CAST('[''2023-04-05'', ''2023-04-06'']' AS Array(Date)) AS d
 
 SELECT
     arrayMax(d),
     arrayMin(d),
     arrayDifference(d);
 
-WITH ['2023-04-05', '2023-04-06']::Array(Date32) AS d
+WITH CAST('[''2023-04-05'', ''2023-04-06'']' AS Array(Date32)) AS d
 
 SELECT
     arrayMax(d),

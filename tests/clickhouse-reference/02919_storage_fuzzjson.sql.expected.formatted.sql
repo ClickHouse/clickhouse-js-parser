@@ -36,26 +36,7 @@ CREATE TABLE `02919_test_table_reuse_args`
 (
     str String
 )
-ENGINE = FuzzJSON('{
-      "name": "Jane Doe",
-      "age": 30,
-      "city": "New York",
-      "contacts": {
-        "email": "jane@example.com",
-        "phone": "+1234567890"
-      },
-      "skills": [
-        "JavaScript",
-        "Python",
-        {
-          "frameworks": ["React", "Django"]
-        }
-      ],
-      "projects": [
-        {"name": "Project A", "status": "completed"},
-        {"name": "Project B", "status": "in-progress"}
-      ]
-    }', 12345);
+ENGINE = FuzzJSON('{\n      "name": "Jane Doe",\n      "age": 30,\n      "city": "New York",\n      "contacts": {\n        "email": "jane@example.com",\n        "phone": "+1234567890"\n      },\n      "skills": [\n        "JavaScript",\n        "Python",\n        {\n          "frameworks": ["React", "Django"]\n        }\n      ],\n      "projects": [\n        {"name": "Project A", "status": "completed"},\n        {"name": "Project B", "status": "in-progress"}\n      ]\n    }', 12345);
 
 SELECT count()
 FROM (

@@ -1,4 +1,4 @@
-SET max_threads = 1;
+SET max_threads = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -8,7 +8,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 PRIMARY KEY tuple()
-SETTINGS use_compact_variant_discriminators_serialization = 0, index_granularity = 1;
+SETTINGS use_compact_variant_discriminators_serialization = '0', index_granularity = '1';
 
 INSERT INTO t0 (c0);
 

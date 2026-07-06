@@ -1,31 +1,31 @@
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET use_variant_as_common_type = 1;
+SET use_variant_as_common_type = '1';
 
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 SET session_timezone = 'UTC';
 
 SELECT
     accurateCastOrDefault(variant, 'UInt32'),
-    multiIf(number % 4 == 0, NULL, number % 4 == 1, number, number % 4 == 2, concat('str_', toString(number)), range(number)) AS variant
+    multiIf(number % 4 = 0, NULL, number % 4 = 1, number, number % 4 = 2, 'str_' || toString(number), range(number)) AS variant
 FROM numbers(8);
 
 SELECT
     accurateCastOrNull(variant, 'UInt32'),
-    multiIf(number % 4 == 0, NULL, number % 4 == 1, number, number % 4 == 2, concat('str_', toString(number)), range(number)) AS variant
+    multiIf(number % 4 = 0, NULL, number % 4 = 1, number, number % 4 = 2, 'str_' || toString(number), range(number)) AS variant
 FROM numbers(8);
 
 SELECT
     accurateCastOrDefault(dynamic, 'UInt32'),
-    multiIf(number % 4 == 0, NULL, number % 4 == 1, number, number % 4 == 2, concat('str_', toString(number)), range(number))::Dynamic AS dynamic
+    multiIf(number % 4 = 0, NULL, number % 4 = 1, number, number % 4 = 2, 'str_' || toString(number), range(number))::Dynamic AS dynamic
 FROM numbers(8);
 
 SELECT
     accurateCastOrNull(dynamic, 'UInt32'),
-    multiIf(number % 4 == 0, NULL, number % 4 == 1, number, number % 4 == 2, concat('str_', toString(number)), range(number))::Dynamic AS dynamic
+    multiIf(number % 4 = 0, NULL, number % 4 = 1, number, number % 4 = 2, 'str_' || toString(number), range(number))::Dynamic AS dynamic
 FROM numbers(8);
 
 DROP TABLE IF EXISTS t;
@@ -35,7 +35,7 @@ CREATE TABLE t
     id UInt64 DEFAULT generateSerialID('03212_variant_seq'),
     d Dynamic
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 -- Integer types: signed and unsigned integers (UInt8, UInt16, UInt32, UInt64, UInt128, UInt256, Int8, Int16, Int32, Int64, Int128, Int256)
@@ -129,14 +129,14 @@ OPTIMIZE TABLE t FINAL;
 WITH (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv4'))
+        WHERE accurateCastOrNull(d, 'IPv4') IS NOT NULL
             AND toIPv4(accurateCastOrNull(d, 'IPv4')) NOT IN (toIPv4('0.0.0.0'), toIPv4('192.168.0.1'))
     ) AS bad_v4,
 
 (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv6'))
+        WHERE accurateCastOrNull(d, 'IPv6') IS NOT NULL
             AND toIPv6(accurateCastOrNull(d, 'IPv6')) NOT IN (toIPv6('::'), toIPv6('::1'), toIPv6('::ffff:192.168.0.1'))
     ) AS bad_v6,
 
@@ -151,12 +151,12 @@ SELECT
     (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv4'))
+        WHERE accurateCastOrNull(d, 'IPv4') IS NOT NULL
     ) AS typed_v4,
     (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv6'))
+        WHERE accurateCastOrNull(d, 'IPv6') IS NOT NULL
     ) AS typed_v6,
     bad_v4,
     bad_v6,
@@ -167,12 +167,12 @@ WHERE bad_cnt > 0;
 WITH (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv4'))
+        WHERE accurateCastOrNull(d, 'IPv4') IS NOT NULL
             AND toIPv4(accurateCastOrNull(d, 'IPv4')) NOT IN (toIPv4('0.0.0.0'), toIPv4('192.168.0.1'))
     ) + (
         SELECT count()
         FROM t
-        WHERE isNotNull(accurateCastOrNull(d, 'IPv6'))
+        WHERE accurateCastOrNull(d, 'IPv6') IS NOT NULL
             AND toIPv6(accurateCastOrNull(d, 'IPv6')) NOT IN (toIPv6('::'), toIPv6('::1'), toIPv6('::ffff:192.168.0.1'))
     ) AS bad_cnt
 
@@ -185,10 +185,10 @@ SELECT
     toString(d) AS raw_d
 FROM t
 WHERE bad_cnt > 0
-    AND (((isNotNull(accurateCastOrNull(d, 'IPv4'))
-    AND toIPv4(accurateCastOrNull(d, 'IPv4')) NOT IN (toIPv4('0.0.0.0'), toIPv4('192.168.0.1')))
-    OR (isNotNull(accurateCastOrNull(d, 'IPv6'))
-    AND toIPv6(accurateCastOrNull(d, 'IPv6')) NOT IN (toIPv6('::'), toIPv6('::1'), toIPv6('::ffff:192.168.0.1')))))
+    AND (accurateCastOrNull(d, 'IPv4') IS NOT NULL
+    AND toIPv4(accurateCastOrNull(d, 'IPv4')) NOT IN (toIPv4('0.0.0.0'), toIPv4('192.168.0.1'))
+    OR accurateCastOrNull(d, 'IPv6') IS NOT NULL
+    AND toIPv6(accurateCastOrNull(d, 'IPv6')) NOT IN (toIPv6('::'), toIPv6('::1'), toIPv6('::ffff:192.168.0.1')))
 ORDER BY id ASC
 LIMIT 20;
 

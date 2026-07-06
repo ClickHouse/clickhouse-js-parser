@@ -1,804 +1,885 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_uncompressed_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_uncompressed_cache": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-tsan, no-asan, no-msan, no-replicated-database, no-random-settings",
-      "-- Tag no-tsan: Fine thresholds on memory usage",
-      "-- Tag no-asan: Fine thresholds on memory usage",
-      "-- Tag no-msan: Fine thresholds on memory usage",
-      "-- each uniqCombined state should not use > sizeof(HLL) in memory,",
-      "-- sizeof(HLL) is (2^K * 6 / 8)",
-      "-- hence max_memory_usage for 100 rows = (96<<10)*100 = 9830400"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "memory_profiler_step",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "memory_profiler_step": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "4000000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "4000000"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "8192"
+                  "type": "Identifier",
+                  "name": "u"
                 }
               ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "8192"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "8192"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "8192"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "8192"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
+                    }
                   }
                 }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "8192"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
               }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "9830400"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
             ]
           }
-        ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "9830400"
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4096"
+                  "type": "Identifier",
+                  "name": "u"
                 }
               ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "reinterpretAsString",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "4096"
-                      }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "4096"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "reinterpretAsString",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "4096"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "4096"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
                     }
-                  ]
-                }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4096"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2000000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "4096"
-                }
-              ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "params": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "16"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "4096"
                   }
                 }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4096"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
               }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5230000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
             ]
           }
-        ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "2000000"
       }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2048"
+                  "type": "Identifier",
+                  "name": "u"
                 }
               ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "params": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "16"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "reinterpretAsString",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "2048"
-                      }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "4096"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "4096"
+                                    }
+                                  ]
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "4096"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
                     }
-                  ]
-                }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2048"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "5900000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8000000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "16384"
-                }
-              ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "params": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "18"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "%",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "16384"
                   }
                 }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "16384"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
               }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "19660800"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "u"
             ]
           }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "8192"
-                }
-              ]
-            },
-            "alias": "k"
-          },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "uniqCombined",
-              "params": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "18"
-                }
-              ],
-              "args": [
-                {
-                  "kind": "functionCall",
-                  "name": "reinterpretAsString",
-                  "args": [
-                    {
-                      "kind": "binaryExpr",
-                      "op": "%",
-                      "left": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      },
-                      "right": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "8192"
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
-            "alias": "u"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "8192"
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "100"
-              }
-            }
-          ]
-        },
-        "groupBy": {
-          "kind": "expressions",
-          "items": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "k"
-              ]
-            }
-          ]
         }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "5230000"
       }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "2048"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "reinterpretAsString",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "2048"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "2048"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "5900000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "8000000"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "16384"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "modulo",
+                                  "is_operator": true,
+                                  "arguments": [
+                                    {
+                                      "type": "Identifier",
+                                      "name": "number"
+                                    },
+                                    {
+                                      "type": "Literal",
+                                      "value_type": "UInt64",
+                                      "value": "16384"
+                                    }
+                                  ]
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "18"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "16384"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "19660800"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "u"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Function",
+                              "alias": "k",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "8192"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "u",
+                              "name": "uniqCombined",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "reinterpretAsString",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "8192"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "parameters": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "18"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "8192"
+                                          },
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "100"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "k"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
 ]

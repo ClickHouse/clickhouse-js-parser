@@ -1,256 +1,316 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_dst"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_dst"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_buffer"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_buffer"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_dst"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "database": "test",
-      "table": "hits"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "toYYYYMM",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
-          ]
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_dst"
       },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "intHash32",
-          "args": [
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "toYYYYMM",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "UserID"
+              "type": "Identifier",
+              "name": "EventDate"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "CounterID"
+            },
+            {
+              "type": "Identifier",
+              "name": "EventDate"
+            },
+            {
+              "type": "Function",
+              "name": "intHash32",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "UserID"
+                }
               ]
             }
           ]
-        }
-      }
-    ],
-    "sampleBy": {
-      "kind": "functionCall",
-      "name": "intHash32",
-      "args": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "UserID"
-          ]
-        }
-      ]
-    },
-    "settings": [
-      {
-        "name": "storage_policy",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "default"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_buffer"
-    },
-    "asTable": {
-      "kind": "tableRef",
-      "table": "hits_dst"
-    },
-    "engine": {
-      "name": "Buffer",
-      "args": [
-        {
-          "kind": "functionCall",
-          "name": "current_database",
-          "args": []
         },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "hits_dst"
+        "sample_by": {
+          "type": "Function",
+          "name": "intHash32",
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "UserID"
+            }
           ]
         },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "600"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "600"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000000"
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000000"
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "storage_policy": "default"
+          }
         }
-      ]
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "hits_buffer"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "hits"
       },
-      "where": {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "CounterID"
+      "as_database": "test",
+      "as_table": "hits"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_buffer"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Buffer",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Function",
+              "name": "current_database",
+              "arguments": []
+            },
+            {
+              "type": "Identifier",
+              "name": "hits_dst"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "8"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "600"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "600"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1000000"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1000000"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "100000000"
+            },
+            {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1000000000"
+            }
           ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "800784"
         }
+      },
+      "as_table": "hits_dst"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_buffer"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "hits",
+                      "database": "test"
+                    }
+                  }
+                }
+              ]
+            },
+            "where": {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "CounterID"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "800784"
+                }
+              ]
+            }
+          }
+        ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_buffer"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits_dst"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_buffer"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_buffer"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_dst"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "hits_dst"
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_buffer"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_dst"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "hits_buffer"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "hits_buffer"
+      }
     }
   }
 ]

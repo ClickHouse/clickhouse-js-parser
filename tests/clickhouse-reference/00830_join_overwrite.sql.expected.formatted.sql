@@ -19,7 +19,7 @@ CREATE TABLE kv_overwrite
     v UInt32
 )
 ENGINE = Join(`Any`, `Left`, k)
-SETTINGS join_any_take_last_row = 1;
+SETTINGS join_any_take_last_row = '1';
 
 INSERT INTO kv_overwrite;
 
@@ -32,11 +32,11 @@ CREATE TABLE t2
     k UInt32,
     v UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'hash';
 
@@ -45,18 +45,18 @@ FROM
     (
         SELECT 1 AS k
     ) AS t1
-INNER JOIN t2
+ANY INNER JOIN t2
     USING (k)
-SETTINGS join_any_take_last_row = 0;
+SETTINGS join_any_take_last_row = '0';
 
 SELECT v
 FROM
     (
         SELECT 1 AS k
     ) AS t1
-INNER JOIN t2
+ANY INNER JOIN t2
     USING (k)
-SETTINGS join_any_take_last_row = 1;
+SETTINGS join_any_take_last_row = '1';
 
 DROP TABLE kv;
 

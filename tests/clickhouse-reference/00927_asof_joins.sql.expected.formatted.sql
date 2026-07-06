@@ -37,7 +37,7 @@ SELECT
     md.ask
 FROM
     tv
-LEFT JOIN md
+ASOF LEFT JOIN md
     USING (key, t)
 ORDER BY (tv.key, tv.t) ASC;
 
@@ -49,7 +49,7 @@ SELECT
     md.ask
 FROM
     tv
-LEFT JOIN md
+ASOF LEFT JOIN md
     USING (key, t)
 ORDER BY (tv.key, tv.t) ASC
 SETTINGS join_algorithm = 'full_sorting_merge';

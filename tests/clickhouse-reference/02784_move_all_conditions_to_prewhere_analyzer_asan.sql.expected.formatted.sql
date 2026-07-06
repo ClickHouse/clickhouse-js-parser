@@ -7,16 +7,16 @@ CREATE TABLE t_02784
 )
 ENGINE = MergeTree()
 ORDER BY c1
-SETTINGS min_bytes_for_wide_part = 1;
+SETTINGS min_bytes_for_wide_part = '1';
 
 INSERT INTO t_02784 SELECT
     number,
     number
 FROM numbers(1);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET move_all_conditions_to_prewhere = 1;
+SET move_all_conditions_to_prewhere = '1';
 
 SELECT
     c1,

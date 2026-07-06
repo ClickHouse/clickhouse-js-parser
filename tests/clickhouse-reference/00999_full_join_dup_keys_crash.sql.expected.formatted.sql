@@ -1,4 +1,4 @@
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
 SELECT *
 FROM
@@ -12,8 +12,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY
     foo.a ASC,
     foo.b ASC,
@@ -32,8 +32,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY
     foo.a ASC,
     foo.b ASC,
@@ -52,8 +52,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY
     foo.a ASC,
     foo.b ASC,
@@ -72,8 +72,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY
     foo.a ASC,
     foo.b ASC,
@@ -92,8 +92,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY foo.a ASC;
 
 SELECT foo.a
@@ -108,8 +108,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY foo.a ASC;
 
 SELECT foo.a
@@ -124,8 +124,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY foo.a ASC;
 
 SELECT foo.a
@@ -140,8 +140,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY foo.a ASC;
 
 SELECT bar.a
@@ -156,8 +156,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY bar.a ASC;
 
 SELECT bar.a
@@ -172,8 +172,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.a = bar.b)
-    AND (foo.b = bar.b)
+    ON foo.a = bar.b
+    AND foo.b = bar.b
 ORDER BY bar.a ASC;
 
 SELECT bar.a
@@ -188,8 +188,8 @@ FULL JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY bar.a ASC;
 
 SELECT bar.a
@@ -204,8 +204,8 @@ RIGHT JOIN (
             1 AS a,
             2 AS b
     ) AS bar
-    ON (foo.b = bar.a)
-    AND (foo.b = bar.b)
+    ON foo.b = bar.a
+    AND foo.b = bar.b
 ORDER BY bar.a ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';

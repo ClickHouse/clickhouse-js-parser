@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET use_variant_as_common_type = 1;
+SET use_variant_as_common_type = '1';
 
 SELECT x
 FROM (
@@ -49,7 +49,7 @@ FROM (
             1 AS ord
         UNION ALL
         SELECT
-            [1,2,3] AS x,
+            [1, 2, 3] AS x,
             2 AS ord
     )
 ORDER BY ord ASC;

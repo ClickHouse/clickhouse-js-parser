@@ -4,7 +4,7 @@ CREATE TABLE simple_levenshtein
     lhs Array(UInt8),
     rhs Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO simple_levenshtein;
@@ -29,7 +29,7 @@ CREATE TABLE weighted_levenshtein
     lhs_weights Array(Float64),
     rhs_weights Array(Float64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO weighted_levenshtein;

@@ -12,7 +12,7 @@ CREATE TABLE non_metadata_alters
 ENGINE = MergeTree()
 ORDER BY tuple();
 
-SET allow_non_metadata_alters = 0;
+SET allow_non_metadata_alters = '0';
 
 ALTER TABLE non_metadata_alters MODIFY COLUMN value3 UInt64; --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
 
@@ -28,7 +28,7 @@ ALTER TABLE non_metadata_alters RENAME COLUMN value4 TO renamed_value4; --{serve
 
 ALTER TABLE non_metadata_alters MODIFY COLUMN value3 UInt16 TTL value5 + toIntervalDay(5); --{serverError ALTER_OF_COLUMN_IS_FORBIDDEN}
 
-SET materialize_ttl_after_modify = 0;
+SET materialize_ttl_after_modify = '0';
 
 SHOW CREATE TABLE non_metadata_alters;
 

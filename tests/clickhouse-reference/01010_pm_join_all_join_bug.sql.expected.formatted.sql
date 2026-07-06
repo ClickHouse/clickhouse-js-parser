@@ -5,7 +5,7 @@ CREATE TABLE ints
     i64 Int64,
     i32 Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SET join_algorithm = 'partial_merge';
 
@@ -39,7 +39,7 @@ FROM
             [1],
             count(1)
     ) AS t1
-RIGHT JOIN (
+ALL RIGHT JOIN (
         SELECT number AS s
         FROM numbers(2)
     ) AS t2

@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET create_if_not_exists = 0; -- Default
+SET create_if_not_exists = '0'; -- Default
 
 DROP TABLE IF EXISTS example_table;
 
@@ -14,4 +14,4 @@ DROP DATABASE IF EXISTS example_database;
 
 CREATE DATABASE example_database;
 
-SET create_if_not_exists = 1;
+SET create_if_not_exists = '1';

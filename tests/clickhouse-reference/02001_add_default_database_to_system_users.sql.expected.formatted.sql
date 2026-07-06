@@ -6,4 +6,4 @@ SELECT default_database
 FROM `system`.users
 WHERE name = 'u_02001';
 
-drop user if exists u_02001;
+DROP USER IF EXISTS u_02001;

@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS test SYNC;
 
-DROP TABLE IF EXISTS test_mv_a;
+DROP TABLE IF EXISTS test_mv_a SYNC;
 
-DROP TABLE IF EXISTS test_mv_b;
+DROP TABLE IF EXISTS test_mv_b SYNC;
 
-DROP TABLE IF EXISTS test_mv_c;
+DROP TABLE IF EXISTS test_mv_c SYNC;
 
-SET deduplicate_blocks_in_dependent_materialized_views = 0;
+SET deduplicate_blocks_in_dependent_materialized_views = '0';
 
 CREATE TABLE test
 (
@@ -57,7 +57,7 @@ GROUP BY
     test,
     A;
 
-SET max_partitions_per_insert_block = 1;
+SET max_partitions_per_insert_block = '1';
 
 INSERT INTO test SELECT
     'case1',
@@ -65,9 +65,9 @@ INSERT INTO test SELECT
     1
 FROM numbers(9)
 ORDER BY `ALL` ASC
-SETTINGS materialized_views_ignore_errors = 1;
+SETTINGS materialized_views_ignore_errors = '1';
 
-SET max_partitions_per_insert_block = 0;
+SET max_partitions_per_insert_block = '0';
 
 INSERT INTO test SELECT
     'case1',
@@ -105,7 +105,7 @@ SELECT
         WHERE test = 'case1'
     );
 
-SET deduplicate_blocks_in_dependent_materialized_views = 1;
+SET deduplicate_blocks_in_dependent_materialized_views = '1';
 
 INSERT INTO test SELECT
     'case2',
@@ -113,7 +113,7 @@ INSERT INTO test SELECT
     1
 FROM numbers(9)
 ORDER BY `ALL` ASC
-SETTINGS materialized_views_ignore_errors = 1;
+SETTINGS materialized_views_ignore_errors = '1';
 
 INSERT INTO test SELECT
     'case2',
@@ -159,7 +159,7 @@ FROM numbers(9)
 ORDER BY `ALL` ASC
 SETTINGS
     insert_deduplication_token = 'case3test1',
-    materialized_views_ignore_errors = 1;
+    materialized_views_ignore_errors = '1';
 
 INSERT INTO test SELECT
     'case3',
@@ -237,10 +237,10 @@ SELECT
         WHERE test = 'case4'
     );
 
-DROP TABLE test;
+DROP TABLE test SYNC;
 
-DROP TABLE test_mv_a;
+DROP TABLE test_mv_a SYNC;
 
-DROP TABLE test_mv_b;
+DROP TABLE test_mv_b SYNC;
 
-DROP TABLE test_mv_c;
+DROP TABLE test_mv_c SYNC;

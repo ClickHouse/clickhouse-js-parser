@@ -16,24 +16,24 @@ DROP TABLE IF EXISTS part_d;
  * Pick values that will vanish if table will be rehashed.
  */
 CREATE TABLE part_a
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM (
         WITH number AS k1,
 
         bitXor(k1, bitShiftRight(k1, 33)) AS k2,
 
-        k2 * 0xff51afd7ed558ccd AS k3,
+        k2 * 18397679294719823053 AS k3,
 
         bitXor(k3, bitShiftRight(k3, 33)) AS k4,
 
-        k4 * 0xc4ceb9fe1a85ec53 AS k5,
+        k4 * 14181476777654086739 AS k5,
 
         bitXor(k5, bitShiftRight(k5, 33)) AS k6,
 
         k6 AS hash,
 
-        bitShiftRight(hash, 15) % 0x20000 AS place,
+        bitShiftRight(hash, 15) % 131072 AS place,
 
         hash % 2 = 0 AS will_remain
 
@@ -56,24 +56,24 @@ ORDER BY place ASC;
  * Pick values that will remain after rehash.
  */
 CREATE TABLE part_b
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM (
         WITH number AS k1,
 
         bitXor(k1, bitShiftRight(k1, 33)) AS k2,
 
-        k2 * 0xff51afd7ed558ccd AS k3,
+        k2 * 18397679294719823053 AS k3,
 
         bitXor(k3, bitShiftRight(k3, 33)) AS k4,
 
-        k4 * 0xc4ceb9fe1a85ec53 AS k5,
+        k4 * 14181476777654086739 AS k5,
 
         bitXor(k5, bitShiftRight(k5, 33)) AS k6,
 
         k6 AS hash,
 
-        bitShiftRight(hash, 15) % 0x20000 AS place,
+        bitShiftRight(hash, 15) % 131072 AS place,
 
         hash % 2 = 0 AS will_remain
 
@@ -97,24 +97,24 @@ ORDER BY place ASC;
  * a + c: [               aaaaaaaaaaacc]
  */
 CREATE TABLE part_c
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM (
         WITH number AS k1,
 
         bitXor(k1, bitShiftRight(k1, 33)) AS k2,
 
-        k2 * 0xff51afd7ed558ccd AS k3,
+        k2 * 18397679294719823053 AS k3,
 
         bitXor(k3, bitShiftRight(k3, 33)) AS k4,
 
-        k4 * 0xc4ceb9fe1a85ec53 AS k5,
+        k4 * 14181476777654086739 AS k5,
 
         bitXor(k5, bitShiftRight(k5, 33)) AS k6,
 
         k6 AS hash,
 
-        bitShiftRight(hash, 15) % 0x20000 AS place,
+        bitShiftRight(hash, 15) % 131072 AS place,
 
         hash % 2 = 0 AS will_remain
 
@@ -143,24 +143,24 @@ ORDER BY place ASC;
  * a+c+d: [dd             aaaaaaaaaaacc]
   */
 CREATE TABLE part_d
-ENGINE = TinyLog AS
+ENGINE = TinyLog() AS
 SELECT *
 FROM (
         WITH number AS k1,
 
         bitXor(k1, bitShiftRight(k1, 33)) AS k2,
 
-        k2 * 0xff51afd7ed558ccd AS k3,
+        k2 * 18397679294719823053 AS k3,
 
         bitXor(k3, bitShiftRight(k3, 33)) AS k4,
 
-        k4 * 0xc4ceb9fe1a85ec53 AS k5,
+        k4 * 14181476777654086739 AS k5,
 
         bitXor(k5, bitShiftRight(k5, 33)) AS k6,
 
         k6 AS hash,
 
-        bitShiftRight(hash, 15) % 0x20000 AS place,
+        bitShiftRight(hash, 15) % 131072 AS place,
 
         hash % 2 = 0 AS will_remain
 
@@ -192,7 +192,7 @@ ORDER BY place ASC;
   * [dd         bbbbbbbbbb   ccdd]
   * This will lead to slightly higher return value of "uniq" aggregate function and it is dependent on insertion order.
   */
-SET max_threads = 1;
+SET max_threads = '1';
 
 /** Results of these two queries must match: */
 SELECT uniq(number)

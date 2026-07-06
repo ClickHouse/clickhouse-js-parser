@@ -1,8 +1,8 @@
-SET allow_experimental_dynamic_type = 1;
+SET allow_experimental_dynamic_type = '1';
 
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
 DROP TABLE IF EXISTS test_deep_nested_json;
 
@@ -11,7 +11,7 @@ CREATE TABLE test_deep_nested_json
     i UInt16,
     d JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_deep_nested_json;
 

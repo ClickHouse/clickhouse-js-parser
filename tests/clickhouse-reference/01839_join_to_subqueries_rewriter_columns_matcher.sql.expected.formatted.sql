@@ -1,4 +1,4 @@
-SELECT (if(a.test == 'a', b.test, c.test)) AS `a.test`
+SELECT if(a.test = 'a', b.test, c.test) AS `a.test`
 FROM
     (
         SELECT

@@ -1,18 +1,18 @@
 -- Tags: no-parallel, no-parallel-replicas
 -- Tag no-parallel -- due to access to the system.text_log
 -- Tag no-parallel-replicas -- direct read is not compatible with parallel replicas
-SET log_queries = 1;
+SET log_queries = '1';
 
 -- Affects the number of read rows.
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
-SET query_plan_direct_read_from_text_index = 1;
+SET query_plan_direct_read_from_text_index = '1';
 
-SET max_rows_to_read = 0; -- system.text_log can be really big
+SET max_rows_to_read = '0'; -- system.text_log can be really big
 
-SET enable_analyzer = 0; -- To produce consistent explain outputs
+SET enable_analyzer = '0'; -- To produce consistent explain outputs
 
 DROP TABLE IF EXISTS tab;
 
@@ -20,11 +20,11 @@ CREATE TABLE tab
 (
     k UInt64,
     text String,
-    INDEX idx text TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 1
+    INDEX idx text TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
 ENGINE = MergeTree()
 ORDER BY k
-SETTINGS index_granularity = 2, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '2', index_granularity_bytes = '10Mi';
 
 INSERT INTO tab;
 
@@ -98,103 +98,119 @@ FROM (
     )
 ORDER BY event_time_microseconds ASC;
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasToken:',
-            count()
-        FROM tab
-        WHERE hasToken(text, 'Alick')
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasToken:',
+                    count()
+                FROM tab
+                WHERE hasToken(text, 'Alick')
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasAllTokens:',
-            count()
-        FROM tab
-        WHERE hasAllTokens(text, ['Alick'])
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasAllTokens:',
+                    count()
+                FROM tab
+                WHERE hasAllTokens(text, ['Alick'])
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasAnyTokens:',
-            count()
-        FROM tab
-        WHERE hasAnyTokens(text, ['Alick'])
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasAnyTokens:',
+                    count()
+                FROM tab
+                WHERE hasAnyTokens(text, ['Alick'])
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasToken + length(text):',
-            count()
-        FROM tab
-        WHERE hasToken(text, 'Alick')
-            OR length(text) > 1
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasToken + length(text):',
+                    count()
+                FROM tab
+                WHERE hasToken(text, 'Alick')
+                    OR length(text) > 1
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test select text + hasAnyTokens:',
-            text
-        FROM tab
-        WHERE hasAnyTokens(text, ['Alick'])
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test select text + hasAnyTokens:',
+                    text
+                FROM tab
+                WHERE hasAnyTokens(text, ['Alick'])
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Prewhere filter column:%');
+WHERE `explain` LIKE '%Prewhere filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasToken and hasToken:',
-            count()
-        FROM tab
-        WHERE hasToken(text, 'Alick')
-            AND hasToken(text, 'Blick')
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasToken and hasToken:',
+                    count()
+                FROM tab
+                WHERE hasToken(text, 'Alick')
+                    AND hasToken(text, 'Blick')
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Prewhere filter column:%');
+WHERE `explain` LIKE '%Prewhere filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test hasAnyTokens or hasToken:',
-            count()
-        FROM tab
-        WHERE hasAnyTokens(text, ['Blick'])
-            OR hasToken(text, 'Alick')
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test hasAnyTokens or hasToken:',
+                    count()
+                FROM tab
+                WHERE hasAnyTokens(text, ['Blick'])
+                    OR hasToken(text, 'Alick')
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN actions = 1
-        SELECT
-            'Test NOT hasAllTokens:',
-            count()
-        FROM tab
-        WHERE NOT hasAllTokens(text, ['Blick'])
-        SETTINGS use_skip_indexes_on_data_read = 1
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'actions = 1', (
+                SELECT
+                    'Test NOT hasAllTokens:',
+                    count()
+                FROM tab
+                WHERE NOT hasAllTokens(text, ['Blick'])
+                SETTINGS use_skip_indexes_on_data_read = '1'
+            ))
     )
-WHERE like(`explain`, '%Filter column:%');
+WHERE `explain` LIKE '%Filter column:%';
 
 DROP TABLE tab;

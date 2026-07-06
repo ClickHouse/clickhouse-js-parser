@@ -1,8 +1,8 @@
-SET enable_parallel_replicas = 1, max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1, cluster_for_parallel_replicas = 'parallel_replicas';
+SET enable_parallel_replicas = '1', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1', cluster_for_parallel_replicas = 'parallel_replicas';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS t0;
 
@@ -12,7 +12,7 @@ CREATE TABLE t0
     Payload String,
     Time DateTime
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t0 SELECT
     number,
@@ -27,7 +27,7 @@ CREATE TABLE t1
     EventId UInt64,
     Attribute String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY EventId;
 
 INSERT INTO t1 SELECT

@@ -1,142 +1,146 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "EventDate"
-        ]
-      },
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "alias": "hits"
-      },
-      {
-        "kind": "functionCall",
-        "name": "any",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "visits"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": "test",
-        "table": "hits"
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "StartDate"
-                ]
-              },
-              "alias": "EventDate"
+              "type": "Identifier",
+              "name": "EventDate"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "sum",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "Sign"
-                    ]
-                  }
-                ]
-              },
-              "alias": "visits"
+              "type": "Function",
+              "alias": "hits",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "any",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "visits"
+                }
+              ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "test",
-            "table": "visits"
-          },
-          "groupBy": {
-            "kind": "expressions",
-            "items": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "EventDate"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "hits",
+                    "database": "test"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "ANY",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "EventDate"
+                    }
+                  ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "alias": "EventDate",
+                              "name": "StartDate"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "visits",
+                              "name": "sum",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "Sign"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "visits",
+                                    "database": "test"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "group_by": [
+                            {
+                              "type": "Identifier",
+                              "name": "EventDate"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "EventDate"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "hits"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "joined_subquery_requires_alias": "0"
+            }
           }
         }
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "EventDate"
-        ]
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "EventDate"
-          ]
-        }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "hits"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    },
-    "settings": [
-      {
-        "name": "joined_subquery_requires_alias",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: stateful"
-    ]
+    }
   }
 ]

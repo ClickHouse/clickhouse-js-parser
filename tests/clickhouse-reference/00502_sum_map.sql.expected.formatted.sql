@@ -9,7 +9,7 @@ CREATE TABLE sum_map
     timeslot DateTime,
     statusMap Nested(status UInt16, requests UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO sum_map;
@@ -63,7 +63,7 @@ CREATE TABLE sum_map_overflow
     events Array(UInt8),
     counts Array(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO sum_map_overflow;
@@ -79,63 +79,63 @@ DROP TABLE sum_map_overflow;
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST(1, 'UInt64') ] AS val,
+            [CAST(1 AS UInt64)] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST(1, 'Float64') ] AS val,
+            [CAST(1 AS Float64)] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST('a', 'Enum16(\'a\'=1)') ] AS val,
+            [CAST('a', 'Enum16(''a''=1)')] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST(1, 'DateTime(\'Asia/Istanbul\')') ] AS val,
+            [CAST(1 AS DateTime('Asia/Istanbul'))] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST(1, 'Date') ] AS val,
+            [CAST(1 AS Date)] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST('01234567-89ab-cdef-0123-456789abcdef', 'UUID') ] AS val,
+            [CAST('01234567-89ab-cdef-0123-456789abcdef' AS UUID)] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST(1.01, 'Decimal(10,2)') ] AS val,
+            [CAST(1.01, 'Decimal(10,2)')] AS val,
             [1] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST('a', 'FixedString(1)'), CAST('b', 'FixedString(1)' ) ] AS val,
+            [CAST('a' AS FixedString(1)), CAST('b' AS FixedString(1))] AS val,
             [1, 2] AS cnt
     );
 
 SELECT sumMap(val, cnt)
 FROM (
         SELECT
-            [ CAST('abc', 'String'), CAST('ab', 'String'), CAST('a', 'String') ] AS val,
+            [CAST('abc' AS String), CAST('ab' AS String), CAST('a' AS String)] AS val,
             [1, 2, 3] AS cnt
     );
 
@@ -145,7 +145,7 @@ CREATE TABLE sum_map_decimal
 (
     statusMap Nested(goal_id UInt16, revenue Decimal32(5))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO sum_map_decimal;
@@ -162,7 +162,7 @@ CREATE TABLE sum_map_decimal_nullable
 (
     statusMap Nested(goal_id UInt16, revenue Nullable(Decimal(9, 5)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO sum_map_decimal_nullable;

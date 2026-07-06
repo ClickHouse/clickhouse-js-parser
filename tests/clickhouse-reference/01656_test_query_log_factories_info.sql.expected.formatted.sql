@@ -1,11 +1,11 @@
 -- Tags: no-parallel, memory-engine
-SET database_atomic_wait_for_drop_and_detach_synchronously = 1;
+SET database_atomic_wait_for_drop_and_detach_synchronously = '1';
 
-SET log_queries = 1;
+SET log_queries = '1';
 
 SELECT
     uniqArray([1, 1, 2]),
-    SUBSTRING('Hello, world', 7, 5),
+    substring('Hello, world', 7, 5),
     POW(1, 2),
     ROUND(TANh(1)),
     CrC32(''),
@@ -21,10 +21,10 @@ SELECT
 FROM numbers(100);
 
 SELECT repeat('aa', number)
-FROM numbers(10e3)
+FROM numbers(10000.)
 SETTINGS
-    max_memory_usage = 4e6,
-    max_block_size = 100
+    max_memory_usage = 4000000.,
+    max_block_size = '100'
 FORMAT Null; -- { serverError MEMORY_LIMIT_EXCEEDED }
 
 SYSTEM FLUSH LOGS query_log;
@@ -33,7 +33,7 @@ SELECT arraySort(used_aggregate_functions)
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND (like(query, '%toDate(''2000-12-05'')%'))
+    AND query LIKE '%toDate(''2000-12-05'')%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -42,7 +42,7 @@ SELECT arraySort(used_aggregate_function_combinators)
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND (like(query, '%toDate(''2000-12-05'')%'))
+    AND query LIKE '%toDate(''2000-12-05'')%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -51,18 +51,18 @@ SELECT arraySort(used_table_functions)
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND (like(query, '%toDate(''2000-12-05'')%'))
+    AND query LIKE '%toDate(''2000-12-05'')%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
 
 -- 1. analyzer includes arrayJoin into functions list
 -- 2. for crc32 (CaseInsensitive function) we use lower case now
-SELECT arraySort(arrayMap(x -> if(x == 'crc32', 'CRC32', x), arrayFilter(x -> x != 'arrayJoin', used_functions))) AS `arraySort(used_functions)`
+SELECT arraySort(arrayMap((x -> x = 'crc32' ? 'CRC32' : x), arrayFilter((x -> x != 'arrayJoin'), used_functions))) AS `arraySort(used_functions)`
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND (like(query, '%toDate(''2000-12-05'')%'))
+    AND query LIKE '%toDate(''2000-12-05'')%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -71,7 +71,7 @@ SELECT used_functions
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type != 'QueryStart'
-    AND (like(query, '%repeat%'))
+    AND query LIKE '%repeat%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -80,7 +80,7 @@ SELECT arraySort(used_data_type_families)
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND (like(query, '%toDate(''2000-12-05'')%'))
+    AND query LIKE '%toDate(''2000-12-05'')%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -88,13 +88,13 @@ FORMAT TabSeparatedWithNames;
 DROP DATABASE IF EXISTS test_query_log_factories_info1;
 
 CREATE DATABASE test_query_log_factories_info1
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 SELECT used_database_engines
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND type == 'QueryFinish'
-    AND (like(query, '%database test_query_log_factories_info%'))
+    AND type = 'QueryFinish'
+    AND query LIKE '%database test_query_log_factories_info%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;
@@ -112,8 +112,8 @@ SELECT
     used_storages
 FROM `system`.query_log
 WHERE current_database = currentDatabase()
-    AND type == 'QueryFinish'
-    AND (like(query, '%TABLE test%'))
+    AND type = 'QueryFinish'
+    AND query LIKE '%TABLE test%'
 ORDER BY query_start_time DESC
 LIMIT 1
 FORMAT TabSeparatedWithNames;

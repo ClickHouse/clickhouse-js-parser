@@ -6,7 +6,7 @@ CREATE TABLE simple_key_dictionary_source_table
     value String,
     value_nullable Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO simple_key_dictionary_source_table;
 
@@ -48,7 +48,7 @@ CREATE TABLE complex_key_dictionary_source_table
     value String,
     value_nullable Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO complex_key_dictionary_source_table;
 

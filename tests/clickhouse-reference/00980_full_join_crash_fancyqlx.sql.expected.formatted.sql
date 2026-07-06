@@ -6,7 +6,7 @@ CREATE TABLE test_join
     id Int32,
     name Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY date;
 

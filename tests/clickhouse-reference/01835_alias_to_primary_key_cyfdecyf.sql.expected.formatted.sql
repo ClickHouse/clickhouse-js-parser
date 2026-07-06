@@ -7,13 +7,13 @@ CREATE TABLE tb
     value Int32,
     idx Int32 ALIAS index
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (date, index)
 PARTITION BY date;
 
 INSERT INTO tb;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 SELECT *
 FROM tb

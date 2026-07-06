@@ -5,7 +5,7 @@ CREATE TABLE ttl_00933_2
     d DateTime,
     a Int DEFAULT 111 TTL d + toIntervalDay(1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDayOfMonth(d);
 
@@ -29,7 +29,7 @@ CREATE TABLE ttl_00933_2
     a Int,
     b DEFAULT a * 2 TTL d + toIntervalDay(1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDayOfMonth(d);
 
@@ -53,7 +53,7 @@ CREATE TABLE ttl_00933_2
     a Int,
     b DEFAULT 222 TTL d + toIntervalDay(1)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY toDayOfMonth(d);
 

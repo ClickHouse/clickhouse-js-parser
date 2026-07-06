@@ -4,7 +4,7 @@ CREATE TABLE tbl_x
 (
     col2 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Produce Const and non-Const block in various SELECTs that may lead to UB w/o removing constness while squashing
 INSERT INTO tbl_x WITH c4 AS (

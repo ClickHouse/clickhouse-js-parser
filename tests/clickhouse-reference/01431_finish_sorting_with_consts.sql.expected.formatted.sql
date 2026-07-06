@@ -5,7 +5,7 @@ CREATE TABLE pk_func
     d DateTime,
     ui UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toDate(d);
 
 INSERT INTO pk_func SELECT

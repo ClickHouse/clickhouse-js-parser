@@ -1,4 +1,4 @@
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 DROP TABLE IF EXISTS t_sparse_distinct;
 
@@ -7,7 +7,7 @@ CREATE TABLE t_sparse_distinct
     id UInt32,
     v String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SETTINGS ratio_of_defaults_for_sparse_serialization = 0.9;
 
@@ -32,19 +32,21 @@ WHERE table = 't_sparse_distinct'
     AND column = 'v'
 ORDER BY name ASC;
 
-SET optimize_distinct_in_order = 1;
+SET optimize_distinct_in_order = '1';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 SELECT splitByString(' ', trimLeft(`explain`))[1]
 FROM (
-        EXPLAIN PIPELINE
-        SELECT DISTINCT
-            id,
-            v
-        FROM t_sparse_distinct
+        SELECT *
+        FROM viewExplain('EXPLAIN PIPELINE', '', (
+                SELECT DISTINCT
+                    id,
+                    v
+                FROM t_sparse_distinct
+            ))
     )
-WHERE ilike(`explain`, '%DistinctSortedStreamTransform%');
+WHERE `explain` ILIKE '%DistinctSortedStreamTransform%';
 
 SELECT DISTINCT
     id,

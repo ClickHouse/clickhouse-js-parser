@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS dict;
 
@@ -14,7 +14,7 @@ SELECT
     2 AS id,
     'two' AS name;
 
-CREATE FUNCTION udf_type_of_int AS int_ -> (
+CREATE OR REPLACE FUNCTION udf_type_of_int AS int_ -> (
     SELECT if(name = 'one', 'The One', 'other')
     FROM dict
     WHERE id = int_

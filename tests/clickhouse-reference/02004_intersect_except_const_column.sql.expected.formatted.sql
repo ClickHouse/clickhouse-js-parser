@@ -1,7 +1,7 @@
 -- { echo }
 -- Test: crash the server
 SELECT 'fooooo'
-INTERSECT
+INTERSECT DISTINCT
 SELECT 'fooooo';
 
 SELECT 'fooooo'
@@ -29,19 +29,19 @@ FROM numbers(10);
 
 SELECT 1
 FROM numbers(10)
-INTERSECT
+INTERSECT DISTINCT
 SELECT 1
 FROM numbers(10);
 
 SELECT toString(1)
 FROM numbers(10)
-INTERSECT
+INTERSECT DISTINCT
 SELECT toString(1)
 FROM numbers(10);
 
 SELECT '1'
 FROM numbers(10)
-INTERSECT
+INTERSECT DISTINCT
 SELECT '1'
 FROM numbers(10);
 
@@ -66,18 +66,18 @@ FROM numbers(5);
 
 SELECT 2
 FROM numbers(10)
-EXCEPT
+EXCEPT DISTINCT
 SELECT 1
 FROM numbers(5);
 
 SELECT toString(2)
 FROM numbers(10)
-EXCEPT
+EXCEPT DISTINCT
 SELECT toString(1)
 FROM numbers(5);
 
 SELECT '2'
 FROM numbers(10)
-EXCEPT
+EXCEPT DISTINCT
 SELECT '1'
 FROM numbers(5);

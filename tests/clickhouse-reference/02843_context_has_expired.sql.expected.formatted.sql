@@ -9,7 +9,7 @@ CREATE TABLE `02843_source`
     id UInt64,
     value String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE DICTIONARY `02843_dict`
 (

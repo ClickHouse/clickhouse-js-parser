@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS data_01409;
 
 CREATE TABLE data_01409
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(20);
 

@@ -2,9 +2,9 @@ DROP TABLE IF EXISTS lc_nullable_string;
 
 CREATE TABLE lc_nullable_string
 (
-    c1 LowCardinality(Nullable(String)) DEFAULT CAST(NULL, 'LowCardinality(Nullable(String))')
+    c1 LowCardinality(Nullable(String)) DEFAULT CAST(NULL AS LowCardinality(Nullable(String)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO lc_nullable_string (c1);
 

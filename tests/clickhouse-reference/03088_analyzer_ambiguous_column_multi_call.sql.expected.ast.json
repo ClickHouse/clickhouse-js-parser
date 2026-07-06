@@ -1,104 +1,123 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/61014"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
     }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "table": "a"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "i",
-        "type": {
-          "name": "int"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Log",
-      "args": []
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          {
-            "kind": "queryParam",
-            "name": "CLICKHOUSE_DATABASE",
-            "type": "Identifier"
-          },
-          "a",
-          "i"
-        ]
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "database": {
-          "kind": "queryParam",
-          "name": "CLICKHOUSE_DATABASE",
-          "type": "Identifier"
-        },
-        "table": "a"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "kind": "joinExpr",
-      "joinType": "CROSS",
-      "right": {
-        "kind": "tableRef",
-        "database": {
-          "kind": "queryParam",
-          "name": "CLICKHOUSE_DATABASE",
-          "type": "Identifier"
-        },
-        "table": "a",
-        "alias": "x"
+      "table": {
+        "type": "Identifier",
+        "name": "a"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "i",
+            "data_type": {
+              "type": "DataType",
+              "name": "int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Log",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "CLICKHOUSE_DATABASE.a.i",
+              "name_parts": [
+                "CLICKHOUSE_DATABASE",
+                "a",
+                "i"
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "a",
+                    "database": "CLICKHOUSE_DATABASE"
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "COMMA"
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "alias": "x",
+                    "name": "a",
+                    "database": "CLICKHOUSE_DATABASE"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

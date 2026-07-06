@@ -1,691 +1,844 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "150000000"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "150000000"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: long"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "lo",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toUInt64",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "1e15"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "hi",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "lo"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2000000"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "p",
-          "prime"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "q",
-          "prime"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
+              "type": "Function",
+              "alias": "lo",
+              "name": "toUInt64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 1000000000000000
+                }
+              ]
+            },
             {
-              "kind": "columnRef",
-              "parts": [
-                "prime"
+              "type": "Function",
+              "alias": "hi",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "lo"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2000000"
+                }
               ]
             }
           ],
-          "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "primes"
-          },
-          "where": {
-            "kind": "functionCall",
-            "name": "and",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "greaterOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "lo"
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "functionCall",
-                "name": "lessOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "hi"
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "p"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
           "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "prime"
-              ]
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "primes"
-          },
-          "where": {
-            "kind": "functionCall",
-            "name": "and",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "greaterOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "lo"
-                    ]
-                  }
-                ]
-              },
-              {
-                "kind": "functionCall",
-                "name": "lessOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "hi"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "2"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "q"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "q",
-              "prime"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "p.prime",
+              "name_parts": [
                 "p",
                 "prime"
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
-            }
-          }
-        }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "p",
-            "prime"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "lo",
-        "expr": {
-          "kind": "functionCall",
-          "name": "toUInt64",
-          "args": [
             {
-              "kind": "literal",
-              "type": "Float64",
-              "value": "1e15"
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteExpr",
-        "name": "hi",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "lo"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2000000"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "p",
-          "prime"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "q",
-          "prime"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "columnRef",
-              "parts": [
+              "type": "Identifier",
+              "name": "q.prime",
+              "name_parts": [
+                "q",
                 "prime"
               ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "primes"
-          },
-          "where": {
-            "kind": "functionCall",
-            "name": "and",
-            "args": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "greaterOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "lo"
-                    ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "p",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "prime"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "primes",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "lo"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "lessOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "hi"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
                   }
-                ]
+                }
               },
               {
-                "kind": "functionCall",
-                "name": "lessOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "hi"
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "q.prime",
+                        "name_parts": [
+                          "q",
+                          "prime"
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "plus",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "p.prime",
+                            "name_parts": [
+                              "p",
+                              "prime"
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "2"
+                          }
+                        ]
+                      }
                     ]
                   }
-                ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "q",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "prime"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "primes",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "lo"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "lessOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "plus",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "hi"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "2"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
               }
             ]
-          }
-        },
-        "alias": "p"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
+          },
+          "order_by": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "prime"
-              ]
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "primes"
-          },
-          "where": {
-            "kind": "functionCall",
-            "name": "and",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "greaterOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "binaryExpr",
-                      "op": "*",
-                      "left": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "2"
-                      },
-                      "right": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "lo"
-                        ]
-                      }
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  }
-                ]
-              },
-              {
-                "kind": "functionCall",
-                "name": "lessOrEquals",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "prime"
-                    ]
-                  },
-                  {
-                    "kind": "binaryExpr",
-                    "op": "+",
-                    "left": {
-                      "kind": "binaryExpr",
-                      "op": "*",
-                      "left": {
-                        "kind": "literal",
-                        "type": "UInt64",
-                        "value": "2"
-                      },
-                      "right": {
-                        "kind": "columnRef",
-                        "parts": [
-                          "hi"
-                        ]
-                      }
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        "alias": "q"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "q",
-              "prime"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "binaryExpr",
-              "op": "*",
-              "left": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "2"
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "p.prime",
+                "name_parts": [
                   "p",
                   "prime"
                 ]
-              }
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+              },
+              "direction": "ASC"
             }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
           }
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "p",
-            "prime"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "prime"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "primes"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "bitAnd",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "prime"
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "Function",
+              "alias": "lo",
+              "name": "toUInt64",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "Float64",
+                  "value": 1000000000000000
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "alias": "hi",
+              "name": "plus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "lo"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2000000"
+                }
+              ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "p.prime",
+              "name_parts": [
+                "p",
                 "prime"
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "7"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "prime"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "primes"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "functionCall",
-        "name": "bitAnd",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "prime"
-            ]
-          },
-          {
-            "kind": "binaryExpr",
-            "op": "+",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
+            {
+              "type": "Identifier",
+              "name": "q.prime",
+              "name_parts": [
+                "q",
                 "prime"
               ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "p",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "prime"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "primes",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "lo"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "lessOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "hi"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "q.prime",
+                        "name_parts": [
+                          "q",
+                          "prime"
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "plus",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "multiply",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Literal",
+                                "value_type": "UInt64",
+                                "value": "2"
+                              },
+                              {
+                                "type": "Identifier",
+                                "name": "p.prime",
+                                "name_parts": [
+                                  "p",
+                                  "prime"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "q",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "prime"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "primes",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "greaterOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "plus",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "2"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "lo"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "1"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "lessOrEquals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "prime"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "plus",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "multiply",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Literal",
+                                            "value_type": "UInt64",
+                                            "value": "2"
+                                          },
+                                          {
+                                            "type": "Identifier",
+                                            "name": "hi"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "1"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "p.prime",
+                "name_parts": [
+                  "p",
+                  "prime"
+                ]
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
           }
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "0"
-      }
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "4"
-      }
-    },
-    "offset": {
-      "kind": "literal",
-      "type": "UInt64",
-      "value": "3"
+        }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "primes"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "<",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "prime"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1000000000"
-      }
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "prime"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "primes",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "bitAnd",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "prime"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "prime"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "7"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "prime"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "primes",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "bitAnd",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "prime"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "prime"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "0"
+              }
+            ]
+          },
+          "offset": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "3"
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "4"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "primes",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "less",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "prime"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1000000000"
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 ]

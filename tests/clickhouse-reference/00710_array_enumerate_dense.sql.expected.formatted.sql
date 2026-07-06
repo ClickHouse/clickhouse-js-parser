@@ -12,7 +12,7 @@ FROM (
             )
         GROUP BY intHash32(number) % 100000
     )
-WHERE u <> arrayReverseSort(arr)[1];
+WHERE u != arrayReverseSort(arr)[1];
 
 SELECT arrayEnumerateDense([[1], [2], [34], [1]]);
 

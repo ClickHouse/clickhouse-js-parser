@@ -1,7 +1,7 @@
 -- Tags: no-parallel, no-fasttest, no-ordinary-database
 -- no-parallel: looks at server-wide metrics
 -- Tests the vector index cache.
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
 SYSTEM CLEAR VECTOR SIMILARITY INDEX CACHE;
 
@@ -17,14 +17,14 @@ CREATE TABLE tab
 (
     id Int32,
     vec Array(Float32),
-    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 2)
+    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 2) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
 
-WITH [0.0, 2.0] AS reference_vec
+WITH [0., 2.] AS reference_vec
 
 SELECT
     id,
@@ -43,5 +43,5 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND current_database = currentDatabase()
     AND type = 'QueryFinish'
-    AND like(query, '%ORDER BY L2Distance%')
+    AND query LIKE '%ORDER BY L2Distance%'
 ORDER BY event_time_microseconds ASC;

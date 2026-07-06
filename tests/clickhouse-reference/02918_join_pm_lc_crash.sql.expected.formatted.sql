@@ -1,6 +1,6 @@
-SET joined_subquery_requires_alias = 0, join_algorithm = 'partial_merge';
+SET joined_subquery_requires_alias = '0', join_algorithm = 'partial_merge';
 
-SET enable_analyzer = 0, join_use_nulls = 0;
+SET enable_analyzer = '0', join_use_nulls = '0';
 
 SELECT *
 FROM
@@ -16,8 +16,8 @@ INNER JOIN (
     )
     USING (val);
 
-SET enable_analyzer = 0, join_use_nulls = 1;
+SET enable_analyzer = '0', join_use_nulls = '1';
 
-SET enable_analyzer = 1, join_use_nulls = 0;
+SET enable_analyzer = '1', join_use_nulls = '0';
 
-SET enable_analyzer = 1, join_use_nulls = 1;
+SET enable_analyzer = '1', join_use_nulls = '1';

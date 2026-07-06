@@ -1,561 +1,687 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "use_query_condition_cache",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "use_query_condition_cache": "1"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-settings",
-      "-- Test for query condition cache correctness with CTE constant folding.",
-      "-- When constants are folded from CTE expressions, different constant values must produce",
-      "-- different hashes. Otherwise the query condition cache returns wrong results.",
-      "-- https://github.com/ClickHouse/ClickHouse/issues/96060"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_qcc_cte"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_qcc_cte"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "activity_year",
-        "type": {
-          "name": "Int16"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "activity_year"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test_qcc_cte"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "binaryExpr",
-          "op": "+",
-          "left": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "number"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2018"
-          }
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "test_qcc_cte"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_qcc_cte"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "100000"
+            "type": "ColumnDeclaration",
+            "name": "activity_year",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int16"
+            }
           }
         ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "activity_year"
+        }
       }
-    },
-    "leadingComments": [
-      "-- Need enough rows to have multiple granules so the cache can incorrectly exclude some."
-    ]
+    }
   },
   {
-    "kind": "system",
-    "body": "SYSTEM CLEAR QUERY CONDITION CACHE"
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "block_0",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "addMonths",
-                "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_qcc_cte"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "castExpr",
-                    "expr": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2022-12-01"
-                    },
-                    "type": "date",
-                    "operator": true
+                    "type": "Function",
+                    "name": "modulo",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "10"
+                      }
+                    ]
                   },
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "0"
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2018"
                   }
                 ]
-              },
-              "alias": "report_month"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "100000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "CLEAR QUERY CONDITION CACHE"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "block_0",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        },
+                        {
+                          "type": "Function",
+                          "alias": "report_month",
+                          "name": "addMonths",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "CAST",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "2022-12-01"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "date"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "0"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "test_qcc_cte"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
             }
           ],
-          "from": {
-            "kind": "tableRef",
-            "table": "test_qcc_cte"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "block_0"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toYear",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "report_month"
-                ]
-              }
-            ]
-          },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "toYear",
-              "args": [
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "report_month"
-                  ]
+                  "type": "Identifier",
+                  "name": "activity_year"
                 }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          "parenthesized": true
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- First query: addMonths('2022-12-01', 0) -> year = 2022, filter: year IN (2021, 2022)"
-    ]
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "block_0",
-        "query": {
-          "kind": "select",
-          "select": [
             {
-              "kind": "asterisk"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "addMonths",
-                "args": [
-                  {
-                    "kind": "castExpr",
-                    "expr": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2022-12-01"
-                    },
-                    "type": "date",
-                    "operator": true
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "Int64",
-                    "value": "-12"
-                  }
-                ]
-              },
-              "alias": "report_month"
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "activity_year"
+                }
+              ]
             }
           ],
           "from": {
-            "kind": "tableRef",
-            "table": "test_qcc_cte"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "block_0"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toYear",
-            "args": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "report_month"
-                ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "block_0"
+                  }
+                }
               }
             ]
           },
-          "parenthesized": true
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "toYear",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "report_month"
-                  ]
-                }
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            }
-          },
-          "parenthesized": true
-        }
-      ]
-    },
-    "leadingComments": [
-      "-- Second query: addMonths('2022-12-01', -12) -> year = 2021, filter: year IN (2020, 2021)",
-      "-- Without the fix, this would return wrong results due to cache hash collision."
-    ]
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "block_0",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "asterisk"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "addMonths",
-                "args": [
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "castExpr",
-                    "expr": {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "2022-12-01"
-                    },
-                    "type": "date",
-                    "operator": true
+                    "type": "Identifier",
+                    "name": "activity_year"
                   },
                   {
-                    "kind": "literal",
-                    "type": "Int64",
-                    "value": "-36"
+                    "type": "Function",
+                    "name": "toYear",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "report_month"
+                      }
+                    ]
                   }
                 ]
               },
-              "alias": "report_month"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "table": "test_qcc_cte"
-          }
-        }
-      }
-    ],
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
-      },
-      {
-        "kind": "functionCall",
-        "name": "min",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "max",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "block_0"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "OR",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "toYear",
-            "args": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "report_month"
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "activity_year"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toYear",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "report_month"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
                 ]
               }
             ]
-          },
-          "parenthesized": true
-        },
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "activity_year"
-            ]
-          },
-          "right": {
-            "kind": "binaryExpr",
-            "op": "-",
-            "left": {
-              "kind": "functionCall",
-              "name": "toYear",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "report_month"
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "block_0",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        },
+                        {
+                          "type": "Function",
+                          "alias": "report_month",
+                          "name": "addMonths",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "CAST",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "2022-12-01"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "date"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "Int64",
+                              "value": "-12"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "test_qcc_cte"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
                   ]
+                }
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "activity_year"
                 }
               ]
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "activity_year"
+                }
+              ]
             }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "block_0"
+                  }
+                }
+              }
+            ]
           },
-          "parenthesized": true
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "activity_year"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toYear",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "report_month"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "activity_year"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toYear",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "report_month"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
-    },
-    "leadingComments": [
-      "-- Third query: addMonths('2022-12-01', -36) -> year = 2019, filter: year IN (2018, 2019)"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_qcc_cte"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "block_0",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        },
+                        {
+                          "type": "Function",
+                          "alias": "report_month",
+                          "name": "addMonths",
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "CAST",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "2022-12-01"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "String",
+                                  "value": "date"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "Int64",
+                              "value": "-36"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "test_qcc_cte"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            },
+            {
+              "type": "Function",
+              "name": "min",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "activity_year"
+                }
+              ]
+            },
+            {
+              "type": "Function",
+              "name": "max",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "activity_year"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "block_0"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "or",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "activity_year"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "toYear",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "report_month"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "activity_year"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "minus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toYear",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "report_month"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_qcc_cte"
+      }
     }
   }
 ]

@@ -1,11 +1,11 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
 CREATE TABLE tab
 (
     col Array(String),
-    INDEX idx col TYPE text(tokenizer = `array`)
+    INDEX idx col TYPE text(tokenizer = `array`) GRANULARITY 100000000
 )
 ENGINE = MergeTree()
 ORDER BY tuple() AS

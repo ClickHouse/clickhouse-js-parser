@@ -1,9 +1,9 @@
 SELECT
-    arrayProduct([1,2,3,4,5,6]) AS a,
+    arrayProduct([1, 2, 3, 4, 5, 6]) AS a,
     toTypeName(a);
 
 SELECT
-    arrayProduct(array(1.0, 2.0, 3.0, 4.0)) AS a,
+    arrayProduct(array(1., 2., 3., 4.)) AS a,
     toTypeName(a);
 
 SELECT
@@ -11,7 +11,7 @@ SELECT
     toTypeName(a);
 
 SELECT
-    arrayProduct([toDecimal64(1,8), toDecimal64(2,8), toDecimal64(3,8)]) AS a,
+    arrayProduct([toDecimal64(1, 8), toDecimal64(2, 8), toDecimal64(3, 8)]) AS a,
     toTypeName(a);
 
 DROP TABLE IF EXISTS test_aggregation;
@@ -20,7 +20,7 @@ CREATE TABLE test_aggregation
 (
     x Array(Int)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_aggregation;
 
@@ -33,7 +33,7 @@ CREATE TABLE test_aggregation
 (
     x Array(Decimal64(8))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 SELECT
     toTypeName(arrayProduct([toInt8(0)])),

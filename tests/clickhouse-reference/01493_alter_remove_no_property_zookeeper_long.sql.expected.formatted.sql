@@ -11,17 +11,17 @@ ORDER BY tuple();
 SHOW CREATE TABLE no_prop_table;
 
 -- just nothing happened
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE DEFAULT; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE MATERIALIZED; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE ALIAS; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE CODEC; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE COMMENT; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE no_prop_table MODIFY COLUMN some_column REMOVE TTL; --{serverError BAD_ARGUMENTS}
 
 ALTER TABLE no_prop_table REMOVE TTL; --{serverError BAD_ARGUMENTS}
 
@@ -36,16 +36,16 @@ ORDER BY tuple();
 
 SHOW CREATE TABLE r_no_prop_table;
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE DEFAULT; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE MATERIALIZED; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE ALIAS; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE CODEC; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE COMMENT; --{serverError BAD_ARGUMENTS}
 
-ALTER TABLE r_no_prop_table MODIFY COLUMN some_column; --{serverError BAD_ARGUMENTS}
+ALTER TABLE r_no_prop_table MODIFY COLUMN some_column REMOVE TTL; --{serverError BAD_ARGUMENTS}
 
 ALTER TABLE r_no_prop_table REMOVE TTL; --{serverError BAD_ARGUMENTS}

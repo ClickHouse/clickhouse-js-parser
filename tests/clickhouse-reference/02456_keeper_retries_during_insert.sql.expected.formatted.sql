@@ -1,7 +1,7 @@
 -- Tags: replica
-DROP TABLE IF EXISTS keeper_retries_r1;
+DROP TABLE IF EXISTS keeper_retries_r1 SYNC;
 
-DROP TABLE IF EXISTS keeper_retries_r2;
+DROP TABLE IF EXISTS keeper_retries_r2 SYNC;
 
 CREATE TABLE keeper_retries_r1
 (
@@ -17,19 +17,19 @@ CREATE TABLE keeper_retries_r2
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test/02456_keeper_retries_during_insert', 'r2')
 ORDER BY tuple();
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 0;
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '0';
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 1, insert_keeper_max_retries = 0; -- { serverError KEEPER_EXCEPTION }
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '1', insert_keeper_max_retries = '0'; -- { serverError KEEPER_EXCEPTION }
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 1, insert_keeper_retry_max_backoff_ms = 10; -- { serverError KEEPER_EXCEPTION }
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '1', insert_keeper_retry_max_backoff_ms = '10'; -- { serverError KEEPER_EXCEPTION }
 
-SET insert_quorum = 2;
+SET insert_quorum = '2';
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 0;
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '0';
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 1, insert_keeper_max_retries = 0; -- { serverError KEEPER_EXCEPTION }
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '1', insert_keeper_max_retries = '0'; -- { serverError KEEPER_EXCEPTION }
 
-INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = 1, insert_keeper_retry_max_backoff_ms = 1; -- { serverError KEEPER_EXCEPTION }
+INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_probability = '1', insert_keeper_retry_max_backoff_ms = '1'; -- { serverError KEEPER_EXCEPTION }
 
 -- INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_mode=1, insert_keeper_fault_injection_probability=0.05, insert_keeper_fault_injection_seed=1 VALUES (21);
 -- INSERT INTO keeper_retries_r1 SETTINGS insert_keeper_fault_injection_mode=1, insert_keeper_fault_injection_probability=0.2, insert_keeper_max_retries=100, insert_keeper_retry_max_backoff_ms=1, insert_keeper_fault_injection_seed=2 VALUES (22);
@@ -39,6 +39,6 @@ SELECT *
 FROM keeper_retries_r1
 ORDER BY a ASC;
 
-DROP TABLE keeper_retries_r1;
+DROP TABLE keeper_retries_r1 SYNC;
 
-DROP TABLE keeper_retries_r2;
+DROP TABLE keeper_retries_r2 SYNC;

@@ -1,7 +1,7 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/71415
-SELECT now() + CAST(toFixedString(materialize(toNullable('1')), 1), 'IPv6'); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT now() + CAST(toFixedString(materialize(toNullable('1')), 1) AS IPv6); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT CAST('2000-01-01', 'Date32') - CAST(0, 'IPv4'); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT CAST('2000-01-01' AS Date32) - CAST(0 AS IPv4); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 DROP TABLE IF EXISTS t0;
 
@@ -9,7 +9,7 @@ CREATE TABLE t0
 (
     c0 IPv4
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT (t0.c0, t0.c0) * t0.c0
 FROM t0; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
@@ -23,7 +23,7 @@ CREATE TABLE `02763_alias__fuzz_25`
     y IPv4,
     z Float32 ALIAS x + y
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 -- Other non sensical operations
@@ -35,13 +35,13 @@ SELECT toIPv6('127.0.0.1') + 0.1; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 SELECT 0.1 + toIPv6('127.0.0.1'); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT toIPv4('127.0.0.1') + 0.1::Float32; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT toIPv4('127.0.0.1') + CAST('0.1' AS Float32); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT toIPv6('127.0.0.1') + 0.1::Float32; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT toIPv6('127.0.0.1') + CAST('0.1' AS Float32); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT toIPv4('127.0.0.1') + 0.1::BFloat16; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT toIPv4('127.0.0.1') + CAST('0.1' AS BFloat16); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
-SELECT toIPv6('127.0.0.1') + 0.1::BFloat16; -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
+SELECT toIPv6('127.0.0.1') + CAST('0.1' AS BFloat16); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 
 SELECT toIPv4('127.0.0.1') + toIntervalSecond(1); -- {serverError ILLEGAL_TYPE_OF_ARGUMENT}
 

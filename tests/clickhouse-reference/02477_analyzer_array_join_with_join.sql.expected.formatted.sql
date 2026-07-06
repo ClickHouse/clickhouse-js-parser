@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -8,7 +8,7 @@ CREATE TABLE test_table
     value String,
     value_array Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;
@@ -40,7 +40,7 @@ SELECT
     value_array
 FROM
     test_table
-ARRAY JOIN [4,5,6] AS value_array;
+ARRAY JOIN [4, 5, 6] AS value_array;
 
 SELECT
     *,
@@ -48,7 +48,7 @@ SELECT
     value_element
 FROM
     test_table
-ARRAY JOIN value_array, [4,5,6] AS value_element;
+ARRAY JOIN value_array, [4, 5, 6] AS value_element;
 
 SELECT *
 FROM
@@ -109,7 +109,7 @@ FROM
     (
         SELECT [5] AS id
     ) AS subquery_1
-ARRAY JOIN [1,2,3] AS id
+ARRAY JOIN [1, 2, 3] AS id
 INNER JOIN (
         SELECT 1 AS id
     ) AS subquery_2

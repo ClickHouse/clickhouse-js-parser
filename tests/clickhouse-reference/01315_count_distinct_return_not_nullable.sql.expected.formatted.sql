@@ -1,19 +1,19 @@
-SELECT uniq(if(number >= 10, number, NULL))
+SELECT uniq(number >= 10 ? number : NULL)
 FROM numbers(10);
 
-SELECT uniqExact(if(number >= 10, number, NULL))
+SELECT uniqExact(number >= 10 ? number : NULL)
 FROM numbers(10);
 
-SELECT countDistinct(if(number >= 10, number, NULL))
+SELECT countDistinct(number >= 10 ? number : NULL)
 FROM numbers(10);
 
-SELECT uniq(if(number >= 5, number, NULL))
+SELECT uniq(number >= 5 ? number : NULL)
 FROM numbers(10);
 
-SELECT uniqExact(if(number >= 5, number, NULL))
+SELECT uniqExact(number >= 5 ? number : NULL)
 FROM numbers(10);
 
-SELECT countDistinct(if(number >= 5, number, NULL))
+SELECT countDistinct(number >= 5 ? number : NULL)
 FROM numbers(10);
 
 SELECT '---';

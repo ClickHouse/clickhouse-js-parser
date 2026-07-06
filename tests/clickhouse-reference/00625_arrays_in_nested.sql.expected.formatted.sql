@@ -4,7 +4,7 @@ CREATE TABLE nested
 (
     column Nested(name String, names Array(String), types Array(Enum8('PU' = 1, 'US' = 2, 'OTHER' = 3)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO nested;
@@ -28,24 +28,24 @@ CREATE TABLE nested
 (
     column Nested(name String, names Array(String), types Array(Enum8('PU' = 1, 'US' = 2, 'OTHER' = 3)))
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE nested
 (
     column Nested(name String, names Array(String), types Array(Enum8('PU' = 1, 'US' = 2, 'OTHER' = 3)))
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE nested
 (
     column Nested(name String, names Array(String), types Array(Enum8('PU' = 1, 'US' = 2, 'OTHER' = 3)))
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE nested
 (
     column Nested(name String, names Array(String), types Array(Enum8('PU' = 1, 'US' = 2, 'OTHER' = 3)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE nested;

@@ -1,11 +1,11 @@
-SELECT reverse(tuple());
+SELECT reverse(());
 
 SELECT reverse(tuple());
 
-SELECT reverse(tuple())
+SELECT reverse(())
 FROM numbers(3);
 
-WITH tuple() AS x
+WITH () AS x
 
 SELECT reverse(x);
 
@@ -15,7 +15,7 @@ CREATE TABLE table_rev_empty_tuple
 (
     x Tuple()
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO table_rev_empty_tuple SELECT tuple()
 FROM numbers(5);
@@ -34,4 +34,4 @@ SELECT reverse((1, 'a', 3));
 
 SELECT reverse([()]);
 
-SELECT reverse((tuple()));
+SELECT reverse(());

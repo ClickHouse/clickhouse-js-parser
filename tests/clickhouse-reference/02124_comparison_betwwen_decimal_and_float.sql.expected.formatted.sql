@@ -1,38 +1,38 @@
-SELECT CAST(1.0, 'Decimal(15,2)') > CAST(1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') > CAST(1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') = CAST(1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') = CAST(1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') < CAST(1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') < CAST(1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') != CAST(1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') != CAST(1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') > CAST(-1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') > CAST(-1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') = CAST(-1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') = CAST(-1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') < CAST(-1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') < CAST(-1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') != CAST(-1, 'Float64');
+SELECT CAST(1., 'Decimal(15,2)') != CAST(-1 AS Float64);
 
-SELECT CAST(1.0, 'Decimal(15,2)') > CAST(1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') > CAST(1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') = CAST(1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') = CAST(1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') < CAST(1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') < CAST(1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') != CAST(1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') != CAST(1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') > CAST(-1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') > CAST(-1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') = CAST(-1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') = CAST(-1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') < CAST(-1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') < CAST(-1 AS Float32);
 
-SELECT CAST(1.0, 'Decimal(15,2)') != CAST(-1, 'Float32');
+SELECT CAST(1., 'Decimal(15,2)') != CAST(-1 AS Float32);
 
 SELECT toDecimal32('11.00', 2) > 1.;
 
-SELECT 0.1000000000000000055511151231257827021181583404541015625::Decimal256(70) = 0.1;
+SELECT CAST('0.1000000000000000055511151231257827021181583404541015625' AS Decimal256(70)) = 0.1;
 
 DROP TABLE IF EXISTS t;
 
@@ -45,7 +45,7 @@ CREATE TABLE t
     f1 Float32,
     f2 Float32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t;
 

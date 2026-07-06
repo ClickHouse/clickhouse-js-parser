@@ -7,7 +7,7 @@ CREATE TABLE test_table
     `end` Int64,
     insert_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (uid, start);
 
 DROP DICTIONARY IF EXISTS test_dictionary;

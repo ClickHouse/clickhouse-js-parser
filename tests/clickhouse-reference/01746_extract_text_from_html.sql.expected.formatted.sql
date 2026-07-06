@@ -91,8 +91,4 @@ SELECT extractTextFromHTML('Hello<style type="text/css">World <script>abc</scrip
 
 SELECT extractTextFromHTML('<![CDATA[]]]]><![CDATA[>]]>');
 
-SELECT extractTextFromHTML('
-<img src="pictures/power.png" style="margin-bottom: -30px;" />
-<br><span style="padding-right: 10px; font-size: 10px;">xkcd.com</span>
-</div>
-');
+SELECT extractTextFromHTML('\n<img src="pictures/power.png" style="margin-bottom: -30px;" />\n<br><span style="padding-right: 10px; font-size: 10px;">xkcd.com</span>\n</div>\n');

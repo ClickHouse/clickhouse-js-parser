@@ -1,15 +1,15 @@
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
 CREATE TABLE test
 (
     x Int,
     d Dynamic
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO test SELECT
     number,
@@ -24,4 +24,4 @@ FROM test
 ORDER BY
     materialize(1) ASC,
     x DESC
-SETTINGS limit = 1;
+SETTINGS limit = '1';

@@ -14,4 +14,4 @@ CREATE TABLE suspicious_fixed_string
 ENGINE = MergeTree()
 ORDER BY id; -- { serverError ILLEGAL_COLUMN }
 
-SET allow_suspicious_fixed_string_types = 1;
+SET allow_suspicious_fixed_string_types = '1';

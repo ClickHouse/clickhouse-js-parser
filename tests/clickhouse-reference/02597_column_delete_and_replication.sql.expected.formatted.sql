@@ -10,7 +10,7 @@ CREATE TABLE test
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test/test_table', '1')
 ORDER BY (c_id, p_id);
 
-SET mutations_sync = 0;
+SET mutations_sync = '0';
 
 INSERT INTO test SELECT
     '1',
@@ -25,20 +25,20 @@ INSERT INTO test SELECT
 FROM numbers(3);
 
 -- this mutation will run in background and will block next mutation
-ALTER TABLE test UPDATE d = concat(d, throwIf(1)) WHERE 1;
+ALTER TABLE test UPDATE d = d || throwIf(1) WHERE 1;
 
 -- this mutation cannot be started until previuos ALTER finishes (in background), and will lead to DROP COLUMN failed with BAD_ARGUMENTS
 ALTER TABLE test ADD COLUMN x UInt32 DEFAULT 0;
 
-ALTER TABLE test UPDATE d = concat(d, '1') WHERE x = 42;
+ALTER TABLE test UPDATE d = d || '1' WHERE x = 42;
 
-ALTER TABLE test DROP COLUMN x SETTINGS mutations_sync = 2; --{serverError BAD_ARGUMENTS}
+ALTER TABLE test DROP COLUMN x SETTINGS mutations_sync = '2'; --{serverError BAD_ARGUMENTS}
 
 -- unblock
 KILL MUTATION WHERE database = currentDatabase()
-AND like(command, '%throwIf%') SYNC FORMAT Null;
+AND command LIKE '%throwIf%' SYNC FORMAT Null;
 
-ALTER TABLE test UPDATE x = x + 1 WHERE 1 SETTINGS mutations_sync = 2;
+ALTER TABLE test UPDATE x = x + 1 WHERE 1 SETTINGS mutations_sync = '2';
 
 SELECT *
 FROM test

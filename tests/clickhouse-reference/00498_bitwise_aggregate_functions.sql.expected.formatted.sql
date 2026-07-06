@@ -14,10 +14,10 @@ ORDER BY k ASC;
 
 SELECT
     number % 4 AS k,
-    groupArray(negate(number)),
-    groupBitOr(negate(number)),
-    groupBitAnd(negate(number)),
-    groupBitXor(negate(number))
+    groupArray(-number),
+    groupBitOr(-number),
+    groupBitAnd(-number),
+    groupBitXor(-number)
 FROM (
         SELECT *
         FROM `system`.numbers

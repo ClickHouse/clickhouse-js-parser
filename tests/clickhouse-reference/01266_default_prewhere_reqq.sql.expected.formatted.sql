@@ -9,7 +9,7 @@ CREATE TABLE t1
 ENGINE = MergeTree()
 ORDER BY (date, s1)
 PARTITION BY toYYYYMMDD(date)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO t1 (date, s1, s2);
 

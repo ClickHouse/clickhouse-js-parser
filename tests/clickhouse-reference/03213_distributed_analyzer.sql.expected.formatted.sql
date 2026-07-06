@@ -1,4 +1,4 @@
-SET max_threads = 8;
+SET max_threads = '8';
 
 -- This triggered a nullptr dereference due to the confusion between old and new analyzers:
 SELECT sum(*)

@@ -8,13 +8,13 @@ CREATE TABLE test_merge_1
 (
     id UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE test_merge_2
 (
     id UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TEMPORARY TABLE temporary_table AS
 SELECT *

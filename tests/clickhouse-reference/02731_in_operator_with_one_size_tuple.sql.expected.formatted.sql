@@ -3,7 +3,7 @@ CREATE TABLE test
     report_date Date,
     sspid UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY report_date
 PARTITION BY report_date;
 

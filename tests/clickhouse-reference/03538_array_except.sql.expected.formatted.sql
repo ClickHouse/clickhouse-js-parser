@@ -16,9 +16,9 @@ SELECT arrayExcept([1, 2, 2, 3], [2]) AS result;
 
 SELECT arrayExcept(['apple', 'banana', 'cherry'], ['banana', 'date']) AS result;
 
-SELECT arrayExcept([]::Array(UInt8), [1, 2]) AS result;
+SELECT arrayExcept(CAST('[]' AS Array(UInt8)), [1, 2]) AS result;
 
-SELECT arrayExcept([1, 2, 3], []::Array(UInt8)) AS result;
+SELECT arrayExcept([1, 2, 3], CAST('[]' AS Array(UInt8))) AS result;
 
 SELECT arrayExcept([1, 2, 3], [1, 2, 3]) AS result;
 
@@ -30,13 +30,13 @@ SELECT arrayExcept([1, NULL, 2], [2]) AS result;
 
 SELECT arrayExcept([1, 2, 3], [2, NULL]) AS result;
 
-SELECT arrayExcept(materialize(['11','2','3','4','0']), materialize([1.5])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT arrayExcept(materialize(['11', '2', '3', '4', '0']), materialize([1.5])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT arrayExcept(materialize('11'), materialize('1')); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT arrayExcept(materialize(['11','2','3','4','0']), materialize('1')); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT arrayExcept(materialize(['11', '2', '3', '4', '0']), materialize('1')); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT arrayExcept(materialize([['11','2','3','4','0']]), materialize([['1']])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT arrayExcept(materialize([['11', '2', '3', '4', '0']]), materialize([['1']])); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 SELECT arrayExcept([1, 2, 3, 4], [3, 5]) AS result
 FROM numbers(3);
@@ -47,35 +47,35 @@ FROM numbers(3);
 WITH excludes AS (
     SELECT
         1 AS id,
-        ['b','d'] AS exclude
+        ['b', 'd'] AS exclude
     UNION ALL
     SELECT
         2 AS id,
-        ['a','c']
+        ['a', 'c']
     UNION ALL
     SELECT
         3 AS id,
-        ['x','y']
+        ['x', 'y']
 )
 
 SELECT
     id,
-    arrayExcept(['a','b','c'], exclude) AS result
+    arrayExcept(['a', 'b', 'c'], exclude) AS result
 FROM excludes
 ORDER BY id ASC;
 
 SELECT arrayExcept(multiIf(number = 0, [1, 2, 3], number = 1, [4, 5, 6], [7, 8, 9]), [2, 5, 8]) AS result
 FROM numbers(3);
 
-SELECT arrayExcept(['premium', 'active', 'new']::Array(LowCardinality(String)), ['active']::Array(LowCardinality(String))) AS result;
+SELECT arrayExcept(CAST('[''premium'', ''active'', ''new'']' AS Array(LowCardinality(String))), CAST('[''active'']' AS Array(LowCardinality(String)))) AS result;
 
-SELECT arrayExcept(materialize(['premium', 'active', 'new']::Array(LowCardinality(String))), ['active']::Array(LowCardinality(String))) AS result;
+SELECT arrayExcept(materialize(CAST('[''premium'', ''active'', ''new'']' AS Array(LowCardinality(String)))), CAST('[''active'']' AS Array(LowCardinality(String)))) AS result;
 
-SELECT arrayExcept(['premium', 'active', 'new']::Array(LowCardinality(String)), materialize(['active']::Array(LowCardinality(String)))) AS result;
+SELECT arrayExcept(CAST('[''premium'', ''active'', ''new'']' AS Array(LowCardinality(String))), materialize(CAST('[''active'']' AS Array(LowCardinality(String))))) AS result;
 
-SELECT arrayExcept(materialize(['premium', 'active', 'new']::Array(LowCardinality(String))), materialize(['active']::Array(LowCardinality(String)))) AS result;
+SELECT arrayExcept(materialize(CAST('[''premium'', ''active'', ''new'']' AS Array(LowCardinality(String)))), materialize(CAST('[''active'']' AS Array(LowCardinality(String))))) AS result;
 
-SELECT arrayExcept(['a','b','c']::Array(LowCardinality(String)), ['b','d']::Array(String)) AS result;
+SELECT arrayExcept(CAST('[''a'',''b'',''c'']' AS Array(LowCardinality(String))), CAST('[''b'',''d'']' AS Array(String))) AS result;
 
 CREATE TABLE `3538_array_except1`
 (
@@ -85,7 +85,7 @@ CREATE TABLE `3538_array_except1`
     except_null Array(Nullable(UInt32)),
     expected Array(UInt32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except1`;
 
@@ -118,7 +118,7 @@ CREATE TABLE `3538_array_except2`
     except_null Array(Nullable(UInt32)),
     expected_null Array(Nullable(UInt32))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except2`;
 
@@ -150,7 +150,7 @@ CREATE TABLE `3538_array_except3`
     except_null Array(Nullable(String)),
     expected Array(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except3`;
 
@@ -183,7 +183,7 @@ CREATE TABLE `3538_array_except4`
     except_null Array(Nullable(String)),
     expected_null Array(Nullable(String))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except4`;
 
@@ -215,7 +215,7 @@ CREATE TABLE `3538_array_except5`
     except_null Array(Nullable(FixedString(5))),
     expected Array(FixedString(5))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except5`;
 
@@ -248,7 +248,7 @@ CREATE TABLE `3538_array_except6`
     except_null Array(Nullable(FixedString(5))),
     expected_null Array(Nullable(FixedString(5)))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO `3538_array_except6`;
 

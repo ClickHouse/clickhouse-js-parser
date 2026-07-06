@@ -1,6 +1,6 @@
 -- Test for https://github.com/ClickHouse/ClickHouse/issues/95670
 -- cast_keep_nullable should work with LowCardinality(Nullable(T)) types
-SET cast_keep_nullable = 1;
+SET cast_keep_nullable = '1';
 
 -- This should return NULL, not throw an exception
 SELECT NULL::LowCardinality(Nullable(String))::text;

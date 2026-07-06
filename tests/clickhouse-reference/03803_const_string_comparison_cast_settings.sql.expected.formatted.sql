@@ -42,7 +42,7 @@ SETTINGS
     bool_false_representation = 'noo';
 
 SELECT tuple(1, 0) = '(1, NULL)'
-SETTINGS input_format_null_as_default = 0; -- { serverError CANNOT_PARSE_INPUT_ASSERTION_FAILED }
+SETTINGS input_format_null_as_default = '0'; -- { serverError CANNOT_PARSE_INPUT_ASSERTION_FAILED }
 
 SELECT tuple(1, 0) = '(1, NULL)'
-SETTINGS input_format_null_as_default = 1;
+SETTINGS input_format_null_as_default = '1';

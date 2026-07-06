@@ -1,8 +1,8 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23865
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE table_local
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(10);
 

@@ -5,7 +5,7 @@ CREATE TABLE h3_indexes
 (
     h3_index UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Test h3 indices selected from original test fixture: https://github.com/uber/h3/blob/master/src/apps/testapps/testH3CellAreaExhaustive.c
 INSERT INTO h3_indexes;

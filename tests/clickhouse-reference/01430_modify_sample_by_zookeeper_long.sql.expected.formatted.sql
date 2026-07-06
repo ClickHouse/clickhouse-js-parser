@@ -1,16 +1,16 @@
 -- Tags: long, zookeeper
 DROP TABLE IF EXISTS modify_sample;
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 CREATE TABLE modify_sample
 (
     d Date DEFAULT '2000-01-01',
     x UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY d;
 
@@ -24,7 +24,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM modify_sample SAMPLE 0.1; -- { serverError SAMPLING_NOT_SUPPORTED }
+FROM modify_sample SAMPLE 1/10; -- { serverError SAMPLING_NOT_SUPPORTED }
 
 ALTER TABLE modify_sample MODIFY SAMPLE BY x;
 
@@ -50,7 +50,7 @@ SELECT
     max(x),
     sum(x),
     uniqExact(x)
-FROM modify_sample_replicated SAMPLE 0.1; -- { serverError SAMPLING_NOT_SUPPORTED }
+FROM modify_sample_replicated SAMPLE 1/10; -- { serverError SAMPLING_NOT_SUPPORTED }
 
 ALTER TABLE modify_sample_replicated MODIFY SAMPLE BY x;
 
@@ -68,9 +68,9 @@ SELECT
     max(y),
     sum(y),
     uniqExact(y)
-FROM modify_sample_replicated SAMPLE 0.1;
+FROM modify_sample_replicated SAMPLE 1/10;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE modify_sample_old
 (

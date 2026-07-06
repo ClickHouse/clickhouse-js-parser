@@ -4,7 +4,7 @@ CREATE TABLE test_map
 (
     value Map(String, String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_map;
 

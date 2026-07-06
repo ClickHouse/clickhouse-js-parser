@@ -7,9 +7,9 @@ CREATE TABLE `03717_table`
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03717_table', '1')
 ORDER BY id
-SETTINGS min_bytes_for_wide_part = 10000, min_rows_for_wide_part = 10000, serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
+SETTINGS min_bytes_for_wide_part = '10000', min_rows_for_wide_part = '10000', serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
 
-SYSTEM STOP MERGES 03717_table;
+SYSTEM STOP MERGES `03717_table`;
 
 DROP TABLE IF EXISTS `03717_mv_table_odd`;
 
@@ -19,9 +19,9 @@ CREATE TABLE `03717_mv_table_odd`
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03717_mv_table_odd', '1')
 ORDER BY value
-SETTINGS min_bytes_for_wide_part = 10000, min_rows_for_wide_part = 10000, serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
+SETTINGS min_bytes_for_wide_part = '10000', min_rows_for_wide_part = '10000', serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
 
-SYSTEM STOP MERGES 03717_mv_table_odd;
+SYSTEM STOP MERGES `03717_mv_table_odd`;
 
 DROP TABLE IF EXISTS `03717_mv_odd`;
 
@@ -40,9 +40,9 @@ CREATE TABLE `03717_mv_table_even`
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03717_mv_table_even', '1')
 ORDER BY value
-SETTINGS min_bytes_for_wide_part = 10000, min_rows_for_wide_part = 10000, serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
+SETTINGS min_bytes_for_wide_part = '10000', min_rows_for_wide_part = '10000', serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
 
-SYSTEM STOP MERGES 03717_mv_table_even;
+SYSTEM STOP MERGES `03717_mv_table_even`;
 
 DROP TABLE IF EXISTS `03717_mv_even`;
 
@@ -61,9 +61,9 @@ CREATE TABLE `03717_mv_table_all`
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/03717_mv_table_all', '1')
 ORDER BY value
-SETTINGS min_bytes_for_wide_part = 10000, min_rows_for_wide_part = 10000, serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
+SETTINGS min_bytes_for_wide_part = '10000', min_rows_for_wide_part = '10000', serialization_info_version = 'basic', string_serialization_version = 'with_size_stream';
 
-SYSTEM STOP MERGES 03717_mv_table_all;
+SYSTEM STOP MERGES `03717_mv_table_all`;
 
 DROP TABLE IF EXISTS `03717_mv_all`;
 
@@ -73,17 +73,17 @@ AS
 SELECT count() AS value
 FROM `03717_table`;
 
-SET async_insert = 1, insert_deduplicate = 1, async_insert_deduplicate = 1, wait_for_async_insert = 0, deduplicate_blocks_in_dependent_materialized_views = 1;
+SET async_insert = '1', insert_deduplicate = '1', async_insert_deduplicate = '1', wait_for_async_insert = '0', deduplicate_blocks_in_dependent_materialized_views = '1';
 
-SET async_insert_use_adaptive_busy_timeout = 0, async_insert_busy_timeout_min_ms = 1000, async_insert_busy_timeout_max_ms = 5000;
+SET async_insert_use_adaptive_busy_timeout = '0', async_insert_busy_timeout_min_ms = '1000', async_insert_busy_timeout_max_ms = '5000';
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
-SET max_insert_block_size = 1;
+SET max_insert_block_size = '1';
 
-SET min_insert_block_size_rows = 0;
+SET min_insert_block_size_rows = '0';
 
-SET min_insert_block_size_bytes = 0;
+SET min_insert_block_size_bytes = '0';
 
 INSERT INTO `03717_table`;
 
@@ -94,7 +94,7 @@ INSERT INTO `03717_table`;
 INSERT INTO `03717_table`;
 
 --- those inserts might be in different async queue shards, they all would be flushed, but each shard produces separate part
-SYSTEM FLUSH ASYNC INSERT QUEUE 03717_table;
+SYSTEM FLUSH ASYNC INSERT QUEUE `03717_table`;
 
 INSERT INTO `03717_table`;
 

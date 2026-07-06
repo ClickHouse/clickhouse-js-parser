@@ -1,7 +1,7 @@
 -- Tags: stateful
 DROP TABLE IF EXISTS hits_snippet;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE hits_snippet
 (
@@ -14,9 +14,9 @@ CREATE TABLE hits_snippet
 )
 ENGINE = MergeTree(EventDate, intHash32(UserID), (CounterID, EventDate, intHash32(UserID), EventTime), 8192);
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 4096;
+SET max_block_size = '4096';
 
 INSERT INTO hits_snippet (EventTime, EventDate, CounterID, UserID, URL, Referer) SELECT
     EventTime,
@@ -54,7 +54,7 @@ ORDER BY
     Referer ASC
 LIMIT 50;
 
-SET min_bytes_to_use_direct_io = 8192;
+SET min_bytes_to_use_direct_io = '8192';
 
 OPTIMIZE TABLE hits_snippet;
 

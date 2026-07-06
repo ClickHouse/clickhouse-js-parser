@@ -7,5 +7,5 @@ WINDOW x AS (PARTITION BY dummy);
 SELECT 1
 WINDOW dummy AS (PARTITION BY dummy);
 
-SELECT count()
+SELECT count() OVER dummy
 WINDOW dummy AS (PARTITION BY dummy);

@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 EXPLAIN ESTIMATE
 SELECT

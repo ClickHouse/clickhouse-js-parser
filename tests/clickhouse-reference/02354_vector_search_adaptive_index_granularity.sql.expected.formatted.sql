@@ -11,21 +11,21 @@ CREATE TABLE tab
 (
     id Int32,
     vec Array(Float32),
-    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1)
+    INDEX idx vec TYPE vector_similarity('hnsw', 'L2Distance', 1) GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity_bytes = 0; -- { serverError INVALID_SETTING_VALUE }
+SETTINGS index_granularity_bytes = '0'; -- { serverError INVALID_SETTING_VALUE }
 
 CREATE TABLE tab
 (
     id Int32,
     vec Array(Float32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity_bytes = 0;
+SETTINGS index_granularity_bytes = '0';
 
-ALTER TABLE tab ADD INDEX vec_idx1 vec TYPE vector_similarity('hnsw', 'cosineDistance', 1); -- { serverError INVALID_SETTING_VALUE }
+ALTER TABLE tab ADD INDEX vec_idx1 vec TYPE vector_similarity('hnsw', 'cosineDistance', 1) GRANULARITY 100000000; -- { serverError INVALID_SETTING_VALUE }
 
 DROP TABLE tab;

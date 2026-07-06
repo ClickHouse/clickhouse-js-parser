@@ -1,4 +1,4 @@
-SET allow_dynamic_type_in_join_keys = 0;
+SET allow_dynamic_type_in_join_keys = '0';
 
 DROP TABLE IF EXISTS t0;
 
@@ -26,7 +26,7 @@ INSERT INTO t0;
 
 INSERT INTO t1;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT *
 FROM
@@ -46,11 +46,11 @@ FROM
 INNER JOIN t1
     ON t0.c2 = t1.c2; -- {serverError ILLEGAL_COLUMN}
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET query_plan_use_new_logical_join_step = 0;
+SET query_plan_use_new_logical_join_step = '0';
 
-SET query_plan_use_new_logical_join_step = 1;
+SET query_plan_use_new_logical_join_step = '1';
 
 DROP TABLE t0;
 

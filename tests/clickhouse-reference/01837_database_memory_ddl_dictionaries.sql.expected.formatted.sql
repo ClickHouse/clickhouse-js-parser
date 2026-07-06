@@ -2,7 +2,7 @@
 DROP DATABASE IF EXISTS `01837_db`;
 
 CREATE DATABASE `01837_db`
-ENGINE = Memory;
+ENGINE = Memory();
 
 DROP TABLE IF EXISTS `01837_db`.simple_key_dictionary_source;
 
@@ -11,7 +11,7 @@ CREATE TABLE `01837_db`.simple_key_dictionary_source
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01837_db`.simple_key_dictionary_source;
 

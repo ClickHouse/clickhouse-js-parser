@@ -6,7 +6,7 @@ CREATE TABLE unhex_in_fix_string_table
     s1 FixedString(20),
     s2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
 PARTITION BY dt;
 

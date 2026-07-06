@@ -1,11 +1,11 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE t1__fuzz_0
 (
     x Nullable(UInt32),
     str String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE right_join__fuzz_0
 (
@@ -14,7 +14,7 @@ CREATE TABLE right_join__fuzz_0
 )
 ENGINE = Join(`ALL`, `RIGHT`, x);
 
-EXPLAIN actions = 1, header = 1
+EXPLAIN actions = '1', header = '1'
 SELECT *
 FROM
     t1__fuzz_0

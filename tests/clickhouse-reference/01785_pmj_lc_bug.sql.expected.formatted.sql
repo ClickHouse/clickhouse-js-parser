@@ -6,13 +6,13 @@ CREATE TABLE foo_lc
 (
     n LowCardinality(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE foo
 (
     n String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO foo SELECT toString(number) AS n
 FROM `system`.numbers
@@ -22,29 +22,29 @@ INSERT INTO foo_lc SELECT toString(number) AS n
 FROM `system`.numbers
 LIMIT 1025;
 
-SELECT 1025 == count(n)
+SELECT 1025 = count(n)
 FROM
     foo_lc AS t1
-LEFT JOIN foo_lc AS t2
-    ON t1.n == t2.n;
+ANY LEFT JOIN foo_lc AS t2
+    ON t1.n = t2.n;
 
-SELECT 1025 == count(n)
+SELECT 1025 = count(n)
 FROM
     foo AS t1
-LEFT JOIN foo_lc AS t2
-    ON t1.n == t2.n;
+ANY LEFT JOIN foo_lc AS t2
+    ON t1.n = t2.n;
 
-SELECT 1025 == count(n)
+SELECT 1025 = count(n)
 FROM
     foo_lc AS t1
-LEFT JOIN foo AS t2
-    ON t1.n == t2.n;
+ANY LEFT JOIN foo AS t2
+    ON t1.n = t2.n;
 
-SELECT 1025 == count(n)
+SELECT 1025 = count(n)
 FROM
     foo_lc AS t1
-LEFT JOIN foo_lc AS t2
-    ON t1.n == t2.n;
+ALL LEFT JOIN foo_lc AS t2
+    ON t1.n = t2.n;
 
 DROP TABLE foo;
 

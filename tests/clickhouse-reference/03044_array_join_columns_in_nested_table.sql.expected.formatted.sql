@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/11813
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT 1
 FROM

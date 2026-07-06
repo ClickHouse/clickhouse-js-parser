@@ -1,8 +1,8 @@
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
-SET any_join_distinct_right_table_keys = 1;
+SET any_join_distinct_right_table_keys = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     k,
@@ -16,12 +16,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     )
-INNER JOIN (
+ANY INNER JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     )
     USING (k)
 ORDER BY k ASC;
@@ -38,12 +39,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     )
     USING (k)
 ORDER BY k ASC;
@@ -60,12 +62,13 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     )
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     )
     USING (k)
 ORDER BY k ASC;
@@ -82,14 +85,15 @@ FROM
         FROM `system`.numbers
         LIMIT 10
     )
-FULL JOIN (
+ANY FULL JOIN (
         SELECT
             number AS k,
             toString(number) AS b
         FROM `system`.numbers
-        LIMIT 5, 10
+        LIMIT 10
+        OFFSET 5
     )
     USING (k)
 ORDER BY k ASC;
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';

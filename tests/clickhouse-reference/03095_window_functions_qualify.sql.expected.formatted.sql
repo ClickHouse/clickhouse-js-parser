@@ -1,53 +1,53 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
     number,
     COUNT() OVER (PARTITION BY number % 3) AS partition_count
 FROM numbers(10)
-ORDER BY number ASC
-QUALIFY partition_count = 4;
+QUALIFY partition_count = 4
+ORDER BY number ASC;
 
 SELECT '--';
 
 SELECT number
 FROM numbers(10)
-ORDER BY number ASC
-QUALIFY ((COUNT() OVER (PARTITION BY number % 3) AS partition_count)) = 4;
+QUALIFY (COUNT() OVER (PARTITION BY number % 3) AS partition_count) = 4
+ORDER BY number ASC;
 
 SELECT number
 FROM numbers(10)
-ORDER BY number ASC
-QUALIFY number > 5;
+QUALIFY number > 5
+ORDER BY number ASC;
 
 SELECT
-    (number % 2) AS key,
+    number % 2 AS key,
     count()
 FROM numbers(10)
 GROUP BY key
 HAVING key = 0
-QUALIFY key == 0;
+QUALIFY key = 0;
 
 SELECT
-    (number % 2) AS key,
+    number % 2 AS key,
     count()
 FROM numbers(10)
 GROUP BY key
-QUALIFY key == 0;
+QUALIFY key = 0;
 
 SELECT
     number,
     COUNT() OVER (PARTITION BY number % 3) AS partition_count
 FROM numbers(10)
-ORDER BY number ASC
-QUALIFY COUNT() OVER (PARTITION BY number % 3) = 4;
+QUALIFY COUNT() OVER (PARTITION BY number % 3) = 4
+ORDER BY number ASC;
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT
     number,
     COUNT() OVER (PARTITION BY number % 3) AS partition_count
 FROM numbers(10)
-ORDER BY number ASC
-QUALIFY COUNT() OVER (PARTITION BY number % 3) = 4;
+QUALIFY COUNT() OVER (PARTITION BY number % 3) = 4
+ORDER BY number ASC;
 
 SELECT
     number % toUInt256(2) AS key,
@@ -60,7 +60,7 @@ QUALIFY key = toNullable(toNullable(0)); -- { serverError NOT_IMPLEMENTED }
 
 SELECT
     number % 2 AS key,
-    count(materialize(5))
+    count(materialize(5)) IGNORE NULLS
 FROM numbers(10)
 WHERE toLowCardinality(toLowCardinality(materialize(2)))
 GROUP BY key
@@ -70,7 +70,7 @@ QUALIFY key = 0; -- { serverError NOT_IMPLEMENTED }
 
 SELECT
     4,
-    count(4),
+    count(4) IGNORE NULLS,
     number % 2 AS key
 FROM numbers(10)
 GROUP BY key
@@ -81,7 +81,7 @@ QUALIFY key = materialize(0); -- { serverError NOT_IMPLEMENTED }
 SELECT
     3,
     number % toLowCardinality(2) AS key,
-    count()
+    count() IGNORE NULLS
 FROM numbers(10)
 GROUP BY key
 WITH ROLLUP

@@ -6,10 +6,10 @@ CREATE TABLE test_table
     timestamp UInt64,
     key UInt64
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 PRIMARY KEY (eventType, timestamp)
 ORDER BY (eventType, timestamp, key)
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 SYSTEM STOP MERGES test_table;
 
@@ -24,17 +24,17 @@ SELECT
     timestamp,
     key
 FROM test_table
-WHERE (eventType IN ('2', '4'))
-    AND (((timestamp >= max2(toInt64('1698938519999'), toUnixTimestamp64Milli(now64() - toIntervalDay(90))))
-    AND (timestamp <= (toInt64('1707143315452') - 1))));
+WHERE eventType IN ('2', '4')
+    AND (timestamp >= max2(toInt64('1698938519999'), toUnixTimestamp64Milli(now64() - toIntervalDay(90)))
+    AND timestamp <= toInt64('1707143315452') - 1);
 
 SELECT
     eventType,
     timestamp,
     key
 FROM test_table FINAL
-WHERE (eventType IN ('2', '4'))
-    AND (((timestamp >= max2(toInt64('1698938519999'), toUnixTimestamp64Milli(now64() - toIntervalDay(90))))
-    AND (timestamp <= (toInt64('1707143315452') - 1))));
+WHERE eventType IN ('2', '4')
+    AND (timestamp >= max2(toInt64('1698938519999'), toUnixTimestamp64Milli(now64() - toIntervalDay(90)))
+    AND timestamp <= toInt64('1707143315452') - 1);
 
 DROP TABLE test_table;

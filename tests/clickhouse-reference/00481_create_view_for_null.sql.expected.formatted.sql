@@ -6,7 +6,7 @@ CREATE TABLE null_00481
 (
     x UInt8
 )
-ENGINE = Null;
+ENGINE = Null();
 
 CREATE VIEW null_view
 AS

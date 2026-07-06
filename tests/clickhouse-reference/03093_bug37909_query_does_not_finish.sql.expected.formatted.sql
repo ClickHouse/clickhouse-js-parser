@@ -18,7 +18,7 @@ FROM (
         _v AS (
             SELECT
                 xxHash64(rand()) % 100000 AS d_id,
-                toDate(parseDateTimeBestEffort('2022-01-01') + (rand() % 2600000)) AS v_date
+                toDate(parseDateTimeBestEffort('2022-01-01') + rand() % 2600000) AS v_date
             FROM numbers(1000000)
             ORDER BY d_id ASC
         ),
@@ -67,11 +67,11 @@ FROM (
                         GROUP BY d_id
                     )
             )
-        WHERE (v_date >= '2022-05-08')
-            AND (v_date <= '2022-06-07')
+        WHERE v_date >= '2022-05-08'
+            AND v_date <= '2022-06-07'
     )
 GROUP BY
     /* WHERE (v_date >= '2022-05-08') AND (v_date <= '2022-06-07') placing condition has same effect */
     vDate
 ORDER BY vDate ASC
-SETTINGS enable_analyzer = 1; -- the query times out if enable_analyzer = 0
+SETTINGS enable_analyzer = '1'; -- the query times out if enable_analyzer = 0

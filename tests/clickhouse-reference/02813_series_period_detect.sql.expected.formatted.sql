@@ -6,7 +6,7 @@ CREATE TABLE tb1
     n UInt32,
     a Array(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tb1;
 
@@ -20,13 +20,13 @@ SELECT seriesPeriodDetectFFT([10.1, 10, 400, 10.1, 10, 400, 10.1, 10, 400, 10.1,
 
 SELECT seriesPeriodDetectFFT([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
 
-SELECT seriesPeriodDetectFFT(arrayMap(x -> sin(x / 10), range(1000)));
+SELECT seriesPeriodDetectFFT(arrayMap((x -> sin(x / 10)), range(1000)));
 
-SELECT seriesPeriodDetectFFT(arrayMap(x -> abs((x % 6) - 3), range(1000)));
+SELECT seriesPeriodDetectFFT(arrayMap((x -> abs(x % 6 - 3)), range(1000)));
 
-SELECT seriesPeriodDetectFFT(arrayMap(x -> if((x % 6) < 3, 3, 0), range(1000)));
+SELECT seriesPeriodDetectFFT(arrayMap((x -> if(x % 6 < 3, 3, 0)), range(1000)));
 
-SELECT seriesPeriodDetectFFT([1,2,3]);
+SELECT seriesPeriodDetectFFT([1, 2, 3]);
 
 SELECT seriesPeriodDetectFFT(a)
 FROM tb1;

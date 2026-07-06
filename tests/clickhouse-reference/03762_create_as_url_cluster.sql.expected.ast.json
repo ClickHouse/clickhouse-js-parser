@@ -1,104 +1,133 @@
 [
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    },
-    "leadingComments": [
-      "-- Tags: no-replicated-database",
-      "-- no-replicated-database: It messes up the output and this test explicitly checks the replicated database"
-    ]
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/03762_create_as_url_cluster/{database}_replicated"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica1"
-        }
-      ]
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "database": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      },
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c0",
-        "type": {
-          "name": "Int"
-        }
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "url",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "http://localhost:8123/?query=SELECT+1+FORMAT+Values"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "Values"
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "c0 Int"
-          }
-        ],
-        "alias": "tx"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
       },
-      "parenthesized": true
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/03762_create_as_url_cluster/{database}_replicated"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica1"
+            }
+          ]
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c0",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "alias": "tx",
+                      "name": "url",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "http://localhost:8123/?query=SELECT+1+FORMAT+Values"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "Values"
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "c0 Int"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   }
 ]

@@ -5,7 +5,7 @@ CREATE TABLE `02125_test_table`
     id UInt64,
     value Nullable(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02125_test_table`;
 

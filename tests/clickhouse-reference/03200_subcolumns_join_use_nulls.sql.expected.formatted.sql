@@ -4,7 +4,7 @@ CREATE TABLE t_subcolumns_join
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_subcolumns_join SELECT number AS number
@@ -18,10 +18,10 @@ FROM
     ) AS tbl
 LEFT JOIN t_subcolumns_join
     ON number = id
-WHERE isNull(id)
+WHERE id IS NULL
 SETTINGS
-    enable_analyzer = 1,
-    optimize_functions_to_subcolumns = 1,
-    join_use_nulls = 1;
+    enable_analyzer = '1',
+    optimize_functions_to_subcolumns = '1',
+    join_use_nulls = '1';
 
 DROP TABLE t_subcolumns_join;

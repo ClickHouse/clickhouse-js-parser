@@ -1,11 +1,11 @@
 -- Tags: long, replica
-SET insert_keeper_fault_injection_probability = 0; -- disable fault injection; part ids are non-deterministic in case of insert retries
+SET insert_keeper_fault_injection_probability = '0'; -- disable fault injection; part ids are non-deterministic in case of insert retries
 
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS test SYNC;
 
-DROP TABLE IF EXISTS test2;
+DROP TABLE IF EXISTS test2 SYNC;
 
 CREATE TABLE test
 (
@@ -99,6 +99,6 @@ ALTER TABLE test DROP COLUMN x; -- { serverError UNKNOWN_IDENTIFIER }
 
 ALTER TABLE test DROP COLUMN y; -- { serverError UNKNOWN_IDENTIFIER }
 
-DROP TABLE test;
+DROP TABLE test SYNC;
 
-DROP TABLE test2;
+DROP TABLE test2 SYNC;

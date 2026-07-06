@@ -1,4 +1,4 @@
-SET allow_materialized_view_with_bad_select = 1;
+SET allow_materialized_view_with_bad_select = '1';
 
 DROP TABLE IF EXISTS src;
 
@@ -11,16 +11,16 @@ CREATE TABLE src
     x int,
     y int
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE TABLE dst
 (
     x int,
     z int
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 CREATE MATERIALIZED VIEW mv
 TO dst
@@ -35,7 +35,7 @@ INSERT INTO src;
 SELECT *
 FROM dst;
 
-SET allow_materialized_view_with_bad_select = 0;
+SET allow_materialized_view_with_bad_select = '0';
 
 -- Insert into existing bad MV is still possible
 INSERT INTO src;

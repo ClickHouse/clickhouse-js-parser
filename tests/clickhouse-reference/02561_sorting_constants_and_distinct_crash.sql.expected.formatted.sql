@@ -4,11 +4,11 @@ CREATE TABLE test_table
 (
     string_value String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY string_value
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
-SYSTEM stop merges test_table;
+SYSTEM STOP MERGES test_table;
 
 INSERT INTO test_table SELECT *
 FROM (
@@ -39,8 +39,8 @@ FROM (
 ORDER BY
     constant_value ASC,
     string_value ASC
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
-SYSTEM start merges test_table;
+SYSTEM START MERGES test_table;
 
 DROP TABLE test_table;

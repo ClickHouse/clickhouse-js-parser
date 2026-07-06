@@ -1,24 +1,24 @@
-SELECT -1::Int32;
+SELECT CAST('-1' AS Int32);
 
 EXPLAIN SYNTAX
-SELECT -1::Int32;
+SELECT CAST('-1' AS Int32);
 
-SELECT -0.1::Decimal(38, 38);
-
-EXPLAIN SYNTAX
-SELECT -0.1::Decimal(38, 38);
-
-SELECT -0.111::Float64;
+SELECT CAST('-0.1' AS Decimal(38, 38));
 
 EXPLAIN SYNTAX
-SELECT -0.111::Float64;
+SELECT CAST('-0.1' AS Decimal(38, 38));
 
-SELECT [-1, 2, -3]::Array(Int32);
-
-EXPLAIN SYNTAX
-SELECT [-1, 2, -3]::Array(Int32);
-
-SELECT [-1.1, 2, -3]::Array(Float64);
+SELECT CAST('-0.111' AS Float64);
 
 EXPLAIN SYNTAX
-SELECT [-1.1, 2, -3]::Array(Float64);
+SELECT CAST('-0.111' AS Float64);
+
+SELECT CAST('[-1, 2, -3]' AS Array(Int32));
+
+EXPLAIN SYNTAX
+SELECT CAST('[-1, 2, -3]' AS Array(Int32));
+
+SELECT CAST('[-1.1, 2, -3]' AS Array(Float64));
+
+EXPLAIN SYNTAX
+SELECT CAST('[-1.1, 2, -3]' AS Array(Float64));

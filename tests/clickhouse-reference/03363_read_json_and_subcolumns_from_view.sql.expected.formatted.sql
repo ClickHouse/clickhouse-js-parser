@@ -1,6 +1,6 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -8,7 +8,7 @@ CREATE TABLE test
 (
     data JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test SELECT '{"a" : 42}';
 

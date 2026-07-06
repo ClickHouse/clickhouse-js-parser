@@ -1,4 +1,4 @@
-SET max_rows_to_sort = 100;
+SET max_rows_to_sort = '100';
 
 SELECT DISTINCT x
 FROM (

@@ -12,7 +12,7 @@ CREATE TABLE destination_set
 (
     key String
 )
-ENGINE = Set;
+ENGINE = Set();
 
 CREATE MATERIALIZED VIEW mv_to_set
 TO destination_set

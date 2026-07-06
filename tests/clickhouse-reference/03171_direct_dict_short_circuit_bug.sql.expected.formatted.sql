@@ -11,7 +11,7 @@ CREATE TABLE simple_key_simple_attributes_source_table
     value_first String,
     value_second String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO simple_key_simple_attributes_source_table;
 

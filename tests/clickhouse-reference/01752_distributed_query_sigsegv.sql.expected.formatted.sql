@@ -9,16 +9,16 @@ FROM remote('127.{1,2}', `system`.one); -- { serverError FUNCTION_THROW_IF_VALUE
 
 SELECT throwIf(dummy = 0)
 FROM remote('127.{1,2}', `system`.one)
-SETTINGS prefer_localhost_replica = 0; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
+SETTINGS prefer_localhost_replica = '0'; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
 
 SELECT throwIf(dummy = 0)
 FROM remote('127.{1,2}', `system`.one)
 SETTINGS
-    prefer_localhost_replica = 0,
-    distributed_group_by_no_merge = 1; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
+    prefer_localhost_replica = '0',
+    distributed_group_by_no_merge = '1'; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
 
 SELECT throwIf(dummy = 0)
 FROM remote('127.{1,2}', `system`.one)
 SETTINGS
-    prefer_localhost_replica = 0,
-    distributed_group_by_no_merge = 2; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }
+    prefer_localhost_replica = '0',
+    distributed_group_by_no_merge = '2'; -- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }

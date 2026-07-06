@@ -7,7 +7,7 @@ CREATE TABLE mergeTree_02184
     name String,
     dt Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 ALTER TABLE mergeTree_02184 MODIFY COLUMN name String TTL dt + toIntervalMonth(1);
@@ -147,7 +147,7 @@ CREATE TABLE stripe_log_02184
     name String,
     dt Date
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 ALTER TABLE stripe_log_02184 MODIFY COLUMN name String TTL dt + toIntervalMonth(1); -- { serverError BAD_ARGUMENTS }
 

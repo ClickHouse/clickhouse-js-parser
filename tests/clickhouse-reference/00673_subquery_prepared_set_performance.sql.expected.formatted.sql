@@ -4,7 +4,7 @@ CREATE TABLE mergetree_00673
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 INSERT INTO mergetree_00673;
@@ -76,6 +76,6 @@ FROM (
             )
     );
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
 DROP TABLE mergetree_00673;

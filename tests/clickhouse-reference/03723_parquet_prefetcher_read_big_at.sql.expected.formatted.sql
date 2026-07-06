@@ -16,7 +16,7 @@ INSERT INTO t_parquet_prefetcher_read_big_at SELECT
     toString(number)
 FROM `system`.numbers
 LIMIT 1
-SETTINGS s3_truncate_on_insert = 1;
+SETTINGS s3_truncate_on_insert = '1';
 
 -- Trigger reading from it
 SELECT *
@@ -25,7 +25,7 @@ ORDER BY
     a ASC,
     c ASC
 FORMAT Null
-SETTINGS log_comment = 'test_03723_parquet_prefetcher_read_big_at', use_parquet_metadata_cache = 0;
+SETTINGS log_comment = 'test_03723_parquet_prefetcher_read_big_at', use_parquet_metadata_cache = '0';
 
 -- Ensure that profiling is available for analysis
 SYSTEM FLUSH LOGS query_log;

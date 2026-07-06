@@ -1,14 +1,14 @@
 -- Tags: no-parallel-replicas
 -- Variant with incompatible types now throws on comparison (strict behavior)
-SET allow_experimental_variant_type = 1;
+SET allow_experimental_variant_type = '1';
 
-SET allow_suspicious_variant_types = 1;
+SET allow_suspicious_variant_types = '1';
 
 CREATE TABLE test
 (
     v Variant(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test;
@@ -24,7 +24,7 @@ WHERE v = 42; -- {serverError NO_COMMON_TYPE}
 
 SELECT *
 FROM test
-WHERE v = 42::UInt64::Variant(String, UInt64); -- {serverError NO_COMMON_TYPE}
+WHERE v = CAST('42' AS UInt64)::Variant(String, UInt64); -- {serverError NO_COMMON_TYPE}
 
 DROP TABLE test;
 
@@ -33,7 +33,7 @@ CREATE TABLE test_compat
 (
     v Variant(UInt64, UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_compat;

@@ -5,12 +5,9 @@ CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY type;
 
 INSERT INTO tp SELECT
@@ -26,12 +23,9 @@ CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY type
 SETTINGS deduplicate_merge_projection_mode = 'drop';
 
@@ -42,24 +36,18 @@ CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY type; -- { serverError SUPPORT_IS_DISABLED }
 
 CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY type
 SETTINGS deduplicate_merge_projection_mode = 'throw'; -- { serverError SUPPORT_IS_DISABLED }
 
@@ -67,12 +55,9 @@ CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY type
 SETTINGS deduplicate_merge_projection_mode = 'drop';
 
@@ -81,20 +66,17 @@ OPTIMIZE TABLE tp FINAL;
 -- expecting no projection
 SELECT name
 FROM `system`.projection_parts
-WHERE (database = currentDatabase())
-    AND (table = 'tp')
-    AND (active = 1);
+WHERE database = currentDatabase()
+    AND table = 'tp'
+    AND active = 1;
 
 CREATE TABLE tp
 (
     type Int32,
     eventcnt UInt64,
-    PROJECTION p (    SELECT
-        sum(eventcnt),
-        type
-    GROUP BY type)
+    PROJECTION p (SELECT sum(eventcnt), type GROUP BY type)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY type
 SETTINGS deduplicate_merge_projection_mode = 'rebuild';
 
@@ -104,12 +86,9 @@ CREATE TABLE tp
     type Int32,
     eventcnt UInt64
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY type;
 
-ALTER TABLE tp ADD PROJECTION p (SELECT
-    sum(eventcnt),
-    type
-GROUP BY type); -- { serverError SUPPORT_IS_DISABLED }
+ALTER TABLE tp ADD PROJECTION p (SELECT sum(eventcnt), type GROUP BY type); -- { serverError SUPPORT_IS_DISABLED }
 
 ALTER TABLE tp MODIFY SETTING deduplicate_merge_projection_mode = 'drop';

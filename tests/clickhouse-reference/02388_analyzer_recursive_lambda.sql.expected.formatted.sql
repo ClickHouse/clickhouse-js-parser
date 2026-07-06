@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH x -> plus(lambda(1), x) AS lambda
 

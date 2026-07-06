@@ -1,14 +1,14 @@
 DROP TABLE IF EXISTS t;
 
 CREATE TABLE t
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT *
 FROM numbers(2);
 
 SELECT count(*)
 FROM
-    t
-CROSS JOIN numbers(2) AS r;
+    t,
+    numbers(2) AS r;
 
 SELECT count(*)
 FROM

@@ -1,5 +1,5 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/41964
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS ab_12_aaa;
 
@@ -28,9 +28,9 @@ CREATE TABLE ab_12_aaa
     suamt Float64,
     _year String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (_year, prodcat, prodtype, quality, d1, id)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 CREATE TABLE ab_12_bbb
 (
@@ -54,9 +54,9 @@ CREATE TABLE ab_12_bbb
     themonth UInt8 MATERIALIZED toMonth(date),
     theweek UInt8 MATERIALIZED toISOWeek(date)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (theyear, themonth, _year, id, sales_type, date)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 SELECT *
 FROM

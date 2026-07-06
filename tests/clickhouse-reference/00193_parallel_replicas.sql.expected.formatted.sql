@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS parallel_replicas;
 
 DROP TABLE IF EXISTS parallel_replicas_backup;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE parallel_replicas
 (
@@ -32,7 +32,7 @@ INSERT INTO parallel_replicas (x, u, s);
 * - combining the data of all replicas coincides with the contents of the parallel_replicas table.
 */
 /* Two replicas */
-SET enable_parallel_replicas = 1, parallel_replicas_mode = 'sampling_key', max_parallel_replicas = 3, parallel_replicas_for_non_replicated_merge_tree = 1;
+SET enable_parallel_replicas = '1', parallel_replicas_mode = 'sampling_key', max_parallel_replicas = '3', parallel_replicas_for_non_replicated_merge_tree = '1';
 
 CREATE TABLE parallel_replicas_backup
 (
@@ -41,11 +41,11 @@ CREATE TABLE parallel_replicas_backup
     u UInt64,
     s String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET parallel_replicas_count = 2;
+SET parallel_replicas_count = '2';
 
-SET parallel_replica_offset = 0;
+SET parallel_replica_offset = '0';
 
 INSERT INTO parallel_replicas_backup (d, x, u, s) SELECT
     d,
@@ -57,9 +57,9 @@ FROM parallel_replicas;
 SELECT count() > 0
 FROM parallel_replicas;
 
-SET parallel_replica_offset = 1;
+SET parallel_replica_offset = '1';
 
-SET parallel_replicas_count = 0;
+SET parallel_replicas_count = '0';
 
 SELECT
     x,
@@ -74,8 +74,8 @@ ORDER BY
 DROP TABLE parallel_replicas_backup;
 
 /* Three replicas */
-SET parallel_replicas_count = 3;
+SET parallel_replicas_count = '3';
 
-SET parallel_replica_offset = 2;
+SET parallel_replica_offset = '2';
 
 DROP TABLE parallel_replicas;

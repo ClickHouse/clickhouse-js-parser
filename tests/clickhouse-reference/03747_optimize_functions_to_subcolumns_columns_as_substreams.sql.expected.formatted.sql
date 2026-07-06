@@ -7,7 +7,7 @@ CREATE TABLE test_empty_array
     `a.size0` UInt64,
     a Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_empty_array SELECT
@@ -19,12 +19,12 @@ INSERT INTO test_empty_array SELECT
 SELECT id
 FROM test_empty_array
 WHERE empty(a)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_empty_array
 WHERE empty(a)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Array notEmpty (size0 substream)
@@ -36,7 +36,7 @@ CREATE TABLE test_notempty_array
     `a.size0` UInt64,
     a Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_notempty_array SELECT
@@ -48,12 +48,12 @@ INSERT INTO test_notempty_array SELECT
 SELECT id
 FROM test_notempty_array
 WHERE notEmpty(a)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_notempty_array
 WHERE notEmpty(a)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Array length (size0 substream)
@@ -65,7 +65,7 @@ CREATE TABLE test_length_array
     `a.size0` UInt64,
     a Array(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_length_array SELECT
@@ -78,13 +78,13 @@ SELECT
     id,
     length(a)
 FROM test_length_array
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT
     id,
     length(a)
 FROM test_length_array
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test String empty (size substream)
@@ -96,7 +96,7 @@ CREATE TABLE test_empty_string
     `s.size` UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_empty_string SELECT
@@ -108,12 +108,12 @@ INSERT INTO test_empty_string SELECT
 SELECT id
 FROM test_empty_string
 WHERE empty(s)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_empty_string
 WHERE empty(s)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test String notEmpty (size substream)
@@ -125,7 +125,7 @@ CREATE TABLE test_notempty_string
     `s.size` UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_notempty_string SELECT
@@ -137,12 +137,12 @@ INSERT INTO test_notempty_string SELECT
 SELECT id
 FROM test_notempty_string
 WHERE notEmpty(s)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_notempty_string
 WHERE notEmpty(s)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test String length (size substream)
@@ -154,7 +154,7 @@ CREATE TABLE test_length_string
     `s.size` UInt64,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_length_string SELECT
@@ -167,13 +167,13 @@ SELECT
     id,
     length(s)
 FROM test_length_string
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT
     id,
     length(s)
 FROM test_length_string
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Map empty (size0 substream)
@@ -185,7 +185,7 @@ CREATE TABLE test_empty_map
     `m.size0` UInt64,
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_empty_map SELECT
@@ -197,12 +197,12 @@ INSERT INTO test_empty_map SELECT
 SELECT id
 FROM test_empty_map
 WHERE empty(m)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_empty_map
 WHERE empty(m)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Map notEmpty (size0 substream)
@@ -214,7 +214,7 @@ CREATE TABLE test_notempty_map
     `m.size0` UInt64,
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_notempty_map SELECT
@@ -226,12 +226,12 @@ INSERT INTO test_notempty_map SELECT
 SELECT id
 FROM test_notempty_map
 WHERE notEmpty(m)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_notempty_map
 WHERE notEmpty(m)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Map length (size0 substream)
@@ -243,7 +243,7 @@ CREATE TABLE test_length_map
     `m.size0` UInt64,
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_length_map SELECT
@@ -256,13 +256,13 @@ SELECT
     id,
     length(m)
 FROM test_length_map
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT
     id,
     length(m)
 FROM test_length_map
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Map mapKeys (keys substream)
@@ -274,7 +274,7 @@ CREATE TABLE test_mapkeys
     `m.keys` Array(String),
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 -- Test Map mapValues (values substream)
@@ -286,7 +286,7 @@ CREATE TABLE test_mapvalues
     `m.values` Array(UInt64),
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 -- Test Map mapContainsKey (keys substream)
@@ -298,7 +298,7 @@ CREATE TABLE test_mapcontainskey
     `m.keys` Array(String),
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }
 
 -- Test Nullable isNull (null substream)
@@ -310,7 +310,7 @@ CREATE TABLE test_isnull
     `n.null` UInt8,
     n Nullable(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_isnull SELECT
@@ -322,12 +322,12 @@ INSERT INTO test_isnull SELECT
 SELECT id
 FROM test_isnull
 WHERE isNull(n)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_isnull
 WHERE isNull(n)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Nullable isNotNull (null substream)
@@ -339,7 +339,7 @@ CREATE TABLE test_isnotnull
     `n.null` UInt8,
     n Nullable(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_isnotnull SELECT
@@ -351,12 +351,12 @@ INSERT INTO test_isnotnull SELECT
 SELECT id
 FROM test_isnotnull
 WHERE isNotNull(n)
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT id
 FROM test_isnotnull
 WHERE isNotNull(n)
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Nullable count (null substream)
@@ -368,7 +368,7 @@ CREATE TABLE test_count_nullable
     `n.null` UInt8,
     n Nullable(UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO test_count_nullable SELECT
@@ -384,11 +384,11 @@ INSERT INTO test_count_nullable SELECT
 -- { echo }
 SELECT count(n)
 FROM test_count_nullable
-SETTINGS optimize_functions_to_subcolumns = 1;
+SETTINGS optimize_functions_to_subcolumns = '1';
 
 SELECT count(n)
 FROM test_count_nullable
-SETTINGS optimize_functions_to_subcolumns = 0;
+SETTINGS optimize_functions_to_subcolumns = '0';
 
 -- { echoOff }
 -- Test Tuple tupleElement (named subcolumn)
@@ -400,5 +400,5 @@ CREATE TABLE test_tupleelement
     `t.a` UInt64,
     t Tuple(a UInt64, b String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple(); -- { serverError BAD_ARGUMENTS }

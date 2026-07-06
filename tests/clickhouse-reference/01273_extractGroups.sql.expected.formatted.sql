@@ -30,7 +30,7 @@ SELECT extractGroups('abc=111, def=222, ghi=333 "jkl mno"="444 foo bar"', '("[^"
 SELECT
     length(haystack),
     length(matches),
-    arrayMap(x -> length(x), matches)
+    arrayMap((x -> length(x)), matches)
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,
@@ -41,7 +41,7 @@ FROM (
 SELECT
     length(haystack),
     length(matches),
-    arrayReduce('sum', arrayMap(x -> length(x), matches))
+    arrayReduce('sum', arrayMap((x -> length(x)), matches))
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,
@@ -52,7 +52,7 @@ FROM (
 SELECT
     length(haystack),
     length(matches),
-    arrayMap(x -> length(x), matches)
+    arrayMap((x -> length(x)), matches)
 FROM (
         SELECT
             repeat('abcdefghijklmnopqrstuvwxyz', number * 10) AS haystack,

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS alias_2__fuzz_25;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE alias_2__fuzz_25
 (
@@ -13,7 +13,7 @@ CREATE TABLE alias_2__fuzz_25
     colAlias2 LowCardinality(Int32) ALIAS colAlias0 + colAlias1,
     col3 Nullable(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY dt;
 
 INSERT INTO alias_2__fuzz_25 (dt, col, col2, col3);

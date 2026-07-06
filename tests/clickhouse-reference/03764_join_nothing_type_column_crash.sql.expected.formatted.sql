@@ -2,7 +2,7 @@
 SELECT DISTINCT kafkaMurmurHash(*)
 FROM
     numbers(10) AS y
-RIGHT JOIN (
+ANY RIGHT JOIN (
         SELECT
             concat('str', number) AS str,
             arrayJoin(range(number)) AS i,

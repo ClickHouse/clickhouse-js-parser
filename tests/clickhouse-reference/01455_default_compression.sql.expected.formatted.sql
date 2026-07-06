@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS compress_table;
 CREATE TABLE compress_table
 (
     key UInt64,
-    value1 String CODEC(Default),
-    value2 UInt64 CODEC(Delta, Default),
+    value1 String CODEC(Default()),
+    value2 UInt64 CODEC(Delta(), Default()),
     value3 String CODEC(ZSTD(10))
 )
 ENGINE = MergeTree()
@@ -15,7 +15,7 @@ INSERT INTO compress_table;
 SELECT *
 FROM compress_table;
 
-ALTER TABLE compress_table MODIFY COLUMN value3 CODEC(Default);
+ALTER TABLE compress_table MODIFY COLUMN value3 CODEC(Default());
 
 INSERT INTO compress_table;
 

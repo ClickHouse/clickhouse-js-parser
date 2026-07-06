@@ -16,7 +16,7 @@ CREATE TABLE db_01870.a_data_01870 AS `system`.numbers
 ENGINE = TinyLog();
 
 CREATE TABLE db_01870.z_buffer_01870 AS `system`.numbers
-ENGINE = Buffer(db_01870, a_data_01870, 1, 100, 100, 100, 100, 100, 1e6);
+ENGINE = Buffer(db_01870, a_data_01870, 1, 100, 100, 100, 100, 100, 1000000.);
 
 INSERT INTO db_01870.z_buffer_01870 SELECT *
 FROM `system`.numbers

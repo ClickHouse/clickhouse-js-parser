@@ -5,7 +5,7 @@ CREATE TABLE all_valid
     id UInt64,
     query String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO all_valid;
@@ -17,7 +17,7 @@ CREATE TABLE some_invalid
     id UInt64,
     query String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO some_invalid;

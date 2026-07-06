@@ -1,75 +1,75 @@
-SELECT like(CAST('hello' AS FixedString(5)), 'hello');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'hello';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'world');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'world';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'xyz');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'xyz';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'hell');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'hell';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'orld');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'orld';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%hello%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%hello%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%world%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%world%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%xyz%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%xyz%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%hell%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%hell%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%orld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%orld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%hello');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%hello';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%world');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%world';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%xyz');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%xyz';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%hell');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%hell';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%orld');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%orld';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'hello%');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'hello%';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'world%');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'world%';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'xyz%');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'xyz%';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'hell%');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'hell%';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'orld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'orld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%he%o%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%he%o%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%w%ld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%w%ld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%x%z%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%x%z%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%hell_');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%hell_';
 
-SELECT like(CAST('hello' AS FixedString(5)), '_orld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '_orld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%he__o%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%he__o%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%w__ld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%w__ld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'hell_');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'hell_';
 
-SELECT like(CAST('hello' AS FixedString(5)), '_orld');
+SELECT CAST('hello' AS FixedString(5)) LIKE '_orld';
 
-SELECT like(CAST('hello' AS FixedString(5)), 'helloworld');
+SELECT CAST('hello' AS FixedString(5)) LIKE 'helloworld';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%helloworld%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%helloworld%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%elloworl%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%elloworl%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%ow%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%ow%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%o%w%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%o%w%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%o%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%o%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%l%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%l%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%l%o%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%l%o%';
 
-SELECT like(CAST('hello' AS FixedString(5)), '%o%l%');
+SELECT CAST('hello' AS FixedString(5)) LIKE '%o%l%';

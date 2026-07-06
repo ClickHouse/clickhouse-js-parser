@@ -5,7 +5,7 @@ CREATE TABLE test
     type Enum('x'),
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY s
 PARTITION BY type;
 

@@ -22,7 +22,7 @@ CREATE TABLE t
     fs FixedString(42),
     d Decimal(9, 6)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE VIEW v (n Nullable(Int32), f Float64)
 AS
@@ -32,7 +32,7 @@ SELECT
 FROM t;
 
 CREATE MATERIALIZED VIEW mv
-ENGINE = Null
+ENGINE = Null()
 AS
 SELECT *
 FROM `system`.one;
@@ -49,7 +49,7 @@ CREATE TABLE kcu1
     i UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 CREATE TABLE kcu2
@@ -58,20 +58,20 @@ CREATE TABLE kcu2
     d Date,
     u UUID
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (u, d);
 
 SELECT '-- information_schema.schemata';
 
 SELECT *
 FROM information_schema.schemata
-WHERE ilike(schema_name, 'information_schema')
+WHERE schema_name ILIKE 'information_schema'
 ORDER BY schema_name ASC;
 
 SELECT *
 FROM information_schema.tables
 WHERE table_schema = currentDatabase()
-    AND notLike(table_name, '%inner%')
+    AND table_name NOT LIKE '%inner%'
 ORDER BY table_name ASC;
 
 SELECT *
@@ -82,7 +82,7 @@ ORDER BY table_name ASC;
 SELECT *
 FROM information_schema.`columns`
 WHERE table_schema = currentDatabase()
-    AND notLike(table_name, '%inner%')
+    AND table_name NOT LIKE '%inner%'
 ORDER BY
     table_name ASC,
     column_name ASC;

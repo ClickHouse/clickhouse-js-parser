@@ -6,7 +6,7 @@ CREATE TABLE enum_test
     host String,
     e Enum8('IU' = 1, 'WS' = 2)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (timestamp, host)
 PARTITION BY toDate(timestamp);
 
@@ -29,4 +29,4 @@ FROM enum_test
 ORDER BY
     timestamp ASC,
     e DESC
-SETTINGS optimize_read_in_order = 1;
+SETTINGS optimize_read_in_order = '1';

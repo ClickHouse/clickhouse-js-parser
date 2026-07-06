@@ -10,7 +10,7 @@ CREATE TABLE predicate_table
 (
     value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO predicate_table;
 

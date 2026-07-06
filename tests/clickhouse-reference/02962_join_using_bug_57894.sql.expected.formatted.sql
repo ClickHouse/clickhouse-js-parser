@@ -2,14 +2,14 @@ DROP TABLE IF EXISTS t;
 
 DROP TABLE IF EXISTS r;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE t
 (
     x UInt32,
     s LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t SELECT
@@ -22,7 +22,7 @@ CREATE TABLE r
     x LowCardinality(Nullable(UInt32)),
     s Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO r SELECT
@@ -32,7 +32,7 @@ FROM numbers(2, 8);
 
 INSERT INTO r;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT x
 FROM
@@ -59,4 +59,4 @@ SETTINGS join_algorithm = 'full_sorting_merge';
 
 SELECT '--- analyzer ---';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

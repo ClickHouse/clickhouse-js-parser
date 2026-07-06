@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS t;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE t
 (
@@ -8,7 +8,7 @@ CREATE TABLE t
     u LowCardinality(Int32),
     s LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO t;
@@ -36,5 +36,5 @@ FULL JOIN (
         FROM numbers(10)
     ) AS t1
     USING (u)
-WHERE u == 2
+WHERE u = 2
 ORDER BY 1 ASC;

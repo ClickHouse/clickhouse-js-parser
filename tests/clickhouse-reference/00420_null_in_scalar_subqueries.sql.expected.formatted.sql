@@ -20,7 +20,7 @@ SELECT (
 
 SELECT (
         SELECT NULL
-        WHERE isNotNull(NULL)
+        WHERE NULL IS NOT NULL
     );
 
 SELECT (

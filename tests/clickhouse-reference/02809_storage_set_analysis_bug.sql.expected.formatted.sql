@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS test_set;
 
 DROP TABLE IF EXISTS null_in__fuzz_6;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE null_in__fuzz_6
 (
@@ -11,16 +11,16 @@ CREATE TABLE null_in__fuzz_6
     i Nullable(Int256),
     s Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY idx
 PARTITION BY dt;
 
 INSERT INTO null_in__fuzz_6 SELECT *
 FROM generateRandom()
-WHERE isNotNull(i)
+WHERE i IS NOT NULL
 LIMIT 1;
 
-SET transform_null_in = 0;
+SET transform_null_in = '0';
 
 CREATE TABLE test_set
 (

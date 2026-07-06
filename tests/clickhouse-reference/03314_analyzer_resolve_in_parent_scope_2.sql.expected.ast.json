@@ -1,168 +1,205 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "raw_id",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "columns_n",
-        "type": {
-          "name": "Nested",
-          "args": [
-            {
-              "kind": "namedField",
-              "name": "col_1",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "namedField",
-              "name": "col_2",
-              "type": {
-                "name": "Nullable",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "raw_id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "raw_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "columns_n",
+            "data_type": {
+              "type": "DataType",
+              "name": "Nested",
+              "arguments": [
+                {
+                  "type": "NameTypePair",
+                  "name": "col_1",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "Nullable",
+                    "arguments": [
+                      {
+                        "type": "DataType",
+                        "name": "String"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "NameTypePair",
+                  "name": "col_2",
+                  "data_type": {
+                    "type": "DataType",
+                    "name": "Nullable",
+                    "arguments": [
+                      {
+                        "type": "DataType",
+                        "name": "String"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "raw_id"
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteExpr",
-        "name": "issue",
-        "expr": {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "with": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "t"
+              "type": "Function",
+              "alias": "issue",
+              "name": "like",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "t"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%_1%"
+                }
               ]
+            }
+          ],
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "raw_id"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%_1%"
+              "type": "Function",
+              "name": "arrayFilter",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "lambda",
+                  "is_operator": true,
+                  "is_lambda_function": true,
+                  "kind": "LAMBDA_FUNCTION",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "t"
+                        },
+                        {
+                          "type": "Identifier",
+                          "name": "t2"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "not",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "issue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "columns_n.col_1",
+                  "name_parts": [
+                    "columns_n",
+                    "col_1"
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "columns_n.col_2",
+                  "name_parts": [
+                    "columns_n",
+                    "col_2"
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "raw_id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "raw_id"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "arrayFilter",
-        "args": [
-          {
-            "kind": "lambdaExpr",
-            "params": [
-              "t",
-              "t2"
-            ],
-            "body": {
-              "kind": "unaryExpr",
-              "op": "NOT",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "issue"
-                ]
-              },
-              "parenthesized": true
-            }
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "columns_n",
-              "col_1"
-            ]
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "columns_n",
-              "col_2"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "raw_id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   }
 ]

@@ -1,4 +1,4 @@
-SET allow_materialized_view_with_bad_select = 1;
+SET allow_materialized_view_with_bad_select = '1';
 
 DROP TABLE IF EXISTS t;
 
@@ -8,7 +8,7 @@ CREATE TABLE t
 (
     c String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW v
 TO v
@@ -34,13 +34,13 @@ CREATE TABLE t1
 (
     c String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     c String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW v1
 TO t1

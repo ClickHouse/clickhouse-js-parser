@@ -1,4 +1,4 @@
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS tt_01373;
 
@@ -8,10 +8,10 @@ CREATE TABLE tt_01373
     d Int64,
     val Int64
 )
-ENGINE = SummingMergeTree
-ORDER BY (d)
-PARTITION BY (a)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+ENGINE = SummingMergeTree()
+ORDER BY d
+PARTITION BY a
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 SYSTEM STOP MERGES tt_01373;
 
@@ -53,9 +53,9 @@ CREATE TABLE tt_01373_expr
     d Int64,
     val Int64
 )
-ENGINE = SummingMergeTree
-ORDER BY (d + 0)
-PARTITION BY (a % 2);
+ENGINE = SummingMergeTree()
+ORDER BY d + 0
+PARTITION BY a % 2;
 
 INSERT INTO tt_01373_expr;
 

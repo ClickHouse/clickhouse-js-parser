@@ -59,6 +59,6 @@ SELECT
 FROM (
         SELECT
             number % 10 AS a,
-            if(number % 10 = 0, number, a) AS b
+            number % 10 = 0 ? number : a AS b
         FROM numbers(150)
     );

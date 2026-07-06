@@ -6,13 +6,13 @@ CREATE TABLE totimezone_op_mono
     tz String,
     create_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i
 PARTITION BY toDate(create_time);
 
 INSERT INTO totimezone_op_mono;
 
-SET max_rows_to_read = 1;
+SET max_rows_to_read = '1';
 
 SELECT count()
 FROM totimezone_op_mono

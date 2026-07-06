@@ -4,15 +4,15 @@ SELECT hasAll([], [1]);
 
 SELECT hasAll([], [NULL]);
 
-SELECT hasAll([Null], [Null]);
+SELECT hasAll([NULL], [NULL]);
 
-SELECT hasAll([Null], [Null, 1]);
+SELECT hasAll([NULL], [NULL, 1]);
 
 SELECT hasAll([1], []);
 
-SELECT hasAll([1], [Null]);
+SELECT hasAll([1], [NULL]);
 
-SELECT hasAll([1, Null], [Null]);
+SELECT hasAll([1, NULL], [NULL]);
 
 SELECT hasAny([], []);
 
@@ -20,15 +20,15 @@ SELECT hasAny([], [1]);
 
 SELECT hasAny([], [NULL]);
 
-SELECT hasAny([Null], [Null]);
+SELECT hasAny([NULL], [NULL]);
 
-SELECT hasAny([Null], [Null, 1]);
+SELECT hasAny([NULL], [NULL, 1]);
 
 SELECT hasAny([1], []);
 
-SELECT hasAny([1], [Null]);
+SELECT hasAny([1], [NULL]);
 
-SELECT hasAny([1, Null], [Null]);
+SELECT hasAny([1, NULL], [NULL]);
 
 SELECT hasAll([1], emptyArrayUInt8());
 
@@ -46,11 +46,11 @@ SELECT hasAll([1, 2, 3, 4], [1, 3, 5]);
 
 SELECT hasAny([-128, 1., 512], [1.]);
 
-SELECT hasAny([-128, 1.0, 512], [.3]);
+SELECT hasAny([-128, 1., 512], [0.3]);
 
-SELECT hasAll([-128, 1.0, 512], [1.0]);
+SELECT hasAll([-128, 1., 512], [1.]);
 
-SELECT hasAll([-128, 1.0, 512], [1.0, 513]);
+SELECT hasAll([-128, 1., 512], [1., 513]);
 
 SELECT hasAny(['a'], ['a']);
 

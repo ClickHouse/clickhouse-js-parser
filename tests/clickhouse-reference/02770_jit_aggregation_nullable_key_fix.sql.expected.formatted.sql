@@ -1,8 +1,8 @@
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
-SET group_by_use_nulls = 0;
+SET group_by_use_nulls = '0';
 
 SELECT count()
 FROM (
@@ -21,4 +21,4 @@ FROM (
         GROUP BY if(number < 1, NULL, number)
     );
 
-SET group_by_use_nulls = 1;
+SET group_by_use_nulls = '1';

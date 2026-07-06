@@ -17,9 +17,9 @@ FROM (
         FROM remote('127.0.0.{2,3}', currentDatabase(), numbers500k)
         PREWHERE 31
         WHERE 65537 > 0
-        ORDER BY number DESC
+        ORDER BY number DESC NULLS FIRST
     )
 GROUP BY GROUPING SETS ((k))
 WITH TOTALS
-ORDER BY k ASC
+ORDER BY k ASC NULLS LAST
 LIMIT 2147483648;

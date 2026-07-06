@@ -4,7 +4,7 @@ CREATE TABLE t
 (
     c Decimal32(9)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c;
 
 INSERT INTO t;

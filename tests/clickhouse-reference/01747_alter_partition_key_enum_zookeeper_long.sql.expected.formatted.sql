@@ -8,7 +8,7 @@ CREATE TABLE report
     branch String,
     generated_time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (product, machine, branch, generated_time)
 PARTITION BY (product, toYYYYMM(generated_time));
 
@@ -49,7 +49,7 @@ SELECT *
 FROM replicated_report
 WHERE product = 'IU';
 
-ALTER TABLE replicated_report MODIFY COLUMN product Enum8('IU' = 1, 'WS' = 2, 'PS' = 3) SETTINGS alter_sync = 2;
+ALTER TABLE replicated_report MODIFY COLUMN product Enum8('IU' = 1, 'WS' = 2, 'PS' = 3) SETTINGS alter_sync = '2';
 
 SELECT *
 FROM replicated_report

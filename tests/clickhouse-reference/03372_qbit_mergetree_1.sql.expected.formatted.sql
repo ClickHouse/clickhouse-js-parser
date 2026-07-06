@@ -5,7 +5,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO qbits;
@@ -26,7 +26,7 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY id;
 
 CREATE TABLE qbits
@@ -34,5 +34,5 @@ CREATE TABLE qbits
     id UInt32,
     vec QBit(BFloat16, 16)
 )
-ENGINE = CoalescingMergeTree
+ENGINE = CoalescingMergeTree()
 ORDER BY id;

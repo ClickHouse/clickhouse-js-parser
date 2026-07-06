@@ -4,7 +4,7 @@ CREATE TABLE test
 (
     c String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test SELECT randomString(10)
 FROM numbers(1000);

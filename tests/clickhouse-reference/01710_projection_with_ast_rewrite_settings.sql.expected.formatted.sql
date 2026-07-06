@@ -4,9 +4,9 @@ CREATE TABLE aggregate_functions_null_for_empty
 (
     x UInt32,
     y UInt64,
-    PROJECTION p (    SELECT sum(y))
+    PROJECTION p (SELECT sum(y))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO aggregate_functions_null_for_empty SELECT
@@ -26,9 +26,9 @@ CREATE TABLE transform_null_in
 (
     x UInt32,
     y UInt64,
-    PROJECTION p (    SELECT sum(y IN (1, 2, 3)))
+    PROJECTION p (SELECT sum(y IN (1, 2, 3)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO transform_null_in SELECT
@@ -48,9 +48,9 @@ CREATE TABLE legacy_column_name_of_tuple_literal
 (
     x UInt32,
     y UInt64,
-    PROJECTION p (    SELECT sum(y IN (1, 2, 3)))
+    PROJECTION p (SELECT sum(y IN (1, 2, 3)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO legacy_column_name_of_tuple_literal SELECT

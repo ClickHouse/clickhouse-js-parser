@@ -510,7 +510,7 @@ SELECT
 
 SELECT
     toDecimal64('123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     round(x),
     round(y),
     round(x, 5),
@@ -520,7 +520,7 @@ SELECT
 
 SELECT
     toDecimal64('123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     roundBankers(x),
     roundBankers(y),
     roundBankers(x, 5),
@@ -530,7 +530,7 @@ SELECT
 
 SELECT
     toDecimal64('123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     ceil(x),
     ceil(y),
     ceil(x, 5),
@@ -540,7 +540,7 @@ SELECT
 
 SELECT
     toDecimal64('123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     floor(x),
     floor(y),
     floor(x, 5),
@@ -550,7 +550,7 @@ SELECT
 
 SELECT
     toDecimal64('123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     trunc(x),
     trunc(y),
     trunc(x, 5),
@@ -560,7 +560,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     round(x),
     round(y),
     round(x, 3),
@@ -568,7 +568,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     roundBankers(x),
     roundBankers(y),
     roundBankers(x, 3),
@@ -576,7 +576,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     ceil(x),
     ceil(y),
     ceil(x, 3),
@@ -584,7 +584,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     floor(x),
     floor(y),
     floor(x, 3),
@@ -592,7 +592,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     trunc(x),
     trunc(y),
     trunc(x, 3),
@@ -600,7 +600,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     round(x),
     round(y),
     round(x, -3),
@@ -608,7 +608,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     roundBankers(x),
     roundBankers(y),
     roundBankers(x, -3),
@@ -616,7 +616,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     ceil(x),
     ceil(y),
     ceil(x, -3),
@@ -624,7 +624,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     floor(x),
     floor(y),
     floor(x, -3),
@@ -632,7 +632,7 @@ SELECT
 
 SELECT
     toDecimal128('12345678901234567890123456789.123456789', 9) AS x,
-    negate(x) AS y,
+    -x AS y,
     trunc(x),
     trunc(y),
     trunc(x, -3),
@@ -643,7 +643,7 @@ SELECT '-- Decimal128, Scale 20';
 SELECT
     'round()        : ',
     toDecimal128('1234567890.123456789', 20) AS x,
-    negate(x) AS y,
+    -x AS y,
     round(x),
     round(y),
     round(x, -3),
@@ -652,7 +652,7 @@ SELECT
 SELECT
     'roundBankers() : ',
     toDecimal128('1234567890.123456789', 20) AS x,
-    negate(x) AS y,
+    -x AS y,
     roundBankers(x),
     roundBankers(y),
     roundBankers(x, -3),
@@ -661,7 +661,7 @@ SELECT
 SELECT
     'ceil()         : ',
     toDecimal128('1234567890.123456789', 20) AS x,
-    negate(x) AS y,
+    -x AS y,
     ceil(x),
     ceil(y),
     ceil(x, -3),
@@ -670,7 +670,7 @@ SELECT
 SELECT
     'floor()        : ',
     toDecimal128('1234567890.123456789', 20) AS x,
-    negate(x) AS y,
+    -x AS y,
     floor(x),
     floor(y),
     floor(x, -3),
@@ -679,7 +679,7 @@ SELECT
 SELECT
     'trunc()        : ',
     toDecimal128('1234567890.123456789', 20) AS x,
-    negate(x) AS y,
+    -x AS y,
     trunc(x),
     trunc(y),
     trunc(x, -3),
@@ -688,7 +688,7 @@ SELECT
 SELECT
     'round()        : ',
     toDecimal256('1234567890.123456789', 40) AS x,
-    negate(x) AS y,
+    -x AS y,
     round(x),
     round(y),
     round(x, -3),
@@ -697,7 +697,7 @@ SELECT
 SELECT
     'roundBankers() : ',
     toDecimal256('1234567890.123456789', 40) AS x,
-    negate(x) AS y,
+    -x AS y,
     roundBankers(x),
     roundBankers(y),
     roundBankers(x, -3),
@@ -706,7 +706,7 @@ SELECT
 SELECT
     'ceil()         : ',
     toDecimal256('1234567890.123456789', 40) AS x,
-    negate(x) AS y,
+    -x AS y,
     ceil(x),
     ceil(y),
     ceil(x, -3),
@@ -715,7 +715,7 @@ SELECT
 SELECT
     'floor()        : ',
     toDecimal256('1234567890.123456789', 40) AS x,
-    negate(x) AS y,
+    -x AS y,
     floor(x),
     floor(y),
     floor(x, -3),
@@ -724,7 +724,7 @@ SELECT
 SELECT
     'trunc()        : ',
     toDecimal256('1234567890.123456789', 40) AS x,
-    negate(x) AS y,
+    -x AS y,
     trunc(x),
     trunc(y),
     trunc(x, -3),

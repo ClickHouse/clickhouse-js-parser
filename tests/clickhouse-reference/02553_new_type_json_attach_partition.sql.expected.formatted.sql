@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS t_json_attach_partition;
 
@@ -7,14 +7,14 @@ CREATE TABLE t_json_attach_partition
     b UInt64,
     c JSON
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-INSERT INTO t_json_attach_partition;
+INSERT INTO t_json_attach_partition FORMAT JSONEachRow;
 
-ALTER TABLE t_json_attach_partition DROP PARTITION tuple();
+ALTER TABLE t_json_attach_partition DETACH PARTITION tuple();
 
-INSERT INTO t_json_attach_partition;
+INSERT INTO t_json_attach_partition FORMAT JSONEachRow;
 
 ALTER TABLE t_json_attach_partition ATTACH PARTITION tuple();
 

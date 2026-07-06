@@ -7,7 +7,7 @@ CREATE TABLE h3_indexes
     start String,
     `end` String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- test values taken from h3 library test suite
 INSERT INTO h3_indexes;
@@ -83,6 +83,6 @@ SELECT length(h3Line(stringToH3(start), stringToH3(`end`)))
 FROM h3_indexes
 ORDER BY id ASC;
 
-SELECT h3Line(0xffffffffffffff, 0xffffffffffffff); -- { serverError INCORRECT_DATA }
+SELECT h3Line(72057594037927935, 72057594037927935); -- { serverError INCORRECT_DATA }
 
 DROP TABLE h3_indexes;

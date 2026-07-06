@@ -1,9 +1,9 @@
 -- Tags: long, zookeeper, no-replicated-database, no-async-insert
 -- Tag no-replicated-database: Fails due to additional replicas or shards
 -- Tag no-async-insert: Async insert calculate block_id differently, it takes all inserted data into account
-SET insert_keeper_fault_injection_probability = 0;
+SET insert_keeper_fault_injection_probability = '0';
 
-DROP TABLE IF EXISTS partitioned_table;
+DROP TABLE IF EXISTS partitioned_table SYNC;
 
 CREATE TABLE partitioned_table
 (
@@ -34,7 +34,7 @@ SELECT
     substring(name, 1, 2),
     value
 FROM `system`.zookeeper
-WHERE path = concat('/clickhouse/', currentDatabase(), '/01650_drop_part_and_deduplication_partitioned_table/blocks/')
+WHERE path = '/clickhouse/' || currentDatabase() || '/01650_drop_part_and_deduplication_partitioned_table/blocks/'
 ORDER BY value ASC;
 
 INSERT INTO partitioned_table; -- must be deduplicated

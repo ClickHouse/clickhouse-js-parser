@@ -5,7 +5,7 @@ SELECT
     any(visits)
 FROM
     test.hits
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             StartDate AS EventDate,
             sum(Sign) AS visits
@@ -16,4 +16,4 @@ LEFT JOIN (
 GROUP BY EventDate
 ORDER BY hits DESC
 LIMIT 10
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';

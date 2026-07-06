@@ -32,11 +32,12 @@ CREATE TABLE numbers_mt
 (
     number UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO numbers_mt SELECT *
 FROM `system`.numbers
-LIMIT 1, 1000000;
+LIMIT 1000000
+OFFSET 1;
 
 SELECT
     count(),
@@ -75,7 +76,7 @@ FROM
     (
         SELECT
             intDiv(number, 100) AS k,
-            groupArray([toString(number), toString(number*10)]) AS ns
+            groupArray([toString(number), toString(number * 10)]) AS ns
         FROM numbers_mt
         GROUP BY k
     )
@@ -90,7 +91,7 @@ FROM
     (
         SELECT
             intDiv(number, 100) AS k,
-            groupArray([number, number*10]) AS ns
+            groupArray([number, number * 10]) AS ns
         FROM numbers_mt
         GROUP BY k
     )
@@ -133,7 +134,7 @@ FROM
     (
         SELECT
             intDiv(number, 100) AS k,
-            groupArray([toString(number), toString(number*10)]) AS ns
+            groupArray([toString(number), toString(number * 10)]) AS ns
         FROM remote('127.0.0.{2,3}', currentDatabase(), 'numbers_mt')
         GROUP BY k
     )
@@ -143,7 +144,8 @@ DROP TABLE numbers_mt;
 
 INSERT INTO numbers_mt SELECT *
 FROM `system`.numbers
-LIMIT 1, 1048575;
+LIMIT 1048575
+OFFSET 1;
 
 SELECT
     roundToExp2(number) AS k,
@@ -153,7 +155,8 @@ SELECT
 FROM numbers_mt
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11;
+LIMIT 11
+OFFSET 9;
 
 SELECT
     roundToExp2(number) AS k,
@@ -163,7 +166,8 @@ SELECT
 FROM numbers_mt
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11;
+LIMIT 11
+OFFSET 9;
 
 SELECT
     roundToExp2(number) AS k,
@@ -173,7 +177,8 @@ SELECT
 FROM numbers_mt
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11;
+LIMIT 11
+OFFSET 9;
 
 SELECT
     roundToExp2(number) AS k,
@@ -183,7 +188,8 @@ SELECT
 FROM remote('127.0.0.{2,3}', currentDatabase(), 'numbers_mt')
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11;
+LIMIT 11
+OFFSET 9;
 
 SELECT
     roundToExp2(number) AS k,
@@ -193,7 +199,8 @@ SELECT
 FROM remote('127.0.0.{2,3}', currentDatabase(), 'numbers_mt')
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11;
+LIMIT 11
+OFFSET 9;
 
 SELECT
     roundToExp2(number) AS k,
@@ -203,5 +210,6 @@ SELECT
 FROM remote('127.0.0.{2,3}', currentDatabase(), 'numbers_mt')
 GROUP BY k
 ORDER BY k ASC
-LIMIT 9, 11; -- Check binary compatibility:
+LIMIT 11
+OFFSET 9; -- Check binary compatibility:
 -- clickhouse-client -h old -q "SELECT arrayReduce('groupArrayState', [['1'], ['22'], ['333']]) FORMAT RowBinary" | clickhouse-local -s --input-format RowBinary --structure "d AggregateFunction(groupArray2, Array(String))" -q "SELECT groupArray2Merge(d) FROM table"

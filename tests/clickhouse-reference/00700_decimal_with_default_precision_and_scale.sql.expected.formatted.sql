@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS decimal
     d2 DECIMAL(18),
     d3 DECIMAL
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (d2, d3)
 PARTITION BY toInt32(d1);
 

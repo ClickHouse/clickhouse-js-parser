@@ -7,7 +7,7 @@ CREATE TABLE `02476_query_parameters_insert`
 ENGINE = MergeTree()
 ORDER BY tuple();
 
-SET param_x = 1;
+SET param_x = '1';
 
 INSERT INTO `02476_query_parameters_insert`;
 

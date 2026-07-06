@@ -5,9 +5,9 @@ CREATE TABLE pk_func
     d DateTime,
     ui UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY toDate(d)
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO pk_func SELECT
     '2020-05-05 01:00:00',
@@ -41,9 +41,9 @@ CREATE TABLE nORX
     B Int64,
     V Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (A, negate(B))
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO nORX SELECT
     111,
@@ -56,8 +56,8 @@ FROM nORX
 WHERE B >= 1000
 ORDER BY
     A ASC,
-    negate(B) ASC
+    -B ASC
 LIMIT 3
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';
 
 DROP TABLE nORX;

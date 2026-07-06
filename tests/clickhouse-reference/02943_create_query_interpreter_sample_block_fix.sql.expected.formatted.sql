@@ -4,13 +4,13 @@ CREATE TABLE test_table
 (
     number UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY number;
 
 DROP VIEW IF EXISTS test_mv;
 
 CREATE MATERIALIZED VIEW test_mv
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY arr
 AS
 WITH (
@@ -38,7 +38,7 @@ CREATE TABLE regex_test_table
 (
     regex String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY regex;
 
 INSERT INTO regex_test_table;
@@ -46,7 +46,7 @@ INSERT INTO regex_test_table;
 DROP VIEW test_mv;
 
 CREATE MATERIALIZED VIEW test_mv
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY arr
 AS
 WITH (

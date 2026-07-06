@@ -1,4 +1,4 @@
-SET mutations_sync = 1;
+SET mutations_sync = '1';
 
 -- No dependencies
 DROP TABLE IF EXISTS foo_without_dependencies;
@@ -8,8 +8,8 @@ CREATE TABLE foo_without_dependencies
     ts DateTime,
     x UInt64
 )
-ENGINE = MergeTree
-ORDER BY (ts)
+ENGINE = MergeTree()
+ORDER BY ts
 PARTITION BY toYYYYMMDD(ts);
 
 INSERT INTO foo_without_dependencies (ts, x) SELECT
@@ -39,10 +39,10 @@ CREATE TABLE foo_with_index
 (
     ts DateTime,
     x UInt64,
-    INDEX minmax_x x TYPE minmax GRANULARITY 1
+    INDEX minmax_x x TYPE minmax() GRANULARITY 1
 )
-ENGINE = MergeTree
-ORDER BY (ts)
+ENGINE = MergeTree()
+ORDER BY ts
 PARTITION BY toYYYYMMDD(ts);
 
 INSERT INTO foo_with_index (ts, x) SELECT
@@ -68,13 +68,10 @@ CREATE TABLE foo_with_projection
 (
     ts DateTime,
     x UInt64,
-    PROJECTION pj (    SELECT
-        ts,
-        x
-    ORDER BY x ASC)
+    PROJECTION pj (SELECT ts, x ORDER BY x)
 )
-ENGINE = MergeTree
-ORDER BY (ts)
+ENGINE = MergeTree()
+ORDER BY ts
 PARTITION BY toYYYYMMDD(ts);
 
 INSERT INTO foo_with_projection (ts, x) SELECT

@@ -10,7 +10,7 @@ CREATE TABLE test1
     t Tuple(a UInt32, b UInt32),
     y String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test2
 (
@@ -18,7 +18,7 @@ CREATE TABLE test2
     t Tuple(a UInt32, b UInt32),
     y String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test_merge
 (
@@ -38,7 +38,7 @@ INSERT INTO test2 SELECT
     tuple(5, 6),
     's2';
 
-SET allow_suspicious_types_in_order_by = 1;
+SET allow_suspicious_types_in_order_by = '1';
 
 SELECT *
 FROM test_merge
@@ -104,7 +104,7 @@ CREATE TABLE test
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE test_merge
 (

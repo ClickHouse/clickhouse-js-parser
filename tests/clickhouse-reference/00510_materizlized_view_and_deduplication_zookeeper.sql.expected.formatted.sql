@@ -8,9 +8,9 @@ DROP TABLE IF EXISTS with_deduplication_mv;
 
 DROP TABLE IF EXISTS without_deduplication_mv;
 
-SET database_replicated_allow_explicit_uuid = 3;
+SET database_replicated_allow_explicit_uuid = '3';
 
-SET database_replicated_allow_replicated_engine_arguments = 3;
+SET database_replicated_allow_replicated_engine_arguments = '3';
 
 CREATE TABLE with_deduplication
 (
@@ -25,9 +25,9 @@ CREATE TABLE without_deduplication
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test_00510/without_deduplication', 'r1')
 ORDER BY x
-SETTINGS replicated_deduplication_window = 0, replicated_deduplication_window_for_async_inserts = 0;
+SETTINGS replicated_deduplication_window = '0', replicated_deduplication_window_for_async_inserts = '0';
 
-CREATE MATERIALIZED VIEW with_deduplication_mv
+CREATE MATERIALIZED VIEW with_deduplication_mv UUID '00000510-1000-4000-8000-000000000001'
 ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/tables/{database}/test_00510/with_deduplication_mv', 'r1')
 ORDER BY dummy
 AS
@@ -36,7 +36,7 @@ SELECT
     countState(x) AS cnt
 FROM with_deduplication;
 
-CREATE MATERIALIZED VIEW without_deduplication_mv
+CREATE MATERIALIZED VIEW without_deduplication_mv UUID '00000510-1000-4000-8000-000000000002'
 ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/tables/{database}/test_00510/without_deduplication_mv', 'r1')
 ORDER BY dummy
 AS

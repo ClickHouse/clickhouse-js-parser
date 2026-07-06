@@ -10,14 +10,14 @@ CREATE TABLE x
     EventDate Date,
     UserID UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
 SAMPLE BY intHash32(UserID);
 
 CREATE TABLE x_as AS x
-ENGINE = MergeTree
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+ENGINE = MergeTree()
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 SHOW CREATE TABLE x FORMAT TSVRaw;
 
@@ -33,15 +33,15 @@ CREATE TABLE x
     EventDate Date,
     UserID UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 PRIMARY KEY (CounterID, EventDate, intHash32(UserID));
 
 CREATE TABLE x_as AS x
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (CounterID, EventDate, intHash32(UserID))
 PARTITION BY toYYYYMM(EventDate)
 SAMPLE BY intHash32(UserID)
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 CREATE TABLE x
 (
@@ -49,10 +49,10 @@ CREATE TABLE x
     EventDate Date,
     UserID UInt64
 )
-ENGINE = MergeTree
-ORDER BY (CounterID);
+ENGINE = MergeTree()
+ORDER BY CounterID;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE x
 (

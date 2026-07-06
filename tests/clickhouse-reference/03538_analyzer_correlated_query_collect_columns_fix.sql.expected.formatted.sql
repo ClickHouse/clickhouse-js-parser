@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET allow_experimental_correlated_subqueries = 1;
+SET allow_experimental_correlated_subqueries = '1';
 
 CREATE TABLE users
 (
@@ -25,4 +25,4 @@ SELECT
     )
 FROM users
 ORDER BY name ASC
-SETTINGS query_plan_merge_filter_into_join_condition = 0;
+SETTINGS query_plan_merge_filter_into_join_condition = '0';

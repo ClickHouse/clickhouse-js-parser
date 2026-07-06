@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS radacct;
 
 DROP TABLE IF EXISTS mv_traffic_by_tadig15min;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE radacct
 (
@@ -50,7 +50,7 @@ CREATE TABLE radacct
     mnc Nullable(String),
     tadig LowCardinality(String),
     country LowCardinality(String),
-    tadig_op_ip Nullable(String) DEFAULT CAST('TADIG NOT FOUND', 'Nullable(String)'),
+    tadig_op_ip Nullable(String) DEFAULT CAST('TADIG NOT FOUND' AS Nullable(String)),
     mcc Nullable(UInt16) MATERIALIZED toUInt16OrNull(substring(f3gppsgsnmccmnc, 1, 6))
 )
 ENGINE = MergeTree(timestamp_date, (timestamp, radacctid, acctuniqueid), 8192);
@@ -59,11 +59,11 @@ INSERT INTO radacct;
 
 SELECT any(acctstatustype = 'Stop')
 FROM radacct
-WHERE (acctstatustype = 'Stop')
-    AND ((acctinputoctets + acctoutputoctets) > 0);
+WHERE acctstatustype = 'Stop'
+    AND acctinputoctets + acctoutputoctets > 0;
 
 CREATE MATERIALIZED VIEW mv_traffic_by_tadig15min
-ENGINE = AggregatingMergeTree
+ENGINE = AggregatingMergeTree()
 ORDER BY (ts, tadig)
 PARTITION BY tadig
 POPULATE

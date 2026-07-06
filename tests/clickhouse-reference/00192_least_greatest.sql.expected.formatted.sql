@@ -29,8 +29,8 @@ SELECT
     toTypeName(least(x, y));
 
 SELECT
-    1.0 AS x,
-    2.0 AS y,
+    1. AS x,
+    2. AS y,
     least(x, y),
     greatest(x, y),
     least(x, materialize(y)),

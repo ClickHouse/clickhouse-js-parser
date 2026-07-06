@@ -1,169 +1,174 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "numbers_100k_log"
-    },
-    "ifExists": true,
-    "leadingComments": [
-      "-- Tags: distributed"
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "numbers_100k_log"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "numbers_100k_log"
-    },
-    "engine": {
-      "name": "Log"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "numbers_100k_log"
       },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "100000"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Log",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "100000"
+            }
+          }
+        ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "functionCall",
-          "name": "count",
-          "args": []
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "200000"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2,3}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "numbers_100k_log"
-          ]
+          "type": "SelectQuery",
+          "group_by_with_totals": true,
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "count",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "200000"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2,3}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "numbers_100k_log"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "number"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "ASC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
         }
       ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      ]
-    },
-    "withTotals": true,
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "distributed_aggregation_memory_efficient": "1",
+        "group_by_two_level_threshold": "1000",
+        "group_by_overflow_mode": "any",
+        "max_rows_to_group_by": "1000",
+        "totals_mode": "after_having_auto"
       }
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "distributed_aggregation_memory_efficient",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "group_by_two_level_threshold",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      },
-      {
-        "name": "group_by_overflow_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "any"
-        }
-      },
-      {
-        "name": "max_rows_to_group_by",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      },
-      {
-        "name": "totals_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "after_having_auto"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "numbers_100k_log"
       }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "numbers_100k_log"
     }
   }
 ]

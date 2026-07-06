@@ -1,5 +1,5 @@
 -- Tags: zookeeper
-DROP TABLE IF EXISTS join_inner_table;
+DROP TABLE IF EXISTS join_inner_table SYNC;
 
 CREATE TABLE join_inner_table
 (
@@ -20,11 +20,11 @@ INSERT INTO join_inner_table SELECT
 FROM generateRandom('number Int64, value1 String, value2 String, time Int64', 1, 10, 2)
 LIMIT 100;
 
-SET max_parallel_replicas = 3;
+SET max_parallel_replicas = '3';
 
 SET cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     key,
@@ -32,8 +32,8 @@ SELECT
     value2,
     toUInt64(min(time)) AS start_ts
 FROM join_inner_table
-PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-    AND (number > toUInt64('1610517366120'))
+PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+    AND number > toUInt64('1610517366120')
 GROUP BY
     key,
     value1,
@@ -51,8 +51,8 @@ SELECT
     value2,
     toUInt64(min(time)) AS start_ts
 FROM join_inner_table
-PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-    AND (number > toUInt64('1610517366120'))
+PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+    AND number > toUInt64('1610517366120')
 GROUP BY
     key,
     value1,
@@ -63,9 +63,9 @@ ORDER BY
     value2 ASC
 LIMIT 10
 SETTINGS
-    enable_parallel_replicas = 1,
-    enable_analyzer = 0,
-    parallel_replicas_only_with_analyzer = 0;
+    enable_parallel_replicas = '1',
+    enable_analyzer = '0',
+    parallel_replicas_only_with_analyzer = '0';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -81,7 +81,7 @@ WHERE event_date >= yesterday()
         WHERE current_database = currentDatabase()
             AND event_date >= yesterday()
             AND type = 'QueryFinish'
-            AND like(query, '-- Parallel inner query alone without analyzer%')
+            AND query LIKE '-- Parallel inner query alone without analyzer%'
     );
 
 -- Parallel inner query alone with analyzer
@@ -91,8 +91,8 @@ SELECT
     value2,
     toUInt64(min(time)) AS start_ts
 FROM join_inner_table
-PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-    AND (number > toUInt64('1610517366120'))
+PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+    AND number > toUInt64('1610517366120')
 GROUP BY
     key,
     value1,
@@ -103,11 +103,11 @@ ORDER BY
     value2 ASC
 LIMIT 10
 SETTINGS
-    enable_parallel_replicas = 1,
-    enable_analyzer = 1;
+    enable_parallel_replicas = '1',
+    enable_analyzer = '1';
 
 ---- Query with JOIN
-DROP TABLE IF EXISTS join_outer_table;
+DROP TABLE IF EXISTS join_outer_table SYNC;
 
 CREATE TABLE join_outer_table
 (
@@ -122,7 +122,7 @@ ORDER BY (id, time, key);
 
 INSERT INTO join_outer_table SELECT
     '833c9e22-c245-4eb5-8745-117a9a1f26b1'::UUID AS id,
-    ((rowNumberInAllBlocks() % 10))::String AS key,
+    (rowNumberInAllBlocks() % 10)::String AS key,
     *
 FROM generateRandom('otherValue1 String, otherValue2 String, time Int64', 1, 10, 2)
 LIMIT 100;
@@ -146,8 +146,8 @@ FROM (
                     value2,
                     toUInt64(min(time)) AS start_ts
                 FROM join_inner_table
-                PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-                    AND (number > toUInt64('1610517366120'))
+                PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+                    AND number > toUInt64('1610517366120')
                 GROUP BY
                     key,
                     value1,
@@ -186,8 +186,8 @@ FROM (
                     value2,
                     toUInt64(min(time)) AS start_ts
                 FROM join_inner_table
-                PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-                    AND (number > toUInt64('1610517366120'))
+                PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+                    AND number > toUInt64('1610517366120')
                 GROUP BY
                     key,
                     value1,
@@ -206,9 +206,9 @@ ORDER BY
     value1 ASC,
     value2 ASC
 SETTINGS
-    enable_parallel_replicas = 1,
-    enable_analyzer = 0,
-    parallel_replicas_only_with_analyzer = 0;
+    enable_parallel_replicas = '1',
+    enable_analyzer = '0',
+    parallel_replicas_only_with_analyzer = '0';
 
 -- Parallel full query with analyzer
 SELECT
@@ -230,8 +230,8 @@ FROM (
                     value2,
                     toUInt64(min(time)) AS start_ts
                 FROM join_inner_table
-                PREWHERE (id = '833c9e22-c245-4eb5-8745-117a9a1f26b1')
-                    AND (number > toUInt64('1610517366120'))
+                PREWHERE id = '833c9e22-c245-4eb5-8745-117a9a1f26b1'
+                    AND number > toUInt64('1610517366120')
                 GROUP BY
                     key,
                     value1,
@@ -250,5 +250,5 @@ ORDER BY
     value1 ASC,
     value2 ASC
 SETTINGS
-    enable_parallel_replicas = 1,
-    enable_analyzer = 1;
+    enable_parallel_replicas = '1',
+    enable_analyzer = '1';

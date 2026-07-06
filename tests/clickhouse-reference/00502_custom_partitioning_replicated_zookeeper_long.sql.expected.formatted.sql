@@ -1,12 +1,12 @@
 -- Tags: long, replica, no-shared-merge-tree
 -- no-shared-merge-tree: different synchronization
-SET replication_alter_partitions_sync = 2;
+SET replication_alter_partitions_sync = '2';
 
-SET insert_keeper_fault_injection_probability = 0;
+SET insert_keeper_fault_injection_probability = '0';
 
-DROP TABLE IF EXISTS not_partitioned_replica1_00502;
+DROP TABLE IF EXISTS not_partitioned_replica1_00502 SYNC;
 
-DROP TABLE IF EXISTS not_partitioned_replica2_00502;
+DROP TABLE IF EXISTS not_partitioned_replica2_00502 SYNC;
 
 CREATE TABLE not_partitioned_replica1_00502
 (
@@ -53,15 +53,15 @@ ORDER BY name ASC;
 SELECT sum(x)
 FROM not_partitioned_replica2_00502;
 
-ALTER TABLE not_partitioned_replica1_00502 DROP PARTITION ID 'all';
+ALTER TABLE not_partitioned_replica1_00502 DETACH PARTITION ID 'all';
 
-DROP TABLE not_partitioned_replica1_00502;
+DROP TABLE not_partitioned_replica1_00502 SYNC;
 
-DROP TABLE not_partitioned_replica2_00502;
+DROP TABLE not_partitioned_replica2_00502 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_week_replica1;
+DROP TABLE IF EXISTS partitioned_by_week_replica1 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_week_replica2;
+DROP TABLE IF EXISTS partitioned_by_week_replica2 SYNC;
 
 CREATE TABLE partitioned_by_week_replica1
 (
@@ -115,13 +115,13 @@ FROM partitioned_by_week_replica2;
 
 ALTER TABLE partitioned_by_week_replica1 DROP PARTITION '1999-12-27';
 
-DROP TABLE partitioned_by_week_replica1;
+DROP TABLE partitioned_by_week_replica1 SYNC;
 
-DROP TABLE partitioned_by_week_replica2;
+DROP TABLE partitioned_by_week_replica2 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_tuple_replica1_00502;
+DROP TABLE IF EXISTS partitioned_by_tuple_replica1_00502 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_tuple_replica2_00502;
+DROP TABLE IF EXISTS partitioned_by_tuple_replica2_00502 SYNC;
 
 CREATE TABLE partitioned_by_tuple_replica1_00502
 (
@@ -176,15 +176,15 @@ ORDER BY name ASC;
 SELECT sum(y)
 FROM partitioned_by_tuple_replica2_00502;
 
-ALTER TABLE partitioned_by_tuple_replica1_00502 DROP PARTITION ID '20000101-1';
+ALTER TABLE partitioned_by_tuple_replica1_00502 DETACH PARTITION ID '20000101-1';
 
-DROP TABLE partitioned_by_tuple_replica1_00502;
+DROP TABLE partitioned_by_tuple_replica1_00502 SYNC;
 
-DROP TABLE partitioned_by_tuple_replica2_00502;
+DROP TABLE partitioned_by_tuple_replica2_00502 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_string_replica1;
+DROP TABLE IF EXISTS partitioned_by_string_replica1 SYNC;
 
-DROP TABLE IF EXISTS partitioned_by_string_replica2;
+DROP TABLE IF EXISTS partitioned_by_string_replica2 SYNC;
 
 CREATE TABLE partitioned_by_string_replica1
 (
@@ -237,13 +237,13 @@ FROM partitioned_by_string_replica2;
 
 ALTER TABLE partitioned_by_string_replica1 DROP PARTITION 'bbb';
 
-DROP TABLE partitioned_by_string_replica1;
+DROP TABLE partitioned_by_string_replica1 SYNC;
 
-DROP TABLE partitioned_by_string_replica2;
+DROP TABLE partitioned_by_string_replica2 SYNC;
 
-DROP TABLE IF EXISTS without_fixed_size_columns_replica1;
+DROP TABLE IF EXISTS without_fixed_size_columns_replica1 SYNC;
 
-DROP TABLE IF EXISTS without_fixed_size_columns_replica2;
+DROP TABLE IF EXISTS without_fixed_size_columns_replica2 SYNC;
 
 CREATE TABLE without_fixed_size_columns_replica1
 (
@@ -286,6 +286,6 @@ ORDER BY s ASC;
 
 ALTER TABLE without_fixed_size_columns_replica1 DROP PARTITION 1;
 
-DROP TABLE without_fixed_size_columns_replica1;
+DROP TABLE without_fixed_size_columns_replica1 SYNC;
 
-DROP TABLE without_fixed_size_columns_replica2;
+DROP TABLE without_fixed_size_columns_replica2 SYNC;

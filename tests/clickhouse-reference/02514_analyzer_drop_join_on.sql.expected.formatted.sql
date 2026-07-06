@@ -12,7 +12,7 @@ CREATE TABLE a
     a1 UInt64,
     a2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO a;
@@ -23,7 +23,7 @@ CREATE TABLE b
     b1 UInt64,
     b2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO b;
@@ -34,7 +34,7 @@ CREATE TABLE c
     c1 UInt64,
     c2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO c;
@@ -45,25 +45,25 @@ CREATE TABLE d
     d1 UInt64,
     d2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO d;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET query_plan_join_swap_table = 'false';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET query_plan_optimize_join_order_limit = 2;
+SET query_plan_optimize_join_order_limit = '2';
 
-SET optimize_empty_string_comparisons = 0;
+SET optimize_empty_string_comparisons = '0';
 
-SET enable_join_runtime_filters = 0;
+SET enable_join_runtime_filters = '0';
 
 -- { echoOn }
-EXPLAIN PLAN header = 1
+EXPLAIN header = '1'
 SELECT count()
 FROM
     a
@@ -75,7 +75,7 @@ INNER JOIN d
     ON d.d1 = c.c1
 GROUP BY a.a2;
 
-EXPLAIN PLAN header = 1
+EXPLAIN header = '1'
 SELECT
     a.a2,
     d.d2
@@ -88,14 +88,14 @@ INNER JOIN c
 INNER JOIN d
     USING (k);
 
-EXPLAIN PLAN header = 1
+EXPLAIN header = '1'
 SELECT b.bx
 FROM
     a
 INNER JOIN (
         SELECT
             b1,
-            concat(b2, 'x') AS bx
+            b2 || 'x' AS bx
         FROM b
     ) AS b
     ON b.b1 = a.a1

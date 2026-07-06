@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT *
 FROM
@@ -53,14 +53,14 @@ FROM
             1 AS id,
             1 AS value
     ) AS t1
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT
             1 AS id,
             1 AS value
     ) AS t2
-    ON (t1.id = t2.id)
-    AND 1 == 1
-    AND (t1.value >= t2.value);
+    ON t1.id = t2.id
+    AND 1 = 1
+    AND t1.value >= t2.value;
 
 SELECT *
 FROM
@@ -69,14 +69,14 @@ FROM
             1 AS id,
             1 AS value
     ) AS t1
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT
             1 AS id,
             1 AS value
     ) AS t2
-    ON (t1.id = t2.id)
+    ON t1.id = t2.id
     AND 1 != 1
-    AND (t1.value >= t2.value);
+    AND t1.value >= t2.value;
 
 SELECT b.dt
 FROM
@@ -86,15 +86,15 @@ FROM
             1 AS dt
         FROM numbers(5)
     ) AS a
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT
             NULL AS pk,
             1 AS dt
     ) AS b
-    ON (a.pk = b.pk)
+    ON a.pk = b.pk
     AND 1 != 1
-    AND (a.dt >= b.dt)
-SETTINGS enable_analyzer = 0; -- { serverError INVALID_JOIN_ON_EXPRESSION }
+    AND a.dt >= b.dt
+SETTINGS enable_analyzer = '0'; -- { serverError INVALID_JOIN_ON_EXPRESSION }
 
 SELECT b.dt
 FROM
@@ -104,15 +104,15 @@ FROM
             1 AS dt
         FROM numbers(5)
     ) AS a
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT
             NULL AS pk,
             1 AS dt
     ) AS b
-    ON (a.pk = b.pk)
+    ON a.pk = b.pk
     AND 1 != 1
-    AND (a.dt >= b.dt)
-SETTINGS enable_analyzer = 1;
+    AND a.dt >= b.dt
+SETTINGS enable_analyzer = '1';
 
 -- Fuzzed
 SELECT *
@@ -122,14 +122,14 @@ FROM
             1 AS id,
             1 AS value
     ) AS t1
-LEFT JOIN (
+ASOF LEFT JOIN (
         SELECT
             1 AS id,
             1 AS value
     ) AS t2
-    ON (t1.id = t2.id)
-    AND (toUInt256(1) IN (
+    ON t1.id = t2.id
+    AND toUInt256(1) IN (
         SELECT materialize(1)
-    ))
-    AND (1 != 1)
-    AND (t1.value >= t2.value);
+    )
+    AND 1 != 1
+    AND t1.value >= t2.value;

@@ -5,7 +5,7 @@ CREATE TABLE LOG_T
     fingerprint UInt64,
     fields Nested(name LowCardinality(String), value String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY fingerprint;
 
 SELECT

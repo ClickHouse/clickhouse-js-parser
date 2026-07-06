@@ -3,10 +3,10 @@ DROP TABLE IF EXISTS data_01292;
 CREATE TABLE data_01292
 (
     key Int,
-    INDEX key_idx key TYPE minmax GRANULARITY 1
+    INDEX key_idx key TYPE minmax() GRANULARITY 1
 )
 ENGINE = MergeTree()
-ORDER BY (key + 0);
+ORDER BY key + 0;
 
 INSERT INTO data_01292;
 

@@ -1,19 +1,19 @@
 -- Fixed only for analyzer
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-INSERT INTO FUNCTION file(concat(database(), '.test-data.json'), JSON) SELECT number AS numeric
+INSERT INTO FUNCTION file(database() || '.test-data.json', JSON) SELECT number AS numeric
 FROM numbers(10);
 
 CREATE VIEW test_view
 AS
 SELECT *
-FROM file(concat(database(), '.test-data.json'), JSON);
+FROM file(database() || '.test-data.json', JSON);
 
 CREATE TABLE test_table_view
 (
     a String
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT toString(numeric)
 FROM test_view;
 
@@ -28,11 +28,11 @@ CREATE TABLE test_table
 (
     a String
 )
-ENGINE = Memory AS
+ENGINE = Memory() AS
 SELECT toString(numeric)
 FROM (
         SELECT *
-        FROM file(concat(database(), '.test-data.json'), JSON)
+        FROM file(database() || '.test-data.json', JSON)
     );
 
 SELECT COUNT(*)
@@ -41,5 +41,5 @@ FROM test_table;
 INSERT INTO test_table SELECT toString(numeric)
 FROM (
         SELECT *
-        FROM file(concat(database(), '.test-data.json'), JSON)
+        FROM file(database() || '.test-data.json', JSON)
     );

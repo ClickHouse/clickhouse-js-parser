@@ -29,7 +29,7 @@
 -- Tests for common table expressions (WITH query, ... SELECT ...)
 --
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 --
 -- Some examples with a tree
@@ -48,7 +48,7 @@ CREATE TABLE department
     parent_department UInt64,
     name String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO department;
 
@@ -80,8 +80,8 @@ WITH RECURSIVE subdepartment AS (
         sd.root_name,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -103,8 +103,8 @@ WITH RECURSIVE subdepartment AS (
         sd.level + 1,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -127,8 +127,8 @@ WITH RECURSIVE subdepartment AS (
         sd.level + 1,
         d.*
     FROM
-        department AS d
-    CROSS JOIN subdepartment AS sd
+        department AS d,
+        subdepartment AS sd
     WHERE d.parent_department = sd.id
 )
 
@@ -186,13 +186,13 @@ WITH RECURSIVE q AS (
     SELECT *
     FROM department
     UNION ALL
-(    WITH x AS (
+    WITH x AS (
         SELECT *
         FROM q
     )
 
     SELECT *
-    FROM x)
+    FROM x
 )
 
 SELECT *
@@ -203,19 +203,19 @@ WITH RECURSIVE q AS (
     SELECT *
     FROM department
     UNION ALL
-(    WITH RECURSIVE x AS (
+    WITH RECURSIVE x AS (
         SELECT *
         FROM department
         UNION ALL
-(        SELECT *
+        SELECT *
         FROM q
         UNION ALL
         SELECT *
-        FROM x)
+        FROM x
     )
 
     SELECT *
-    FROM x)
+    FROM x
 )
 
 SELECT *
@@ -238,7 +238,7 @@ WITH RECURSIVE t AS (
             SELECT 3 AS i
         ) AS t2
     INNER JOIN t
-        ON (t2.i = t.i + 1)
+        ON t2.i = t.i + 1
 )
 
 SELECT *

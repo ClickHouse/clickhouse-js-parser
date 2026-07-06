@@ -36,7 +36,7 @@ SELECT
 FROM (
         SELECT
             dummy AS k,
-            (randConstant() * 10) % 10 AS x
+            randConstant() * 10 % 10 AS x
         FROM remote('127.0.0.{1,1}', `system`.one)
     )
 GROUP BY k

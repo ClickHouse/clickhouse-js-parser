@@ -18,12 +18,12 @@ WITH lowerUTF8(str) AS l_,
 
 upperUTF8(str) AS u_,
 
-concat('0x', hex(str)) AS h_
+'0x' || hex(str) AS h_
 
 SELECT
     length(str),
-    if(l_ == '�', h_, l_),
-    if(u_ == '�', h_, u_)
+    if(l_ = '�', h_, l_),
+    if(u_ = '�', h_, u_)
 FROM utf8_overlap
 FORMAT CSV;
 
@@ -38,10 +38,10 @@ SELECT lowerUTF8('КВ АМ И СЖ КВ АМ И СЖ');
 SELECT upperUTF8('кв ам и сж кв ам и сж');
 
 -- Test at 32 and 64 byte boundaries
-SELECT lowerUTF8(concat(repeat('0', 16), 'КВ АМ И СЖ'));
+SELECT lowerUTF8(repeat('0', 16) || 'КВ АМ И СЖ');
 
-SELECT upperUTF8(concat(repeat('0', 16), 'кв ам и сж'));
+SELECT upperUTF8(repeat('0', 16) || 'кв ам и сж');
 
-SELECT lowerUTF8(concat(repeat('0', 48), 'КВ АМ И СЖ'));
+SELECT lowerUTF8(repeat('0', 48) || 'КВ АМ И СЖ');
 
-SELECT upperUTF8(concat(repeat('0', 48), 'кв ам и сж'));
+SELECT upperUTF8(repeat('0', 48) || 'кв ам и сж');

@@ -6,9 +6,9 @@ CREATE TABLE index_memory
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO index_memory SELECT *
 FROM `system`.numbers
@@ -19,7 +19,7 @@ FROM index_memory;
 
 DETACH TABLE index_memory;
 
-SET max_memory_usage = 39000000;
+SET max_memory_usage = '39000000';
 
 ATTACH TABLE index_memory;
 

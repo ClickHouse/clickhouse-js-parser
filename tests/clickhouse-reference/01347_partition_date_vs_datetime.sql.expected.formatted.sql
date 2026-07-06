@@ -4,7 +4,7 @@ CREATE TABLE test_datetime
 (
     time DateTime
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY time
 PARTITION BY time;
 

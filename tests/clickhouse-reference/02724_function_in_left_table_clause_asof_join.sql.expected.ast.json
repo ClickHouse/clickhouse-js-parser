@@ -1,350 +1,452 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "id"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                ],
-                "source": "[1, 2, 3]"
-              },
-              "alias": "arr"
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "sessions"
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "session_id"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              },
-              "alias": "id"
-            }
-          ]
-        },
-        "alias": "visitors"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": "<=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "visitors",
-                  "session_id"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "sessions",
-                  "id"
-                ]
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "functionCall",
-                "name": "arrayFirst",
-                "args": [
-                  {
-                    "kind": "lambdaExpr",
-                    "params": [
-                      "a"
-                    ],
-                    "body": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayMap",
-                    "args": [
-                      {
-                        "kind": "lambdaExpr",
-                        "params": [
-                          "a"
-                        ],
-                        "body": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "a"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "sessions",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "id",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "arr",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            }
                           ]
                         }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "ASOF",
+                  "on": {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "lessOrEquals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "visitors.session_id",
+                            "name_parts": [
+                              "visitors",
+                              "session_id"
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "sessions.id",
+                            "name_parts": [
+                              "sessions",
+                              "id"
+                            ]
+                          }
+                        ]
                       },
                       {
-                        "kind": "columnRef",
-                        "parts": [
-                          "sessions",
-                          "arr"
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "arrayFirst",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "lambda",
+                                "is_operator": true,
+                                "is_lambda_function": true,
+                                "kind": "LAMBDA_FUNCTION",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "tuple",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "a"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "arrayMap",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "lambda",
+                                    "is_operator": true,
+                                    "is_lambda_function": true,
+                                    "kind": "LAMBDA_FUNCTION",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "tuple",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "a"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "a"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "sessions.arr",
+                                    "name_parts": [
+                                      "sessions",
+                                      "arr"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "visitors.id",
+                            "name_parts": [
+                              "visitors",
+                              "id"
+                            ]
+                          }
                         ]
                       }
                     ]
                   }
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "visitors",
-                  "id"
-                ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "visitors",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "session_id",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "id",
+                              "value_type": "UInt64",
+                              "value": "4"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
+      ]
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "id"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "2"
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "3"
-                  }
-                ],
-                "source": "[1, 2, 3]"
-              },
-              "alias": "arr"
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "sessions"
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "session_id"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "4"
-              },
-              "alias": "id"
-            }
-          ]
-        },
-        "alias": "visitors"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "naryExpr",
-          "op": "AND",
-          "operands": [
-            {
-              "kind": "binaryExpr",
-              "op": "<=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "visitors",
-                  "session_id"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "sessions",
-                  "id"
-                ]
-              }
-            },
-            {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "functionCall",
-                "name": "arrayFirst",
-                "args": [
-                  {
-                    "kind": "lambdaExpr",
-                    "params": [
-                      "a"
-                    ],
-                    "body": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "a"
-                      ]
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayMap",
-                    "args": [
-                      {
-                        "kind": "lambdaExpr",
-                        "params": [
-                          "a"
-                        ],
-                        "body": {
-                          "kind": "columnRef",
-                          "parts": [
-                            "a"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "sessions",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "id",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "arr",
+                              "value_type": "Array",
+                              "value": [
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "1"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "2"
+                                },
+                                {
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            }
                           ]
                         }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "strictness": "ASOF",
+                  "on": {
+                    "type": "Function",
+                    "name": "and",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "lessOrEquals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "visitors.session_id",
+                            "name_parts": [
+                              "visitors",
+                              "session_id"
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "sessions.id",
+                            "name_parts": [
+                              "sessions",
+                              "id"
+                            ]
+                          }
+                        ]
                       },
                       {
-                        "kind": "columnRef",
-                        "parts": [
-                          "sessions",
-                          "arr"
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "arrayFirst",
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "lambda",
+                                "is_operator": true,
+                                "is_lambda_function": true,
+                                "kind": "LAMBDA_FUNCTION",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "tuple",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "a"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "arrayMap",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "lambda",
+                                    "is_operator": true,
+                                    "is_lambda_function": true,
+                                    "kind": "LAMBDA_FUNCTION",
+                                    "arguments": [
+                                      {
+                                        "type": "Function",
+                                        "name": "tuple",
+                                        "is_operator": true,
+                                        "arguments": [
+                                          {
+                                            "type": "Identifier",
+                                            "name": "a"
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "Identifier",
+                                        "name": "a"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Identifier",
+                                    "name": "sessions.arr",
+                                    "name_parts": [
+                                      "sessions",
+                                      "arr"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "visitors.id",
+                            "name_parts": [
+                              "visitors",
+                              "id"
+                            ]
+                          }
                         ]
                       }
                     ]
                   }
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "visitors",
-                  "id"
-                ]
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "visitors",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "session_id",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            },
+                            {
+                              "type": "Literal",
+                              "alias": "id",
+                              "value_type": "UInt64",
+                              "value": "4"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
               }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "join_algorithm": "full_sorting_merge"
             }
-          ]
+          }
         }
-      }
-    },
-    "settings": [
-      {
-        "name": "join_algorithm",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "full_sorting_merge"
-        }
-      }
-    ]
+      ]
+    }
   }
 ]

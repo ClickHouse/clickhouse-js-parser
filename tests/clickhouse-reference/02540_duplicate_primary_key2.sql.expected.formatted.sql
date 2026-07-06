@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS test;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE test
 (
     timestamp DateTime,
-    latitude Nullable(Float32) CODEC(Gorilla, ZSTD(1)),
-    longitude Nullable(Float32) CODEC(Gorilla, ZSTD(1)),
+    latitude Nullable(Float32) CODEC(Gorilla(), ZSTD(1)),
+    longitude Nullable(Float32) CODEC(Gorilla(), ZSTD(1)),
     xxxx1 LowCardinality(UInt8),
     xxxx2 LowCardinality(Nullable(Int16)),
     xxxx3 LowCardinality(Nullable(Int16)),
@@ -39,50 +39,8 @@ CREATE TABLE test
     xxxx30 LowCardinality(String),
     xxxx31 LowCardinality(Nullable(String)),
     xxxx32 UInt64,
-    PROJECTION cumsum_projection_simple (    SELECT
-        xxxx1,
-        toStartOfInterval(timestamp, toIntervalMonth(1)),
-        toStartOfWeek(timestamp, 8),
-        toStartOfInterval(timestamp, toIntervalDay(1)),
-        xxxx17,
-        xxxx16,
-        xxxx14,
-        xxxx9,
-        xxxx10,
-        xxxx21,
-        xxxx22,
-        xxxx11,
-        sum(multiIf(isNull(xxxx21), 0, 1)),
-        sum(multiIf(isNull(xxxx22), 0, 1)),
-        sum(multiIf(isNull(xxxx23), 0, 1)),
-        max(toStartOfInterval(timestamp, toIntervalDay(1))),
-        max(CAST(CAST(toStartOfInterval(timestamp, toIntervalDay(1)), 'Nullable(DATE)'), 'Nullable(TIMESTAMP)')),
-        min(toStartOfInterval(timestamp, toIntervalDay(1))),
-        min(CAST(CAST(toStartOfInterval(timestamp, toIntervalDay(1)), 'Nullable(DATE)'), 'Nullable(TIMESTAMP)')),
-        count(),
-        sum(1),
-        COUNTDistinct(xxxx16),
-        COUNTDistinct(xxxx31),
-        COUNTDistinct(xxxx14),
-        COUNTDistinct(CAST(toStartOfInterval(timestamp, toIntervalDay(1)), 'Nullable(DATE)'))
-    GROUP BY
-        xxxx1,
-        toStartOfInterval(timestamp, toIntervalMonth(1)),
-        toStartOfWeek(timestamp, 8),
-        toStartOfInterval(timestamp, toIntervalDay(1)),
-        xxxx1,
-        toStartOfInterval(timestamp, toIntervalMonth(1)),
-        toStartOfWeek(timestamp, 8),
-        toStartOfInterval(timestamp, toIntervalDay(1)),
-        xxxx17,
-        xxxx16,
-        xxxx14,
-        xxxx9,
-        xxxx10,
-        xxxx21,
-        xxxx22,
-        xxxx11)
+    PROJECTION cumsum_projection_simple (SELECT xxxx1, toStartOfInterval(timestamp, toIntervalMonth(1)), toStartOfWeek(timestamp, 8), toStartOfInterval(timestamp, toIntervalDay(1)), xxxx17, xxxx16, xxxx14, xxxx9, xxxx10, xxxx21, xxxx22, xxxx11, sum(multiIf(xxxx21 IS NULL, 0, 1)), sum(multiIf(xxxx22 IS NULL, 0, 1)), sum(multiIf(xxxx23 IS NULL, 0, 1)), max(toStartOfInterval(timestamp, toIntervalDay(1))), max(CAST(CAST(toStartOfInterval(timestamp, toIntervalDay(1)) AS Nullable(DATE)) AS Nullable(TIMESTAMP))), min(toStartOfInterval(timestamp, toIntervalDay(1))), min(CAST(CAST(toStartOfInterval(timestamp, toIntervalDay(1)) AS Nullable(DATE)) AS Nullable(TIMESTAMP))), count(), sum(1), COUNTDistinct(xxxx16), COUNTDistinct(xxxx31), COUNTDistinct(xxxx14), COUNTDistinct(CAST(toStartOfInterval(timestamp, toIntervalDay(1)) AS Nullable(DATE))) GROUP BY xxxx1, toStartOfInterval(timestamp, toIntervalMonth(1)), toStartOfWeek(timestamp, 8), toStartOfInterval(timestamp, toIntervalDay(1)), xxxx1, toStartOfInterval(timestamp, toIntervalMonth(1)), toStartOfWeek(timestamp, 8), toStartOfInterval(timestamp, toIntervalDay(1)), xxxx17, xxxx16, xxxx14, xxxx9, xxxx10, xxxx21, xxxx22, xxxx11)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (xxxx17, xxxx14, xxxx16, toStartOfDay(timestamp), left(xxxx19, 10), timestamp)
 PARTITION BY toYYYYMM(timestamp); -- { serverError BAD_ARGUMENTS}

@@ -5,7 +5,7 @@ CREATE TABLE tab_00717
     a String,
     b LowCardinality(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO tab_00717;
@@ -56,7 +56,7 @@ SELECT sum(length(a))
 FROM tab_00717
 GROUP BY
     b,
-    concat(b, '_');
+    b || '_';
 
 SELECT length(b) AS l
 FROM tab_00717

@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS one;
 
@@ -7,14 +7,14 @@ CREATE TABLE one
 (
     dummy UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     database,
     t.name
 FROM
     `system`.tables AS t
-INNER JOIN (
+ALL INNER JOIN (
         SELECT name AS database
         FROM `system`.databases
     ) AS db
@@ -31,7 +31,7 @@ FROM
         SELECT name AS database
         FROM `system`.databases
     ) AS db
-INNER JOIN `system`.tables AS t
+ALL INNER JOIN `system`.tables AS t
     USING (database)
 WHERE database = 'system'
     AND t.name = 'one'
@@ -47,7 +47,7 @@ FROM
             database
         FROM `system`.tables
     ) AS t
-INNER JOIN (
+ALL INNER JOIN (
         SELECT name AS database
         FROM `system`.databases
     ) AS db
@@ -66,7 +66,7 @@ FROM
             database AS x
         FROM `system`.tables
     ) AS t
-INNER JOIN (
+ALL INNER JOIN (
         SELECT name AS x
         FROM `system`.databases
     ) AS db
@@ -209,7 +209,7 @@ SELECT
     t.name
 FROM
     `system`.tables AS t
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             'system' AS base,
             'one' AS name

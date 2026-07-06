@@ -1,1 +1,1 @@
-SELECT hex(sumMappedArraysState([CAST('0.1', 'Decimal(3)'), CAST('1', 'Decimal(3)')], [CAST('1.2', 'Decimal(3)'), CAST('2', 'Decimal(3)')]));
+SELECT hex(sumMappedArraysState([CAST('0.1' AS Decimal(3)), CAST('1' AS Decimal(3))], [CAST('1.2' AS Decimal(3)), CAST('2' AS Decimal(3))]));

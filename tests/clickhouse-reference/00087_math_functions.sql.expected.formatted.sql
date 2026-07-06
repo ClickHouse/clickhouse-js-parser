@@ -2,17 +2,17 @@ SELECT abs(0) = 0;
 
 SELECT abs(1) = 1;
 
-SELECT abs(0.0) = 0;
+SELECT abs(0.) = 0;
 
-SELECT abs(1.0) = 1.0;
+SELECT abs(1.) = 1.;
 
-SELECT abs(-1.0) = 1.0;
+SELECT abs(-1.) = 1.;
 
 SELECT abs(-128) = 128;
 
 SELECT abs(127) = 127;
 
-SELECT sum(abs(number - 10 AS x) = (if(x < 0, negate(x), x))) / count()
+SELECT sum(abs(number - 10 AS x) = (x < 0 ? -x : x)) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000000) AS number;
@@ -34,7 +34,7 @@ SELECT cbrt(1) = 1;
 
 SELECT cbrt(8) = 2;
 
-SELECT sum(abs(cbrt(x * x * x) - x) < 1.0e-9) / count()
+SELECT sum(abs(cbrt(x * x * x) - x) < 1e-9) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000000) AS x;
@@ -52,7 +52,7 @@ SELECT pow(1, 1) = 1;
 
 SELECT pow(2, 1) = 2;
 
-SELECT sum(abs(pow(x, 1) - x) < 1.0e-9) / count()
+SELECT sum(abs(pow(x, 1) - x) < 1e-9) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000000) AS x;
@@ -72,9 +72,9 @@ SELECT lgamma(1) = 0;
 
 SELECT lgamma(2) = 0;
 
-SELECT abs(lgamma(3) - 0.693147181) < 1.0e-8;
+SELECT abs(lgamma(3) - 0.693147181) < 1e-8;
 
-SELECT abs(lgamma(4) - 1.791759469) < 1.0e-8;
+SELECT abs(lgamma(4) - 1.791759469) < 1e-8;
 
 SELECT tgamma(0) = inf;
 
@@ -86,12 +86,12 @@ SELECT tgamma(3) = 2;
 
 SELECT tgamma(4) = 6;
 
-SELECT sum(abs(lgamma(x + 1) - log(tgamma(x + 1))) < 1.0e-8) / count()
+SELECT sum(abs(lgamma(x + 1) - log(tgamma(x + 1))) < 1e-8) / count()
 FROM
     `system`.one
 ARRAY JOIN range(10) AS x;
 
-SELECT abs(e() - arraySum(arrayMap(x -> 1 / tgamma(x + 1), range(13)))) < 1.0e-9;
+SELECT abs(e() - arraySum(arrayMap((x -> 1 / tgamma(x + 1)), range(13)))) < 1e-9;
 
 SELECT log(0) = -inf;
 
@@ -131,7 +131,7 @@ SELECT log2(2) = 1;
 
 SELECT log2(4) = 2;
 
-SELECT sum(abs(log2(exp2(x)) - x) < 1.0e-9) / count()
+SELECT sum(abs(log2(exp2(x)) - x) < 1e-9) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000) AS x;
@@ -140,9 +140,9 @@ SELECT log1p(-1) = -inf;
 
 SELECT log1p(0) = 0;
 
-SELECT abs(log1p(exp(2) - 1) - 2) < 1e8;
+SELECT abs(log1p(exp(2) - 1) - 2) < 100000000.;
 
-SELECT abs(log1p(exp(3) - 1) - 3) < 1e8;
+SELECT abs(log1p(exp(3) - 1) - 3) < 100000000.;
 
 SELECT sum(abs(log1p(exp(x) - 1) - x) < 1e-8) / count()
 FROM
@@ -164,20 +164,20 @@ ARRAY JOIN range(1000000) AS x;
 
 SELECT cos(0) = 1;
 
-SELECT abs(cos(pi() / 4) - 1 / sqrt(2)) < 1.0e-9;
+SELECT abs(cos(pi() / 4) - 1 / sqrt(2)) < 1e-9;
 
-SELECT cos(pi() / 2) < 1.0e-9;
+SELECT cos(pi() / 2) < 1e-9;
 
-SELECT sum(abs(cos(2 * pi() * x)) - 1 < 1.0e-9) / count()
+SELECT sum(abs(cos(2 * pi() * x)) - 1 < 1e-9) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000000) AS x;
 
 SELECT tan(0) = 0;
 
-SELECT abs(tan(pi() / 4) - 1) < 1.0e-9;
+SELECT abs(tan(pi() / 4) - 1) < 1e-9;
 
-SELECT sum(abs(tan(pi() / 4 + 2 * pi() * x) - 1) < 1.0e-8) / count()
+SELECT sum(abs(tan(pi() / 4 + 2 * pi() * x) - 1) < 1e-8) / count()
 FROM
     `system`.one
 ARRAY JOIN range(1000000) AS x;
@@ -186,7 +186,7 @@ SELECT asin(0) = 0;
 
 SELECT asin(1) = pi() / 2;
 
-SELECT asin(-1) = negate(pi()) / 2;
+SELECT asin(-1) = -pi() / 2;
 
 SELECT acos(0) = pi() / 2;
 
@@ -220,13 +220,13 @@ SELECT hypot(3, 4) = 5;
 
 SELECT sinh(0) = 0;
 
-SELECT sinh(1) = negate(sinh(-1));
+SELECT sinh(1) = -sinh(-1);
 
-SELECT abs(sinh(1) - 0.5 * ((e() - exp(-1)))) < 1e-6;
+SELECT abs(sinh(1) - 0.5 * (e() - exp(-1))) < 0.000001;
 
-SELECT abs(sinh(2) - 0.5 * ((exp(2) - exp(-2)))) < 1e-6;
+SELECT abs(sinh(2) - 0.5 * (exp(2) - exp(-2))) < 0.000001;
 
-SELECT sum(abs(sinh(x) - 0.5 * ((exp(x) - exp(negate(x))))) < 1e-6) / count()
+SELECT sum(abs(sinh(x) - 0.5 * (exp(x) - exp(-x))) < 0.000001) / count()
 FROM
     `system`.one
 ARRAY JOIN range(10) AS x;
@@ -235,18 +235,18 @@ SELECT cosh(0) = 1;
 
 SELECT cosh(1) = cosh(-1);
 
-SELECT abs(cosh(1) - 0.5 * ((e() + exp(-1)))) < 1e-6;
+SELECT abs(cosh(1) - 0.5 * (e() + exp(-1))) < 0.000001;
 
-SELECT abs(pow(cosh(1), 2) - pow(sinh(1), 2) - 1) < 1e-6;
+SELECT abs(pow(cosh(1), 2) - pow(sinh(1), 2) - 1) < 0.000001;
 
-SELECT sum(abs(cosh(x) * cosh(x) - sinh(x) * sinh(x) - 1) < 1e-6) / count()
+SELECT sum(abs(cosh(x) * cosh(x) - sinh(x) * sinh(x) - 1) < 0.000001) / count()
 FROM
     `system`.one
 ARRAY JOIN range(10) AS x;
 
 SELECT asinh(0) = 0;
 
-SELECT asinh(1) = negate(asinh(-1));
+SELECT asinh(1) = -asinh(-1);
 
 SELECT abs(asinh(1) - ln(1 + sqrt(2))) < 1e-9;
 
@@ -272,13 +272,13 @@ ARRAY JOIN range(1, 101) AS x;
 
 SELECT atanh(0) = 0;
 
-SELECT atanh(0.5) = negate(atanh(-0.5));
+SELECT atanh(0.5) = -atanh(-0.5);
 
-SELECT abs(atanh(0.9) - 0.5 * ln(19)) < 1e-5;
+SELECT abs(atanh(0.9) - 0.5 * ln(19)) < 0.00001;
 
-SELECT abs(atanh(tanh(1)) - 1) < 1e-5;
+SELECT abs(atanh(tanh(1)) - 1) < 0.00001;
 
-SELECT sum(abs(atanh(tanh(x)) - x) < 1e-5) / count()
+SELECT sum(abs(atanh(tanh(x)) - x) < 0.00001) / count()
 FROM
     `system`.one
 ARRAY JOIN range(10) AS x;

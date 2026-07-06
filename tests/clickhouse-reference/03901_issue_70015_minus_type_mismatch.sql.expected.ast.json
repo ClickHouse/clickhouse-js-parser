@@ -1,310 +1,365 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "compile_expressions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "compile_expressions": "0"
       }
-    ],
-    "leadingComments": [
-      "-- An attempt to reproduce https://github.com/ClickHouse/ClickHouse/issues/70015",
-      "-- The issue was that binary arithmetic operations like minus would throw",
-      "-- \"Arguments of 'minus' have incorrect data types\" logical error when",
-      "-- the arguments had different numeric types (e.g., Int64 - Int32).",
-      "-- However, this test didn't reproduce the issue in any previous ClickHouse versions,",
-      "-- and the actual issue was already fixed a long time ago."
-    ],
-    "trailingComments": [
-      "-- Disable JIT to avoid unrelated issues"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_70015"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_70015"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c_izfnu",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c_l8d2_b",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c_hmbcdw",
-        "type": {
-          "name": "Int64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "c_zjw",
-        "type": {
-          "name": "Int32"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t_70015"
+        "type": "Identifier",
+        "name": "t_70015"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_70015"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "c_izfnu",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c_l8d2_b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c_hmbcdw",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "c_zjw",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "-",
-          "left": {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "CAST",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "c_izfnu"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t_70015"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "alias": "result",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "if",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "CAST",
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "equals",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "c_izfnu"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "c_l8d2_b"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "Nullable(Bool)"
+                        }
                       ]
                     },
-                    "right": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "c_l8d2_b"
+                    {
+                      "type": "Function",
+                      "name": "sign",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "c_izfnu"
+                        }
                       ]
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "c_hmbcdw"
                     }
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "Nullable(Bool)"
-                  }
-                ]
-              },
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "c_zjw"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "sign",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "c_izfnu"
-                    ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "t_70015"
                   }
-                ]
-              },
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "c_hmbcdw"
-                ]
+                }
               }
             ]
           },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "c_zjw"
-            ]
-          }
-        },
-        "alias": "result"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "t_70015"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "result"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- The problematic query pattern from the issue:",
-      "-- if(CAST(equals(), 'Nullable(Bool)'), sign(Int64), Int64) - Int32"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "-",
-        "left": {
-          "kind": "functionCall",
-          "name": "toInt64",
-          "args": [
+          "order_by": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "toInt32",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "result"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "leadingComments": [
-      "-- Additional test cases for type promotion in minus"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "-",
-        "left": {
-          "kind": "functionCall",
-          "name": "toInt64",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "toInt16",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+              "type": "Function",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "toInt32",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "-",
-        "left": {
-          "kind": "functionCall",
-          "name": "toInt64",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "toInt8",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+              "type": "Function",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "toInt16",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "-",
-        "left": {
-          "kind": "functionCall",
-          "name": "toInt32",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10"
-            }
-          ]
-        },
-        "right": {
-          "kind": "functionCall",
-          "name": "toInt64",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "5"
+              "type": "Function",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "toInt8",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t_70015"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "minus",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "toInt32",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "10"
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "toInt64",
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t_70015"
+      }
     }
   }
 ]

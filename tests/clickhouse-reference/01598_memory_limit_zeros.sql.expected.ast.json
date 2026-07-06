@@ -1,83 +1,79 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_memory_usage",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "max_untracked_memory",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        }
-      },
-      {
-        "name": "max_threads",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "40"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_memory_usage": "1",
+        "max_untracked_memory": "1000000",
+        "max_threads": "40"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel, no-fasttest, no-random-settings"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "test"
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "zeros_mt",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
-        }
-      ]
-    },
-    "where": {
-      "kind": "unaryExpr",
-      "op": "NOT",
-      "expr": {
-        "kind": "functionCall",
-        "name": "ignore",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "zero"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "test"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "zeros_mt",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1000000"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "not",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "ignore",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "zero"
+                  }
+                ]
+              }
             ]
           }
-        ]
-      }
-    },
-    "trailingComments": [
-      "-- { serverError MEMORY_LIMIT_EXCEEDED }"
-    ]
+        }
+      ]
+    }
   }
 ]

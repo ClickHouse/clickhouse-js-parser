@@ -18,7 +18,7 @@ CREATE TABLE t_right
 ENGINE = MergeTree()
 ORDER BY id;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SET join_algorithm = 'direct';
 

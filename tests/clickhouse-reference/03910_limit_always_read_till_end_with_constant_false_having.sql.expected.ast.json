@@ -1,132 +1,145 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            "alias": "c0"
-          }
-        ],
-        "where": {
-          "kind": "functionCall",
-          "name": "EXISTS",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "subqueryExpr",
-              "query": {
-                "kind": "select",
-                "select": [
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "v0",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "c0",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ],
+                          "where": {
+                            "type": "Function",
+                            "name": "exists",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Subquery",
+                                "query": {
+                                  "type": "SelectWithUnionQuery",
+                                  "selects": [
+                                    {
+                                      "type": "SelectQuery",
+                                      "select": [
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "1"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "v0.c0",
+              "name_parts": [
+                "v0",
+                "c0"
+              ]
+            }
+          ],
+          "having": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "literal",
-                    "type": "UInt64",
+                    "type": "Identifier",
+                    "name": "v0.c0",
+                    "name_parts": [
+                      "v0",
+                      "c0"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
                     "value": "1"
                   }
                 ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "v0.c0",
+                    "name_parts": [
+                      "v0",
+                      "c0"
+                    ]
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "2"
+                  }
+                ]
               }
+            ]
+          },
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "exact_rows_before_limit": "1",
+              "execute_exists_as_scalar_subquery": "0"
             }
-          ]
-        },
-        "limit": {
-          "count": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        }
-      },
-      "alias": "v0"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "v0",
-            "c0"
-          ]
-        }
-      ]
-    },
-    "having": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "v0",
-              "c0"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "v0",
-              "c0"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "2"
           }
         }
       ]
-    },
-    "settings": [
-      {
-        "name": "exact_rows_before_limit",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      },
-      {
-        "name": "execute_exists_as_scalar_subquery",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Regression test for a bug where a constant-false HAVING filter caused",
-      "-- the pipeline to shut down prematurely via DelayedPortsProcessor, aborting",
-      "-- set creation, while LimitTransform with always_read_till_end continued",
-      "-- pulling data through a FilterTransform that needed the unbuilt set.",
-      "-- The fix ensures LimitTransform does not continue reading when the limit",
-      "-- has not been reached and the output is already finished."
-    ]
+    }
   }
 ]

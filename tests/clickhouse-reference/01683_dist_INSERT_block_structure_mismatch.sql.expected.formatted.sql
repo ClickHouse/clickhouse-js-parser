@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS tmp_01683;
 
 DROP TABLE IF EXISTS dist_01683;
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 -- To suppress "Structure does not match (remote: n Int8 Int8(size = 0), local: n UInt64 UInt64(size = 1)), implicit conversion will be done."
 SET send_logs_level = 'error';
@@ -11,7 +11,7 @@ CREATE TABLE tmp_01683
 (
     n Int8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE dist_01683
 (
@@ -19,11 +19,11 @@ CREATE TABLE dist_01683
 )
 ENGINE = Distributed(test_cluster_two_shards, currentDatabase(), tmp_01683, n);
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 INSERT INTO dist_01683;
 
-SET distributed_foreground_insert = 0;
+SET distributed_foreground_insert = '0';
 
 SYSTEM FLUSH DISTRIBUTED dist_01683;
 

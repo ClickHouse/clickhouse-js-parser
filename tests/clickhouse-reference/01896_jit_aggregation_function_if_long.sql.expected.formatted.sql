@@ -1,7 +1,7 @@
 -- Tags: long
-SET compile_aggregate_expressions = 1;
+SET compile_aggregate_expressions = '1';
 
-SET min_count_to_compile_aggregate_expression = 0;
+SET min_count_to_compile_aggregate_expression = '0';
 
 DROP TABLE IF EXISTS test_table_unsigned_values;
 
@@ -14,7 +14,7 @@ CREATE TABLE test_table_unsigned_values
     value4 UInt64,
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_unsigned_values SELECT
     number % 3,
@@ -22,7 +22,7 @@ INSERT INTO test_table_unsigned_values SELECT
     number,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -49,7 +49,7 @@ CREATE TABLE test_table_signed_values
     value4 Int64,
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_signed_values SELECT
     number % 3,
@@ -57,7 +57,7 @@ INSERT INTO test_table_signed_values SELECT
     number,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -82,13 +82,13 @@ CREATE TABLE test_table_float_values
     value2 Float64,
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_float_values SELECT
     number % 3,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -113,7 +113,7 @@ CREATE TABLE test_table_nullable_unsigned_values
     value4 Nullable(UInt64),
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_unsigned_values SELECT
     number % 3,
@@ -121,7 +121,7 @@ INSERT INTO test_table_nullable_unsigned_values SELECT
     number,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -148,7 +148,7 @@ CREATE TABLE test_table_nullable_signed_values
     value4 Nullable(Int64),
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_signed_values SELECT
     number % 3,
@@ -156,7 +156,7 @@ INSERT INTO test_table_nullable_signed_values SELECT
     number,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -181,13 +181,13 @@ CREATE TABLE test_table_nullable_float_values
     value2 Nullable(Float64),
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable_float_values SELECT
     number % 3,
     number,
     number,
-    if(number % 2 == 0, 1, 0)
+    if(number % 2 = 0, 1, 0)
 FROM `system`.numbers
 LIMIT 120;
 
@@ -211,7 +211,7 @@ CREATE TABLE test_table_null_specifics
     value3 Nullable(UInt64),
     predicate_value UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_null_specifics;
 
@@ -237,7 +237,7 @@ CREATE TABLE test_table_null_specifics
     predicate_value UInt8,
     weight UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_null_specifics;
 

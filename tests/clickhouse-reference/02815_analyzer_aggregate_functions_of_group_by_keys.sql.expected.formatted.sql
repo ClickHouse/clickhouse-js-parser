@@ -1,8 +1,8 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_move_functions_out_of_any = 0;
+SET optimize_move_functions_out_of_any = '0';
 
-SET optimize_aggregators_of_group_by_keys = 1;
+SET optimize_aggregators_of_group_by_keys = '1';
 
 SELECT
     min(number % 2) AS a,
@@ -26,7 +26,7 @@ ORDER BY
     a ASC,
     b ASC;
 
-SELECT max((number % 5) * ((number % 7))) AS a
+SELECT max(number % 5 * (number % 7)) AS a
 FROM numbers(10000000)
 GROUP BY
     number % 7,
@@ -69,7 +69,7 @@ ORDER BY
     b ASC;
 
 EXPLAIN QUERY TREE
-SELECT max((number % 5) * ((number % 7))) AS a
+SELECT max(number % 5 * (number % 7)) AS a
 FROM numbers(10000000)
 GROUP BY
     number % 7,
@@ -89,4 +89,4 @@ SELECT min(number) OVER (PARTITION BY number % 2)
 FROM numbers(3)
 GROUP BY number;
 
-SET optimize_aggregators_of_group_by_keys = 0;
+SET optimize_aggregators_of_group_by_keys = '0';

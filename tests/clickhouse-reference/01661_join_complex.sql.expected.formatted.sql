@@ -75,9 +75,9 @@ LEFT JOIN (
     OR t1.c = t2.b
     OR t1.d = t2.b
     AND t1.d = t2.b
-    OR (t1.e = t2.e
+    OR t1.e = t2.e
     AND t1.a = t2.a
-    AND t2.f = t1.f);
+    AND t2.f = t1.f;
 
 SELECT *
 FROM
@@ -178,11 +178,11 @@ INNER JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON (or(t1.d = t2.b
+    ON or(t1.d = t2.b
     AND t1.e = t2.e, t1.d = t2.b
     AND t1.f = t2.f, t1.c = t2.b
     AND t1.e = t2.e, t1.c = t2.b
-    AND t1.f = t2.f));
+    AND t1.f = t2.f);
 
 SELECT *
 FROM
@@ -204,14 +204,14 @@ INNER JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON (t1.d = t2.b
+    ON t1.d = t2.b
     AND t1.e = t2.e
     OR t1.d = t2.b
     AND t1.f = t2.f
     OR t1.c = t2.b
     AND t1.e = t2.e
     OR t1.c = t2.b
-    AND t1.f = t2.f);
+    AND t1.f = t2.f;
 
 SELECT 'left ---';
 
@@ -267,17 +267,17 @@ LEFT JOIN (
             'O',
             'P1'
     ) AS t2
-    ON ((t1.d = t2.b
+    ON (t1.d = t2.b
     OR t1.c = t2.b
     OR t1.d = t2.b
-    AND t1.d = t2.b))
-    OR (t1.e = t2.e
+    AND t1.d = t2.b)
+    OR t1.e = t2.e
     AND t1.a = t2.a
-    AND t2.f = t1.f)
+    AND t2.f = t1.f
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 1;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '1';
 
 SELECT 'right ---';
 
@@ -333,13 +333,13 @@ RIGHT JOIN (
             'O',
             'P1'
     ) AS t2
-    ON ((t1.d = t2.b
-    OR t1.c = t2.b))
+    ON (t1.d = t2.b
+    OR t1.c = t2.b)
     OR t1.e = t2.e
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 1;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '1';
 
 SELECT 'inner ---';
 
@@ -395,15 +395,15 @@ INNER JOIN (
             'O',
             'P1'
     ) AS t2
-    ON ((t1.d = t2.b
-    OR t1.c = t2.b))
-    OR (t1.e = t2.e
+    ON (t1.d = t2.b
+    OR t1.c = t2.b)
+    OR t1.e = t2.e
     AND t1.a = t2.a
-    AND t2.f = t1.f)
+    AND t2.f = t1.f
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 1;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '1';
 
 SELECT *
 FROM
@@ -425,17 +425,17 @@ LEFT JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON ((t1.d = t2.b
+    ON (t1.d = t2.b
     OR t1.c = t2.b
     OR t1.d = t2.b
-    AND t1.d = t2.b))
-    OR (t1.e = t2.e
+    AND t1.d = t2.b)
+    OR t1.e = t2.e
     AND t1.a = t2.a
-    AND t2.f = t1.f)
+    AND t2.f = t1.f
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 0;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '0';
 
 SELECT *
 FROM
@@ -457,13 +457,13 @@ RIGHT JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON ((t1.d = t2.b
-    OR t1.c = t2.b))
+    ON (t1.d = t2.b
+    OR t1.c = t2.b)
     OR t1.e = t2.e
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 0;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '0';
 
 SELECT *
 FROM
@@ -485,15 +485,15 @@ INNER JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON ((t1.d = t2.b
-    OR t1.c = t2.b))
-    OR (t1.e = t2.e
+    ON (t1.d = t2.b
+    OR t1.c = t2.b)
+    OR t1.e = t2.e
     AND t1.a = t2.a
-    AND t2.f = t1.f)
+    AND t2.f = t1.f
 ORDER BY `ALL` ASC
 SETTINGS
-    enable_analyzer = 1,
-    query_plan_use_new_logical_join_step = 0;
+    enable_analyzer = '1',
+    query_plan_use_new_logical_join_step = '0';
 
 SELECT *
 FROM
@@ -515,15 +515,15 @@ INNER JOIN (
             'e' AS e,
             'f' AS f
     ) AS t2
-    ON ((t1.d = t2.b
-    OR t1.c = t2.b))
-    AND ((t1.e = t2.e
-    OR t1.f = t2.f))
-SETTINGS enable_analyzer = 1;
+    ON (t1.d = t2.b
+    OR t1.c = t2.b)
+    AND (t1.e = t2.e
+    OR t1.f = t2.f)
+SETTINGS enable_analyzer = '1';
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
 DROP TABLE IF EXISTS tab2;
 
@@ -534,7 +534,7 @@ CREATE TABLE tab2
     a2 Int32,
     b2 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a2;
 
 CREATE TABLE tab3
@@ -542,7 +542,7 @@ CREATE TABLE tab3
     a3 Int32,
     b3 Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a3;
 
 INSERT INTO tab2;
@@ -562,7 +562,7 @@ SELECT
     b3
 FROM
     tab2
-LEFT JOIN tab3
+ANY LEFT JOIN tab3
     ON a2 = a3
     AND a2 + 1 = b3 + 0
     OR b2 = b3

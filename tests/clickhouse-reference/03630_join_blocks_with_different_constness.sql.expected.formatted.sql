@@ -6,17 +6,17 @@ WITH input_1 AS (
         number::String AS parent_id,
         number::String AS id,
         number::String AS value
-    FROM numbers_mt(1e6)
+    FROM numbers_mt(1000000.)
 ),
 
 dimensions_1 AS (
     SELECT number::String AS value_id
-    FROM numbers_mt(1e6)
+    FROM numbers_mt(1000000.)
 ),
 
 dimensions_2 AS (
     SELECT number::String AS value_id
-    FROM numbers_mt(1e6)
+    FROM numbers_mt(1000000.)
 ),
 
 parents AS (
@@ -64,4 +64,4 @@ INNER JOIN dimensions_1 AS dim1
 INNER JOIN dimensions_2 AS dim2
     ON `all`.value = dim2.value_id
 FORMAT Null
-SETTINGS max_block_size = 65535, max_joined_block_size_rows = 65535, max_threads = 32;
+SETTINGS max_block_size = '65535', max_joined_block_size_rows = '65535', max_threads = '32';

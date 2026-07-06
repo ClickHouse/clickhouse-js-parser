@@ -47,11 +47,11 @@ CREATE TABLE numbers_1001
 (
     number UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 10;
+SET max_block_size = '10';
 
 INSERT INTO numbers_1001 SELECT number
 FROM `system`.numbers

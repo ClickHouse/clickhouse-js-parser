@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS m0;
 
@@ -166,7 +166,7 @@ CREATE TABLE d6
     key Int,
     value Int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY value;
 
 CREATE TABLE d7
@@ -174,7 +174,7 @@ CREATE TABLE d7
     key Int,
     value Int
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY key;
 
 CREATE MATERIALIZED VIEW mv1
@@ -187,7 +187,7 @@ FROM d6
 GROUP BY key;
 
 CREATE MATERIALIZED VIEW mv2
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY key
 AS
 SELECT

@@ -5,7 +5,7 @@ CREATE TABLE test
     num UInt64,
     str String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY num;
 
 INSERT INTO test (num);

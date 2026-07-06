@@ -7,6 +7,6 @@ INSERT INTO FUNCTION s3(s3_conn, filename = '03631', `format` = Parquet, partiti
 -- distinct because minio isn't cleaned up
 SELECT countDistinct(year)
 FROM s3(s3_conn, filename = '03631/**.parquet', `format` = RawBLOB)
-SETTINGS use_hive_partitioning = 1;
+SETTINGS use_hive_partitioning = '1';
 
-DESCRIBE TABLE s3(s3_conn, filename = '03631/**.parquet', `format` = RawBLOB) SETTINGS use_hive_partitioning = 1;
+DESCRIBE TABLE s3(s3_conn, filename = '03631/**.parquet', `format` = RawBLOB) SETTINGS use_hive_partitioning = '1';

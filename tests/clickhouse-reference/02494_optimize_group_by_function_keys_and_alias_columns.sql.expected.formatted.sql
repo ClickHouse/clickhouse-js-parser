@@ -3,7 +3,7 @@ CREATE TABLE t
     timestamp DateTime,
     day ALIAS toYYYYMMDD(timestamp)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY timestamp;
 
 INSERT INTO t (timestamp);

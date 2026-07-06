@@ -9,7 +9,7 @@ FROM
             0 AS key2,
             999 AS table_1
     ) AS js1
-INNER JOIN (
+ALL INNER JOIN (
         SELECT
             arrayJoin([1, 3, 2]) AS key1,
             0 AS key2,

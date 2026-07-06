@@ -6,9 +6,9 @@ CREATE TABLE nested
     filter UInt8,
     n Nested(a UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO nested SELECT
     number,
@@ -24,7 +24,7 @@ FROM nested
 PREWHERE filter
 ORDER BY `ALL` ASC;
 
-ALTER TABLE nested ADD COLUMN `n.c` Array(UInt64) DEFAULT arrayMap(x -> x * 2, n.a);
+ALTER TABLE nested ADD COLUMN `n.c` Array(UInt64) DEFAULT arrayMap((x -> x * 2), n.a);
 
 SELECT DISTINCT n.c
 FROM nested

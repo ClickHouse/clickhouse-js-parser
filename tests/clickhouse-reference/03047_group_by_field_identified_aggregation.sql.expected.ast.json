@@ -1,97 +1,101 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/32639"
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "alias",
-        "expr": {
-          "kind": "functionCall",
-          "name": "if",
-          "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "naryExpr",
-              "op": "AND",
-              "operands": [
+              "type": "Function",
+              "alias": "a",
+              "name": "if",
+              "is_operator": true,
+              "arguments": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
+                  "type": "Function",
+                  "name": "and",
+                  "is_operator": true,
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "value_type": "UInt64",
+                      "value": "0"
+                    },
+                    {
+                      "type": "Identifier",
+                      "name": "id"
+                    }
+                  ]
                 },
                 {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "2"
                 }
               ]
             },
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "Function",
+              "name": "sum",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "id"
+                }
+              ]
             }
-          ]
-        },
-        "alias": "a"
-      },
-      {
-        "kind": "functionCall",
-        "name": "sum",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "id"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "id",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "1"
-            },
-            "alias": "id"
-          }
-        ]
-      }
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "a"
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "a"
+            }
           ]
         }
       ]

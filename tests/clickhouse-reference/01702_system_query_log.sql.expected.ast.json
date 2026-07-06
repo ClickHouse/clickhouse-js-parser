@@ -1,1084 +1,1472 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "system.query_log logging test"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel",
-      "-- fire all kinds of queries and then check if those are present in the system.query_log"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "sqllt"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "system",
-    "body": "DROP USER IF EXISTS sqllt_user"
-  },
-  {
-    "kind": "system",
-    "body": "DROP ROLE IF EXISTS sqllt_role"
-  },
-  {
-    "kind": "system",
-    "body": "DROP POLICY IF EXISTS sqllt_policy ON sqllt.table, sqllt.view, sqllt.dictionary"
-  },
-  {
-    "kind": "system",
-    "body": "DROP ROW POLICY IF EXISTS sqllt_row_policy ON sqllt.table, sqllt.view, sqllt.dictionary"
-  },
-  {
-    "kind": "system",
-    "body": "DROP QUOTA IF EXISTS sqllt_quota"
-  },
-  {
-    "kind": "system",
-    "body": "DROP SETTINGS PROFILE IF EXISTS sqllt_settings_profile"
-  },
-  {
-    "kind": "createDatabase",
-    "name": "sqllt"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "i",
-        "type": {
-          "name": "UInt8"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "s",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "partitionBy": {
-      "kind": "functionCall",
-      "name": "tuple",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createView",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "view"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "i"
-          ]
-        },
-        {
-          "kind": "columnRef",
-          "parts": [
-            "s"
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "sqllt",
-        "table": "table"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_comment": "system.query_log logging test"
       }
     }
   },
   {
-    "kind": "createDictionary",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "dictionary"
-    },
-    "dictAttrs": [
-      {
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
       },
-      {
-        "name": "value",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "dictDef": {
-      "primaryKey": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      ],
-      "source": {
-        "name": "clickhouse",
-        "pairs": [
-          {
-            "name": "DB",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "sqllt"
-            }
-          },
-          {
-            "name": "TABLE",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "table"
-            }
-          },
-          {
-            "name": "HOST",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "localhost"
-            }
-          },
-          {
-            "name": "PORT",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "9001"
-            }
-          }
-        ]
-      },
-      "lifetime": {
-        "value": 0
-      },
-      "layout": {
-        "name": "FLAT",
-        "pairs": []
-      }
+      "if_exists": true,
+      "sync": true
     }
   },
   {
-    "kind": "createUser",
-    "names": [
-      {
-        "name": "sqllt_user"
-      }
-    ],
-    "auth": [
-      {
-        "secret": "password"
-      }
-    ]
-  },
-  {
-    "kind": "createRole",
-    "names": [
-      {
-        "name": "sqllt_role"
-      }
-    ]
-  },
-  {
-    "kind": "createRowPolicy",
-    "targets": [
-      {
-        "names": [
-          "sqllt_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table"
-        }
-      },
-      {
-        "names": [
-          "sqllt_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "view"
-        }
-      },
-      {
-        "names": [
-          "sqllt_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "dictionary"
-        }
-      }
-    ],
-    "restrictive": "PERMISSIVE",
-    "to": {
-      "kind": "all"
-    }
-  },
-  {
-    "kind": "createRowPolicy",
-    "targets": [
-      {
-        "names": [
-          "sqllt_row_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table"
-        }
-      },
-      {
-        "names": [
-          "sqllt_row_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "view"
-        }
-      },
-      {
-        "names": [
-          "sqllt_row_policy"
-        ],
-        "table": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "dictionary"
-        }
-      }
-    ],
-    "restrictive": "PERMISSIVE",
-    "to": {
-      "kind": "all"
-    }
-  },
-  {
-    "kind": "createQuota",
-    "names": [
-      "sqllt_quota"
-    ],
-    "keyed": {
-      "keys": [
-        "user_name"
-      ]
-    },
-    "to": {
-      "kind": "names",
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "USER",
+      "if_exists": true,
       "names": [
-        "sqllt_role"
-      ]
-    }
-  },
-  {
-    "kind": "createSettingsProfile",
-    "names": [
-      "sqllt_settings_profile"
-    ],
-    "hasSettingsKeyword": true,
-    "settings": [
-      {
-        "kind": "setting",
-        "name": "interactive_delay",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "200000"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "grant",
-    "operation": "GRANT",
-    "roles": [
-      "sqllt_role"
-    ],
-    "grantees": [
-      "sqllt_user"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_profile_events",
-        "value": {
-          "kind": "literal",
-          "type": "Bool",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "setRole",
-    "roles": {
-      "kind": "names",
-      "names": [
-        "sqllt_role"
-      ]
-    },
-    "users": [
-      "sqllt_user"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "new_col",
-          "type": {
-            "name": "UInt32"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "123456789"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "COMMENT_COLUMN",
-        "columnName": "new_col",
-        "comment": {
-          "kind": "literal",
-          "type": "String",
-          "value": "dummy column with a comment"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "new_col"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "new_col",
-          "type": {
-            "name": "DateTime"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "literal",
-            "type": "String",
-            "value": "2015-05-18 07:40:13"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "new_col"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "RENAME_COLUMN",
-        "oldName": "new_col",
-        "newName": "the_new_col"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "the_new_col"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "i",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "i"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
-            }
-          }
-        ],
-        "where": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DELETE",
-        "where": {
-          "kind": "binaryExpr",
-          "op": ">",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "i"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "65535"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START MERGES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP TTL MERGES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START TTL MERGES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MOVES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START MOVES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP FETCHES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START FETCHES sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP REPLICATED SENDS sqllt.table"
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM START REPLICATED SENDS sqllt.table"
-  },
-  {
-    "kind": "showCreate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "showCreate",
-    "targetType": "DICTIONARY",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "dictionary"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "listing",
-      "objectType": "DATABASES",
-      "like": {
-        "pattern": "sqllt"
-      }
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "listing",
-      "objectType": "TABLES",
-      "from": "sqllt"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "listing",
-      "objectType": "DICTIONARIES",
-      "from": "sqllt"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "grants"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "grants",
-      "for": [
         "sqllt_user"
       ]
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "show",
-    "show": {
-      "type": "createAccess",
-      "entity": "USER",
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROLE",
+      "if_exists": true,
       "names": [
-        {
-          "name": "sqllt_user"
-        }
+        "sqllt_role"
       ]
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "show",
-    "show": {
-      "type": "createAccess",
-      "entity": "ROLE",
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "if_exists": true,
+      "row_policy_names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "table"
+          },
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "view"
+          },
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "dictionary"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "if_exists": true,
+      "row_policy_names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "table"
+          },
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "view"
+          },
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "dictionary"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "QUOTA",
+      "if_exists": true,
       "names": [
-        {
-          "name": "sqllt_role"
-        }
+        "sqllt_quota"
       ]
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "show",
-    "show": {
-      "type": "createRowPolicy",
-      "policies": [
-        {
-          "names": [
-            "sqllt_policy"
-          ]
-        }
-      ]
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "createRowPolicy",
-      "policies": [
-        {
-          "names": [
-            "sqllt_row_policy"
-          ]
-        }
-      ]
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "show",
-    "show": {
-      "type": "createAccess",
-      "entity": "QUOTA",
+    "version": 2,
+    "ast": {
+      "type": "DropAccessEntityQuery",
+      "entity_type": "SETTINGS PROFILE",
+      "if_exists": true,
       "names": [
-        {
-          "name": "sqllt_quota"
-        }
+        "sqllt_settings_profile"
       ]
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "show",
-    "show": {
-      "type": "createAccess",
-      "entity": "SETTINGS PROFILE",
-      "names": [
-        {
-          "name": "sqllt_settings_profile"
-        }
-      ]
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "grant",
-    "operation": "GRANT",
-    "elements": [
-      {
-        "privileges": [
-          {
-            "name": "SELECT"
-          }
-        ],
-        "target": {
-          "database": "sqllt",
-          "table": "table"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
       }
-    ],
-    "grantees": [
-      "sqllt_user"
-    ]
+    }
   },
   {
-    "kind": "grant",
-    "operation": "GRANT",
-    "elements": [
-      {
-        "privileges": [
-          {
-            "name": "DROP"
-          }
-        ],
-        "target": {
-          "database": "sqllt",
-          "table": "view"
-        }
-      }
-    ],
-    "grantees": [
-      "sqllt_user"
-    ]
-  },
-  {
-    "kind": "grant",
-    "operation": "REVOKE",
-    "elements": [
-      {
-        "privileges": [
-          {
-            "name": "SELECT"
-          }
-        ],
-        "target": {
-          "database": "sqllt",
-          "table": "table"
-        }
-      }
-    ],
-    "grantees": [
-      "sqllt_user"
-    ]
-  },
-  {
-    "kind": "grant",
-    "operation": "REVOKE",
-    "elements": [
-      {
-        "privileges": [
-          {
-            "name": "DROP"
-          }
-        ],
-        "target": {
-          "database": "sqllt",
-          "table": "view"
-        }
-      }
-    ],
-    "grantees": [
-      "sqllt_user"
-    ]
-  },
-  {
-    "kind": "describe",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
       "table": {
-        "kind": "tableRef",
-        "database": "sqllt",
-        "table": "table"
-      }
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "check",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    },
-    "format": "Null"
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    }
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    }
-  },
-  {
-    "kind": "rename",
-    "targetType": "TABLE",
-    "pairs": [
-      {
-        "from": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table"
-        },
-        "to": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table_new"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "rename",
-    "targetType": "TABLE",
-    "pairs": [
-      {
-        "from": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table_new"
-        },
-        "to": {
-          "kind": "tableRef",
-          "database": "sqllt",
-          "table": "table"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "database": "sqllt",
-      "table": "table"
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "log_comment",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": ""
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "query_kind"
+        "type": "Identifier",
+        "name": "table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "i",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "s",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
         ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "query"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "partition_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_ordinary_view": true,
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "view"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Identifier",
+                "name": "i"
+              },
+              {
+                "type": "Identifier",
+                "name": "s"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "table",
+                      "database": "sqllt"
+                    }
+                  }
+                }
+              ]
+            }
+          }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_dictionary": true,
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "dictionary"
+      },
+      "dictionary_attributes": [
         {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "DictionaryAttributeDeclaration",
+          "name": "key",
+          "data_type": {
+            "type": "DataType",
+            "name": "UInt64"
+          }
+        },
+        {
+          "type": "DictionaryAttributeDeclaration",
+          "name": "value",
+          "data_type": {
+            "type": "DataType",
+            "name": "UInt64"
+          }
+        }
+      ],
+      "dictionary": {
+        "type": "Dictionary",
+        "primary_key": [
+          {
+            "type": "Identifier",
+            "name": "key"
+          }
+        ],
+        "source": {
+          "type": "FunctionWithKeyValueArguments",
+          "name": "clickhouse",
+          "elements": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "log_comment"
-              ]
+              "type": "pair",
+              "key": "db",
+              "value": {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "sqllt"
+              }
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%system.query_log%"
+              "type": "pair",
+              "key": "table",
+              "value": {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "table"
+              }
+            },
+            {
+              "type": "pair",
+              "key": "host",
+              "value": {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "localhost"
+              }
+            },
+            {
+              "type": "pair",
+              "key": "port",
+              "value": {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "9001"
+              }
             }
           ]
         },
-        {
-          "kind": "binaryExpr",
-          "op": "==",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "type"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "QueryStart"
-          }
+        "lifetime": {
+          "type": "DictionaryLifetime",
+          "min_sec": 0,
+          "max_sec": 0
         },
-        {
-          "kind": "binaryExpr",
-          "op": ">=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "event_date"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "yesterday",
-            "args": []
+        "layout": {
+          "type": "DictionaryLayout",
+          "layout_type": "flat",
+          "parameters": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateUserQuery",
+      "names": {
+        "type": "UserNamesWithHost",
+        "users": [
+          {
+            "type": "UserNameWithHost",
+            "name": "sqllt_user"
           }
-        },
+        ]
+      },
+      "authentication_methods": [
         {
-          "kind": "binaryExpr",
-          "op": "==",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
+          "type": "AuthenticationData",
+          "auth_type": "PLAINTEXT_PASSWORD",
+          "contains_password": true,
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "password"
+            }
+          ]
+        }
+      ],
+      "replace_authentication_methods": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateRoleQuery",
+      "names": [
+        "sqllt_role"
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateRowPolicyQuery",
+      "names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "table"
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "view"
+          },
+          {
+            "short_name": "sqllt_policy",
+            "database": "sqllt",
+            "table": "dictionary"
           }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "is_internal"
-            ]
+        ]
+      },
+      "is_restrictive": false,
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "all": true
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateRowPolicyQuery",
+      "names": {
+        "type": "RowPolicyNames",
+        "policies": [
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "table"
           },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "view"
+          },
+          {
+            "short_name": "sqllt_row_policy",
+            "database": "sqllt",
+            "table": "dictionary"
+          }
+        ]
+      },
+      "is_restrictive": false,
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "all": true
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuotaQuery",
+      "names": [
+        "sqllt_quota"
+      ],
+      "key_type": "USER_NAME",
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_role"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateSettingsProfileQuery",
+      "names": [
+        "sqllt_settings_profile"
+      ],
+      "settings": {
+        "type": "SettingsProfileElements",
+        "elements": [
+          {
+            "type": "SettingsProfileElement",
+            "setting_name": "interactive_delay",
+            "value": "200000"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "GrantQuery",
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_role"
+        ]
+      },
+      "grantees": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_profile_events": false
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SetRoleQuery",
+      "kind": "SET_DEFAULT_ROLE",
+      "roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_role"
+        ]
+      },
+      "to_users": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "new_col",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "123456789"
+            }
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- Try to filter out all possible previous junk events by excluding old log entries,"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": "sqllt"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "COMMENT_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "new_col"
+          },
+          "comment": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "dummy column with a comment"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "clear_column": true,
+          "column": {
+            "type": "Identifier",
+            "name": "new_col"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "new_col",
+            "data_type": {
+              "type": "DataType",
+              "name": "DateTime"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "2015-05-18 07:40:13"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "new_col"
+          },
+          "remove_property": "COMMENT"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "RENAME_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "new_col"
+          },
+          "rename_to": {
+            "type": "Identifier",
+            "name": "the_new_col"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "the_new_col"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "i",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "i"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DELETE",
+          "predicate": {
+            "type": "Function",
+            "name": "greater",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "i"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "65535"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START MERGES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP TTL MERGES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START TTL MERGES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MOVES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START MOVES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP FETCHES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START FETCHES",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP REPLICATED SENDS",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "START REPLICATED SENDS",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateTableQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateDictionaryQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "dictionary"
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowTables",
+      "databases": true,
+      "like": "sqllt",
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowTables",
+      "from": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowTables",
+      "dictionaries": true,
+      "from": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowGrantsQuery",
+      "for_roles": {
+        "type": "RolesOrUsersSet",
+        "current_user": true
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowGrantsQuery",
+      "for_roles": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "USER",
+      "names": [
+        "sqllt_user"
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "ROLE",
+      "names": [
+        "sqllt_role"
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "short_name": "sqllt_policy",
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "ROW POLICY",
+      "short_name": "sqllt_row_policy",
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "QUOTA",
+      "names": [
+        "sqllt_quota"
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "ShowCreateAccessEntityQuery",
+      "entity_type": "SETTINGS PROFILE",
+      "names": [
+        "sqllt_settings_profile"
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "GrantQuery",
+      "access_rights": [
+        {
+          "access_types": [
+            "SELECT"
+          ],
+          "database": "sqllt",
+          "table": "table"
+        }
+      ],
+      "grantees": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "GrantQuery",
+      "access_rights": [
+        {
+          "access_types": [
+            "DROP"
+          ],
+          "database": "sqllt",
+          "table": "view"
+        }
+      ],
+      "grantees": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "RevokeQuery",
+      "access_rights": [
+        {
+          "access_types": [
+            "SELECT"
+          ],
+          "database": "sqllt",
+          "table": "table"
+        }
+      ],
+      "grantees": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "RevokeQuery",
+      "access_rights": [
+        {
+          "access_types": [
+            "DROP"
+          ],
+          "database": "sqllt",
+          "table": "view"
+        }
+      ],
+      "grantees": {
+        "type": "RolesOrUsersSet",
+        "names": [
+          "sqllt_user"
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DescribeQuery",
+      "table_expression": {
+        "type": "TableExpression",
+        "database_and_table_name": {
+          "type": "TableIdentifier",
+          "name": "table",
+          "database": "sqllt"
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CheckQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Rename",
+      "elements": [
+        {
+          "from_database": "sqllt",
+          "from_table": "table",
+          "to_database": "sqllt",
+          "to_table": "table_new"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Rename",
+      "elements": [
+        {
+          "from_database": "sqllt",
+          "from_table": "table_new",
+          "to_database": "sqllt",
+          "to_table": "table"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "table": {
+        "type": "Identifier",
+        "name": "table"
+      },
+      "sync": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "log_comment": ""
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "query_kind"
+            },
+            {
+              "type": "Identifier",
+              "name": "query"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "log_comment"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%system.query_log%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "type"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "QueryStart"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "greaterOrEquals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "event_date"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "yesterday",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "is_internal"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "0"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "sqllt"
+      },
+      "if_exists": true
+    }
   }
 ]

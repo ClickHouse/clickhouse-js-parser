@@ -1,131 +1,165 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{1,2,3}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "numbers",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100"
-            }
-          ]
-        }
-      ]
-    },
-    "where": {
-      "kind": "inExpr",
-      "negated": false,
-      "expr": {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      "values": {
-        "kind": "subqueryExpr",
-        "query": {
-          "kind": "select",
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "castExpr",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "type": "Dynamic",
-              "operator": true
+              "type": "Asterisk"
             }
           ],
           "from": {
-            "left": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "100"
-                }
-              ]
-            },
-            "kind": "arrayJoinExpr",
-            "joinType": "ARRAY",
-            "expressions": [
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "functionCall",
-                "name": "range",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "10"
-                    }
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{1,2,3}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "numbers",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "100"
+                          }
+                        ]
+                      }
+                    ]
                   }
-                ]
+                }
               }
             ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "globalIn",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "number"
+              },
+              {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "CAST",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "String",
+                              "value": "Dynamic"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "table_function": {
+                                "type": "Function",
+                                "name": "numbers",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "100"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "array_join": {
+                              "type": "ArrayJoin",
+                              "kind": "INNER",
+                              "expressions": [
+                                {
+                                  "type": "Function",
+                                  "name": "range",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "modulo",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "number"
+                                        },
+                                        {
+                                          "type": "Literal",
+                                          "value_type": "UInt64",
+                                          "value": "10"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "100"
           }
         }
-      },
-      "global": true
-    },
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "100"
-      }
-    },
-    "format": "Null",
-    "postFormatSettings": [
-      {
-        "name": "enable_lazy_columns_replication",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+      ],
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "enable_lazy_columns_replication": "1"
         }
-      }
-    ]
+      },
+      "format": "Null"
+    }
   }
 ]

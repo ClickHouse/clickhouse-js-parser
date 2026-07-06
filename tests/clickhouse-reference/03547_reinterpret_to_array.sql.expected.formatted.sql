@@ -26,15 +26,15 @@ SELECT reinterpret('', 'Array(Int32)');
 
 SELECT reinterpret('', 'Array(Int32)');
 
-SELECT reinterpret('1�@', 'Float32');
+SELECT reinterpret('1\b�@', 'Float32');
 
-SELECT reinterpret('1�@', 'Float32');
+SELECT reinterpret('1\b�@', 'Float32');
 
-SELECT reinterpret('1�@1�@1�@1�@', 'Array(Float32)');
+SELECT reinterpret('1\b�@1\b�@1\b�@1\b�@', 'Array(Float32)');
 
-SELECT reinterpret(repeat('1�@1�@1�@1�@', 10), 'Array(Float32)');
+SELECT reinterpret(repeat('1\b�@1\b�@1\b�@1\b�@', 10), 'Array(Float32)');
 
-SELECT length(reinterpret(repeat('1�@1�@1�@1�@', 10), 'Array(Float32)'));
+SELECT length(reinterpret(repeat('1\b�@1\b�@1\b�@1\b�@', 10), 'Array(Float32)'));
 
 SELECT reinterpret('abab', 'Array(FixedString(4))');
 
@@ -42,9 +42,9 @@ SELECT length(reinterpret(repeat('abab', 100), 'Array(FixedString(4))')) = 100;
 
 SELECT reinterpret('ababc', 'Array(FixedString(4))'); -- { serverError BAD_ARGUMENTS }
 
-SELECT reinterpret('1�', 'Array(Float32)'); -- { serverError BAD_ARGUMENTS }
+SELECT reinterpret('1\b�', 'Array(Float32)'); -- { serverError BAD_ARGUMENTS }
 
-SELECT reinterpret(concat(repeat('1�@1�@1�@1�@', 10), '�'), 'Array(Float32)'); -- { serverError BAD_ARGUMENTS }
+SELECT reinterpret(concat(repeat('1\b�@1\b�@1\b�@1\b�@', 10), '�'), 'Array(Float32)'); -- { serverError BAD_ARGUMENTS }
 
 SELECT reinterpret(95, 'Array(FixedString(4))'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
@@ -55,7 +55,7 @@ CREATE TABLE tab1
     id Int32,
     s FixedString(8)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab1;
 

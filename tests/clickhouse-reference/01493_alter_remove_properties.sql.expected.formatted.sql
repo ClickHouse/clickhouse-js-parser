@@ -28,11 +28,11 @@ SELECT
     column_ttl
 FROM prop_table;
 
-ALTER TABLE prop_table MODIFY COLUMN column_comment;
+ALTER TABLE prop_table MODIFY COLUMN column_comment REMOVE COMMENT;
 
-ALTER TABLE prop_table MODIFY COLUMN column_codec;
+ALTER TABLE prop_table MODIFY COLUMN column_codec REMOVE CODEC;
 
-ALTER TABLE prop_table MODIFY COLUMN column_alias;
+ALTER TABLE prop_table MODIFY COLUMN column_alias REMOVE ALIAS;
 
 INSERT INTO prop_table (column_alias, column_codec, column_comment, column_ttl);
 
@@ -46,17 +46,17 @@ SELECT
 FROM prop_table
 ORDER BY column_ttl ASC;
 
-ALTER TABLE prop_table MODIFY COLUMN column_materialized;
+ALTER TABLE prop_table MODIFY COLUMN column_materialized REMOVE MATERIALIZED;
 
 INSERT INTO prop_table (column_materialized, column_alias, column_codec, column_comment, column_ttl);
 
-ALTER TABLE prop_table MODIFY COLUMN column_default;
+ALTER TABLE prop_table MODIFY COLUMN column_default REMOVE DEFAULT;
 
 INSERT INTO prop_table (column_materialized, column_alias, column_codec, column_comment, column_ttl);
 
 ALTER TABLE prop_table REMOVE TTL;
 
-ALTER TABLE prop_table MODIFY COLUMN column_ttl;
+ALTER TABLE prop_table MODIFY COLUMN column_ttl REMOVE TTL;
 
 SYSTEM START TTL MERGES prop_table;
 

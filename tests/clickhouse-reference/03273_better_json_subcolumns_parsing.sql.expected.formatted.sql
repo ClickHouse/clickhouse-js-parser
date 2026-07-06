@@ -1,4 +1,4 @@
-SET enable_json_type = 1;
+SET enable_json_type = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -6,9 +6,9 @@ CREATE TABLE test
 (
     json JSON
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-INSERT INTO test;
+INSERT INTO test FORMAT JSONAsObject;
 
 SELECT
     dynamicType(json.a),

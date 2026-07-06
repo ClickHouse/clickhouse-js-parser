@@ -1,4 +1,4 @@
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 DROP TABLE IF EXISTS t_00725_2;
 
@@ -9,7 +9,7 @@ CREATE TABLE t_00725_2
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_00725_2;
@@ -21,7 +21,7 @@ CREATE TABLE s_00725_2
     a Int64,
     b Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO s_00725_2;
@@ -33,7 +33,7 @@ SELECT
     s_b
 FROM
     t_00725_2
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             a,
             b,
@@ -49,7 +49,7 @@ SELECT
     s_00725_2.*
 FROM
     t_00725_2
-LEFT JOIN s_00725_2
+ALL LEFT JOIN s_00725_2
     USING (a, b)
 ORDER BY `ALL` ASC;
 
@@ -60,7 +60,7 @@ SELECT
     s_b
 FROM
     t_00725_2
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             a,
             b,
@@ -68,21 +68,21 @@ LEFT JOIN (
             b AS s_b
         FROM s_00725_2
     ) AS s_00725_2
-    ON (s_00725_2.a = t_00725_2.a
-    AND s_00725_2.b = t_00725_2.b)
+    ON s_00725_2.a = t_00725_2.a
+    AND s_00725_2.b = t_00725_2.b
 ORDER BY `ALL` ASC;
 
 SELECT *
 FROM
     t_00725_2
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             a AS s_a,
             b AS s_b
         FROM s_00725_2
     )
-    ON (s_a = t_00725_2.a
-    AND s_b = t_00725_2.b)
+    ON s_a = t_00725_2.a
+    AND s_b = t_00725_2.b
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -92,7 +92,7 @@ SELECT
     s_b
 FROM
     t_00725_2
-LEFT JOIN (
+ALL LEFT JOIN (
         SELECT
             a,
             b,
@@ -100,8 +100,8 @@ LEFT JOIN (
             b AS s_b
         FROM s_00725_2
     )
-    ON (s_a = t_00725_2.a
-    AND s_b = t_00725_2.b)
+    ON s_a = t_00725_2.a
+    AND s_b = t_00725_2.b
 ORDER BY `ALL` ASC;
 
 SELECT
@@ -109,7 +109,7 @@ SELECT
     s_00725_2.*
 FROM
     t_00725_2
-LEFT JOIN s_00725_2
-    ON (s_00725_2.a = t_00725_2.a
-    AND s_00725_2.b = t_00725_2.b)
+ALL LEFT JOIN s_00725_2
+    ON s_00725_2.a = t_00725_2.a
+    AND s_00725_2.b = t_00725_2.b
 ORDER BY `ALL` ASC;

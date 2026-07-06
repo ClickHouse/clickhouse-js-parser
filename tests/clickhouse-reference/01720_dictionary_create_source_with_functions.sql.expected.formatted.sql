@@ -8,7 +8,7 @@ CREATE TABLE `01720_dictionary_db`.dictionary_source_table
     key UInt8,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `01720_dictionary_db`.dictionary_source_table;
 
@@ -19,7 +19,7 @@ CREATE DICTIONARY `01720_dictionary_db`.dictionary
 )
 PRIMARY KEY key
 SOURCE(clickhouse(DB '01720_dictionary_db' TABLE 'dictionary_source_table' HOST hostName() PORT tcpPort()))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
 SELECT *

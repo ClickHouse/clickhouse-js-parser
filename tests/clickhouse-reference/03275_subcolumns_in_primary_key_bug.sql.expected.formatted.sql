@@ -4,12 +4,12 @@ CREATE TABLE test1
 (
     t Tuple(a Boolean)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY t.a;
 
 INSERT INTO test1;
 
-ALTER TABLE test1 (DELETE WHERE t.a) SETTINGS alter_sync = 2, mutations_sync = 2;
+ALTER TABLE test1 DELETE WHERE t.a SETTINGS alter_sync = '2', mutations_sync = '2';
 
 SELECT *
 FROM test1;

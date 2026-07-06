@@ -14,7 +14,7 @@ CREATE TABLE buffer_02231
     key Int,
     v1 AggregateFunction(groupArray, String)
 )
-ENGINE = Buffer(currentDatabase(), 'out_02231', 1, 86400, 86400, 1e9, 1e9, 1e12, 1e12, 1);
+ENGINE = Buffer(currentDatabase(), 'out_02231', 1, 86400, 86400, 1000000000., 1000000000., 1000000000000., 1000000000000., 1);
 
 CREATE TABLE out_02231 AS buffer_02231
 ENGINE = Null();
@@ -35,13 +35,13 @@ SELECT
 FROM in_02231
 GROUP BY key;
 
-SET optimize_trivial_insert_select = 1;
+SET optimize_trivial_insert_select = '1';
 
 INSERT INTO in_02231 SELECT *
-FROM numbers(5e6)
+FROM numbers(5000000.)
 SETTINGS
     max_memory_usage = '400Mi',
-    max_threads = 1;
+    max_threads = '1';
 
 DROP TABLE buffer_02231;
 

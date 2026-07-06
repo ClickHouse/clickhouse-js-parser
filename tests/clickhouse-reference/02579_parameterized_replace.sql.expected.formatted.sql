@@ -1,4 +1,4 @@
-SET param_test_a = 30;
+SET param_test_a = '30';
 
-SELECT * REPLACE ({test_a:UInt32} AS number)
+SELECT * REPLACE (0 AS number)
 FROM numbers(2);

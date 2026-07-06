@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 WITH test_aliases AS (
     SELECT number
@@ -12,7 +12,7 @@ alias2 AS (
 
 SELECT number
 FROM alias2
-SETTINGS enable_global_with_statement = 1;
+SETTINGS enable_global_with_statement = '1';
 
 WITH test_aliases AS (
     SELECT number
@@ -26,4 +26,4 @@ alias2 AS (
 
 SELECT number
 FROM alias2
-SETTINGS enable_global_with_statement = 0; -- { serverError UNKNOWN_TABLE }
+SETTINGS enable_global_with_statement = '0'; -- { serverError UNKNOWN_TABLE }

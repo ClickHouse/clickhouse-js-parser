@@ -2,7 +2,7 @@
 SELECT round(avgWeighted(x, y))
 FROM (
         SELECT
-            0xFFFFFFFF AS x,
+            4294967295 AS x,
             1000000000 AS y
         UNION ALL
         SELECT

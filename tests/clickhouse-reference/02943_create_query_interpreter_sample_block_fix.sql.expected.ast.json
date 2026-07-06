@@ -1,366 +1,483 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "number",
-        "type": {
-          "name": "UInt64"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "number",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "number"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "VIEW",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mv"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_mv"
+      },
+      "if_exists": true,
+      "is_view": true
+    }
   },
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mv"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "arr"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "constant_value",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "Subquery",
+                "alias": "constant_value",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "value_type": "String",
+                          "value": "\\d[a-z]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Function",
+                "alias": "arr",
+                "name": "extractAll",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "concat",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toString",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "assumeNotNull",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "constant_value"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "\\\\d[a-z]"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "test_table"
+                    }
+                  }
                 }
               ]
             }
           }
-        }
-      ],
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "extractAll",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "concat",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "toString",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "a"
-                  }
-                ]
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
               },
-              {
-                "kind": "functionCall",
-                "name": "assumeNotNull",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "constant_value"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "alias": "arr"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "test_table"
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_table"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_mv"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "arr"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "--"
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_table"
-      }
-    }
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "regex_test_table"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "regex_test_table"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "regex",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "regex"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "regex_test_table"
-      }
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "VIEW",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mv"
-    }
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_mv"
-    },
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "arr"
-          ]
-        }
-      }
-    ],
-    "asQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteExpr",
-          "name": "constant_value",
-          "expr": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "regex"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "regex_test_table"
+              "order_by": {
+                "type": "Identifier",
+                "name": "arr"
               }
             }
           }
-        }
-      ],
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "extractAll",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "concat",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "toString",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "number"
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "String",
-                    "value": "a"
-                  }
-                ]
-              },
-              {
-                "kind": "functionCall",
-                "name": "assumeNotNull",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "constant_value"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "alias": "arr"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "test_table"
+        ]
       }
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_table"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_mv"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "arr"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "--"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "regex_test_table"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "regex_test_table"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "regex",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "regex"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "regex_test_table"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_mv"
+      },
+      "is_view": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "with": [
+              {
+                "type": "Subquery",
+                "alias": "constant_value",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Identifier",
+                          "name": "regex"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "regex_test_table"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "select": [
+              {
+                "type": "Function",
+                "alias": "arr",
+                "name": "extractAll",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "concat",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "toString",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "a"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "assumeNotNull",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "constant_value"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "test_table"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "MergeTree",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              },
+              "order_by": {
+                "type": "Identifier",
+                "name": "arr"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_table"
+      }
     }
   }
 ]

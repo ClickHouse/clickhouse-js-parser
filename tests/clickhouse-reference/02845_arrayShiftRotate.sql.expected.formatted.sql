@@ -1,18 +1,18 @@
-SELECT arrayRotateLeft([1,2,3,4,5], 2);
+SELECT arrayRotateLeft([1, 2, 3, 4, 5], 2);
 
-SELECT arrayRotateLeft([1,2,3,4,5], -2);
+SELECT arrayRotateLeft([1, 2, 3, 4, 5], -2);
 
-SELECT arrayRotateLeft([1,2,3,4,5], 8);
+SELECT arrayRotateLeft([1, 2, 3, 4, 5], 8);
 
 SELECT arrayRotateLeft(['H', 'e', 'l', 'l', 'o'], 2);
 
 SELECT arrayRotateLeft([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], 1);
 
-SELECT arrayRotateRight([1,2,3,4,5], 2);
+SELECT arrayRotateRight([1, 2, 3, 4, 5], 2);
 
-SELECT arrayRotateRight([1,2,3,4,5], -2);
+SELECT arrayRotateRight([1, 2, 3, 4, 5], -2);
 
-SELECT arrayRotateRight([1,2,3,4,5], 8);
+SELECT arrayRotateRight([1, 2, 3, 4, 5], 8);
 
 SELECT arrayRotateRight(['H', 'e', 'l', 'l', 'o'], 2);
 
@@ -36,7 +36,7 @@ SELECT arrayShiftLeft(['a', 'b', 'c', 'd', 'e'], 3, 'foo');
 
 SELECT arrayShiftLeft([[1, 2], [3, 4], [5, 6]], 2, [7, 8]);
 
-SELECT arrayShiftLeft(CAST('[1, 2, 3, 4, 5, 6]', 'Array(UInt16)'), 1, 1000);
+SELECT arrayShiftLeft(CAST('[1, 2, 3, 4, 5, 6]' AS Array(UInt16)), 1, 1000);
 
 SELECT arrayShiftRight([1, 2, 3, 4, 5], 3);
 
@@ -56,7 +56,7 @@ SELECT arrayShiftRight(['a', 'b', 'c', 'd', 'e'], 3, 'foo');
 
 SELECT arrayShiftRight([[1, 2], [3, 4], [5, 6]], 2, [7, 8]);
 
-SELECT arrayShiftRight(CAST('[1, 2, 3, 4, 5, 6]', 'Array(UInt16)'), 1, 1000);
+SELECT arrayShiftRight(CAST('[1, 2, 3, 4, 5, 6]' AS Array(UInt16)), 1, 1000);
 
 DROP TABLE IF EXISTS t02845;
 
@@ -66,7 +66,7 @@ CREATE TABLE t02845
     s Int16,
     d UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY d;
 
 INSERT INTO t02845;

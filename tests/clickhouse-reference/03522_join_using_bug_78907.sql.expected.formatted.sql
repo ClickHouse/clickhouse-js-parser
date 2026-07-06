@@ -5,7 +5,7 @@ CREATE TABLE tabc__fuzz_21
     c DateTime ALIAS b + 1,
     s Nullable(DateTime64(3))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO tabc__fuzz_21 (a, s) SELECT
@@ -17,7 +17,7 @@ CREATE TABLE tb__fuzz_0
 (
     b Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tb__fuzz_0 SELECT number
@@ -29,24 +29,24 @@ SELECT
     b + 1 AS a
 FROM
     tb__fuzz_0
-INNER JOIN tabc__fuzz_21
+GLOBAL ALL INNER JOIN tabc__fuzz_21
     USING (a)
 ORDER BY `ALL` DESC
 SETTINGS
-    enable_analyzer = 1,
-    max_block_size = 900,
-    max_threads = 20,
+    enable_analyzer = '1',
+    max_block_size = '900',
+    max_threads = '20',
     receive_timeout = 10.,
-    receive_data_timeout_ms = 10000,
+    receive_data_timeout_ms = '10000',
     allow_suspicious_low_cardinality_types = true,
-    merge_tree_min_rows_for_concurrent_read = 1000,
+    merge_tree_min_rows_for_concurrent_read = '1000',
     log_queries = true,
-    table_function_remote_max_addresses = 200,
+    table_function_remote_max_addresses = '200',
     join_use_nulls = true,
     max_execution_time = 10.,
     read_in_order_use_virtual_row = true,
     allow_introspection_functions = true,
-    mutations_sync = 2,
+    mutations_sync = '2',
     optimize_trivial_insert_select = true,
     aggregate_functions_null_for_empty = true,
     enable_filesystem_cache = false,

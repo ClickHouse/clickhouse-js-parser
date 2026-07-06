@@ -7,14 +7,14 @@ CREATE TABLE a1
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE a2
 (
     a UInt8,
     b UInt8
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO a1;
 
@@ -33,6 +33,6 @@ SELECT
     a2.*
 FROM
     a1
-LEFT JOIN a2
+ANY LEFT JOIN a2
     USING (a)
 ORDER BY b ASC;

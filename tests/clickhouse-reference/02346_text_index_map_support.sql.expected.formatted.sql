@@ -1,8 +1,8 @@
 -- Tags: no-parallel-replicas
 -- Tests that text indexes can be build on and used with Map columns.
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
 DROP TABLE IF EXISTS tab;
 
@@ -11,11 +11,11 @@ CREATE TABLE tab
     id UInt32,
     map Map(String, String),
     map_fixed Map(FixedString(2), String),
-    INDEX map_keys_idx mapKeys(map) TYPE text(tokenizer = 'splitByNonAlpha'),
-    INDEX map_fixed_keys_idx mapKeys(map_fixed) TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX map_keys_idx mapKeys(map) TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000,
+    INDEX map_fixed_keys_idx mapKeys(map_fixed) TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -59,17 +59,20 @@ DROP VIEW IF EXISTS explain_index_mapContains;
 
 CREATE VIEW explain_index_mapContains
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, mapContains(map_fixed, {filter:FixedString(2)}), mapContains(map, {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, mapContains(map_fixed, 'placeholder'), mapContains(map, 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_mapContains(use_idx_fixed = 0, filter = 'K0');
@@ -131,17 +134,20 @@ DROP VIEW IF EXISTS explain_index_equals;
 
 CREATE VIEW explain_index_equals
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, map_fixed[{filter:FixedString(2)}] = {value:String}, map[{filter:String}] = {value:String}))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, map_fixed['placeholder'] = 'placeholder', map['placeholder'] = 'placeholder')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_equals(use_idx_fixed = 0, filter = 'K0', value = 'V3');
@@ -203,17 +209,20 @@ DROP VIEW IF EXISTS explain_index_has;
 
 CREATE VIEW explain_index_has
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, has(map_fixed, {filter:FixedString(2)}), has(map, {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, has(map_fixed, 'placeholder'), has(map, 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has(use_idx_fixed = 0, filter = 'K0');
@@ -275,17 +284,20 @@ DROP VIEW IF EXISTS explain_index_has_any_tokens;
 
 CREATE VIEW explain_index_has_any_tokens
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, hasAnyTokens(mapKeys(map_fixed), {filter:String}), hasAnyTokens(mapKeys(map), {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, hasAnyTokens(mapKeys(map_fixed), 'placeholder'), hasAnyTokens(mapKeys(map), 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has_any_tokens(use_idx_fixed = 0, filter = 'K0 K1');
@@ -347,17 +359,20 @@ DROP VIEW IF EXISTS explain_index_has_all_tokens;
 
 CREATE VIEW explain_index_has_all_tokens
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, hasAllTokens(mapKeys(map_fixed), {filter:String}), hasAllTokens(mapKeys(map), {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, hasAllTokens(mapKeys(map_fixed), 'placeholder'), hasAllTokens(mapKeys(map), 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has_all_tokens(use_idx_fixed = 0, filter = 'K0 K1');
@@ -394,11 +409,11 @@ CREATE TABLE tab
     id UInt32,
     map Map(String, String),
     map_fixed Map(String, FixedString(2)),
-    INDEX map_values_idx mapValues(map) TYPE text(tokenizer = 'splitByNonAlpha'),
-    INDEX map_fixed_values_idx mapValues(map_fixed) TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX map_values_idx mapValues(map) TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000,
+    INDEX map_fixed_values_idx mapValues(map_fixed) TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 SELECT count()
 FROM tab
@@ -439,17 +454,20 @@ FROM explain_index_equals(use_idx_fixed = 1, filter = 'K3', value = toFixedStrin
 
 CREATE VIEW explain_index_has
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, has(mapValues(map_fixed), {filter:FixedString(2)}), has(mapValues(map), {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, has(mapValues(map_fixed), 'placeholder'), has(mapValues(map), 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has(use_idx_fixed = 0, filter = 'V0');
@@ -509,17 +527,20 @@ WHERE hasAnyTokens(mapValues(map_fixed), 'V3 V4');
 
 CREATE VIEW explain_index_has_any_tokens
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, hasAnyTokens(mapValues(map_fixed), {filter:String}), hasAnyTokens(mapValues(map), {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, hasAnyTokens(mapValues(map_fixed), 'placeholder'), hasAnyTokens(mapValues(map), 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has_any_tokens(use_idx_fixed = 0, filter = 'V0');
@@ -579,17 +600,20 @@ WHERE hasAllTokens(mapValues(map_fixed), 'V3 V4');
 
 CREATE VIEW explain_index_has_all_tokens
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE (multiIf({use_idx_fixed:boolean} = 1, hasAllTokens(mapValues(map_fixed), {filter:String}), hasAllTokens(mapValues(map), {filter:String})))
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE multiIf(0 = 1, hasAllTokens(mapValues(map_fixed), 'placeholder'), hasAllTokens(mapValues(map), 'placeholder'))
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_has_all_tokens(use_idx_fixed = 0, filter = 'V0');
@@ -620,13 +644,13 @@ CREATE TABLE tab
     id UInt32,
     map Map(String, String),
     map_fixed Map(String, FixedString(5)),
-    INDEX map_keys mapKeys(map) TYPE text(tokenizer = splitByNonAlpha),
-    INDEX map_values mapValues(map) TYPE text(tokenizer = splitByNonAlpha),
-    INDEX map_keys_fixed mapKeys(map_fixed) TYPE text(tokenizer = splitByNonAlpha),
-    INDEX map_values_fixed mapValues(map_fixed) TYPE text(tokenizer = splitByNonAlpha)
+    INDEX map_keys mapKeys(map) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000,
+    INDEX map_values mapValues(map) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000,
+    INDEX map_keys_fixed mapKeys(map_fixed) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000,
+    INDEX map_values_fixed mapValues(map_fixed) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000
 )
-ENGINE = MergeTree
-ORDER BY (id);
+ENGINE = MergeTree()
+ORDER BY id;
 
 INSERT INTO tab;
 
@@ -685,33 +709,39 @@ DROP VIEW IF EXISTS explain_index_key_like;
 
 CREATE VIEW explain_index_key_like
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE mapContainsKeyLike({col:Identifier}, {pattern:String})
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE mapContainsKeyLike(col, 'placeholder')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 DROP VIEW IF EXISTS explain_index_value_like;
 
 CREATE VIEW explain_index_value_like
 AS
-(SELECT trimLeft(`explain`) AS `explain`
+SELECT trimLeft(`explain`) AS `explain`
 FROM (
-        EXPLAIN indexes = 1
-        SELECT count()
-        FROM tab
-        WHERE mapContainsValueLike({col:Identifier}, {pattern:String})
+        SELECT *
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT count()
+                FROM tab
+                WHERE mapContainsValueLike(col, 'placeholder')
+            ))
     )
-WHERE like(`explain`, '%Description:%')
-    OR like(`explain`, '%Parts:%')
-    OR like(`explain`, '%Granules:%')
-LIMIT 2, 3);
+WHERE `explain` LIKE '%Description:%'
+    OR `explain` LIKE '%Parts:%'
+    OR `explain` LIKE '%Granules:%'
+LIMIT 3
+OFFSET 2;
 
 SELECT *
 FROM explain_index_key_like(col = 'map', pattern = '% b %');

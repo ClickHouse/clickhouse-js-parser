@@ -4,7 +4,7 @@ CREATE TABLE datetime
 (
     d DateTime('UTC')
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO datetime (d);
 

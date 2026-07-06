@@ -9,7 +9,7 @@ CREATE TABLE `02581_trips`
     id2 UInt32,
     PRIMARY KEY(id)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 -- Make multiple parts
@@ -50,60 +50,60 @@ ORDER BY name ASC;
 
 -- Run mutation with `id` a 'IN big subquery'
 ALTER TABLE `02581_trips` UPDATE description = 'a' WHERE id IN (
-    SELECT ((number * 10))::UInt32
+    SELECT (number * 10)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 ALTER TABLE `02581_trips` UPDATE description = 'a' WHERE id IN (
-    SELECT ((number * 10 + 1))::UInt32
+    SELECT (number * 10 + 1)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2, max_rows_in_set = 1000;
+) SETTINGS mutations_sync = '2', max_rows_in_set = '1000';
 
 -- Run mutation with func(`id`) IN big subquery
 ALTER TABLE `02581_trips` UPDATE description = 'b' WHERE id::UInt64 IN (
-    SELECT ((number * 10 + 2))::UInt32
+    SELECT (number * 10 + 2)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with non-PK `id2` IN big subquery
 --SELECT count(), _part FROM 02581_trips WHERE id2 IN (SELECT (number*10 + 3)::UInt32 FROM numbers(10000000)) GROUP BY _part ORDER BY _part;
 --EXPLAIN SELECT (), _part FROM 02581_trips WHERE id2 IN (SELECT (number*10 + 3)::UInt32 FROM numbers(10000000));
 ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id2 IN (
-    SELECT ((number * 10 + 3))::UInt32
+    SELECT (number * 10 + 3)::UInt32
     FROM numbers(10000000)
-) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id IN (
-    SELECT ((number * 10 + 4))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id IN (
+    SELECT (number * 10 + 4)::UInt32
     FROM numbers(10000000)
-))
-OR (id2 IN (
-    SELECT ((number * 10 + 4))::UInt32
+)
+OR id2 IN (
+    SELECT (number * 10 + 4)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id::UInt64 IN (
-    SELECT ((number * 10 + 5))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id::UInt64 IN (
+    SELECT (number * 10 + 5)::UInt32
     FROM numbers(10000000)
-))
-OR (id2::UInt64 IN (
-    SELECT ((number * 10 + 5))::UInt32
+)
+OR id2::UInt64 IN (
+    SELECT (number * 10 + 5)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
 -- Run mutation with PK and non-PK IN big subquery
-ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE (id::UInt32 IN (
-    SELECT ((number * 10 + 6))::UInt32
+ALTER TABLE `02581_trips` UPDATE description = 'c' WHERE id::UInt32 IN (
+    SELECT (number * 10 + 6)::UInt32
     FROM numbers(10000000)
-))
-OR (((id2 + 1))::String IN (
-    SELECT ((number * 10 + 6))::UInt32
+)
+OR (id2 + 1)::String IN (
+    SELECT (number * 10 + 6)::UInt32
     FROM numbers(10000000)
-)) SETTINGS mutations_sync = 2;
+) SETTINGS mutations_sync = '2';
 
-SET max_rows_to_read = 0; -- system.text_log can be really big
+SET max_rows_to_read = '0'; -- system.text_log can be really big
 
 SYSTEM FLUSH LOGS text_log;
 
@@ -112,19 +112,19 @@ SYSTEM FLUSH LOGS text_log;
 WITH (
         SELECT uuid
         FROM `system`.tables
-        WHERE (database = currentDatabase())
-            AND (name = '02581_trips')
+        WHERE database = currentDatabase()
+            AND name = '02581_trips'
     ) AS table_uuid
 
 SELECT
-    CAST(splitByChar('_', query_id)[5], 'UInt64') AS mutation_version, -- '5521485f-8a40-4aba-87a2-00342c369563::all_3_3_0_6'
-    sum(like(message, 'Created Set with % entries%')) >= 1 AS has_parts_for_which_set_was_built,
-    sum(like(message, 'Got set from cache%')) >= 1 AS has_parts_that_shared_set
+    CAST(splitByChar('_', query_id)[5] AS UInt64) AS mutation_version, -- '5521485f-8a40-4aba-87a2-00342c369563::all_3_3_0_6'
+    sum(message LIKE 'Created Set with % entries%') >= 1 AS has_parts_for_which_set_was_built,
+    sum(message LIKE 'Got set from cache%') >= 1 AS has_parts_that_shared_set
 FROM `system`.text_log
-WHERE like(query_id, concat(CAST(table_uuid, 'String'), '::all\\_%'))
-    AND (event_date >= yesterday())
-    AND ((like(message, 'Created Set with % entries%')
-    OR like(message, 'Got set from cache%')))
+WHERE query_id LIKE concat(CAST(table_uuid AS String), '::all\\_%')
+    AND event_date >= yesterday()
+    AND (message LIKE 'Created Set with % entries%'
+    OR message LIKE 'Got set from cache%')
 GROUP BY mutation_version
 ORDER BY mutation_version ASC
 FORMAT TSVWithNames;

@@ -6,12 +6,9 @@ CREATE TABLE tab
     x UInt32,
     y UInt32,
     z UInt32,
-    PROJECTION p (    SELECT count()
-    GROUP BY
-        x,
-        z)
+    PROJECTION p (SELECT count() GROUP BY x, z)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab SELECT
@@ -70,12 +67,9 @@ CREATE TABLE tab
     n UInt32,
     x UInt32,
     y UInt32,
-    PROJECTION p (    SELECT count()
-    GROUP BY
-        x / 2,
-        y % 10)
+    PROJECTION p (SELECT count() GROUP BY x / 2, y % 10)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO tab SELECT

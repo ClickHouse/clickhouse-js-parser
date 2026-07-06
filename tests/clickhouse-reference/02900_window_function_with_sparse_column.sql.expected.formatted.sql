@@ -13,7 +13,7 @@ CREATE TABLE test1
     key Int64,
     value Bool
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (key, id, time)
 PARTITION BY toYYYYMM(time);
 
@@ -21,11 +21,11 @@ INSERT INTO test1;
 
 SELECT last_value(value) OVER (PARTITION BY id ORDER BY time ASC) AS last_value
 FROM test1
-WHERE (key = 3);
+WHERE key = 3;
 
 SELECT last_value(value) OVER (ORDER BY time ASC) AS last_value
 FROM test1
-WHERE (key = 3);
+WHERE key = 3;
 
 SELECT last_value(value) OVER (PARTITION BY id ORDER BY time ASC) AS last_value
 FROM test1;
@@ -35,8 +35,8 @@ CREATE TABLE test2
     time DateTime,
     value String
 )
-ENGINE = MergeTree
-ORDER BY (time) AS
+ENGINE = MergeTree()
+ORDER BY time AS
 SELECT
     0,
     '';

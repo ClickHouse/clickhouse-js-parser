@@ -5,5 +5,5 @@ CREATE TEMPORARY TABLE test
 
 INSERT INTO test (arr);
 
-SELECT arrayFilter(x -> 1, arr)
+SELECT arrayFilter((x -> 1), arr)
 FROM test;

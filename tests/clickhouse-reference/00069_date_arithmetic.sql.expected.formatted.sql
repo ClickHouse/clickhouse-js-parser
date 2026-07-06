@@ -1,10 +1,10 @@
 SELECT toTypeName(now() - now()) = 'Int32';
 
-SELECT like(toTypeName(now() + 1), 'DateTime%');
+SELECT toTypeName(now() + 1) LIKE 'DateTime%';
 
-SELECT like(toTypeName(1 + now()), 'DateTime%');
+SELECT toTypeName(1 + now()) LIKE 'DateTime%';
 
-SELECT like(toTypeName(now() - 1), 'DateTime%');
+SELECT toTypeName(now() - 1) LIKE 'DateTime%';
 
 SELECT toDateTime(1) + 1 = toDateTime(2);
 

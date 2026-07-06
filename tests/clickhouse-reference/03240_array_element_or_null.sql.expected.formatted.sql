@@ -6,7 +6,7 @@ CREATE TABLE array_element_or_null_test
     arr Array(Int32),
     id Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -18,7 +18,7 @@ CREATE TABLE array_element_or_null_test
     arr Array(Int32),
     id UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -27,7 +27,7 @@ CREATE TABLE array_element_or_null_test
     arr Array(String),
     id Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -36,7 +36,7 @@ CREATE TABLE array_element_or_null_test
     arr Array(String),
     id UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -44,7 +44,7 @@ CREATE TABLE array_element_or_null_test
 (
     id UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -57,7 +57,7 @@ CREATE TABLE array_element_or_null_test
 (
     id Int32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO array_element_or_null_test;
 
@@ -83,35 +83,35 @@ SELECT arrayElementOrNull(range(number), 2 - number)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> toString(x), range(number)), 2)
+SELECT arrayElementOrNull(arrayMap((x -> toString(x)), range(number)), 2)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> toString(x), range(number)), -1)
+SELECT arrayElementOrNull(arrayMap((x -> toString(x)), range(number)), -1)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> toString(x), range(number)), number)
+SELECT arrayElementOrNull(arrayMap((x -> toString(x)), range(number)), number)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> toString(x), range(number)), 2 - number)
+SELECT arrayElementOrNull(arrayMap((x -> toString(x)), range(number)), 2 - number)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> range(x), range(number)), 2)
+SELECT arrayElementOrNull(arrayMap((x -> range(x)), range(number)), 2)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> range(x), range(number)), -1)
+SELECT arrayElementOrNull(arrayMap((x -> range(x)), range(number)), -1)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> range(x), range(number)), number)
+SELECT arrayElementOrNull(arrayMap((x -> range(x)), range(number)), number)
 FROM `system`.numbers
 LIMIT 3;
 
-SELECT arrayElementOrNull(arrayMap(x -> range(x), range(number)), 2 - number)
+SELECT arrayElementOrNull(arrayMap((x -> range(x)), range(number)), 2 - number)
 FROM `system`.numbers
 LIMIT 3;
 
@@ -128,7 +128,7 @@ SELECT
     arrayElementOrNull(materialize([['World']]), materialize(1));
 
 SELECT
-    arrayElementOrNull(([[['a'], ['b', 'c']], [['d', 'e', 'f'], ['g', 'h', 'i', 'j'], ['k', 'l', 'm', 'n', 'o']], [['p', 'q', 'r', 's', 't', 'u'], ['v', 'w', 'x', 'y', 'z', 'aa', 'bb'], ['cc', 'dd', 'ee', 'ff', 'gg', 'hh', 'ii', 'jj'], ['kk', 'll', 'mm', 'nn', 'oo', 'pp', 'qq', 'rr', 'ss']]] AS arr), number),
+    arrayElementOrNull([[['a'], ['b', 'c']], [['d', 'e', 'f'], ['g', 'h', 'i', 'j'], ['k', 'l', 'm', 'n', 'o']], [['p', 'q', 'r', 's', 't', 'u'], ['v', 'w', 'x', 'y', 'z', 'aa', 'bb'], ['cc', 'dd', 'ee', 'ff', 'gg', 'hh', 'ii', 'jj'], ['kk', 'll', 'mm', 'nn', 'oo', 'pp', 'qq', 'rr', 'ss']]] AS arr, number),
     arrayElementOrNull(arr[number], number),
     arrayElementOrNull(arr[number][number], number)
 FROM `system`.numbers

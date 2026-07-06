@@ -4,7 +4,7 @@ CREATE TABLE t1
     fid Int32,
     tid Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t2
@@ -13,7 +13,7 @@ CREATE TABLE t2
     status Nullable(String),
     resource_id Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t3
@@ -21,7 +21,7 @@ CREATE TABLE t3
     id Int32,
     status String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1 SELECT * REPLACE (1 AS fid, 2 AS tid)
@@ -36,9 +36,9 @@ INSERT INTO t3 SELECT * REPLACE ('BACKLOG' AS status, 2 AS id)
 FROM generateRandom(1, 2, 2)
 LIMIT 1000;
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT 1
 FROM
@@ -48,9 +48,9 @@ LEFT JOIN t1
 LEFT JOIN t3
     ON t1.tid = t3.id
 WHERE true
-    AND (isNotNull(t2.resource_id))
-    AND (t2.status IN ('OPEN'))
-    AND (t3.status IN ('BACKLOG'))
+    AND t2.resource_id IS NOT NULL
+    AND t2.status IN ('OPEN')
+    AND t3.status IN ('BACKLOG')
 SETTINGS log_comment = '03594_push_more_filters_down_joins';
 
 SYSTEM FLUSH LOGS query_log;
@@ -66,19 +66,21 @@ FORMAT Null;
 
 SELECT splitByWhitespace(trimBoth(`explain`))[1] AS `step`
 FROM (
-        EXPLAIN
-        SELECT 1
-        FROM
-            t2
-        LEFT JOIN t1
-            ON t2.id = t1.fid
-        LEFT JOIN t3
-            ON t1.tid = t3.id
-        WHERE true
-            AND (isNotNull(t2.resource_id))
-            AND (t2.status IN ('OPEN'))
-            AND (t3.status IN ('BACKLOG'))
-        SETTINGS enable_join_runtime_filters = 0
+        SELECT *
+        FROM viewExplain('EXPLAIN', '', (
+                SELECT 1
+                FROM
+                    t2
+                LEFT JOIN t1
+                    ON t2.id = t1.fid
+                LEFT JOIN t3
+                    ON t1.tid = t3.id
+                WHERE true
+                    AND t2.resource_id IS NOT NULL
+                    AND t2.status IN ('OPEN')
+                    AND t3.status IN ('BACKLOG')
+                SETTINGS enable_join_runtime_filters = '0'
+            ))
     )
-WHERE ilike(`step`, 'Join%')
-    OR ilike(`step`, '%Filter%');
+WHERE `step` ILIKE 'Join%'
+    OR `step` ILIKE '%Filter%';

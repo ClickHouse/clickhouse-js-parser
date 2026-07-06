@@ -8,7 +8,7 @@ CREATE TABLE src
 (
     x Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 ALTER TABLE src MODIFY COLUMN x Nullable(Nothing); -- {serverError DATA_TYPE_CANNOT_BE_USED_IN_TABLES}
 
@@ -16,7 +16,7 @@ CREATE TABLE dst
 (
     x Nullable(Int32)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE MATERIALIZED VIEW v
 TO dst

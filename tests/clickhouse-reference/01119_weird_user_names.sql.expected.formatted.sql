@@ -1,29 +1,29 @@
 -- Tags: no-parallel
-drop user if exists "       ";
+DROP USER IF EXISTS `       `;
 
-drop user if exists '   spaces';
+DROP USER IF EXISTS `   spaces`;
 
-drop user if exists 'spaces    ';
+DROP USER IF EXISTS `spaces    `;
 
-drop user if exists " spaces ";
+DROP USER IF EXISTS ` spaces `;
 
-drop user if exists "test 01119";
+DROP USER IF EXISTS `test 01119`;
 
-drop user if exists "Вася Пупкин";
+DROP USER IF EXISTS `Вася Пупкин`;
 
-drop user if exists "无名氏 ";
+DROP USER IF EXISTS `无名氏 `;
 
-drop user if exists "🙈 🙉 🙊";
+DROP USER IF EXISTS `🙈 🙉 🙊`;
 
 CREATE USER `       `;
 
-CREATE USER '   spaces';
+CREATE USER `   spaces`;
 
-CREATE USER 'spaces    ';
+CREATE USER `spaces    `;
 
 CREATE USER ` INTERSERVER SECRET `; -- { serverError BAD_ARGUMENTS }
 
-CREATE USER 'test 01119';
+CREATE USER `test 01119`;
 
 ALTER USER `test 01119` RENAME TO ` spaces `;
 
@@ -43,16 +43,16 @@ FROM `system`.users
 WHERE position(name, ' ') != 0
 ORDER BY name ASC;
 
-drop user "       ";
+DROP USER `       `;
 
-drop user '   spaces';
+DROP USER `   spaces`;
 
-drop user 'spaces    ';
+DROP USER `spaces    `;
 
-drop user " spaces ";
+DROP USER ` spaces `;
 
-drop user "Вася Пупкин";
+DROP USER `Вася Пупкин`;
 
-drop user "无名氏 ";
+DROP USER `无名氏 `;
 
-drop user "🙈 🙉 🙊";
+DROP USER `🙈 🙉 🙊`;

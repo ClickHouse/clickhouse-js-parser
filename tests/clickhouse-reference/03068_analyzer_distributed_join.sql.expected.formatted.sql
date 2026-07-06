@@ -1,6 +1,6 @@
 -- Tags: no-replicated-database, shard
 -- Closes: https://github.com/ClickHouse/ClickHouse/issues/6571
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 CREATE TABLE LINEITEM_shard ON CLUSTER test_shard_localhost
 (
@@ -25,7 +25,7 @@ ORDER BY O_ORDERKEY;
 CREATE TABLE ORDERS AS ORDERS_shard
 ENGINE = Distributed('test_shard_localhost', currentDatabase(), ORDERS_shard, rand());
 
-SET joined_subquery_requires_alias = 0;
+SET joined_subquery_requires_alias = '0';
 
 SELECT
     O_ORDERPRIORITY,
@@ -43,7 +43,7 @@ GROUP BY O_ORDERPRIORITY
 ORDER BY O_ORDERPRIORITY ASC
 LIMIT 1;
 
-SET joined_subquery_requires_alias = 1;
+SET joined_subquery_requires_alias = '1';
 
 SELECT
     O_ORDERPRIORITY,

@@ -10,7 +10,7 @@ CREATE TABLE test
 ENGINE = MergeTree()
 ORDER BY `partition`
 PARTITION BY `partition`
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test;
 
@@ -20,7 +20,7 @@ SELECT
 FROM
     test
 ARRAY JOIN nested AS nestedJoined
-WHERE (status IN (
+WHERE status IN (
         SELECT status
         FROM
             test
@@ -28,9 +28,10 @@ WHERE (status IN (
         GROUP BY status
         ORDER BY count() DESC
         LIMIT 10
-    ))
-    AND (id IN ('1', '2'))
-GROUP BY CUBE(status)
+    )
+    AND id IN ('1', '2')
+GROUP BY status
+WITH CUBE
 LIMIT 100;
 
 DROP TABLE test;

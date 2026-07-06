@@ -4,7 +4,7 @@ CREATE TABLE users_items
 (
     user_id UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO users_items SELECT bitAnd(number, 15)
 FROM numbers(64);

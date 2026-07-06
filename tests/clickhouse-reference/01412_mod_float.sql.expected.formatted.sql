@@ -4,9 +4,9 @@ WITH 8.5 AS a,
 
 SELECT
     a % b,
-    negate(a) % b,
-    a % negate(b),
-    negate(a) % negate(b);
+    -a % b,
+    a % -b,
+    -a % -b;
 
 WITH 10.125 AS a,
 
@@ -14,9 +14,9 @@ WITH 10.125 AS a,
 
 SELECT
     a % b,
-    negate(a) % b,
-    a % negate(b),
-    negate(a) % negate(b);
+    -a % b,
+    a % -b,
+    -a % -b;
 
 WITH 8.5 AS a,
 
@@ -24,30 +24,30 @@ WITH 8.5 AS a,
 
 SELECT
     mod(a, b),
-    MOD(negate(a), b),
-    modulo(a, negate(b)),
-    moduloOrZero(negate(a), negate(b));
+    MOD(-a, b),
+    modulo(a, -b),
+    moduloOrZero(-a, -b);
 
 WITH 8.5 AS a,
 
 2.5 AS b
 
 SELECT
-    a MOD b,
-    negate(a) MOD b,
-    a MOD negate(b),
-    negate(a) MOD negate(b);
+    a % b,
+    -a % b,
+    a % -b,
+    -a % -b;
 
 WITH 10.125 AS a,
 
 2.5 AS b
 
 SELECT
-    a MOD b,
-    negate(a) MOD b,
-    a MOD negate(b),
-    negate(a) MOD negate(b);
+    a % b,
+    -a % b,
+    a % -b,
+    -a % -b;
 
 SELECT 3.5 % 0;
 
-SELECT 3.5 MOD 0;
+SELECT 3.5 % 0;

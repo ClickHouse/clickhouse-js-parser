@@ -16,13 +16,13 @@ SELECT
 
 SELECT
     'FLOAT UNDERFLOW BELOW TRUE MIN',
-    1e-400,
-    toTypeName(1e-400);
+    0.,
+    toTypeName(0.);
 
 SELECT
     'FLOAT NORMAL DBL MAX',
-    1.7976931348623157e+308,
-    toTypeName(1.7976931348623157e+308);
+    1.7976931348623157e308,
+    toTypeName(1.7976931348623157e308);
 
 SELECT
     'FLOAT NEG NORMAL DBL MIN',
@@ -36,28 +36,28 @@ SELECT
 
 SELECT
     'FLOAT NEG UNDERFLOW BELOW TRUE MIN',
-    -1e-400,
-    toTypeName(-1e-400);
+    -0.,
+    toTypeName(-0.);
 
 SELECT
     'HEX NORMAL DBL MIN',
-    0x1p-1022,
-    toTypeName(0x1p-1022);
+    2.2250738585072014e-308,
+    toTypeName(2.2250738585072014e-308);
 
 SELECT
     'HEX SUB TRUE MIN',
-    0x1p-1074,
-    toTypeName(0x1p-1074);
+    5e-324,
+    toTypeName(5e-324);
 
 SELECT
     'HEX UNDERFLOW BELOW TRUE MIN',
-    0x1p-1075,
-    toTypeName(0x1p-1075);
+    0.,
+    toTypeName(0.);
 
 SELECT
     'HEX NORMAL DBL MAX',
-    0x1.fffffffffffffp1023,
-    toTypeName(0x1.fffffffffffffp1023);
+    1.7976931348623157e308,
+    toTypeName(1.7976931348623157e308);
 
 SELECT
     'BAREWORD INF',

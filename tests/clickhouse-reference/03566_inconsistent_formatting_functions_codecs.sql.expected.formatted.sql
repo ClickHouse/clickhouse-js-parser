@@ -2,10 +2,10 @@ CREATE TEMPORARY TABLE a
 (
     b UInt8
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY b;
 
-ALTER TABLE a MODIFY COLUMN b CODEC(`@`); -- { serverError UNKNOWN_CODEC }
+ALTER TABLE a MODIFY COLUMN b CODEC(`@`()); -- { serverError UNKNOWN_CODEC }
 
 SELECT f(`@`); -- { serverError UNKNOWN_IDENTIFIER }
 

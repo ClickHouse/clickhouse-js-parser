@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS cast_enums;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE cast_enums
 (

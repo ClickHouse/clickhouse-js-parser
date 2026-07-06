@@ -4,7 +4,7 @@ CREATE TABLE t1
 (
     x1 Date32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 

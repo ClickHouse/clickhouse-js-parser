@@ -1,4 +1,4 @@
-SET analyzer_compatibility_join_using_top_level_identifier = 1;
+SET analyzer_compatibility_join_using_top_level_identifier = '1';
 
 DROP TABLE IF EXISTS t1;
 
@@ -36,10 +36,10 @@ INSERT INTO t2;
 
 INSERT INTO t3;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 SELECT
-    concat(t1.id, '_1') AS id,
+    t1.id || '_1' AS id,
     t1.val
 FROM
     t1
@@ -50,7 +50,7 @@ LEFT JOIN t3
 ORDER BY t1.val ASC;
 
 SELECT
-    concat(t2.id, '_1') AS id,
+    t2.id || '_1' AS id,
     t1.val
 FROM
     t1
@@ -61,7 +61,7 @@ LEFT JOIN t3
 ORDER BY t1.val ASC;
 
 SELECT
-    concat(t2.id, '_1') AS id,
+    t2.id || '_1' AS id,
     t1.val
 FROM
     t1
@@ -70,10 +70,10 @@ LEFT JOIN t2
 LEFT JOIN t3
     USING (id)
 ORDER BY t1.val ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT
-    concat(t2.id, '_1') AS id,
+    t2.id || '_1' AS id,
     t1.val
 FROM
     t1
@@ -82,10 +82,10 @@ RIGHT JOIN t2
 RIGHT JOIN t3
     USING (id)
 ORDER BY t1.val ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT
-    concat(t2.id, '_1') AS id,
+    t2.id || '_1' AS id,
     t1.val
 FROM
     t1
@@ -94,10 +94,10 @@ FULL JOIN t2
 FULL JOIN t3
     USING (id)
 ORDER BY t1.val ASC
-SETTINGS join_use_nulls = 1;
+SETTINGS join_use_nulls = '1';
 
 SELECT
-    concat(t1.id, t2.id, '_1') AS id,
+    t1.id || t2.id || '_1' AS id,
     t1.val
 FROM
     t1

@@ -1,1 +1,1 @@
-SELECT toTypeName(reinterpretAsFixedString(0xdeadbeef));
+SELECT toTypeName(reinterpretAsFixedString(3735928559));

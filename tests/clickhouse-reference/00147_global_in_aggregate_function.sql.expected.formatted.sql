@@ -1,5 +1,5 @@
 -- Tags: stateful, global
-SET max_rows_to_read = 100000000;
+SET max_rows_to_read = '100000000';
 
 SELECT sum(UserID GLOBAL IN (
         SELECT UserID

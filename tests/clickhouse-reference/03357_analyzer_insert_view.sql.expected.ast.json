@@ -1,300 +1,411 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_analyzer": "1"
       }
-    ],
-    "leadingComments": [
-      "-- https://github.com/ClickHouse/ClickHouse/issues/65981"
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "input"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "input"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "deduplicate"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "deduplicate"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "deduplicate_mv"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "deduplicate_mv"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "event"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "event"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "input"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "json_message",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "json_message"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "deduplicate"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "event"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "id",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "deduplicate_mv"
-    },
-    "toTable": {
-      "kind": "tableRef",
-      "table": "deduplicate"
-    },
-    "asQuery": {
-      "kind": "select",
-      "with": [
-        {
-          "kind": "cteSubquery",
-          "name": "event",
-          "query": {
-            "kind": "select",
-            "select": [
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "functionCall",
-                  "name": "JSONExtract",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "json_message"
-                      ]
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "id"
-                    },
-                    {
-                      "kind": "literal",
-                      "type": "String",
-                      "value": "Nullable(UInt64)"
-                    }
-                  ]
-                },
-                "alias": "id"
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "input"
-            },
-            "where": {
-              "kind": "functionCall",
-              "name": "isNotNull",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                }
-              ],
-              "parenthesized": true
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "input"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "json_message",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
           }
-        }
-      ],
-      "distinct": {
-        "kind": "distinct"
+        ]
       },
-      "select": [
-        {
-          "kind": "asterisk"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "table": "event"
-      },
-      "where": {
-        "kind": "inExpr",
-        "negated": true,
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "values": {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
-            "select": [
+        "order_by": {
+          "type": "Identifier",
+          "name": "json_message"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "deduplicate"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "event"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "id",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "id"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "deduplicate_mv"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "distinct": true,
+            "with": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "id"
-                ]
-              }
-            ],
-            "from": {
-              "kind": "tableRef",
-              "table": "deduplicate"
-            },
-            "where": {
-              "kind": "inExpr",
-              "negated": false,
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "id"
-                ]
-              },
-              "values": {
-                "kind": "subqueryExpr",
-                "query": {
-                  "kind": "select",
-                  "select": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "id"
-                      ]
-                    }
-                  ],
-                  "from": {
-                    "kind": "tableRef",
-                    "table": "event"
+                "type": "WithElement",
+                "name": "event",
+                "subquery": {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Function",
+                            "alias": "id",
+                            "name": "JSONExtract",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "json_message"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "id"
+                              },
+                              {
+                                "type": "Literal",
+                                "value_type": "String",
+                                "value": "Nullable(UInt64)"
+                              }
+                            ]
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "input"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "where": {
+                          "type": "Function",
+                          "name": "isNotNull",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            }
+                          ]
+                        }
+                      }
+                    ]
                   }
                 }
               }
+            ],
+            "select": [
+              {
+                "type": "Asterisk"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "event"
+                    }
+                  }
+                }
+              ]
+            },
+            "where": {
+              "type": "Function",
+              "name": "notIn",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "id"
+                },
+                {
+                  "type": "Subquery",
+                  "query": {
+                    "type": "SelectWithUnionQuery",
+                    "selects": [
+                      {
+                        "type": "SelectQuery",
+                        "select": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          }
+                        ],
+                        "from": {
+                          "type": "TablesInSelectQuery",
+                          "children": [
+                            {
+                              "type": "TablesInSelectQueryElement",
+                              "table_expression": {
+                                "type": "TableExpression",
+                                "database_and_table_name": {
+                                  "type": "TableIdentifier",
+                                  "name": "deduplicate"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "where": {
+                          "type": "Function",
+                          "name": "in",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Subquery",
+                              "query": {
+                                "type": "SelectWithUnionQuery",
+                                "selects": [
+                                  {
+                                    "type": "SelectQuery",
+                                    "select": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "id"
+                                      }
+                                    ],
+                                    "from": {
+                                      "type": "TablesInSelectQuery",
+                                      "children": [
+                                        {
+                                          "type": "TablesInSelectQueryElement",
+                                          "table_expression": {
+                                            "type": "TableExpression",
+                                            "database_and_table_name": {
+                                              "type": "TableIdentifier",
+                                              "name": "event"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           }
-        }
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "table": "deduplicate"
+          }
+        ]
       }
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "input"
-      }
+        "type": "Identifier",
+        "name": "input"
+      },
+      "format": "Values"
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "deduplicate_mv"
-    },
-    "format": "Null"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "deduplicate_mv"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
   }
 ]

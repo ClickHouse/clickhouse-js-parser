@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS stored_aggregates;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE stored_aggregates
 (
@@ -35,7 +35,8 @@ INSERT INTO stored_aggregates SELECT
 FROM (
         SELECT *
         FROM `system`.numbers
-        LIMIT 500, 1000
+        LIMIT 1000
+        OFFSET 500
     )
 GROUP BY d;
 

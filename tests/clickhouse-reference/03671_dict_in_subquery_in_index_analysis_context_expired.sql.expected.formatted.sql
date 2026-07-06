@@ -19,7 +19,7 @@ CREATE TABLE ids
     id Int64
 )
 ENGINE = MergeTree()
-ORDER BY tuple();
+ORDER BY ();
 
 INSERT INTO ids (id);
 
@@ -39,8 +39,8 @@ SELECT iid IN (
 FROM (
         SELECT *
         FROM info
-        WHERE (iid IN (
+        WHERE iid IN (
                 SELECT DISTINCT arrayJoin(dictGet(dict, 'children', id))
                 FROM ids
-            ))
+            )
     );

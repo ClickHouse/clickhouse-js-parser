@@ -5,7 +5,7 @@ CREATE TABLE test
     number UInt64,
     num2 UInt64
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO test WITH number * 2 AS num2
 

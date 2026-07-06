@@ -3,11 +3,9 @@ FROM (
         SELECT
             k,
             abs(v) AS _v
-        FROM remote('127.{1,2}', view((
-                SELECT
-                    materialize('foo') AS k,
-                    -1 AS v
-            )))
+        FROM remote('127.{1,2}', view(            SELECT
+                materialize('foo') AS k,
+                -1 AS v))
         ORDER BY _v ASC
         LIMIT 1 BY k
     )

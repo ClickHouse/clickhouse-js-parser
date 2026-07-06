@@ -5,20 +5,20 @@ CREATE TABLE tbl
     s String,
     i int
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY i;
 
 INSERT INTO tbl;
 
-drop row policy if exists filter on tbl;
+DROP ROW POLICY IF EXISTS filter ON tbl;
 
-CREATE ROW POLICY filter ON tbl USING (s = 'non_existing_domain') TO ALL;
+CREATE ROW POLICY filter ON tbl USING s = 'non_existing_domain' TO ALL;
 
 SELECT *
 FROM tbl
 PREWHERE s = '123'
 WHERE i = 123;
 
-drop row policy filter on tbl;
+DROP ROW POLICY filter ON tbl;
 
 DROP TABLE tbl;

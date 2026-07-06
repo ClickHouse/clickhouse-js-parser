@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 EXPLAIN SYNTAX
 SELECT
@@ -42,7 +42,7 @@ SELECT
     NOW64(),
     NULLIF(1, 1),
     PI(),
-    POSITION('123', '2'),
+    position('123', '2'),
     POW(1, 1),
     POWER(1, 1),
     RAND(),
@@ -54,7 +54,7 @@ SELECT
     STDDEV_POP(1),
     STDDEV_SAMP(1),
     SUBSTR('123', 2),
-    SUBSTRING('123', 2),
+    substring('123', 2),
     SUM(1),
     TAN(1),
     TANH(1),

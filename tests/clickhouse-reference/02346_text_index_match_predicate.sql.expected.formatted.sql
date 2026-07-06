@@ -8,11 +8,11 @@ CREATE TABLE tab
 (
     id UInt32,
     str String,
-    INDEX inv_idx str TYPE text(tokenizer = 'splitByNonAlpha')
+    INDEX inv_idx str TYPE text(tokenizer = 'splitByNonAlpha') GRANULARITY 100000000
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO tab;
 
@@ -24,27 +24,31 @@ ORDER BY id ASC;
 -- Read 2/6 granules
 -- Required string: ' Hello '
 -- Alternatives: ' Hello ClickHouse ', ' Hello World '
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, ' Hello (ClickHouse|World) ')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, ' Hello (ClickHouse|World) ')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '0';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, ' Hello (ClickHouse|World) ')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, ' Hello (ClickHouse|World) ')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '1';
 
 SELECT '---';
 
@@ -56,27 +60,31 @@ ORDER BY id ASC;
 -- Read 3/6 granules
 -- Required string: -
 -- Alternatives: ' ClickHouse ', ' World '
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, '.* (ClickHouse|World) ')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, '.* (ClickHouse|World) ')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '0';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, '.* (ClickHouse|World) ')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, '.* (ClickHouse|World) ')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '1';
 
 SELECT *
 FROM tab
@@ -86,26 +94,30 @@ ORDER BY id ASC;
 -- Read 1/6 granules
 -- Required string: ' OLAP '
 -- Alternatives: -
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, ' OLAP (.*?)*')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, ' OLAP (.*?)*')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 0;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '0';
 
-SELECT trim(`explain`)
+SELECT trimBoth(`explain`)
 FROM (
-        EXPLAIN PLAN indexes = 1
         SELECT *
-        FROM tab
-        WHERE match(str, ' OLAP (.*?)*')
-        ORDER BY id ASC
+        FROM viewExplain('EXPLAIN', 'indexes = 1', (
+                SELECT *
+                FROM tab
+                WHERE match(str, ' OLAP (.*?)*')
+                ORDER BY id ASC
+            ))
     )
-WHERE like(`explain`, '%Granules: %')
-SETTINGS enable_analyzer = 1;
+WHERE `explain` LIKE '%Granules: %'
+SETTINGS enable_analyzer = '1';
 
 DROP TABLE tab;

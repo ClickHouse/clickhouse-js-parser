@@ -24,7 +24,7 @@ CREATE TABLE eligible_test
 (
     a String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a; --  SETTINGS use_query_cache = true; -- SETTINGS rejected as unknown
 
 -- ALTER
@@ -41,7 +41,7 @@ SETTINGS use_query_cache = true;
 SHOW TABLES SETTINGS use_query_cache = true;
 
 -- CHECK
-CHECK TABLE eligible_test SETTINGS use_query_cache = true, check_query_single_value_result = 1;
+CHECK TABLE eligible_test SETTINGS use_query_cache = true, check_query_single_value_result = '1';
 
 -- DESCRIBE
 DESCRIBE TABLE eligible_test SETTINGS use_query_cache = true;
@@ -50,7 +50,7 @@ DESCRIBE TABLE eligible_test SETTINGS use_query_cache = true;
 EXISTS TABLE eligible_test SETTINGS use_query_cache = true;
 
 -- KILL
-KILL QUERY WHERE query_id = '3-857d-4a57-9ee0-3c7da5d60a90' SETTINGS use_query_cache = true;
+KILL QUERY WHERE query_id = '3-857d-4a57-9ee0-3c7da5d60a90' ASYNC SETTINGS use_query_cache = true;
 
 -- OPTIMIZE
 OPTIMIZE TABLE eligible_test FINAL SETTINGS use_query_cache = true;

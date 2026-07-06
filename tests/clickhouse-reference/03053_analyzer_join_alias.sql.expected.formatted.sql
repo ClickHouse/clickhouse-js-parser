@@ -1,11 +1,11 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23104
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE:Identifier};
+CREATE DATABASE CLICKHOUSE_DATABASE;
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.base
+CREATE TABLE CLICKHOUSE_DATABASE.base
 (
     id UInt64,
     id2 UInt64,
@@ -16,7 +16,7 @@ ENGINE = MergeTree()
 ORDER BY (id, id2, d)
 PARTITION BY d;
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.derived1
+CREATE TABLE CLICKHOUSE_DATABASE.derived1
 (
     id1 UInt64,
     d1 UInt64,
@@ -26,7 +26,7 @@ ENGINE = MergeTree()
 ORDER BY (id1, d1)
 PARTITION BY d1;
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.derived2
+CREATE TABLE CLICKHOUSE_DATABASE.derived2
 (
     id2 UInt64,
     d2 UInt64,
@@ -42,8 +42,8 @@ SELECT
     derived2.value2 AS `derived2.value2`,
     derived1.value1 AS `derived1.value1`
 FROM
-    {CLICKHOUSE_DATABASE:Identifier}.base AS base
-LEFT JOIN {CLICKHOUSE_DATABASE:Identifier}.derived2 AS derived2
+    CLICKHOUSE_DATABASE.base AS base
+LEFT JOIN CLICKHOUSE_DATABASE.derived2 AS derived2
     ON base.id2 = derived2.id2
-LEFT JOIN {CLICKHOUSE_DATABASE:Identifier}.derived1 AS derived1
+LEFT JOIN CLICKHOUSE_DATABASE.derived1 AS derived1
     ON base.id = derived1.id1;

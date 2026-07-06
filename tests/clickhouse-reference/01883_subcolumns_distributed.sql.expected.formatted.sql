@@ -9,7 +9,7 @@ CREATE TABLE t_subcolumns_local
     n Nullable(String),
     t Tuple(s1 String, s2 String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t_subcolumns_dist AS t_subcolumns_local
@@ -33,7 +33,7 @@ CREATE TABLE t_subcolumns_local
     n Nullable(String),
     t Tuple(s1 String, s2 String)
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 SELECT
     arr.size0,
@@ -41,7 +41,7 @@ SELECT
     t.s1,
     t.s2
 FROM t_subcolumns_dist
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';
 
 SELECT
     arr.size0,
@@ -49,6 +49,6 @@ SELECT
     t.s1,
     t.s2
 FROM t_subcolumns_dist
-SETTINGS enable_analyzer = 0; -- {serverError UNKNOWN_IDENTIFIER}
+SETTINGS enable_analyzer = '0'; -- {serverError UNKNOWN_IDENTIFIER}
 
 DROP TABLE t_subcolumns_dist;

@@ -1,9 +1,9 @@
 -- Tags: shard
-SET optimize_skip_unused_shards = 1;
+SET optimize_skip_unused_shards = '1';
 
-SET force_optimize_skip_unused_shards = 2;
+SET force_optimize_skip_unused_shards = '2';
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS data_01270;
 

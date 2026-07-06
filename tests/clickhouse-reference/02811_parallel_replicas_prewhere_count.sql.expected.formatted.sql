@@ -22,6 +22,6 @@ FROM users
 PREWHERE uid > 2000;
 
 -- enable parallel replicas but with high rows threshold
-SET skip_unavailable_shards = 1, enable_parallel_replicas = 1, max_parallel_replicas = 3, cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = 1, parallel_replicas_min_number_of_rows_per_replica = 1000;
+SET skip_unavailable_shards = '1', enable_parallel_replicas = '1', max_parallel_replicas = '3', cluster_for_parallel_replicas = 'parallel_replicas', parallel_replicas_for_non_replicated_merge_tree = '1', parallel_replicas_min_number_of_rows_per_replica = '1000';
 
 DROP TABLE users;

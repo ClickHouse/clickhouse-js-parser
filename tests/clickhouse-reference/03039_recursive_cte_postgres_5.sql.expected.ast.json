@@ -1,957 +1,1298 @@
 [
+  "<AST Error>",
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "/**\n  * Based on https://github.com/postgres/postgres/blob/master/src/test/regress/sql/with.sql, license:\n  *\n  * PostgreSQL Database Management System\n  * (formerly known as Postgres, then as Postgres95)\n  *\n  * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group\n  *\n  * Portions Copyright (c) 1994, The Regents of the University of California\n  *\n  * Permission to use, copy, modify, and distribute this software and its\n  * documentation for any purpose, without fee, and without a written agreement\n  * is hereby granted, provided that the above copyright notice and this\n  * paragraph and the following two paragraphs appear in all copies.\n  *\n  * IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR\n  * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING\n  * LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS\n  * DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE\n  * POSSIBILITY OF SUCH DAMAGE.\n  *\n  * THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,\n  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY\n  * AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS\n  * ON AN \"AS IS\" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO\n  *PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.\n  */",
-      "--",
-      "-- Tests for common table expressions (WITH query, ... SELECT ...)",
-      "--",
-      "-- { echoOn }"
-    ]
-  },
-  {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
+            {
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "y"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "id"
+              "type": "Asterisk"
             }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "y"
-              }
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "x"
                   }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
-                }
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "x"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "--",
-      "-- test multiple WITH queries",
-      "--"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "y"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "y"
               }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
                 }
               }
             }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "select",
+          ],
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "x"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
               },
-              "alias": "id"
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "x"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "leadingComments": [
-      "-- forward reference OK"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
-              ]
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "y"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
                 }
               }
             }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "union",
-          "queries": [
+          ],
+          "select": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
-                }
-              ]
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "y"
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "x"
+              }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "y"
                   }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "y"
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "id"
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "x"
+                  }
                 }
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "y.id",
+                "name_parts": [
+                  "y",
+                  "id"
+                ]
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "y"
-        ]
-      },
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "y"
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "tableRef",
-        "table": "x"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "id"
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "y",
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "5"
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
-              ]
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    }
                   ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "5"
                 }
               }
             }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "union",
-          "queries": [
+          ],
+          "select": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
-                }
-              ]
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "y"
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "x"
+              }
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "y"
                   }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "LEFT",
+                  "using": [
+                    {
+                      "type": "Identifier",
+                      "name": "id"
+                    }
                   ]
                 },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "x"
+                  }
                 }
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "y.id",
+                "name_parts": [
+                  "y",
+                  "id"
+                ]
+              },
+              "direction": "ASC"
             }
           ]
         }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "y"
-        ]
-      },
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "x"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "tableRef",
-        "table": "y"
-      },
-      "kind": "joinExpr",
-      "joinType": "LEFT",
-      "right": {
-        "kind": "tableRef",
-        "table": "x"
-      },
-      "constraint": {
-        "kind": "using",
-        "columns": [
-          "id"
-        ]
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "y",
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
-              ]
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "WithElement",
+              "name": "z",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "z"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "z"
                   }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                }
-              }
+              "direction": "ASC"
             }
           ]
         }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              }
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "z",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              }
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "z"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "z"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "with": [
-      {
-        "kind": "cteSubquery",
-        "name": "x",
-        "query": {
-          "kind": "union",
-          "queries": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "recursive_with": true,
+          "with": [
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "alias",
-                  "expr": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  },
-                  "alias": "id"
+              "type": "WithElement",
+              "name": "x",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Literal",
+                          "alias": "id",
+                          "value_type": "UInt64",
+                          "value": "1"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "3"
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
-              ]
+              }
             },
             {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
+              "type": "WithElement",
+              "name": "y",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "x"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "WithElement",
+              "name": "z",
+              "subquery": {
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Asterisk"
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "y"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "plus",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "id"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "database_and_table_name": {
+                                "type": "TableIdentifier",
+                                "name": "z"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "less",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "id"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "10"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "z"
                   }
                 }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
               },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "3"
-                }
-              }
+              "direction": "ASC"
             }
           ]
         }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "y",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              }
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "x"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "cteSubquery",
-        "name": "z",
-        "query": {
-          "kind": "union",
-          "queries": [
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "asterisk"
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "y"
-              }
-            },
-            {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "binaryExpr",
-                  "op": "+",
-                  "left": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "id"
-                    ]
-                  },
-                  "right": {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "table": "z"
-              },
-              "where": {
-                "kind": "binaryExpr",
-                "op": "<",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "id"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "recursive": true,
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "z"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "-- { echoOff }"
-    ]
-  }
+      ]
+    }
+  },
+  "<AST Error>"
 ]

@@ -1,147 +1,160 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "number"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "p"
-        ]
-      },
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": [
-          {
-            "kind": "asterisk"
-          }
-        ],
-        "window": {
-          "partitionBy": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "p"
-              ]
-            }
-          ],
-          "orderBy": [
-            {
-              "kind": "orderByItem",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "direction": "DESC"
-            }
-          ],
-          "frame": {
-            "frameType": "rows",
-            "start": {
-              "kind": "unbounded"
+              "type": "Identifier",
+              "name": "number"
             },
-            "end": {
-              "kind": "preceding",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "65537"
+            {
+              "type": "Identifier",
+              "name": "p"
+            },
+            {
+              "type": "Function",
+              "name": "count",
+              "is_window_function": true,
+              "kind": "WINDOW_FUNCTION",
+              "arguments": [
+                {
+                  "type": "Asterisk"
+                }
+              ],
+              "window_definition": {
+                "type": "WindowDefinition",
+                "partition_by": [
+                  {
+                    "type": "Identifier",
+                    "name": "p"
+                  }
+                ],
+                "order_by": [
+                  {
+                    "type": "OrderByElement",
+                    "expression": {
+                      "type": "Identifier",
+                      "name": "number"
+                    },
+                    "direction": "DESC",
+                    "nulls_first": true
+                  }
+                ],
+                "frame_type": "ROWS",
+                "frame_begin": {
+                  "type": "Unbounded",
+                  "preceding": true
+                },
+                "frame_end": {
+                  "type": "Offset",
+                  "offset": {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "65537"
+                  },
+                  "preceding": true
+                }
               }
             }
-          }
-        }
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "number"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "number"
+                            },
+                            {
+                              "type": "Function",
+                              "alias": "p",
+                              "name": "intDiv",
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "number"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "7"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "table_function": {
+                                    "type": "Function",
+                                    "name": "numbers",
+                                    "arguments": [
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "71"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           },
-          {
-            "kind": "alias",
-            "expr": {
-              "kind": "functionCall",
-              "name": "intDiv",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "7"
-                }
-              ]
-            },
-            "alias": "p"
-          }
-        ],
-        "from": {
-          "kind": "tableFunctionRef",
-          "name": "numbers",
-          "args": [
+          "order_by": [
             {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "71"
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "p"
+              },
+              "direction": "ASC",
+              "nulls_first": false
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "number"
+              },
+              "direction": "DESC",
+              "nulls_first": true
             }
-          ]
+          ],
+          "settings": {
+            "type": "Settings",
+            "changes": {
+              "max_block_size": "2"
+            }
+          }
         }
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "p"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "number"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "settings": [
-      {
-        "name": "max_block_size",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Test for issue #75852: window function with large PRECEDING offset",
-      "-- that exceeds the number of rows in the partition, combined with small",
-      "-- max_block_size that causes early block cleanup."
-    ]
+      ]
+    }
   }
 ]

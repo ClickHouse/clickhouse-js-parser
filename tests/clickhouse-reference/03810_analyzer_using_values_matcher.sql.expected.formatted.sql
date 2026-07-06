@@ -1,5 +1,5 @@
 -- Tags: no-parallel
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP FUNCTION IF EXISTS f1;
 

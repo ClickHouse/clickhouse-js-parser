@@ -10,9 +10,9 @@ CREATE TABLE test_coalesce_reversed
 (
     ts Nullable(Date)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY ts
-SETTINGS index_granularity = 1, allow_nullable_key = 1;
+SETTINGS index_granularity = '1', allow_nullable_key = '1';
 
 INSERT INTO test_coalesce_reversed;
 

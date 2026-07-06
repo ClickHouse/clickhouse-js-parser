@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS t_func_to_subcolumns;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET optimize_functions_to_subcolumns = 1;
+SET optimize_functions_to_subcolumns = '1';
 
 CREATE TABLE t_func_to_subcolumns
 (
@@ -11,23 +11,23 @@ CREATE TABLE t_func_to_subcolumns
     n Nullable(String),
     m Map(String, UInt64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_func_to_subcolumns;
 
 SELECT
-    isNull(id),
-    isNull(n),
-    isNotNull(n)
+    id IS NULL,
+    n IS NULL,
+    n IS NOT NULL
 FROM t_func_to_subcolumns
 ORDER BY id ASC;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT
-    isNull(id),
-    isNull(n),
-    isNotNull(n)
+    id IS NULL,
+    n IS NULL,
+    n IS NOT NULL
 FROM t_func_to_subcolumns;
 
 SELECT
@@ -38,7 +38,7 @@ SELECT
 FROM t_func_to_subcolumns
 ORDER BY id ASC;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT
     length(arr),
     empty(arr),
@@ -52,7 +52,7 @@ SELECT
 FROM t_func_to_subcolumns
 ORDER BY id ASC;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT
     mapKeys(m),
     mapValues(m)
@@ -61,21 +61,21 @@ FROM t_func_to_subcolumns;
 SELECT count(n)
 FROM t_func_to_subcolumns;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT count(n)
 FROM t_func_to_subcolumns;
 
 SELECT count(id)
 FROM t_func_to_subcolumns;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT count(id)
 FROM t_func_to_subcolumns;
 
 SELECT
     id,
-    isNull(`left`.n),
-    isNull(`right`.n)
+    `left`.n IS NULL,
+    `right`.n IS NULL
 FROM
     t_func_to_subcolumns AS `left`
 FULL JOIN (
@@ -90,11 +90,11 @@ FULL JOIN (
     USING (id)
 ORDER BY id ASC;
 
-EXPLAIN QUERY TREE dump_tree = 1, dump_ast = 1
+EXPLAIN QUERY TREE dump_tree = '1', dump_ast = '1'
 SELECT
     id,
-    isNull(`left`.n),
-    isNull(`right`.n)
+    `left`.n IS NULL,
+    `right`.n IS NULL
 FROM
     t_func_to_subcolumns AS `left`
 FULL JOIN (
@@ -116,13 +116,13 @@ CREATE TABLE t_tuple_null
 (
     t Tuple(`null` UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t_tuple_null;
 
 SELECT
-    isNull(t),
+    t IS NULL,
     t.`null`
 FROM t_tuple_null;
 

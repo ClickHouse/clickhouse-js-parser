@@ -7,7 +7,7 @@ CREATE TABLE t1
     x UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE t2
@@ -15,7 +15,7 @@ CREATE TABLE t2
     x UInt32,
     s String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t1 (x, s);
@@ -24,16 +24,16 @@ INSERT INTO t2 (x, s);
 
 SET join_algorithm = 'prefer_partial_merge';
 
-SET join_use_nulls = 0;
+SET join_use_nulls = '0';
 
-SET any_join_distinct_right_table_keys = 0;
+SET any_join_distinct_right_table_keys = '0';
 
 SELECT
     t1.*,
     t2.*
 FROM
     t1
-LEFT JOIN t2
+ANY LEFT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -44,7 +44,7 @@ SELECT
     t2.*
 FROM
     t2
-LEFT JOIN t1
+ANY LEFT JOIN t1
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -55,7 +55,7 @@ SELECT
     t2.*
 FROM
     t1
-INNER JOIN t2
+ANY INNER JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -66,7 +66,7 @@ SELECT
     t2.*
 FROM
     t2
-INNER JOIN t1
+ANY INNER JOIN t1
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -77,7 +77,7 @@ SELECT
     t2.*
 FROM
     t1
-RIGHT JOIN t2
+ANY RIGHT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -88,7 +88,7 @@ SELECT
     t2.*
 FROM
     t2
-RIGHT JOIN t1
+ANY RIGHT JOIN t1
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -99,7 +99,7 @@ SELECT
     t2.*
 FROM
     t1
-LEFT JOIN t2
+SEMI LEFT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -110,7 +110,7 @@ SELECT
     t2.*
 FROM
     t1
-RIGHT JOIN t2
+SEMI RIGHT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -121,7 +121,7 @@ SELECT
     t2.*
 FROM
     t1
-LEFT JOIN t2
+ANTI LEFT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,
@@ -132,7 +132,7 @@ SELECT
     t2.*
 FROM
     t1
-RIGHT JOIN t2
+ANTI RIGHT JOIN t2
     USING (x)
 ORDER BY
     t1.x ASC,

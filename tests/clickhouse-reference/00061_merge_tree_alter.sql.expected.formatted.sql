@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS alter_00061;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE alter_00061
 (
@@ -38,9 +38,9 @@ ALTER TABLE alter_00061 ADD COLUMN `n.d` Array(Date), MODIFY COLUMN s UInt32;
 
 OPTIMIZE TABLE alter_00061;
 
-ALTER TABLE alter_00061 DROP COLUMN `n.ui8`, DROP COLUMN `n.d`;
+ALTER TABLE alter_00061 DROP COLUMN n.ui8, DROP COLUMN n.d;
 
-ALTER TABLE alter_00061 DROP COLUMN `n.s`;
+ALTER TABLE alter_00061 DROP COLUMN n.s;
 
 ALTER TABLE alter_00061 ADD COLUMN `n.s` Array(String), ADD COLUMN `n.d` Array(Date);
 

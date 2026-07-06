@@ -1,1523 +1,1545 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_codec",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_alias",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "str"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "a"
-              },
-              "alias": "a"
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-replicated-database",
-      "-- no-replicated-database: It messes up the output and this test explicitly checks the replicated database"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Cannot have a different expression with the same alias"
-    ],
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_with_codec",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "ALIAS",
-          "defaultExpr": {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
-          }
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Cannot specify codec for column type ALIAS"
-    ],
-    "trailingComments": [
-      "-- { serverError BAD_ARGUMENTS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_1",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- alias is defined exactly the same"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_2",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "c"
-                },
-                "alias": "c"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- different alias"
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_codec"
-        ]
-      }
-    ],
-    "leadingComments": [
-      "-- do one insert to make sure we can insert into the table"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_2"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_codec",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "name": "ZSTD"
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
           }
         ]
       },
-      {
-        "kind": "columnDef",
-        "name": "column_with_alias",
-        "type": {
-          "name": "String"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "str"
-              ]
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "a"
-              },
-              "alias": "a"
-            }
-          ]
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
         }
       }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/03224_invalid_alter/{database}/{table}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_with_codec",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "ALIAS",
-          "defaultExpr": {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
-          }
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError BAD_ARGUMENTS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_1",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_2",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "c"
-                },
-                "alias": "c"
-              }
-            ]
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
       "table": {
-        "kind": "tableRef",
-        "table": "test2"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_codec"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_2"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test2"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "DATABASE",
-    "table": {
-      "kind": "tableRef",
-      "table": {
-        "kind": "queryParam",
-        "name": "CLICKHOUSE_DATABASE",
-        "type": "Identifier"
-      }
-    }
-  },
-  {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "onCluster": "test_shard_localhost",
-    "engine": {
-      "name": "Atomic"
-    }
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "onCluster": "test_shard_localhost",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_codec",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_alias",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "str"
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
               ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "str"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "c",
+                  "value_type": "String",
+                  "value": "c"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "str"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_with_codec"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "str"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "a"
-              },
-              "alias": "a"
+              "type": "Identifier",
+              "name": "column_with_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_1"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_2"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/03224_invalid_alter/{database}/{table}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "str"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "c",
+                  "value_type": "String",
+                  "value": "c"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test2"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "str"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_with_codec"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "str"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_with_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_1"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_2"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test2"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "cluster": "test_shard_localhost",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Atomic",
+          "kind": "DATABASE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "cluster": "test_shard_localhost",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/03224_invalid_alter/{database}_atomic/{table}"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "r1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "str"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "cluster": "test_shard_localhost",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "c",
+                  "value_type": "String",
+                  "value": "c"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test3"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "str"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_with_codec"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "str"
+            },
+            {
+              "type": "Identifier",
+              "name": "column_with_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_1"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_2"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test3"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "database": {
+        "type": "Identifier",
+        "name": "CLICKHOUSE_DATABASE"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Replicated",
+          "kind": "DATABASE_ENGINE",
+          "arguments": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/03224_invalid_alter/{database}_replicated"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "shard1"
+            },
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "replica1"
             }
           ]
         }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/03224_invalid_alter/{database}_atomic/{table}"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "r1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "onCluster": "test_shard_localhost",
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "onCluster": "test_shard_localhost",
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_with_codec",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "ALIAS",
-          "defaultExpr": {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
-          }
-        }
-      }
-    ],
-    "onCluster": "test_shard_localhost",
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError BAD_ARGUMENTS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_1",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "onCluster": "test_shard_localhost"
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test3"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_2",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "c"
-                },
-                "alias": "c"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "onCluster": "test_shard_localhost"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test3"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_codec"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_2"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test3"
+      "format": "Null"
     }
   },
   {
-    "kind": "createDatabase",
-    "name": {
-      "kind": "queryParam",
-      "name": "CLICKHOUSE_DATABASE",
-      "type": "Identifier"
-    },
-    "engine": {
-      "name": "Replicated",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/03224_invalid_alter/{database}_replicated"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "str",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "codec": {
+              "type": "Function",
+              "name": "CODEC",
+              "kind": "CODEC",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "ZSTD",
+                  "arguments": []
+                }
+              ]
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "column_with_alias",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "commands": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "shard1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "replica1"
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
+              ]
+            }
+          }
         }
       ]
-    },
-    "format": "Null"
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "str",
-        "type": {
-          "name": "String"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
         }
       },
-      {
-        "kind": "columnDef",
-        "name": "column_with_codec",
-        "type": {
-          "name": "String"
-        },
-        "codec": [
-          {
-            "name": "ZSTD"
-          }
-        ]
-      },
-      {
-        "kind": "columnDef",
-        "name": "column_with_alias",
-        "type": {
-          "name": "String"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "concat",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "str"
+      "format": "Null",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "invalid_column",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "b"
+                }
               ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "column_with_codec",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "ALIAS",
+            "default_expression": {
+              "type": "Identifier",
+              "name": "str"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_1",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "a",
+                  "value_type": "String",
+                  "value": "a"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "distributed_ddl_output_mode": "throw"
+        }
+      },
+      "format": "Null",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "valid_column_2",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            },
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "concat",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "str"
+                },
+                {
+                  "type": "Literal",
+                  "alias": "c",
+                  "value_type": "String",
+                  "value": "c"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test4"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "str"
+        },
+        {
+          "type": "Identifier",
+          "name": "column_with_codec"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "str"
             },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "String",
-                "value": "a"
-              },
-              "alias": "a"
+              "type": "Identifier",
+              "name": "column_with_alias"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_1"
+            },
+            {
+              "type": "Identifier",
+              "name": "valid_column_2"
             }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test4"
+                  }
+                }
               }
             ]
           }
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "invalid_column",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "b"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError MULTIPLE_EXPRESSIONS_FOR_ALIAS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "column_with_codec",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "ALIAS",
-          "defaultExpr": {
-            "kind": "columnRef",
-            "parts": [
-              "str"
-            ]
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null",
-    "trailingComments": [
-      "-- { serverError BAD_ARGUMENTS }"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_1",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "a"
-                },
-                "alias": "a"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test4"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "valid_column_2",
-          "type": {
-            "name": "String"
-          },
-          "defaultKind": "MATERIALIZED",
-          "defaultExpr": {
-            "kind": "functionCall",
-            "name": "concat",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "str"
-                ]
-              },
-              {
-                "kind": "alias",
-                "expr": {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "c"
-                },
-                "alias": "c"
-              }
-            ]
-          }
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "distributed_ddl_output_mode",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "throw"
-        }
-      }
-    ],
-    "format": "Null"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test4"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_codec"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "str"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "column_with_alias"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_1"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "valid_column_2"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test4"
+      ]
     }
   }
 ]

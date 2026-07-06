@@ -13,31 +13,31 @@ CREATE TABLE source_table_memory
 (
     x UInt16
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE source_table_log
 (
     x UInt16
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE source_table_tiny_log
 (
     x UInt16
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 CREATE TABLE source_table_stripe_log
 (
     x UInt16
 )
-ENGINE = StripeLog;
+ENGINE = StripeLog();
 
 CREATE TABLE source_table_merge_tree
 (
     x UInt16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY x;
 
@@ -160,7 +160,7 @@ CREATE TABLE new_table
 (
     x UInt16
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 DROP DATABASE test_truncate_database;

@@ -1,6 +1,6 @@
-SET compile_expressions = 1;
+SET compile_expressions = '1';
 
-SET min_count_to_compile_expression = 0;
+SET min_count_to_compile_expression = '0';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_table
     a UInt8,
     b UInt8
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -30,7 +30,7 @@ CREATE TABLE test_table_nullable
     a UInt8,
     b Nullable(UInt8)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_nullable;
 

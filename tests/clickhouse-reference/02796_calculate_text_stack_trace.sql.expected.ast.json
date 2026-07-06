@@ -1,661 +1,749 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-parallel"
-    ],
-    "trailingComments": [
-      "-- system.text_log can be really big"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "Hello"
-      },
-      {
-        "kind": "functionCall",
-        "name": "throwIf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM FLUSH LOGS query_log, text_log"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "functionCall",
-          "name": "length",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "stack_trace"
-              ]
-            }
-          ]
-        },
-        "right": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000"
-        }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%SELECT 'Hello', throwIf(1)%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "notLike",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%system%"
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "0"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "like",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "message"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "%Stack trace%"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "text_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "level"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "Error"
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "message"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "Hello"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%Exception%throwIf%"
+              "type": "Function",
+              "name": "throwIf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
             }
           ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "FLUSH LOGS",
+      "tables": [
+        {
+          "table": "query_log"
         },
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_id"
+          "table": "text_log"
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "length",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "stack_trace"
+                    }
+                  ]
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1000"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
+                    "type": "Identifier",
+                    "name": "current_database"
                   },
                   {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%SELECT 'Hello', throwIf(1)%"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "notLike",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%system%"
-                      }
-                    ]
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
                   }
                 ]
               },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time_microseconds"
-                    ]
-                  },
-                  "direction": "DESC"
-                }
-              ],
-              "limit": {
-                "count": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
-    }
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "calculate_text_stack_trace",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "literal",
-        "type": "String",
-        "value": "World"
-      },
-      {
-        "kind": "functionCall",
-        "name": "throwIf",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1"
-          }
-        ]
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError FUNCTION_THROW_IF_VALUE_IS_NON_ZERO }"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "stack_trace"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "query_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "current_database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%SELECT 'World', throwIf(1)%"
-            }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "notLike",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "query"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%system%"
-            }
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
-          ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "1"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "like",
-        "args": [
-          {
-            "kind": "columnRef",
-            "parts": [
-              "message"
-            ]
-          },
-          {
-            "kind": "literal",
-            "type": "String",
-            "value": "%Stack trace%"
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "text_log"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "level"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "Error"
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "message"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "%Exception%throwIf%"
-            }
-          ]
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "query_id"
-            ]
-          },
-          "right": {
-            "kind": "subqueryExpr",
-            "query": {
-              "kind": "select",
-              "select": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "query_id"
-                  ]
-                }
-              ],
-              "from": {
-                "kind": "tableRef",
-                "database": "system",
-                "table": "query_log"
-              },
-              "where": {
-                "kind": "naryExpr",
-                "op": "AND",
-                "operands": [
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
                   {
-                    "kind": "binaryExpr",
-                    "op": "=",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "current_database"
-                      ]
-                    },
-                    "right": {
-                      "kind": "functionCall",
-                      "name": "currentDatabase",
-                      "args": []
-                    }
+                    "type": "Identifier",
+                    "name": "query"
                   },
                   {
-                    "kind": "functionCall",
-                    "name": "like",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%SELECT 'World', throwIf(1)%"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "notLike",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "query"
-                        ]
-                      },
-                      {
-                        "kind": "literal",
-                        "type": "String",
-                        "value": "%system%"
-                      }
-                    ]
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%SELECT 'Hello', throwIf(1)%"
                   }
                 ]
               },
-              "orderBy": [
-                {
-                  "kind": "orderByItem",
-                  "expr": {
-                    "kind": "columnRef",
-                    "parts": [
-                      "event_time_microseconds"
-                    ]
+              {
+                "type": "Function",
+                "name": "notLike",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
                   },
-                  "direction": "DESC"
-                }
-              ],
-              "limit": {
-                "count": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "1"
-                }
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%system%"
+                  }
+                ]
               }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "DESC"
             }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
           }
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "event_time_microseconds"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "like",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "message"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%Stack trace%"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "text_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "level"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Error"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "message"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%Exception%throwIf%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_id"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%SELECT 'Hello', throwIf(1)%"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "notLike",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%system%"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "event_time_microseconds"
+                              },
+                              "direction": "DESC"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "calculate_text_stack_trace": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Literal",
+              "value_type": "String",
+              "value": "World"
+            },
+            {
+              "type": "Function",
+              "name": "throwIf",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "1"
+                }
+              ]
+            }
           ]
-        },
-        "direction": "DESC"
-      }
-    ],
-    "limit": {
-      "count": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "stack_trace"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "query_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "current_database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%SELECT 'World', throwIf(1)%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "notLike",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%system%"
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "like",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "message"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "%Stack trace%"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "text_log",
+                    "database": "system"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "level"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "Error"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "like",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "message"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "%Exception%throwIf%"
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "query_id"
+                  },
+                  {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Identifier",
+                              "name": "query_id"
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "query_log",
+                                    "database": "system"
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          "where": {
+                            "type": "Function",
+                            "name": "and",
+                            "is_operator": true,
+                            "arguments": [
+                              {
+                                "type": "Function",
+                                "name": "equals",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "current_database"
+                                  },
+                                  {
+                                    "type": "Function",
+                                    "name": "currentDatabase",
+                                    "arguments": []
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "like",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%SELECT 'World', throwIf(1)%"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "name": "notLike",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "query"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "String",
+                                    "value": "%system%"
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "order_by": [
+                            {
+                              "type": "OrderByElement",
+                              "expression": {
+                                "type": "Identifier",
+                                "name": "event_time_microseconds"
+                              },
+                              "direction": "DESC"
+                            }
+                          ],
+                          "limit": {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "event_time_microseconds"
+              },
+              "direction": "DESC"
+            }
+          ],
+          "limit": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "10"
+          }
+        }
+      ]
     }
   }
 ]

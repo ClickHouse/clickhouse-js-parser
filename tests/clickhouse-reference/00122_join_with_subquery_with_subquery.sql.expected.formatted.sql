@@ -4,7 +4,7 @@ FROM
         SELECT 1 AS k
         FROM `system`.one
     ) AS js1
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT k
         FROM (
                 SELECT

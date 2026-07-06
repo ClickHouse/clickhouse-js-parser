@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS sample_prewhere
     id Int32,
     time Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (id, time, intHash64(time))
 PARTITION BY date
 SAMPLE BY intHash64(time);

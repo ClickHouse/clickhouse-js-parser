@@ -8,7 +8,7 @@ CREATE TABLE local_table
     id UInt64,
     val String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO local_table SELECT
     number AS id,
@@ -21,13 +21,13 @@ ENGINE = Distributed('test_cluster_two_shards_localhost', currentDatabase(), loc
 SELECT uniq(d.val)
 FROM
     dist_table AS d
-LEFT JOIN numbers(100) AS t
+GLOBAL LEFT JOIN numbers(100) AS t
     USING (id); -- { serverError UNKNOWN_IDENTIFIER, 284 }
 
 SELECT uniq(d.val)
 FROM
     dist_table AS d
-LEFT JOIN local_table AS t
+GLOBAL LEFT JOIN local_table AS t
     USING (id);
 
 DROP TABLE local_table;

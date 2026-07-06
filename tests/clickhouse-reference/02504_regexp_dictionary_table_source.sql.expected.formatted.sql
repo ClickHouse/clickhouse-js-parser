@@ -11,7 +11,7 @@ CREATE TABLE regexp_dictionary_source_table
     keys Array(String),
     values Array(String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 -- test back reference.
 INSERT INTO regexp_dictionary_source_table;
@@ -33,9 +33,9 @@ CREATE DICTIONARY regexp_dict1
     version Nullable(UInt64),
     comment String DEFAULT 'nothing'
 )
-PRIMARY KEY (regexp)
+PRIMARY KEY regexp
 SOURCE(clickhouse(TABLE 'regexp_dictionary_source_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(REGEXP_TREE());
 
 SELECT *
@@ -56,7 +56,7 @@ CREATE TABLE needle_table
 (
     key String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO needle_table SELECT concat(toString(number + 30), '/tclwebkit', toString(number))
 FROM `system`.numbers
@@ -68,7 +68,7 @@ FROM needle_table;
 SELECT dictGet(regexp_dict1, ('name', 'version'), key)
 FROM needle_table;
 
-SYSTEM RELOAD dictionary regexp_dict1; -- { serverError INCORRECT_DICTIONARY_DEFINITION  }
+SYSTEM RELOAD DICTIONARY regexp_dict1; -- { serverError INCORRECT_DICTIONARY_DEFINITION  }
 
 TRUNCATE TABLE regexp_dictionary_source_table;
 

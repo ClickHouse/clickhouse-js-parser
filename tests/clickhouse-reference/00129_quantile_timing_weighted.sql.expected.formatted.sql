@@ -4,7 +4,7 @@ SELECT
 FROM (
         SELECT
             number AS t,
-            if(number = 77, 10, 1) AS w
+            number = 77 ? 10 : 1 AS w
         FROM `system`.numbers
         LIMIT 100
     );
@@ -15,7 +15,7 @@ SELECT
 FROM (
         SELECT
             number AS t,
-            if(number = 77, 10, 0) AS w
+            number = 77 ? 10 : 0 AS w
         FROM `system`.numbers
         LIMIT 100
     );
@@ -26,7 +26,7 @@ SELECT
 FROM (
         SELECT
             number AS t,
-            if(number = 77, 0, 0) AS w
+            number = 77 ? 0 : 0 AS w
         FROM `system`.numbers
         LIMIT 100
     );
@@ -37,7 +37,7 @@ SELECT
 FROM (
         SELECT
             number AS t,
-            if(number = 77, 10, 1) AS w
+            number = 77 ? 10 : 1 AS w
         FROM `system`.numbers
         LIMIT 100
     );

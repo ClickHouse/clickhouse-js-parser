@@ -4,7 +4,7 @@ CREATE TABLE `03789_rmv_target`
     message String
 )
 ENGINE = ReplicatedMergeTree('/clickhouse/tables/{database}/test/03789_rmv_with_multiple_subqueries', 'r1')
-ORDER BY tuple();
+ORDER BY ();
 
 CREATE MATERIALIZED VIEW `03789_rmv_mv`
 REFRESH EVERY 1 MONTH APPEND
@@ -23,21 +23,21 @@ WITH (
 result AS (
     SELECT 'OH NO' AS message
     FROM numbers(10)
-    WHERE (number >= lower_limit)
-        AND (number <= upper_limit)
+    WHERE number >= lower_limit
+        AND number <= upper_limit
 )
 
 SELECT *
 FROM result;
 
-SYSTEM REFRESH VIEW 03789_rmv_mv;
+SYSTEM REFRESH VIEW `03789_rmv_mv`;
 
-SYSTEM WAIT VIEW 03789_rmv_mv;
+SYSTEM WAIT VIEW `03789_rmv_mv`;
 
 SYSTEM FLUSH LOGS query_log;
 
 SELECT uniqExact(query)
 FROM `system`.query_log
 WHERE has(databases, currentDatabase())
-    AND like(query, '%INSERT%SELECT%')
+    AND query LIKE '%INSERT%SELECT%'
     AND type = 'QueryFinish';

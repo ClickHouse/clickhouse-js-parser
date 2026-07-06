@@ -1,127 +1,142 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_analyzer",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_analyzer": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_experimental_correlated_subqueries",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_experimental_correlated_subqueries": "1"
       }
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "query_plan_join_swap_table",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "query_plan_join_swap_table": "0"
       }
-    ],
-    "trailingComments": [
-      "-- Changes query plan"
-    ]
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "correlated_subqueries_default_join_kind",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "left"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "correlated_subqueries_default_join_kind": "left"
       }
-    ]
+    }
   },
   {
-    "kind": "explain",
-    "settings": [
-      {
-        "name": "actions",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "query": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "subqueryExpr",
-          "query": {
-            "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "Explain",
+      "kind": "EXPLAIN",
+      "query": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
             "select": [
               {
-                "kind": "functionCall",
-                "name": "count",
-                "args": []
+                "type": "Subquery",
+                "query": {
+                  "type": "SelectWithUnionQuery",
+                  "selects": [
+                    {
+                      "type": "SelectQuery",
+                      "select": [
+                        {
+                          "type": "Function",
+                          "name": "count",
+                          "arguments": []
+                        }
+                      ],
+                      "from": {
+                        "type": "TablesInSelectQuery",
+                        "children": [
+                          {
+                            "type": "TablesInSelectQueryElement",
+                            "table_expression": {
+                              "type": "TableExpression",
+                              "table_function": {
+                                "type": "Function",
+                                "name": "numbers",
+                                "arguments": [
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "10"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "where": {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "number"
+                          },
+                          {
+                            "type": "Identifier",
+                            "name": "n.number",
+                            "name_parts": [
+                              "n",
+                              "number"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             ],
             "from": {
-              "kind": "tableFunctionRef",
-              "name": "numbers",
-              "args": [
+              "type": "TablesInSelectQuery",
+              "children": [
                 {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "alias": "n",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
                 }
               ]
-            },
-            "where": {
-              "kind": "binaryExpr",
-              "op": "=",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "right": {
-                "kind": "columnRef",
-                "parts": [
-                  "n",
-                  "number"
-                ]
-              }
             }
           }
+        ]
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "actions": "1"
         }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
-          }
-        ],
-        "alias": "n"
       }
     }
   }

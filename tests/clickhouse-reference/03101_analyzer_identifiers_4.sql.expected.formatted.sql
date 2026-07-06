@@ -1,11 +1,11 @@
 -- https://github.com/ClickHouse/ClickHouse/issues/23194
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-DROP DATABASE IF EXISTS {CLICKHOUSE_DATABASE:Identifier};
+DROP DATABASE IF EXISTS CLICKHOUSE_DATABASE;
 
-CREATE DATABASE {CLICKHOUSE_DATABASE:Identifier};
+CREATE DATABASE CLICKHOUSE_DATABASE;
 
-USE {CLICKHOUSE_DATABASE:Identifier};
+USE CLICKHOUSE_DATABASE;
 
 -- simple tuple access operator
 SELECT tuple(1, 'a').1;
@@ -27,19 +27,19 @@ SELECT CAST(('hello', 1) AS Tuple(name String, count UInt32)).*;
 
 SELECT untuple(CAST(('hello', 1) AS Tuple(name String, count UInt32))); -- will give two columns `name` and `count`.
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.t
+CREATE TABLE CLICKHOUSE_DATABASE.t
 (
     col String,
     hello String,
     world String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-CREATE TABLE {CLICKHOUSE_DATABASE:Identifier}.u
+CREATE TABLE CLICKHOUSE_DATABASE.u
 (
     cc String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT * EXCEPT('hello|world');
 
@@ -53,13 +53,13 @@ FROM t;
 
 SELECT t.COLUMNS('^c')
 FROM
-    t
-CROSS JOIN u;
+    t,
+    u;
 
 SELECT t.COLUMNS('^c') EXCEPT (test_hello, test_world)
 FROM
-    t
-CROSS JOIN u;
+    t,
+    u;
 
 SELECT *
 FROM (
@@ -113,7 +113,7 @@ FROM aliased;
 CREATE TEMPORARY TABLE aliased2
 (
     x UInt8,
-    y ALIAS (((x + 1) AS z)) + 1
+    y ALIAS (x + 1 AS z) + 1
 );
 
 SELECT

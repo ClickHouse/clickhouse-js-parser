@@ -6,7 +6,7 @@ CREATE TABLE test_table
     value_ipv4 IPv4,
     value_ipv6 IPv6
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO test_table;

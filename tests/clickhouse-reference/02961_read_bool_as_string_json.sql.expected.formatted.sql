@@ -1,4 +1,4 @@
-SET input_format_json_read_bools_as_strings = 1;
+SET input_format_json_read_bools_as_strings = '1';
 
 SELECT *
 FROM format(JSONEachRow, 'x String', '{"x" : true}, {"x" : false}, {"x" : "str"}');

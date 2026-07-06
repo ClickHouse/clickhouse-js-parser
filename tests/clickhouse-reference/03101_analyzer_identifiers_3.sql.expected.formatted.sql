@@ -1,7 +1,7 @@
 -- Tags: no-parallel
 -- Looks like you cannot use the query parameter as a column name.
 -- https://github.com/ClickHouse/ClickHouse/issues/23194
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP DATABASE IF EXISTS db1_03101;
 
@@ -18,7 +18,7 @@ CREATE TABLE db1_03101.tbl
     col String,
     db1_03101 Nested(tbl Nested(col String))
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT db1_03101.tbl.col
 FROM db1_03101.tbl;
@@ -55,8 +55,8 @@ SELECT *
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT 2 AS b
     ) AS u;
 
@@ -67,8 +67,8 @@ SELECT
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT 2 AS b
     ) AS u;
 
@@ -76,8 +76,8 @@ SELECT *
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT 1 AS a
     ) AS u;
 
@@ -88,8 +88,8 @@ SELECT
 FROM
     (
         SELECT 1 AS a
-    ) AS t
-CROSS JOIN (
+    ) AS t,
+    (
         SELECT 1 AS a
     ) AS u;
 
@@ -114,7 +114,7 @@ CREATE TABLE t
     x String,
     nest Nested(a String, b String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT *
 FROM t;

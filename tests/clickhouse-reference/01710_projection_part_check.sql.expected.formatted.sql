@@ -4,14 +4,11 @@ CREATE TABLE tp
 (
     x Int32,
     y Int32,
-    PROJECTION p (    SELECT
-        x,
-        y
-    ORDER BY x ASC)
+    PROJECTION p (SELECT x, y ORDER BY x)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY y
-SETTINGS min_rows_for_wide_part = 4, min_bytes_for_wide_part = 32;
+SETTINGS min_rows_for_wide_part = '4', min_bytes_for_wide_part = '32';
 
 INSERT INTO tp SELECT
     number,
@@ -23,7 +20,7 @@ INSERT INTO tp SELECT
     number
 FROM numbers(5);
 
-CHECK TABLE tp SETTINGS check_query_single_value_result = 0, max_threads = 1;
+CHECK TABLE tp SETTINGS check_query_single_value_result = '0', max_threads = '1';
 
 DROP TABLE tp;
 
@@ -33,28 +30,23 @@ CREATE TABLE tp
     k UInt64,
     v1 UInt64,
     v2 Int64,
-    PROJECTION p1 (    SELECT
-        p,
-        sum(k),
-        sum(v1),
-        sum(v2)
-    GROUP BY p)
+    PROJECTION p1 (SELECT p, sum(k), sum(v1), sum(v2) GROUP BY p)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY k
 PARTITION BY toYYYYMM(p)
-SETTINGS min_bytes_for_wide_part = 0;
+SETTINGS min_bytes_for_wide_part = '0';
 
 INSERT INTO tp (p, k, v1, v2);
 
 CREATE TABLE tp
 (
     x int,
-    PROJECTION p (    SELECT sum(x))
+    PROJECTION p (SELECT sum(x))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS min_rows_for_wide_part = 2, min_bytes_for_wide_part = 0;
+SETTINGS min_rows_for_wide_part = '2', min_bytes_for_wide_part = '0';
 
 INSERT INTO tp;
 

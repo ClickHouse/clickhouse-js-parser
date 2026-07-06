@@ -5,14 +5,14 @@ FROM (
                 SELECT number AS x
                 FROM `system`.numbers
                 SETTINGS
-                    max_rows_to_read = 10,
+                    max_rows_to_read = '10',
                     read_overflow_mode = 'break',
-                    max_block_size = 2
+                    max_block_size = '2'
             )
         SETTINGS
-            max_rows_to_read = 20,
+            max_rows_to_read = '20',
             read_overflow_mode = 'break',
-            max_block_size = 2
+            max_block_size = '2'
     );
 
 SELECT sum(x)
@@ -22,14 +22,14 @@ FROM (
                 SELECT number AS x
                 FROM `system`.numbers
                 SETTINGS
-                    max_rows_to_read = 20,
+                    max_rows_to_read = '20',
                     read_overflow_mode = 'break',
-                    max_block_size = 2
+                    max_block_size = '2'
             )
         SETTINGS
-            max_rows_to_read = 10,
+            max_rows_to_read = '10',
             read_overflow_mode = 'break',
-            max_block_size = 2
+            max_block_size = '2'
     );
 
 SELECT
@@ -41,8 +41,8 @@ FROM (
                 SELECT zero AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 10,
+                    max_block_size = '2',
+                    max_rows_to_read = '10',
                     read_overflow_mode = 'break'
             )
         UNION ALL
@@ -51,8 +51,8 @@ FROM (
                 SELECT zero + 1 AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 20,
+                    max_block_size = '2',
+                    max_rows_to_read = '20',
                     read_overflow_mode = 'break'
             )
     );
@@ -64,8 +64,8 @@ FROM (
                 SELECT zero AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 10,
+                    max_block_size = '2',
+                    max_rows_to_read = '10',
                     read_overflow_mode = 'break'
             )
         UNION ALL
@@ -74,8 +74,8 @@ FROM (
                 SELECT zero + 1 AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 20,
+                    max_block_size = '2',
+                    max_rows_to_read = '20',
                     read_overflow_mode = 'break'
             )
     );
@@ -89,8 +89,8 @@ FROM (
                 SELECT zero AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 20,
+                    max_block_size = '2',
+                    max_rows_to_read = '20',
                     read_overflow_mode = 'break'
             )
         UNION ALL
@@ -99,8 +99,8 @@ FROM (
                 SELECT zero + 1 AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 10,
+                    max_block_size = '2',
+                    max_rows_to_read = '10',
                     read_overflow_mode = 'break'
             )
     );
@@ -112,8 +112,8 @@ FROM (
                 SELECT zero AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 20,
+                    max_block_size = '2',
+                    max_rows_to_read = '20',
                     read_overflow_mode = 'break'
             )
         UNION ALL
@@ -122,8 +122,8 @@ FROM (
                 SELECT zero + 1 AS x
                 FROM `system`.zeros
                 SETTINGS
-                    max_block_size = 2,
-                    max_rows_to_read = 10,
+                    max_block_size = '2',
+                    max_rows_to_read = '10',
                     read_overflow_mode = 'break'
             )
     );

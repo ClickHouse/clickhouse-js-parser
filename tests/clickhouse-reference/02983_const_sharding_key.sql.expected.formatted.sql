@@ -13,13 +13,13 @@ CREATE TABLE shard_0.t_local
 (
     a Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE shard_1.t_local
 (
     a Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_distr
 (
@@ -27,11 +27,11 @@ CREATE TABLE t_distr
 )
 ENGINE = Distributed(test_cluster_two_shards_different_databases, '', 't_local', 1000);
 
-SET distributed_foreground_insert = 0;
+SET distributed_foreground_insert = '0';
 
 INSERT INTO t_distr;
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
 INSERT INTO t_distr;
 

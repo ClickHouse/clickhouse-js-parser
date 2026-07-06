@@ -6,7 +6,7 @@ CREATE TABLE test_local
 (
     x Int64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x AS
 SELECT *
 FROM numbers(10);
@@ -34,6 +34,6 @@ WHERE * IN (
         FROM numbers(10)
     );
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 DROP TABLE test_local;

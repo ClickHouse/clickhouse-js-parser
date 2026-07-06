@@ -1,4 +1,4 @@
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 DROP TABLE IF EXISTS test_empty;
 
@@ -6,7 +6,7 @@ CREATE TABLE test_empty
 (
     a Array(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_empty;
@@ -24,9 +24,9 @@ CREATE TABLE test_null
 (
     a Array(Nullable(Int64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO test_null;
 
@@ -45,7 +45,7 @@ CREATE TABLE test_nested_arrays
 (
     a Array(Array(Int64))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_nested_arrays;
@@ -65,7 +65,7 @@ CREATE TABLE test_numbers
 (
     a Array(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_numbers;
@@ -87,7 +87,7 @@ CREATE TABLE test_big_numbers_sep
 (
     a Array(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_big_numbers_sep SELECT array(number)
@@ -104,7 +104,7 @@ CREATE TABLE test_big_numbers
 (
     a Array(Int64)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_big_numbers SELECT range(100000);
@@ -127,7 +127,7 @@ CREATE TABLE test_string
 (
     a Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_string;
@@ -147,7 +147,7 @@ CREATE TABLE test_big_string
 (
     a Array(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_big_string SELECT groupArray(toString(number))
@@ -174,7 +174,7 @@ CREATE TABLE test_datetime
 (
     a Array(DateTime)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_datetime;
@@ -192,7 +192,7 @@ CREATE TABLE test_date32
 (
     a Array(Date32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_date32;
@@ -208,7 +208,7 @@ CREATE TABLE test_date
 (
     a Array(Date)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY a;
 
 INSERT INTO test_date;

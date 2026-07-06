@@ -11,7 +11,7 @@ FROM
         FROM test.hits
         GROUP BY domain
     )
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             domain(StartURL) AS domain,
             sum(Sign) AS visits
@@ -21,4 +21,4 @@ LEFT JOIN (
     USING (domain)
 ORDER BY hits DESC
 LIMIT 10
-SETTINGS joined_subquery_requires_alias = 0;
+SETTINGS joined_subquery_requires_alias = '0';

@@ -1,6 +1,6 @@
 SELECT DISTINCT x
 FROM (
-        SELECT toFixedString(if(number < 20, '', 'Hello'), 5) AS x
+        SELECT toFixedString(number < 20 ? '' : 'Hello', 5) AS x
         FROM `system`.numbers
         LIMIT 50
     )

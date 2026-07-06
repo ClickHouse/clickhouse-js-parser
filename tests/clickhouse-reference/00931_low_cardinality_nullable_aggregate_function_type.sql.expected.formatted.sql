@@ -8,7 +8,7 @@ CREATE TABLE lc
 )
 ENGINE = MergeTree()
 ORDER BY date
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO lc SELECT
     '2019-01-01',

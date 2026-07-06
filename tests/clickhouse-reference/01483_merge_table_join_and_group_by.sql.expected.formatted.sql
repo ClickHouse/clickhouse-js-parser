@@ -8,7 +8,7 @@ CREATE TABLE a
 (
     key UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE b
@@ -16,7 +16,7 @@ CREATE TABLE b
     key UInt32,
     ID UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY key;
 
 CREATE TABLE m
@@ -94,12 +94,12 @@ SELECT
 FROM
     m
 FULL JOIN b
-    ON (m.key == b.key)
+    ON m.key = b.key
 GROUP BY key;
 
 SELECT sum(b.ID + m.key)
 FROM
     m
 FULL JOIN b
-    ON (m.key == b.key)
+    ON m.key = b.key
 GROUP BY key;

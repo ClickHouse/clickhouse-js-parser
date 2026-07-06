@@ -18,7 +18,7 @@ CREATE DICTIONARY always_alive_ids_dict
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE 'always_alive_ids'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 LAYOUT(HASHED());
 
 CREATE TABLE ttl_dict
@@ -26,9 +26,9 @@ CREATE TABLE ttl_dict
     id UInt64,
     event_date Date
 )
-ENGINE = MergeTree
-ORDER BY (id)
-TTL event_date + toIntervalMonth(1) WHERE NOT dictHas(concat({CLICKHOUSE_DATABASE:String}, '.always_alive_ids_dict'), id);
+ENGINE = MergeTree()
+ORDER BY id
+TTL event_date + toIntervalMonth(1) WHERE NOT dictHas('placeholder' || '.always_alive_ids_dict', id);
 
 INSERT INTO ttl_dict;
 

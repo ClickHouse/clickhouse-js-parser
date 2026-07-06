@@ -1,6 +1,6 @@
-SET enable_full_text_index = 1;
+SET enable_full_text_index = '1';
 
-SET use_skip_indexes_on_data_read = 1;
+SET use_skip_indexes_on_data_read = '1';
 
 -- Tests for text indexes build on expressions
 DROP TABLE IF EXISTS tab;
@@ -10,12 +10,12 @@ CREATE TABLE tab
     id UInt64,
     s1 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
 
-ALTER TABLE tab ADD INDEX idx_text lower(s1) TYPE text(tokenizer = splitByNonAlpha);
+ALTER TABLE tab ADD INDEX idx_text lower(s1) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000;
 
 INSERT INTO tab;
 
@@ -37,12 +37,12 @@ CREATE TABLE tab
     s1 String,
     s2 String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id;
 
 INSERT INTO tab;
 
-ALTER TABLE tab ADD INDEX idx_text concat(s1, ' ', s2) TYPE text(tokenizer = splitByNonAlpha);
+ALTER TABLE tab ADD INDEX idx_text concat(s1, ' ', s2) TYPE text(tokenizer = splitByNonAlpha) GRANULARITY 100000000;
 
 INSERT INTO tab;
 

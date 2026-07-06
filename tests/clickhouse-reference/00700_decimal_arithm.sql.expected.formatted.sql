@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS decimal
     n FixED(12, 6),
     o fixed(8, 6)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO decimal (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o);
 
@@ -363,15 +363,15 @@ WHERE j > 0;
 
 SELECT
     a,
-    negate(a),
-    negate(b),
-    negate(c),
-    negate(d),
-    negate(e),
-    negate(f),
-    negate(g),
-    negate(h),
-    negate(j)
+    -a,
+    -b,
+    -c,
+    -d,
+    -e,
+    -f,
+    -g,
+    -h,
+    -j
 FROM decimal
 ORDER BY a ASC;
 
@@ -388,17 +388,17 @@ SELECT
 FROM decimal
 ORDER BY a ASC;
 
-SET decimal_check_overflow = 0;
+SET decimal_check_overflow = '0';
 
 SELECT
-    (h * h) != 0,
-    (h / h) != 1
+    h * h != 0,
+    h / h != 1
 FROM decimal
 WHERE h > 0;
 
 SELECT
-    (i * i) != 0,
-    (i / i) = 1
+    i * i != 0,
+    i / i = 1
 FROM decimal
 WHERE i > 0;
 
@@ -453,19 +453,19 @@ SELECT
 
 -- { echoOn }
 SELECT toDecimal128(1, 38) / toDecimal128(1, 0)
-SETTINGS decimal_check_overflow = 1;
+SETTINGS decimal_check_overflow = '1';
 
 SELECT toDecimal128(1, 38) / toDecimal128(1, 1)
-SETTINGS decimal_check_overflow = 1; -- { serverError DECIMAL_OVERFLOW }
+SETTINGS decimal_check_overflow = '1'; -- { serverError DECIMAL_OVERFLOW }
 
 SELECT toDecimal128(1, 38) / toDecimal128(1, 1)
-SETTINGS decimal_check_overflow = 0;
+SETTINGS decimal_check_overflow = '0';
 
 SELECT toDecimal128(1, 37) / toDecimal128(1, 1)
-SETTINGS decimal_check_overflow = 1;
+SETTINGS decimal_check_overflow = '1';
 
 SELECT toDecimal128(1, 19) / toDecimal128(1, 19)
-SETTINGS decimal_check_overflow = 1;
+SETTINGS decimal_check_overflow = '1';
 
 SELECT toDecimal128(1, 20) / toDecimal128(1, 19)
-SETTINGS decimal_check_overflow = 1; -- { serverError DECIMAL_OVERFLOW }
+SETTINGS decimal_check_overflow = '1'; -- { serverError DECIMAL_OVERFLOW }

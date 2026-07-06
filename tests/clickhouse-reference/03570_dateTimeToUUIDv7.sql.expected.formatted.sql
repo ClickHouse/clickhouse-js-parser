@@ -25,5 +25,5 @@ SELECT dateTimeToUUIDv7(toDateTime('2021-08-15 18:57:56', 'UTC')) != dateTimeToU
 
 SELECT
     toDateTime('2021-08-15 18:57:56', 'UTC') AS d,
-    UUIDv7ToDateTime(dateTimeToUUIDv7(d), 'UTC') == d,
-    UUIDv7ToDateTime(dateTimeToUUIDv7(materialize(d)), 'UTC') == d;
+    UUIDv7ToDateTime(dateTimeToUUIDv7(d), 'UTC') = d,
+    UUIDv7ToDateTime(dateTimeToUUIDv7(materialize(d)), 'UTC') = d;

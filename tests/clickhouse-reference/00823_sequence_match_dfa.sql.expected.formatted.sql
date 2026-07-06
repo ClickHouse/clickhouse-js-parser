@@ -7,18 +7,18 @@ CREATE TABLE sequence
     eventType Enum8('A' = 1, 'B' = 2, 'C' = 3, 'D' = 4),
     EventTime UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO sequence SELECT
     1,
-    if(number = 0, 'A', (if(number < 1000000, 'B', 'C'))),
+    number = 0 ? 'A' : (number < 1000000 ? 'B' : 'C'),
     number
 FROM numbers(1000001);
 
 INSERT INTO sequence SELECT
     1,
     'D',
-    1e14;
+    100000000000000.;
 
 SELECT 'ABC'
 FROM sequence

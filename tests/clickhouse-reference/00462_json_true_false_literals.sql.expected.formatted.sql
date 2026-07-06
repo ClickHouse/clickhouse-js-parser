@@ -6,9 +6,9 @@ CREATE TABLE json
     x UInt8,
     title String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
-INSERT INTO json;
+INSERT INTO json FORMAT JSONEachRow;
 
 SELECT *
 FROM json

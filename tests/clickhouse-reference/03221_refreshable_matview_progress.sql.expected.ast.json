@@ -1,146 +1,206 @@
 [
   {
-    "kind": "createMaterializedView",
-    "table": {
-      "kind": "tableRef",
-      "table": "03221_rmv"
-    },
-    "refresh": "AFTER 10 SECOND",
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    },
-    "asQuery": {
-      "kind": "union",
-      "queries": [
-        {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              },
-              "alias": "x"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "is_materialized_view": true,
+      "table": {
+        "type": "Identifier",
+        "name": "03221_rmv"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
             }
-          ],
-          "from": {
-            "kind": "tableFunctionRef",
-            "name": "numbers",
-            "args": [
+          }
+        ]
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "3"
+                "type": "Identifier",
+                "alias": "x",
+                "name": "number"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "x",
+                "name": "rand64",
+                "arguments": []
               }
             ]
           }
-        },
-        {
-          "kind": "select",
-          "select": [
+        ]
+      },
+      "targets": {
+        "type": "ViewTargets",
+        "targets": [
+          {
+            "kind": "to",
+            "inner_engine": {
+              "type": "Storage",
+              "engine": {
+                "type": "Function",
+                "name": "Memory",
+                "kind": "TABLE_ENGINE",
+                "arguments": []
+              }
+            }
+          }
+        ]
+      },
+      "refresh": {
+        "type": "RefreshStrategy",
+        "schedule_kind": "AFTER",
+        "period": {
+          "type": "TimeInterval",
+          "interval": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "rand64",
-                "args": []
-              },
-              "alias": "x"
+              "kind": "Second",
+              "value": "10"
             }
           ]
         }
-      ]
-    },
-    "leadingComments": [
-      "-- Tags: no-replicated-database, no-ordinary-database"
-    ]
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM WAIT VIEW 03221_rmv"
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "read_rows"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "total_rows"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "progress"
-        ]
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "database": "system",
-      "table": "view_refreshes"
-    },
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "WAIT VIEW",
+      "table": {
+        "type": "Identifier",
+        "name": "03221_rmv"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "read_rows"
+            },
+            {
+              "type": "Identifier",
+              "name": "total_rows"
+            },
+            {
+              "type": "Identifier",
+              "name": "progress"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "view_refreshes",
+                    "database": "system"
+                  }
+                }
+              }
             ]
           },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "view"
+          "where": {
+            "type": "Function",
+            "name": "and",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "database"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "currentDatabase",
+                    "arguments": []
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "name": "equals",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "view"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "03221_rmv"
+                  }
+                ]
+              }
             ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "String",
-            "value": "03221_rmv"
           }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "03221_rmv"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "03221_rmv"
+      }
     }
   }
 ]

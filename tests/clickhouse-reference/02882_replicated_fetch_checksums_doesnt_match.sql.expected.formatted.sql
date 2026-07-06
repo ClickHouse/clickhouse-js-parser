@@ -33,7 +33,7 @@ SYSTEM STOP REPLICATION QUEUES checksums_r2;
 
 SYSTEM STOP REPLICATION QUEUES checksums_r3;
 
-ALTER TABLE checksums_r1 MODIFY COLUMN column1 Int32 SETTINGS alter_sync = 1;
+ALTER TABLE checksums_r1 MODIFY COLUMN column1 Int32 SETTINGS alter_sync = '1';
 
 INSERT INTO checksums_r1;
 
@@ -58,11 +58,11 @@ SYSTEM SYNC REPLICA checksums_r3;
 
 SYSTEM FLUSH LOGS text_log;
 
-SET max_rows_to_read = 0; -- system.text_log can be really big
+SET max_rows_to_read = '0'; -- system.text_log can be really big
 
 SELECT *
 FROM `system`.text_log
 WHERE event_time >= now() - toIntervalSecond(120)
-    AND level == 'Error'
-    AND like(message, '%CHECKSUM_DOESNT_MATCH%')
-    AND like(logger_name, (concat('%', currentDatabase(), '%checksums_r%')));
+    AND level = 'Error'
+    AND message LIKE '%CHECKSUM_DOESNT_MATCH%'
+    AND logger_name LIKE '%' || currentDatabase() || '%checksums_r%';

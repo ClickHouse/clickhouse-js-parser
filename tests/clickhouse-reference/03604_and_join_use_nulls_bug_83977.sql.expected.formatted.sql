@@ -3,8 +3,8 @@ CREATE TABLE AA
     key String,
     value Int64
 )
-ENGINE = MergeTree
-ORDER BY (key);
+ENGINE = MergeTree()
+ORDER BY key;
 
 INSERT INTO AA;
 
@@ -13,8 +13,8 @@ CREATE TABLE B
     key String,
     flag Bool
 )
-ENGINE = MergeTree
-ORDER BY (key);
+ENGINE = MergeTree()
+ORDER BY key;
 
 INSERT INTO B;
 
@@ -22,8 +22,8 @@ CREATE TABLE C
 (
     key String
 )
-ENGINE = MergeTree
-ORDER BY (key);
+ENGINE = MergeTree()
+ORDER BY key;
 
 INSERT INTO C;
 
@@ -40,5 +40,5 @@ FROM (
     )
 ORDER BY `ALL` ASC
 SETTINGS
-    join_use_nulls = 1,
-    enable_analyzer = 1;
+    join_use_nulls = '1',
+    enable_analyzer = '1';

@@ -7,9 +7,9 @@ CREATE TABLE t
     f2 Nullable(String),
     c Nullable(Int64)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (f1, f2, d)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t SELECT
     toDate('2023-09-10', 'UTC') AS d,
@@ -34,9 +34,9 @@ CREATE TABLE t
     f2 Nullable(String),
     c Nullable(Int64)
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY (f1, f2, d)
-SETTINGS allow_nullable_key = 1, index_granularity = 1;
+SETTINGS allow_nullable_key = '1', index_granularity = '1';
 
 INSERT INTO t SELECT
     toDate('2023-09-10', 'UTC') AS d,
@@ -50,9 +50,9 @@ CREATE TABLE t
     o Nullable(String),
     p Nullable(String)
 )
-ENGINE = ReplacingMergeTree
+ENGINE = ReplacingMergeTree()
 ORDER BY (p, o)
-SETTINGS allow_nullable_key = 1, index_granularity = 2;
+SETTINGS allow_nullable_key = '1', index_granularity = '2';
 
 INSERT INTO t SELECT
     number,

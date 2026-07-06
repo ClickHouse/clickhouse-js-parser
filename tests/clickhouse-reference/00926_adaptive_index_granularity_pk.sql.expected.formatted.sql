@@ -28,30 +28,32 @@ CREATE TABLE pk
 ENGINE = MergeTree()
 ORDER BY (toStartOfMinute(x, 'UTC'), y, z)
 PARTITION BY d
-SETTINGS index_granularity_bytes = 19, min_index_granularity_bytes = 9, write_final_mark = 0; -- one row granule
+SETTINGS index_granularity_bytes = '19', min_index_granularity_bytes = '9', write_final_mark = '0'; -- one row granule
 
 INSERT INTO pk (x, y, z);
 
-SET max_block_size = 1;
+SET max_block_size = '1';
 
 -- Test inferred limit
-SET max_rows_to_read = 5;
+SET max_rows_to_read = '5';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE and(greaterOrEquals(x, toDateTime(0)), lessOrEquals(x, toDateTime(59)));
+WHERE x >= toDateTime(0)
+    AND x <= toDateTime(59);
 
-SET max_rows_to_read = 9;
+SET max_rows_to_read = '9';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE and(greaterOrEquals(x, toDateTime(120)), lessOrEquals(x, toDateTime(240)));
+WHERE x >= toDateTime(120)
+    AND x <= toDateTime(240);
 
 SELECT
     toUInt32(x),
@@ -61,14 +63,15 @@ FROM pk
 WHERE x = toDateTime(1);
 
 -- Index works on interval 00:01:00 - 00:01:59
-SET max_rows_to_read = 4;
+SET max_rows_to_read = '4';
 
 SELECT
     toUInt32(x),
     y,
     z
 FROM pk
-WHERE (and(greaterOrEquals(x, toDateTime(60)), lessOrEquals(x, toDateTime(119))))
+WHERE (x >= toDateTime(60)
+    AND x <= toDateTime(119))
     AND y = 11;
 
 SELECT
@@ -76,14 +79,15 @@ SELECT
     y,
     z
 FROM pk
-WHERE (and(greaterOrEquals(x, toDateTime(60)), lessOrEquals(x, toDateTime(120))))
+WHERE (x >= toDateTime(60)
+    AND x <= toDateTime(120))
     AND y = 11;
 
 DROP TABLE pk;
 
-SET max_block_size = 8192;
+SET max_block_size = '8192';
 
-SET max_rows_to_read = 0;
+SET max_rows_to_read = '0';
 
 DROP TABLE IF EXISTS merge_tree;
 
@@ -91,15 +95,15 @@ CREATE TABLE merge_tree
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
-SETTINGS index_granularity_bytes = 4, min_index_granularity_bytes = 1, write_final_mark = 0;
+SETTINGS index_granularity_bytes = '4', min_index_granularity_bytes = '1', write_final_mark = '0';
 
 INSERT INTO merge_tree;
 
-SET force_primary_key = 1;
+SET force_primary_key = '1';
 
-SET max_rows_to_read = 1;
+SET max_rows_to_read = '1';
 
 SELECT count()
 FROM merge_tree
@@ -127,24 +131,24 @@ WHERE toUInt64(x) IN (0, 0);
 
 DROP TABLE merge_tree;
 
-SET force_primary_key = 0;
+SET force_primary_key = '0';
 
 DROP TABLE IF EXISTS large_alter_table_00926;
 
 DROP TABLE IF EXISTS store_of_hash_00926;
 
-SET allow_suspicious_codecs = 1;
+SET allow_suspicious_codecs = '1';
 
 CREATE TABLE large_alter_table_00926
 (
-    somedate Date CODEC(ZSTD, ZSTD, ZSTD(12), LZ4HC(12)),
-    id UInt64 CODEC(LZ4, ZSTD, NONE, LZ4HC),
-    data String CODEC(ZSTD(2), LZ4HC, NONE, LZ4, LZ4)
+    somedate Date CODEC(ZSTD(), ZSTD(), ZSTD(12), LZ4HC(12)),
+    id UInt64 CODEC(LZ4(), ZSTD(), NONE(), LZ4HC()),
+    data String CODEC(ZSTD(2), LZ4HC(), NONE(), LZ4(), LZ4())
 )
 ENGINE = MergeTree()
 ORDER BY id
 PARTITION BY somedate
-SETTINGS min_index_granularity_bytes = 30, write_final_mark = 0, min_bytes_for_wide_part = '10M', min_rows_for_wide_part = 0;
+SETTINGS min_index_granularity_bytes = '30', write_final_mark = '0', min_bytes_for_wide_part = '10M', min_rows_for_wide_part = '0';
 
 INSERT INTO large_alter_table_00926 SELECT
     toDate('2019-01-01'),
@@ -162,7 +166,7 @@ ENGINE = Memory();
 INSERT INTO store_of_hash_00926 SELECT sum(cityHash64(*))
 FROM large_alter_table_00926;
 
-ALTER TABLE large_alter_table_00926 MODIFY COLUMN data CODEC(NONE, LZ4, LZ4HC, ZSTD);
+ALTER TABLE large_alter_table_00926 MODIFY COLUMN data CODEC(NONE(), LZ4(), LZ4HC(), ZSTD());
 
 OPTIMIZE TABLE large_alter_table_00926;
 

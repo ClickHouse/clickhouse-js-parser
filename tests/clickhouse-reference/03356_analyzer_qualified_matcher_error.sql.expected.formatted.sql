@@ -2,7 +2,7 @@ CREATE TABLE test_table
 (
     smt String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY smt;
 
 WITH statement1 AS (

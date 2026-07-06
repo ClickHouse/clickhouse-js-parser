@@ -32,4 +32,4 @@ FROM test_03217_all_replicas
 WHERE _table = 'test_03217_merge_replica_1'
     AND x >= 0
 GROUP BY _table
-SETTINGS enable_analyzer = 1;
+SETTINGS enable_analyzer = '1';

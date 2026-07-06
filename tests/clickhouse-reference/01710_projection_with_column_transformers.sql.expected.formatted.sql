@@ -3,9 +3,9 @@ DROP TABLE IF EXISTS foo;
 CREATE TABLE foo
 (
     bar String,
-    PROJECTION p (    SELECT * APPLY(groupUniqArray(100)))
+    PROJECTION p (SELECT * APPLY(groupUniqArray(100)))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY bar;
 
 SHOW CREATE TABLE foo;

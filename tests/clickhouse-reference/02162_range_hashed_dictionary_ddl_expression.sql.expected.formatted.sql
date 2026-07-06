@@ -6,7 +6,7 @@ CREATE TABLE `02162_test_table`
     value String,
     range_value UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02162_test_table`;
 
@@ -22,7 +22,7 @@ CREATE DICTIONARY `02162_test_dictionary`
 )
 PRIMARY KEY id
 SOURCE(clickhouse(TABLE '02162_test_table'))
-LIFETIME(0)
+LIFETIME(MIN 0 MAX 0)
 RANGE(MIN start MAX `end`)
 LAYOUT(RANGE_HASHED());
 

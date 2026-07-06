@@ -7,7 +7,7 @@ CREATE TABLE add_aggregate
     a UInt32,
     b UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO add_aggregate;
 

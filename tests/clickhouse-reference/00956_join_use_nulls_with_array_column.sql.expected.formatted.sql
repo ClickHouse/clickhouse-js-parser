@@ -1,9 +1,9 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT number
 FROM
     `system`.numbers
-LEFT JOIN (
+SEMI LEFT JOIN (
         SELECT
             number,
             ['test']
@@ -16,7 +16,7 @@ LIMIT 1;
 SELECT number
 FROM
     `system`.numbers
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             number,
             ['test']

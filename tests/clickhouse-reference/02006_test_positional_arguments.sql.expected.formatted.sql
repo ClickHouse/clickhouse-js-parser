@@ -1,8 +1,8 @@
-SET group_by_two_level_threshold = 100000;
+SET group_by_two_level_threshold = '100000';
 
-SET enable_positional_arguments = 1;
+SET enable_positional_arguments = '1';
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS test;
 
@@ -313,7 +313,7 @@ CREATE TABLE test2
     x2 Int,
     x3 Int
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test2;
 
@@ -519,10 +519,10 @@ CREATE TABLE test
     id UInt32,
     time UInt32,
     INDEX id id TYPE set(0) GRANULARITY 3,
-    INDEX time time TYPE minmax GRANULARITY 3
+    INDEX time time TYPE minmax() GRANULARITY 3
 )
 ENGINE = MergeTree()
-ORDER BY (time);
+ORDER BY time;
 
 SELECT
     count(*) AS value,

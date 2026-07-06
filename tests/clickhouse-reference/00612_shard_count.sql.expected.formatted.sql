@@ -5,7 +5,7 @@ CREATE TABLE count
 (
     x UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO count SELECT *

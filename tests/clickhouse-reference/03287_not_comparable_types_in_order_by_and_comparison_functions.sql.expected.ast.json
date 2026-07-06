@@ -1,340 +1,467 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "enable_json_type",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "enable_json_type": "1"
       }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "agg1",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "sum"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "agg2",
-        "type": {
-          "name": "AggregateFunction",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "sum"
-              }
-            },
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "functionCall",
-          "name": "sumState",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+        "type": "Identifier",
+        "name": "test"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "agg1",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
               ]
             }
-          ]
-        },
-        {
-          "kind": "functionCall",
-          "name": "sumState",
-          "args": [
-            {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "agg2",
+            "data_type": {
+              "type": "DataType",
+              "name": "AggregateFunction",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "sum"
+                },
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "sumState",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
                 ]
               },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
+              {
+                "type": "Function",
+                "name": "sumState",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "plus",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
               }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "10"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
             }
-          ]
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
-          {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "10"
           }
         ]
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ],
-    "trailingComments": [
-      "-- {serverError ILLEGAL_COLUMN}"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "<",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "agg1"
+              },
+              "direction": "ASC"
+            }
           ]
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "<=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
-          ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "less",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
-          ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "lessOrEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": ">=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
-          ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greater",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
-          ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "greaterOrEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "binaryExpr",
-        "op": "!=",
-        "left": {
-          "kind": "columnRef",
-          "parts": [
-            "agg1"
-          ]
-        },
-        "right": {
-          "kind": "columnRef",
-          "parts": [
-            "agg2"
-          ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "equals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
         }
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "trailingComments": [
-      "-- {serverError ILLEGAL_TYPE_OF_ARGUMENT}"
-    ]
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "notEquals",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "agg1"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "agg2"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      }
     }
   }
 ]

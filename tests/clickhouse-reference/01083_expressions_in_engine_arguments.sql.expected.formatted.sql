@@ -1,5 +1,5 @@
 -- Tags: no-parallel, no-fasttest
-SET prefer_localhost_replica = 1;
+SET prefer_localhost_replica = '1';
 
 DROP TABLE IF EXISTS file;
 
@@ -25,7 +25,7 @@ CREATE TABLE file
 (
     n Int8
 )
-ENGINE = File(concat(upper('tsv'), 'WithNames', 'AndTypes'));
+ENGINE = File(upper('tsv') || 'WithNames' || 'AndTypes');
 
 CREATE TABLE buffer
 (
@@ -45,9 +45,9 @@ CREATE TABLE distributed
 (
     n Int8
 )
-ENGINE = Distributed(test_shard_localhost, currentDatabase(), concat('fi', 'le'));
+ENGINE = Distributed(test_shard_localhost, currentDatabase(), 'fi' || 'le');
 
-CREATE TABLE distributed_tf AS cluster(concat('test', '_', 'shard_localhost'), '', concat('buf', 'fer'));
+CREATE TABLE distributed_tf AS cluster('test' || '_' || 'shard_localhost', '', 'buf' || 'fer');
 
 INSERT INTO buffer;
 
@@ -60,7 +60,7 @@ CREATE TABLE url
     n UInt64,
     col String
 )
-ENGINE = URL(replace(concat('https://localhost:', getServerPort('https_port'), '/?query=', 'select n, _table from ', currentDatabase(), '.merge format CSV'), ' ', '+'), CSV);
+ENGINE = URL(replace('https://localhost:' || getServerPort('https_port') || '/?query=' || 'select n, _table from ' || currentDatabase() || '.merge format CSV', ' ', '+'), CSV);
 
 CREATE VIEW view
 AS
@@ -85,13 +85,13 @@ CREATE DICTIONARY dict
 )
 PRIMARY KEY n
 SOURCE(clickhouse(HOST 'localhost' PORT getServerPort('tcp_port_secure') SECURE 1 USER 'default' TABLE 'url'))
-LIFETIME(1)
+LIFETIME(MIN 0 MAX 1)
 LAYOUT(CACHE(SIZE_IN_CELLS 1));
 
 -- dict --> url --> merge |-> distributed -> file (1)
 --                        |-> distributed_tf -> buffer -> file (1)
 -- TODO make fuzz test from this
-CREATE TABLE rich_syntax AS remote('localhos{x|y|t}', cluster(concat('test', '_', 'shard_localhost'), remote('127.0.0.{1..4}', if(toString(40 + 2) NOT IN ('hello', dictGetString(concat(currentDatabase(), '.dict'), 'col', toUInt64('0001'))), currentDatabase(), 'FAIL'), extract('123view456', '[a-z]+'))));
+CREATE TABLE rich_syntax AS remote('localhos{x|y|t}', cluster('test' || '_' || 'shard_localhost', remote('127.0.0.{1..4}', if(toString(40 + 2) NOT IN ('hello', dictGetString(currentDatabase() || '.dict', 'col', toUInt64('0001'))), currentDatabase(), 'FAIL'), extract('123view456', '[a-z]+'))));
 
 SHOW CREATE TABLE file;
 
@@ -119,11 +119,11 @@ SHOW CREATE TABLE dict;
 --                                                     |-> remote(127.0.0.2) --> ...
 SELECT sum(n)
 FROM rich_syntax
-SETTINGS enable_parallel_replicas = 0;
+SETTINGS enable_parallel_replicas = '0';
 
 SELECT sum(n)
 FROM rich_syntax
-SETTINGS serialize_query_plan = 0;
+SETTINGS serialize_query_plan = '0';
 
 -- Clear cache to avoid future errors in the logs
 SYSTEM CLEAR DNS CACHE;

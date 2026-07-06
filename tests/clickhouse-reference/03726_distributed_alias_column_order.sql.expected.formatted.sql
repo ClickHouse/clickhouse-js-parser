@@ -6,7 +6,7 @@ CREATE TABLE test_local
     e String ALIAS 'e',
     f String ALIAS 'f'
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO test_local;
 

@@ -17,11 +17,11 @@ INSERT INTO test;
 SELECT *
 FROM test;
 
-SET engine_file_truncate_on_insert = 0;
+SET engine_file_truncate_on_insert = '0';
 
 INSERT INTO test;
 
-SET engine_file_truncate_on_insert = 1;
+SET engine_file_truncate_on_insert = '1';
 
 INSERT INTO test;
 

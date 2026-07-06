@@ -1,4 +1,4 @@
-SELECT CAST(tuple(), 'SimpleAggregateFunction(min, Tuple())');
+SELECT CAST((), 'SimpleAggregateFunction(min, Tuple())');
 
 DROP TABLE IF EXISTS tab;
 
@@ -6,7 +6,7 @@ CREATE TABLE tab
 (
     c0 Tuple()
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO tab;
 
@@ -35,9 +35,9 @@ CREATE TABLE t1
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
-UPDATE t1 SET c0 = tuple() WHERE true;
+UPDATE t1 SET c0 = () WHERE true;
 
 INSERT INTO t1 (c0);
 

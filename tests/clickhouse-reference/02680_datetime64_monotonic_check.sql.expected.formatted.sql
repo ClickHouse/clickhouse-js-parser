@@ -7,10 +7,10 @@ CREATE TABLE `02680_datetime64_monotonic_check`
     t DateTime64(3),
     x Nullable(Decimal(18, 14))
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x
 PARTITION BY toYYYYMMDD(t)
-SETTINGS allow_nullable_key = 1;
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO `02680_datetime64_monotonic_check`;
 
@@ -26,15 +26,15 @@ GROUP BY
 
 DROP TABLE `02680_datetime64_monotonic_check`;
 
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 CREATE TABLE `02680_datetime_monotonic_check_lc`
 (
     timestamp LowCardinality(UInt32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY timestamp
-SETTINGS index_granularity = 1;
+SETTINGS index_granularity = '1';
 
 INSERT INTO `02680_datetime_monotonic_check_lc`;
 

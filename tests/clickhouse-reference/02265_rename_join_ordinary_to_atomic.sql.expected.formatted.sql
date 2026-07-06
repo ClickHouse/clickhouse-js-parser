@@ -1,17 +1,17 @@
 -- Tags: no-parallel
 SET send_logs_level = 'fatal';
 
-SET allow_deprecated_database_ordinary = 1;
+SET allow_deprecated_database_ordinary = '1';
 
 DROP DATABASE IF EXISTS `02265_atomic_db`;
 
 DROP DATABASE IF EXISTS `02265_ordinary_db`;
 
 CREATE DATABASE `02265_atomic_db`
-ENGINE = Atomic;
+ENGINE = Atomic();
 
 CREATE DATABASE `02265_ordinary_db`
-ENGINE = Ordinary;
+ENGINE = Ordinary();
 
 CREATE TABLE `02265_ordinary_db`.join_table
 (

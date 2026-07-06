@@ -4,7 +4,7 @@
 -- underlying table) has the same counters, so if query on the remote node
 -- will be finished before local, then local node will already have some rows
 -- read, and leaf limit will fail.
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 SELECT count()
 FROM (
@@ -12,7 +12,7 @@ FROM (
         FROM remote('127.0.0.1', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_rows_to_read_leaf = 1; -- { serverError TOO_MANY_ROWS }
+SETTINGS max_rows_to_read_leaf = '1'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM (
@@ -20,7 +20,7 @@ FROM (
         FROM remote('127.0.0.1', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_bytes_to_read_leaf = 1; -- { serverError TOO_MANY_BYTES }
+SETTINGS max_bytes_to_read_leaf = '1'; -- { serverError TOO_MANY_BYTES }
 
 SELECT count()
 FROM (
@@ -28,7 +28,7 @@ FROM (
         FROM remote('127.0.0.1', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_rows_to_read_leaf = 100;
+SETTINGS max_rows_to_read_leaf = '100';
 
 SELECT count()
 FROM (
@@ -36,7 +36,7 @@ FROM (
         FROM remote('127.0.0.1', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_bytes_to_read_leaf = 1000;
+SETTINGS max_bytes_to_read_leaf = '1000';
 
 SELECT count()
 FROM (
@@ -44,7 +44,7 @@ FROM (
         FROM remote('127.0.0.2', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_rows_to_read_leaf = 1; -- { serverError TOO_MANY_ROWS }
+SETTINGS max_rows_to_read_leaf = '1'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM (
@@ -52,7 +52,7 @@ FROM (
         FROM remote('127.0.0.2', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_bytes_to_read_leaf = 1; -- { serverError TOO_MANY_BYTES }
+SETTINGS max_bytes_to_read_leaf = '1'; -- { serverError TOO_MANY_BYTES }
 
 SELECT count()
 FROM (
@@ -60,7 +60,7 @@ FROM (
         FROM remote('127.0.0.2', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_rows_to_read_leaf = 100;
+SETTINGS max_rows_to_read_leaf = '100';
 
 SELECT count()
 FROM (
@@ -68,13 +68,13 @@ FROM (
         FROM remote('127.0.0.2', `system`.numbers)
         LIMIT 100
     )
-SETTINGS max_bytes_to_read_leaf = 1000;
+SETTINGS max_bytes_to_read_leaf = '1000';
 
 DROP TABLE IF EXISTS test_local;
 
 DROP TABLE IF EXISTS test_distributed;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE test_local
 (
@@ -96,39 +96,39 @@ FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_rows_to_read_leaf = 40000; -- { serverError TOO_MANY_ROWS }
+SETTINGS max_rows_to_read_leaf = '40000'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_bytes_to_read_leaf = 40000; -- { serverError TOO_MANY_BYTES }
+SETTINGS max_bytes_to_read_leaf = '40000'; -- { serverError TOO_MANY_BYTES }
 
 SELECT count()
 FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_rows_to_read = 60000; -- { serverError TOO_MANY_ROWS }
+SETTINGS max_rows_to_read = '60000'; -- { serverError TOO_MANY_ROWS }
 
 SELECT count()
 FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_rows_to_read_leaf = 60000;
+SETTINGS max_rows_to_read_leaf = '60000';
 
 SELECT count()
 FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_bytes_to_read = 100000; -- { serverError TOO_MANY_BYTES }
+SETTINGS max_bytes_to_read = '100000'; -- { serverError TOO_MANY_BYTES }
 
 SELECT count()
 FROM (
         SELECT *
         FROM test_distributed
     )
-SETTINGS max_bytes_to_read_leaf = 100000;
+SETTINGS max_bytes_to_read_leaf = '100000';

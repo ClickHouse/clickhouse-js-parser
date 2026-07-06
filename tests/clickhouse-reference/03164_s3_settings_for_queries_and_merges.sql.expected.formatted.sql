@@ -1,14 +1,14 @@
 -- Tags: no-random-settings, no-fasttest, no-parallel
-SET allow_prefetched_read_pool_for_remote_filesystem = 0;
+SET allow_prefetched_read_pool_for_remote_filesystem = '0';
 
-SET allow_prefetched_read_pool_for_local_filesystem = 0;
+SET allow_prefetched_read_pool_for_local_filesystem = '0';
 
-SET max_threads = 1;
+SET max_threads = '1';
 
-SET remote_read_min_bytes_for_seek = 100000;
+SET remote_read_min_bytes_for_seek = '100000';
 
 -- Will affect INSERT, but not merge
-SET s3_check_objects_after_upload = 1;
+SET s3_check_objects_after_upload = '1';
 
 DROP TABLE IF EXISTS t_compact_bytes_s3;
 
@@ -20,9 +20,9 @@ CREATE TABLE t_compact_bytes_s3
     c4 UInt32,
     c5 UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c1
-SETTINGS index_granularity = 512, min_bytes_for_wide_part = '10G', storage_policy = 's3_no_cache', write_marks_for_substreams_in_compact_parts = 1;
+SETTINGS index_granularity = '512', min_bytes_for_wide_part = '10G', storage_policy = 's3_no_cache', write_marks_for_substreams_in_compact_parts = '1';
 
 INSERT INTO t_compact_bytes_s3 SELECT
     number,
@@ -50,7 +50,7 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND ilike(query, '%INSERT INTO t_compact_bytes_s3 SELECT number, number, number%');
+    AND query ILIKE '%INSERT INTO t_compact_bytes_s3 SELECT number, number, number%';
 
 SELECT
     ProfileEvents['S3ReadRequestsCount'] - ProfileEvents['S3ReadRequestsErrors'],
@@ -59,4 +59,4 @@ FROM `system`.query_log
 WHERE event_date >= yesterday()
     AND type = 'QueryFinish'
     AND current_database = currentDatabase()
-    AND ilike(query, '%OPTIMIZE TABLE t_compact_bytes_s3 FINAL%');
+    AND query ILIKE '%OPTIMIZE TABLE t_compact_bytes_s3 FINAL%';

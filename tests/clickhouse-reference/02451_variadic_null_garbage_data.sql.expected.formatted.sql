@@ -67,7 +67,7 @@ SELECT
     argMin((n, n), n) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 5 == 0, NULL, number) AS n
+        SELECT if(number % 5 = 0, NULL, number) AS n
         FROM numbers(5, 10)
     );
 
@@ -91,7 +91,7 @@ SELECT
     argMin((n, n), n) AS t,
     toTypeName(t)
 FROM (
-        SELECT if(number % 5 == 0, NULL, number::Int32) AS n
+        SELECT if(number % 5 = 0, NULL, number::Int32) AS n
         FROM numbers(5, 10)
     );
 
@@ -112,7 +112,7 @@ FROM (
     );
 
 SELECT
-    argMaxIf((n, n), n, n % 5 == 0) AS t,
+    argMaxIf((n, n), n, n % 5 = 0) AS t,
     toTypeName(t)
 FROM (
         SELECT if(number % 3 = 0, NULL, number) AS n

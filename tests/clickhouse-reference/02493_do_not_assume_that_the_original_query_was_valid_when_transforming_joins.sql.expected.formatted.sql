@@ -28,13 +28,13 @@ FROM
         FROM table1
         GROUP BY column1
     ) AS a
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT *
         FROM table2
     ) AS b
-    ON (b.column1 = a.column1)
-    AND (b.column2 = a.column2)
-LEFT JOIN (
+    ON b.column1 = a.column1
+    AND b.column2 = a.column2
+ANY LEFT JOIN (
         SELECT *
         FROM table3
     ) AS c

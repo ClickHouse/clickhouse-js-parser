@@ -5,9 +5,9 @@ CREATE TABLE spark_bar_test
     cnt UInt64,
     event_date Date
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY event_date
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO spark_bar_test;
 
@@ -101,16 +101,16 @@ FROM numbers(100);
 SELECT sparkbar(9)(x, y)
 FROM (
         SELECT *
-        FROM Values('x UInt64, y UInt8', (18446744073709551615,255), (0,0), (0,0), (4036797895307271799,254))
+        FROM Values('x UInt64, y UInt8', (18446744073709551615, 255), (0, 0), (0, 0), (4036797895307271799, 254))
     );
 
 SELECT
-    sparkbar(8, 0, 7)(((number + 1)) % 8, 1),
-    sparkbar(8, 0, 7)(((number + 2)) % 8, 1),
-    sparkbar(8, 0, 7)(((number + 3)) % 8, 1)
+    sparkbar(8, 0, 7)((number + 1) % 8, 1),
+    sparkbar(8, 0, 7)((number + 2) % 8, 1),
+    sparkbar(8, 0, 7)((number + 3) % 8, 1)
 FROM numbers(7);
 
-SELECT sparkbar(2)(number, negate(number))
+SELECT sparkbar(2)(number, -number)
 FROM numbers(10);
 
 SELECT sparkbar(10)(number, number - 7)
@@ -158,7 +158,7 @@ SELECT sparkbar(10)(number, toInt64(number))
 FROM numbers(toUInt64(9223372036854775807), 20)
 FORMAT Null;
 
-SELECT sparkbar(10)(number, negate(number))
+SELECT sparkbar(10)(number, -number)
 FROM numbers(toUInt64(9223372036854775807), 7)
 FORMAT Null;
 

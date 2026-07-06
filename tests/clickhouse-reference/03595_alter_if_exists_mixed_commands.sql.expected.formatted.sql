@@ -10,10 +10,10 @@ CREATE TABLE test_alter_mixed
     x Int32,
     y String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- This should succeed - DROP removes x, COMMENT with IF EXISTS should be silently ignored
-ALTER TABLE test_alter_mixed DROP COLUMN x, COMMENT COLUMN x 'test comment';
+ALTER TABLE test_alter_mixed DROP COLUMN x, COMMENT COLUMN IF EXISTS x 'test comment';
 
 DESCRIBE TABLE test_alter_mixed;
 
@@ -26,7 +26,7 @@ CREATE TABLE test_alter_mixed
     b String,
     c Float64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 -- Complex case: multiple drops and modifications including comments
-ALTER TABLE test_alter_mixed DROP COLUMN a, DROP COLUMN a, MODIFY COLUMN a Int64, COMMENT COLUMN a 'should be ignored', RENAME COLUMN a TO a_renamed, MODIFY COLUMN b String DEFAULT 'test', DROP COLUMN c, MODIFY COLUMN c Float32;
+ALTER TABLE test_alter_mixed DROP COLUMN a, DROP COLUMN IF EXISTS a, MODIFY COLUMN IF EXISTS a Int64, COMMENT COLUMN IF EXISTS a 'should be ignored', RENAME COLUMN IF EXISTS a TO a_renamed, MODIFY COLUMN IF EXISTS b String DEFAULT 'test', DROP COLUMN c, MODIFY COLUMN IF EXISTS c Float32;

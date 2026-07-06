@@ -1,5 +1,5 @@
 -- Tags: distributed
-SET enable_positional_arguments = 0;
+SET enable_positional_arguments = '0';
 
 SELECT quantilesTiming(0.1, 0.5, 0.9)(dummy)
 FROM remote('127.0.0.{2,3}', `system`, one)

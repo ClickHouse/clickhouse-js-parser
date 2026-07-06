@@ -10,7 +10,7 @@ CREATE TABLE t_uuid
     y UUID,
     z String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO t_uuid;
 

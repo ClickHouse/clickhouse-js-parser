@@ -37,13 +37,13 @@ CREATE TABLE `set`
     val UInt64
 )
 ENGINE = Set()
-SETTINGS persistent = 1;
+SETTINGS persistent = '1';
 
 CREATE TABLE `set`
 (
     val UInt64
 )
 ENGINE = Set()
-SETTINGS persistent = 0;
+SETTINGS persistent = '0';
 
 DROP TABLE number;

@@ -19,9 +19,9 @@ CREATE TABLE dist_01850
 )
 ENGINE = Distributed('test_cluster_two_replicas_different_databases', '', data_01850, key);
 
-SET distributed_foreground_insert = 1;
+SET distributed_foreground_insert = '1';
 
-SET prefer_localhost_replica = 0;
+SET prefer_localhost_replica = '0';
 
 INSERT INTO dist_01850; -- { serverError UNKNOWN_TABLE }
 

@@ -4,7 +4,7 @@ CREATE TABLE nation
     n_nationkey Int32,
     n_name String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY n_nationkey;
 
 CREATE TABLE customer
@@ -13,9 +13,9 @@ CREATE TABLE customer
     c_nationkey Int32,
     c_nationkey_copy Int32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY c_custkey
-SETTINGS index_granularity = 10;
+SETTINGS index_granularity = '10';
 
 SYSTEM STOP MERGES customer;
 
@@ -45,34 +45,34 @@ INSERT INTO customer SELECT
     100
 FROM numbers(10);
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET enable_join_runtime_filters = 1;
+SET enable_join_runtime_filters = '1';
 
-SET enable_parallel_replicas = 0;
+SET enable_parallel_replicas = '0';
 
 SET join_algorithm = 'hash,parallel_hash';
 
 SET query_plan_optimize_join_order_algorithm = 'greedy';
 
-SET query_plan_optimize_join_order_limit = 1;
+SET query_plan_optimize_join_order_limit = '1';
 
-SET query_plan_join_swap_table = 0;
+SET query_plan_join_swap_table = '0';
 
-SET enable_multiple_prewhere_read_steps = 1;
+SET enable_multiple_prewhere_read_steps = '1';
 
 -- 1 row in filter
 SELECT count()
 FROM
-    customer
-CROSS JOIN nation
+    customer,
+    nation
 WHERE c_nationkey = n_nationkey
     AND n_name = 'FRANCE'
     AND c_nationkey_copy = 6
 SETTINGS
-    join_runtime_filter_exact_values_limit = 100,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '100',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q1';
 
 -- Check that most of the blocks were skipped
@@ -81,7 +81,7 @@ SYSTEM FLUSH LOGS query_log;
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10 * ProfileEvents['RuntimeFilterBlocksProcessed'] AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q1'
@@ -91,21 +91,21 @@ WHERE type = 'QueryFinish'
 -- 2 rows in exact set
 SELECT count()
 FROM
-    customer
-CROSS JOIN nation
+    customer,
+    nation
 WHERE c_nationkey = n_nationkey
     AND n_name IN ('FRANCE', 'GERMANY')
     AND c_nationkey_copy IN (6, 7)
 SETTINGS
-    join_runtime_filter_exact_values_limit = 100,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '100',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q2';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10 * ProfileEvents['RuntimeFilterBlocksProcessed'] AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q2'
@@ -115,21 +115,21 @@ WHERE type = 'QueryFinish'
 -- 3 rows in bloom filter
 SELECT count()
 FROM
-    customer
-CROSS JOIN nation
+    customer,
+    nation
 WHERE c_nationkey = n_nationkey
     AND n_name IN ('FRANCE', 'GERMANY', 'ETHIOPIA')
     AND c_nationkey_copy IN (6, 7, 5)
 SETTINGS
-    join_runtime_filter_exact_values_limit = 1,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '1',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q3';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10 * ProfileEvents['RuntimeFilterBlocksProcessed'] AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q3'
@@ -139,21 +139,21 @@ WHERE type = 'QueryFinish'
 -- Too many rows in bloom filter
 SELECT count()
 FROM
-    customer
-CROSS JOIN numbers(2000) AS n
+    customer,
+    numbers(2000) AS n
 WHERE c_nationkey = n.number::Int32
 SETTINGS
-    join_runtime_filter_exact_values_limit = 1,
-    join_runtime_bloom_filter_bytes = 100,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '1',
+    join_runtime_bloom_filter_bytes = '100',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q4';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10
     AND ProfileEvents['RuntimeFilterBlocksProcessed'] = 0 AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q4'
@@ -168,22 +168,22 @@ FROM
         FROM customer
         WHERE c_nationkey_copy != 6
     ) AS c
-LEFT JOIN (
+ANTI LEFT JOIN (
         SELECT *
         FROM nation
         WHERE n_name = 'FRANCE'
     ) AS n
     ON c.c_nationkey = n.n_nationkey
 SETTINGS
-    join_runtime_filter_exact_values_limit = 100,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '100',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q5';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10 * ProfileEvents['RuntimeFilterBlocksProcessed'] AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q5'
@@ -198,22 +198,22 @@ FROM
         FROM customer
         WHERE c_nationkey_copy NOT IN (6, 7)
     ) AS c
-LEFT JOIN (
+ANTI LEFT JOIN (
         SELECT *
         FROM nation
         WHERE n_name IN ('FRANCE', 'GERMANY')
     ) AS n
     ON c.c_nationkey = n.n_nationkey
 SETTINGS
-    join_runtime_filter_exact_values_limit = 100,
-    max_block_size = 10,
-    max_threads = 1,
+    join_runtime_filter_exact_values_limit = '100',
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q6';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] > 10 * ProfileEvents['RuntimeFilterBlocksProcessed'] AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q6'
@@ -223,22 +223,22 @@ WHERE type = 'QueryFinish'
 -- Change pass ratio to >1 to turn of auto-disabling
 SELECT count()
 FROM
-    customer
-CROSS JOIN nation
+    customer,
+    nation
 WHERE c_nationkey = n_nationkey
     AND n_name = 'FRANCE'
     AND c_nationkey_copy = 6
 SETTINGS
     join_runtime_filter_pass_ratio_threshold_for_disabling = 3.14,
-    max_block_size = 10,
-    max_threads = 1,
+    max_block_size = '10',
+    max_threads = '1',
     log_comment = 'Q7';
 
 SELECT
     log_comment,
     ProfileEvents['RuntimeFilterBlocksSkipped'] = 0
     AND ProfileEvents['RuntimeFilterBlocksProcessed'] > 0 AS Passed,
-    if(Passed, 'Ok', concat(query_id, ' : ', ProfileEvents::String))
+    if(Passed, 'Ok', query_id || ' : ' || ProfileEvents::String)
 FROM `system`.query_log
 WHERE type = 'QueryFinish'
     AND log_comment = 'Q7'

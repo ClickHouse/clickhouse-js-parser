@@ -2,21 +2,21 @@
 -- PREWHERE, and parallel replicas interact. PREWHERE adds extra columns to ReadFromMergeTree
 -- output that pass through expression DAGs and pollute the header of the local replica plan,
 -- while remote replicas produce a different header.
-SET query_plan_optimize_lazy_materialization = 1;
+SET query_plan_optimize_lazy_materialization = '1';
 
-SET query_plan_max_limit_for_lazy_materialization = 10;
+SET query_plan_max_limit_for_lazy_materialization = '10';
 
-SET enable_parallel_replicas = 1;
+SET enable_parallel_replicas = '1';
 
-SET max_parallel_replicas = 3;
+SET max_parallel_replicas = '3';
 
 SET cluster_for_parallel_replicas = 'test_cluster_one_shard_three_replicas_localhost';
 
-SET parallel_replicas_for_non_replicated_merge_tree = 1;
+SET parallel_replicas_for_non_replicated_merge_tree = '1';
 
-SET parallel_replicas_local_plan = 1;
+SET parallel_replicas_local_plan = '1';
 
-SET parallel_replicas_min_number_of_rows_per_replica = 0;
+SET parallel_replicas_min_number_of_rows_per_replica = '0';
 
 DROP TABLE IF EXISTS t_lazy_mat_prewhere_parallel;
 

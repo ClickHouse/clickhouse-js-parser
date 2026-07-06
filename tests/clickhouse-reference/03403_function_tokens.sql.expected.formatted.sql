@@ -31,7 +31,7 @@ SELECT tokens('a', 'ngrams', 0); -- { serverError BAD_ARGUMENTS}
 
 SELECT tokens('a', 'ngrams', -1); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
-SELECT tokens('a', 'ngrams', 18446744073709551616); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
+SELECT tokens('a', 'ngrams', 18446744073709552000.); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }
 
 --    const Array (for "split")
 SELECT tokens('a', 'splitByString', 'c'); -- { serverError ILLEGAL_TYPE_OF_ARGUMENT }

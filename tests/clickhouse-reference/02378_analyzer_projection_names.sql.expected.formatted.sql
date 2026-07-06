@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET single_join_prefer_left_table = 0;
+SET single_join_prefer_left_table = '0';
 
 DROP TABLE IF EXISTS test_table;
 
@@ -9,7 +9,7 @@ CREATE TABLE test_table
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table;
 
@@ -19,7 +19,7 @@ CREATE TABLE test_table_in
 (
     id UInt64
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 DROP TABLE IF EXISTS test_table_compound;
 
@@ -28,7 +28,7 @@ CREATE TABLE test_table_compound
     id UInt64,
     tuple_value Tuple(value_1 UInt64, value_2 String)
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_compound;
 
@@ -40,7 +40,7 @@ CREATE TABLE test_table_join_1
     value String,
     value_join_1 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_join_1;
 
@@ -52,7 +52,7 @@ CREATE TABLE test_table_join_2
     value String,
     value_join_2 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_join_2;
 
@@ -64,7 +64,7 @@ CREATE TABLE test_table_join_3
     value String,
     value_join_3 String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO test_table_join_3;
 
@@ -78,7 +78,7 @@ DESCRIBE TABLE (SELECT
     1 + 1,
     concat('Value_1', 'Value_2'));
 
-DESCRIBE TABLE (SELECT cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)'));
+DESCRIBE TABLE (SELECT CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)'));
 
 DESCRIBE TABLE (SELECT
     test_table.id,
@@ -125,36 +125,36 @@ DESCRIBE TABLE (SELECT
     e);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.id,
     a.value);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.*);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.* EXCEPT (id));
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.* EXCEPT (value));
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.* EXCEPT (value) APPLY(toString));
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     a.* EXCEPT (value) APPLY(x -> toString(x)));
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     untuple(a));
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS a,
     untuple(a) AS b);
 
 DESCRIBE TABLE (SELECT
@@ -173,7 +173,7 @@ DESCRIBE TABLE (SELECT
 FROM test_table);
 
 DESCRIBE TABLE (SELECT
-    test_table.* REPLACE (id + ((id AS id_alias)) AS id),
+    test_table.* REPLACE (id + (id AS id_alias) AS id),
     id_alias
 FROM test_table);
 
@@ -192,85 +192,85 @@ DESCRIBE TABLE (SELECT
     *
 FROM test_table AS t1);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> x + 1, [1,2,3]));
+DESCRIBE TABLE (SELECT arrayMap((x -> x + 1), [1, 2, 3]));
 
 DESCRIBE TABLE (SELECT
     1 AS a,
-    arrayMap(x -> x + a, [1,2,3]));
+    arrayMap((x -> x + a), [1, 2, 3]));
 
-DESCRIBE TABLE (SELECT arrayMap(x -> x + test_table.id + test_table.id + id, [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> x + test_table.id + test_table.id + id), [1, 2, 3])
 FROM test_table);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> x + ((test_table.id AS `first`)) + ((test_table.id AS second)) + id, [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> x + (test_table.id AS `first`) + (test_table.id AS second) + id), [1, 2, 3])
 FROM test_table);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> test_table.* EXCEPT (value), [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> test_table.* EXCEPT (value)), [1, 2, 3])
 FROM test_table);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> tt.* EXCEPT (value), [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> tt.* EXCEPT (value)), [1, 2, 3])
 FROM test_table AS tt);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> test_table.* EXCEPT (value) APPLY(x -> x), [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> test_table.* EXCEPT (value) APPLY(x -> x)), [1, 2, 3])
 FROM test_table);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> test_table.* EXCEPT (value) APPLY(toString), [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> test_table.* EXCEPT (value) APPLY(toString)), [1, 2, 3])
 FROM test_table);
 
-DESCRIBE TABLE (SELECT arrayMap(x -> test_table.* EXCEPT (value) APPLY(x -> toString(x)), [1,2,3])
-FROM test_table);
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS compound_value,
-    arrayMap(x -> compound_value.*, [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS compound_value,
-    arrayMap(x -> compound_value.* APPLY(x -> x), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS compound_value,
-    arrayMap(x -> compound_value.* APPLY(toString), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS compound_value,
-    arrayMap(x -> compound_value.* APPLY(x -> toString(x)), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
-    arrayMap(x -> compound_value.* EXCEPT (value), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
-    arrayMap(x -> compound_value.* EXCEPT (value) APPLY(x -> x), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
-    arrayMap(x -> compound_value.* EXCEPT (value) APPLY(toString), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
-    arrayMap(x -> compound_value.* EXCEPT (value) APPLY(x -> toString(x)), [1,2,3]));
-
-DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS a,
-    arrayMap(x -> untuple(a), [1,2,3])
+DESCRIBE TABLE (SELECT arrayMap((x -> test_table.* EXCEPT (value) APPLY(x -> toString(x))), [1, 2, 3])
 FROM test_table);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS a,
-    arrayMap(x -> untuple(a) AS untupled_value, [1,2,3])
+    CAST(tuple(1), 'Tuple (id UInt64)') AS compound_value,
+    arrayMap((x -> compound_value.*), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1), 'Tuple (id UInt64)') AS compound_value,
+    arrayMap((x -> compound_value.* APPLY(x -> x)), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1), 'Tuple (id UInt64)') AS compound_value,
+    arrayMap((x -> compound_value.* APPLY(toString)), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1), 'Tuple (id UInt64)') AS compound_value,
+    arrayMap((x -> compound_value.* APPLY(x -> toString(x))), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
+    arrayMap((x -> compound_value.* EXCEPT (value)), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
+    arrayMap((x -> compound_value.* EXCEPT (value) APPLY(x -> x)), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
+    arrayMap((x -> compound_value.* EXCEPT (value) APPLY(toString)), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1, 'Value'), 'Tuple (id UInt64, value String)') AS compound_value,
+    arrayMap((x -> compound_value.* EXCEPT (value) APPLY(x -> toString(x))), [1, 2, 3]));
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1), 'Tuple (id UInt64)') AS a,
+    arrayMap((x -> untuple(a)), [1, 2, 3])
 FROM test_table);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS a,
+    CAST(tuple(1), 'Tuple (id UInt64)') AS a,
+    arrayMap((x -> untuple(a) AS untupled_value), [1, 2, 3])
+FROM test_table);
+
+DESCRIBE TABLE (SELECT
+    CAST(tuple(1), 'Tuple (id UInt64)') AS a,
     untuple(a) AS untupled_value,
-    arrayMap(x -> untupled_value, [1,2,3])
+    arrayMap((x -> untupled_value), [1, 2, 3])
 FROM test_table);
 
 DESCRIBE TABLE (SELECT
-    cast(tuple(1), 'Tuple (id UInt64)') AS a,
+    CAST(tuple(1), 'Tuple (id UInt64)') AS a,
     untuple(a) AS untupled_value,
-    arrayMap(x -> untupled_value AS untupled_value_in_lambda, [1,2,3])
+    arrayMap((x -> untupled_value AS untupled_value_in_lambda), [1, 2, 3])
 FROM test_table);
 
 DESCRIBE TABLE (WITH x -> x + 1 AS test_lambda
@@ -299,15 +299,15 @@ DESCRIBE TABLE (SELECT
     ));
 
 DESCRIBE TABLE (SELECT
-    arrayMap(x -> (
+    arrayMap((x -> (
         SELECT 1
-    ), [1,2,3]),
-    arrayMap(x -> (
+    )), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 2
-    ) AS a, [1, 2, 3]),
-    arrayMap(x -> (
+    ) AS a), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 1
-    ), [1,2,3]));
+    )), [1, 2, 3]));
 
 DESCRIBE TABLE (SELECT
     (
@@ -349,21 +349,21 @@ DESCRIBE TABLE (SELECT
     ));
 
 DESCRIBE TABLE (SELECT
-    arrayMap(x -> (
+    arrayMap((x -> (
         SELECT 1
         UNION DISTINCT
         SELECT 1
-    ), [1,2,3]),
-    arrayMap(x -> (
+    )), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 2
         UNION DISTINCT
         SELECT 2
-    ) AS a, [1, 2, 3]),
-    arrayMap(x -> (
+    ) AS a), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 3
         UNION DISTINCT
         SELECT 3
-    ), [1,2,3]));
+    )), [1, 2, 3]));
 
 DESCRIBE TABLE (SELECT
     (
@@ -409,19 +409,19 @@ DESCRIBE TABLE (SELECT
     ));
 
 DESCRIBE TABLE (SELECT
-    arrayMap(x -> (
+    arrayMap((x -> (
         SELECT 1
         UNION DISTINCT
         SELECT 1
-    ), [1,2,3]),
-    arrayMap(x -> (
+    )), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 2
-    ) AS a, [1, 2, 3]),
-    arrayMap(x -> (
+    ) AS a), [1, 2, 3]),
+    arrayMap((x -> (
         SELECT 3
         UNION DISTINCT
         SELECT 3
-    ), [1,2,3]));
+    )), [1, 2, 3]));
 
 DESCRIBE TABLE (SELECT count() OVER ());
 
@@ -436,22 +436,22 @@ FROM test_table);
 DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS CURRENT ROW)
+DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
 DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC RANGE CURRENT ROW)
+DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC RANGE BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
 DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC RANGE BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (PARTITION BY (id AS id_alias), (value AS value_alias) ORDER BY id ASC, value DESC ROWS CURRENT ROW)
+DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id AS id_alias, value AS value_alias ORDER BY id ASC, value DESC ROWS BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY (id AS id_alias) ASC, (value AS value_alias) DESC ROWS CURRENT ROW)
+DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id AS id_alias ASC, value AS value_alias DESC ROWS BETWEEN CURRENT ROW AND CURRENT ROW)
 FROM test_table);
 
 DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN 1 PRECEDING AND 2 FOLLOWING)
@@ -460,13 +460,13 @@ FROM test_table);
 DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN 1 + 1 PRECEDING AND 2 + 2 FOLLOWING)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN ((1 + 1) AS frame_offset_begin) PRECEDING AND ((2 + 2) AS frame_offset_end) FOLLOWING)
+DESCRIBE TABLE (SELECT count() OVER (PARTITION BY id, value ORDER BY id ASC, value DESC ROWS BETWEEN (1 + 1 AS frame_offset_begin) PRECEDING AND (2 + 2 AS frame_offset_end) FOLLOWING)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (ORDER BY toNullable(id) ASC)
+DESCRIBE TABLE (SELECT count() OVER (ORDER BY toNullable(id) ASC NULLS FIRST)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (ORDER BY toNullable(id) ASC)
+DESCRIBE TABLE (SELECT count() OVER (ORDER BY toNullable(id) ASC NULLS LAST)
 FROM test_table);
 
 DESCRIBE TABLE (SELECT count() OVER (ORDER BY id ASC WITH FILL FROM 1 TO 5 STEP 1)
@@ -475,18 +475,18 @@ FROM test_table);
 DESCRIBE TABLE (SELECT count() OVER (ORDER BY id ASC WITH FILL FROM 1 + 1 TO 6 STEP 1 + 1)
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count() OVER (ORDER BY id ASC WITH FILL FROM ((1 + 1) AS `from`) TO (6 AS to) STEP ((1 + 1) AS `step`))
+DESCRIBE TABLE (SELECT count() OVER (ORDER BY id ASC WITH FILL FROM (1 + 1 AS `from`) TO (6 AS to) STEP (1 + 1 AS `step`))
 FROM test_table);
 
-DESCRIBE TABLE (SELECT count()
+DESCRIBE TABLE (SELECT count() OVER window_name
 FROM test_table
 WINDOW window_name AS (PARTITION BY id));
 
-DESCRIBE TABLE (SELECT count()
+DESCRIBE TABLE (SELECT count() OVER window_name
 FROM test_table
 WINDOW window_name AS (PARTITION BY id ORDER BY value ASC));
 
-DESCRIBE TABLE (SELECT count() OVER (ORDER BY id ASC)
+DESCRIBE TABLE (SELECT count() OVER (window_name ORDER BY id ASC)
 FROM test_table
 WINDOW window_name AS (PARTITION BY id));
 
@@ -555,23 +555,23 @@ INNER JOIN test_table_in_cte_2 AS test_table_in_cte_2
 
 DESCRIBE TABLE (SELECT *
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2);
+    test_table_join_1,
+    test_table_join_2);
 
 DESCRIBE TABLE (SELECT *
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2);
 
 DESCRIBE TABLE (SELECT * APPLY(toString)
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2);
 
 DESCRIBE TABLE (SELECT * APPLY(x -> toString(x))
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2);
 
 DESCRIBE TABLE (SELECT
     test_table_join_1.*,
@@ -631,27 +631,27 @@ INNER JOIN test_table_join_2 AS t2
 
 DESCRIBE TABLE (SELECT *
 FROM
-    test_table_join_1
-CROSS JOIN test_table_join_2
-CROSS JOIN test_table_join_3);
+    test_table_join_1,
+    test_table_join_2,
+    test_table_join_3);
 
 DESCRIBE TABLE (SELECT *
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
-CROSS JOIN test_table_join_3 AS t3);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2,
+    test_table_join_3 AS t3);
 
 DESCRIBE TABLE (SELECT * APPLY(toString)
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
-CROSS JOIN test_table_join_3 AS t3);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2,
+    test_table_join_3 AS t3);
 
 DESCRIBE TABLE (SELECT * APPLY(x -> toString(x))
 FROM
-    test_table_join_1 AS t1
-CROSS JOIN test_table_join_2 AS t2
-CROSS JOIN test_table_join_3 AS t3);
+    test_table_join_1 AS t1,
+    test_table_join_2 AS t2,
+    test_table_join_3 AS t3);
 
 DESCRIBE TABLE (SELECT
     test_table_join_1.*,
@@ -825,7 +825,7 @@ DESCRIBE TABLE (SELECT
     [[], []],
     [([], [])],
     ([], []),
-    ([([], []), ([], [])]));
+    [([], []), ([], [])]);
 
 -- { echoOff }
 DROP TABLE test_table_join_1;

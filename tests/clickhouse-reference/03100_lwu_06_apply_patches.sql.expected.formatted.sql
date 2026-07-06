@@ -1,10 +1,10 @@
 -- Tags: no-replicated-database
 -- no-replicated-database: OPTIMIZE is replicated which affects the part names.
-SET insert_keeper_fault_injection_probability = 0.0;
+SET insert_keeper_fault_injection_probability = 0.;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
-DROP TABLE IF EXISTS t_shared;
+DROP TABLE IF EXISTS t_shared SYNC;
 
 CREATE TABLE t_shared
 (
@@ -13,7 +13,7 @@ CREATE TABLE t_shared
 )
 ENGINE = ReplicatedMergeTree('/zookeeper/{database}/t_shared/', '1')
 ORDER BY id
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1, apply_patches_on_merge = 0, cleanup_delay_period = 1000, max_cleanup_delay_period = 1000;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1', apply_patches_on_merge = '0', cleanup_delay_period = '1000', max_cleanup_delay_period = '1000';
 
 INSERT INTO t_shared SELECT
     number,
@@ -27,7 +27,7 @@ FROM numbers(20, 10);
 
 UPDATE t_shared SET c1 = id + 100 WHERE id % 2 = 0;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 ALTER TABLE t_shared APPLY PATCHES, UPDATE c1 = 2000 WHERE id % 10 = 0;
 
@@ -36,12 +36,12 @@ UPDATE t_shared SET c1 = id + 1000 WHERE id % 3 = 0;
 SELECT *
 FROM t_shared
 ORDER BY id ASC
-SETTINGS apply_patch_parts = 1;
+SETTINGS apply_patch_parts = '1';
 
 SELECT *
 FROM t_shared
 ORDER BY id ASC
-SETTINGS apply_patch_parts = 0;
+SETTINGS apply_patch_parts = '0';
 
 SELECT
     name,
@@ -54,4 +54,4 @@ ORDER BY name ASC;
 
 OPTIMIZE TABLE t_shared PARTITION ID 'all' FINAL;
 
-DROP TABLE t_shared;
+DROP TABLE t_shared SYNC;

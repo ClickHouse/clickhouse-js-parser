@@ -6,7 +6,7 @@ CREATE TABLE t_functions_to_subcolumns_alias
     t Tuple(UInt64, String),
     m Map(String, UInt64)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_functions_to_subcolumns_alias;
 
@@ -15,7 +15,7 @@ FROM t_functions_to_subcolumns_alias
 FORMAT TSVWithNames;
 
 SELECT
-    t.1 AS t0,
+    tupleElement(t, 1) AS t0,
     t0
 FROM t_functions_to_subcolumns_alias
 FORMAT TSVWithNames;

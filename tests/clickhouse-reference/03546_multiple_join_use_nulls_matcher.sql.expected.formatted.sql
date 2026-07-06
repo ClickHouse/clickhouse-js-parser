@@ -32,9 +32,9 @@ INSERT INTO tableB;
 
 INSERT INTO tableC;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 SELECT
     value2 = 1 AS x,

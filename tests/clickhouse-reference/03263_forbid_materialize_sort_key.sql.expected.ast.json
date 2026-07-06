@@ -1,430 +1,515 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "a",
-        "type": {
-          "name": "UInt64"
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "a",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "a"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "a"
-          ]
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "a"
-        ]
-      }
-    ],
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns": [
         {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
+          "type": "Identifier",
+          "name": "a"
         }
       ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "1000"
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "1"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "1000"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "b",
-          "type": {
-            "name": "Float64"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "data_type": {
+              "type": "DataType",
+              "name": "Float64"
+            }
+          },
+          "column": {
+            "type": "Identifier",
+            "name": "a"
           }
         },
-        "afterColumn": "a"
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_ORDER_BY",
+          "order_by": {
+            "type": "Function",
+            "name": "tuple",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "a"
+              },
+              {
+                "type": "Identifier",
+                "name": "b"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
       },
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_ORDER_BY",
-        "expr": {
-          "kind": "tupleLiteral",
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "b",
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Function",
+              "name": "modulo",
+              "is_operator": true,
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "rand64",
+                  "arguments": []
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "100000"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MATERIALIZE_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "b"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "is_dictionary": true,
+      "table": {
+        "type": "Identifier",
+        "name": "dict"
+      },
+      "dictionary_attributes": [
+        {
+          "type": "DictionaryAttributeDeclaration",
+          "name": "x",
+          "data_type": {
+            "type": "DataType",
+            "name": "UInt32"
+          }
+        },
+        {
+          "type": "DictionaryAttributeDeclaration",
+          "name": "y",
+          "data_type": {
+            "type": "DataType",
+            "name": "UInt32"
+          }
+        }
+      ],
+      "dictionary": {
+        "type": "Dictionary",
+        "primary_key": [
+          {
+            "type": "Identifier",
+            "name": "x"
+          }
+        ],
+        "source": {
+          "type": "FunctionWithKeyValueArguments",
+          "name": "clickhouse",
           "elements": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "a"
-              ]
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "b"
-              ]
+              "type": "pair",
+              "key": "table",
+              "value": {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "tab"
+              }
             }
-          ],
-          "source": "(a, b)"
+          ]
+        },
+        "lifetime": {
+          "type": "DictionaryLifetime",
+          "min_sec": 0,
+          "max_sec": 1000
+        },
+        "layout": {
+          "type": "DictionaryLayout",
+          "layout_type": "flat",
+          "parameters": []
         }
       }
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "b",
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "binaryExpr",
-            "op": "%",
-            "left": {
-              "kind": "functionCall",
-              "name": "rand64",
-              "args": []
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "RELOAD DICTIONARY",
+      "table": {
+        "type": "Identifier",
+        "name": "dict"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "if_not_exists": true,
+      "table": {
+        "type": "Identifier",
+        "name": "tab2"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "y",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
             },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "100000"
+            "default_specifier": "MATERIALIZED",
+            "default_expression": {
+              "type": "Function",
+              "name": "dictGet",
+              "arguments": [
+                {
+                  "type": "Identifier",
+                  "name": "dict"
+                },
+                {
+                  "type": "Literal",
+                  "value_type": "String",
+                  "value": "y"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "x"
+                }
+              ]
             }
           }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MATERIALIZE_COLUMN",
-        "columnName": "b"
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError CANNOT_UPDATE_COLUMN }"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "UInt32"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "y"
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "functionCall",
-          "name": "tuple",
-          "args": []
-        }
-      }
-    ]
+    }
   },
   {
-    "kind": "createDictionary",
-    "table": {
-      "kind": "tableRef",
-      "table": "dict"
-    },
-    "ifNotExists": true,
-    "dictAttrs": [
-      {
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab2"
       },
-      {
-        "name": "y",
-        "type": {
-          "name": "UInt32"
-        }
-      }
-    ],
-    "dictDef": {
-      "primaryKey": [
+      "columns": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "x"
-          ]
+          "type": "Identifier",
+          "name": "x"
         }
       ],
-      "source": {
-        "name": "clickhouse",
-        "pairs": [
-          {
-            "name": "table",
-            "value": {
-              "kind": "literal",
-              "type": "String",
-              "value": "tab"
-            }
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "TruncateQuery",
+      "kind": "TRUNCATE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "mutations_sync": "2"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "tab2"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MATERIALIZE_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "y"
           }
-        ]
-      },
-      "layout": {
-        "name": "FLAT",
-        "pairs": []
-      },
-      "lifetime": {
-        "min": 0,
-        "max": 1000
-      }
+        }
+      ]
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
-    }
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM RELOAD DICTIONARY dict"
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab2"
-    },
-    "ifNotExists": true,
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "x",
-        "type": {
-          "name": "UInt32"
-        }
+        "type": "Identifier",
+        "name": "tab2"
       },
-      {
-        "kind": "columnDef",
-        "name": "y",
-        "type": {
-          "name": "UInt32"
-        },
-        "defaultKind": "MATERIALIZED",
-        "defaultExpr": {
-          "kind": "functionCall",
-          "name": "dictGet",
-          "args": [
-            {
-              "kind": "columnRef",
-              "parts": [
-                "dict"
-              ]
-            },
-            {
-              "kind": "literal",
-              "type": "String",
-              "value": "y"
-            },
-            {
-              "kind": "columnRef",
-              "parts": [
-                "x"
-              ]
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree"
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "y"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "tab2"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "x"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "truncate",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
+      "if_exists": true
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "tab"
-      }
+        "type": "Identifier",
+        "name": "dict"
+      },
+      "if_exists": true,
+      "is_dictionary": true
     }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab2"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MATERIALIZE_COLUMN",
-        "columnName": "y"
-      }
-    ],
-    "trailingComments": [
-      "-- { serverError CANNOT_UPDATE_COLUMN }"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab2"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "DICTIONARY",
-    "table": {
-      "kind": "tableRef",
-      "table": "dict"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "tab"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "tab"
+      },
+      "if_exists": true
+    }
   }
 ]

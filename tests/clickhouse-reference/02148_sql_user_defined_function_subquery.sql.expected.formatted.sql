@@ -7,7 +7,7 @@ CREATE FUNCTION `02148_test_function` AS () -> (
 
 SELECT `02148_test_function`();
 
-CREATE FUNCTION `02148_test_function` AS () -> (
+CREATE OR REPLACE FUNCTION `02148_test_function` AS () -> (
     SELECT 2
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE `02148_test_table`
     id UInt64,
     value String
 )
-ENGINE = TinyLog;
+ENGINE = TinyLog();
 
 INSERT INTO `02148_test_table`;
 
@@ -44,7 +44,7 @@ CREATE FUNCTION `02148_test_function` AS () -> (
     LIMIT 1
 );
 
-CREATE FUNCTION `02148_test_function` AS () -> (
+CREATE OR REPLACE FUNCTION `02148_test_function` AS () -> (
     SELECT value
     FROM `02148_test_table`
     LIMIT 1

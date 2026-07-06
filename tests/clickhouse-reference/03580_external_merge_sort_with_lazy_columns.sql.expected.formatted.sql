@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS test;
+DROP TABLE IF EXISTS test SYNC;
 
 CREATE TABLE test
 (
@@ -6,9 +6,9 @@ CREATE TABLE test
     c2 LowCardinality(String),
     c3 UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY (c1, c2, c3)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO test SELECT
     toString(number) AS c1,
@@ -23,5 +23,5 @@ FROM test
 ORDER BY c3 ASC
 LIMIT 1
 SETTINGS
-    max_bytes_before_external_sort = 1,
-    max_bytes_ratio_before_external_sort = 0.0;
+    max_bytes_before_external_sort = '1',
+    max_bytes_ratio_before_external_sort = 0.;

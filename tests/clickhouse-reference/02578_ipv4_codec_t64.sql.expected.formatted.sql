@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS ipv4_t64;
 CREATE TABLE ipv4_t64
 (
     uid Int16,
-    ip IPv4 CODEC(T64),
-    INDEX ip_idx ip TYPE bloom_filter GRANULARITY 4
+    ip IPv4 CODEC(T64()),
+    INDEX ip_idx ip TYPE bloom_filter() GRANULARITY 4
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY uid;

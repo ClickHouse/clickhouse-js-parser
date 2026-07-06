@@ -9,21 +9,21 @@ CREATE TABLE t1
     `1a` Nullable(Int64),
     `2b` Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     `3c` Nullable(Int64),
     `4d` Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t3
 (
     `5e` Nullable(Int64),
     `6f` Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     `1a`,
@@ -52,21 +52,21 @@ CREATE TABLE t1
     a Nullable(Int64),
     b Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
     c Nullable(Int64),
     d Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t3
 (
     e Nullable(Int64),
     f Nullable(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 SELECT
     a,

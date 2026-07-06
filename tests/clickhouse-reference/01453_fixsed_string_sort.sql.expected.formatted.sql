@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS badFixedStringSort
     uuid5_old FixedString(16),
     subitem String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO badFixedStringSort;

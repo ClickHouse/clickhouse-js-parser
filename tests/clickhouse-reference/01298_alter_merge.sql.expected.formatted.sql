@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS merge1;
 
 DROP TABLE IF EXISTS merge2;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE merge1
 (
@@ -62,7 +62,7 @@ SELECT
     CounterID,
     dummy
 FROM merge
-WHERE dummy <> ''
+WHERE dummy != ''
 LIMIT 10;
 
 ALTER TABLE merge DROP COLUMN dummy;
@@ -74,7 +74,7 @@ SELECT
     CounterID,
     dummy1
 FROM merge
-WHERE dummy1 <> ''
+WHERE dummy1 != ''
 LIMIT 10;
 
 DROP TABLE merge;

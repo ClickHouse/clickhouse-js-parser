@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS merge;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE IF NOT EXISTS merge
 (
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS merge
 )
 ENGINE = MergeTree(d, x, 8192);
 
-SET min_insert_block_size_rows = 0, min_insert_block_size_bytes = 0;
+SET min_insert_block_size_rows = '0', min_insert_block_size_bytes = '0';
 
-SET max_block_size = 8200;
+SET max_block_size = '8200';
 
 INSERT INTO merge (x) SELECT number AS x
 FROM (
@@ -71,7 +71,7 @@ SELECT
     sum(cityHash64(x))
 FROM merge;
 
-SET max_block_size = 10000;
+SET max_block_size = '10000';
 
 INSERT INTO merge (x) SELECT number AS x
 FROM (

@@ -1,128 +1,171 @@
 [
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "i8",
-        "type": {
-          "name": "Int8"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "i16",
-        "type": {
-          "name": "Int16"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "i32",
-        "type": {
-          "name": "Int32"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "i64",
-        "type": {
-          "name": "Int64"
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "t"
-      }
+        "type": "Identifier",
+        "name": "t"
+      },
+      "if_exists": true
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk",
-        "transformers": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "apply",
-            "func": {
-              "kind": "columnRef",
-              "parts": [
-                "bitmapMin"
-              ]
+            "type": "ColumnDeclaration",
+            "name": "i8",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int8"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "i16",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int16"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "i32",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int32"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "i64",
+            "data_type": {
+              "type": "DataType",
+              "name": "Int64"
             }
           }
         ]
       },
-      {
-        "kind": "asterisk",
-        "transformers": [
-          {
-            "kind": "apply",
-            "func": {
-              "kind": "columnRef",
-              "parts": [
-                "bitmapMax"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk",
+              "transformers": [
+                {
+                  "type": "ColumnsApplyTransformer",
+                  "func_name": "bitmapMin"
+                }
+              ]
+            },
+            {
+              "type": "Asterisk",
+              "transformers": [
+                {
+                  "type": "ColumnsApplyTransformer",
+                  "func_name": "bitmapMax"
+                }
               ]
             }
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "subqueryFrom",
-      "query": {
-        "kind": "select",
-        "select": [
-          {
-            "kind": "asterisk",
-            "transformers": [
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
               {
-                "kind": "apply",
-                "func": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "groupBitmapState"
-                  ]
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Asterisk",
+                              "transformers": [
+                                {
+                                  "type": "ColumnsApplyTransformer",
+                                  "func_name": "groupBitmapState"
+                                }
+                              ]
+                            }
+                          ],
+                          "from": {
+                            "type": "TablesInSelectQuery",
+                            "children": [
+                              {
+                                "type": "TablesInSelectQueryElement",
+                                "table_expression": {
+                                  "type": "TableExpression",
+                                  "database_and_table_name": {
+                                    "type": "TableIdentifier",
+                                    "name": "t"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             ]
           }
-        ],
-        "from": {
-          "kind": "tableRef",
-          "table": "t"
         }
-      }
+      ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "t"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "t"
+      }
     }
   }
 ]

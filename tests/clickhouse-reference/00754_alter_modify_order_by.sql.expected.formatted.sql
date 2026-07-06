@@ -1,6 +1,6 @@
 SET send_logs_level = 'fatal';
 
-SET optimize_on_insert = 0;
+SET optimize_on_insert = '0';
 
 DROP TABLE IF EXISTS no_order;
 
@@ -9,16 +9,16 @@ CREATE TABLE no_order
     a UInt32,
     b UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
-ALTER TABLE no_order MODIFY ORDER BY (a); -- { serverError BAD_ARGUMENTS}
+ALTER TABLE no_order MODIFY ORDER BY a; -- { serverError BAD_ARGUMENTS}
 
 DROP TABLE no_order;
 
 DROP TABLE IF EXISTS old_style;
 
-SET allow_deprecated_syntax_for_merge_tree = 1;
+SET allow_deprecated_syntax_for_merge_tree = '1';
 
 CREATE TABLE old_style
 (
@@ -39,7 +39,7 @@ CREATE TABLE summing
     y UInt32,
     val UInt32
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY (x, y);
 
 /* Can't add an expression with existing column to ORDER BY. */

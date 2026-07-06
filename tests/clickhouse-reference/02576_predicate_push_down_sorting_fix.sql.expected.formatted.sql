@@ -1,6 +1,6 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
-EXPLAIN header = 1, actions = 1
+EXPLAIN header = '1', actions = '1'
 SELECT number
 FROM (
         SELECT number

@@ -1,7 +1,7 @@
 -- Tags: no-fasttest
 -- encrypt function doesn't exist in the fastest build
 -- { echoOn }
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 EXPLAIN QUERY TREE
 SELECT
@@ -12,4 +12,4 @@ SELECT
         SELECT 'asdf'
     ), '12345678901234567890123456789012');
 
-SET format_display_secrets_in_show_and_select = 1; -- { echoOff }
+SET format_display_secrets_in_show_and_select = '1'; -- { echoOff }

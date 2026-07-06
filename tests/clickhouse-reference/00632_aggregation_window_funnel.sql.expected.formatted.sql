@@ -6,7 +6,7 @@ CREATE TABLE funnel_test
     timestamp UInt32,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test;
 
@@ -42,7 +42,7 @@ CREATE TABLE funnel_test2
     timestamp DateTime,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test2 (timestamp, event);
 
@@ -66,7 +66,7 @@ CREATE TABLE funnel_test_u64
     timestamp UInt64,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test_u64 (timestamp, event);
 
@@ -89,7 +89,7 @@ CREATE TABLE funnel_test_strict
     timestamp UInt32,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test_strict;
 
@@ -224,8 +224,8 @@ FORMAT JSONCompactEachRow;
 
 SELECT
     u,
-    windowFunnel(86400)(dt, isNull(a)
-    AND isNull(b)) AS s
+    windowFunnel(86400)(dt, a IS NULL
+    AND b IS NULL) AS s
 FROM funnel_test_non_null
 GROUP BY u
 ORDER BY u ASC
@@ -233,7 +233,7 @@ FORMAT JSONCompactEachRow;
 
 SELECT
     u,
-    windowFunnel(86400)(dt, isNull(a), COALESCE(b, '') = 'b3') AS s
+    windowFunnel(86400)(dt, a IS NULL, COALESCE(b, '') = 'b3') AS s
 FROM funnel_test_non_null
 GROUP BY u
 ORDER BY u ASC
@@ -241,7 +241,7 @@ FORMAT JSONCompactEachRow;
 
 SELECT
     u,
-    windowFunnel(86400, 'strict_order')(dt, isNull(a), COALESCE(b, '') = 'b3') AS s
+    windowFunnel(86400, 'strict_order')(dt, a IS NULL, COALESCE(b, '') = 'b3') AS s
 FROM funnel_test_non_null
 GROUP BY u
 ORDER BY u ASC
@@ -254,7 +254,7 @@ CREATE TABLE funnel_test_strict_increase
     timestamp UInt32,
     event UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test_strict_increase;
 
@@ -279,23 +279,14 @@ CREATE TABLE funnel_test2
     result String,
     uid UInt32
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test2 SELECT
-    data.1,
-    data.2,
-    data.3
+    (data).1,
+    (data).2,
+    (data).3
 FROM (
-        SELECT arrayJoin([
-            (100, 'failure', 234),
-            (200, 'success', 345),
-            (210, 'failure', 345),
-            (230, 'success', 345),
-            (250, 'failure', 234),
-            (180, 'failure', 123),
-            (220, 'failure', 123),
-            (250, 'success', 123)
-        ]) AS data
+        SELECT arrayJoin([(100, 'failure', 234), (200, 'success', 345), (210, 'failure', 345), (230, 'success', 345), (250, 'failure', 234), (180, 'failure', 123), (220, 'failure', 123), (250, 'success', 123)]) AS data
     );
 
 SELECT
@@ -335,7 +326,7 @@ CREATE TABLE funnel_test_reentry
     dt UInt32,
     event String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO funnel_test_reentry;
 

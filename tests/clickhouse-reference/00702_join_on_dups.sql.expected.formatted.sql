@@ -8,7 +8,7 @@ CREATE TABLE X
     x_a String,
     x_b Nullable(Int32)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 CREATE TABLE Y
@@ -17,7 +17,7 @@ CREATE TABLE Y
     y_a String,
     y_b Nullable(String)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO X (id, x_a, x_b);
@@ -70,7 +70,7 @@ SELECT
 FROM
     X
 INNER JOIN Y
-    ON (X.id + 1) = (Y.id + 1)
+    ON X.id + 1 = Y.id + 1
 ORDER BY
     X.id ASC,
     X.x_a ASC,
@@ -121,7 +121,7 @@ SELECT
 FROM
     X
 LEFT JOIN Y
-    ON (X.id + 1) = (Y.id + 1)
+    ON X.id + 1 = Y.id + 1
 ORDER BY
     X.id ASC,
     X.x_a ASC,

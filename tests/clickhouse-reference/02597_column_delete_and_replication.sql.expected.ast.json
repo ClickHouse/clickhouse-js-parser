@@ -1,436 +1,503 @@
 [
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "c_id",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "p_id",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "d",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "ReplicatedMergeTree",
-      "args": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "/clickhouse/tables/{database}/test/test_table"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "c_id"
-          ]
-        }
-      },
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "p_id"
-          ]
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: no-shared-merge-tree",
-      "-- Tag no-shared-merge-tree - in SMT this works differently",
-      "-- Test for MergeTreeData::checkDropCommandDoesntAffectInProgressMutations() basically"
-    ]
-  },
-  {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "1"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "11"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "111"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+        "type": "Identifier",
+        "name": "test"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "3"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "2"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "22"
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "22"
-        }
-      ],
-      "from": {
-        "kind": "tableFunctionRef",
-        "name": "numbers",
-        "args": [
+            "type": "ColumnDeclaration",
+            "name": "c_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
           {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "3"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
+            "type": "ColumnDeclaration",
+            "name": "p_id",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
           {
-            "column": "d",
-            "expr": {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "d"
-                  ]
-                },
-                {
-                  "kind": "functionCall",
-                  "name": "throwIf",
-                  "args": [
-                    {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  ]
-                }
-              ]
+            "type": "ColumnDeclaration",
+            "name": "d",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
           }
-        ],
-        "where": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- this mutation will run in background and will block next mutation"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "ADD_COLUMN",
-        "column": {
-          "kind": "columnDef",
-          "name": "x",
-          "type": {
-            "name": "UInt32"
-          },
-          "defaultKind": "DEFAULT",
-          "defaultExpr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "0"
-          }
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- this mutation cannot be started until previuos ALTER finishes (in background), and will lead to DROP COLUMN failed with BAD_ARGUMENTS"
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "d",
-            "expr": {
-              "kind": "functionCall",
-              "name": "concat",
-              "args": [
-                {
-                  "kind": "columnRef",
-                  "parts": [
-                    "d"
-                  ]
-                },
-                {
-                  "kind": "literal",
-                  "type": "String",
-                  "value": "1"
-                }
-              ]
-            }
-          }
-        ],
-        "where": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "x"
-            ]
-          },
-          "right": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "42"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_COLUMN",
-        "columnName": "x"
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ],
-    "trailingComments": [
-      "--{serverError BAD_ARGUMENTS}"
-    ]
-  },
-  {
-    "kind": "kill",
-    "target": "MUTATION",
-    "where": {
-      "kind": "naryExpr",
-      "op": "AND",
-      "operands": [
-        {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "database"
-            ]
-          },
-          "right": {
-            "kind": "functionCall",
-            "name": "currentDatabase",
-            "args": []
-          }
-        },
-        {
-          "kind": "functionCall",
-          "name": "like",
-          "args": [
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "ReplicatedMergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "command"
-              ]
+              "type": "Literal",
+              "value_type": "String",
+              "value": "/clickhouse/tables/{database}/test/test_table"
             },
             {
-              "kind": "literal",
-              "type": "String",
-              "value": "%throwIf%"
+              "type": "Literal",
+              "value_type": "String",
+              "value": "1"
+            }
+          ]
+        },
+        "order_by": {
+          "type": "Function",
+          "name": "tuple",
+          "is_operator": true,
+          "arguments": [
+            {
+              "type": "Identifier",
+              "name": "c_id"
+            },
+            {
+              "type": "Identifier",
+              "name": "p_id"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "mutations_sync": "0"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "1"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "11"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "111"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "2"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "22"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "22"
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "table_function": {
+                      "type": "Function",
+                      "name": "numbers",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "3"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "d",
+              "expression": {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Function",
+                    "name": "throwIf",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "1"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }
       ]
-    },
-    "mode": "SYNC",
-    "format": "Null",
-    "leadingComments": [
-      "-- unblock"
-    ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "UPDATE",
-        "assignments": [
-          {
-            "column": "x",
-            "expr": {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              }
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "ADD_COLUMN",
+          "column_declaration": {
+            "type": "ColumnDeclaration",
+            "name": "x",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt32"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "0"
             }
           }
-        ],
-        "where": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
         }
-      }
-    ],
-    "settings": [
-      {
-        "name": "mutations_sync",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "2"
-        }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test"
-    },
-    "format": "Null"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "x"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "42"
+              }
+            ]
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "d",
+              "expression": {
+                "type": "Function",
+                "name": "concat",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "d"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "String",
+                    "value": "1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test"
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_COLUMN",
+          "column": {
+            "type": "Identifier",
+            "name": "x"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "KillQueryQuery",
+      "kill_type": "MUTATION",
+      "sync": true,
+      "where": {
+        "type": "Function",
+        "name": "and",
+        "is_operator": true,
+        "arguments": [
+          {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "database"
+              },
+              {
+                "type": "Function",
+                "name": "currentDatabase",
+                "arguments": []
+              }
+            ]
+          },
+          {
+            "type": "Function",
+            "name": "like",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "command"
+              },
+              {
+                "type": "Literal",
+                "value_type": "String",
+                "value": "%throwIf%"
+              }
+            ]
+          }
+        ]
+      },
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      },
+      "settings": {
+        "type": "Settings",
+        "changes": {
+          "mutations_sync": "2"
+        }
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "UPDATE",
+          "predicate": {
+            "type": "Literal",
+            "value_type": "UInt64",
+            "value": "1"
+          },
+          "assignments": [
+            {
+              "type": "Assignment",
+              "column": "x",
+              "expression": {
+                "type": "Function",
+                "name": "plus",
+                "is_operator": true,
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "x"
+                  },
+                  {
+                    "type": "Literal",
+                    "value_type": "UInt64",
+                    "value": "1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "format": "Null"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test"
+      }
     }
   }
 ]

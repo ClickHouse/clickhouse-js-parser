@@ -4,7 +4,7 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS marks_compress_block_size = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS marks_compress_block_size = '0'; -- { serverError BAD_ARGUMENTS }
 
 CREATE TABLE t0
 (
@@ -12,4 +12,4 @@ CREATE TABLE t0
 )
 ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS primary_key_compress_block_size = 0; -- { serverError BAD_ARGUMENTS }
+SETTINGS primary_key_compress_block_size = '0'; -- { serverError BAD_ARGUMENTS }

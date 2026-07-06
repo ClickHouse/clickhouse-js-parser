@@ -32,7 +32,7 @@ ORDER BY x ASC;
 -- Create row policy that filters out rows where y = 'ccc'
 CREATE ROW POLICY pol1 ON tab USING y != 'ccc' TO ALL;
 
-SET apply_row_policy_after_final = 1;
+SET apply_row_policy_after_final = '1';
 
 DROP ROW POLICY pol1 ON tab;
 
@@ -87,7 +87,7 @@ INSERT INTO tab3;
 
 CREATE ROW POLICY pol3 ON tab3 USING y != 'ccc' TO ALL;
 
-SET apply_row_policy_after_final = 0;
+SET apply_row_policy_after_final = '0';
 
 -- PREWHERE z < 250 filters (1, 'ccc', 300, 2) and (2, 'ddd', 300, 2)
 -- FINAL gets (1, 'aaa', 100, 1) and (2, 'bbb', 200, 1)
@@ -151,13 +151,13 @@ INSERT INTO tab_final;
 
 INSERT INTO tab_final;
 
-SET apply_prewhere_after_final = 1;
+SET apply_prewhere_after_final = '1';
 
 SELECT x
 FROM tab_final FINAL
 PREWHERE y != 'ccc'
 ORDER BY x ASC;
 
-SET apply_prewhere_after_final = 0;
+SET apply_prewhere_after_final = '0';
 
 DROP TABLE tab_final;

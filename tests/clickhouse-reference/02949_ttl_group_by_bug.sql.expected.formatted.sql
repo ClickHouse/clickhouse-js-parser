@@ -1,4 +1,4 @@
-SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.0;
+SET merge_tree_read_split_ranges_into_intersecting_and_non_intersecting_injection_probability = 0.;
 
 DROP TABLE IF EXISTS ttl_group_by_bug;
 
@@ -12,7 +12,7 @@ CREATE TABLE ttl_group_by_bug
 )
 ENGINE = MergeTree()
 ORDER BY (key, toStartOfInterval(ts, toIntervalMinute(3)), ts)
-TTL ts + toIntervalMinute(5);
+TTL ts + toIntervalMinute(5) GROUP BY key, toStartOfInterval(ts, toIntervalMinute(3)) SET value = sum(value), min_value = min(min_value), max_value = max(max_value), ts = min(toStartOfInterval(ts, toIntervalMinute(3)));
 
 INSERT INTO ttl_group_by_bug (key, ts, value) SELECT
     number % 5 AS key,
@@ -34,4 +34,4 @@ FROM (
     )
 WHERE cur < prev
 LIMIT 2
-SETTINGS max_threads = 1;
+SETTINGS max_threads = '1';

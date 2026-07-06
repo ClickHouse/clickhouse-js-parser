@@ -1,80 +1,113 @@
 [
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "t1"
-        ]
-      },
-      {
-        "kind": "qualifiedAsterisk",
-        "parts": [
-          "t2"
-        ]
-      }
-    ],
-    "from": {
-      "left": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
           "select": [
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "1"
-              },
-              "alias": "k"
-            }
-          ]
-        },
-        "alias": "t1"
-      },
-      "kind": "joinExpr",
-      "joinType": "INNER",
-      "right": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "t1"
+              }
+            },
             {
-              "kind": "alias",
-              "expr": {
-                "kind": "literal",
-                "type": "Int64",
-                "value": "-1"
-              },
-              "alias": "k"
+              "type": "QualifiedAsterisk",
+              "qualifier": {
+                "type": "Identifier",
+                "name": "t2"
+              }
             }
-          ]
-        },
-        "alias": "t2"
-      },
-      "constraint": {
-        "kind": "on",
-        "expr": {
-          "kind": "binaryExpr",
-          "op": "=",
-          "left": {
-            "kind": "columnRef",
-            "parts": [
-              "t1",
-              "k"
-            ]
-          },
-          "right": {
-            "kind": "columnRef",
-            "parts": [
-              "t2",
-              "k"
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "t1",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "k",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_join": {
+                  "type": "TableJoin",
+                  "kind": "INNER",
+                  "on": {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "t1.k",
+                        "name_parts": [
+                          "t1",
+                          "k"
+                        ]
+                      },
+                      {
+                        "type": "Identifier",
+                        "name": "t2.k",
+                        "name_parts": [
+                          "t2",
+                          "k"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "table_expression": {
+                  "type": "TableExpression",
+                  "subquery": {
+                    "type": "Subquery",
+                    "alias": "t2",
+                    "query": {
+                      "type": "SelectWithUnionQuery",
+                      "selects": [
+                        {
+                          "type": "SelectQuery",
+                          "select": [
+                            {
+                              "type": "Literal",
+                              "alias": "k",
+                              "value_type": "Int64",
+                              "value": "-1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
             ]
           }
         }
-      }
+      ]
     }
   }
 ]

@@ -1,366 +1,494 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "allow_suspicious_low_cardinality_types",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "allow_suspicious_low_cardinality_types": "1"
       }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "lc_lambda"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "lc_lambda"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "arr",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "LowCardinality",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "UInt64"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "Memory"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "lc_lambda"
+        "type": "Identifier",
+        "name": "lc_lambda"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "lc_lambda"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "arr",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "LowCardinality",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "UInt64"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
       }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "lc_lambda"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "name": "range",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "10"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "functionCall",
-          "name": "range",
-          "args": [
+          "type": "SelectQuery",
+          "select": [
             {
-              "kind": "columnRef",
-              "parts": [
-                "number"
+              "type": "Function",
+              "name": "arrayFilter",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "lambda",
+                  "is_operator": true,
+                  "is_lambda_function": true,
+                  "kind": "LAMBDA_FUNCTION",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "equals",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "modulo",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "x"
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "2"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Literal",
+                          "value_type": "UInt64",
+                          "value": "0"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Identifier",
+                  "name": "arr"
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "lc_lambda"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "test_array"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_array"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "resources_host",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "LowCardinality",
+                  "arguments": [
+                    {
+                      "type": "DataType",
+                      "name": "String"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "resources_host"
+        }
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "test_array"
+      },
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayMap",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "lambda",
+                  "is_operator": true,
+                  "is_lambda_function": true,
+                  "kind": "LAMBDA_FUNCTION",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "i"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "array",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Function",
+                          "name": "arrayElement",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Identifier",
+                              "name": "resources_host"
+                            },
+                            {
+                              "type": "Identifier",
+                              "name": "i"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "arrayEnumerate",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "resources_host"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "test_array"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "arrayMap",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "lambda",
+                  "is_operator": true,
+                  "is_lambda_function": true,
+                  "kind": "LAMBDA_FUNCTION",
+                  "arguments": [
+                    {
+                      "type": "Function",
+                      "name": "tuple",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Function",
+                      "name": "plus",
+                      "is_operator": true,
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "x"
+                        },
+                        {
+                          "type": "Function",
+                          "name": "arrayElement",
+                          "is_operator": true,
+                          "arguments": [
+                            {
+                              "type": "Function",
+                              "name": "arrayMap",
+                              "arguments": [
+                                {
+                                  "type": "Function",
+                                  "name": "lambda",
+                                  "is_operator": true,
+                                  "is_lambda_function": true,
+                                  "kind": "LAMBDA_FUNCTION",
+                                  "arguments": [
+                                    {
+                                      "type": "Function",
+                                      "name": "tuple",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Identifier",
+                                          "name": "y"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "Function",
+                                      "name": "plus",
+                                      "is_operator": true,
+                                      "arguments": [
+                                        {
+                                          "type": "Function",
+                                          "name": "plus",
+                                          "is_operator": true,
+                                          "arguments": [
+                                            {
+                                              "type": "Identifier",
+                                              "name": "x"
+                                            },
+                                            {
+                                              "type": "Identifier",
+                                              "name": "y"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "Function",
+                                          "name": "toLowCardinality",
+                                          "arguments": [
+                                            {
+                                              "type": "Literal",
+                                              "value_type": "UInt64",
+                                              "value": "1"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "Function",
+                                  "name": "array",
+                                  "is_operator": true,
+                                  "arguments": []
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Function",
+                  "name": "array",
+                  "is_operator": true,
+                  "arguments": []
+                }
               ]
             }
           ]
         }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
-      },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "10"
-        }
-      }
+      ]
     }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayFilter",
-        "args": [
-          {
-            "kind": "lambdaExpr",
-            "params": [
-              "x"
-            ],
-            "body": {
-              "kind": "binaryExpr",
-              "op": "==",
-              "left": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "x"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "2"
-                }
-              },
-              "right": {
-                "kind": "literal",
-                "type": "UInt64",
-                "value": "0"
-              }
-            }
-          },
-          {
-            "kind": "columnRef",
-            "parts": [
-              "arr"
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "lc_lambda"
-    }
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_array"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "test_array"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "resources_host",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "LowCardinality",
-                "args": [
-                  {
-                    "kind": "type",
-                    "type": {
-                      "name": "String"
-                    }
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "resources_host"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "test_array"
-      }
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayMap",
-        "args": [
-          {
-            "kind": "lambdaExpr",
-            "params": [
-              "i"
-            ],
-            "body": {
-              "kind": "arrayLiteral",
-              "elements": [
-                {
-                  "kind": "functionCall",
-                  "name": "arrayElement",
-                  "args": [
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "resources_host"
-                      ]
-                    },
-                    {
-                      "kind": "columnRef",
-                      "parts": [
-                        "i"
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "source": "[resources_host[i]]"
-            }
-          },
-          {
-            "kind": "functionCall",
-            "name": "arrayEnumerate",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "resources_host"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "test_array"
-    }
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "arrayMap",
-        "args": [
-          {
-            "kind": "lambdaExpr",
-            "params": [
-              "x"
-            ],
-            "body": {
-              "kind": "binaryExpr",
-              "op": "+",
-              "left": {
-                "kind": "columnRef",
-                "parts": [
-                  "x"
-                ]
-              },
-              "right": {
-                "kind": "functionCall",
-                "name": "arrayElement",
-                "args": [
-                  {
-                    "kind": "functionCall",
-                    "name": "arrayMap",
-                    "args": [
-                      {
-                        "kind": "lambdaExpr",
-                        "params": [
-                          "y"
-                        ],
-                        "body": {
-                          "kind": "binaryExpr",
-                          "op": "+",
-                          "left": {
-                            "kind": "binaryExpr",
-                            "op": "+",
-                            "left": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "x"
-                              ]
-                            },
-                            "right": {
-                              "kind": "columnRef",
-                              "parts": [
-                                "y"
-                              ]
-                            },
-                            "parenthesized": true
-                          },
-                          "right": {
-                            "kind": "functionCall",
-                            "name": "toLowCardinality",
-                            "args": [
-                              {
-                                "kind": "literal",
-                                "type": "UInt64",
-                                "value": "1"
-                              }
-                            ]
-                          },
-                          "parenthesized": true
-                        }
-                      },
-                      {
-                        "kind": "arrayLiteral",
-                        "elements": [],
-                        "source": "[]"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "1"
-                  }
-                ],
-                "parenthesized": true
-              },
-              "parenthesized": true
-            }
-          },
-          {
-            "kind": "arrayLiteral",
-            "elements": [],
-            "source": "[]"
-          }
-        ]
-      }
-    ]
   }
 ]

@@ -1,224 +1,248 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "parallel_replicas_index_analysis_only_on_coordinator",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "0"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "parallel_replicas_index_analysis_only_on_coordinator": "0"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: no-random-merge-tree-settings",
-      "-- Prevent remote replicas from skipping index analysis in Parallel Replicas. Otherwise, they may return full ranges and trigger max_rows_to_read validation failures."
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_array"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_array"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "primary_key",
-        "type": {
-          "name": "String"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "index_array",
-        "type": {
-          "name": "Array",
-          "args": [
-            {
-              "kind": "type",
-              "type": {
-                "name": "UInt64"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "indexDef",
-        "name": "additional_index_array",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "index_array"
-          ]
-        },
-        "indexType": {
-          "name": "set",
-          "args": [
-            {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10000"
-            }
-          ]
-        },
-        "granularity": 1
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "primary_key"
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
       "table": {
-        "kind": "tableRef",
-        "table": "set_array"
-      }
-    },
-    "selectQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "toString",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "intDiv",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "number"
-                    ]
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "100000"
-                  }
-                ]
-              }
-            ]
-          },
-          "alias": "primary_key"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "array",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "number"
-                ]
-              }
-            ]
-          },
-          "alias": "index_array"
-        }
-      ],
-      "from": {
-        "kind": "tableRef",
-        "database": "system",
-        "table": "numbers"
+        "type": "Identifier",
+        "name": "set_array"
       },
-      "limit": {
-        "count": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "1000000"
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "set_array"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "primary_key",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "index_array",
+            "data_type": {
+              "type": "DataType",
+              "name": "Array",
+              "arguments": [
+                {
+                  "type": "DataType",
+                  "name": "UInt64"
+                }
+              ]
+            }
+          }
+        ],
+        "indices": [
+          {
+            "type": "Index",
+            "name": "additional_index_array",
+            "expression": {
+              "type": "Identifier",
+              "name": "index_array"
+            },
+            "index_type": {
+              "type": "Function",
+              "name": "set",
+              "arguments": [
+                {
+                  "type": "Literal",
+                  "value_type": "UInt64",
+                  "value": "10000"
+                }
+              ]
+            },
+            "granularity": 1
+          }
+        ]
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "primary_key"
         }
       }
     }
   },
   {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_array"
-    },
-    "final": true
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "set_array"
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
+          {
+            "type": "SelectQuery",
+            "select": [
+              {
+                "type": "Function",
+                "alias": "primary_key",
+                "name": "toString",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "intDiv",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "number"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "100000"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "index_array",
+                "name": "array",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "name": "number"
+                  }
+                ]
+              }
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "database_and_table_name": {
+                      "type": "TableIdentifier",
+                      "name": "numbers",
+                      "database": "system"
+                    }
+                  }
+                }
+              ]
+            },
+            "limit": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "1000000"
+            }
+          }
+        ]
+      }
+    }
   },
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "8192"
-        }
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "set_array"
+      },
+      "final": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "count",
-        "args": []
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "8192"
       }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "set_array"
-    },
-    "where": {
-      "kind": "functionCall",
-      "name": "has",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "columnRef",
-          "parts": [
-            "index_array"
-          ]
-        },
-        {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "333"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "count",
+              "arguments": []
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "set_array"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "has",
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "index_array"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "333"
+              }
+            ]
+          }
         }
       ]
     }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "set_array"
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "set_array"
+      }
     }
   }
 ]

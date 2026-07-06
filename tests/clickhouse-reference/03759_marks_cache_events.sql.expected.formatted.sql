@@ -7,10 +7,10 @@ CREATE TABLE data
     key Int
 )
 ENGINE = MergeTree()
-ORDER BY tuple()
-SETTINGS prewarm_mark_cache = 0;
+ORDER BY ()
+SETTINGS prewarm_mark_cache = '0';
 
-SET load_marks_asynchronously = 0;
+SET load_marks_asynchronously = '0';
 
 INSERT INTO data;
 
@@ -20,7 +20,7 @@ INSERT INTO data;
 SELECT *
 FROM data
 FORMAT Null
-SETTINGS load_marks_asynchronously = 0;
+SETTINGS load_marks_asynchronously = '0';
 
 -- drop marks cache
 DETACH TABLE data;
@@ -30,9 +30,9 @@ ATTACH TABLE data;
 SELECT *
 FROM data
 FORMAT Null
-SETTINGS load_marks_asynchronously = 1;
+SETTINGS load_marks_asynchronously = '1';
 
-SYSTEM flush logs query_log;
+SYSTEM FLUSH LOGS query_log;
 
 SELECT
     query_kind,
@@ -52,7 +52,7 @@ FORMAT CSVWithNames;
 -- only hits
 OPTIMIZE TABLE data FINAL;
 
-SYSTEM flush logs part_log;
+SYSTEM FLUSH LOGS part_log;
 
 SELECT
     part_name,

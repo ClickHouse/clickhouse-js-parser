@@ -4,12 +4,11 @@ CREATE TABLE test
 (
     x UInt16,
     y UInt16,
-    PROJECTION proj (    SELECT *
-    ORDER BY x ASC)
+    PROJECTION proj (SELECT * ORDER BY x)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 1, min_bytes_for_wide_part = 1;
+SETTINGS min_rows_for_wide_part = '1', min_bytes_for_wide_part = '1';
 
 INSERT INTO test SELECT
     number,
@@ -28,9 +27,8 @@ CREATE TABLE test
 (
     x UInt16,
     y UInt16,
-    PROJECTION proj (    SELECT *
-    ORDER BY x ASC)
+    PROJECTION proj (SELECT * ORDER BY x)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple()
-SETTINGS min_rows_for_wide_part = 1000000000, min_bytes_for_wide_part = 10000000000;
+SETTINGS min_rows_for_wide_part = '1000000000', min_bytes_for_wide_part = '10000000000';

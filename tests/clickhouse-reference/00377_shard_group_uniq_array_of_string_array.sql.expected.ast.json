@@ -1,394 +1,434 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "max_rows_to_read",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "55M"
-        }
-      }
-    ],
-    "leadingComments": [
-      "-- Tags: shard, long"
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "group_uniq_arr_str"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "group_uniq_arr_str"
-    },
-    "engine": {
-      "name": "Memory"
-    },
-    "asQuery": {
-      "kind": "select",
-      "select": [
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "hex",
-            "args": [
-              {
-                "kind": "functionCall",
-                "name": "intHash32",
-                "args": [
-                  {
-                    "kind": "columnRef",
-                    "parts": [
-                      "g"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          "alias": "id"
-        },
-        {
-          "kind": "alias",
-          "expr": {
-            "kind": "functionCall",
-            "name": "if",
-            "args": [
-              {
-                "kind": "binaryExpr",
-                "op": "==",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "c"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "0"
-                }
-              },
-              {
-                "kind": "arrayLiteral",
-                "elements": [
-                  {
-                    "kind": "functionCall",
-                    "name": "hex",
-                    "args": [
-                      {
-                        "kind": "columnRef",
-                        "parts": [
-                          "v"
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "source": "[hex(v)]"
-              },
-              {
-                "kind": "functionCall",
-                "name": "if",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "==",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "c"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1"
-                    }
-                  },
-                  {
-                    "kind": "functionCall",
-                    "name": "emptyArrayString",
-                    "args": []
-                  },
-                  {
-                    "kind": "arrayLiteral",
-                    "elements": [
-                      {
-                        "kind": "functionCall",
-                        "name": "hex",
-                        "args": [
-                          {
-                            "kind": "columnRef",
-                            "parts": [
-                              "v"
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "kind": "functionCall",
-                        "name": "hex",
-                        "args": [
-                          {
-                            "kind": "columnRef",
-                            "parts": [
-                              "v"
-                            ]
-                          }
-                        ]
-                      }
-                    ],
-                    "source": "[hex(v), hex(v)]"
-                  }
-                ]
-              }
-            ]
-          },
-          "alias": "v"
-        }
-      ],
-      "from": {
-        "kind": "subqueryFrom",
-        "query": {
-          "kind": "select",
-          "select": [
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "intDiv",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "1000000"
-                    }
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "100"
-                  }
-                ]
-              },
-              "alias": "v"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "functionCall",
-                "name": "intDiv",
-                "args": [
-                  {
-                    "kind": "binaryExpr",
-                    "op": "%",
-                    "left": {
-                      "kind": "columnRef",
-                      "parts": [
-                        "number"
-                      ]
-                    },
-                    "right": {
-                      "kind": "literal",
-                      "type": "UInt64",
-                      "value": "100"
-                    }
-                  },
-                  {
-                    "kind": "literal",
-                    "type": "UInt64",
-                    "value": "10"
-                  }
-                ]
-              },
-              "alias": "g"
-            },
-            {
-              "kind": "alias",
-              "expr": {
-                "kind": "binaryExpr",
-                "op": "%",
-                "left": {
-                  "kind": "columnRef",
-                  "parts": [
-                    "number"
-                  ]
-                },
-                "right": {
-                  "kind": "literal",
-                  "type": "UInt64",
-                  "value": "10"
-                }
-              },
-              "alias": "c"
-            }
-          ],
-          "from": {
-            "kind": "tableRef",
-            "database": "system",
-            "table": "numbers"
-          },
-          "where": {
-            "kind": "binaryExpr",
-            "op": "<",
-            "left": {
-              "kind": "columnRef",
-              "parts": [
-                "c"
-              ]
-            },
-            "right": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          },
-          "limit": {
-            "count": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "10000000"
-            }
-          }
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "max_rows_to_read": "55M"
       }
     }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
-          {
-            "kind": "functionCall",
-            "name": "groupUniqArray",
-            "args": [
-              {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "group_uniq_arr_str"
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        }
-      ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "group_uniq_arr_str"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "functionCall",
-        "name": "length",
-        "args": [
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "group_uniq_arr_str"
+      },
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "Memory",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
+        }
+      },
+      "select": {
+        "type": "SelectWithUnionQuery",
+        "selects": [
           {
-            "kind": "functionCall",
-            "name": "groupUniqArray",
-            "args": [
+            "type": "SelectQuery",
+            "select": [
               {
-                "kind": "columnRef",
-                "parts": [
-                  "v"
+                "type": "Function",
+                "alias": "id",
+                "name": "hex",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "intHash32",
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "g"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Function",
+                "alias": "v",
+                "name": "if",
+                "arguments": [
+                  {
+                    "type": "Function",
+                    "name": "equals",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Identifier",
+                        "name": "c"
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "UInt64",
+                        "value": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "array",
+                    "is_operator": true,
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "hex",
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "v"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Function",
+                    "name": "if",
+                    "arguments": [
+                      {
+                        "type": "Function",
+                        "name": "equals",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Identifier",
+                            "name": "c"
+                          },
+                          {
+                            "type": "Literal",
+                            "value_type": "UInt64",
+                            "value": "1"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Function",
+                        "name": "emptyArrayString",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Function",
+                        "name": "array",
+                        "is_operator": true,
+                        "arguments": [
+                          {
+                            "type": "Function",
+                            "name": "hex",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "v"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Function",
+                            "name": "hex",
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "name": "v"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
-            ]
+            ],
+            "from": {
+              "type": "TablesInSelectQuery",
+              "children": [
+                {
+                  "type": "TablesInSelectQueryElement",
+                  "table_expression": {
+                    "type": "TableExpression",
+                    "subquery": {
+                      "type": "Subquery",
+                      "query": {
+                        "type": "SelectWithUnionQuery",
+                        "selects": [
+                          {
+                            "type": "SelectQuery",
+                            "select": [
+                              {
+                                "type": "Function",
+                                "alias": "v",
+                                "name": "intDiv",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "1000000"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "100"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "g",
+                                "name": "intDiv",
+                                "arguments": [
+                                  {
+                                    "type": "Function",
+                                    "name": "modulo",
+                                    "is_operator": true,
+                                    "arguments": [
+                                      {
+                                        "type": "Identifier",
+                                        "name": "number"
+                                      },
+                                      {
+                                        "type": "Literal",
+                                        "value_type": "UInt64",
+                                        "value": "100"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "10"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "Function",
+                                "alias": "c",
+                                "name": "modulo",
+                                "is_operator": true,
+                                "arguments": [
+                                  {
+                                    "type": "Identifier",
+                                    "name": "number"
+                                  },
+                                  {
+                                    "type": "Literal",
+                                    "value_type": "UInt64",
+                                    "value": "10"
+                                  }
+                                ]
+                              }
+                            ],
+                            "from": {
+                              "type": "TablesInSelectQuery",
+                              "children": [
+                                {
+                                  "type": "TablesInSelectQueryElement",
+                                  "table_expression": {
+                                    "type": "TableExpression",
+                                    "database_and_table_name": {
+                                      "type": "TableIdentifier",
+                                      "name": "numbers",
+                                      "database": "system"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "where": {
+                              "type": "Function",
+                              "name": "less",
+                              "is_operator": true,
+                              "arguments": [
+                                {
+                                  "type": "Identifier",
+                                  "name": "c"
+                                },
+                                {
+                                  "type": "Literal",
+                                  "value_type": "UInt64",
+                                  "value": "3"
+                                }
+                              ]
+                            },
+                            "limit": {
+                              "type": "Literal",
+                              "value_type": "UInt64",
+                              "value": "10000000"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         ]
       }
-    ],
-    "from": {
-      "kind": "tableFunctionRef",
-      "name": "remote",
-      "args": [
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
         {
-          "kind": "literal",
-          "type": "String",
-          "value": "127.0.0.{2,3,4,5}"
-        },
-        {
-          "kind": "functionCall",
-          "name": "currentDatabase",
-          "args": []
-        },
-        {
-          "kind": "literal",
-          "type": "String",
-          "value": "group_uniq_arr_str"
-        }
-      ]
-    },
-    "groupBy": {
-      "kind": "expressions",
-      "items": [
-        {
-          "kind": "columnRef",
-          "parts": [
-            "id"
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "groupUniqArray",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "v"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "group_uniq_arr_str"
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
           ]
         }
       ]
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "id"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Function",
+              "name": "length",
+              "arguments": [
+                {
+                  "type": "Function",
+                  "name": "groupUniqArray",
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "name": "v"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "table_function": {
+                    "type": "Function",
+                    "name": "remote",
+                    "arguments": [
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "127.0.0.{2,3,4,5}"
+                      },
+                      {
+                        "type": "Function",
+                        "name": "currentDatabase",
+                        "arguments": []
+                      },
+                      {
+                        "type": "Literal",
+                        "value_type": "String",
+                        "value": "group_uniq_arr_str"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "group_by": [
+            {
+              "type": "Identifier",
+              "name": "id"
+            }
+          ],
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "id"
+              },
+              "direction": "ASC"
+            }
           ]
-        },
-        "direction": "ASC"
-      }
-    ]
+        }
+      ]
+    }
   }
 ]

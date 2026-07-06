@@ -1,4 +1,4 @@
-SET ignore_materialized_views_with_dropped_target_table = 1;
+SET ignore_materialized_views_with_dropped_target_table = '1';
 
 SET send_logs_level = 'error';
 
@@ -12,14 +12,14 @@ CREATE TABLE from_table
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE TABLE to_table
 (
     x UInt32
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY x;
 
 CREATE MATERIALIZED VIEW mv

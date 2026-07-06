@@ -9,12 +9,12 @@ CREATE TABLE test_filter
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 3, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '3', index_granularity_bytes = '10Mi';
 
 INSERT INTO test_filter SELECT
     number,
     number + 1,
-    ((number / 2 + 1)) % 2
+    (number / 2 + 1) % 2
 FROM numbers(15);
 
 SELECT
@@ -42,7 +42,7 @@ FROM test_filter
 PREWHERE c != 0
 WHERE b % 2 != 0;
 
-SET mutations_sync = 2;
+SET mutations_sync = '2';
 
 -- Delete all rows where division by zero could occur
 DELETE FROM test_filter WHERE c = 0;

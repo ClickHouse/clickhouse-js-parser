@@ -6,18 +6,18 @@ CREATE TABLE t03324
     c0 Nullable(Int)
 )
 ENGINE = AggregatingMergeTree()
-ORDER BY (c0)
-PARTITION BY (c0)
-SETTINGS allow_nullable_key = 1;
+ORDER BY c0
+PARTITION BY c0
+SETTINGS allow_nullable_key = '1';
 
 INSERT INTO t03324 (c0);
 
-OPTIMIZE TABLE t03324 FINAL SETTINGS optimize_throw_if_noop = 1;
+OPTIMIZE TABLE t03324 FINAL SETTINGS optimize_throw_if_noop = '1';
 
 SELECT c0
 FROM t03324 FINAL
 ORDER BY c0 DESC
-SETTINGS extremes = 1;
+SETTINGS extremes = '1';
 
 TRUNCATE TABLE t03324;
 

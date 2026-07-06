@@ -7,7 +7,7 @@ CREATE TABLE t1
     x UInt32,
     lc LowCardinality(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t1;
 
@@ -26,7 +26,7 @@ CREATE TABLE t2
     x UInt32,
     lc LowCardinality(String)
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t2;
 

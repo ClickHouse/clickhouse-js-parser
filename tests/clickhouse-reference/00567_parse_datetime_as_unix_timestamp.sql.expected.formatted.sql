@@ -1,4 +1,4 @@
-SET input_format_values_interpret_expressions = 0;
+SET input_format_values_interpret_expressions = '0';
 
 CREATE TEMPORARY TABLE t
 (

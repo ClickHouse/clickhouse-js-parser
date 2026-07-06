@@ -5,7 +5,7 @@ CREATE TABLE pk_func
     d DateTime,
     ui UInt32
 )
-ENGINE = SummingMergeTree
+ENGINE = SummingMergeTree()
 ORDER BY toDate(d);
 
 INSERT INTO pk_func SELECT

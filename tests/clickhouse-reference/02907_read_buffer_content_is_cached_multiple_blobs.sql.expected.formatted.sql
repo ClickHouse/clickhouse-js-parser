@@ -6,11 +6,11 @@ CREATE TABLE t
 (
     a UInt64
 )
-ENGINE = Log
+ENGINE = Log()
 SETTINGS disk = 's3_cache';
 
 INSERT INTO t SELECT number
-FROM numbers_mt(1e6);
+FROM numbers_mt(1000000.);
 
 -- First of all the cache should be warmed up
 SELECT *

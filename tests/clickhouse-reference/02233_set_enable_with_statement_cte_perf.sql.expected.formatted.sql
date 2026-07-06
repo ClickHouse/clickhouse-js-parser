@@ -11,7 +11,7 @@ CREATE TABLE ev
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 CREATE TABLE idx
 (
@@ -19,7 +19,7 @@ CREATE TABLE idx
 )
 ENGINE = MergeTree()
 ORDER BY a
-SETTINGS index_granularity = 8192, index_granularity_bytes = '10Mi';
+SETTINGS index_granularity = '8192', index_granularity_bytes = '10Mi';
 
 INSERT INTO ev SELECT
     number,
@@ -38,7 +38,7 @@ WHERE a IN (
         SELECT a
         FROM idx
     )
-SETTINGS enable_global_with_statement = 1;
+SETTINGS enable_global_with_statement = '1';
 
 -- test_enable_global_with_statement_performance_2
 SELECT count()
@@ -47,7 +47,7 @@ WHERE a IN (
         SELECT a
         FROM idx
     )
-SETTINGS enable_global_with_statement = 1;
+SETTINGS enable_global_with_statement = '1';
 
 -- test_enable_global_with_statement_performance_3
 WITH 'test' AS u
@@ -58,7 +58,7 @@ WHERE a IN (
         SELECT a
         FROM idx
     )
-SETTINGS enable_global_with_statement = 0;
+SETTINGS enable_global_with_statement = '0';
 
 SYSTEM FLUSH LOGS query_log;
 
@@ -68,7 +68,7 @@ FROM (
         FROM `system`.query_log
         WHERE current_database = currentDatabase()
             AND type = 'QueryFinish'
-            AND like(query, '-- test_enable_global_with_statement_performance%')
+            AND query LIKE '-- test_enable_global_with_statement_performance%'
         ORDER BY initial_query_start_time_microseconds DESC
         LIMIT 3
     )

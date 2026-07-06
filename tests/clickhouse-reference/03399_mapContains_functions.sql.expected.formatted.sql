@@ -7,7 +7,7 @@ CREATE TABLE map_containsValueLike_test
 )
 ENGINE = MergeTree()
 ORDER BY id
-SETTINGS index_granularity = 2;
+SETTINGS index_granularity = '2';
 
 INSERT INTO map_containsValueLike_test;
 

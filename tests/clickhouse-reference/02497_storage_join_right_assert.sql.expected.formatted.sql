@@ -7,7 +7,7 @@ CREATE TABLE t1
     key UInt64,
     a UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t2
 (
@@ -20,13 +20,13 @@ INSERT INTO t1;
 
 INSERT INTO t2;
 
-SET enable_analyzer = 0;
+SET enable_analyzer = '0';
 
 SELECT *
 FROM
     t1
-RIGHT JOIN t2
+ALL RIGHT JOIN t2
     USING (key)
 ORDER BY key ASC;
 
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';

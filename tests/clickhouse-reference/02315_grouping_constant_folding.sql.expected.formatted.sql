@@ -18,33 +18,36 @@ SELECT
     count() AS amount,
     a,
     b,
-    GROUPING(a, b)
+    grouping(a, b)
 FROM test02315
 GROUP BY GROUPING SETS ((a, b), (a), ())
 ORDER BY (amount, a, b) ASC
-SETTINGS force_grouping_standard_compatibility = 0;
+SETTINGS force_grouping_standard_compatibility = '0';
 
 SELECT
     count() AS amount,
     a,
     b,
-    GROUPING(a, b)
+    grouping(a, b)
 FROM test02315
-GROUP BY ROLLUP(a, b)
+GROUP BY
+    a,
+    b
+WITH ROLLUP
 ORDER BY (amount, a, b) ASC
-SETTINGS force_grouping_standard_compatibility = 0;
+SETTINGS force_grouping_standard_compatibility = '0';
 
 SELECT
     count() AS amount,
     a,
     b,
-    GROUPING(a, b)
+    grouping(a, b)
 FROM test02315
 GROUP BY GROUPING SETS ((a, b), (a, a), ())
 ORDER BY (amount, a, b) ASC
 SETTINGS
-    force_grouping_standard_compatibility = 0,
-    enable_analyzer = 1;
+    force_grouping_standard_compatibility = '0',
+    enable_analyzer = '1';
 
 -- { echoOff }
 DROP TABLE test02315;

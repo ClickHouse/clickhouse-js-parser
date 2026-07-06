@@ -2,8 +2,8 @@ CREATE TABLE t
 (
     st FixedString(54)
 )
-ENGINE = MergeTree
-ORDER BY tuple();
+ENGINE = MergeTree()
+ORDER BY ();
 
 INSERT INTO t;
 

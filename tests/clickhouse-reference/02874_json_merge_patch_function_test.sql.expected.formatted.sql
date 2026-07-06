@@ -31,7 +31,7 @@ CREATE TABLE t_json_merge
     s1 String,
     s2 String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO t_json_merge SELECT
     number,

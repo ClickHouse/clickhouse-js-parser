@@ -5,7 +5,7 @@ CREATE TABLE t_remove_sample_by
 (
     id UInt64
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SAMPLE BY id;
 
@@ -30,16 +30,16 @@ CREATE TABLE t_remove_sample_by
 (
     id UInt64
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 CREATE TABLE t_remove_sample_by
 (
     id String
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY id
 SAMPLE BY id
-SETTINGS check_sample_column_is_correct = 0;
+SETTINGS check_sample_column_is_correct = '0';
 
 ALTER TABLE t_remove_sample_by RESET SETTING check_sample_column_is_correct;
 

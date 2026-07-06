@@ -1,4 +1,4 @@
-SET enable_analyzer = 1;
+SET enable_analyzer = '1';
 
 DROP TABLE IF EXISTS mv_test;
 
@@ -13,7 +13,7 @@ CREATE TABLE mv_test
     final_id Nullable(UInt64),
     display String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE TABLE mv_test_target
 (
@@ -22,7 +22,7 @@ CREATE TABLE mv_test_target
     final_id Nullable(UInt64),
     display String
 )
-ENGINE = Log;
+ENGINE = Log();
 
 CREATE MATERIALIZED VIEW mv_test_mv
 TO mv_test_target

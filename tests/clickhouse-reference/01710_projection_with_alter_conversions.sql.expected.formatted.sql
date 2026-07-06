@@ -4,17 +4,16 @@ CREATE TABLE t
 (
     i int,
     j int,
-    PROJECTION p (    SELECT i
-    ORDER BY i ASC)
+    PROJECTION p (SELECT i ORDER BY i)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO t;
 
-SYSTEM stop merges t;
+SYSTEM STOP MERGES t;
 
-SET alter_sync = 0;
+SET alter_sync = '0';
 
 ALTER TABLE t RENAME COLUMN j TO k;
 

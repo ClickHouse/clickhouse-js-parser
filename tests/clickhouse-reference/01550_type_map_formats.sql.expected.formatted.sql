@@ -1,7 +1,7 @@
 -- Tags: log-engine
-SET output_format_write_statistics = 0;
+SET output_format_write_statistics = '0';
 
-SET output_format_json_pretty_print = 0;
+SET output_format_json_pretty_print = '0';
 
 DROP TABLE IF EXISTS map_formats;
 
@@ -11,7 +11,7 @@ CREATE TABLE map_formats
     m1 Map(String, Date),
     m2 Map(String, Array(UInt32))
 )
-ENGINE = Log;
+ENGINE = Log();
 
 INSERT INTO map_formats;
 

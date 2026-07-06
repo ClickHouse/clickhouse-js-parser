@@ -14,7 +14,7 @@ CREATE TABLE appointment_events
     _set_at UInt32,
     _job_requisition_id String
 )
-ENGINE = Memory;
+ENGINE = Memory();
 
 INSERT INTO appointment_events (_appointment_id, _set_at, _status);
 
@@ -32,7 +32,7 @@ SELECT
     A._job_requisition_id
 FROM
     appointment_events AS A
-LEFT JOIN (
+ANY LEFT JOIN (
         SELECT
             _appointment_id,
             MAX(_set_at) AS max_set_at

@@ -1,4 +1,4 @@
-SET allow_suspicious_low_cardinality_types = 1;
+SET allow_suspicious_low_cardinality_types = '1';
 
 DROP TABLE IF EXISTS lc_00688;
 
@@ -7,7 +7,7 @@ CREATE TABLE lc_00688
     str LowCardinality(String),
     val LowCardinality(UInt8)
 )
-ENGINE = MergeTree
+ENGINE = MergeTree()
 ORDER BY tuple();
 
 INSERT INTO lc_00688;

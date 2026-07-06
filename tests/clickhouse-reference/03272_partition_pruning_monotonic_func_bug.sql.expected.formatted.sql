@@ -9,17 +9,19 @@ CREATE TABLE tt
 )
 ENGINE = MergeTree()
 ORDER BY dateTrunc('hour', ts)
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = '8192';
 
 INSERT INTO tt;
 
 SELECT id
 FROM tt
-PREWHERE and(greaterOrEquals(ts, toDateTime(1731506400)), lessOrEquals(ts, toDateTime(1731594420)));
+PREWHERE ts >= toDateTime(1731506400)
+    AND ts <= toDateTime(1731594420);
 
-EXPLAIN indexes = 1, description = 0
+EXPLAIN indexes = '1', description = '0'
 SELECT id
 FROM tt
-PREWHERE and(greaterOrEquals(ts, toDateTime(1731506400)), lessOrEquals(ts, toDateTime(1731594420)));
+PREWHERE ts >= toDateTime(1731506400)
+    AND ts <= toDateTime(1731594420);
 
 DROP TABLE tt;

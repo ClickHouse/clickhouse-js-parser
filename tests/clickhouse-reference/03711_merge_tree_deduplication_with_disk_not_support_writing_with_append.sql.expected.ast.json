@@ -1,1267 +1,1318 @@
 [
   {
-    "kind": "set",
-    "settings": [
-      {
-        "name": "send_logs_level",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "fatal"
-        }
+    "version": 2,
+    "ast": {
+      "type": "Settings",
+      "changes": {
+        "send_logs_level": "fatal"
       }
-    ],
-    "leadingComments": [
-      "-- Tags: long, no-replicated-database, no-fasttest",
-      "-- Tag no-replicated-database: Unsupported type of ALTER query",
-      "-- Suppress error logs because `temporary_directories_lifetime` is 1 seconds (the default value is 1 day).",
-      "-- And when a part is duplicated, it will be removed. However, because `temporary_directories_lifetime` is 1 seconds (the default value is 1 day), ",
-      "-- it might be removed by `MergeTreeData::clearOldTemporaryDirectories` thread.",
-      "-- `IMergeTreeDataPart::removeIfNeeded` will fail to remove the part, causing it to have some error logs."
-    ]
+    }
   },
   {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "ifExists": true
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "if_exists": true
+    }
   },
   {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
       },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "part",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt8"
+            },
+            "default_specifier": "DEFAULT",
+            "default_expression": {
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "77"
+            }
+          }
+        ]
       },
-      {
-        "kind": "columnDef",
-        "name": "part",
-        "type": {
-          "name": "UInt8"
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "defaultKind": "DEFAULT",
-        "defaultExpr": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "77"
+        "partition_by": {
+          "type": "Identifier",
+          "name": "part"
+        },
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
+        },
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "non_replicated_deduplication_window": "3",
+            "disk": "s3_plain_rewritable"
+          }
         }
       }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SYSTEM",
+      "system_type": "STOP MERGES",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
       }
-    ],
-    "partitionBy": {
-      "kind": "columnRef",
-      "parts": [
-        "part"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          }
+        }
       ]
-    },
-    "settings": [
-      {
-        "name": "non_replicated_deduplication_window",
-        "value": {
-          "kind": "literal",
-          "type": "UInt64",
-          "value": "3"
-        }
-      },
-      {
-        "name": "disk",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "s3_plain_rewritable"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "system",
-    "body": "SYSTEM STOP MERGES merge_tree_deduplication"
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
         },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partName": {
-          "kind": "literal",
-          "type": "String",
-          "value": "77_9_9_0"
+        {
+          "type": "Identifier",
+          "name": "value"
         }
-      }
-    ],
-    "trailingComments": [
-      "-- some old part"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "10"
-      }
+      ],
+      "format": "Values"
     }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partName": {
-          "kind": "literal",
-          "type": "String",
-          "value": "77_13_13_0"
-        }
-      }
-    ],
-    "trailingComments": [
-      "-- fresh part"
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "12"
-      }
-    }
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    }
-  },
-  {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    }
-  },
-  {
-    "kind": "optimize",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "final": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
       "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "DROP_PARTITION",
-        "partition": {
-          "partitionKind": "expr",
-          "expr": {
-            "kind": "literal",
-            "type": "UInt64",
-            "value": "77"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "part": true,
+          "partition": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "77_9_9_0"
           }
         }
-      }
-    ]
+      ]
+    }
   },
   {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      },
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "part"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      ]
+    }
   },
   {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
-          {
-            "name": "non_replicated_deduplication_window",
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "part": true,
+          "partition": {
+            "type": "Literal",
+            "value_type": "String",
+            "value": "77_13_13_0"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "key"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "12"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "OptimizeQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "final": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "DROP_PARTITION",
+          "partition": {
+            "type": "Partition",
             "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "2"
+              "type": "Literal",
+              "value_type": "UInt64",
+              "value": "77"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Identifier",
+              "name": "part"
+            },
+            {
+              "type": "Identifier",
+              "name": "key"
+            },
+            {
+              "type": "Identifier",
+              "name": "value"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            },
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "part"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "non_replicated_deduplication_window": "2"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "part"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "33"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "non_replicated_deduplication_window": "0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "non_replicated_deduplication_window": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        },
+        {
+          "type": "Identifier",
+          "name": "part"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "where": {
+            "type": "Function",
+            "name": "equals",
+            "is_operator": true,
+            "arguments": [
+              {
+                "type": "Identifier",
+                "name": "part"
+              },
+              {
+                "type": "Literal",
+                "value_type": "UInt64",
+                "value": "44"
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DropQuery",
+      "kind": "DROP",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "if_exists": true
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "CreateQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "columns_list": {
+        "type": "Columns",
+        "columns": [
+          {
+            "type": "ColumnDeclaration",
+            "name": "key",
+            "data_type": {
+              "type": "DataType",
+              "name": "UInt64"
+            }
+          },
+          {
+            "type": "ColumnDeclaration",
+            "name": "value",
+            "data_type": {
+              "type": "DataType",
+              "name": "String"
             }
           }
         ]
-      }
-    ],
-    "leadingComments": [
-      "-- Alters...."
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "33"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
+      "storage": {
+        "type": "Storage",
+        "engine": {
+          "type": "Function",
+          "name": "MergeTree",
+          "kind": "TABLE_ENGINE",
+          "arguments": []
         },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
-          {
-            "name": "non_replicated_deduplication_window",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "0"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
-          {
-            "name": "non_replicated_deduplication_window",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_deduplication"
-    },
-    "where": {
-      "kind": "binaryExpr",
-      "op": "=",
-      "left": {
-        "kind": "columnRef",
-        "parts": [
-          "part"
-        ]
-      },
-      "right": {
-        "kind": "literal",
-        "type": "UInt64",
-        "value": "44"
-      }
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
+        "order_by": {
+          "type": "Identifier",
+          "name": "key"
         },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "drop",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
-    },
-    "ifExists": true
-  },
-  {
-    "kind": "createTable",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
-    },
-    "tableElements": [
-      {
-        "kind": "columnDef",
-        "name": "key",
-        "type": {
-          "name": "UInt64"
-        }
-      },
-      {
-        "kind": "columnDef",
-        "name": "value",
-        "type": {
-          "name": "String"
-        }
-      }
-    ],
-    "engine": {
-      "name": "MergeTree",
-      "args": []
-    },
-    "orderBy": [
-      {
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        }
-      }
-    ],
-    "settings": [
-      {
-        "name": "disk",
-        "value": {
-          "kind": "literal",
-          "type": "String",
-          "value": "s3_plain_rewritable"
-        }
-      }
-    ],
-    "settingsAfterOrderBy": true
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_no_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "select",
-    "select": [
-      {
-        "kind": "asterisk"
-      }
-    ],
-    "from": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
-    },
-    "orderBy": [
-      {
-        "kind": "orderByItem",
-        "expr": {
-          "kind": "columnRef",
-          "parts": [
-            "key"
-          ]
-        },
-        "direction": "ASC"
-      }
-    ]
-  },
-  {
-    "kind": "alter",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
-    },
-    "commands": [
-      {
-        "kind": "alterCommand",
-        "commandType": "MODIFY_SETTING",
-        "settings": [
-          {
-            "name": "non_replicated_deduplication_window",
-            "value": {
-              "kind": "literal",
-              "type": "UInt64",
-              "value": "3"
-            }
+        "settings": {
+          "type": "Settings",
+          "changes": {
+            "disk": "s3_plain_rewritable"
           }
-        ]
+        }
       }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_no_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
-      "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_no_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
-      },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
-      }
-    ]
-  },
-  {
-    "kind": "detach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
     }
   },
   {
-    "kind": "attach",
-    "targetType": "TABLE",
-    "table": {
-      "kind": "tableRef",
-      "table": "merge_tree_no_deduplication"
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
     }
   },
   {
-    "kind": "insert",
-    "target": {
-      "kind": "table",
+    "version": 2,
+    "ast": {
+      "type": "SelectWithUnionQuery",
+      "selects": [
+        {
+          "type": "SelectQuery",
+          "select": [
+            {
+              "type": "Asterisk"
+            }
+          ],
+          "from": {
+            "type": "TablesInSelectQuery",
+            "children": [
+              {
+                "type": "TablesInSelectQueryElement",
+                "table_expression": {
+                  "type": "TableExpression",
+                  "database_and_table_name": {
+                    "type": "TableIdentifier",
+                    "name": "merge_tree_no_deduplication"
+                  }
+                }
+              }
+            ]
+          },
+          "order_by": [
+            {
+              "type": "OrderByElement",
+              "expression": {
+                "type": "Identifier",
+                "name": "key"
+              },
+              "direction": "ASC"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AlterQuery",
+      "alter_object": "TABLE",
       "table": {
-        "kind": "tableRef",
-        "table": "merge_tree_no_deduplication"
-      }
-    },
-    "columns": [
-      {
-        "kind": "columnRef",
-        "parts": [
-          "key"
-        ]
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
       },
-      {
-        "kind": "columnRef",
-        "parts": [
-          "value"
-        ]
+      "commands": [
+        {
+          "type": "AlterCommand",
+          "command_type": "MODIFY_SETTING",
+          "settings_changes": {
+            "type": "Settings",
+            "changes": {
+              "non_replicated_deduplication_window": "3"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "DetachQuery",
+      "kind": "DETACH",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
       }
-    ]
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "AttachQuery",
+      "attach": true,
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      }
+    }
+  },
+  {
+    "version": 2,
+    "ast": {
+      "type": "InsertQuery",
+      "table": {
+        "type": "Identifier",
+        "name": "merge_tree_no_deduplication"
+      },
+      "columns": [
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "format": "Values"
+    }
   }
 ]

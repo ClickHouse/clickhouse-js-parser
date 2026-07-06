@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS t_shared;
+DROP TABLE IF EXISTS t_shared SYNC;
 
-SET enable_lightweight_update = 1;
+SET enable_lightweight_update = '1';
 
 CREATE TABLE t_shared
 (
@@ -10,7 +10,7 @@ CREATE TABLE t_shared
 )
 ENGINE = ReplicatedMergeTree('/zookeeper/{database}/t_shared/', '1')
 ORDER BY id
-SETTINGS enable_block_number_column = 1, enable_block_offset_column = 1;
+SETTINGS enable_block_number_column = '1', enable_block_offset_column = '1';
 
 INSERT INTO t_shared;
 
@@ -21,12 +21,12 @@ UPDATE t_shared SET c2 = 'aaa' WHERE id = 3;
 SELECT *
 FROM t_shared
 ORDER BY id ASC
-SETTINGS apply_patch_parts = 0;
+SETTINGS apply_patch_parts = '0';
 
 SELECT *
 FROM t_shared
 ORDER BY id ASC
-SETTINGS apply_patch_parts = 1;
+SETTINGS apply_patch_parts = '1';
 
 SELECT *
 FROM t_shared
@@ -43,4 +43,4 @@ FROM t_shared
 PREWHERE c2 = 'aaa'
 WHERE c1 = 111;
 
-DROP TABLE t_shared;
+DROP TABLE t_shared SYNC;

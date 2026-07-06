@@ -27,25 +27,25 @@ SELECT
     toTypeName(res);
 
 SELECT
-    ifNull(toString(number), toString(negate(number))) AS res,
+    ifNull(toString(number), toString(-number)) AS res,
     toTypeName(res)
 FROM `system`.numbers
 LIMIT 5;
 
 SELECT
-    ifNull(nullIf(toString(number), '1'), toString(negate(number))) AS res,
+    ifNull(nullIf(toString(number), '1'), toString(-number)) AS res,
     toTypeName(res)
 FROM `system`.numbers
 LIMIT 5;
 
 SELECT
-    ifNull(toString(number), nullIf(toString(negate(number)), '-3')) AS res,
+    ifNull(toString(number), nullIf(toString(-number), '-3')) AS res,
     toTypeName(res)
 FROM `system`.numbers
 LIMIT 5;
 
 SELECT
-    ifNull(nullIf(toString(number), '1'), nullIf(toString(negate(number)), '-3')) AS res,
+    ifNull(nullIf(toString(number), '1'), nullIf(toString(-number), '-3')) AS res,
     toTypeName(res)
 FROM `system`.numbers
 LIMIT 5;

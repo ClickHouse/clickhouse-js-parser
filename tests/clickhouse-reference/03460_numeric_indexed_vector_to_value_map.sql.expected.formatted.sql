@@ -23,10 +23,7 @@ WITH (
         FROM uin_value_details_int32_int8
     ) AS vec_2
 
-SELECT arrayJoin([
-    numericIndexedVectorToMap(vec_1)
-    , numericIndexedVectorToMap(vec_2)
-]);
+SELECT arrayJoin([numericIndexedVectorToMap(vec_1), numericIndexedVectorToMap(vec_2)]);
 
 DROP TABLE IF EXISTS uin_value_details_int32_int64;
 
@@ -53,10 +50,7 @@ WITH (
         FROM uin_value_details_int32_int64
     ) AS vec_2
 
-SELECT arrayJoin([
-    numericIndexedVectorToMap(vec_1)
-    , numericIndexedVectorToMap(vec_2)
-]);
+SELECT arrayJoin([numericIndexedVectorToMap(vec_1), numericIndexedVectorToMap(vec_2)]);
 
 DROP TABLE IF EXISTS uin_value_details_int32_float64;
 
@@ -83,7 +77,4 @@ WITH (
         FROM uin_value_details_int32_float64
     ) AS vec_2
 
-SELECT arrayJoin([
-    numericIndexedVectorToMap(vec_1)
-    , numericIndexedVectorToMap(vec_2)
-]);
+SELECT arrayJoin([numericIndexedVectorToMap(vec_1), numericIndexedVectorToMap(vec_2)]);

@@ -17,6 +17,14 @@ FROM (
 
         SELECT v1 AS v
         UNION ALL
+        WITH (
+                SELECT 1
+            ) AS v1,
+
+        (
+                SELECT 2
+            ) AS v2
+
         SELECT v2 AS v
     ) AS a;
 
@@ -33,5 +41,13 @@ WHERE number IN (
 
         SELECT v1 AS v
         UNION ALL
+        WITH (
+                SELECT 1
+            ) AS v1,
+
+        (
+                SELECT 2
+            ) AS v2
+
         SELECT v2 AS v
     );

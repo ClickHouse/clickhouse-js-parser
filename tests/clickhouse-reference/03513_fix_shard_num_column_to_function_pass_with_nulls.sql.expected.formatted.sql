@@ -1,4 +1,4 @@
-SET join_use_nulls = 1;
+SET join_use_nulls = '1';
 
 DROP TABLE IF EXISTS t0;
 
