@@ -2,6 +2,8 @@
 
 A TypeScript parser for ClickHouse SQL. Parses ClickHouse SQL into a typed AST, with support for formatting back to SQL.
 
+Explore the parser output in the [playground](https://clickhouse.github.io/clickhouse-js-parser/).
+
 **Note:** This is alpha-level Claudeware. The API and AST formats are subject to change.
 
 ## Installation
