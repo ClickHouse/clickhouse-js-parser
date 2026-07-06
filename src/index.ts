@@ -1,5 +1,5 @@
 import { parse as peggyParse } from './parser';
-import { Statement } from './ast';
+import { Statement, WithoutLocations } from './ast';
 
 // ── Error Types ──────────────────────────────────────────────────────────────
 
@@ -17,6 +17,7 @@ export type {
   Statement,
   Expression,
   NodeMetadata,
+  WithoutLocations,
   SourceLocation,
 
   // Expression / sub-node types.
@@ -180,6 +181,29 @@ function setParents(statements: Statement[]): void {
   walk(statements, undefined);
 }
 
+// ── Location stripping ─────────────────────────────────────────────────────────
+
+/**
+ * Recursively removes the `location` metadata key from every node. Used when
+ * `parse` is called with `{ locations: false }` to return a leaner AST without
+ * source-position information.
+ */
+function stripLocations(value: unknown): void {
+  if (value === null || typeof value !== 'object') return;
+
+  if (Array.isArray(value)) {
+    for (const item of value) stripLocations(item);
+    return;
+  }
+
+  const obj = value as Record<string, unknown>;
+  if ('location' in obj) delete obj.location;
+  for (const [key, v] of Object.entries(obj)) {
+    if (key === 'parent') continue;
+    stripLocations(v);
+  }
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export type ParseOptions = {
@@ -190,11 +214,34 @@ export type ParseOptions = {
    * Default: false
    **/
   setParents?: boolean;
+
+  /**
+   * When true, each AST node carries a `location` field with its source range
+   * (line/column/offset) in the input SQL. Set to false to omit locations and
+   * return a leaner, fully JSON-serializable AST.
+   *
+   * Default: true
+   **/
+  locations?: boolean;
 };
 
-export function parse(sql: string, options?: ParseOptions): Statement[] {
+// When `locations: false` is passed as a literal, the returned AST is typed
+// with every `location` property removed (see {@link WithoutLocations}); any
+// other options object yields the default `Statement[]` (location optional).
+export function parse(
+  sql: string,
+  options: ParseOptions & { locations: false },
+): WithoutLocations<Statement>[];
+export function parse(sql: string, options?: ParseOptions): Statement[];
+export function parse(
+  sql: string,
+  options?: ParseOptions,
+): Statement[] | WithoutLocations<Statement>[] {
   const statements = peggyParse(sql) as Statement[];
   stripParseTimeMarkers(statements);
+  if (options?.locations === false) {
+    stripLocations(statements);
+  }
   if (options?.setParents) {
     setParents(statements);
   }

@@ -102,19 +102,25 @@ const VOLATILE_KEYS = new Set([
   'contains_hash',
 ]);
 
-export function stripVolatile(value: unknown): unknown {
+export function stripVolatile(value: unknown, keepLocation = false): unknown {
   if (value === null || value === undefined || typeof value !== 'object') {
     return value;
   }
 
   if (Array.isArray(value)) {
-    return value.map(stripVolatile);
+    return value.map((v) => stripVolatile(v, keepLocation));
   }
 
   const result: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-    if (VOLATILE_KEYS.has(k)) continue;
-    result[k] = stripVolatile(v);
+    // `location` is volatile for round-trip comparison, but callers that want
+    // to inspect source positions (e.g. the parse script) can retain it.
+    if (k === 'location') {
+      if (!keepLocation) continue;
+    } else if (VOLATILE_KEYS.has(k)) {
+      continue;
+    }
+    result[k] = stripVolatile(v, keepLocation);
   }
   return result;
 }

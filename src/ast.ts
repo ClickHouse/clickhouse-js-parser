@@ -29,7 +29,7 @@ export const SourceLocationSchema = z.object({
  * {@link StatementSchema}, which the reference-AST test suite exercises for the
  * whole corpus.
  */
-export const ASTNodeSchema: z.ZodType<ASTNode> = z.custom<ASTNode>(
+export const ASTNodeSchema: z.ZodType<WithoutLocations<ASTNode>> = z.custom<ASTNode>(
   (val) =>
     typeof val === 'object' && val !== null && typeof (val as { type?: unknown }).type === 'string',
 );
@@ -81,7 +81,7 @@ export type QueryParameterNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link QueryParameterNode}. */
-export const QueryParameterSchema: z.ZodType<QueryParameterNode> = z.object({
+export const QueryParameterSchema: z.ZodType<WithoutLocations<QueryParameterNode>> = z.object({
   type: z.literal('QueryParameter'),
   name: z.string(),
   param_type: z.string(),
@@ -96,7 +96,7 @@ export const QueryParameterSchema: z.ZodType<QueryParameterNode> = z.object({
 export type IdentifierPart = string | QueryParameterNode;
 
 /** Zod schema for {@link IdentifierPart}. */
-export const IdentifierPartSchema: z.ZodType<IdentifierPart> = z.lazy(() =>
+export const IdentifierPartSchema: z.ZodType<WithoutLocations<IdentifierPart>> = z.lazy(() =>
   z.union([z.string(), QueryParameterSchema]),
 );
 
@@ -116,7 +116,7 @@ export type LiteralElement = {
 };
 
 /** Zod schema for {@link LiteralElement}. */
-export const LiteralElementSchema: z.ZodType<LiteralElement> = z.lazy(() =>
+export const LiteralElementSchema: z.ZodType<WithoutLocations<LiteralElement>> = z.lazy(() =>
   z.object({
     value_type: z.union([
       z.literal('UInt64'),
@@ -190,7 +190,7 @@ export type LiteralNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link LiteralNode}. */
-export const LiteralNodeSchema: z.ZodType<LiteralNode> = z.lazy(() =>
+export const LiteralNodeSchema: z.ZodType<WithoutLocations<LiteralNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Literal'),
     value_type: z.union([
@@ -245,7 +245,7 @@ export type IdentifierNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link IdentifierNode}. */
-export const IdentifierNodeSchema: z.ZodType<IdentifierNode> = z.lazy(() =>
+export const IdentifierNodeSchema: z.ZodType<WithoutLocations<IdentifierNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Identifier'),
     name: z.string(),
@@ -297,7 +297,7 @@ export type FunctionNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link FunctionNode}. */
-export const FunctionNodeSchema: z.ZodType<FunctionNode> = z.lazy(() =>
+export const FunctionNodeSchema: z.ZodType<WithoutLocations<FunctionNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Function'),
     name: z.string(),
@@ -350,7 +350,7 @@ export type WindowDefinitionNode = {
   frame_end?: WindowFrameBoundNode;
 } & NodeMetadata;
 
-const WindowFrameBoundSchema: z.ZodType<WindowFrameBoundNode> = z.lazy(() =>
+const WindowFrameBoundSchema: z.ZodType<WithoutLocations<WindowFrameBoundNode>> = z.lazy(() =>
   z.union([
     z.object({ type: z.literal('Unbounded'), preceding: z.boolean().optional() }),
     z.object({ type: z.literal('Current'), preceding: z.boolean().optional() }),
@@ -363,17 +363,18 @@ const WindowFrameBoundSchema: z.ZodType<WindowFrameBoundNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link WindowDefinitionNode}. */
-export const WindowDefinitionSchema: z.ZodType<WindowDefinitionNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('WindowDefinition'),
-    parent_window_name: z.string().optional(),
-    partition_by: z.array(ExpressionSchema).optional(),
-    order_by: z.array(OrderByElementSchema).optional(),
-    frame_type: z.union([z.literal('ROWS'), z.literal('RANGE'), z.literal('GROUPS')]).optional(),
-    frame_begin: WindowFrameBoundSchema.optional(),
-    frame_end: WindowFrameBoundSchema.optional(),
-    ...ExprMetadataFields,
-  }),
+export const WindowDefinitionSchema: z.ZodType<WithoutLocations<WindowDefinitionNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('WindowDefinition'),
+      parent_window_name: z.string().optional(),
+      partition_by: z.array(ExpressionSchema).optional(),
+      order_by: z.array(OrderByElementSchema).optional(),
+      frame_type: z.union([z.literal('ROWS'), z.literal('RANGE'), z.literal('GROUPS')]).optional(),
+      frame_begin: WindowFrameBoundSchema.optional(),
+      frame_end: WindowFrameBoundSchema.optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -395,7 +396,7 @@ export type OrderByElementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link OrderByElementNode}. */
-export const OrderByElementSchema: z.ZodType<OrderByElementNode> = z.lazy(() =>
+export const OrderByElementSchema: z.ZodType<WithoutLocations<OrderByElementNode>> = z.lazy(() =>
   z.object({
     type: z.literal('OrderByElement'),
     expression: ExpressionSchema,
@@ -421,13 +422,14 @@ export type InterpolateElementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link InterpolateElementNode}. */
-export const InterpolateElementSchema: z.ZodType<InterpolateElementNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('InterpolateElement'),
-    column: z.string(),
-    expr: ExpressionSchema,
-    ...ExprMetadataFields,
-  }),
+export const InterpolateElementSchema: z.ZodType<WithoutLocations<InterpolateElementNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('InterpolateElement'),
+      column: z.string(),
+      expr: ExpressionSchema,
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -440,7 +442,7 @@ export type SubqueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link SubqueryNode}. */
-export const SubqueryNodeSchema: z.ZodType<SubqueryNode> = z.lazy(() =>
+export const SubqueryNodeSchema: z.ZodType<WithoutLocations<SubqueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Subquery'),
     query: QueryStatementSchema,
@@ -463,7 +465,9 @@ export type ColumnsApplyTransformerNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsApplyTransformerNode}. */
-export const ColumnsApplyTransformerSchema: z.ZodType<ColumnsApplyTransformerNode> = z.lazy(() =>
+export const ColumnsApplyTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsApplyTransformerNode>
+> = z.lazy(() =>
   z.object({
     type: z.literal('ColumnsApplyTransformer'),
     func_name: z.string().optional(),
@@ -487,7 +491,9 @@ export type ColumnsExceptTransformerNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsExceptTransformerNode}. */
-export const ColumnsExceptTransformerSchema: z.ZodType<ColumnsExceptTransformerNode> = z.lazy(() =>
+export const ColumnsExceptTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsExceptTransformerNode>
+> = z.lazy(() =>
   z.object({
     type: z.literal('ColumnsExceptTransformer'),
     is_strict: z.boolean().optional(),
@@ -507,15 +513,16 @@ export type ColumnsReplaceTransformerReplacementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsReplaceTransformerReplacementNode}. */
-export const ColumnsReplaceTransformerReplacementSchema: z.ZodType<ColumnsReplaceTransformerReplacementNode> =
-  z.lazy(() =>
-    z.object({
-      type: z.literal('ColumnsReplaceTransformer::Replacement'),
-      name: z.string(),
-      expression: ExpressionSchema,
-      ...ExprMetadataFields,
-    }),
-  );
+export const ColumnsReplaceTransformerReplacementSchema: z.ZodType<
+  WithoutLocations<ColumnsReplaceTransformerReplacementNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsReplaceTransformer::Replacement'),
+    name: z.string(),
+    expression: ExpressionSchema,
+    ...ExprMetadataFields,
+  }),
+);
 
 /**
  * REPLACE column transformer: `* REPLACE (a + 1 AS a)`.
@@ -527,14 +534,15 @@ export type ColumnsReplaceTransformerNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsReplaceTransformerNode}. */
-export const ColumnsReplaceTransformerSchema: z.ZodType<ColumnsReplaceTransformerNode> = z.lazy(
-  () =>
-    z.object({
-      type: z.literal('ColumnsReplaceTransformer'),
-      is_strict: z.boolean().optional(),
-      replacements: z.array(ColumnsReplaceTransformerReplacementSchema),
-      ...ExprMetadataFields,
-    }),
+export const ColumnsReplaceTransformerSchema: z.ZodType<
+  WithoutLocations<ColumnsReplaceTransformerNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('ColumnsReplaceTransformer'),
+    is_strict: z.boolean().optional(),
+    replacements: z.array(ColumnsReplaceTransformerReplacementSchema),
+    ...ExprMetadataFields,
+  }),
 );
 
 /** Any single column transformer. */
@@ -544,12 +552,13 @@ export type ColumnsTransformerNode =
   | ColumnsReplaceTransformerNode;
 
 /** Zod schema for {@link ColumnsTransformerNode}. */
-export const ColumnsTransformerSchema: z.ZodType<ColumnsTransformerNode> = z.lazy(() =>
-  z.union([
-    ColumnsApplyTransformerSchema,
-    ColumnsExceptTransformerSchema,
-    ColumnsReplaceTransformerSchema,
-  ]),
+export const ColumnsTransformerSchema: z.ZodType<WithoutLocations<ColumnsTransformerNode>> = z.lazy(
+  () =>
+    z.union([
+      ColumnsApplyTransformerSchema,
+      ColumnsExceptTransformerSchema,
+      ColumnsReplaceTransformerSchema,
+    ]),
 );
 
 /**
@@ -561,13 +570,14 @@ export type ColumnsTransformerListNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsTransformerListNode}. */
-export const ColumnsTransformerListSchema: z.ZodType<ColumnsTransformerListNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ColumnsTransformerList'),
-    children: z.array(ColumnsTransformerSchema),
-    ...ExprMetadataFields,
-  }),
-);
+export const ColumnsTransformerListSchema: z.ZodType<WithoutLocations<ColumnsTransformerListNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnsTransformerList'),
+      children: z.array(ColumnsTransformerSchema),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * Bare `*` wildcard, with optional transformers. Tuple expansion `expr.*` is
@@ -582,7 +592,7 @@ export type AsteriskNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link AsteriskNode}. */
-export const AsteriskNodeSchema: z.ZodType<AsteriskNode> = z.lazy(() =>
+export const AsteriskNodeSchema: z.ZodType<WithoutLocations<AsteriskNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Asterisk'),
     transformers: z.array(ColumnsTransformerSchema).optional(),
@@ -602,14 +612,15 @@ export type QualifiedAsteriskNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link QualifiedAsteriskNode}. */
-export const QualifiedAsteriskNodeSchema: z.ZodType<QualifiedAsteriskNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('QualifiedAsterisk'),
-    qualifier: IdentifierNodeSchema,
-    transformers: z.array(ColumnsTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const QualifiedAsteriskNodeSchema: z.ZodType<WithoutLocations<QualifiedAsteriskNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('QualifiedAsterisk'),
+      qualifier: IdentifierNodeSchema,
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * A generic ordered list of nodes — ClickHouse's `ExpressionList` wrapper as it
@@ -621,13 +632,14 @@ export type ExpressionListNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ExpressionListNode}. */
-export const ExpressionListNodeSchema: z.ZodType<ExpressionListNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ExpressionList'),
-    // Children may be any node type; validated loosely to avoid a global ASTNode schema union.
-    children: z.array(ASTNodeSchema).optional(),
-    ...ExprMetadataFields,
-  }),
+export const ExpressionListNodeSchema: z.ZodType<WithoutLocations<ExpressionListNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ExpressionList'),
+      // Children may be any node type; validated loosely to avoid a global ASTNode schema union.
+      children: z.array(ASTNodeSchema).optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -641,14 +653,15 @@ export type ColumnsRegexpMatcherNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsRegexpMatcherNode}. */
-export const ColumnsRegexpMatcherSchema: z.ZodType<ColumnsRegexpMatcherNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ColumnsRegexpMatcher'),
-    pattern: z.string(),
-    transformers: z.array(ColumnsTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const ColumnsRegexpMatcherSchema: z.ZodType<WithoutLocations<ColumnsRegexpMatcherNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnsRegexpMatcher'),
+      pattern: z.string(),
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * `COLUMNS(a, b, ...)` matcher.
@@ -661,13 +674,14 @@ export type ColumnsListMatcherNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ColumnsListMatcherNode}. */
-export const ColumnsListMatcherSchema: z.ZodType<ColumnsListMatcherNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ColumnsListMatcher'),
-    columns: z.array(ExpressionSchema),
-    transformers: z.array(ColumnsTransformerSchema).optional(),
-    ...ExprMetadataFields,
-  }),
+export const ColumnsListMatcherSchema: z.ZodType<WithoutLocations<ColumnsListMatcherNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ColumnsListMatcher'),
+      columns: z.array(ExpressionSchema),
+      transformers: z.array(ColumnsTransformerSchema).optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -682,16 +696,17 @@ export type QualifiedColumnsRegexpMatcherNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link QualifiedColumnsRegexpMatcherNode}. */
-export const QualifiedColumnsRegexpMatcherSchema: z.ZodType<QualifiedColumnsRegexpMatcherNode> =
-  z.lazy(() =>
-    z.object({
-      type: z.literal('QualifiedColumnsRegexpMatcher'),
-      pattern: z.string(),
-      qualifier: IdentifierNodeSchema,
-      transformers: ColumnsTransformerListSchema.optional(),
-      ...ExprMetadataFields,
-    }),
-  );
+export const QualifiedColumnsRegexpMatcherSchema: z.ZodType<
+  WithoutLocations<QualifiedColumnsRegexpMatcherNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('QualifiedColumnsRegexpMatcher'),
+    pattern: z.string(),
+    qualifier: IdentifierNodeSchema,
+    transformers: ColumnsTransformerListSchema.optional(),
+    ...ExprMetadataFields,
+  }),
+);
 
 /**
  * `qualifier.COLUMNS(a, b)` matcher.
@@ -705,15 +720,16 @@ export type QualifiedColumnsListMatcherNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link QualifiedColumnsListMatcherNode}. */
-export const QualifiedColumnsListMatcherSchema: z.ZodType<QualifiedColumnsListMatcherNode> = z.lazy(
-  () =>
-    z.object({
-      type: z.literal('QualifiedColumnsListMatcher'),
-      qualifier: IdentifierNodeSchema,
-      columns: z.array(ExpressionSchema),
-      transformers: ColumnsTransformerListSchema.optional(),
-      ...ExprMetadataFields,
-    }),
+export const QualifiedColumnsListMatcherSchema: z.ZodType<
+  WithoutLocations<QualifiedColumnsListMatcherNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('QualifiedColumnsListMatcher'),
+    qualifier: IdentifierNodeSchema,
+    columns: z.array(ExpressionSchema),
+    transformers: ColumnsTransformerListSchema.optional(),
+    ...ExprMetadataFields,
+  }),
 );
 
 /**
@@ -739,7 +755,7 @@ export type SettingsNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link SettingsNode}. */
-export const SettingsNodeSchema: z.ZodType<SettingsNode> = z.lazy(() =>
+export const SettingsNodeSchema: z.ZodType<WithoutLocations<SettingsNode>> = z.lazy(() =>
   z.object({
     type: z.union([z.literal('Settings'), z.literal('DictionarySettings')]),
     changes: z
@@ -784,7 +800,7 @@ export type TableIdentifierNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TableIdentifierNode}. */
-export const TableIdentifierSchema: z.ZodType<TableIdentifierNode> = z.lazy(() =>
+export const TableIdentifierSchema: z.ZodType<WithoutLocations<TableIdentifierNode>> = z.lazy(() =>
   z.object({
     type: z.literal('TableIdentifier'),
     name: IdentifierPartSchema,
@@ -808,7 +824,7 @@ export type SampleRatioNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link SampleRatioNode}. */
-export const SampleRatioSchema: z.ZodType<SampleRatioNode> = z.object({
+export const SampleRatioSchema: z.ZodType<WithoutLocations<SampleRatioNode>> = z.object({
   type: z.literal('SampleRatio'),
   numerator: z.string(),
   denominator: z.string(),
@@ -832,7 +848,7 @@ export type TableExpressionNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TableExpressionNode}. */
-export const TableExpressionSchema: z.ZodType<TableExpressionNode> = z.lazy(() =>
+export const TableExpressionSchema: z.ZodType<WithoutLocations<TableExpressionNode>> = z.lazy(() =>
   z.object({
     type: z.literal('TableExpression'),
     database_and_table_name: TableIdentifierSchema.optional(),
@@ -859,7 +875,7 @@ export type TableJoinNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TableJoinNode}. */
-export const TableJoinSchema: z.ZodType<TableJoinNode> = z.lazy(() =>
+export const TableJoinSchema: z.ZodType<WithoutLocations<TableJoinNode>> = z.lazy(() =>
   z.object({
     type: z.literal('TableJoin'),
     kind: z.union([
@@ -898,7 +914,7 @@ export type ArrayJoinNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ArrayJoinNode}. */
-export const ArrayJoinSchema: z.ZodType<ArrayJoinNode> = z.lazy(() =>
+export const ArrayJoinSchema: z.ZodType<WithoutLocations<ArrayJoinNode>> = z.lazy(() =>
   z.object({
     type: z.literal('ArrayJoin'),
     kind: z.union([z.literal('INNER'), z.literal('LEFT')]),
@@ -919,15 +935,16 @@ export type TablesInSelectQueryElementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TablesInSelectQueryElementNode}. */
-export const TablesInSelectQueryElementSchema: z.ZodType<TablesInSelectQueryElementNode> = z.lazy(
-  () =>
-    z.object({
-      type: z.literal('TablesInSelectQueryElement'),
-      table_expression: TableExpressionSchema.optional(),
-      table_join: TableJoinSchema.optional(),
-      array_join: ArrayJoinSchema.optional(),
-      ...ExprMetadataFields,
-    }),
+export const TablesInSelectQueryElementSchema: z.ZodType<
+  WithoutLocations<TablesInSelectQueryElementNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('TablesInSelectQueryElement'),
+    table_expression: TableExpressionSchema.optional(),
+    table_join: TableJoinSchema.optional(),
+    array_join: ArrayJoinSchema.optional(),
+    ...ExprMetadataFields,
+  }),
 );
 
 /**
@@ -939,13 +956,14 @@ export type TablesInSelectQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TablesInSelectQueryNode}. */
-export const TablesInSelectQuerySchema: z.ZodType<TablesInSelectQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('TablesInSelectQuery'),
-    children: z.array(TablesInSelectQueryElementSchema),
-    ...ExprMetadataFields,
-  }),
-);
+export const TablesInSelectQuerySchema: z.ZodType<WithoutLocations<TablesInSelectQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('TablesInSelectQuery'),
+      children: z.array(TablesInSelectQueryElementSchema),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * A subquery CTE in a WITH clause: `WITH name AS (SELECT ...)`.
@@ -959,7 +977,7 @@ export type WithElementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link WithElementNode}. */
-export const WithElementSchema: z.ZodType<WithElementNode> = z.lazy(() =>
+export const WithElementSchema: z.ZodType<WithoutLocations<WithElementNode>> = z.lazy(() =>
   z.object({
     type: z.literal('WithElement'),
     name: z.string(),
@@ -973,7 +991,7 @@ export const WithElementSchema: z.ZodType<WithElementNode> = z.lazy(() =>
 export type WithItem = Expression | WithElementNode;
 
 /** Zod schema for {@link WithItem}. */
-export const WithItemSchema: z.ZodType<WithItem> = z.lazy(() =>
+export const WithItemSchema: z.ZodType<WithoutLocations<WithItem>> = z.lazy(() =>
   z.union([WithElementSchema, ExpressionSchema]),
 );
 
@@ -987,13 +1005,14 @@ export type WindowListElementNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link WindowListElementNode}. */
-export const WindowListElementSchema: z.ZodType<WindowListElementNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('WindowListElement'),
-    name: z.string(),
-    definition: WindowDefinitionSchema,
-    ...ExprMetadataFields,
-  }),
+export const WindowListElementSchema: z.ZodType<WithoutLocations<WindowListElementNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('WindowListElement'),
+      name: z.string(),
+      definition: WindowDefinitionSchema,
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -1059,7 +1078,7 @@ export type SelectQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link SelectQueryNode}. */
-export const SelectQuerySchema: z.ZodType<SelectQueryNode> = z.lazy(() =>
+export const SelectQuerySchema: z.ZodType<WithoutLocations<SelectQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('SelectQuery'),
     with: z.array(WithItemSchema).optional(),
@@ -1148,17 +1167,18 @@ export type SelectWithUnionQueryNode = {
   NodeMetadata;
 
 /** Zod schema for {@link SelectWithUnionQueryNode}. */
-export const SelectWithUnionQuerySchema: z.ZodType<SelectWithUnionQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('SelectWithUnionQuery'),
-    selects: z.array(
-      z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
-    ),
-    union_mode: z.union([z.literal('UNION_ALL'), z.literal('UNION_DISTINCT')]).optional(),
-    ...QueryTrailingSchemaFields,
-    ...ExprMetadataFields,
-  }),
-);
+export const SelectWithUnionQuerySchema: z.ZodType<WithoutLocations<SelectWithUnionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('SelectWithUnionQuery'),
+      selects: z.array(
+        z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
+      ),
+      union_mode: z.union([z.literal('UNION_ALL'), z.literal('UNION_DISTINCT')]).optional(),
+      ...QueryTrailingSchemaFields,
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * An INTERSECT/EXCEPT combination of two queries.
@@ -1175,22 +1195,23 @@ export type SelectIntersectExceptQueryNode = {
   NodeMetadata;
 
 /** Zod schema for {@link SelectIntersectExceptQueryNode}. */
-export const SelectIntersectExceptQuerySchema: z.ZodType<SelectIntersectExceptQueryNode> = z.lazy(
-  () =>
-    z.object({
-      type: z.literal('SelectIntersectExceptQuery'),
-      operator: z.union([
-        z.literal('INTERSECT ALL'),
-        z.literal('INTERSECT DISTINCT'),
-        z.literal('EXCEPT ALL'),
-        z.literal('EXCEPT DISTINCT'),
-      ]),
-      selects: z.array(
-        z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
-      ),
-      ...QueryTrailingSchemaFields,
-      ...ExprMetadataFields,
-    }),
+export const SelectIntersectExceptQuerySchema: z.ZodType<
+  WithoutLocations<SelectIntersectExceptQueryNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('SelectIntersectExceptQuery'),
+    operator: z.union([
+      z.literal('INTERSECT ALL'),
+      z.literal('INTERSECT DISTINCT'),
+      z.literal('EXCEPT ALL'),
+      z.literal('EXCEPT DISTINCT'),
+    ]),
+    selects: z.array(
+      z.union([SelectQuerySchema, SelectIntersectExceptQuerySchema, SelectWithUnionQuerySchema]),
+    ),
+    ...QueryTrailingSchemaFields,
+    ...ExprMetadataFields,
+  }),
 );
 
 /**
@@ -1217,7 +1238,7 @@ export type Expression =
 /**
  * Zod schema for {@link Expression}. Uses `z.lazy` for recursive references.
  */
-export const ExpressionSchema: z.ZodType<Expression> = z.lazy(() =>
+export const ExpressionSchema: z.ZodType<WithoutLocations<Expression>> = z.lazy(() =>
   z.union([
     LiteralNodeSchema,
     IdentifierNodeSchema,
@@ -1312,11 +1333,41 @@ export type NodeMetadata = {
   leadingComments?: string[];
   /** Comments appearing on the same line as the end of this node (inline trailing). */
   trailingComments?: string[];
-  /** Source location in the original SQL input. */
-  location?: SourceLocation;
+  /**
+   * Source location in the original SQL input. Every node the parser emits
+   * carries one when `parse` runs with locations enabled (the default), so it
+   * is a required property. `parse(sql, { locations: false })` strips it — the
+   * returned AST is then typed as {@link WithoutLocations}, where the property
+   * is absent entirely.
+   */
+  location: SourceLocation;
   /** Reference to the parent AST node. Set by {@link setParents}. */
   parent?: ASTNode;
 };
+
+/**
+ * Recursively removes the `location` metadata property from `T` and every
+ * nested node/array within it.
+ *
+ * Two uses:
+ *  - The return type of `parse(sql, { locations: false })`: the resulting AST
+ *    provably carries no `location` anywhere, so accessing `.location` is a
+ *    compile-time error and the tree is JSON-serializable w.r.t. source
+ *    positions.
+ *  - The **input** type of the AST-consuming functions (`format`,
+ *    `formatExplain`, `formatNode`, `transformNodes`). Those functions have no
+ *    need for locations (and a transform cannot keep them accurate once it
+ *    changes the SQL), so they accept the location-free view. Because a fully
+ *    located node is assignable to its `WithoutLocations` counterpart (an extra
+ *    property is allowed) but not vice-versa, these functions transparently
+ *    accept both a parsed (located) AST and a `{ locations: false }` one, while
+ *    never letting a location-free AST reach a context that requires locations.
+ */
+export type WithoutLocations<T> = T extends (infer U)[]
+  ? WithoutLocations<U>[]
+  : T extends object
+    ? { [K in keyof T as K extends 'location' ? never : K]: WithoutLocations<T[K]> }
+    : T;
 
 /**
  * Union of statement types that produce query results. These can appear in
@@ -1349,7 +1400,7 @@ export type ExplainQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ExplainQueryNode}. */
-export const ExplainQueryNodeSchema: z.ZodType<ExplainQueryNode> = z.lazy(() =>
+export const ExplainQueryNodeSchema: z.ZodType<WithoutLocations<ExplainQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Explain'),
     kind: z.string().optional(),
@@ -1518,7 +1569,7 @@ export type EmptyQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link EmptyQueryNode}. */
-export const EmptyQueryNodeSchema: z.ZodType<EmptyQueryNode> = z.lazy(() =>
+export const EmptyQueryNodeSchema: z.ZodType<WithoutLocations<EmptyQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('EmptyQuery'),
     ...ExprMetadataFields,
@@ -1613,15 +1664,16 @@ export type DropFunctionQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link DropFunctionQueryNode}. */
-export const DropFunctionQueryNodeSchema: z.ZodType<DropFunctionQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('DropFunctionQuery'),
-    function_name: z.string(),
-    if_exists: z.boolean().optional(),
-    cluster: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const DropFunctionQueryNodeSchema: z.ZodType<WithoutLocations<DropFunctionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('DropFunctionQuery'),
+      function_name: z.string(),
+      if_exists: z.boolean().optional(),
+      cluster: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * `DROP USER / ROLE / ROW POLICY / SETTINGS PROFILE / QUOTA / NAMED COLLECTION
@@ -1661,19 +1713,20 @@ export type AccessDropQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link AccessDropQueryNode}. */
-export const AccessDropQueryNodeSchema: z.ZodType<AccessDropQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.union([
-      z.literal('DropAccessEntityQuery'),
-      z.literal('DropNamedCollectionQuery'),
-      z.literal('DropWorkloadQuery'),
-      z.literal('DropResourceQuery'),
-    ]),
-    collection_name: z.string().optional(),
-    workload_name: z.string().optional(),
-    resource_name: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
+export const AccessDropQueryNodeSchema: z.ZodType<WithoutLocations<AccessDropQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('DropAccessEntityQuery'),
+        z.literal('DropNamedCollectionQuery'),
+        z.literal('DropWorkloadQuery'),
+        z.literal('DropResourceQuery'),
+      ]),
+      collection_name: z.string().optional(),
+      workload_name: z.string().optional(),
+      resource_name: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** `DROP INDEX name ON [db.]table`. */
@@ -1686,15 +1739,16 @@ export type DropIndexQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link DropIndexQueryNode}. */
-export const DropIndexQueryNodeSchema: z.ZodType<DropIndexQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('DropIndexQuery'),
-    table: IdentifierNodeSchema,
-    database: IdentifierNodeSchema.optional(),
-    index_name: IdentifierNodeSchema,
-    if_exists: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
+export const DropIndexQueryNodeSchema: z.ZodType<WithoutLocations<DropIndexQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('DropIndexQuery'),
+      table: IdentifierNodeSchema,
+      database: IdentifierNodeSchema.optional(),
+      index_name: IdentifierNodeSchema,
+      if_exists: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** A single element in a {@link BackupQueryNode}'s native `elements` list. */
@@ -1722,23 +1776,24 @@ export type BackupQueryElement = {
 };
 
 /** Zod schema for {@link BackupQueryElement}. */
-export const BackupQueryElementSchema: z.ZodType<BackupQueryElement> = z.lazy(() =>
-  z.object({
-    element_type: z.string(),
-    table: z.string().optional(),
-    database: z.string().optional(),
-    new_table: z.string().optional(),
-    new_database: z.string().optional(),
-    function_name: z.string().optional(),
-    collection_name: z.string().optional(),
-    partitions: z
-      .array(z.object({ type: z.literal('Partition'), value: ASTNodeSchema }))
-      .optional(),
-    except_tables: z
-      .array(z.object({ database: z.string().optional(), table: z.string() }))
-      .optional(),
-    except_databases: z.array(z.string()).optional(),
-  }),
+export const BackupQueryElementSchema: z.ZodType<WithoutLocations<BackupQueryElement>> = z.lazy(
+  () =>
+    z.object({
+      element_type: z.string(),
+      table: z.string().optional(),
+      database: z.string().optional(),
+      new_table: z.string().optional(),
+      new_database: z.string().optional(),
+      function_name: z.string().optional(),
+      collection_name: z.string().optional(),
+      partitions: z
+        .array(z.object({ type: z.literal('Partition'), value: ASTNodeSchema }))
+        .optional(),
+      except_tables: z
+        .array(z.object({ database: z.string().optional(), table: z.string() }))
+        .optional(),
+      except_databases: z.array(z.string()).optional(),
+    }),
 );
 
 /**
@@ -1766,7 +1821,7 @@ export type BackupQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link BackupQueryNode}. */
-export const BackupQueryNodeSchema: z.ZodType<BackupQueryNode> = z.lazy(() =>
+export const BackupQueryNodeSchema: z.ZodType<WithoutLocations<BackupQueryNode>> = z.lazy(() =>
   z.object({
     type: z.union([z.literal('BackupQuery'), z.literal('RestoreQuery')]),
     kind: z.enum(['BACKUP', 'RESTORE']),
@@ -1789,13 +1844,14 @@ export type ParallelWithQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ParallelWithQueryNode}. */
-export const ParallelWithQueryNodeSchema: z.ZodType<ParallelWithQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ParallelWithQuery'),
-    children: z.array(ASTNodeSchema),
-    ...ExprMetadataFields,
-  }),
-);
+export const ParallelWithQueryNodeSchema: z.ZodType<WithoutLocations<ParallelWithQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ParallelWithQuery'),
+      children: z.array(ASTNodeSchema),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * A NAMED COLLECTION / WORKLOAD setting value in ClickHouse's reference AST: a
@@ -2032,7 +2088,7 @@ export type AccessQueryNode =
 /** Zod schema for {@link AccessQueryNode}. */
 const accessQuerySubSchema = <T extends string>(t: T) =>
   z.object({ type: z.literal(t), ...ExprMetadataFields });
-export const AccessQueryNodeSchema: z.ZodType<AccessQueryNode> = z.lazy(() =>
+export const AccessQueryNodeSchema: z.ZodType<WithoutLocations<AccessQueryNode>> = z.lazy(() =>
   z.union([
     accessQuerySubSchema('CreateUserQuery'),
     accessQuerySubSchema('CreateRoleQuery'),
@@ -2081,7 +2137,7 @@ export type InsertQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link InsertQueryNode}. */
-export const InsertQueryNodeSchema: z.ZodType<InsertQueryNode> = z.lazy(() =>
+export const InsertQueryNodeSchema: z.ZodType<WithoutLocations<InsertQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('InsertQuery'),
     table: IdentifierNodeSchema.optional(),
@@ -2164,7 +2220,7 @@ export type ViewTargetNode = {
 };
 
 /** Zod schema for {@link CreateQueryNode}. */
-export const CreateQueryNodeSchema: z.ZodType<CreateQueryNode> = z.lazy(() =>
+export const CreateQueryNodeSchema: z.ZodType<WithoutLocations<CreateQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('CreateQuery'),
     table: IdentifierNodeSchema.optional(),
@@ -2207,7 +2263,7 @@ export const CreateQueryNodeSchema: z.ZodType<CreateQueryNode> = z.lazy(() =>
 // deep validation of those is covered end-to-end by the reference-AST suite.
 
 /** Zod schema for {@link DataTypeNode}. */
-export const DataTypeNodeSchema: z.ZodType<DataTypeNode> = z.lazy(() =>
+export const DataTypeNodeSchema: z.ZodType<WithoutLocations<DataTypeNode>> = z.lazy(() =>
   z.object({
     type: z.literal('DataType'),
     name: z.string(),
@@ -2217,7 +2273,7 @@ export const DataTypeNodeSchema: z.ZodType<DataTypeNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link EnumDataTypeNode}. */
-export const EnumDataTypeNodeSchema: z.ZodType<EnumDataTypeNode> = z.lazy(() =>
+export const EnumDataTypeNodeSchema: z.ZodType<WithoutLocations<EnumDataTypeNode>> = z.lazy(() =>
   z.object({
     type: z.literal('EnumDataType'),
     name: z.string(),
@@ -2227,7 +2283,7 @@ export const EnumDataTypeNodeSchema: z.ZodType<EnumDataTypeNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link TupleDataTypeNode}. */
-export const TupleDataTypeNodeSchema: z.ZodType<TupleDataTypeNode> = z.lazy(() =>
+export const TupleDataTypeNodeSchema: z.ZodType<WithoutLocations<TupleDataTypeNode>> = z.lazy(() =>
   z.object({
     type: z.literal('TupleDataType'),
     name: z.string(),
@@ -2238,35 +2294,36 @@ export const TupleDataTypeNodeSchema: z.ZodType<TupleDataTypeNode> = z.lazy(() =
 );
 
 /** Zod schema for {@link CollationNode}. */
-export const CollationNodeSchema: z.ZodType<CollationNode> = z.lazy(() =>
+export const CollationNodeSchema: z.ZodType<WithoutLocations<CollationNode>> = z.lazy(() =>
   z.object({ type: z.literal('Collation'), name: z.string(), ...ExprMetadataFields }),
 );
 
 /** Zod schema for {@link ColumnDeclarationNode}. */
-export const ColumnDeclarationNodeSchema: z.ZodType<ColumnDeclarationNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ColumnDeclaration'),
-    name: z.string(),
-    data_type: ASTNodeSchema.optional(),
-    default_specifier: z
-      .enum(['DEFAULT', 'MATERIALIZED', 'ALIAS', 'EPHEMERAL', 'AUTO_INCREMENT'])
-      .optional(),
-    default_expression: ExpressionSchema.optional(),
-    codec: FunctionNodeSchema.optional(),
-    statistics: FunctionNodeSchema.optional(),
-    settings: SettingsNodeSchema.optional(),
-    ttl: ExpressionSchema.optional(),
-    comment: LiteralNodeSchema.optional(),
-    collation: CollationNodeSchema.optional(),
-    null_modifier: z.boolean().optional(),
-    primary_key_specifier: z.boolean().optional(),
-    ephemeral_default: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const ColumnDeclarationNodeSchema: z.ZodType<WithoutLocations<ColumnDeclarationNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('ColumnDeclaration'),
+      name: z.string(),
+      data_type: ASTNodeSchema.optional(),
+      default_specifier: z
+        .enum(['DEFAULT', 'MATERIALIZED', 'ALIAS', 'EPHEMERAL', 'AUTO_INCREMENT'])
+        .optional(),
+      default_expression: ExpressionSchema.optional(),
+      codec: FunctionNodeSchema.optional(),
+      statistics: FunctionNodeSchema.optional(),
+      settings: SettingsNodeSchema.optional(),
+      ttl: ExpressionSchema.optional(),
+      comment: LiteralNodeSchema.optional(),
+      collation: CollationNodeSchema.optional(),
+      null_modifier: z.boolean().optional(),
+      primary_key_specifier: z.boolean().optional(),
+      ephemeral_default: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /** Zod schema for {@link ConstraintNode}. */
-export const ConstraintNodeSchema: z.ZodType<ConstraintNode> = z.lazy(() =>
+export const ConstraintNodeSchema: z.ZodType<WithoutLocations<ConstraintNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Constraint'),
     name: z.string(),
@@ -2277,7 +2334,7 @@ export const ConstraintNodeSchema: z.ZodType<ConstraintNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link IndexNode}. */
-export const IndexNodeSchema: z.ZodType<IndexNode> = z.lazy(() =>
+export const IndexNodeSchema: z.ZodType<WithoutLocations<IndexNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Index'),
     name: z.string().optional(),
@@ -2289,7 +2346,9 @@ export const IndexNodeSchema: z.ZodType<IndexNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link ProjectionSelectQueryNode}. */
-export const ProjectionSelectQueryNodeSchema: z.ZodType<ProjectionSelectQueryNode> = z.lazy(() =>
+export const ProjectionSelectQueryNodeSchema: z.ZodType<
+  WithoutLocations<ProjectionSelectQueryNode>
+> = z.lazy(() =>
   z.object({
     type: z.literal('ProjectionSelectQuery'),
     with: z.array(ExpressionSchema).optional(),
@@ -2301,7 +2360,7 @@ export const ProjectionSelectQueryNodeSchema: z.ZodType<ProjectionSelectQueryNod
 );
 
 /** Zod schema for {@link ProjectionNode}. */
-export const ProjectionNodeSchema: z.ZodType<ProjectionNode> = z.lazy(() =>
+export const ProjectionNodeSchema: z.ZodType<WithoutLocations<ProjectionNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Projection'),
     name: z.string(),
@@ -2314,7 +2373,9 @@ export const ProjectionNodeSchema: z.ZodType<ProjectionNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link StorageOrderByElementNode}. */
-export const StorageOrderByElementNodeSchema: z.ZodType<StorageOrderByElementNode> = z.lazy(() =>
+export const StorageOrderByElementNodeSchema: z.ZodType<
+  WithoutLocations<StorageOrderByElementNode>
+> = z.lazy(() =>
   z.object({
     type: z.literal('StorageOrderByElement'),
     expression: ExpressionSchema,
@@ -2324,7 +2385,7 @@ export const StorageOrderByElementNodeSchema: z.ZodType<StorageOrderByElementNod
 );
 
 /** Zod schema for {@link StorageNode}. */
-export const StorageNodeSchema: z.ZodType<StorageNode> = z.lazy(() =>
+export const StorageNodeSchema: z.ZodType<WithoutLocations<StorageNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Storage'),
     engine: FunctionNodeSchema.optional(),
@@ -2343,7 +2404,7 @@ export const StorageNodeSchema: z.ZodType<StorageNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link ColumnsNode}. */
-export const ColumnsNodeSchema: z.ZodType<ColumnsNode> = z.lazy(() =>
+export const ColumnsNodeSchema: z.ZodType<WithoutLocations<ColumnsNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Columns'),
     columns: z.array(ColumnDeclarationNodeSchema),
@@ -2357,7 +2418,7 @@ export const ColumnsNodeSchema: z.ZodType<ColumnsNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link ViewTargetsNode}. */
-export const ViewTargetsSchema: z.ZodType<ViewTargetsNode> = z.lazy(() =>
+export const ViewTargetsSchema: z.ZodType<WithoutLocations<ViewTargetsNode>> = z.lazy(() =>
   z.object({
     type: z.literal('ViewTargets'),
     targets: z
@@ -2375,7 +2436,7 @@ export const ViewTargetsSchema: z.ZodType<ViewTargetsNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link DictionaryNode}. */
-export const DictionaryNodeSchema: z.ZodType<DictionaryNode> = z.lazy(() =>
+export const DictionaryNodeSchema: z.ZodType<WithoutLocations<DictionaryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Dictionary'),
     primary_key: z.array(ExpressionSchema).optional(),
@@ -2421,21 +2482,22 @@ export const DictionaryNodeSchema: z.ZodType<DictionaryNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link DictionaryAttributeDeclarationNode}. */
-export const DictionaryAttributeDeclarationNodeSchema: z.ZodType<DictionaryAttributeDeclarationNode> =
-  z.lazy(() =>
-    z.object({
-      type: z.literal('DictionaryAttributeDeclaration'),
-      name: z.string(),
-      data_type: z.union([DataTypeNodeSchema, EnumDataTypeNodeSchema, TupleDataTypeNodeSchema]),
-      default_value: ExpressionSchema.optional(),
-      expression: ExpressionSchema.optional(),
-      hierarchical: z.boolean().optional(),
-      injective: z.boolean().optional(),
-      is_object_id: z.boolean().optional(),
-      bidirectional: z.boolean().optional(),
-      ...ExprMetadataFields,
-    }),
-  );
+export const DictionaryAttributeDeclarationNodeSchema: z.ZodType<
+  WithoutLocations<DictionaryAttributeDeclarationNode>
+> = z.lazy(() =>
+  z.object({
+    type: z.literal('DictionaryAttributeDeclaration'),
+    name: z.string(),
+    data_type: z.union([DataTypeNodeSchema, EnumDataTypeNodeSchema, TupleDataTypeNodeSchema]),
+    default_value: ExpressionSchema.optional(),
+    expression: ExpressionSchema.optional(),
+    hierarchical: z.boolean().optional(),
+    injective: z.boolean().optional(),
+    is_object_id: z.boolean().optional(),
+    bidirectional: z.boolean().optional(),
+    ...ExprMetadataFields,
+  }),
+);
 
 // ── DDL sub-nodes (children of CreateQuery) ─────────────────────────────────
 // These mirror ClickHouse's native shapes: a `type` discriminator plus a
@@ -2769,17 +2831,18 @@ export type CreateFunctionQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link CreateFunctionQueryNode}. */
-export const CreateFunctionQueryNodeSchema: z.ZodType<CreateFunctionQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('CreateFunctionQuery'),
-    function_name: IdentifierNodeSchema,
-    function_core: ExpressionSchema,
-    or_replace: z.boolean().optional(),
-    if_not_exists: z.boolean().optional(),
-    cluster: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const CreateFunctionQueryNodeSchema: z.ZodType<WithoutLocations<CreateFunctionQueryNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('CreateFunctionQuery'),
+      function_name: IdentifierNodeSchema,
+      function_core: ExpressionSchema,
+      or_replace: z.boolean().optional(),
+      if_not_exists: z.boolean().optional(),
+      cluster: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /**
  * `CREATE INDEX [IF NOT EXISTS] name ON [db.]table (expr) [TYPE type] [GRANULARITY n]`.
@@ -2801,25 +2864,26 @@ export type CreateIndexQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link CreateIndexQueryNode}. */
-export const CreateIndexQueryNodeSchema: z.ZodType<CreateIndexQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('CreateIndexQuery'),
-    database: IdentifierNodeSchema.optional(),
-    table: IdentifierNodeSchema,
-    index_name: IdentifierNodeSchema,
-    index_declaration: z.lazy(() =>
-      z.object({
-        type: z.literal('Index'),
-        name: z.string().optional(),
-        expression: ExpressionSchema.optional(),
-        index_type: FunctionNodeSchema.optional(),
-        granularity: z.number().optional(),
-      }),
-    ),
-    if_not_exists: z.boolean().optional(),
-    unique: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
+export const CreateIndexQueryNodeSchema: z.ZodType<WithoutLocations<CreateIndexQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('CreateIndexQuery'),
+      database: IdentifierNodeSchema.optional(),
+      table: IdentifierNodeSchema,
+      index_name: IdentifierNodeSchema,
+      index_declaration: z.lazy(() =>
+        z.object({
+          type: z.literal('Index'),
+          name: z.string().optional(),
+          expression: ExpressionSchema.optional(),
+          index_type: FunctionNodeSchema.optional(),
+          granularity: z.number().optional(),
+        }),
+      ),
+      if_not_exists: z.boolean().optional(),
+      unique: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -2851,7 +2915,7 @@ export type AlterQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link AlterQueryNode}. */
-export const AlterQueryNodeSchema: z.ZodType<AlterQueryNode> = z.lazy(() =>
+export const AlterQueryNodeSchema: z.ZodType<WithoutLocations<AlterQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('AlterQuery'),
     alter_object: z.string(),
@@ -2926,7 +2990,7 @@ export type AlterCommandNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link AlterCommandNode}. */
-export const AlterCommandNodeSchema: z.ZodType<AlterCommandNode> = z.lazy(() =>
+export const AlterCommandNodeSchema: z.ZodType<WithoutLocations<AlterCommandNode>> = z.lazy(() =>
   z.object({
     type: z.literal('AlterCommand'),
     command_type: z.string(),
@@ -2989,7 +3053,7 @@ export type SystemQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link SystemQueryNode}. */
-export const SystemQueryNodeSchema: z.ZodType<SystemQueryNode> = z.lazy(() =>
+export const SystemQueryNodeSchema: z.ZodType<WithoutLocations<SystemQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('SYSTEM'),
     system_type: z.string().optional(),
@@ -3129,60 +3193,61 @@ export type ShowFamilyQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ShowFamilyQueryNode}. */
-export const ShowFamilyQueryNodeSchema: z.ZodType<ShowFamilyQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.union([
-      z.literal('SHOW'),
-      z.literal('ShowTables'),
-      z.literal('ShowColumns'),
-      z.literal('ShowIndexes'),
-      z.literal('ShowFunctions'),
-      z.literal('ShowSetting'),
-      z.literal('ShowEngineQuery'),
-      z.literal('ShowAccessQuery'),
-      z.literal('ShowAccessEntitiesQuery'),
-      z.literal('ShowProcesslistQuery'),
-      z.literal('ShowGrantsQuery'),
-      z.literal('ShowPrivilegesQuery'),
-      z.literal('ShowCreateNamedCollectionQuery'),
-      z.literal('ShowCreateAccessEntityQuery'),
-    ]),
-    for_roles: RolesOrUsersSetNodeSchema.optional(),
-    with_implicit: z.boolean().optional(),
-    final: z.boolean().optional(),
-    entity_type: z.string().optional(),
-    all: z.boolean().optional(),
-    current_roles: z.boolean().optional(),
-    enabled_roles: z.boolean().optional(),
-    names: z.array(z.string()).optional(),
-    current_user: z.boolean().optional(),
-    collection_name: z.string().optional(),
-    row_policy_names: RowPolicyNamesNodeSchema.optional(),
-    short_name: z.string().optional(),
-    from: IdentifierNodeSchema.optional(),
-    table: z.string().optional(),
-    database: z.string().optional(),
-    extended: z.boolean().optional(),
-    full: z.boolean().optional(),
-    setting_name: z.string().optional(),
-    like: z.string().optional(),
-    not_like: z.boolean().optional(),
-    case_insensitive_like: z.boolean().optional(),
-    databases: z.boolean().optional(),
-    dictionaries: z.boolean().optional(),
-    temporary: z.boolean().optional(),
-    show_settings: z.boolean().optional(),
-    changed: z.boolean().optional(),
-    clusters: z.boolean().optional(),
-    cluster: z.boolean().optional(),
-    cluster_str: z.string().optional(),
-    merges: z.boolean().optional(),
-    where: ASTNodeSchema.optional(),
-    limit: ASTNodeSchema.optional(),
-    settings: SettingsNodeSchema.optional(),
-    format: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
+export const ShowFamilyQueryNodeSchema: z.ZodType<WithoutLocations<ShowFamilyQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('SHOW'),
+        z.literal('ShowTables'),
+        z.literal('ShowColumns'),
+        z.literal('ShowIndexes'),
+        z.literal('ShowFunctions'),
+        z.literal('ShowSetting'),
+        z.literal('ShowEngineQuery'),
+        z.literal('ShowAccessQuery'),
+        z.literal('ShowAccessEntitiesQuery'),
+        z.literal('ShowProcesslistQuery'),
+        z.literal('ShowGrantsQuery'),
+        z.literal('ShowPrivilegesQuery'),
+        z.literal('ShowCreateNamedCollectionQuery'),
+        z.literal('ShowCreateAccessEntityQuery'),
+      ]),
+      for_roles: RolesOrUsersSetNodeSchema.optional(),
+      with_implicit: z.boolean().optional(),
+      final: z.boolean().optional(),
+      entity_type: z.string().optional(),
+      all: z.boolean().optional(),
+      current_roles: z.boolean().optional(),
+      enabled_roles: z.boolean().optional(),
+      names: z.array(z.string()).optional(),
+      current_user: z.boolean().optional(),
+      collection_name: z.string().optional(),
+      row_policy_names: RowPolicyNamesNodeSchema.optional(),
+      short_name: z.string().optional(),
+      from: IdentifierNodeSchema.optional(),
+      table: z.string().optional(),
+      database: z.string().optional(),
+      extended: z.boolean().optional(),
+      full: z.boolean().optional(),
+      setting_name: z.string().optional(),
+      like: z.string().optional(),
+      not_like: z.boolean().optional(),
+      case_insensitive_like: z.boolean().optional(),
+      databases: z.boolean().optional(),
+      dictionaries: z.boolean().optional(),
+      temporary: z.boolean().optional(),
+      show_settings: z.boolean().optional(),
+      changed: z.boolean().optional(),
+      clusters: z.boolean().optional(),
+      cluster: z.boolean().optional(),
+      cluster_str: z.string().optional(),
+      merges: z.boolean().optional(),
+      where: ASTNodeSchema.optional(),
+      limit: ASTNodeSchema.optional(),
+      settings: SettingsNodeSchema.optional(),
+      format: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** `UNDROP TABLE ...` */
@@ -3212,7 +3277,7 @@ const DropFamilySchemaFields = {
 };
 
 /** Zod schema for {@link DropQueryNode}. */
-export const DropQueryNodeSchema: z.ZodType<DropQueryNode> = z.lazy(() =>
+export const DropQueryNodeSchema: z.ZodType<WithoutLocations<DropQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('DropQuery'),
     ...DropFamilySchemaFields,
@@ -3221,7 +3286,7 @@ export const DropQueryNodeSchema: z.ZodType<DropQueryNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link DetachQueryNode}. */
-export const DetachQueryNodeSchema: z.ZodType<DetachQueryNode> = z.lazy(() =>
+export const DetachQueryNodeSchema: z.ZodType<WithoutLocations<DetachQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('DetachQuery'),
     permanently: z.boolean().optional(),
@@ -3231,7 +3296,7 @@ export const DetachQueryNodeSchema: z.ZodType<DetachQueryNode> = z.lazy(() =>
 );
 
 /** Zod schema for {@link TruncateQueryNode}. */
-export const TruncateQueryNodeSchema: z.ZodType<TruncateQueryNode> = z.lazy(() =>
+export const TruncateQueryNodeSchema: z.ZodType<WithoutLocations<TruncateQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('TruncateQuery'),
     has_all: z.boolean().optional(),
@@ -3245,7 +3310,7 @@ export const TruncateQueryNodeSchema: z.ZodType<TruncateQueryNode> = z.lazy(() =
 );
 
 /** Zod schema for {@link UndropQueryNode}. */
-export const UndropQueryNodeSchema: z.ZodType<UndropQueryNode> = z.lazy(() =>
+export const UndropQueryNodeSchema: z.ZodType<WithoutLocations<UndropQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('UndropQuery'),
     ...DropFamilySchemaFields,
@@ -3261,7 +3326,7 @@ export type PartitionNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link PartitionNode}. */
-export const PartitionNodeSchema: z.ZodType<PartitionNode> = z.lazy(() =>
+export const PartitionNodeSchema: z.ZodType<WithoutLocations<PartitionNode>> = z.lazy(() =>
   z.object({ type: z.literal('Partition'), value: ExpressionSchema, ...ExprMetadataFields }),
 );
 
@@ -3275,7 +3340,7 @@ export type PartitionIdNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link PartitionIdNode}. */
-export const PartitionIdNodeSchema: z.ZodType<PartitionIdNode> = z.lazy(() =>
+export const PartitionIdNodeSchema: z.ZodType<WithoutLocations<PartitionIdNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Partition_ID'),
     id: ExpressionSchema.optional(),
@@ -3294,7 +3359,7 @@ export type AssignmentNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link AssignmentNode}. */
-export const AssignmentNodeSchema: z.ZodType<AssignmentNode> = z.lazy(() =>
+export const AssignmentNodeSchema: z.ZodType<WithoutLocations<AssignmentNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Assignment'),
     column: z.string(),
@@ -3310,7 +3375,7 @@ export type UseQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link UseQueryNode}. */
-export const UseQueryNodeSchema: z.ZodType<UseQueryNode> = z.lazy(() =>
+export const UseQueryNodeSchema: z.ZodType<WithoutLocations<UseQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('UseQuery'),
     database: IdentifierNodeSchema,
@@ -3328,19 +3393,20 @@ export type TransactionControlNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link TransactionControlNode}. */
-export const TransactionControlNodeSchema: z.ZodType<TransactionControlNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('TransactionControl'),
-    action: z.union([
-      z.literal('BEGIN'),
-      z.literal('COMMIT'),
-      z.literal('ROLLBACK'),
-      z.literal('SET_SNAPSHOT'),
-    ]),
-    snapshot: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
-);
+export const TransactionControlNodeSchema: z.ZodType<WithoutLocations<TransactionControlNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('TransactionControl'),
+      action: z.union([
+        z.literal('BEGIN'),
+        z.literal('COMMIT'),
+        z.literal('ROLLBACK'),
+        z.literal('SET_SNAPSHOT'),
+      ]),
+      snapshot: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /** A user name (optionally with host pattern) inside access-control statements. */
 export type UserNameWithHostNode = {
@@ -3352,13 +3418,14 @@ export type UserNameWithHostNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link UserNameWithHostNode}. */
-export const UserNameWithHostNodeSchema: z.ZodType<UserNameWithHostNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('UserNameWithHost'),
-    name: z.string().optional(),
-    host_pattern: z.string().optional(),
-    ...ExprMetadataFields,
-  }),
+export const UserNameWithHostNodeSchema: z.ZodType<WithoutLocations<UserNameWithHostNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('UserNameWithHost'),
+      name: z.string().optional(),
+      host_pattern: z.string().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** A `UserNamesWithHost` list wrapper (CREATE USER target names). */
@@ -3368,13 +3435,14 @@ export type UserNamesWithHostNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link UserNamesWithHostNode}. */
-export const UserNamesWithHostNodeSchema: z.ZodType<UserNamesWithHostNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('UserNamesWithHost'),
-    users: z.array(UserNameWithHostNodeSchema),
-    ...ExprMetadataFields,
-  }),
-);
+export const UserNamesWithHostNodeSchema: z.ZodType<WithoutLocations<UserNamesWithHostNode>> =
+  z.lazy(() =>
+    z.object({
+      type: z.literal('UserNamesWithHost'),
+      users: z.array(UserNameWithHostNodeSchema),
+      ...ExprMetadataFields,
+    }),
+  );
 
 /** A native `RolesOrUsersSet` (ALL / names / CURRENT_USER / ALL EXCEPT). */
 export type RolesOrUsersSetNode = {
@@ -3386,15 +3454,16 @@ export type RolesOrUsersSetNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link RolesOrUsersSetNode}. */
-export const RolesOrUsersSetNodeSchema: z.ZodType<RolesOrUsersSetNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('RolesOrUsersSet'),
-    all: z.boolean().optional(),
-    names: z.array(z.string()).optional(),
-    except_names: z.array(z.string()).optional(),
-    current_user: z.boolean().optional(),
-    ...ExprMetadataFields,
-  }),
+export const RolesOrUsersSetNodeSchema: z.ZodType<WithoutLocations<RolesOrUsersSetNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('RolesOrUsersSet'),
+      all: z.boolean().optional(),
+      names: z.array(z.string()).optional(),
+      except_names: z.array(z.string()).optional(),
+      current_user: z.boolean().optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** A single policy reference inside {@link RowPolicyNamesNode}. */
@@ -3405,7 +3474,7 @@ export type RowPolicyNameItem = {
 };
 
 /** Zod schema for {@link RowPolicyNameItem}. */
-export const RowPolicyNameItemSchema: z.ZodType<RowPolicyNameItem> = z.object({
+export const RowPolicyNameItemSchema: z.ZodType<WithoutLocations<RowPolicyNameItem>> = z.object({
   short_name: z.string(),
   database: z.string().optional(),
   table: z.string().optional(),
@@ -3418,12 +3487,13 @@ export type RowPolicyNamesNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link RowPolicyNamesNode}. */
-export const RowPolicyNamesNodeSchema: z.ZodType<RowPolicyNamesNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('RowPolicyNames'),
-    policies: z.array(RowPolicyNameItemSchema),
-    ...ExprMetadataFields,
-  }),
+export const RowPolicyNamesNodeSchema: z.ZodType<WithoutLocations<RowPolicyNamesNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('RowPolicyNames'),
+      policies: z.array(RowPolicyNameItemSchema),
+      ...ExprMetadataFields,
+    }),
 );
 
 /** A `DEFAULT DATABASE <db>` / `DEFAULT DATABASE NONE` target. */
@@ -3472,13 +3542,14 @@ export type ExecuteAsQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link ExecuteAsQueryNode}. */
-export const ExecuteAsQueryNodeSchema: z.ZodType<ExecuteAsQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('ExecuteAsQuery'),
-    target_user: UserNameWithHostNodeSchema,
-    subquery: ASTNodeSchema,
-    ...ExprMetadataFields,
-  }),
+export const ExecuteAsQueryNodeSchema: z.ZodType<WithoutLocations<ExecuteAsQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('ExecuteAsQuery'),
+      target_user: UserNameWithHostNodeSchema,
+      subquery: ASTNodeSchema,
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -3503,7 +3574,7 @@ export type OptimizeQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link OptimizeQueryNode}. */
-export const OptimizeQueryNodeSchema: z.ZodType<OptimizeQueryNode> = z.lazy(() =>
+export const OptimizeQueryNodeSchema: z.ZodType<WithoutLocations<OptimizeQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('OptimizeQuery'),
     table: IdentifierNodeSchema.optional(),
@@ -3537,7 +3608,7 @@ export type DescribeQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link DescribeQueryNode}. */
-export const DescribeQueryNodeSchema: z.ZodType<DescribeQueryNode> = z.lazy(() =>
+export const DescribeQueryNodeSchema: z.ZodType<WithoutLocations<DescribeQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('DescribeQuery'),
     table_expression: TableExpressionSchema.optional(),
@@ -3564,17 +3635,18 @@ export type ShowCreateQueryNode = {
 } & TableTargetFields;
 
 /** Zod schema for {@link ShowCreateQueryNode}. */
-export const ShowCreateQueryNodeSchema: z.ZodType<ShowCreateQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.union([
-      z.literal('ShowCreateTableQuery'),
-      z.literal('ShowCreateViewQuery'),
-      z.literal('ShowCreateDictionaryQuery'),
-      z.literal('ShowCreateDatabaseQuery'),
-    ]),
-    ...TableTargetSchemaFields,
-    ...ExprMetadataFields,
-  }),
+export const ShowCreateQueryNodeSchema: z.ZodType<WithoutLocations<ShowCreateQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.union([
+        z.literal('ShowCreateTableQuery'),
+        z.literal('ShowCreateViewQuery'),
+        z.literal('ShowCreateDictionaryQuery'),
+        z.literal('ShowCreateDatabaseQuery'),
+      ]),
+      ...TableTargetSchemaFields,
+      ...ExprMetadataFields,
+    }),
 );
 
 /** `EXISTS TABLE/VIEW/DICTIONARY/DATABASE ...` (drop-family child layout). */
@@ -3583,7 +3655,7 @@ export type ExistsQueryNode = {
 } & TableTargetFields;
 
 /** Zod schema for {@link ExistsQueryNode}. */
-export const ExistsQueryNodeSchema: z.ZodType<ExistsQueryNode> = z.lazy(() =>
+export const ExistsQueryNodeSchema: z.ZodType<WithoutLocations<ExistsQueryNode>> = z.lazy(() =>
   z.object({
     type: z.union([
       z.literal('ExistsTableQuery'),
@@ -3604,7 +3676,7 @@ export type CheckQueryNode = {
 } & TableTargetFields;
 
 /** Zod schema for {@link CheckQueryNode}. */
-export const CheckQueryNodeSchema: z.ZodType<CheckQueryNode> = z.lazy(() =>
+export const CheckQueryNodeSchema: z.ZodType<WithoutLocations<CheckQueryNode>> = z.lazy(() =>
   z.object({
     type: z.union([z.literal('CheckQuery'), z.literal('CheckAllQuery')]),
     partition: z.union([PartitionNodeSchema, PartitionIdNodeSchema]).optional(),
@@ -3627,7 +3699,7 @@ export type AttachQueryNode = {
 } & TableTargetFields;
 
 /** Zod schema for {@link AttachQueryNode}. */
-export const AttachQueryNodeSchema: z.ZodType<AttachQueryNode> = z.lazy(() =>
+export const AttachQueryNodeSchema: z.ZodType<WithoutLocations<AttachQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('AttachQuery'),
     attach: z.boolean().optional(),
@@ -3671,7 +3743,7 @@ export type RenameNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link RenameNode}. */
-export const RenameNodeSchema: z.ZodType<RenameNode> = z.lazy(() =>
+export const RenameNodeSchema: z.ZodType<WithoutLocations<RenameNode>> = z.lazy(() =>
   z.object({
     type: z.literal('Rename'),
     elements: z.array(
@@ -3708,18 +3780,19 @@ export type KillQueryQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link KillQueryQueryNode}. */
-export const KillQueryQueryNodeSchema: z.ZodType<KillQueryQueryNode> = z.lazy(() =>
-  z.object({
-    type: z.literal('KillQueryQuery'),
-    kill_type: z.union([z.literal('QUERY'), z.literal('MUTATION')]),
-    where: ExpressionSchema,
-    sync: z.boolean().optional(),
-    test: z.boolean().optional(),
-    format: z.string().optional(),
-    cluster: z.string().optional(),
-    settings: SettingsNodeSchema.optional(),
-    ...ExprMetadataFields,
-  }),
+export const KillQueryQueryNodeSchema: z.ZodType<WithoutLocations<KillQueryQueryNode>> = z.lazy(
+  () =>
+    z.object({
+      type: z.literal('KillQueryQuery'),
+      kill_type: z.union([z.literal('QUERY'), z.literal('MUTATION')]),
+      where: ExpressionSchema,
+      sync: z.boolean().optional(),
+      test: z.boolean().optional(),
+      format: z.string().optional(),
+      cluster: z.string().optional(),
+      settings: SettingsNodeSchema.optional(),
+      ...ExprMetadataFields,
+    }),
 );
 
 /**
@@ -3738,7 +3811,7 @@ export type DeleteQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link DeleteQueryNode}. */
-export const DeleteQueryNodeSchema: z.ZodType<DeleteQueryNode> = z.lazy(() =>
+export const DeleteQueryNodeSchema: z.ZodType<WithoutLocations<DeleteQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('DeleteQuery'),
     table: IdentifierNodeSchema.optional(),
@@ -3767,7 +3840,7 @@ export type UpdateQueryNode = {
 } & NodeMetadata;
 
 /** Zod schema for {@link UpdateQueryNode}. */
-export const UpdateQueryNodeSchema: z.ZodType<UpdateQueryNode> = z.lazy(() =>
+export const UpdateQueryNodeSchema: z.ZodType<WithoutLocations<UpdateQueryNode>> = z.lazy(() =>
   z.object({
     type: z.literal('UpdateQuery'),
     table: IdentifierNodeSchema.optional(),
@@ -4001,12 +4074,12 @@ export type ASTNode = ASTNodeTypeMap[ASTNodeType];
 // ── Zod schemas for statement types ──────────────────────────────────────────
 
 /** Zod schema for {@link QueryStatement}. */
-export const QueryStatementSchema: z.ZodType<QueryStatement> = z.lazy(() =>
+export const QueryStatementSchema: z.ZodType<WithoutLocations<QueryStatement>> = z.lazy(() =>
   z.union([SelectWithUnionQuerySchema, SelectIntersectExceptQuerySchema, ExplainQueryNodeSchema]),
 );
 
 /** Zod schema for {@link Statement}. */
-export const StatementSchema: z.ZodType<Statement> = z.lazy(() =>
+export const StatementSchema: z.ZodType<WithoutLocations<Statement>> = z.lazy(() =>
   z.union([
     SelectWithUnionQuerySchema,
     SelectIntersectExceptQuerySchema,
@@ -4047,4 +4120,4 @@ export const StatementSchema: z.ZodType<Statement> = z.lazy(() =>
 );
 
 /** Zod schema for an array of {@link Statement}s (the top-level parse result). */
-export const StatementsSchema = z.array(StatementSchema);
+export const StatementsSchema: z.ZodType<WithoutLocations<Statement>[]> = z.array(StatementSchema);

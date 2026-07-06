@@ -75,6 +75,44 @@ The AST for the query above:
 Each node has a `type` discriminator field that mirrors ClickHouse's native AST.
 See [ast.ts](src/ast.ts) for all node types and their Zod schemas.
 
+#### Parse options
+
+`parse()` accepts an optional second argument:
+
+```typescript
+parse(sql, {
+  // Attach a `location` (line/column/offset source range) to every node.
+  // Set to false for a leaner, fully JSON-serializable AST. Default: true.
+  locations: true,
+
+  // Set a `parent` reference on every node. This introduces circular
+  // references, which break `JSON.stringify`. Default: false.
+  setParents: false,
+});
+```
+
+With locations enabled (the default) **every** AST node carries a `location`, so
+it is a **required** property — no `| undefined`, no `!`:
+
+```typescript
+const ast = parse(sql); // Statement[]
+ast[0].location.start.offset; // ✓ SourceLocation (always present)
+```
+
+When `locations: false` is passed as a literal, `parse()` returns
+`WithoutLocations<Statement>[]` — a type with `location` recursively removed, so
+reading `.location` is a compile-time error:
+
+```typescript
+const ast = parse(sql, { locations: false });
+ast[0].location; // ✗ type error: property does not exist
+```
+
+The AST-consuming functions — `format`, `formatExplain`, `formatNode`, and
+`transformNodes` — accept `WithoutLocations<…>` inputs. Because a located AST is
+assignable to its location-free counterpart, they transparently accept ASTs both
+with and without locations.
+
 ### Formatting AST back to SQL
 
 ```typescript
@@ -165,9 +203,10 @@ The AST parsed by this library is a superset of the JSON AST produced by ClickHo
 
 #### Location Metadata
 
-Every node carries an optional `location: { start, end }` recording its source
+Every node carries a `location: { start, end }` recording its source
 range in the original SQL, where `start`/`end` are `{ offset, line, column }`
-(compatible with peggy's `LocationRange`).
+(compatible with peggy's `LocationRange`). Locations are included by default;
+pass `{ locations: false }` to `parse()` to omit them (see [Parse options](#parse-options)).
 
 #### Parent Metadata
 

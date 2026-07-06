@@ -3,6 +3,7 @@ import {
   AccessControlSettingsItem,
   AlterUserClause,
   ASTNode,
+  WithoutLocations,
   AuthenticationData,
   GrantElement,
   GrantPrivilege,
@@ -344,9 +345,11 @@ function formatTopLevelStatement(s: Statement): string {
   return result;
 }
 
-export function format(statements: Statement[]): string {
+export function format(statements: WithoutLocations<Statement>[]): string {
   StatementsSchema.parse(statements);
-  return statements.map(formatTopLevelStatement).join('\n\n');
+  // The formatter never reads `location`; treat the (possibly location-free)
+  // input as the located type internally.
+  return (statements as Statement[]).map(formatTopLevelStatement).join('\n\n');
 }
 
 // Native AST `type` values that represent top-level statements (used by
@@ -427,10 +430,11 @@ const STATEMENT_TYPES = new Set<string>([
 // `kind`-discriminated statement/element nodes (CREATE DDL, ALTER access,
 // column/index defs, FROM atoms) are not present in the parsed AST but remain
 // accepted by this public API, so they are routed to their formatters here.
-export function formatNode(astNode: ASTNode, indent: string = ''): string {
+export function formatNode(astNode: WithoutLocations<ASTNode>, indent: string = ''): string {
   // The parsed AST is entirely ClickHouse-native, discriminated by a string
   // `type`. OrderBy/Interpolate elements and statements have dedicated
-  // formatters; everything else is an expression.
+  // formatters; everything else is an expression. The formatter never reads
+  // `location`, so the location-free input is treated as the located type.
   const typed = astNode as Expression | OrderByElementNode | InterpolateElementNode | Statement;
   if (typed.type === 'OrderByElement') return formatOrderByItem(typed, indent);
   if (typed.type === 'InterpolateElement') return formatInterpolateItem(typed, indent);
@@ -597,7 +601,8 @@ function literalExpr(
   valueType: LiteralNode['value_type'],
   value: LiteralNode['value'],
 ): LiteralNode {
-  return { type: 'Literal', value_type: valueType, value };
+  // Synthetic literal built for formatting only (never read for its location).
+  return { type: 'Literal', value_type: valueType, value } as LiteralNode;
 }
 
 /** Native settings/limit scalar → a `Literal` expression that re-emits it. */
@@ -755,7 +760,11 @@ function nativeAccessRightToElement(r: NativeAccessRight): GrantElement {
 /** Native GRANT/REVOKE node → structured {@link GrantStatement}. */
 function nativeGrantToStatement(n: GrantQueryNode): GrantStatement {
   const operation: 'GRANT' | 'REVOKE' = n.type === 'RevokeQuery' ? 'REVOKE' : 'GRANT';
-  const stmt: GrantStatement = { kind: 'grant', operation, grantees: nativeSetToNames(n.grantees) };
+  const stmt = {
+    kind: 'grant',
+    operation,
+    grantees: nativeSetToNames(n.grantees),
+  } as GrantStatement;
   const withOptions: ('GRANT' | 'ADMIN' | 'REPLACE')[] = [];
   let grantOption = false;
   if (n.access_rights !== undefined) {
@@ -1603,7 +1612,8 @@ function formatAlterAccessQuery(node: AccessQueryNode, indent: string): string {
                 targets: nativeRowPolicyTargets(node.names),
                 using:
                   node.filters && node.filters.length > 0
-                    ? (node.filters[0].condition ?? { type: 'Identifier', name: 'NONE' })
+                    ? (node.filters[0].condition ??
+                      ({ type: 'Identifier', name: 'NONE' } as IdentifierNode))
                     : undefined,
                 restrictive:
                   node.is_restrictive !== undefined
@@ -2069,7 +2079,7 @@ function formatCreateRoleQuery(node: CreateRoleQueryNode, indent: string): strin
 function formatCreateRowPolicyQuery(node: CreateRowPolicyQueryNode, indent: string): string {
   let using: Expression | undefined;
   if (node.filters && node.filters.length > 0) {
-    using = node.filters[0].condition ?? { type: 'Identifier', name: 'NONE' };
+    using = node.filters[0].condition ?? ({ type: 'Identifier', name: 'NONE' } as IdentifierNode);
   }
   const stmt = {
     hasRowKeyword: true,

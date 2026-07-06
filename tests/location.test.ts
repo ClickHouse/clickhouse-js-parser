@@ -317,4 +317,48 @@ describe('location', () => {
       expect(slice(sql, tuples[0].location!)).toBe("(1, 'a', 3.14)");
     });
   });
+
+  describe('locations option', () => {
+    it('includes locations by default', () => {
+      const stmts = parse('SELECT a + 1 FROM t');
+      expect(stmts[0].location).toBeDefined();
+      for (const node of findNodes(stmts, 'Function')) {
+        expect(node.location).toBeDefined();
+      }
+    });
+
+    it('includes locations when locations: true is explicit', () => {
+      const stmts = parse('SELECT a + 1 FROM t', { locations: true });
+      expect(stmts[0].location).toBeDefined();
+    });
+
+    it('omits all locations when locations: false', () => {
+      const sql = 'SELECT a + 1 FROM t WHERE x IN (1, 2) ORDER BY a';
+      const stmts = parse(sql, { locations: false });
+
+      // No node anywhere in the tree carries a location.
+      const seen = new Set<unknown>();
+      function assertNoLocation(node: unknown): void {
+        if (node === null || typeof node !== 'object') return;
+        if (seen.has(node)) return;
+        seen.add(node);
+        if (Array.isArray(node)) {
+          node.forEach(assertNoLocation);
+          return;
+        }
+        const obj = node as Record<string, unknown>;
+        expect(obj.location).toBeUndefined();
+        for (const [k, v] of Object.entries(obj)) {
+          if (k === 'parent') continue;
+          assertNoLocation(v);
+        }
+      }
+      assertNoLocation(stmts);
+    });
+
+    it('produces a JSON-serializable AST when locations: false', () => {
+      const stmts = parse('SELECT 1', { locations: false });
+      expect(() => JSON.stringify(stmts)).not.toThrow();
+    });
+  });
 });

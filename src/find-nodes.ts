@@ -1,4 +1,4 @@
-import type { Statement, ASTNodeLookupMap } from './ast';
+import type { Statement, ASTNodeLookupMap, WithoutLocations } from './ast';
 
 /**
  * Recursively finds all AST nodes of the given node `type` in one or more
@@ -18,8 +18,19 @@ import type { Statement, ASTNodeLookupMap } from './ast';
  * // [{ type: 'Identifier', name: 'id' }]
  * ```
  */
+// Overloads preserve location-ness: searching a located AST yields located
+// result nodes (so `.location` is readable); searching a location-free AST
+// (`parse(sql, { locations: false })`) yields location-free result nodes.
 export function findNodes<K extends keyof ASTNodeLookupMap>(
   statements: Statement[],
+  kind: K,
+): ASTNodeLookupMap[K][];
+export function findNodes<K extends keyof ASTNodeLookupMap>(
+  statements: WithoutLocations<Statement>[],
+  kind: K,
+): WithoutLocations<ASTNodeLookupMap[K]>[];
+export function findNodes<K extends keyof ASTNodeLookupMap>(
+  statements: WithoutLocations<Statement>[],
   kind: K,
 ): ASTNodeLookupMap[K][] {
   const results: ASTNodeLookupMap[K][] = [];

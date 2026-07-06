@@ -1,4 +1,10 @@
-import type { Statement, Expression, ASTNodeTypeMap, ASTNodeLookupMap } from './ast';
+import type {
+  Statement,
+  Expression,
+  ASTNodeTypeMap,
+  ASTNodeLookupMap,
+  WithoutLocations,
+} from './ast';
 
 /**
  * The AST node `type` values that occupy an **expression** position — anywhere
@@ -162,10 +168,10 @@ void _assertNodePositionMapIsTotal;
  * ```
  */
 export function transformNodes<K extends keyof ASTNodeLookupMap>(
-  statements: Statement[],
+  statements: WithoutLocations<Statement>[],
   kind: K,
-  visitor: (node: ASTNodeLookupMap[K]) => NodePositionMap[K],
-): Statement[] {
+  visitor: (node: WithoutLocations<ASTNodeLookupMap[K]>) => WithoutLocations<NodePositionMap[K]>,
+): WithoutLocations<Statement>[] {
   function walkChildren(obj: Record<string, unknown>): Record<string, unknown> {
     let copy: Record<string, unknown> | undefined;
 
@@ -210,15 +216,14 @@ export function transformNodes<K extends keyof ASTNodeLookupMap>(
     // New-shape nodes match on `type`; old-shape nodes match on `kind`.
     // (`type` checked first: native Function nodes carry a data field named `kind`.)
     if (typeof obj.type === 'string' ? obj.type === kind : obj.kind === kind) {
-      const visited = visitor(withChildren as ASTNodeLookupMap[K]) as unknown as Record<
-        string,
-        unknown
-      >;
+      const visited = visitor(
+        withChildren as WithoutLocations<ASTNodeLookupMap[K]>,
+      ) as unknown as Record<string, unknown>;
       return visited === withChildren && withChildren === obj ? obj : visited;
     }
 
     return withChildren;
   }
 
-  return walk(statements) as Statement[];
+  return walk(statements) as WithoutLocations<Statement>[];
 }

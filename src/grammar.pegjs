@@ -284,6 +284,16 @@
     return { type: 'Identifier', name: normalized.map(partName).join('.'), name_parts: normalized };
   }
 
+  // ident() carrying a source location — used for DDL name identifiers (table /
+  // database / index / column names) built from target temps that captured a
+  // span via `loc()`. `l` is typically the enclosing target temp's location.
+  // Defined lazily below `withLoc`/`loc`; here it forwards to the global helper.
+  function identLoc(parts, l) {
+    const node = ident(parts);
+    if (l !== undefined && node.location === undefined) node.location = l;
+    return node;
+  }
+
   // Apply an inline alias to an expression node.
   function applyAlias(node, alias) {
     return { ...node, alias };
@@ -414,15 +424,15 @@
       const single = values[0];
       // A single tuple literal value is wrapped in Function tuple.
       if (single.type === 'Literal' && single.value_type === 'Tuple') {
-        return fn('tuple', [single], { is_operator: true });
+        return withLoc(fn('tuple', [single], { is_operator: true }), spanOf([single]));
       }
       return single;
     }
     const els = values.map(inElem);
     if (els.every((d) => d !== null)) {
-      return lit('Tuple', els);
+      return withLoc(lit('Tuple', els), spanOf(values));
     }
-    return fn('tuple', values, { is_operator: true });
+    return withLoc(fn('tuple', values, { is_operator: true }), spanOf(values));
   }
 
   // Build a Settings node from SETTINGS items. `SET x = DEFAULT` resets go to
@@ -468,7 +478,7 @@
     if (hasChanges) node.changes = changes;
     if (Object.keys(changeValueTypes).length > 0) node._change_value_types = changeValueTypes;
     if (defaults.length > 0) node.default_settings = defaults;
-    return node;
+    return withLoc(node, spanOf(items) ?? spanOf(items.map((i) => i.value)));
   }
 
   // The plain scalar a setting value serializes to in Set.changes. ClickHouse's
@@ -712,15 +722,15 @@
   }
 
   // Build an EXCEPT column transformer from a list of column names.
-  function exceptTransformer(cols, strict) {
+  function exceptTransformer(cols, strict, l) {
     const node = { type: 'ColumnsExceptTransformer' };
     if (strict) node.is_strict = true;
-    node.columns = cols.map((c) => ident([c]));
-    return node;
+    node.columns = cols.map((c) => withLoc(ident([c]), l));
+    return withLoc(node, l);
   }
 
   // Build an APPLY column transformer from the applied expression.
-  function applyTransformer(func) {
+  function applyTransformer(func, l) {
     const node = { type: 'ColumnsApplyTransformer' };
     if (func.type === 'Identifier') {
       node.func_name = func.name;
@@ -744,22 +754,22 @@
       // on the transformer node, matching ClickHouse's normalization.
       const params = func.parameters !== undefined ? func.parameters : func.arguments;
       if (params !== undefined && params.length > 0) {
-        node.parameters = { type: 'ExpressionList', children: params };
+        node.parameters = exprList(params);
       }
     }
-    return node;
+    return withLoc(node, l ?? spanOf([node.lambda, node.parameters]));
   }
 
   // Build a REPLACE column transformer from `expr AS name` items.
-  function replaceTransformer(items, strict) {
+  function replaceTransformer(items, strict, l) {
     const node = { type: 'ColumnsReplaceTransformer' };
     if (strict) node.is_strict = true;
-    node.replacements = items.map((item) => ({
+    node.replacements = items.map((item) => withLoc({
       type: 'ColumnsReplaceTransformer::Replacement',
       name: item.alias,
       expression: item.expr,
-    }));
-    return node;
+    }, item.location ?? spanOf([item.expr])));
+    return withLoc(node, l ?? spanOf(node.replacements));
   }
 
   // Rewrite `x op ANY/ALL (subquery)` to ClickHouse's canonical form. The
@@ -767,26 +777,27 @@
   // `(SELECT aggName(*) FROM (sub))`, which is the canonical form we emit
   // on format.
   function syntheticAggSubquery(aggName, sub) {
-    const sel = {
+    const L = sub.location;
+    const sel = withLoc({
       type: 'SelectQuery',
-      select: [fn(aggName, [{ type: 'Asterisk' }])],
-      from: {
+      select: [withLoc(fn(aggName, [withLoc({ type: 'Asterisk' }, L)]), L)],
+      from: withLoc({
         type: 'TablesInSelectQuery',
         children: [
-          {
+          withLoc({
             type: 'TablesInSelectQueryElement',
-            table_expression: { type: 'TableExpression', subquery: sub },
-          },
+            table_expression: withLoc({ type: 'TableExpression', subquery: sub }, L),
+          }, L),
         ],
-      },
+      }, L),
       // ClickHouse's `op ANY/ALL (sub)` lowering appends the projection and
       // tables to the synthetic SelectQuery's child vector twice, so its
       // EXPLAIN AST text dump shows `SelectQuery (children 4)`. The JSON AST
       // (and our named `select`/`from` fields) keep a single copy; this flag
       // tells the explain projection to emit the doubled child list.
       _agg_repeat: true,
-    };
-    return { type: 'Subquery', query: wrapSWU([sel]) };
+    }, L);
+    return withLoc({ type: 'Subquery', query: withLoc(wrapSWU([sel]), L) }, L);
   }
 
   function tryAnyAllRewrite(op, left, right) {
@@ -819,7 +830,7 @@
 
   // Build a lambda Function node: lambda(tuple(params), body).
   // An alias on the body moves to the lambda node itself, as ClickHouse does.
-  function lambdaFn(params, body) {
+  function lambdaFn(params, body, l) {
     let b = body;
     let alias;
     if (b.alias !== undefined) {
@@ -827,13 +838,17 @@
       b = { ...b };
       delete b.alias;
     }
+    // `params` are bare names; the synthesized `tuple(...)` wrapper and the
+    // per-parameter Identifiers have no contiguous source of their own, so they
+    // inherit the whole lambda span `l` (the `params -> body` range).
+    const paramTuple = withLoc(fn('tuple', params.map((p) => withLoc(ident([p]), l)), { is_operator: true }), l ?? spanOf([b]));
     const node = fn(
       'lambda',
-      [fn('tuple', params.map((p) => ident([p])), { is_operator: true }), b],
+      [paramTuple, b],
       { is_operator: true, is_lambda_function: true, kind: 'LAMBDA_FUNCTION' },
     );
     if (alias !== undefined) node.alias = alias;
-    return node;
+    return withLoc(node, l ?? spanOf([paramTuple, b]));
   }
 
   // Build a nested WindowDefinition `frame_begin`/`frame_end` bound object
@@ -977,10 +992,10 @@
     }
     if (text !== null) {
       // Stringified pure-literal casts are plain CAST calls in ClickHouse's AST
-      const stringified = strLit(text, { _cast_operand: operand });
-      return fn('CAST', [stringified, typeLit(rawType)]);
+      const stringified = withLoc(strLit(text, { _cast_operand: operand }), operand.location);
+      return withLoc(fn('CAST', [stringified, withLoc(typeLit(rawType), operand.location)]), operand.location);
     }
-    return fn('CAST', [operand, typeLit(rawType)], { is_operator: true });
+    return withLoc(fn('CAST', [operand, withLoc(typeLit(rawType), operand.location)], { is_operator: true }), operand.location);
   }
 
   // ── SELECT statement node construction ──────────────────────────────────────
@@ -989,38 +1004,40 @@
   // ClickHouse's normalized fraction form. The source spelling is not
   // preserved — `SAMPLE 0.1` canonicalizes to `SAMPLE 1/10` at format time.
   function sampleRatioNode(v) {
+    let node;
     if (v.den !== undefined) {
-      return {
+      node = {
         type: 'SampleRatio',
         numerator: String(Math.round(parseFloat(v.num))),
         denominator: String(Math.round(parseFloat(v.den))),
       };
+    } else {
+      const numText = v.num;
+      const lower = numText.toLowerCase();
+      if (/^[0-9]+$/.test(numText)) {
+        node = { type: 'SampleRatio', numerator: numText, denominator: '1' };
+      } else if (lower.includes('e-')) {
+        const parts = lower.split('e-');
+        const num = Math.round(parseFloat(parts[0]));
+        const den = Math.round(Math.pow(10, parseInt(parts[1], 10)));
+        node = { type: 'SampleRatio', numerator: String(num), denominator: String(den) };
+      } else if (lower.includes('.')) {
+        const dotIdx = lower.indexOf('.');
+        const afterDot = lower.substring(dotIdx + 1).replace(/e.*$/, '');
+        const decimalPlaces = afterDot.length;
+        const digits = lower.replace('.', '').replace(/e.*$/, '');
+        const num = parseInt(digits, 10);
+        const den = Math.round(Math.pow(10, decimalPlaces));
+        node = { type: 'SampleRatio', numerator: String(num), denominator: String(den) };
+      } else {
+        node = {
+          type: 'SampleRatio',
+          numerator: String(Math.round(parseFloat(numText))),
+          denominator: '1',
+        };
+      }
     }
-    const numText = v.num;
-    if (/^[0-9]+$/.test(numText)) {
-      return { type: 'SampleRatio', numerator: numText, denominator: '1' };
-    }
-    const lower = numText.toLowerCase();
-    if (lower.includes('e-')) {
-      const parts = lower.split('e-');
-      const num = Math.round(parseFloat(parts[0]));
-      const den = Math.round(Math.pow(10, parseInt(parts[1], 10)));
-      return { type: 'SampleRatio', numerator: String(num), denominator: String(den) };
-    }
-    if (lower.includes('.')) {
-      const dotIdx = lower.indexOf('.');
-      const afterDot = lower.substring(dotIdx + 1).replace(/e.*$/, '');
-      const decimalPlaces = afterDot.length;
-      const digits = lower.replace('.', '').replace(/e.*$/, '');
-      const num = parseInt(digits, 10);
-      const den = Math.round(Math.pow(10, decimalPlaces));
-      return { type: 'SampleRatio', numerator: String(num), denominator: String(den) };
-    }
-    return {
-      type: 'SampleRatio',
-      numerator: String(Math.round(parseFloat(numText))),
-      denominator: '1',
-    };
+    return withLoc(node, v.location);
   }
 
   // Convert a FROM atom (tableRef / subqueryFrom / tableFunctionRef temp) into
@@ -1042,6 +1059,7 @@
       if (atom.settings !== undefined) f.arguments = [...f.arguments, setNode(atom.settings)];
       if (atom.alias !== undefined) f.alias = atom.alias;
       if (atom.location !== undefined) f.location = atom.location;
+      else withLoc(f, spanOf(f.arguments));
       te.table_function = f;
     } else {
       const sq = subqueryNode(atom.query);
@@ -1049,10 +1067,7 @@
       if (atom.location !== undefined) sq.location = atom.location;
       te.subquery = sq;
       if (atom.columnAliases !== undefined) {
-        te.column_aliases = {
-          type: 'ExpressionList',
-          children: atom.columnAliases.map((a) => ident([a])),
-        };
+        te.column_aliases = withLoc(exprList(atom.columnAliases.map((a) => withLoc(ident([a]), atom.location))), atom.location);
       }
     }
     if (atom.final) te.final = true;
@@ -1063,6 +1078,7 @@
     if (atom.leadingComments !== undefined) te.leadingComments = atom.leadingComments;
     if (atom.trailingComments !== undefined) te.trailingComments = atom.trailingComments;
     if (atom.location !== undefined) te.location = atom.location;
+    else withLoc(te, spanOf([te.database_and_table_name, te.table_function, te.subquery]));
     return te;
   }
 
@@ -1073,7 +1089,7 @@
     function flatten(node) {
       if (node.kind === 'joinExpr') {
         flatten(node.left);
-        const joinNode = { type: 'TableJoin', kind: node.joinType };
+        const joinNode = withLoc({ type: 'TableJoin', kind: node.joinType }, node.location);
         if (node.strictness !== undefined) joinNode.strictness = node.strictness;
         if (node.global) joinNode.locality = 'GLOBAL';
         if (node.constraint !== undefined) {
@@ -1084,28 +1100,28 @@
             joinNode.using = node.constraint.columns;
           }
         }
-        elements.push({
+        const te = tableExprNode(node.right);
+        elements.push(withLoc({
           type: 'TablesInSelectQueryElement',
-          table_expression: tableExprNode(node.right),
+          table_expression: te,
           table_join: joinNode,
-        });
+        }, spanOf([te, joinNode]) ?? node.location));
       } else if (node.kind === 'arrayJoinExpr') {
         flatten(node.left);
-        elements.push({
-          type: 'TablesInSelectQueryElement',
-          array_join: {
-            type: 'ArrayJoin',
-            kind: node.joinType === 'LEFT ARRAY' ? 'LEFT' : 'INNER',
-            expressions: node.expressions,
-          },
-        });
+        const aj = withLoc({
+          type: 'ArrayJoin',
+          kind: node.joinType === 'LEFT ARRAY' ? 'LEFT' : 'INNER',
+          expressions: node.expressions,
+        }, node.location ?? spanOf(node.expressions));
+        elements.push(withLoc({ type: 'TablesInSelectQueryElement', array_join: aj }, aj.location));
       } else {
-        elements.push({ type: 'TablesInSelectQueryElement', table_expression: tableExprNode(node) });
+        const te = tableExprNode(node);
+        elements.push(withLoc({ type: 'TablesInSelectQueryElement', table_expression: te }, te.location ?? node.location));
       }
     }
     flatten(from);
     const result = { type: 'TablesInSelectQuery', children: elements };
-    return result;
+    return withLoc(result, spanOf(elements) ?? from.location);
   }
 
   // ── Union/intersect wrapper construction ─────────────────────────────────────
@@ -1113,7 +1129,7 @@
   function wrapSWU(members, extra) {
     const node = { type: 'SelectWithUnionQuery', selects: members };
     if (extra) Object.assign(node, extra);
-    return node;
+    return withLoc(node, spanOf(members));
   }
 
   // Members contributed by a node when combined with UNION ALL: an unmoded
@@ -1163,11 +1179,12 @@
     const isExcept = opKeyword === 'EXCEPT';
     const lw = isExcept || left.type === 'SelectIntersectExceptQuery';
     const rw = !isExcept && right.type === 'SelectIntersectExceptQuery';
-    return {
+    const selects = [intersectChild(left, lw), intersectChild(right, rw)];
+    return withLoc({
       type: 'SelectIntersectExceptQuery',
       operator: opKeyword + ' ' + (mode !== null && mode !== undefined ? mode : 'ALL'),
-      selects: [intersectChild(left, lw), intersectChild(right, rw)],
-    };
+      selects,
+    }, spanOf(selects));
   }
 
   // ── WITH (CTE) distribution across union members ─────────────────────────────
@@ -1303,7 +1320,8 @@
   // The formatter emits the rewritten viewExplain form (canonical); the original
   // (EXPLAIN ...) source-text spelling is not preserved.
   function subqueryNode(query) {
-    if (query.type !== 'Explain') return { type: 'Subquery', query };
+    if (query.type !== 'Explain') return withLoc({ type: 'Subquery', query }, spanOf([query]));
+    const L = query.location;
     const typeLabel = query.kind ?? 'EXPLAIN';
     const preSet = query.settings;
     const preEntries = [];
@@ -1320,24 +1338,24 @@
       }
     }
     const settingsLabel = preEntries.join(', ');
-    const args = [strLit(typeLabel), strLit(settingsLabel)];
+    const args = [withLoc(strLit(typeLabel), L), withLoc(strLit(settingsLabel), L)];
     if (query.query !== undefined) {
-      args.push({ type: 'Subquery', query: query.query });
+      args.push(withLoc({ type: 'Subquery', query: query.query }, spanOf([query.query]) ?? L));
     }
-    const sel = {
+    const sel = withLoc({
       type: 'SelectQuery',
-      select: [{ type: 'Asterisk' }],
-      from: {
+      select: [withLoc({ type: 'Asterisk' }, L)],
+      from: withLoc({
         type: 'TablesInSelectQuery',
         children: [
-          {
+          withLoc({
             type: 'TablesInSelectQueryElement',
-            table_expression: { type: 'TableExpression', table_function: fn('viewExplain', args) },
-          },
+            table_expression: withLoc({ type: 'TableExpression', table_function: withLoc(fn('viewExplain', args), L) }, L),
+          }, L),
         ],
-      },
-    };
-    return { type: 'Subquery', query: wrapSWU([sel]) };
+      }, L),
+    }, L);
+    return withLoc({ type: 'Subquery', query: withLoc(wrapSWU([sel]), L) }, L);
   }
 
   // Convert a parsed CTE temp into a WITH item node.
@@ -1346,10 +1364,11 @@
     if (cte.kind === 'cteSubquery') {
       result = { type: 'WithElement', name: cte.name, subquery: subqueryNode(cte.query) };
       if (cte.columnAliases !== undefined) {
-        result.aliases = { type: 'ExpressionList', children: cte.columnAliases.map((a) => ident([a])) };
+        result.aliases = withLoc(exprList(cte.columnAliases.map((a) => withLoc(ident([a]), cte.location))), cte.location);
       }
+      withLoc(result, cte.location ?? spanOf([result.subquery]));
     } else if (cte.kind === 'cteTuple') {
-      result = fn('tuple', cte.elements, { is_operator: true });
+      result = withLoc(fn('tuple', cte.elements, { is_operator: true }), cte.location ?? spanOf(cte.elements));
     } else {
       result = cte.name !== undefined ? applyAlias(cte.expr, cte.name) : cte.expr;
     }
@@ -1381,7 +1400,7 @@
       // DISTINCT ON (cols) is rewritten to LIMIT 1 BY cols, as ClickHouse does.
       // The original DISTINCT ON spelling is not recoverable from the AST;
       // format() emits the canonical `LIMIT 1 BY` form.
-      result.limit_by = { length: uintLit('1'), by: distVal.on };
+      result.limit_by = { length: withLoc(uintLit('1'), spanOf(distVal.on)), by: distVal.on };
     } else {
       const distStr = Array.isArray(distVal) ? distVal[0] : distVal;
       if (distStr !== null && distStr !== undefined && distStr.toString().toUpperCase() === 'DISTINCT') {
@@ -1409,7 +1428,7 @@
         result.group_by_all = true;
       } else if (gb.groupingSets) {
         result.group_by = gb.groupingSets.map((set) =>
-          set.length > 0 ? { type: 'ExpressionList', children: set } : { type: 'ExpressionList' },
+          set.length > 0 ? exprList(set) : withLoc({ type: 'ExpressionList' }, set.location),
         );
         result.group_by_with_grouping_sets = true;
       } else {
@@ -1446,7 +1465,7 @@
     // Named windows. WINDOW may appear before or after LIMIT in the source;
     // either spelling canonicalizes to the pre-LIMIT slot on format().
     if (o.windows !== null && o.windows !== undefined) {
-      result.window = o.windows.map((w) => ({ type: 'WindowListElement', name: w.name, definition: w.spec }));
+      result.window = o.windows.map((w) => withLoc({ type: 'WindowListElement', name: w.name, definition: w.spec }, w.location ?? spanOf([w.spec])));
     }
     // QUALIFY similarly canonicalizes to the pre-LIMIT slot on format().
     if (o.qualify !== null && o.qualify !== undefined) {
@@ -1537,7 +1556,7 @@
   function tableIdentNode(t) {
     const node = { type: 'TableIdentifier', name: partName(t.table) };
     if (t.database !== undefined) node.database = partName(t.database);
-    return node;
+    return withLoc(node, t.location);
   }
 
   // Build a drop-family statement node (DropQuery/DetachQuery/TruncateQuery/
@@ -1563,15 +1582,16 @@
       // `database_and_tables` as an `ExpressionList` of `TableIdentifier`s.
       node.database_and_tables = exprList(o.tables.map(tableIdentNode));
     } else if (o.database !== undefined) {
-      node.database = ident([o.database]);
+      node.database = identLoc([o.database], o.location);
     } else if (o.table !== undefined) {
+      const tl = o.table.location;
       if (o.targetType === 'DATABASE') {
-        node.database = ident([o.table.table]);
+        node.database = identLoc([o.table.table], tl);
       } else {
         if (o.table.database !== undefined) {
-          node.database = ident([o.table.database]);
+          node.database = identLoc([o.table.database], tl);
         }
-        node.table = ident([o.table.table]);
+        node.table = identLoc([o.table.table], tl);
       }
     }
     if (o.settings !== undefined && o.settings.length > 0) node.settings = setNode(o.settings);
@@ -1630,10 +1650,10 @@
     }
     if (o.target.kind === 'table') {
       const t = o.target.table;
-      if (t.database !== undefined) node.database = ident([t.database]);
-      node.table = ident([t.table]);
+      if (t.database !== undefined) node.database = identLoc([t.database], t.location);
+      node.table = identLoc([t.table], t.location);
     } else {
-      node.table_function = fn(o.target.func.name, o.target.func.args);
+      node.table_function = withLoc(fn(o.target.func.name, o.target.func.args), o.target.func.location ?? spanOf(o.target.func.args));
     }
     if (o.partitionBy !== undefined) node.partition_by = o.partitionBy;
     if (o.columns !== undefined && o.columns.length > 0) node.columns = o.columns;
@@ -1705,6 +1725,7 @@
       if (selectInner.default_settings !== undefined) {
         setN.default_settings = [...selectInner.default_settings];
       }
+      withLoc(setN, selectInner.location);
       node.settings = setN;
     }
     return node;
@@ -1713,22 +1734,22 @@
   // Partition / Partition_ID node from a partition clause temp
   // ({kind:'id',id} | {kind:'all'} | {kind:'expr',expr}).
   function partitionChildNode(part) {
-    if (part.kind === 'all') return { type: 'Partition_ID', all: true };
+    if (part.kind === 'all') return withLoc({ type: 'Partition_ID', all: true }, part.location);
     if (part.kind === 'id') {
       const idNode =
         part.id !== null && typeof part.id === 'object' && part.id.type !== undefined
           ? part.id
-          : strLit(part.id);
-      return { type: 'Partition_ID', id: idNode };
+          : withLoc(strLit(part.id), part.location);
+      return withLoc({ type: 'Partition_ID', id: idNode }, part.location ?? spanOf([idNode]));
     }
-    return { type: 'Partition', value: part.expr };
+    return withLoc({ type: 'Partition', value: part.expr }, part.location ?? spanOf([part.expr]));
   }
 
   // Drop-family / TableTarget shape: set `database` and `table` Identifier
   // fields directly (no children array). Mirrors ClickHouse's native JSON.
   function setTableTarget(node, t) {
-    if (t.database !== undefined) node.database = ident([t.database]);
-    node.table = ident([t.table]);
+    if (t.database !== undefined) node.database = identLoc([t.database], t.location);
+    node.table = identLoc([t.table], t.location);
   }
 
   // Attach leading comments to a statement, descending into the first member
@@ -1857,13 +1878,13 @@
   // An explicit-clause PRIMARY KEY expression: a bare expr for a single key, a
   // `()` tuple operator for a parenthesized multi-key list.
   function pkExprNode(pk) {
-    return pk.length === 1 ? pk[0] : fn('tuple', pk, { is_operator: true });
+    return pk.length === 1 ? pk[0] : withLoc(fn('tuple', pk, { is_operator: true }), spanOf(pk) ?? pk.location);
   }
 
   // ExpressionList node; ClickHouse omits the `children` key when empty.
   function exprList(children) {
     return children && children.length > 0
-      ? { type: 'ExpressionList', children }
+      ? withLoc({ type: 'ExpressionList', children }, spanOf(children))
       : { type: 'ExpressionList' };
   }
 
@@ -1871,9 +1892,38 @@
   const MYSQL_INT_RE = /^(TINYINT|SMALLINT|INT|INTEGER|BIGINT|MEDIUMINT)(\s+(SIGNED|UNSIGNED))?$/i;
   const AGG_FN_RE = /^(?:Aggregate|SimpleAggregate)Function$/i;
 
+  // Stamp a captured source location onto a freshly-built node (no-op when the
+  // location is absent). Used to thread `location()` from the type-matching
+  // rules onto the materialized type nodes.
+  function withLoc(node, l) {
+    if (l !== undefined && node.location === undefined) node.location = l;
+    return node;
+  }
+
+  // Child-union source span: the min-start .. max-end of the located nodes in
+  // `nodes` (recursing one level into arrays). Used to give container nodes
+  // built in global-block helpers an accurate span derived from their children.
+  function spanOf(nodes) {
+    if (!Array.isArray(nodes)) return undefined;
+    let start, end;
+    const consider = (l) => {
+      if (!l) return;
+      if (start === undefined || l.start.offset < start.offset) start = l.start;
+      if (end === undefined || l.end.offset > end.offset) end = l.end;
+    };
+    for (const n of nodes) {
+      if (n === null || n === undefined) continue;
+      if (Array.isArray(n)) { for (const m of n) consider(m && m.location); }
+      else consider(n.location);
+    }
+    return start !== undefined ? { start, end } : undefined;
+  }
+
   // Convert a structured data type to its native AST node. Mirrors
   // ClickHouse's `EXPLAIN AST json=1` shape: a `type` discriminator plus an
-  // explicit `name` string and optional `arguments` array.
+  // explicit `name` string and optional `arguments` array. Every produced node
+  // (and nested element) carries the `location` captured by `ColumnDataType` /
+  // `ColumnDataTypeArg`.
   function dtNode(dt) {
     const name = dt.name;
     let node;
@@ -1888,15 +1938,15 @@
         node = { type: 'EnumDataType', name, values: vals.map((v) => ({ name: v.name, value: Number(v.value) })) };
       } else {
         const args = vals.map((v) => {
-          if (v.name === null) return lit('Null', null);
+          if (v.name === null) return withLoc(lit('Null', null), dt.location);
           if (v.value !== undefined && v.value !== null) {
-            return fn(
+            return withLoc(fn(
               'equals',
-              [strLit(v.name), v.value.startsWith('-') ? intLit(v.value) : uintLit(v.value)],
+              [withLoc(strLit(v.name), dt.location), withLoc(v.value.startsWith('-') ? intLit(v.value) : uintLit(v.value), dt.location)],
               { is_operator: true },
-            );
+            ), dt.location);
           }
-          return strLit(v.name);
+          return withLoc(strLit(v.name), dt.location);
         });
         node = { type: 'DataType', name, arguments: args };
       }
@@ -1925,7 +1975,7 @@
     } else if (/^Nested$/i.test(name)) {
       const args = dt.args.map((arg) => {
         if (arg.kind === 'namedField') {
-          return { type: 'NameTypePair', name: arg.name, data_type: dtNode(arg.type) };
+          return withLoc({ type: 'NameTypePair', name: arg.name, data_type: dtNode(arg.type) }, arg.location);
         }
         if (arg.kind === 'type') return dtNode(arg.type);
         return dtArgNode(arg, name, 0);
@@ -1938,7 +1988,7 @@
       const args = dt.args.map((arg, i) => dtArgNode(arg, name, i));
       node = { type: 'DataType', name, arguments: args };
     }
-    return node;
+    return withLoc(node, dt.location);
   }
 
   function dtArgNode(arg, parentName, index) {
@@ -1946,54 +1996,54 @@
       if (AGG_FN_RE.test(parentName) && index === 0) {
         const t = arg.type;
         if (t.args && t.args.length > 0) {
-          return fn(t.name, t.args.map((a, i) => dtArgNode(a, t.name, i)));
+          return withLoc(fn(t.name, t.args.map((a, i) => dtArgNode(a, t.name, i))), arg.location);
         }
-        return ident([t.name]);
+        return withLoc(ident([t.name]), arg.location);
       }
       return dtNode(arg.type);
     }
     if (arg.kind === 'namedField') {
-      return { type: 'NameTypePair', name: arg.name, data_type: dtNode(arg.type) };
+      return withLoc({ type: 'NameTypePair', name: arg.name, data_type: dtNode(arg.type) }, arg.location);
     }
-    if (arg.kind === 'literal') return typeLitNode(arg.value);
-    if (arg.kind === 'enumValues') return { type: 'EnumDataType', name: parentName };
+    if (arg.kind === 'literal') return withLoc(typeLitNode(arg.value), arg.location);
+    if (arg.kind === 'enumValues') return withLoc({ type: 'EnumDataType', name: parentName }, arg.location);
     if (arg.kind === 'setting')
-      return fn('equals', [ident([arg.name]), arg.value], { is_operator: true });
-    return strLit(String(arg));
+      return withLoc(fn('equals', [withLoc(ident([arg.name]), arg.location), arg.value], { is_operator: true }), arg.location);
+    return withLoc(strLit(String(arg)), arg.location);
   }
 
   function jsonArgNode(arg) {
     if (arg.kind === 'namedField') {
-      return {
+      return withLoc({
         type: 'ObjectTypeArgument',
-        path_with_type: { type: 'ObjectTypedPath', name: arg.name, data_type: dtNode(arg.type) },
-      };
+        path_with_type: withLoc({ type: 'ObjectTypedPath', name: arg.name, data_type: dtNode(arg.type) }, arg.location),
+      }, arg.location);
     }
     if (arg.kind === 'setting') {
-      return {
+      return withLoc({
         type: 'ObjectTypeArgument',
-        parameter: fn('equals', [ident([arg.name]), arg.value], { is_operator: true }),
-      };
+        parameter: withLoc(fn('equals', [withLoc(ident([arg.name]), arg.location), arg.value], { is_operator: true }), arg.location),
+      }, arg.location);
     }
     if (arg.kind === 'literal') {
       const skipRegexp = arg.value.match(/^SKIP REGEXP\s+(.+)$/);
       if (skipRegexp)
-        return { type: 'ObjectTypeArgument', skip_path_regexp: strLit(decodeTypeStr(skipRegexp[1])) };
+        return withLoc({ type: 'ObjectTypeArgument', skip_path_regexp: withLoc(strLit(decodeTypeStr(skipRegexp[1])), arg.location) }, arg.location);
       const skip = arg.value.match(/^SKIP\s+(.+)$/);
       if (skip) {
         const path = skip[1].replace(/`([^`]*)`/g, '$1');
-        return { type: 'ObjectTypeArgument', skip_path: ident(path.split('.')) };
+        return withLoc({ type: 'ObjectTypeArgument', skip_path: withLoc(ident(path.split('.')), arg.location) }, arg.location);
       }
-      return { type: 'ObjectTypeArgument', skip_path_regexp: typeLitNode(arg.value) };
+      return withLoc({ type: 'ObjectTypeArgument', skip_path_regexp: withLoc(typeLitNode(arg.value), arg.location) }, arg.location);
     }
-    if (arg.kind === 'type') return { type: 'ObjectTypeArgument', path_with_type: { type: 'ObjectTypedPath', name: '', data_type: dtNode(arg.type) } };
-    return { type: 'ObjectTypeArgument' };
+    if (arg.kind === 'type') return withLoc({ type: 'ObjectTypeArgument', path_with_type: withLoc({ type: 'ObjectTypedPath', name: '', data_type: dtNode(arg.type) }, arg.location) }, arg.location);
+    return withLoc({ type: 'ObjectTypeArgument' }, arg.location);
   }
 
   // A "function" engine/codec node: arguments [] both for no-parens and empty
   // parens (matching ClickHouse's JSON). `kind` is the ClickHouse
   // function-kind tag.
-  function fnArgs(name, args, kindTag) {
+  function fnArgs(name, args, kindTag, l) {
     const node = fn(name, args !== undefined ? args : []);
     if (kindTag !== undefined) node.kind = kindTag;
     // ClickHouse's JSON AST shows `arguments: []` for both the no-parens form
@@ -2001,13 +2051,13 @@
     // EXPLAIN text and SHOW CREATE distinguish them. Mark the no-parens form so
     // format()/explain can re-emit it.
     if (args === undefined) node._no_parens = true;
-    return node;
+    return withLoc(node, l ?? spanOf(args));
   }
 
   // CODEC(...) / STATISTICS(...) wrapper from structured CodecItem[].
-  function codecNode(items, name, kindTag) {
-    const inner = items.map((item) => fnArgs(item.name, item.args));
-    return fnArgs(name, inner, kindTag);
+  function codecNode(items, name, kindTag, l) {
+    const inner = items.map((item) => fnArgs(item.name, item.args, undefined, item.location ?? l));
+    return fnArgs(name, inner, kindTag, l ?? spanOf(inner));
   }
 
   // ColumnDeclaration native node. Mirrors ClickHouse's `EXPLAIN AST json=1`
@@ -2024,23 +2074,23 @@
     } else if (col.defaultKind === 'EPHEMERAL') {
       // ClickHouse synthesizes `defaultValueOfTypeName('TypeText')` for the
       // bare EPHEMERAL form (no explicit expression).
-      node.default_expression = fn('defaultValueOfTypeName', col.type ? [strLit(fmtType(col.type))] : []);
+      node.default_expression = withLoc(fn('defaultValueOfTypeName', col.type ? [withLoc(strLit(fmtType(col.type)), col.location)] : []), col.location);
       node.ephemeral_default = true;
     }
-    if (col.codec) node.codec = codecNode(col.codec, 'CODEC', 'CODEC');
-    if (col.statistics) node.statistics = codecNode(col.statistics, 'STATISTICS', 'STATISTICS');
+    if (col.codec) node.codec = codecNode(col.codec, 'CODEC', 'CODEC', col.location);
+    if (col.statistics) node.statistics = codecNode(col.statistics, 'STATISTICS', 'STATISTICS', col.location);
     if (col.columnSettings) node.settings = setNode(col.columnSettings);
     if (col.ttl) node.ttl = col.ttl;
-    if (col.comment) node.comment = strLit(col.comment);
+    if (col.comment) node.comment = withLoc(strLit(col.comment), col.location);
     // Native flags. `null_modifier` is a boolean: true for NULL, false for
     // NOT NULL; omitted when the source did not specify either.
     if (col.nullable === 'NULL') node.null_modifier = true;
     else if (col.nullable === 'NOT NULL') node.null_modifier = false;
     if (col.primaryKey) node.primary_key_specifier = true;
     if (col.collate) {
-      node.collation = { type: 'Collation', name: col.collate };
+      node.collation = withLoc({ type: 'Collation', name: col.collate }, col.location);
     }
-    return node;
+    return withLoc(node, col.location);
   }
 
   function indexTypeName(indexType) {
@@ -2084,18 +2134,18 @@
     if (el.expr !== undefined) node.expression = el.expr;
     if (el.indexType !== undefined) node.index_type = indexTypeNode(el.indexType);
     assignIndexGranularity(node, el.indexType, el.granularity);
-    return node;
+    return withLoc(node, el.location ?? spanOf([node.expression, node.index_type]));
   }
 
   function indexTypeNode(it) {
-    return fnArgs(it.name, it.args);
+    return withLoc(fnArgs(it.name, it.args), it.location ?? spanOf(it.args));
   }
 
   // Storage native node — mirrors ClickHouse's `EXPLAIN AST json=1` shape
   // with explicit `engine`/`partition_by`/`primary_key`/`order_by`/... fields.
   function storageNode(stmt) {
     const node = { type: 'Storage' };
-    if (stmt.engine) node.engine = fnArgs(stmt.engine.name, stmt.engine.args, 'TABLE_ENGINE');
+    if (stmt.engine) node.engine = fnArgs(stmt.engine.name, stmt.engine.args, 'TABLE_ENGINE', stmt.engine.location);
     if (stmt.partitionBy) node.partition_by = stmt.partitionBy;
 
     const pk = stmt.primaryKey || stmt.primaryKeyInSchema;
@@ -2104,7 +2154,7 @@
     );
     if (pk) {
       node.primary_key = storagePkFromColumns
-        ? fn('tuple', pk, { is_operator: true })
+        ? withLoc(fn('tuple', pk, { is_operator: true }), spanOf(pk))
         : pkExprNode(pk);
     }
     if (stmt.orderBy) {
@@ -2112,10 +2162,7 @@
     }
     if (stmt.sampleBy) node.sample_by = stmt.sampleBy;
     if (stmt.ttl) {
-      node.ttl_table = {
-        type: 'ExpressionList',
-        children: stmt.ttl.map(ttlElementNode),
-      };
+      node.ttl_table = exprList(stmt.ttl.map(ttlElementNode));
     }
     if (stmt.settings) node.settings = setNode(stmt.settings);
     // ClickHouse's Storage node stores clauses as named fields, losing their
@@ -2136,16 +2183,17 @@
     ) {
       return null;
     }
-    return node;
+    return withLoc(node, spanOf([node.engine, node.partition_by, node.primary_key, node.order_by, node.sample_by, node.ttl_table, node.settings]));
   }
 
   // ALTER ... RESET SETTING a, b → ClickHouse stores the setting names as an
   // ExpressionList of Identifiers in `settings_resets`.
-  function settingResetsNode(names) {
-    return {
+  function settingResetsNode(names, l) {
+    const children = names.map((n) => withLoc(ident([n]), l));
+    return withLoc({
       type: 'ExpressionList',
-      children: names.map((n) => ident([n])),
-    };
+      children,
+    }, l ?? spanOf(children));
   }
 
   // Build the native RefreshStrategy node from a parsed RefreshClause. Mirrors
@@ -2160,14 +2208,14 @@
     if (r.spread !== undefined) node.spread = r.spread;
     if (r.dependencies !== undefined) node.dependencies = r.dependencies;
     if (r.settings !== undefined) node.settings = setNode(r.settings);
-    return node;
+    return withLoc(node, r.location ?? spanOf([node.period, node.offset, node.spread, node.dependencies, node.settings]));
   }
 
   // A `DEPENDS ON` table reference → native TableIdentifier.
   function refreshDepIdent(t) {
     const ti = { type: 'TableIdentifier', name: t.table };
     if (t.database !== undefined) ti.database = t.database;
-    return ti;
+    return withLoc(ti, t.location);
   }
 
   // Build a TTLElement from a parsed TTL temp ({mode?, expr, where?, ...}).
@@ -2183,20 +2231,20 @@
       node.destination_name = item.destinationName;
       if (item.ifExists) node.if_exists = true;
     } else if (item.mode === 'RECOMPRESS' && item.codec !== undefined) {
-      node.recompression_codec = codecNode(item.codec, 'CODEC', 'CODEC');
+      node.recompression_codec = codecNode(item.codec, 'CODEC', 'CODEC', item.location);
     } else if (item.mode === 'GROUP_BY') {
       // ClickHouse exposes the GROUP BY keys as `group_by_key` and the SET
       // assignments as `group_by_assignments` (Assignment nodes).
       if (item.groupBy !== undefined && item.groupBy.length > 0) node.group_by_key = item.groupBy;
       if (item.set !== undefined && item.set.length > 0) {
-        node.group_by_assignments = item.set.map((s) => ({
+        node.group_by_assignments = item.set.map((s) => withLoc({
           type: 'Assignment',
           column: s.name && s.name.type === 'Identifier' ? s.name.name : s.name,
           expression: s.value,
-        }));
+        }, s.location ?? spanOf([s.value])));
       }
     }
-    return node;
+    return withLoc(node, item.location ?? spanOf([node.ttl, node.where, node.recompression_codec, node.group_by_key, node.group_by_assignments]));
   }
 
   // ORDER BY child for Storage. ClickHouse drops the DESC marker but preserves
@@ -2208,17 +2256,18 @@
   function storageOrderByNode(orderBy) {
     const hasDesc = orderBy.some((o) => o.dir === 'DESC');
     const parenthesized = !!orderBy._parenthesized;
-    const sobe = (expr, dir) => ({
+    const sobe = (expr, dir) => withLoc({
       type: 'StorageOrderByElement',
       expression: expr,
       direction: dir === 'DESC' ? 'DESC' : 'ASC',
-    });
+    }, spanOf([expr]));
     if (orderBy.length === 1) {
       const item = orderBy[0];
       if (item.dir === 'DESC') {
         // Single-DESC: unparenthesized → bare StorageOrderByElement;
         // parenthesized `(c desc)` → `tuple(StorageOrderByElement(c))`.
-        return parenthesized ? fn('tuple', [sobe(item.expr, 'DESC')]) : sobe(item.expr, 'DESC');
+        if (parenthesized) { const el = sobe(item.expr, 'DESC'); return withLoc(fn('tuple', [el]), spanOf([el])); }
+        return sobe(item.expr, 'DESC');
       }
       return item.expr;
     }
@@ -2227,13 +2276,15 @@
       // wrapped in a StorageOrderByElement carrying its own ASC/DESC direction
       // (the reverse-sorting-key feature; original dirs also live on
       // `_order_by` for format).
-      return fn('tuple', orderBy.map((o) => sobe(o.expr, o.dir)));
+      const els = orderBy.map((o) => sobe(o.expr, o.dir));
+      return withLoc(fn('tuple', els), spanOf(els));
     }
-    return fn(
+    const exprs = orderBy.map((o) => o.expr);
+    return withLoc(fn(
       'tuple',
-      orderBy.map((o) => o.expr),
+      exprs,
       parenthesized ? { is_operator: true } : undefined,
-    );
+    ), spanOf(exprs));
   }
 
   // Columns definition native node from a list of table elements. `pkInColsDef`
@@ -2261,7 +2312,7 @@
           break;
       }
     }
-    const node = { type: 'Columns', columns };
+    const node = withLoc({ type: 'Columns', columns }, spanOf([columns, constraints, indexes, projections]));
     if (constraints.length > 0) node.constraints = constraints;
     if (indexes.length > 0) node.indices = indexes;
     if (projections.length > 0) node.projections = projections;
@@ -2271,7 +2322,7 @@
       // a schema-level PRIMARY KEY uses `primary_key` with the expression
       // directly.
       if (pkFromColumns) {
-        node.primary_key_from_columns = fn('tuple', pkInColsDef, { is_operator: true });
+        node.primary_key_from_columns = withLoc(fn('tuple', pkInColsDef, { is_operator: true }), spanOf(pkInColsDef));
       } else {
         node.primary_key = pkExprNode(pkInColsDef);
       }
@@ -2280,12 +2331,12 @@
   }
 
   function constraintNode(el) {
-    return {
+    return withLoc({
       type: 'Constraint',
       name: el.name,
       constraint_type: el.constraintType,
       expression: el.expr,
-    };
+    }, el.location ?? spanOf([el.expr]));
   }
 
   // ClickHouse normalizes a projection's ORDER BY into a single sort-key
@@ -2308,7 +2359,7 @@
       // ClickHouse's native AST exposes the projection-index TYPE as `index_type`.
       const node = { type: 'Projection', name: el.name, index: el.indexExpr };
       if (el.indexType) node.index_type = indexTypeNode(el.indexType);
-      return node;
+      return withLoc(node, el.location ?? spanOf([node.index, node.index_type]));
     }
     const q = el.query;
     const psq = { type: 'ProjectionSelectQuery' };
@@ -2318,9 +2369,10 @@
     if (q.order_by && q.order_by.length > 0) {
       psq.order_by = projectionOrderByChildren(q.order_by);
     }
+    withLoc(psq, spanOf([psq.with, psq.select, psq.group_by, psq.order_by]));
     const node = { type: 'Projection', name: el.name, query: psq };
     if (el.projectionSettings) node.settings = setNode(el.projectionSettings);
-    return node;
+    return withLoc(node, el.location ?? spanOf([psq, node.settings]));
   }
 
   // CreateQuery node for CREATE/ATTACH/REPLACE TABLE. Native shape uses
@@ -2336,8 +2388,8 @@
 
     const node = { type: stmt.attach ? 'AttachQuery' : 'CreateQuery' };
     if (stmt.attach) node.attach = true;
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
-    node.table = ident([stmt.table.table]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
+    node.table = identLoc([stmt.table.table], stmt.table.location);
     // ClickHouse treats `CREATE OR REPLACE TABLE` as a REPLACE under the
     // hood, so it carries both flags in the native AST.
     if (stmt.replace === true || stmt.orReplace === true) node.replace_table = true;
@@ -2371,7 +2423,7 @@
     if (stmt.asTableFunction)
       node.as_table_function = fnArgs(stmt.asTableFunction.name, stmt.asTableFunction.args);
     if (stmt.asQuery) node.select = stmt.asQuery;
-    if (stmt.comment !== undefined) node.comment = strLit(stmt.comment);
+    if (stmt.comment !== undefined) node.comment = withLoc(strLit(stmt.comment), stmt.table && stmt.table.location);
     if (stmt.querySettings) node.settings = setNode(stmt.querySettings);
     if (stmt.format !== undefined) node.format = stmt.format;
     // `ATTACH TABLE t FROM '/path'` source path.
@@ -2382,13 +2434,13 @@
 
   // CreateQuery node for CREATE DATABASE.
   function createDatabaseNode(stmt) {
-    const node = { type: 'CreateQuery', database: ident([stmt.name]) };
+    const node = { type: 'CreateQuery', database: identLoc([stmt.name], stmt.location) };
     if (stmt.ifNotExists === true) node.if_not_exists = true;
     if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
     const storage = { type: 'Storage' };
     let storageHas = false;
     if (stmt.engine) {
-      storage.engine = fnArgs(stmt.engine.name, stmt.engine.args, 'DATABASE_ENGINE');
+      storage.engine = fnArgs(stmt.engine.name, stmt.engine.args, 'DATABASE_ENGINE', stmt.engine.location);
       storageHas = true;
     }
     if (stmt.orderBy && stmt.orderBy.length === 1 && !stmt.orderBy[0].dir) {
@@ -2402,8 +2454,8 @@
       if (storageHas) storage.settings = setNode(stmt.settings);
       else node.settings = setNode(stmt.settings);
     }
-    if (storageHas) node.storage = storage;
-    if (stmt.comment !== undefined) node.comment = strLit(stmt.comment);
+    if (storageHas) node.storage = withLoc(storage, stmt.engine ? stmt.engine.location : spanOf([storage.engine, storage.order_by, storage.settings]));
+    if (stmt.comment !== undefined) node.comment = withLoc(strLit(stmt.comment), stmt.location);
     if (stmt.format !== undefined) node.format = stmt.format;
     return node;
   }
@@ -2420,11 +2472,11 @@
     }
     const allBare = columns.length > 0 && columns.every((c) => !c.type);
     if (allBare) {
-      return { type: 'ExpressionList', children: columns.map((c) => ident([c.name])) };
+      return exprList(columns.map((c) => withLoc(ident([c.name]), c.location)));
     }
     const colPkExprs = columns
       .filter((el) => el.primaryKey)
-      .map((el) => ident([el.name]));
+      .map((el) => withLoc(ident([el.name]), el.location));
     const pkFromColumns = colPkExprs.length > 0;
     const pkInColsDef =
       stmt.primaryKeyInSchema ||
@@ -2436,8 +2488,8 @@
   function createViewNode(stmt) {
     const node = { type: stmt.attach ? 'AttachQuery' : 'CreateQuery' };
     if (stmt.attach) node.attach = true;
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
-    node.table = ident([stmt.table.table]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
+    node.table = identLoc([stmt.table.table], stmt.table.location);
     if (stmt.temporary === true) node.temporary = true;
     if (stmt.ifNotExists === true) node.if_not_exists = true;
     if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
@@ -2452,21 +2504,21 @@
     const viewCols = viewEls.filter((el) => el.kind === 'columnDef');
     const viewAllBare = viewCols.length > 0 && viewCols.every((c) => !c.type);
     if (viewAllBare && !stmt.primaryKeyInSchema) {
-      node.aliases = viewCols.map((c) => ident([c.name]));
+      node.aliases = viewCols.map((c) => withLoc(ident([c.name]), c.location));
     } else {
       const cols = viewColumnsNode(stmt);
       if (cols) node.columns_list = cols;
     }
     if (stmt.asQuery) node.select = stmt.asQuery;
-    if (stmt.comment !== undefined) node.comment = strLit(stmt.comment);
+    if (stmt.comment !== undefined) node.comment = withLoc(strLit(stmt.comment), stmt.table && stmt.table.location);
     return node;
   }
 
   function createMaterializedViewNode(stmt) {
     const node = { type: stmt.attach ? 'AttachQuery' : 'CreateQuery' };
     if (stmt.attach) node.attach = true;
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
-    node.table = ident([stmt.table.table]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
+    node.table = identLoc([stmt.table.table], stmt.table.location);
     if (stmt.ifNotExists === true) node.if_not_exists = true;
     if (stmt.orReplace === true) node.replace_view = true;
     if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
@@ -2482,11 +2534,12 @@
     if (cols) node.columns_list = cols;
     // ViewTargets: TO-table form carries the target table name; otherwise
     // the inner Storage (engine/order/pk) is captured under `inner_engine`.
+    const tloc = stmt.table.location;
     if (stmt.toTable) {
       const target = { kind: 'to' };
       if (stmt.toTable.database !== undefined) target.database = stmt.toTable.database;
       target.table = stmt.toTable.table;
-      node.targets = { type: 'ViewTargets', targets: [target] };
+      node.targets = withLoc({ type: 'ViewTargets', targets: [target] }, stmt.toTable.location ?? tloc);
     } else if (
       stmt.engine ||
       stmt.orderBy ||
@@ -2496,11 +2549,11 @@
     ) {
       const innerStorage = mvViewTargetStorage(stmt);
       node.targets = innerStorage !== null
-        ? { type: 'ViewTargets', targets: [{ kind: 'to', inner_engine: innerStorage }] }
-        : { type: 'ViewTargets' };
+        ? withLoc({ type: 'ViewTargets', targets: [{ kind: 'to', inner_engine: innerStorage }] }, spanOf([innerStorage]) ?? tloc)
+        : withLoc({ type: 'ViewTargets' }, tloc);
     }
     if (stmt.asQuery) node.select = stmt.asQuery;
-    if (stmt.comment !== undefined) node.comment = strLit(stmt.comment);
+    if (stmt.comment !== undefined) node.comment = withLoc(strLit(stmt.comment), tloc);
     if (stmt.format !== undefined) node.format = stmt.format;
     return node;
   }
@@ -2514,8 +2567,8 @@
     if (node && node.primary_key === undefined) {
       const colPk = (stmt.tableElements || [])
         .filter((el) => el.kind === 'columnDef' && el.primaryKey)
-        .map((el) => ident([el.name]));
-      if (colPk.length > 0) node.primary_key = fn('tuple', colPk, { is_operator: true });
+        .map((el) => withLoc(ident([el.name]), el.location));
+      if (colPk.length > 0) node.primary_key = withLoc(fn('tuple', colPk, { is_operator: true }), spanOf(colPk));
     }
     return node;
   }
@@ -2524,7 +2577,7 @@
     const node = { type: 'CreateFunctionQuery' };
     if (stmt.orReplace) node.or_replace = true;
     if (stmt.ifNotExists) node.if_not_exists = true;
-    node.function_name = ident([stmt.name]);
+    node.function_name = identLoc([stmt.name], stmt.location);
     node.function_core = stmt.functionExpr;
     if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
     return node;
@@ -2537,7 +2590,7 @@
         // Multi-column index expression `(c1, c2, ...)` is emitted as a
         // parenthesized tuple operator (the per-column DESC direction
         // markers are dropped to match ClickHouse).
-        indexExpr = fn('tuple', stmt.indexExpr.arguments, { is_operator: true });
+        indexExpr = withLoc(fn('tuple', stmt.indexExpr.arguments, { is_operator: true }), stmt.indexExpr.location ?? spanOf(stmt.indexExpr.arguments));
       } else {
         indexExpr = stmt.indexExpr;
       }
@@ -2548,18 +2601,19 @@
     };
     if (indexExpr !== undefined) indexDecl.expression = indexExpr;
     if (stmt.indexType) indexDecl.index_type = indexTypeNode(stmt.indexType);
+    withLoc(indexDecl, spanOf([indexExpr, indexDecl.index_type]) ?? stmt.location);
     // ClickHouse defaults GRANULARITY by index type when not specified; the
     // formatter canonically re-emits it from `granularity`.
     assignIndexGranularity(indexDecl, stmt.indexType, stmt.granularity);
     const node = {
       type: 'CreateIndexQuery',
-      table: ident([stmt.table.table]),
-      index_name: ident([stmt.indexName]),
+      table: identLoc([stmt.table.table], stmt.table.location),
+      index_name: identLoc([stmt.indexName], stmt.location ?? stmt.table.location),
       index_declaration: indexDecl,
     };
     // ClickHouse's native AST carries a qualified target's database as a
     // separate `Identifier` field (emitted before `table`).
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
     if (stmt.ifNotExists) node.if_not_exists = true;
     if (stmt.unique) node.unique = true;
     return node;
@@ -2578,7 +2632,7 @@
     if (attr.injective === true) node.injective = true;
     if (attr.isObjectId === true) node.is_object_id = true;
     if (attr.bidirectional === true) node.bidirectional = true;
-    return node;
+    return withLoc(node, attr.location ?? spanOf([node.data_type, node.default_value, node.expression]));
   }
 
   function dictSourcePairNode(p) {
@@ -2588,26 +2642,26 @@
       const structPairs = p.value.map((sp) => {
         const dt = sp.type;
         const inner = dt.args && dt.args.length > 0
-          ? fnArgs(dt.name, dt.args.map((a, i) => dtArgNode(a, dt.name, i)))
-          : ident([dt.name]);
+          ? withLoc(fnArgs(dt.name, dt.args.map((a, i) => dtArgNode(a, dt.name, i))), dt.location ?? spanOf(dt.args))
+          : withLoc(ident([dt.name]), dt.location);
         // ClickHouse lowercases key-value argument keys in its native AST.
-        return { type: 'pair', key: sp.name.toLowerCase(), value: inner };
+        return withLoc({ type: 'pair', key: sp.name.toLowerCase(), value: inner }, sp.location ?? spanOf([inner]));
       });
-      return {
+      return withLoc({
         type: 'pair',
         key: p.name.toLowerCase(),
-        value: { type: 'ExpressionList', children: structPairs },
-      };
+        value: exprList(structPairs),
+      }, p.location ?? spanOf(structPairs));
     }
-    return { type: 'pair', key: p.name.toLowerCase(), value: p.value };
+    return withLoc({ type: 'pair', key: p.name.toLowerCase(), value: p.value }, p.location ?? spanOf([p.value]));
   }
 
   function createDictionaryNode(stmt) {
     const node = { type: stmt.attach ? 'AttachQuery' : 'CreateQuery' };
     if (stmt.attach) node.attach = true;
     node.is_dictionary = true;
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
-    node.table = ident([stmt.table.table]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
+    node.table = identLoc([stmt.table.table], stmt.table.location);
     if (stmt.replace === true || stmt.orReplace === true) node.replace_table = true;
     if (stmt.orReplace === true) node.create_or_replace = true;
     if (stmt.ifNotExists === true) node.if_not_exists = true;
@@ -2629,11 +2683,12 @@
         dict.primary_key = pkExprs;
       }
       if (dd.source) {
-        dict.source = {
+        const elements = dd.source.pairs.map(dictSourcePairNode);
+        dict.source = withLoc({
           type: 'FunctionWithKeyValueArguments',
           name: dd.source.name,
-          elements: dd.source.pairs.map(dictSourcePairNode),
-        };
+          elements,
+        }, dd.source.location ?? spanOf(elements) ?? stmt.table.location);
       }
       if (dd.lifetime) {
         const lt = { type: 'DictionaryLifetime' };
@@ -2653,11 +2708,11 @@
           // ClickHouse lowercases the layout type and parameter keys in its
           // native AST (`format()` re-uppercases them from `_create`).
           layout_type: dd.layout.name.toLowerCase(),
-          parameters: dd.layout.pairs.map((p) => ({
+          parameters: dd.layout.pairs.map((p) => withLoc({
             type: 'pair',
             key: p.name.toLowerCase(),
             value: p.value,
-          })),
+          }, p.location ?? spanOf([p.value]))),
         };
       }
       if (dd.range) {
@@ -2673,8 +2728,9 @@
         dict.range = range;
       }
       if (dd.settings) dict.settings = setNode(dd.settings, 'DictionarySettings');
+      withLoc(dict, dd.location ?? spanOf([dict.primary_key, dict.source, dict.settings]) ?? stmt.table.location);
       node.dictionary = dict;
-      if (dd.comment) node.comment = strLit(dd.comment);
+      if (dd.comment) node.comment = withLoc(strLit(dd.comment), stmt.table.location);
     }
     return node;
   }
@@ -2685,9 +2741,9 @@
   // node (no `_all` marker — bare `{type:'Partition_ID'}` for ALL); expression
   // partitions produce a `Partition` node carrying the expression child.
   function alterPartitionNode(part) {
-    if (part.partitionKind === 'all') return { type: 'Partition_ID', all: true };
-    if (part.partitionKind === 'id') return { type: 'Partition_ID', id: part.id };
-    return { type: 'Partition', value: part.expr };
+    if (part.partitionKind === 'all') return withLoc({ type: 'Partition_ID', all: true }, part.location);
+    if (part.partitionKind === 'id') return withLoc({ type: 'Partition_ID', id: part.id }, part.location ?? spanOf([part.id]));
+    return withLoc({ type: 'Partition', value: part.expr }, part.location ?? spanOf([part.expr]));
   }
 
   // Identifier from a (possibly qualified) column-ref name + parts pair.
@@ -2695,9 +2751,9 @@
   // `['n.d']` for backtick-quoted `\`n.d\``) so the resulting Identifier
   // carries `name_parts` only when the ref was qualified. When `parts` is
   // absent (legacy/single-segment), falls back to a flat-name Identifier.
-  function colRefIdent(name, parts) {
-    if (parts && parts.length > 1) return ident(parts);
-    return ident([name]);
+  function colRefIdent(name, parts, l) {
+    if (parts && parts.length > 1) return withLoc(ident(parts), l);
+    return withLoc(ident([name]), l);
   }
 
   // Build one AlterCommand native node. Mirrors ClickHouse's `EXPLAIN AST
@@ -2719,10 +2775,10 @@
     switch (cmd.commandType) {
       case 'ADD_COLUMN':
         if (cmd.column) node.column_declaration = columnDeclNode(cmd.column);
-        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts);
+        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts, cmd.location);
         break;
       case 'DROP_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
         if (cmd.clear === true) node.clear_column = true;
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
@@ -2731,35 +2787,35 @@
         const op = cmd.columnSettingOp;
         if (op) {
           if (op.op === 'RESET_SETTING' && op.names) {
-            node.settings_resets = settingResetsNode(op.names);
+            node.settings_resets = settingResetsNode(op.names, cmd.location);
           } else {
             node.settings_changes = setNode(op.settings || []);
           }
         }
-        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts);
+        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts, cmd.location);
         if (cmd.removeProperty) node.remove_property = cmd.removeProperty;
         break;
       }
       case 'RENAME_COLUMN':
-        if (cmd.oldName) node.column = colRefIdent(cmd.oldName, cmd._oldNameParts);
-        if (cmd.newName) node.rename_to = colRefIdent(cmd.newName, cmd._newNameParts);
+        if (cmd.oldName) node.column = colRefIdent(cmd.oldName, cmd._oldNameParts, cmd.location);
+        if (cmd.newName) node.rename_to = colRefIdent(cmd.newName, cmd._newNameParts, cmd.location);
         break;
       case 'COMMENT_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
         if (cmd.comment) node.comment = cmd.comment;
         break;
       case 'MATERIALIZE_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
       case 'ADD_INDEX':
         if (cmd.index) node.index_declaration = indexElNode(cmd.index);
-        if (cmd.afterIndex) node.index = ident([cmd.afterIndex]);
+        if (cmd.afterIndex) node.index = withLoc(ident([cmd.afterIndex]), cmd.location);
         break;
       case 'DROP_INDEX':
       case 'MATERIALIZE_INDEX':
         if (cmd.clearIndex) node.clear_index = true;
-        if (cmd.indexName) node.index = ident([cmd.indexName]);
+        if (cmd.indexName) node.index = withLoc(ident([cmd.indexName]), cmd.location);
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
       case 'ADD_PROJECTION':
@@ -2768,32 +2824,33 @@
       case 'DROP_PROJECTION':
       case 'MATERIALIZE_PROJECTION':
         if (cmd.clearProjection) node.clear_projection = true;
-        if (cmd.projectionName) node.projection = ident([cmd.projectionName]);
+        if (cmd.projectionName) node.projection = withLoc(ident([cmd.projectionName]), cmd.location);
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
 
       case 'ADD_CONSTRAINT':
         if (cmd.constraint) {
-          node.constraint_declaration = {
+          node.constraint_declaration = withLoc({
             type: 'Constraint',
             name: cmd.constraint.name,
             constraint_type: cmd.constraint.constraintType,
             expression: cmd.constraint.expr,
-          };
+          }, cmd.location ?? spanOf([cmd.constraint.expr]));
         }
         break;
       case 'DROP_CONSTRAINT':
-        if (cmd.constraintName) node.constraint = ident([cmd.constraintName]);
+        if (cmd.constraintName) node.constraint = withLoc(ident([cmd.constraintName]), cmd.location);
         break;
       case 'ADD_STATISTICS':
       case 'MODIFY_STATISTICS': {
         const sc = { type: 'Stat' };
         if (cmd.statColumns && cmd.statColumns.length > 0) {
-          sc.columns = exprList(cmd.statColumns.map((c) => ident([c])));
+          sc.columns = exprList(cmd.statColumns.map((c) => withLoc(ident([c]), cmd.location)));
         }
         if (cmd.statTypes && cmd.statTypes.length > 0) {
           sc.types = exprList(cmd.statTypes.map(indexTypeNode));
         }
+        withLoc(sc, cmd.location ?? spanOf([sc.columns, sc.types]));
         node.statistics_declaration = sc;
         break;
       }
@@ -2801,21 +2858,21 @@
       case 'MATERIALIZE_STATISTICS':
         if (cmd.clear === true) node.clear_statistics = true;
         if (cmd.statColumns && cmd.statColumns.length > 0) {
-          node.statistics_declaration = {
+          node.statistics_declaration = withLoc({
             type: 'Stat',
-            columns: exprList(cmd.statColumns.map((c) => ident([c]))),
-          };
+            columns: exprList(cmd.statColumns.map((c) => withLoc(ident([c]), cmd.location))),
+          }, cmd.location);
         }
         break;
       case 'UPDATE':
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         if (cmd.where) node.predicate = cmd.where;
         if (cmd.assignments && cmd.assignments.length > 0) {
-          node.assignments = cmd.assignments.map((a) => ({
+          node.assignments = cmd.assignments.map((a) => withLoc({
             type: 'Assignment',
             column: a.column,
             expression: a.expr,
-          }));
+          }, a.location ?? spanOf([a.expr])));
         }
         break;
       case 'DELETE':
@@ -2884,10 +2941,7 @@
         break;
       case 'MODIFY_TTL':
         if (cmd.ttl) {
-          node.ttl = {
-            type: 'ExpressionList',
-            children: cmd.ttl.map(ttlElementNode),
-          };
+          node.ttl = exprList(cmd.ttl.map(ttlElementNode));
         }
         break;
       case 'REMOVE_TTL':
@@ -2908,7 +2962,7 @@
         break;
       case 'RESET_SETTING':
         if (cmd.settingNames && cmd.settingNames.length > 0) {
-          node.settings_resets = settingResetsNode(cmd.settingNames);
+          node.settings_resets = settingResetsNode(cmd.settingNames, cmd.location);
         }
         break;
       case 'MODIFY_QUERY':
@@ -2928,7 +2982,7 @@
         break;
       }
     }
-    return node;
+    return withLoc(node, cmd.location);
   }
 
   // Parse a comma-separated `name = value` SETTINGS tail from a SYSTEM body
@@ -3202,15 +3256,23 @@
   // `database` / `tables` / `settings` / …) so the AST matches ClickHouse's
   // `EXPLAIN AST json=1` and `format()` / `formatExplain()` reconstruct the
   // command without any verbatim text.
-  function systemQueryNode(body) {
-    return { type: 'SYSTEM', ...extractSystemFields(body) };
+  function systemQueryNode(body, l) {
+    const node = { type: 'SYSTEM', ...extractSystemFields(body) };
+    // The SYSTEM command body is parsed from text (regex), so its `table` /
+    // `database` Identifiers have no contiguous sub-span; they inherit the
+    // statement span.
+    if (node.table !== undefined) withLoc(node.table, l);
+    if (node.database !== undefined) withLoc(node.database, l);
+    if (node.settings !== undefined) withLoc(node.settings, l);
+    return node;
   }
 
   // Build the ShowFamilyQuery native node from a parsed ShowStatement. Every
   // operand is projected onto native fields so the AST matches ClickHouse's
   // `EXPLAIN AST json=1` and `format()` / `formatExplain()` re-emit the SHOW
   // form without any library-only payload.
-  function showFamilyNode(stmt) {
+  function showFamilyNode(stmt, l) {
+    if (l !== undefined && stmt.location === undefined) stmt.location = l;
     const s = stmt.show;
     let type;
     // Every operand is hoisted onto a native field so the AST matches
@@ -3230,7 +3292,7 @@
         if (s.objectType === 'DATABASES') extra.databases = true;
         else if (s.objectType === 'DICTIONARIES') extra.dictionaries = true;
         if (s.temporary === true) extra.temporary = true;
-        if (s.from !== undefined) extra.from = ident([s.from]);
+        if (s.from !== undefined) extra.from = withLoc(ident([s.from]), stmt.location);
         if (s.like !== undefined) setLike(extra, s.like);
         if (s.where !== undefined) extra.where = cloneAst(s.where);
         if (s.limit !== undefined) extra.limit = cloneAst(s.limit);
@@ -3335,8 +3397,8 @@
         extra = {
           for_roles:
             s.for !== undefined
-              ? rolesOrUsersSetFromNames(s.for)
-              : { type: 'RolesOrUsersSet', current_user: true },
+              ? rolesOrUsersSetFromNames(s.for, stmt.location)
+              : withLoc({ type: 'RolesOrUsersSet', current_user: true }, stmt.location),
         };
         if (s.withImplicit === true) extra.with_implicit = true;
         if (s.final === true) extra.final = true;
@@ -3362,7 +3424,7 @@
         if (!hasTable && s.policies.length === 1 && s.policies[0].names.length === 1) {
           extra = { entity_type: 'ROW POLICY', short_name: s.policies[0].names[0] };
         } else {
-          extra = { entity_type: 'ROW POLICY', row_policy_names: rowPolicyNamesNode(s.policies) };
+          extra = { entity_type: 'ROW POLICY', row_policy_names: rowPolicyNamesNode(s.policies, stmt.location) };
         }
         break;
       }
@@ -3450,25 +3512,26 @@
   }
 
   // A CreateUserNameItem → native `UserNameWithHost` node.
-  function userNameWithHostNode(item) {
+  function userNameWithHostNode(item, l) {
     const node = { type: 'UserNameWithHost', name: unquoteAccess(item.name) };
     if (item.host !== undefined && item.host !== null) {
       const host = unquoteAccess(item.host);
       if (host !== '%') node.host_pattern = host;
     }
-    return node;
+    return withLoc(node, item.location ?? l);
   }
 
   // CreateUserNameItem[] → native `UserNamesWithHost` node.
-  function userNamesWithHostNode(names) {
-    return { type: 'UserNamesWithHost', users: names.map(userNameWithHostNode) };
+  function userNamesWithHostNode(names, l) {
+    const users = names.map((n) => userNameWithHostNode(n, l));
+    return withLoc({ type: 'UserNamesWithHost', users }, l ?? spanOf(users));
   }
 
   // RoleTarget { kind: 'all'|'none'|'names', names?, except? } → native
   // `RolesOrUsersSet` node. `current_user` items (from grantee parsing) are
   // recognized by name 'CURRENT_USER'.
-  function rolesOrUsersSetNode(target) {
-    const node = { type: 'RolesOrUsersSet' };
+  function rolesOrUsersSetNode(target, l) {
+    const node = withLoc({ type: 'RolesOrUsersSet' }, target && target.location ? target.location : l);
     if (!target) return node;
     if (target.kind === 'all') {
       node.all = true;
@@ -3500,7 +3563,7 @@
   }
 
   // RowPolicyTargets `targets` → native `RowPolicyNames` node.
-  function rowPolicyNamesNode(targets) {
+  function rowPolicyNamesNode(targets, l) {
     const policies = [];
     for (const t of targets) {
       for (const sn of t.names) {
@@ -3512,13 +3575,13 @@
         policies.push(p);
       }
     }
-    return { type: 'RowPolicyNames', policies };
+    return withLoc({ type: 'RowPolicyNames', policies }, l);
   }
 
   // A plain grantee-name list (strings, possibly 'CURRENT_USER') → native
   // `RolesOrUsersSet` node.
-  function rolesOrUsersSetFromNames(names) {
-    const node = { type: 'RolesOrUsersSet' };
+  function rolesOrUsersSetFromNames(names, l) {
+    const node = withLoc({ type: 'RolesOrUsersSet' }, l);
     const plain = [];
     let currentUser = false;
     for (const nm of names) {
@@ -3549,7 +3612,7 @@
   }
 
   // `AccessControlSettingsItem[] | 'NONE'` → native `SettingsProfileElements`.
-  function settingsProfileElementsNode(settings) {
+  function settingsProfileElementsNode(settings, l) {
     const elements = [];
     if (settings !== 'NONE' && settings !== undefined) {
       for (const s of settings) {
@@ -3557,7 +3620,7 @@
           s.value === undefined && s.min === undefined && s.max === undefined &&
           s.modifier === undefined;
         if (s.kind === 'profile' || s.kind === 'inherit' || bareName) {
-          elements.push({ type: 'SettingsProfileElement', parent_profile: unquoteAccess(s.name) });
+          elements.push(withLoc({ type: 'SettingsProfileElement', parent_profile: unquoteAccess(s.name) }, s.location ?? l));
         } else {
           const e = { type: 'SettingsProfileElement', setting_name: s.name };
           if (s.value !== undefined) e.value = accessSettingValue(s.value);
@@ -3565,17 +3628,17 @@
           if (s.max !== undefined) e.max_value = accessSettingValue(s.max);
           if (s.modifier !== undefined)
             e.writability = s.modifier === 'READONLY' ? 'CONST' : s.modifier;
-          elements.push(e);
+          elements.push(withLoc(e, s.location ?? l));
         }
       }
     }
-    return { type: 'SettingsProfileElements', elements };
+    return withLoc({ type: 'SettingsProfileElements', elements }, l ?? spanOf(elements));
   }
 
   // AuthenticationData[] → native `authentication_methods` node list. A
   // `VALID UNTIL` value (ClickHouse stores it on each AuthenticationData node)
   // is attached to every method when present.
-  function authMethodsNodes(auth, validUntil) {
+  function authMethodsNodes(auth, validUntil, l) {
     return auth.map((a) => {
       const node = { type: 'AuthenticationData' };
       if (a.sshKeys !== undefined) {
@@ -3611,7 +3674,7 @@
         else if (t === 'kerberos' || t === 'ldap' || t === 'ssh_key') {
           // realm/server: stored in arguments without contains_* flag
         } else if (isPassword) node.contains_password = true;
-        node.arguments = [strLit(a.secret)];
+        node.arguments = [withLoc(strLit(a.secret), a.location ?? l)];
       } else {
         // No secret and no explicit type → `NOT IDENTIFIED` (NO_PASSWORD).
         if (node.auth_type === undefined) node.auth_type = 'NO_PASSWORD';
@@ -3686,8 +3749,8 @@
   }
 
   // RoleTarget → native `RolesOrUsersSet`.
-  function roleTargetSet(target) {
-    return rolesOrUsersSetNode(target);
+  function roleTargetSet(target, l) {
+    return rolesOrUsersSetNode(target, l);
   }
 
   // Quota KEYED clause → native `key_type` enum string.
@@ -3828,8 +3891,8 @@
       f.names = stmt.names.map(userNameStr);
       if (stmt.renameTo !== undefined) f.new_name = userNameStr(stmt.renameTo);
       if (stmt.settings !== undefined) {
-        if (k === 'alterRole') f.alter_settings = alterSettingsProfileElements(stmt.settings);
-        else f.settings = settingsProfileElementsNode(stmt.settings);
+        if (k === 'alterRole') f.alter_settings = alterSettingsProfileElements(stmt.settings, stmt.location);
+        else f.settings = settingsProfileElementsNode(stmt.settings, stmt.location);
       }
     } else if (k === 'createSettingsProfile' || k === 'alterSettingsProfile') {
       if (k === 'alterSettingsProfile') f.alter = true;
@@ -3839,11 +3902,11 @@
       f.names = stmt.names.map((n) => unquoteAccess(n));
       if (stmt.renameTo !== undefined) f.new_name = unquoteAccess(stmt.renameTo);
       if (k === 'alterSettingsProfile') {
-        if (stmt.settings !== undefined) f.alter_settings = alterSettingsProfileElements(stmt.settings);
+        if (stmt.settings !== undefined) f.alter_settings = alterSettingsProfileElements(stmt.settings, stmt.location);
       } else if (stmt.settings !== undefined) {
-        f.settings = settingsProfileElementsNode(stmt.settings);
+        f.settings = settingsProfileElementsNode(stmt.settings, stmt.location);
       }
-      if (stmt.to !== undefined) f.to_roles = roleTargetSet(stmt.to);
+      if (stmt.to !== undefined) f.to_roles = roleTargetSet(stmt.to, stmt.location);
     } else if (k === 'createQuota' || k === 'alterQuota') {
       if (k === 'alterQuota') f.alter = true;
       if (stmt.orReplace) f.or_replace = true;
@@ -3853,13 +3916,13 @@
       if (stmt.renameTo !== undefined) f.new_name = unquoteAccess(stmt.renameTo);
       if (stmt.keyed !== undefined) f.key_type = quotaKeyType(stmt.keyed);
       if (stmt.intervals !== undefined) f.limits = quotaLimitsNodes(stmt.intervals);
-      if (stmt.to !== undefined) f.roles = roleTargetSet(stmt.to);
+      if (stmt.to !== undefined) f.roles = roleTargetSet(stmt.to, stmt.location);
     } else if (k === 'createRowPolicy' || k === 'alterRowPolicy') {
       if (k === 'alterRowPolicy') f.alter = true;
       if (stmt.orReplace) f.or_replace = true;
       if (stmt.ifNotExists) f.if_not_exists = true;
       if (stmt.onCluster !== undefined) f.cluster = stmt.onCluster;
-      f.names = rowPolicyNamesNode(stmt.targets);
+      f.names = rowPolicyNamesNode(stmt.targets, stmt.location);
       if (stmt.renameTo !== undefined) f.new_short_name = unquoteAccess(stmt.renameTo);
       if (stmt.restrictive !== undefined)
         f.is_restrictive = stmt.restrictive.toUpperCase() === 'RESTRICTIVE';
@@ -3871,7 +3934,7 @@
         if (!usingNone) filter.condition = stmt.using;
         f.filters = [filter];
       }
-      if (stmt.to !== undefined) f.roles = roleTargetSet(stmt.to);
+      if (stmt.to !== undefined) f.roles = roleTargetSet(stmt.to, stmt.location);
     } else if (k === 'createUser' || k === 'alterUser') {
       Object.assign(f, createUserNativeFields(stmt));
     } else if (k === 'grant') {
@@ -3884,27 +3947,27 @@
         if (stmt.withOptions && stmt.withOptions.indexOf('REPLACE') !== -1) f.replace_access = true;
       }
       if (stmt.roles !== undefined) {
-        f.roles = rolesOrUsersSetFromNames(stmt.roles);
+        f.roles = rolesOrUsersSetFromNames(stmt.roles, stmt.location);
         if (stmt.withOptions && stmt.withOptions.indexOf('REPLACE') !== -1)
           f.replace_granted_roles = true;
       }
-      f.grantees = rolesOrUsersSetFromNames(stmt.grantees);
+      f.grantees = rolesOrUsersSetFromNames(stmt.grantees, stmt.location);
     } else if (k === 'setRole') {
       f.kind = 'SET_DEFAULT_ROLE';
-      f.roles = roleTargetSet(stmt.roles);
-      f.to_users = rolesOrUsersSetFromNames(stmt.users);
+      f.roles = roleTargetSet(stmt.roles, stmt.location);
+      f.to_users = rolesOrUsersSetFromNames(stmt.users, stmt.location);
     }
     return f;
   }
 
   // ALTER ... SETTINGS → native `AlterSettingsProfileElements` (replace-all).
-  function alterSettingsProfileElements(settings) {
+  function alterSettingsProfileElements(settings, l) {
     const node = { type: 'AlterSettingsProfileElements' };
-    const add = settingsProfileElementsNode(settings);
+    const add = settingsProfileElementsNode(settings, l);
     if (add.elements.length > 0) node.add_settings = add;
     node.drop_all_settings = true;
     node.drop_all_profiles = true;
-    return node;
+    return withLoc(node, l);
   }
 
   // CREATE/ALTER USER native fields.
@@ -3914,7 +3977,7 @@
       f.alter = true;
       if (stmt.ifExists) f.if_exists = true;
       if (stmt.onCluster !== undefined) f.cluster = stmt.onCluster;
-      f.names = userNamesWithHostNode(stmt.names);
+      f.names = userNamesWithHostNode(stmt.names, stmt.location);
       let auth, settings, defaultRole, defaultDatabase, grantees, rename, validUntil;
       let hostItems, addHostItems, dropHostItems;
       for (const c of stmt.clauses) {
@@ -3933,25 +3996,25 @@
       }
       if (rename !== undefined) f.new_name = userNameStr(rename);
       if (auth !== undefined) {
-        f.authentication_methods = authMethodsNodes(auth, validUntil);
+        f.authentication_methods = authMethodsNodes(auth, validUntil, stmt.location);
         f.replace_authentication_methods = true;
       }
       if (hostItems !== undefined) f.hosts = hostsNode(hostItems);
       if (addHostItems !== undefined) f.add_hosts = hostsNode(addHostItems);
       if (dropHostItems !== undefined) f.remove_hosts = hostsNode(dropHostItems);
-      if (defaultRole !== undefined) f.default_roles = roleTargetSet(defaultRole);
-      if (defaultDatabase !== undefined) f.default_database = databaseOrNoneNode(defaultDatabase);
-      if (settings !== undefined) f.alter_settings = alterSettingsProfileElements(settings);
-      if (grantees !== undefined) f.grantees = roleTargetSet(grantees);
+      if (defaultRole !== undefined) f.default_roles = roleTargetSet(defaultRole, stmt.location);
+      if (defaultDatabase !== undefined) f.default_database = databaseOrNoneNode(defaultDatabase, stmt.location);
+      if (settings !== undefined) f.alter_settings = alterSettingsProfileElements(settings, stmt.location);
+      if (grantees !== undefined) f.grantees = roleTargetSet(grantees, stmt.location);
       return f;
     }
     // createUser
     if (stmt.orReplace) f.or_replace = true;
     if (stmt.ifNotExists) f.if_not_exists = true;
     if (stmt.onCluster !== undefined) f.cluster = stmt.onCluster;
-    f.names = userNamesWithHostNode(stmt.names);
+    f.names = userNamesWithHostNode(stmt.names, stmt.location);
     if (stmt.auth !== undefined) {
-      f.authentication_methods = authMethodsNodes(stmt.auth, stmt.validUntil);
+      f.authentication_methods = authMethodsNodes(stmt.auth, stmt.validUntil, stmt.location);
       f.replace_authentication_methods = true;
     }
     if (stmt.host !== undefined) f.hosts = hostsNode(stmt.host);
@@ -3959,11 +4022,11 @@
       const derived = deriveHostsFromNames(stmt.names);
       if (derived !== undefined) f.hosts = derived;
     }
-    if (stmt.defaultRole !== undefined) f.default_roles = roleTargetSet(stmt.defaultRole);
-    if (stmt.settings !== undefined) f.settings = settingsProfileElementsNode(stmt.settings);
+    if (stmt.defaultRole !== undefined) f.default_roles = roleTargetSet(stmt.defaultRole, stmt.location);
+    if (stmt.settings !== undefined) f.settings = settingsProfileElementsNode(stmt.settings, stmt.location);
     if (stmt.defaultDatabase !== undefined)
-      f.default_database = databaseOrNoneNode(stmt.defaultDatabase);
-    if (stmt.grantees !== undefined) f.grantees = roleTargetSet(stmt.grantees);
+      f.default_database = databaseOrNoneNode(stmt.defaultDatabase, stmt.location);
+    if (stmt.grantees !== undefined) f.grantees = roleTargetSet(stmt.grantees, stmt.location);
     return f;
   }
 
@@ -3988,14 +4051,15 @@
   }
 
   // `DEFAULT DATABASE <db>` / `DEFAULT DATABASE NONE` → native `DatabaseOrNone`.
-  function databaseOrNoneNode(db) {
+  function databaseOrNoneNode(db, l) {
     const node = { type: 'DatabaseOrNone' };
     if (db !== undefined && db !== null && db.toUpperCase() !== 'NONE')
       node.database = unquoteAccess(db);
-    return node;
+    return withLoc(node, l);
   }
 
-  function accessQueryNode(stmt) {
+  function accessQueryNode(stmt, l) {
+    if (l !== undefined && stmt.location === undefined) stmt.location = l;
     if (stmt.kind === 'createUser' || stmt.kind === 'alterUser') {
       return { type: 'CreateUserQuery', ...accessNativeFields(stmt) };
     }
@@ -4025,8 +4089,8 @@
       const node = { type: 'CreateWorkloadQuery' };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
-      node.workload_name = ident([stmt.name]);
-      if (stmt.parentWorkload) node.workload_parent = ident([stmt.parentWorkload]);
+      node.workload_name = identLoc([stmt.name], stmt.location);
+      if (stmt.parentWorkload) node.workload_parent = identLoc([stmt.parentWorkload], stmt.location);
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
       if (stmt.settings && stmt.settings.length > 0) {
         node.changes = stmt.settings.map((it) => {
@@ -4038,7 +4102,7 @@
       return node;
     }
     if (stmt.kind === 'createResource') {
-      const node = { type: 'CreateResourceQuery', resource_name: ident([stmt.name]) };
+      const node = { type: 'CreateResourceQuery', resource_name: identLoc([stmt.name], stmt.location) };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
       node.unit = 'IOByte';
@@ -4062,7 +4126,7 @@
         type: stmt.operation === 'RESTORE' ? 'RestoreQuery' : 'BackupQuery',
         kind: stmt.operation,
         elements: stmt.elements.map(backupElementNativeNode),
-        backup_name: fnArgs(d.name, d.args || [], 'BACKUP_NAME'),
+        backup_name: fnArgs(d.name, d.args || [], 'BACKUP_NAME', d.location ?? stmt.location),
       };
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
       let backupSettings =
@@ -4097,8 +4161,8 @@
       alter_object: stmt.kind === 'alterDatabase' ? 'DATABASE' : 'TABLE',
       commands: stmt.commands.map(alterCommandNativeNode),
     };
-    if (stmt.table.database !== undefined) node.database = ident([stmt.table.database]);
-    node.table = ident([stmt.table.table]);
+    if (stmt.table.database !== undefined) node.database = identLoc([stmt.table.database], stmt.table.location);
+    node.table = identLoc([stmt.table.table], stmt.table.location);
     if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
     if (stmt.settings !== undefined && stmt.settings.length > 0)
       node.settings = setNode(stmt.settings);
@@ -4244,7 +4308,7 @@ ExecuteAsStatement
          / UnionQuery ) {
       return loc({
         type: 'ExecuteAsQuery',
-        target_user: { type: 'UserNameWithHost', name: user },
+        target_user: loc({ type: 'UserNameWithHost', name: user }),
         subquery: stmt,
       });
     }
@@ -4259,7 +4323,7 @@ ImplicitSelectStatement
 // SetStatement: SET key = value [, key = value ...] — changes session-level settings
 SetStatement
   = "SET"i ![a-zA-Z0-9_] _ "TRANSACTION"i ![a-zA-Z0-9_] _ "SNAPSHOT"i ![a-zA-Z0-9_] _ snapshot:$[0-9]+ { return loc({ type: 'TransactionControl', action: 'SET_SNAPSHOT', snapshot: snapshot }); }
-  / "SET"i ![a-zA-Z0-9_] _ "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList _ "TO"i ![a-zA-Z0-9_] _ users:SetRoleUserList { return loc(accessQueryNode({ kind: 'setRole', roles, users })); }
+  / "SET"i ![a-zA-Z0-9_] _ "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList _ "TO"i ![a-zA-Z0-9_] _ users:SetRoleUserList { return loc(accessQueryNode({ kind: 'setRole', roles, users }, location())); }
   / "SET"i ![a-zA-Z0-9_] _ items:SettingsList { return loc(setNode(items)); }
 
 SetRoleList
@@ -4282,8 +4346,8 @@ TransactionControlStatement
 
 // UseStatement: USE database — selects the current database
 UseStatement
-  = "USE"i ![a-zA-Z0-9_] _ db:( QueryParamIdentifier / AliasName ) {
-      return loc({ type: 'UseQuery', database: ident([db]) });
+  = "USE"i ![a-zA-Z0-9_] _ db:( x:( QueryParamIdentifier / AliasName ) { return { value: x, location: location() }; } ) {
+      return loc({ type: 'UseQuery', database: withLoc(ident([db.value]), db.location) });
     }
 
 // SystemStatement: SYSTEM FLUSH LOGS, SYSTEM RELOAD CONFIG, etc. — admin commands
@@ -4291,7 +4355,7 @@ UseStatement
 // children) extracted from the subcommand text.
 SystemStatement
   = "SYSTEM"i ![a-zA-Z0-9_] body:$( ![\n;] . )+ {
-      return loc(systemQueryNode(('SYSTEM ' + body.trim()).trim()));
+      return loc(systemQueryNode(('SYSTEM ' + body.trim()).trim(), location()));
     }
 
 // ── ALTER TABLE statements ──────────────────────────────────────────────────
@@ -4470,7 +4534,7 @@ AlterModifyColumnElement
     colSettings:( _ ColumnSettings )? {
       const result = loc({ kind: 'columnDef', name });
       if (type !== null) result.type = type[2];
-      else if (autoIncrement !== null) result.type = { name: 'INT', args: [] };
+      else if (autoIncrement !== null) result.type = { name: 'INT', args: [], location: location() };
       if (autoIncrement !== null) result.autoIncrement = true;
       const nullable = nullable2 !== null ? nullable2[1] : (nullable1 !== null ? nullable1[1] : null);
       if (collate !== null) result.collate = collate[4];
@@ -4894,8 +4958,8 @@ AlterCommandFetchPartition
 
 // Partition expression for FETCH that doesn't use general Expression to avoid packrat issues
 AlterFetchPartitionExpr
-  = "ALL"i ![a-zA-Z0-9_] { return { partitionKind: 'all' }; }
-  / "ID"i ![a-zA-Z0-9_] _ id:( StringLiteral / QueryParam ) { return { partitionKind: 'id', id }; }
+  = "ALL"i ![a-zA-Z0-9_] { return { partitionKind: 'all', location: location() }; }
+  / "ID"i ![a-zA-Z0-9_] _ id:( StringLiteral / QueryParam ) { return { partitionKind: 'id', id, location: location() }; }
   / expr:TernaryExpr { return { partitionKind: 'expr', expr }; }
 
 AlterCommandFreezePartition
@@ -5008,9 +5072,9 @@ AlterCommandRewriteParts
 
 // A partition expression: PARTITION ALL, PARTITION ID 'xxx', or PARTITION expr
 AlterPartitionExpr
-  = "ALL"i ![a-zA-Z0-9_] { return { partitionKind: 'all' }; }
-  / "ID"i ![a-zA-Z0-9_] _ id:( StringLiteral / QueryParam ) { return { partitionKind: 'id', id }; }
-  / expr:TernaryExpr { return { partitionKind: 'expr', expr }; }
+  = "ALL"i ![a-zA-Z0-9_] { return { partitionKind: 'all', location: location() }; }
+  / "ID"i ![a-zA-Z0-9_] _ id:( StringLiteral / QueryParam ) { return { partitionKind: 'id', id, location: location() }; }
+  / expr:TernaryExpr { return { partitionKind: 'expr', expr, location: location() }; }
 
 // IN PARTITION clause used by CLEAR COLUMN/INDEX, MATERIALIZE, APPLY DELETED MASK, etc.
 AlterInPartitionClause
@@ -5026,11 +5090,11 @@ DropIndexStatement
     _ indexName:AliasName _ "ON"i ![a-zA-Z0-9_] _ table:TableRef {
       const node = {
         type: 'DropIndexQuery',
-        index_name: ident([indexName]),
-        table: ident([table.table]),
+        index_name: loc(ident([indexName])),
+        table: withLoc(ident([table.table]), table.location),
       };
       if (ifExists !== null) node.if_exists = true;
-      if (table.database !== undefined) node.database = ident([table.database]);
+      if (table.database !== undefined) node.database = withLoc(ident([table.database]), table.location);
       return loc(node);
     }
 
@@ -5081,7 +5145,7 @@ DropStatement
       const cl = cluster !== null ? cluster[1] : targetsResult.onCluster;
       if (cl) node.cluster = cl;
       if (storage !== null) node.storage_name = storage[4];
-      node.row_policy_names = rowPolicyNamesNode(targetsResult.targets);
+      node.row_policy_names = rowPolicyNamesNode(targetsResult.targets, location());
       return loc(node);
     }
   / "DROP"i ![a-zA-Z0-9_] _ entity:DropAccessEntityKeyword
@@ -5137,7 +5201,7 @@ BackupStatement
       if (settings !== null) result.settings = settings[1];
       if (wait !== null) result.wait = wait[1].toUpperCase();
       if (format !== null) result.format = format[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 BackupElementList
@@ -5221,7 +5285,7 @@ GrantStatement
       if (optionFor !== null) result.optionFor = optionFor[1].toUpperCase();
       if (cluster !== null) result.onCluster = cluster[1];
       if (withOpts.length > 0) result.withOptions = withOpts.map(w => w[4].toUpperCase());
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 GrantElementList
@@ -5285,7 +5349,7 @@ AlterUserStatement
       const result = { kind: 'alterUser', names, clauses: clauses.map(c => c[1]) };
       if (ifExists !== null) result.ifExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 AlterUserClause
@@ -5313,7 +5377,7 @@ AlterRoleStatement
       if (cluster !== null) result.onCluster = cluster[1];
       if (rename !== null) result.renameTo = rename[7];
       if (settings !== null) result.settings = settings[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 AlterQuotaStatement
@@ -5335,7 +5399,7 @@ AlterQuotaStatement
         if (clause.to !== undefined) result.to = clause.to;
       }
       if (intervals.length > 0) result.intervals = intervals;
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 AlterRowPolicyStatement
@@ -5356,7 +5420,7 @@ AlterRowPolicyStatement
         if (clause.to !== undefined) result.to = clause.to;
         if (clause.onCluster !== undefined) result.onCluster = clause.onCluster;
       }
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 AlterRowPolicyClause
@@ -5382,7 +5446,7 @@ AlterSettingsProfileStatement
       if (rename !== null) result.renameTo = rename[7];
       if (settings !== null) result.settings = settings[1];
       if (to !== null) result.to = to[4];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 // ── SHOW statements ──────────────────────────────────────────────────────────
@@ -5399,7 +5463,7 @@ ShowStatement
         if (show.type === 'databaseShorthand') {
           node = {
             type: 'ShowCreateDatabaseQuery',
-            database: ident([show.database]),
+            database: loc(ident([show.database])),
           };
         } else {
           // The node `type` already encodes view/dictionary; no redundant
@@ -5415,7 +5479,7 @@ ShowStatement
       }
       const result = { kind: 'show', show };
       if (format !== null) result.format = format[1];
-      return loc(showFamilyNode(result));
+      return loc(showFamilyNode(result, location()));
     }
 
 ShowBody
@@ -5700,10 +5764,10 @@ InsertRawData
 // PARALLEL WITH: chains multiple statements (CREATE, INSERT, TRUNCATE, etc.)
 ParallelWithStatement
   = head:CreateStatement tail:( _ "PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_] _ CreateStatement )+ {
-      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }));
+      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
     }
   / head:ParallelWithItem tail:( _ "PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_] _ ParallelWithItem )+ {
-      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }));
+      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
     }
 
 ParallelWithItem
@@ -5727,7 +5791,7 @@ TruncateStatement
     _ database:( QueryParamIdentifier / AliasName )
     cluster:( _ OnClusterClause )?
     likeClause:( _ ( "NOT"i ![a-zA-Z0-9_] _ )? ( "ILIKE"i { return true; } / "LIKE"i { return false; } ) ![a-zA-Z0-9_] _ StringLiteral )? {
-      const o = { targetType: 'TABLES', database };
+      const o = { targetType: 'TABLES', database, location: location() };
       if (all !== null) o.allTables = true;
       if (ifExists !== null) o.ifExists = true;
       if (cluster !== null) o.onCluster = cluster[1];
@@ -5746,7 +5810,7 @@ TruncateStatement
     ifExists:( _ "IF"i ![a-zA-Z0-9_] _ "EXISTS"i ![a-zA-Z0-9_] )?
     _ database:( QueryParamIdentifier / AliasName )
     cluster:( _ OnClusterClause )? {
-      const o = { targetType: 'DATABASE', database };
+      const o = { targetType: 'DATABASE', database, location: location() };
       if (ifExists !== null) o.ifExists = true;
       if (cluster !== null) o.onCluster = cluster[1];
       return loc(dropFamilyNode('TruncateQuery', o));
@@ -5792,13 +5856,13 @@ OptimizeStatement
 
 OptimizePartitionClause
   = _ "PARTITION"i ![a-zA-Z0-9_] _ "ID"i ![a-zA-Z0-9_] _ lit:StringLiteral {
-      return { kind: 'id', id: lit.value };
+      return { kind: 'id', id: lit.value, location: location() };
     }
   / _ "PARTITION"i ![a-zA-Z0-9_] _ "ALL"i ![a-zA-Z0-9_] {
-      return { kind: 'all' };
+      return { kind: 'all', location: location() };
     }
   / _ "PARTITION"i ![a-zA-Z0-9_] _ expr:Expression {
-      return { kind: 'expr', expr };
+      return { kind: 'expr', expr, location: location() };
     }
 
 OptimizeDeduplicateClause
@@ -5823,11 +5887,12 @@ DescribeStatement
       if (target.kind === 'table') {
         te.database_and_table_name = tableIdentNode(target.table);
       } else if (target.kind === 'function') {
-        te.table_function = fn(target.func.name, target.func.args);
+        te.table_function = withLoc(fn(target.func.name, target.func.args), target.func.location ?? spanOf(target.func.args));
       } else {
         te.subquery = subqueryNode(target.query);
       }
       if (final !== null) te.final = true;
+      withLoc(te, spanOf([te.database_and_table_name, te.table_function, te.subquery]));
       const node = { type: 'DescribeQuery', table_expression: te };
       const merged = [
         ...(preSettings !== null ? preSettings[1] : []),
@@ -5865,7 +5930,7 @@ ShowCreateStatement
       const LABELS = { TABLE: 'ShowCreateTableQuery', VIEW: 'ShowCreateViewQuery', DICTIONARY: 'ShowCreateDictionaryQuery' };
       let node;
       if (result.targetType === 'DATABASE') {
-        node = { type: 'ShowCreateDatabaseQuery', database: ident([result.database]) };
+        node = { type: 'ShowCreateDatabaseQuery', database: loc(ident([result.database])) };
       } else {
         // The node `type` already encodes view/dictionary; no redundant
         // `is_view`/`is_dictionary` flag in the native AST.
@@ -5923,7 +5988,7 @@ DetachStatement
     perm:( _ "PERMANENTLY"i ![a-zA-Z0-9_] )?
     sync:( _ "SYNC"i ![a-zA-Z0-9_] / _ "NO"i ![a-zA-Z0-9_] _ "DELAY"i ![a-zA-Z0-9_] )?
     &StatementEnd {
-      const o = { targetType: 'DATABASE', database };
+      const o = { targetType: 'DATABASE', database, location: location() };
       if (ifExists !== null) o.ifExists = true;
       if (cluster !== null) o.onCluster = cluster[1];
       if (perm !== null) o.permanently = true;
@@ -5965,11 +6030,11 @@ UpdateStatement
     settings:( _ SettingsClause )? {
       const node = { type: 'UpdateQuery' };
       setTableTarget(node, table);
-      node.assignments = assignments.map((a) => ({
+      node.assignments = assignments.map((a) => withLoc({
         type: 'Assignment',
         column: a.column,
         expression: a.expr,
-      }));
+      }, a.location ?? spanOf([a.expr])));
       node.predicate = where;
       if (settings !== null && settings[1].length > 0) node.settings = setNode(settings[1]);
       if (cluster !== null) node.cluster = cluster[1];
@@ -6060,7 +6125,7 @@ AttachStatement
       const node = {
         type: 'AttachQuery',
         attach: true,
-        database: ident([database]),
+        database: loc(ident([database])),
       };
       if (ifne !== null) node.if_not_exists = true;
       if (cluster !== null) node.cluster = cluster[1];
@@ -6178,7 +6243,7 @@ ExistsStatement
   = "EXISTS"i ![a-zA-Z0-9_] _ "DATABASE"i ![a-zA-Z0-9_]
     _ database:( QueryParamIdentifier / AliasName )
     settings:( _ SettingsClause )? {
-      const node = { type: 'ExistsDatabaseQuery', database: ident([database]) };
+      const node = { type: 'ExistsDatabaseQuery', database: loc(ident([database])) };
       if (settings !== null && settings[1].length > 0) node.settings = setNode(settings[1]);
       return loc(node);
     }
@@ -6228,8 +6293,8 @@ CreateStatement
 CreateFunctionStatement
   = "CREATE"i ![a-zA-Z0-9_] _ orReplace:( "OR"i ![a-zA-Z0-9_] _ "REPLACE"i ![a-zA-Z0-9_] _ )? "FUNCTION"i ![a-zA-Z0-9_]
     ifne:( _ "IF"i ![a-zA-Z0-9_] _ "NOT"i ![a-zA-Z0-9_] _ "EXISTS"i ![a-zA-Z0-9_] )?
-    _ name:AliasName cluster:( _ OnClusterClause )? _ KW_AS _ expr:Expression {
-      const stmt = { kind: 'createFunction', name, functionExpr: expr };
+    _ name:( x:AliasName { return { value: x, location: location() }; } ) cluster:( _ OnClusterClause )? _ KW_AS _ expr:Expression {
+      const stmt = { kind: 'createFunction', name: name.value, location: name.location, functionExpr: expr };
       if (orReplace !== null) stmt.orReplace = true;
       if (ifne !== null) stmt.ifNotExists = true;
       if (cluster !== null) stmt.onCluster = cluster[1];
@@ -6299,13 +6364,13 @@ CreateDatabaseStatement
   = "CREATE"i ![a-zA-Z0-9_] orReplace:( _ "OR"i ![a-zA-Z0-9_] _ "REPLACE"i ![a-zA-Z0-9_] )?
     _ "DATABASE"i ![a-zA-Z0-9_]
     ifne:( _ "IF"i ![a-zA-Z0-9_] _ "NOT"i ![a-zA-Z0-9_] _ "EXISTS"i ![a-zA-Z0-9_] )?
-    _ name:( QueryParamIdentifier / AliasName )
+    _ name:( x:( QueryParamIdentifier / AliasName ) { return { value: x, location: location() }; } )
     cluster:( _ OnClusterClause )?
     engine:( _ EngineClause )?
     clauses:CreateTableClauses
     comment:( _ CreateCommentClause )?
     format:( _ FormatClause )? {
-      const result = { kind: 'createDatabase', name };
+      const result = { kind: 'createDatabase', name: name.value, location: name.location };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
@@ -6481,7 +6546,7 @@ CreateWorkloadStatement
       if (ifne !== null) result.ifNotExists = true;
       if (parent !== null) result.parentWorkload = parent[4];
       if (settings !== null) result.settings = settings[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 // Individual CREATE statement rules for access control and other object types.
@@ -6509,7 +6574,7 @@ CreateUserStatement
         if (clause.validUntil !== undefined) result.validUntil = clause.validUntil;
         if (clause.onCluster !== undefined) result.onCluster = clause.onCluster;
       }
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 CreateUserClause
@@ -6660,7 +6725,7 @@ CreateRoleStatement
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (settings !== null) result.settings = settings[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 CreateRoleSettingsClause
@@ -6688,7 +6753,7 @@ CreateRowPolicyStatement
         if (clause.to !== undefined) result.to = clause.to;
         if (clause.onCluster !== undefined) result.onCluster = clause.onCluster;
       }
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 RowPolicyTargets
@@ -6753,7 +6818,7 @@ CreateQuotaStatement
         if (clause.to !== undefined) result.to = clause.to;
       }
       if (intervals.length > 0) result.intervals = intervals;
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 QuotaNameList
@@ -6840,7 +6905,7 @@ CreateSettingsProfileStatement
       if (ifne !== null) result.ifNotExists = true;
       if (settings !== null) result.settings = settings[1];
       if (to !== null) result.to = to[4];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 // ── CREATE NAMED COLLECTION ──────────────────────────────────────────────────
@@ -6856,7 +6921,7 @@ CreateNamedCollectionStatement
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 NamedCollectionItemList
@@ -6881,7 +6946,7 @@ CreateResourceStatement
       const result = { kind: 'createResource', name, specs };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
-      return loc(accessQueryNode(result));
+      return loc(accessQueryNode(result, location()));
     }
 
 ResourceSpecList
@@ -6973,7 +7038,7 @@ RefreshClause
       const r = { schedule_kind: kind, period };
       if (offset !== null) r.offset = offset;
       if (spread !== null) r.spread = spread;
-      if (deps !== null) r.dependencies = { type: 'ExpressionList', children: deps };
+      if (deps !== null) r.dependencies = exprList(deps);
       if (settings !== null) r.settings = settings;
       if (append !== null) r.append = true;
       return r;
@@ -6982,7 +7047,7 @@ RefreshClause
 // A single `<number> <unit>` interval → native TimeInterval.
 RefreshInterval
   = value:$[0-9]+ _ unit:IntervalUnit {
-      return { type: 'TimeInterval', interval: [{ kind: unit, value }] };
+      return loc({ type: 'TimeInterval', interval: [{ kind: unit, value }] });
     }
 
 RefreshDependsList
@@ -7085,7 +7150,7 @@ CreateTableSchema
         } else {
           tableElements.push(el);
           if (el.kind === 'columnDef' && el.primaryKey) {
-            columnPrimaryKeys.push(ident([el.name]));
+            columnPrimaryKeys.push(withLoc(ident([el.name]), el.location));
           }
         }
       }
@@ -7132,7 +7197,7 @@ ColumnElement
     colSettings:( _ ColumnSettings )? {
       const result = loc({ kind: 'columnDef', name });
       if (type !== null) result.type = type[2];
-      else if (autoIncrement !== null) result.type = { name: 'INT', args: [] };
+      else if (autoIncrement !== null) result.type = { name: 'INT', args: [], location: location() };
       if (autoIncrement !== null) result.autoIncrement = true;
       const nullable = nullable2 !== null ? nullable2[1] : (nullable1 !== null ? nullable1[1] : null);
       if (collate !== null) result.collate = collate[4];
@@ -7241,7 +7306,7 @@ IndexExpr
 // Index type: name with optional args. Args can contain settings like tokenizer = ngrams(3)
 IndexTypeSpec
   = name:$([a-zA-Z_][a-zA-Z0-9_]*) args:( _ "(" _ IndexTypeArgList? _ ")" )? {
-      const result = { name };
+      const result = { name, location: location() };
       if (args !== null) result.args = args[3] || [];
       return result;
     }
@@ -7262,6 +7327,7 @@ ProjectionElement
 
 PrimaryKeyElement
   = "PRIMARY"i ![a-zA-Z0-9_] _ "KEY"i ![a-zA-Z0-9_] _ exprs:PrimaryKeyExprs {
+      exprs.location = location();
       return { _primaryKey: exprs };
     }
 
@@ -7275,7 +7341,7 @@ PrimaryKeyExprs
 // Engine clause: ENGINE [=] name[(args)]
 EngineClause
   = "ENGINE"i ![a-zA-Z0-9_] _ "="? _ name:AliasName args:( _ "(" _ EngineArgList? _ ")" )? {
-      const result = { name };
+      const result = { name, location: location() };
       if (args !== null) result.args = args[3] !== null ? args[3] : [];
       return result;
     }
@@ -7665,7 +7731,7 @@ CTEClause
   // Tuple CTE: WITH ((expr) AS a, (expr) AS b) SELECT ... — parenthesized list of aliased expressions
   = KW_WITH wc:_ "(" _ head:TupleCTEElement _ "," _ second:TupleCTEElement tail:(_ "," _ TupleCTEElement)* _ ")" {
       const elements = [head, second, ...tail.map(t => t[3])];
-      return { items: [{ kind: 'cteTuple', elements }], keywordComments: wc };
+      return { items: [{ kind: 'cteTuple', elements, location: location() }], keywordComments: wc };
     }
   / KW_WITH wc:_ "RECURSIVE"i ![a-zA-Z0-9_] _ items:CTEItemList { return { items: items, keywordComments: wc, recursive: true }; }
   / KW_WITH wc:_ items:CTEItemList { return { items: items, keywordComments: wc }; }
@@ -7687,22 +7753,22 @@ CTEItemList
 CTEItem
 // Subquery CTE with column aliases: name (col1, col2) AS (SELECT ...)
   = name:Identifier _ "(" _ head:AliasName tail:(_ "," _ AliasName)* _ ")" _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
-      const result = { kind: 'cteSubquery', name, query: addSurroundingWs(query, beforeQuery, afterQuery) };
+      const result = { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
       result.columnAliases = [head, ...tail.map(t => t[3])];
       return result;
     }
 // Subquery CTE: name AS (SELECT ...)
   / name:Identifier _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
-      return { kind: 'cteSubquery', name, query: addSurroundingWs(query, beforeQuery, afterQuery) };
+      return { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
     }
   // Lambda CTE with parens: (x, y) -> body AS name
   / "(" _ head:LambdaParamName tail:(_ "," _ LambdaParamName)* _ ")" _ "->" _ body:TernaryExpr afterExpr:_ KW_AS _ name:AliasName {
-      const expr = loc(lambdaFn([head, ...tail.map(t => t[3])], body));
+      const expr = loc(lambdaFn([head, ...tail.map(t => t[3])], body, location()));
       return { kind: 'cteExpr', name, expr: addTrailing(expr, flattenWs(afterExpr)) };
     }
   // Lambda CTE: x -> body AS name (single param without parens)
   / param:LambdaParamName _ "->" _ body:TernaryExpr afterExpr:_ KW_AS _ name:AliasName {
-      const expr = loc(lambdaFn([param], body));
+      const expr = loc(lambdaFn([param], body, location()));
       return { kind: 'cteExpr', name, expr: addTrailing(expr, flattenWs(afterExpr)) };
     }
   // Expression CTE: expr AS name (ClickHouse extension — name can be a keyword like 'from')
@@ -7796,8 +7862,8 @@ SampleClause
 
 // SampleRatioExpr: a ratio value, either a fraction (num/den) or a simple number
 SampleRatioExpr
-  = num:SampleNumber _ "/" _ den:SampleNumber { return { num, den }; }
-  / num:SampleNumber { return { num }; }
+  = num:SampleNumber _ "/" _ den:SampleNumber { return { num, den, location: location() }; }
+  / num:SampleNumber { return { num, location: location() }; }
 
 // SampleNumber: a non-negative integer or float literal (no leading sign)
 SampleNumber
@@ -7913,7 +7979,7 @@ JoinConstraint
   = KW_ON comments:_ expr:Expression { return { kind: 'on', expr: addWsLeading(expr, comments) }; }
   / KW_USING _ "(" _ cols:UsingColumnList? _ ")" { return { kind: 'using', columns: cols !== null ? cols : [] }; }
   // USING * — wildcard join key (ClickHouse extension)
-  / KW_USING _ "*" { return { kind: 'using', columns: [{ type: 'Asterisk' }] }; }
+  / KW_USING _ "*" { return { kind: 'using', columns: [loc({ type: 'Asterisk' })] }; }
   / KW_USING _ cols:UsingColumnList { return { kind: 'using', columns: cols, noParens: true }; }
 
 // UsingColumnList: comma-separated identifiers with optional AS alias
@@ -7968,7 +8034,7 @@ GroupingSets
 // GroupingSet: either a parenthesized list of expressions or a single bare expression
 GroupingSet
   = "(" _ items:ExpressionList _ ")" { return items; }
-  / "(" _ ")" { return []; }
+  / "(" _ ")" { const a = []; a.location = location(); return a; }
   / expr:TernaryExpr { return [expr]; }
 
 // GroupByModifier: WITH ROLLUP, WITH CUBE, or WITH TOTALS
@@ -8728,26 +8794,28 @@ MultiWordTypeInner
 
 // ── Structured data type parsing (for column definitions) ────────────────────
 
-// ColumnDataType: returns a structured { name, args? } object for EXPLAIN AST rendering.
+// ColumnDataType: returns a structured { name, args?, location } object. The
+// `location` is captured here (a rule, so `location()` spans exactly the type
+// text) and threaded onto the materialized node by `dtNode`/`dtArgNode`.
 ColumnDataType
   = mw:MultiWordType args:( _ "(" _ ColumnDataTypeArgList? _ ")" )? {
-      const result = { name: mw };
+      const result = { name: mw, location: location() };
       if (args !== null) result.args = args[3] !== null ? args[3] : [];
       return result;
     }
-  / "`" name:$[^`]+ "`" { return { name }; }
-  / "\"" name:$[^"]+ "\"" { return { name }; }
+  / "`" name:$[^`]+ "`" { return { name, location: location() }; }
+  / "\"" name:$[^"]+ "\"" { return { name, location: location() }; }
   // Enum types: parse values as structured list
   / name:$("Enum8"i / "Enum16"i / "Enum"i ![a-zA-Z0-9_]) _ "(" _ values:EnumValueList _ ")" {
-      return { name: name.trim(), args: [{ kind: 'enumValues', values }] };
+      return { name: name.trim(), args: [{ kind: 'enumValues', values }], location: location() };
     }
   / name:$("Enum8"i / "Enum16"i / "Enum"i ![a-zA-Z0-9_]) {
-      return { name: name.trim() };
+      return { name: name.trim(), location: location() };
     }
   / name:$([a-zA-Z_][a-zA-Z0-9_]*) args:( _ "(" _ ColumnDataTypeArgList? _ ")" )? suffix:( _ ("SIGNED"i / "UNSIGNED"i) ![a-zA-Z0-9_] )? {
       let typeName = name;
       if (suffix !== null) typeName = (name + ' ' + suffix[1]).toUpperCase();
-      const result = { name: typeName };
+      const result = { name: typeName, location: location() };
       if (args !== null) result.args = args[3] || [];
       return result;
     }
@@ -8768,31 +8836,33 @@ ColumnDataTypeArgList
     }
 
 // A single type argument: could be a sub-type, a named field (Nested/Tuple), a literal, a setting, or a SKIP/REGEXP spec
+// Each alternative captures `location()` so `dtArgNode`/`jsonArgNode` can stamp
+// the materialized node (NameTypePair, ObjectTypeArgument, ...) with its span.
 ColumnDataTypeArg
   // SKIP REGEXP 'pattern' (for JSON type)
   = "SKIP"i ![a-zA-Z0-9_] _ "REGEXP"i ![a-zA-Z0-9_] _ str:$("'" [^']* "'") {
-      return { kind: 'literal', value: 'SKIP REGEXP ' + str };
+      return { kind: 'literal', value: 'SKIP REGEXP ' + str, location: location() };
     }
   // SKIP path (for JSON type)
   / "SKIP"i ![a-zA-Z0-9_] _ path:TypeArgFieldName {
-      return { kind: 'literal', value: 'SKIP ' + path };
+      return { kind: 'literal', value: 'SKIP ' + path, location: location() };
     }
   // Named field: "name Type" (for Nested, named Tuple, JSON typed paths)
   / name:TypeArgFieldName _ &([a-zA-Z_`] / "(" / "'" / "\"") type:ColumnDataType {
-      return { kind: 'namedField', name: name.replace(/[`"]/g, ''), type };
+      return { kind: 'namedField', name: name.replace(/[`"]/g, ''), type, location: location() };
     }
   // String literal
-  / str:$("'" [^']* "'") { return { kind: 'literal', value: str }; }
+  / str:$("'" [^']* "'") { return { kind: 'literal', value: str, location: location() }; }
   // Numeric literal (possibly negative, with decimal)
-  / val:$("-"? [0-9]+ ("." [0-9]*)?) { return { kind: 'literal', value: val }; }
+  / val:$("-"? [0-9]+ ("." [0-9]*)?) { return { kind: 'literal', value: val, location: location() }; }
   // Setting: name = value  (for Dynamic(max_types=3), JSON(max_dynamic_paths=10))
   / name:$([a-zA-Z_][a-zA-Z0-9_]*) _ "=" _ val:TernaryExpr {
-      return { kind: 'setting', name: name, value: val };
+      return { kind: 'setting', name: name, value: val, location: location() };
     }
   // Subtype (must be after named field to avoid consuming the name)
-  / type:ColumnDataType { return { kind: 'type', type }; }
+  / type:ColumnDataType { return { kind: 'type', type, location: location() }; }
   // Raw text for other specials
-  / raw:$([^ ,)]+) { return { kind: 'literal', value: raw }; }
+  / raw:$([^ ,)]+) { return { kind: 'literal', value: raw, location: location() }; }
 
 // Field name for type args: supports bare identifiers, dotted paths, backtick-quoted, and double-quoted identifiers
 TypeArgFieldName
@@ -8905,7 +8975,7 @@ MySQLGlobalVariable
 ParenGroup
   // Empty-arg lambda: () -> expr
   = "(" _ ")" _ "->" _ body:Expression {
-      return loc(lambdaFn([], body));
+      return loc(lambdaFn([], body, location()));
     }
   // Empty tuple: ()
   / "(" _ ")" { return loc(fn('tuple', [], { is_operator: true })); }
@@ -8915,7 +8985,7 @@ ParenGroup
     }
   // Lambda with parens: (x, y, ...) -> expr
   / "(" _ head:LambdaParamName tail:(_ "," _ LambdaParamName)* _ ")" _ "->" _ body:Expression {
-      return loc(lambdaFn([head, ...tail.map((t) => t[3])], body));
+      return loc(lambdaFn([head, ...tail.map((t) => t[3])], body, location()));
     }
   // Tuple or parenthesized expression: parse first expression, then branch on comma vs close paren
   / "(" beforeFirst:_ first:Expression rest:(_ "," _ Expression)* trailing:(_ ",")? afterLast:_ ")" {
@@ -9071,7 +9141,7 @@ ExponentPart
 
 LambdaExprNoParens
   = param:LambdaParamName _ "->" _ body:Expression {
-      return loc(lambdaFn([param], body));
+      return loc(lambdaFn([param], body, location()));
     }
 
 // IntervalExpr: INTERVAL expr unit - maps to toIntervalUnit(expr)
@@ -9249,7 +9319,7 @@ FunctionCall
       const innerExpr = alias !== null ? loc(applyAlias(expr, alias)) : expr;
       // Case variants (`Cast`, `cast`, ...) canonicalize to `CAST`; the
       // source-case is not preserved.
-      return loc(fn('CAST', [innerExpr, typeLit(type)]));
+      return loc(fn('CAST', [innerExpr, loc(typeLit(type))]));
     }
   // Generic function call: name([DISTINCT|ALL] args [SETTINGS ...])[(params)]? [FILTER(WHERE ...)]?
   // DISTINCT modifier appends "Distinct" to function name: countDistinct, sumDistinct, etc.
@@ -9359,7 +9429,7 @@ FunctionCallArgList
 
 FunctionCallArg
   = params:MultiLambdaParams _ "->" _ body:Expression {
-      return loc(lambdaFn(params, body));
+      return loc(lambdaFn(params, body, location()));
     }
   / &(KW_SELECT / KW_WITH) query:UnionQuery {
       return loc({ type: 'Subquery', query: query });
@@ -9451,24 +9521,24 @@ ColumnTransformer
 // Supports: EXCEPT (col, ...), EXCEPT col, EXCEPT 'pattern', EXCEPT ('pattern'), EXCEPT STRICT (col, ...), EXCEPT STRICT col
 ColumnTransformerExcept
   = "EXCEPT"i ![a-zA-Z0-9_] _ "STRICT"i ![a-zA-Z0-9_] _ "(" _ cols:ColumnTransformerExceptList _ ")" {
-      return exceptTransformer(cols, true);
+      return exceptTransformer(cols, true, location());
     }
   / "EXCEPT"i ![a-zA-Z0-9_] _ "STRICT"i ![a-zA-Z0-9_] _ col:Identifier {
-      return exceptTransformer([col], true);
+      return exceptTransformer([col], true, location());
     }
   / "EXCEPT"i ![a-zA-Z0-9_] _ "(" _ cols:ColumnTransformerExceptList _ ")" {
-      return exceptTransformer(cols, false);
+      return exceptTransformer(cols, false, location());
     }
   // EXCEPT with string pattern in parens: EXCEPT('regex') — regex-based column exclusion
   / "EXCEPT"i ![a-zA-Z0-9_] _ "(" _ str:StringLiteral _ ")" {
-      return { type: 'ColumnsExceptTransformer', pattern: str.value };
+      return loc({ type: 'ColumnsExceptTransformer', pattern: str.value });
     }
   / "EXCEPT"i ![a-zA-Z0-9_] _ str:StringLiteral {
-      return { type: 'ColumnsExceptTransformer', pattern: str.value };
+      return loc({ type: 'ColumnsExceptTransformer', pattern: str.value });
     }
   // EXCEPT bare column name without parens: EXCEPT col
   / "EXCEPT"i ![a-zA-Z0-9_] _ col:Identifier {
-      return exceptTransformer([col], false);
+      return exceptTransformer([col], false, location());
     }
 
 // List of column names (identifiers or backtick-quoted) for EXCEPT transformer
@@ -9481,33 +9551,33 @@ ColumnTransformerExceptList
 // Supports: APPLY(func), APPLY(lambda), APPLY name, APPLY lambda
 ColumnTransformerApply
   = "APPLY"i ![a-zA-Z0-9_] _ "(" _ func:FunctionCallArg _ ")" {
-      return applyTransformer(func);
+      return applyTransformer(func, location());
     }
   / "APPLY"i ![a-zA-Z0-9_] _ func:LambdaExprNoParens {
-      return applyTransformer(func);
+      return applyTransformer(func, location());
     }
   // APPLY with a function call (e.g. APPLY lambda(tuple(x), x+1) — using lambda() builtin)
   / "APPLY"i ![a-zA-Z0-9_] _ func:FunctionCall {
-      return applyTransformer(func);
+      return applyTransformer(func, location());
     }
   / "APPLY"i ![a-zA-Z0-9_] _ name:Identifier {
-      return applyTransformer(loc(ident([name])));
+      return applyTransformer(loc(ident([name])), location());
     }
 
 // REPLACE column transformer: replaces column values with expressions.
 // Supports: REPLACE(expr AS col, ...), REPLACE STRICT(expr AS col, ...), REPLACE expr AS col
 ColumnTransformerReplace
   = "REPLACE"i ![a-zA-Z0-9_] _ "STRICT"i ![a-zA-Z0-9_] _ "(" _ items:ReplaceItemList _ ")" {
-      return replaceTransformer(items, true);
+      return replaceTransformer(items, true, location());
     }
   / "REPLACE"i ![a-zA-Z0-9_] _ "STRICT"i ![a-zA-Z0-9_] _ item:ReplaceItem {
-      return replaceTransformer([item], true);
+      return replaceTransformer([item], true, location());
     }
   / "REPLACE"i ![a-zA-Z0-9_] _ "(" _ items:ReplaceItemList _ ")" {
-      return replaceTransformer(items, false);
+      return replaceTransformer(items, false, location());
     }
   / "REPLACE"i ![a-zA-Z0-9_] _ item:ReplaceItem {
-      return replaceTransformer([item], false);
+      return replaceTransformer([item], false, location());
     }
 
 ReplaceItemList

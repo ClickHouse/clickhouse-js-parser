@@ -60,13 +60,17 @@ export function computeAst(sql: string, expected: string | null = null): string 
 }
 
 /**
- * AST from `parse()` with only the volatile keys (`location`/`parent`) removed, so the
- * library-only underscore-prefixed fields (`_name`, `_fmt`, `_fmt_src`, ...) and comments
- * are retained. This is the full internal view the formatter actually consumes, as opposed
- * to {@link computeAst}'s ClickHouse-native stripped view.
+ * AST from `parse()` with the volatile keys removed, so the library-only
+ * underscore-prefixed fields (`_name`, `_fmt`, `_fmt_src`, ...) and comments are
+ * retained. This is the full internal view the formatter actually consumes, as
+ * opposed to {@link computeAst}'s ClickHouse-native stripped view.
+ *
+ * When `locations` is true (the default), each node's source `location` range
+ * is retained in the output; otherwise it is stripped along with the other
+ * volatile keys. `parent` is always stripped (it is circular).
  */
-export function computeAstFull(sql: string): string {
-  return JSON.stringify(stripVolatile(parse(sql)), null, 2);
+export function computeAstFull(sql: string, locations = true): string {
+  return JSON.stringify(stripVolatile(parse(sql, { locations }), locations), null, 2);
 }
 
 /** Re-formatted SQL from `format(parse(...))`, as compared by the format suite. */
@@ -431,6 +435,11 @@ export interface OutputCliOptions {
   sql: string | null;
   /** Disable ANSI colors. */
   noColor: boolean;
+  /**
+   * Include each node's source `location` range in the output (parse script
+   * only). Defaults to true; disabled with `--no-locations`.
+   */
+  locations: boolean;
 }
 
 /**
@@ -474,6 +483,9 @@ export function parseOutputCli(argv: string[], scriptName: string, what: string)
     selector: positionals.join(','),
     sql,
     noColor: flags.has('--no-color') || !process.stdout.isTTY,
+    // Default to including locations (mirrors parse()'s `locations: true`);
+    // `--no-locations` strips them, `--locations` is accepted for symmetry.
+    locations: !flags.has('--no-locations'),
   };
 }
 
@@ -489,6 +501,9 @@ function printOutputUsage(scriptName: string, what: string): void {
       `                         '0001*_select*'\n\n` +
       `Options:\n` +
       `  --sql <SQL>   Use a raw SQL string instead of reference files.\n` +
+      (scriptName === 'parse'
+        ? `  --no-locations  Omit each node's source location range from the AST.\n`
+        : '') +
       `  --no-color    Disable ANSI colors.\n` +
       `  -h, --help    Show this help.\n`,
   );

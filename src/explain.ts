@@ -53,6 +53,7 @@ import {
   DropIndexQueryNode,
   Expression,
   Statement,
+  WithoutLocations,
   StatementsSchema,
   StorageNode,
   WindowDefinitionNode,
@@ -1870,7 +1871,9 @@ function queryWrapperNode(q: SelectWithUnionQueryNode): ExplainNode {
   return n('SelectWithUnionQuery', children);
 }
 
-export function formatExplain(statements: Statement[]): string {
+export function formatExplain(statements: WithoutLocations<Statement>[]): string {
   StatementsSchema.parse(statements);
-  return statements.map((s) => render(stmtNode(s))).join('\n\n');
+  // formatExplain never reads `location`; treat the (possibly location-free)
+  // input as the located type internally.
+  return (statements as Statement[]).map((s) => render(stmtNode(s))).join('\n\n');
 }
