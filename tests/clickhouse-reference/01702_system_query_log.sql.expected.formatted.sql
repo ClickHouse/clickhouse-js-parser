@@ -44,7 +44,7 @@ SOURCE(clickhouse(DB 'sqllt' TABLE 'table' HOST 'localhost' PORT 9001))
 LIFETIME(MIN 0 MAX 0)
 LAYOUT(FLAT());
 
-CREATE USER sqllt_user IDENTIFIED BY 'password';
+CREATE USER sqllt_user IDENTIFIED WITH plaintext_password BY 'password';
 
 CREATE ROLE sqllt_role;
 

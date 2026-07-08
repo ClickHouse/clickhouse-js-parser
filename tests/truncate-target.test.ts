@@ -1,5 +1,5 @@
 import { parse } from '../src/index';
-import { stripAstMeta } from './helpers';
+import { formatJsonExplain } from './helpers';
 
 /**
  * Standalone coverage for the `TRUNCATE` target disambiguation, focused on the
@@ -19,8 +19,8 @@ import { stripAstMeta } from './helpers';
  *   ./clickhouse -q "explain ast json=1 <SQL>"
  *
  * (see scripts/gen output; the EXPLAIN string is unescaped and its `.ast`
- * extracted). Comparisons use stripAstMeta so library-only/underscore fields
- * are ignored — only ClickHouse-native fields are asserted.
+ * extracted). Comparisons use formatJsonExplain so library-only fields are
+ * ignored — only ClickHouse-native fields are asserted.
  */
 
 const cases: { sql: string; ast: unknown }[] = [
@@ -119,9 +119,9 @@ describe('TRUNCATE target disambiguation (has_all / has_tables)', () => {
   for (const { sql, ast } of cases) {
     it(sql, () => {
       const statements = parse(sql);
-      const actual = stripAstMeta(statements) as unknown[];
+      const actual = formatJsonExplain(statements, 2) as unknown[];
       expect(actual).toHaveLength(1);
-      expect(actual[0]).toEqual(ast);
+      expect(actual[0]).toEqual({ version: 2, ast });
     });
   }
 });

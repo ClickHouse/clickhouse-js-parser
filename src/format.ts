@@ -555,9 +555,29 @@ function nativeAuthToAuth(
         })),
       };
     }
-    const first = m.arguments?.[0];
-    if (first && first.value !== undefined) return { secret: first.value };
-    return {};
+    const secret = m.arguments?.[0]?.value;
+    if (secret === undefined) return {}; // NO_PASSWORD / NOT IDENTIFIED
+    // Reconstruct the source auth keyword and secret introducer from the native
+    // `auth_type` enum plus the `contains_hash`/`contains_password` flags (the
+    // inverse of the grammar's mapping), so `format()` re-emits the `WITH`
+    // qualifier and the field round-trips exactly.
+    switch (m.auth_type) {
+      case 'PLAINTEXT_PASSWORD':
+        return { secret, authType: 'plaintext_password' };
+      case 'SHA256_PASSWORD':
+        return { secret, authType: m.contains_hash ? 'sha256_hash' : 'sha256_password' };
+      case 'DOUBLE_SHA1_PASSWORD':
+        return { secret, authType: m.contains_hash ? 'double_sha1_hash' : 'double_sha1_password' };
+      case 'BCRYPT_PASSWORD':
+        return { secret, authType: m.contains_hash ? 'bcrypt_hash' : 'bcrypt_password' };
+      case 'KERBEROS':
+        return { secret, authType: 'kerberos', secretKeyword: 'REALM' as const };
+      case 'LDAP':
+        return { secret, authType: 'ldap', secretKeyword: 'SERVER' as const };
+      default:
+        // No `auth_type` — a bare `IDENTIFIED BY '...'` (server-default method).
+        return { secret };
+    }
   });
 }
 
@@ -1012,7 +1032,7 @@ function formatSettingScalar(
   if (typeof v === 'object') {
     const pairs = Object.entries(v).map(
       ([k, el]) =>
-        `('${escapeString(k)}', ${formatLiteralValue(el.value_type, el.value, el._nonfinite)})`,
+        `('${escapeString(k)}', ${formatLiteralValue(el.value_type, el.value, el.nonfinite)})`,
     );
     return `[${pairs.join(', ')}]`;
   }
@@ -1504,9 +1524,11 @@ function formatShowFamilyQuery(stmt: ShowFamilyQueryNode, indent: string): strin
 // Formats the text after the IDENTIFIED keyword from an auth-method array.
 // Shared by CREATE USER and ALTER USER (the caller supplies the IDENTIFIED keyword).
 //
-// Note: for password methods the auth-method *type* (e.g. `WITH sha256_password`)
-// is not preserved in the AST — only the secret is stored — so it is not echoed
-// here. SSH keys, by contrast, are reproduced verbatim.
+// The auth-method type is re-emitted as `WITH <authType>` (e.g.
+// `WITH sha256_hash`) whenever it was recorded, so the qualifier round-trips;
+// a bare `IDENTIFIED BY '...'` (no explicit method) omits it. The secret is
+// introduced by `BY`/`REALM`/`SERVER` per {@link AuthenticationData.secretKeyword},
+// and SSH keys are reproduced verbatim.
 function formatAuthMethods(auth: AuthenticationData[]): string {
   const parts = auth
     .map((a) => {
@@ -1516,8 +1538,9 @@ function formatAuthMethods(auth: AuthenticationData[]): string {
         );
         return `WITH ssh_key BY ${keys.join(', ')}`;
       }
-      if (a.secret) return `BY '${escapeString(a.secret)}'`;
-      return '';
+      if (a.secret === undefined) return '';
+      const secretText = `${a.secretKeyword ?? 'BY'} '${escapeString(a.secret)}'`;
+      return a.authType !== undefined ? `WITH ${a.authType} ${secretText}` : secretText;
     })
     .filter(Boolean);
   return parts.join(', ');
@@ -2298,7 +2321,7 @@ function formatNativeCodecInner(fnNode: FunctionNode): string {
     .map((c) => {
       const fmtName = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c.name) ? c.name : quoteIdent(c.name);
       // Canonicalize the no-argument form to empty parens (`Delta()`, not
-      // `Delta`); the two are semantically identical. `_no_parens` is retained
+      // `Delta`); the two are semantically identical. `no_parens` is retained
       // only so `formatExplain()` can reproduce ClickHouse's byte-exact AST.
       if (c.arguments !== undefined && c.arguments.length > 0) {
         return `${fmtName}(${c.arguments.map((a) => formatExpr(a, '')).join(', ')})`;
@@ -2335,7 +2358,7 @@ function formatColumnDeclNode(col: ColumnDeclarationNode, indent: string): strin
 /** Render a native `TYPE name[(args)]` index-type function. */
 function formatTypeFn(it: FunctionNode, indent: string): string {
   // Canonicalize the no-argument form to empty parens (`minmax()`, not
-  // `minmax`); `_no_parens` is retained only for `formatExplain()`.
+  // `minmax`); `no_parens` is retained only for `formatExplain()`.
   if (it.arguments.length > 0) {
     return `${it.name}(${it.arguments.map((a) => formatExpr(a, indent)).join(', ')})`;
   }
@@ -2428,7 +2451,7 @@ function formatColumnsBlockNode(cols: ColumnsNode, indent: string, sep: string =
 /** Render a native engine `Function` node (`ENGINE = name[(args)]`). */
 function formatEngineNode(engine: FunctionNode, indent: string): string {
   // Canonicalize the no-argument form to empty parens (`ENGINE = Memory()`, not
-  // `Memory`); `_no_parens` is retained only for `formatExplain()`.
+  // `Memory`); `no_parens` is retained only for `formatExplain()`.
   if (engine.arguments !== undefined && engine.arguments.length > 0) {
     return `${engine.name}(${engine.arguments.map((a) => formatExpr(a, indent)).join(', ')})`;
   }
@@ -2506,7 +2529,7 @@ function formatStorageClausesNode(
     result += `\n${indent}TTL ${ttlStr}`;
   }
   // ClickHouse requires storage `SETTINGS` to be the last clause; canonicalize
-  // to that position. `_settings_after_order_by` is retained only so
+  // to that position. `settings_after_order_by` is retained only so
   // `formatExplain()` can reproduce ClickHouse's source-order `Set` child.
   if (storage.settings) {
     result += `\n${indent}SETTINGS ${formatSetPairs(storage.settings).join(', ')}`;
@@ -3380,18 +3403,18 @@ function formatExpr(expr: Expression, indent: string): string {
 // wrapNaryOperandCore).
 
 function formatLiteral(expr: LiteralNode): string {
-  return formatLiteralValue(expr.value_type, expr.value, expr._nonfinite);
+  return formatLiteralValue(expr.value_type, expr.value, expr.nonfinite);
 }
 
 // Shared rendering for a Literal node and for the `{value_type, value,
-// _nonfinite?}` elements of an `Array`/`Tuple` literal `value` list (the
+// nonfinite?}` elements of an `Array`/`Tuple` literal `value` list (the
 // scalar cases are identical; collections recurse into their element lists).
 // Inline comments are not represented in the typed-element model, so they are
 // dropped (an accepted canonicalization of array/tuple literals).
 function formatLiteralValue(
   valueType: LiteralNode['value_type'],
   value: LiteralNode['value'],
-  nonfinite: LiteralNode['_nonfinite'],
+  nonfinite: LiteralNode['nonfinite'],
 ): string {
   switch (valueType) {
     case 'String':
@@ -3402,7 +3425,7 @@ function formatLiteralValue(
       return 'NULL';
     case 'Float64':
       // `value` cannot carry non-finite forms (`null`) or negative zero (`0`);
-      // `_nonfinite` supplies those. Finite values reconstruct from the double:
+      // `nonfinite` supplies those. Finite values reconstruct from the double:
       // `canonicalFloatText` guarantees a `.`/`e` so the output reparses as a
       // Float and not as a UInt64.
       return value === null
@@ -3417,7 +3440,7 @@ function formatLiteralValue(
       const els = Array.isArray(value) ? value : [];
       return (
         open +
-        els.map((el) => formatLiteralValue(el.value_type, el.value, el._nonfinite)).join(', ') +
+        els.map((el) => formatLiteralValue(el.value_type, el.value, el.nonfinite)).join(', ') +
         close
       );
     }
@@ -3751,7 +3774,7 @@ function formatDescribeQuery(stmt: DescribeQueryNode, indent: string): string {
   let result = `${indent}DESCRIBE TABLE ${target}`;
   if (te?.final) result += ' FINAL';
   // Canonicalize `SETTINGS ... FORMAT ...` to `FORMAT ... SETTINGS ...` (a
-  // syntactic no-op). `_settings_before_format` is retained only so
+  // syntactic no-op). `settings_before_format` is retained only so
   // `formatExplain()` can reproduce ClickHouse's source-order child list.
   if (stmt.format !== undefined) result += ` FORMAT ${stmt.format}`;
   result += settingsTrailerSuffix(stmt);
@@ -4244,10 +4267,10 @@ function formatFunction(expr: FunctionNode, indent: string): string {
       // Function Array reaches this case for two reasons: at least one
       // non-dumpable element (always Function on reparse), or the original
       // source had a parenthesized element (`[(NULL)]`) whose
-      // `_parenthesized` marker is stripped from the public AST. To keep
+      // `parenthesized` marker is stripped from the public AST. To keep
       // the Function shape across `parse → format → parse` in the second
       // case, wrap the first dump-eligible Literal in parens so the
-      // reparsed first element carries `_parenthesized` and `plainElem`
+      // reparsed first element carries `parenthesized` and `plainElem`
       // again returns null — forcing the Function form.
       result = `[${formatFunctionArrayArgs(expr.arguments, indent)}]`;
       break;

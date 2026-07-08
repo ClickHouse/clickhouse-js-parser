@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { parse, format, formatExplain } from '@clickhouse/parser';
+import { parse, format, formatExplain, formatJsonExplain } from '@clickhouse/parser';
 import type { AstNode, SourceLocation } from './ast-utils';
 import { SqlInput } from './SqlInput';
 import { AstJson } from './AstJson';
 import { AstViz } from './AstViz';
 import { NodeDetail } from './NodeDetail';
 import { TextOutput } from './TextOutput';
+import { JsonExplain } from './JsonExplain';
 
 const DEFAULT_SQL = `SELECT
     user_id,
@@ -19,13 +20,14 @@ HAVING events > {min_events:UInt32}
 ORDER BY events DESC
 LIMIT 100;`;
 
-type Tab = 'json' | 'viz' | 'formatted' | 'explain';
+type Tab = 'json' | 'viz' | 'formatted' | 'jsonExplain' | 'explain';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'json', label: 'AST (JSON)' },
   { id: 'viz', label: 'AST (Visual)' },
   { id: 'formatted', label: 'Formatted SQL' },
-  { id: 'explain', label: 'Explain AST Output' },
+  { id: 'explain', label: 'Explain AST' },
+  { id: 'jsonExplain', label: 'Explain AST JSON (v2)' },
 ];
 
 type ParseResult = { ok: true; statements: AstNode[] } | { ok: false; error: string };
@@ -95,6 +97,13 @@ export function App() {
     () => (parsed.ok ? tryRun(() => formatExplain(parsed.statements as never)) : null),
     [parsed],
   );
+  const jsonExplained = useMemo(
+    () =>
+      parsed.ok
+        ? tryRun(() => JSON.stringify(formatJsonExplain(parsed.statements as never, 2), null, 2))
+        : null,
+    [parsed],
+  );
 
   return (
     <div className="app">
@@ -160,6 +169,8 @@ export function App() {
                 />
               ) : tab === 'formatted' ? (
                 <TextOutput result={formatted} />
+              ) : tab === 'jsonExplain' ? (
+                <JsonExplain result={jsonExplained} />
               ) : (
                 <TextOutput result={explained} />
               )}

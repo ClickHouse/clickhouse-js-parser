@@ -84,7 +84,7 @@ export type {
  *
  * Three markers are handled:
  *
- * - `_parenthesized: true` — set on (a) expression nodes (Literal,
+ * - `parenthesized: true` — set on (a) expression nodes (Literal,
  *   Identifier, Function, Asterisk, SelectQuery, SelectWithUnionQuery,
  *   SelectIntersectExceptQuery) and on (b) the storage `orderBy` array.
  *   Read at parse time by the unary-minus folding rule, tuple/array element
@@ -96,7 +96,7 @@ export type {
  *   `orderByParenthesized` field on the parent statement (set by the
  *   grammar itself); we just delete the array-property version here.
  *
- * - `_cast_operand` — set on the stringified first argument of a
+ * - `cast_operand` — set on the stringified first argument of a
  *   pure-literal `::` cast (`1::UInt8` folds the operand to `Literal
  *   String '1'`, matching ClickHouse's native AST). Read at parse time
  *   only, by the unary-minus negate-fold, to distinguish a folded `::`
@@ -106,14 +106,14 @@ export type {
  *   distinguish the two forms; the formatter accepts the canonicalization
  *   `1::UInt8` → `CAST('1' AS UInt8)` at output time.
  *
- * - `_neg_folded: true` — set on a `UInt64(0)` literal produced by folding
+ * - `neg_folded: true` — set on a `UInt64(0)` literal produced by folding
  *   `-0`. Read at parse time only, by the unary-minus rule, so that
  *   `- -0` falls through to `negate(0)` (matching ClickHouse) instead of
  *   re-folding to a bare `UInt64(0)`. The public AST cannot distinguish
  *   `0` from `-0` (both are `UInt64 0`); the marker only governs the
  *   parse-time wrapping decision.
  *
- * - `_change_value_types` — records the source literal type of each
+ * - `change_value_types` — records the source literal type of each
  *   `Settings.changes` entry. Consumed only during parsing (by the grammar's
  *   EXPLAIN-settings and INSERT/SELECT settings-merge rules); `format()` and
  *   `formatExplain()` canonicalize numeric settings to the quoted form and
@@ -123,17 +123,17 @@ function stripParseTimeMarkers(value: unknown): void {
   if (value === null || typeof value !== 'object') return;
 
   if (Array.isArray(value)) {
-    // Delete the non-index `_parenthesized` array property (storage ORDER BY).
-    delete (value as unknown as { _parenthesized?: boolean })._parenthesized;
+    // Delete the non-index `parenthesized` array property (storage ORDER BY).
+    delete (value as unknown as { parenthesized?: boolean }).parenthesized;
     for (const item of value) stripParseTimeMarkers(item);
     return;
   }
 
   const obj = value as Record<string, unknown>;
-  if ('_parenthesized' in obj) delete obj._parenthesized;
-  if ('_cast_operand' in obj) delete obj._cast_operand;
-  if ('_neg_folded' in obj) delete obj._neg_folded;
-  if ('_change_value_types' in obj) delete obj._change_value_types;
+  if ('parenthesized' in obj) delete obj.parenthesized;
+  if ('cast_operand' in obj) delete obj.cast_operand;
+  if ('neg_folded' in obj) delete obj.neg_folded;
+  if ('change_value_types' in obj) delete obj.change_value_types;
   for (const v of Object.values(obj)) stripParseTimeMarkers(v);
 }
 
@@ -250,6 +250,7 @@ export function parse(
 
 export { format, formatNode } from './format';
 export { formatExplain } from './explain';
+export { formatJsonExplain } from './json-explain';
 export { findNodes } from './find-nodes';
 export { transformNodes, type NodePositionMap } from './transform-nodes';
 export {

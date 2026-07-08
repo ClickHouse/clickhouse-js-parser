@@ -230,7 +230,7 @@ Comments are attached to the nearest node as arrays of their full source text
 These fields carry semantic information that the reference JSON AST discards but
 that `format()` needs to reproduce the source faithfully.
 
-- `_nonfinite` — Found on `Literal` and `LiteralElement` nodes, this is a discriminator
+- `nonfinite` — Found on `Literal` and `LiteralElement` nodes, this is a discriminator
 for `Float64` values that the native `value` float cannot represent in serialized JSON.
 Non-finite values (`inf`, `-inf`, `nan`, `-nan`) that each collapse to `null` can be
 recovered using this flag.
@@ -239,27 +239,28 @@ which are not represented by the reference ClickHouse JSON AST.
 
 #### Non-Semantic Fields for Explain Formatting
 
-These underscore-prefixed fields carry no semantic meaning and are **only** read
-by `formatExplain()`. They exist because ClickHouse's `EXPLAIN AST`exposes internal
-child-vector ordering and duplication that the structured JSON AST discards.
+These fields carry no semantic meaning and are **only** read by `formatExplain()`.
+They exist because ClickHouse's `EXPLAIN AST` exposes internal child-vector ordering
+and duplication that the structured JSON AST discards. Like the semantic fields
+above, they are absent from the reference AST, so `formatJsonExplain()` strips them.
 
-- `_with_trailing` — marks a `WITH` clause that ClickHouse appends *after* the
+- `with_trailing` — marks a `WITH` clause that ClickHouse appends *after* the
   select body rather than before it (a `WITH` written before an enclosing
   `INSERT`, or propagated into a non-leftmost `UNION`/`INTERSECT` member). The
   reference AST stores the same `with` field in both positions, so the flag is
   the only record of the trailing placement.
-- `_agg_repeat` — marks the synthetic `SelectQuery` produced when lowering
+- `agg_repeat` — marks the synthetic `SelectQuery` produced when lowering
   `expr op ANY/ALL (subquery)`. ClickHouse's text dump emits this node's
   projection and tables twice (`SelectQuery (children 4)`); the reference AST
   keeps a single copy, indistinguishable from a user-written
   `(SELECT agg(*) FROM (sub))`.
-- `_settings_before_format` — records that `SETTINGS` preceded `FORMAT` in the
+- `settings_before_format` — records that `SETTINGS` preceded `FORMAT` in the
   source. `format()` canonicalizes to `FORMAT ... SETTINGS ...`; the flag lets
   the explain projection reproduce the original child order.
-- `_settings_after_order_by` — records that a storage `SETTINGS` clause appeared
+- `settings_after_order_by` — records that a storage `SETTINGS` clause appeared
   before the last clause in the source. `format()` canonicalizes it to the
   required final position; the flag preserves the original `Set` child order.
-- `_no_parens` — records that a codec/engine function was written without
+- `no_parens` — records that a codec/engine function was written without
   parentheses (e.g. `Delta` vs `Delta()`). `format()` canonicalizes to the
   empty-parens form; the flag reproduces ClickHouse's byte-exact AST.
 

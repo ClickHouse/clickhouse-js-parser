@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { substituteQueryParameters } from '../src/query-parameters';
 
-export { stripAstMeta, stripVolatile } from '../src/meta';
+export { stripVolatile } from '../src/meta';
+export { formatJsonExplain } from '../src/json-explain';
 
 /** Directory holding the ClickHouse reference `.sql` cases and their expected outputs. */
 export const CLICKHOUSE_DIR = path.join(__dirname, 'clickhouse-reference');
