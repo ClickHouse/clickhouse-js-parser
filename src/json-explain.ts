@@ -46,17 +46,17 @@ export type JsonExplainEnvelope = {
  * alongside the round-trip `VOLATILE_KEYS` they keep in sync with.
  *
  * `version` must be `2`, the only schema this library emits; any other value
- * throws. The result of `formatJsonExplain(parse(sql), 2)` must equal
+ * throws. The result of `formatExplainJson(parse(sql), 2)` must equal
  * ClickHouse's `EXPLAIN AST json = 2` output for the same statements; the
  * reference ast test relies on this.
  */
-export function formatJsonExplain(
+export function formatExplainJson(
   statements: WithoutLocations<Statement>[],
   version: JsonExplainVersion,
 ): JsonExplainEnvelope[] {
   if (version !== 2) {
     throw new Error(
-      `formatJsonExplain: unsupported version ${version}; only version 2 is supported`,
+      `formatExplainJson: unsupported version ${version}; only version 2 is supported`,
     );
   }
   return statements.map((statement) => ({ version, ast: stripNonReference(statement) }));

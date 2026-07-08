@@ -250,7 +250,7 @@ export function parse(
 
 export { format, formatNode } from './format';
 export { formatExplain } from './explain';
-export { formatJsonExplain } from './json-explain';
+export { formatExplainJson } from './json-explain';
 export { findNodes } from './find-nodes';
 export { transformNodes, type NodePositionMap } from './transform-nodes';
 export {

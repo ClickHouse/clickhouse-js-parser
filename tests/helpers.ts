@@ -3,7 +3,7 @@ import * as path from 'path';
 import { substituteQueryParameters } from '../src/query-parameters';
 
 export { stripVolatile } from '../src/meta';
-export { formatJsonExplain } from '../src/json-explain';
+export { formatExplainJson } from '../src/json-explain';
 
 /** Directory holding the ClickHouse reference `.sql` cases and their expected outputs. */
 export const CLICKHOUSE_DIR = path.join(__dirname, 'clickhouse-reference');

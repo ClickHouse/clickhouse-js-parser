@@ -17,6 +17,7 @@ export default defineConfig(
       'src/parser.d.ts',
       'scripts/**',
       'tmp/**',
+      'playground/**',
     ],
   },
 );

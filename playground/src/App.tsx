@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { parse, format, formatExplain, formatJsonExplain } from '@clickhouse/parser';
+import { parse, format, formatExplain, formatExplainJson } from '@clickhouse/parser';
 import type { AstNode, SourceLocation } from './ast-utils';
 import { SqlInput } from './SqlInput';
 import { AstJson } from './AstJson';
@@ -100,7 +100,7 @@ export function App() {
   const jsonExplained = useMemo(
     () =>
       parsed.ok
-        ? tryRun(() => JSON.stringify(formatJsonExplain(parsed.statements as never, 2), null, 2))
+        ? tryRun(() => JSON.stringify(formatExplainJson(parsed.statements as never, 2), null, 2))
         : null,
     [parsed],
   );

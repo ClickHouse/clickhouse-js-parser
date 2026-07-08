@@ -4,7 +4,7 @@ import { parse } from '../src/index';
 import {
   CLICKHOUSE_DIR,
   discoverCases,
-  formatJsonExplain,
+  formatExplainJson,
   pruneFilteredStorageSettings,
   pruneLibraryOnlyParamSettings,
   readReferenceSql,
@@ -23,7 +23,7 @@ describe('clickhouse reference - ast', () => {
 
       const sql = readReferenceSql(filePath);
       const statements = parse(sql);
-      const actual = formatJsonExplain(statements, 2) as unknown[];
+      const actual = formatExplainJson(statements, 2) as unknown[];
 
       // Each entry in the reference JSON is either a sentinel string
       // (`<AST Error>`, `<Query Parameters>`) or a `{ version, ast }` envelope.

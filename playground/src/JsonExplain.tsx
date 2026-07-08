@@ -5,7 +5,7 @@ type Props = {
 };
 
 /**
- * Renders the `formatJsonExplain` output (the ClickHouse-native `EXPLAIN AST
+ * Renders the `formatExplainJson` output (the ClickHouse-native `EXPLAIN AST
  * json = 2` view, `{ version, ast }` per statement) as formatted JSON, or its
  * error.
  */

@@ -13,7 +13,7 @@ import * as path from 'path';
 import { createTwoFilesPatch } from 'diff';
 import { minimatch } from 'minimatch';
 import pc from 'picocolors';
-import { format, formatExplain, formatJsonExplain, parse } from '../src/index.js';
+import { format, formatExplain, formatExplainJson, parse } from '../src/index.js';
 import { stripVolatile } from '../src/meta.js';
 import { substituteQueryParameters } from '../src/query-parameters.js';
 
@@ -43,7 +43,7 @@ const AST_ERROR = '<AST Error>';
  * don't surface as spurious diffs (mirroring the ast reference test).
  */
 export function computeAst(sql: string, expected: string | null = null): string {
-  const actual = formatJsonExplain(parse(sql), 2) as unknown[];
+  const actual = formatExplainJson(parse(sql), 2) as unknown[];
   if (expected !== null) {
     try {
       const expectedEntries = JSON.parse(expected) as unknown[];

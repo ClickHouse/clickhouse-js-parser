@@ -242,7 +242,7 @@ which are not represented by the reference ClickHouse JSON AST.
 These fields carry no semantic meaning and are **only** read by `formatExplain()`.
 They exist because ClickHouse's `EXPLAIN AST` exposes internal child-vector ordering
 and duplication that the structured JSON AST discards. Like the semantic fields
-above, they are absent from the reference AST, so `formatJsonExplain()` strips them.
+above, they are absent from the reference AST, so `formatExplainJson()` strips them.
 
 - `with_trailing` — marks a `WITH` clause that ClickHouse appends *after* the
   select body rather than before it (a `WITH` written before an enclosing
@@ -263,6 +263,22 @@ above, they are absent from the reference AST, so `formatJsonExplain()` strips t
 - `no_parens` — records that a codec/engine function was written without
   parentheses (e.g. `Delta` vs `Delta()`). `format()` canonicalizes to the
   empty-parens form; the flag reproduces ClickHouse's byte-exact AST.
+
+#### Filtered Storage Settings
+
+When ClickHouse emits `EXPLAIN AST json=1`, it filters a
+`CREATE TABLE`/`CREATE DATABASE ... SETTINGS` clause down to only the settings
+that belong to the target engine's own registry (a version- and
+engine-specific set). Session- or query-level settings that were written into
+the clause — e.g. `log_queries`, `allow_suspicious_low_cardinality_types`, or
+`use_hive_partitioning` on a table, or `distributed_ddl_task_timeout` on a
+database — are dropped from the `Storage > Set` `changes` map, and if nothing
+remains the entire `Storage`/`settings` node is dropped.
+
+This library does **not** replicate that engine-specific registry: it keeps
+**every** setting in the clause so `format()` can re-emit the original SQL
+faithfully. The library AST may therefore carry extra `Storage` settings that
+the reference AST omits.
 
 ## Development
 

@@ -61,7 +61,7 @@ const ExprMetadataFields = {
 // ── ClickHouse-native expression nodes ────────────────────────────────────────
 // These node types mirror ClickHouse's own AST: the `type` discriminator and all
 // reference AST fields must match `EXPLAIN AST json = 1` output exactly (the
-// reference ast suite compares them via `formatJsonExplain`, which drops the
+// reference ast suite compares them via `formatExplainJson`, which drops the
 // library-only fields). A few fields carry library-only data the native JSON
 // loses but that format() and formatExplain() need; these are enumerated in
 // src/json-explain.ts and documented in the README.
