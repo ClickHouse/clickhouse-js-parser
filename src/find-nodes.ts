@@ -2,8 +2,7 @@ import type { Statement, ASTNodeLookupMap, WithoutLocations } from './ast';
 
 /**
  * Recursively finds all AST nodes of the given node `type` in one or more
- * parsed statements. (TRANSITION kind→type rewrite: old-shape statement nodes
- * are still matched by their `kind` value.)
+ * parsed statements.
  *
  * @example
  * ```ts
@@ -23,15 +22,15 @@ import type { Statement, ASTNodeLookupMap, WithoutLocations } from './ast';
 // (`parse(sql, { locations: false })`) yields location-free result nodes.
 export function findNodes<K extends keyof ASTNodeLookupMap>(
   statements: Statement[],
-  kind: K,
+  type: K,
 ): ASTNodeLookupMap[K][];
 export function findNodes<K extends keyof ASTNodeLookupMap>(
   statements: WithoutLocations<Statement>[],
-  kind: K,
+  type: K,
 ): WithoutLocations<ASTNodeLookupMap[K]>[];
 export function findNodes<K extends keyof ASTNodeLookupMap>(
   statements: WithoutLocations<Statement>[],
-  kind: K,
+  type: K,
 ): ASTNodeLookupMap[K][] {
   const results: ASTNodeLookupMap[K][] = [];
   const seen = new Set<unknown>();
@@ -52,10 +51,8 @@ export function findNodes<K extends keyof ASTNodeLookupMap>(
     }
 
     const obj = node as Record<string, unknown>;
-    // New-shape nodes match on `type`; old-shape nodes match on `kind`.
-    // (The `type` check must come first: native Function nodes carry a data
-    // field also named `kind`, e.g. TABLE_ENGINE.)
-    if (typeof obj.type === 'string' ? obj.type === kind : obj.kind === kind) {
+    // Every AST node matches on its `type` discriminator.
+    if (obj.type === type) {
       results.push(obj as ASTNodeLookupMap[K]);
     }
 

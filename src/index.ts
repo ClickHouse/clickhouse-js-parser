@@ -67,14 +67,7 @@ export type {
   WorkloadChange,
   ResourceOperation,
   AccessControlName,
-  HostItem,
-  AccessControlSettingsItem,
-  RoleTarget,
-  DefaultRoleClause,
   IndexType,
-  Literal,
-  OrderByItem,
-  QueryParam,
 } from './ast';
 
 // ── Post-parse cleanup ───────────────────────────────────────────────────────
@@ -157,11 +150,8 @@ function setParents(statements: Statement[]): void {
     }
 
     const obj = node as Record<string, unknown>;
-    // An AST node has a string `type` discriminator. (TRANSITION kind→type
-    // rewrite: old-shape nodes use `kind`; drop the fallback when they're gone.
-    // The `type` check must come first — native `Function` nodes carry a data
-    // field also named `kind`, e.g. TABLE_ENGINE.)
-    if (typeof obj.type === 'string' || 'kind' in obj) {
+    // Every AST node has a string `type` discriminator.
+    if (typeof obj.type === 'string') {
       obj.parent = parent;
       for (const [key, value] of Object.entries(obj)) {
         if (key === 'parent') continue;
@@ -248,7 +238,63 @@ export function parse(
   return statements;
 }
 
-export { format, formatNode } from './format';
+export {
+  // Top-level entry points.
+  format,
+  formatNode,
+  // Per-reference-node-type formatters. Formatting is driven by dispatching on
+  // each node's `type` to the matching function below.
+  formatSelectWithUnion,
+  formatIntersectExcept,
+  formatSetStatement,
+  formatInsertQuery,
+  formatExplainQuery,
+  formatOptimizeQuery,
+  formatDescribeQuery,
+  formatShowCreateQuery,
+  formatExistsQuery,
+  formatCheckQuery,
+  formatAttachQuery,
+  formatRenameQuery,
+  formatKillQueryQuery,
+  formatDeleteQuery,
+  formatUpdateQuery,
+  formatDropFamily,
+  formatCreateQueryNode,
+  formatCreateFunctionQuery,
+  formatCreateIndexQuery,
+  formatAlterQueryNative,
+  formatSystemQuery,
+  formatShowFamilyQuery,
+  formatNamedCollectionQuery,
+  formatWorkloadQuery,
+  formatResourceQuery,
+  formatAccessQuery,
+  formatBackupStatement,
+  formatAlterAccessQuery,
+  formatAlterUserQuery,
+  formatAlterRoleQuery,
+  formatAlterQuotaQuery,
+  formatAlterRowPolicyQuery,
+  formatAlterSettingsProfileQuery,
+  formatCreateUserQuery,
+  formatCreateRoleQuery,
+  formatCreateRowPolicyQuery,
+  formatCreateQuotaQuery,
+  formatCreateSettingsProfileQuery,
+  formatGrantQuery,
+  formatSetRoleQuery,
+  formatLiteral,
+  formatIdentifier,
+  formatAsterisk,
+  formatQualifiedAsterisk,
+  formatQueryParameter,
+  formatSubquery,
+  formatColumnsMatcher,
+  formatFunction,
+  formatOrderByItem,
+  formatInterpolateItem,
+} from './format';
 export { formatExplain } from './explain';
 export { formatExplainJson } from './json-explain';
 export { findNodes } from './find-nodes';

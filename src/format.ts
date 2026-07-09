@@ -1,15 +1,13 @@
 import {
   AccessControlName,
-  AccessControlSettingsItem,
-  AlterUserClause,
   ASTNode,
   WithoutLocations,
   AuthenticationData,
   GrantElement,
   GrantPrivilege,
-  GrantStatement,
   GrantTarget,
-  Identifier,
+  IdentifierPart,
+  WindowDefinitionNode,
   ColumnsListMatcherNode,
   ColumnsRegexpMatcherNode,
   ColumnsTransformerListNode,
@@ -48,7 +46,6 @@ import {
   TypedSettingValue,
   Expression,
   FunctionNode,
-  HostItem,
   InterpolateElementNode,
   IdentifierNode,
   LiteralElement,
@@ -59,10 +56,7 @@ import {
   QualifiedColumnsRegexpMatcherNode,
   QueryParameterNode,
   AsteriskNode,
-  RoleTarget,
-  SampleClause,
   SampleRatioNode,
-  SampleRatioValue,
   SettingsNode,
   StorageNode,
   StorageOrderByElementNode,
@@ -97,8 +91,6 @@ import {
   SubqueryNode,
   Statement,
   StatementsSchema,
-  TableRef,
-  WindowSpec,
   TableOrderByItem,
   ColumnsNode,
   ColumnDeclarationNode,
@@ -226,7 +218,7 @@ function backtickQuote(s: string): string {
   return '`' + s.replace(/\\/g, '\\\\').replace(/`/g, '``') + '`';
 }
 
-function quoteIdent(s: Identifier): string {
+function quoteIdent(s: IdentifierPart): string {
   if (typeof s !== 'string') return `{${s.name}:${s.param_type}}`;
   if (isBareIdent(s)) return s;
   // `*` in qualified-asterisk position passes through
@@ -426,10 +418,9 @@ const STATEMENT_TYPES = new Set<string>([
 
 // Format any AST node by dispatching to the appropriate type-specific formatter.
 //
-// ClickHouse-native nodes dispatch on their `type` discriminator. The legacy
-// `kind`-discriminated statement/element nodes (CREATE DDL, ALTER access,
-// column/index defs, FROM atoms) are not present in the parsed AST but remain
-// accepted by this public API, so they are routed to their formatters here.
+// Every parsed node is ClickHouse-native and dispatches purely on its `type`
+// discriminator: OrderBy/Interpolate elements and statements have dedicated
+// formatters; everything else is an expression.
 export function formatNode(astNode: WithoutLocations<ASTNode>, indent: string = ''): string {
   // The parsed AST is entirely ClickHouse-native, discriminated by a string
   // `type`. OrderBy/Interpolate elements and statements have dedicated
@@ -524,14 +515,22 @@ function formatArgList(items: Expression[], indent: string): string {
 // for the lossy bits the native AST drops (clause order, privilege aliases,
 // quota durations normalized to seconds, host source spellings, ...).
 
-function nativeSetToTarget(set: RolesOrUsersSetNode | undefined): RoleTarget | undefined {
+/**
+ * Native `RolesOrUsersSet` → its rendered `ALL [EXCEPT ...]` / `NONE` / name-list
+ * text, or `undefined` when the set itself is absent. Replaces the former
+ * `RoleTarget` intermediate: the native fields are formatted directly.
+ */
+function formatRolesOrUsersSet(set: RolesOrUsersSetNode | undefined): string | undefined {
   if (!set) return undefined;
-  if (set.all) return { kind: 'all', except: set.except_names };
+  if (set.all) {
+    return set.except_names && set.except_names.length > 0
+      ? `ALL EXCEPT ${set.except_names.join(', ')}`
+      : 'ALL';
+  }
   const names: string[] = [];
   if (set.names) names.push(...set.names);
   if (set.current_user) names.push('CURRENT_USER');
-  if (names.length > 0) return { kind: 'names', names };
-  return { kind: 'none' };
+  return names.length > 0 ? names.join(', ') : 'NONE';
 }
 
 /** Plain name list (GRANT roles/grantees) from a native `RolesOrUsersSet`. */
@@ -602,19 +601,22 @@ function nativeStringNamesToNames(names: string[] | undefined): AccessControlNam
   return (names ?? []).map((n) => ({ name: n }));
 }
 
-/** Native `hosts` object → `HostItem[]` (empty object → `HOST NONE`). */
-function nativeHostsToItems(hosts: NativeHosts | undefined): HostItem[] | undefined {
+/**
+ * Native `hosts` object → rendered HOST spec text (empty object → `NONE`), or
+ * `undefined` when absent. Replaces the former `HostItem[]` intermediate.
+ */
+function formatHosts(hosts: NativeHosts | undefined): string | undefined {
   if (hosts === undefined) return undefined;
-  const items: HostItem[] = [];
-  if (hosts.any_host) items.push({ kind: 'any' });
-  if (hosts.local_host) items.push({ kind: 'local' });
-  for (const v of hosts.names ?? []) items.push({ kind: 'name', value: v });
-  for (const v of hosts.name_regexps ?? []) items.push({ kind: 'regexp', value: v });
-  for (const v of hosts.like_patterns ?? []) items.push({ kind: 'like', value: v });
-  for (const v of hosts.addresses ?? []) items.push({ kind: 'ip', value: v });
-  for (const v of hosts.subnets ?? []) items.push({ kind: 'ip', value: v });
-  if (items.length === 0) items.push({ kind: 'none' });
-  return items;
+  const parts: string[] = [];
+  if (hosts.any_host) parts.push('ANY');
+  if (hosts.local_host) parts.push('LOCAL');
+  for (const v of hosts.names ?? []) parts.push(`NAME '${v}'`);
+  for (const v of hosts.name_regexps ?? []) parts.push(`REGEXP '${v}'`);
+  for (const v of hosts.like_patterns ?? []) parts.push(`LIKE '${v}'`);
+  for (const v of hosts.addresses ?? []) parts.push(`IP '${v}'`);
+  for (const v of hosts.subnets ?? []) parts.push(`IP '${v}'`);
+  if (parts.length === 0) parts.push('NONE');
+  return parts.join(', ');
 }
 
 function literalExpr(
@@ -633,69 +635,43 @@ function nativeScalarToExpr(v: string | number | null): Expression {
   return literalExpr('String', v);
 }
 
-/** Native `SettingsProfileElements` → access-control settings ('NONE' if empty). */
-function nativeSettingsToItems(
+/** Render a single native `SettingsProfileElement` (a PROFILE ref or a setting). */
+function formatSettingsProfileElement(e: SettingsProfileElementNode, indent: string): string {
+  if (e.parent_profile !== undefined) return `PROFILE ${e.parent_profile}`;
+  let result = e.setting_name ?? '';
+  if (e.value !== undefined) result += `=${formatExpr(nativeScalarToExpr(e.value), indent)}`;
+  if (e.min_value !== undefined)
+    result += ` MIN ${formatExpr(nativeScalarToExpr(e.min_value), indent)}`;
+  if (e.max_value !== undefined)
+    result += ` MAX ${formatExpr(nativeScalarToExpr(e.max_value), indent)}`;
+  if (e.writability !== undefined) result += ` ${e.writability}`;
+  return result;
+}
+
+/**
+ * Native `SettingsProfileElements` → rendered SETTINGS list text (`NONE` when
+ * empty), or `undefined` when absent. Replaces the former
+ * `AccessControlSettingsItem[]` intermediate.
+ */
+function formatSettingsProfileElements(
   settings: SettingsProfileElementsNode | undefined,
-): AccessControlSettingsItem[] | 'NONE' | undefined {
+  indent: string,
+): string | undefined {
   if (settings === undefined) return undefined;
   const elements = settings.elements ?? [];
   if (elements.length === 0) return 'NONE';
-  return elements.map((e: SettingsProfileElementNode): AccessControlSettingsItem => {
-    if (e.parent_profile !== undefined) return { kind: 'profile', name: e.parent_profile };
-    const item: AccessControlSettingsItem = { kind: 'setting', name: e.setting_name ?? '' };
-    if (e.value !== undefined) item.value = nativeScalarToExpr(e.value);
-    if (e.min_value !== undefined) item.min = nativeScalarToExpr(e.min_value);
-    if (e.max_value !== undefined) item.max = nativeScalarToExpr(e.max_value);
-    if (e.writability !== undefined)
-      item.modifier = e.writability as 'CONST' | 'WRITABLE' | 'READONLY';
-    return item;
-  });
+  return elements.map((e) => formatSettingsProfileElement(e, indent)).join(', ');
 }
 
-/** Native `AlterSettingsProfileElements` → access-control settings ('NONE' if no adds). */
-function nativeAlterSettingsToItems(
-  alter: AlterSettingsProfileElementsNode,
-): AccessControlSettingsItem[] | 'NONE' {
+/** Native `AlterSettingsProfileElements` → rendered SETTINGS text (`NONE` if no adds). */
+function formatAlterAddSettings(alter: AlterSettingsProfileElementsNode, indent: string): string {
   if (alter.add_settings === undefined) return 'NONE';
-  const items = nativeSettingsToItems(alter.add_settings);
-  return items === undefined || items === 'NONE' ? 'NONE' : items;
+  return formatSettingsProfileElements(alter.add_settings, indent) ?? 'NONE';
 }
 
 function nativeDatabaseOrNone(db: DatabaseOrNoneNode | undefined): string | undefined {
   if (db === undefined) return undefined;
   return db.database ?? 'NONE';
-}
-
-/** Native ALTER USER fields → an ordered `AlterUserClause[]` (canonical order). */
-function nativeAlterUserClauses(n: CreateUserQueryNode): AlterUserClause[] {
-  const clauses: AlterUserClause[] = [];
-  if (n.new_name !== undefined) clauses.push({ kind: 'rename', to: { name: n.new_name } });
-  if (n.authentication_methods !== undefined) {
-    const auth = nativeAuthToAuth(n.authentication_methods) ?? [];
-    const empty = auth.length === 1 && !auth[0].secret && auth[0].sshKeys === undefined;
-    if (empty) clauses.push({ kind: 'notIdentified' });
-    else clauses.push({ kind: 'identified', auth });
-    const vu = nativeValidUntil(n.authentication_methods);
-    if (vu !== undefined) clauses.push({ kind: 'validUntil', value: vu });
-  }
-  if (n.hosts !== undefined)
-    clauses.push({ kind: 'host', hosts: nativeHostsToItems(n.hosts) ?? [] });
-  if (n.add_hosts !== undefined)
-    clauses.push({ kind: 'host', mode: 'ADD', hosts: nativeHostsToItems(n.add_hosts) ?? [] });
-  if (n.remove_hosts !== undefined)
-    clauses.push({ kind: 'host', mode: 'DROP', hosts: nativeHostsToItems(n.remove_hosts) ?? [] });
-  if (n.alter_settings !== undefined)
-    clauses.push({ kind: 'settings', settings: nativeAlterSettingsToItems(n.alter_settings) });
-  if (n.default_roles !== undefined)
-    clauses.push({
-      kind: 'defaultRole',
-      roles: nativeSetToTarget(n.default_roles) ?? { kind: 'none' },
-    });
-  const ddb = nativeDatabaseOrNone(n.default_database);
-  if (ddb !== undefined) clauses.push({ kind: 'defaultDatabase', database: ddb });
-  if (n.grantees !== undefined)
-    clauses.push({ kind: 'grantees', grantees: nativeSetToTarget(n.grantees) ?? { kind: 'none' } });
-  return clauses;
 }
 
 /** Native quota `key_type` enum → structured KEYED clause. */
@@ -746,6 +722,39 @@ function nativeLimitsToIntervals(
   });
 }
 
+/** Render the ` FOR <interval> ...` trailer of a quota from its intervals. */
+function formatQuotaIntervals(intervals: QuotaInterval[], indent: string): string {
+  let result = '';
+  for (const interval of intervals) {
+    result += ' FOR';
+    if (interval.randomized) result += ' RANDOMIZED';
+    result += ` ${interval.duration} ${interval.unit}`;
+    if (interval.trackingOnly) result += ' TRACKING ONLY';
+    else if (interval.noLimits) result += ' NO LIMITS';
+    else if (interval.limits)
+      result +=
+        ' ' +
+        interval.limits.map((l) => `MAX ${l.name} = ${formatExpr(l.value, indent)}`).join(', ');
+  }
+  return result;
+}
+
+/** The `USING <expr>` condition of a row policy (a bare `NONE` when empty). */
+function rowPolicyUsingExpr(node: CreateRowPolicyQueryNode): Expression | undefined {
+  if (node.filters && node.filters.length > 0) {
+    return node.filters[0].condition ?? ({ type: 'Identifier', name: 'NONE' } as IdentifierNode);
+  }
+  return undefined;
+}
+
+/** The `AS RESTRICTIVE|PERMISSIVE` modifier of a row policy, if set. */
+function rowPolicyRestrictive(
+  node: CreateRowPolicyQueryNode,
+): 'RESTRICTIVE' | 'PERMISSIVE' | undefined {
+  if (node.is_restrictive === undefined) return undefined;
+  return node.is_restrictive ? 'RESTRICTIVE' : 'PERMISSIVE';
+}
+
 /** Native `access_rights` entry → a single-privilege `GrantElement`. */
 function nativeAccessRightToElement(r: NativeAccessRight): GrantElement {
   const priv: GrantPrivilege = {
@@ -777,50 +786,25 @@ function nativeAccessRightToElement(r: NativeAccessRight): GrantElement {
   return { privileges: [priv], target };
 }
 
-/** Native GRANT/REVOKE node → structured {@link GrantStatement}. */
-function nativeGrantToStatement(n: GrantQueryNode): GrantStatement {
-  const operation: 'GRANT' | 'REVOKE' = n.type === 'RevokeQuery' ? 'REVOKE' : 'GRANT';
-  const stmt = {
-    kind: 'grant',
-    operation,
-    grantees: nativeSetToNames(n.grantees),
-  } as GrantStatement;
-  const withOptions: ('GRANT' | 'ADMIN' | 'REPLACE')[] = [];
-  let grantOption = false;
-  if (n.access_rights !== undefined) {
-    stmt.elements = n.access_rights.map(nativeAccessRightToElement);
-    grantOption = n.access_rights.some((r) => r.grant_option);
-    if (n.replace_access) withOptions.push('REPLACE');
-  } else {
-    const roles = nativeSetToNames(n.roles);
-    stmt.roles = roles.length > 0 ? roles : ['NONE'];
-    if (n.replace_granted_roles) withOptions.push('REPLACE');
-  }
-  if (grantOption) {
-    if (operation === 'REVOKE') stmt.optionFor = 'GRANT';
-    else withOptions.unshift('GRANT');
-  }
-  if (n.cluster !== undefined) stmt.onCluster = n.cluster;
-  if (withOptions.length > 0) stmt.withOptions = withOptions;
-  return stmt;
-}
-
-type RowPolicyTarget = { names: string[]; table: TableRef };
-
-/** Native `RowPolicyNames` → structured row-policy targets. */
-function nativeRowPolicyTargets(names: RowPolicyNamesNode | undefined): RowPolicyTarget[] {
-  return (names?.policies ?? []).map((p) => ({
-    names: [p.short_name],
-    table: {
-      kind: 'tableRef',
-      table: p.table ?? '*',
-      ...(p.database !== undefined ? { database: p.database } : {}),
-    } as TableRef,
-  }));
+/**
+ * Native `RowPolicyNames` → rendered `<name> ON <db>.<table>` target list.
+ * Table defaults to `*`; database/table are backtick-quoted as identifiers.
+ */
+function formatRowPolicyTargets(names: RowPolicyNamesNode | undefined): string {
+  return (names?.policies ?? [])
+    .map((p) => {
+      const table = p.table ?? '*';
+      const ref =
+        p.database !== undefined
+          ? `${quoteIdent(p.database)}.${quoteIdent(table)}`
+          : quoteIdent(table);
+      return `${p.short_name} ON ${ref}`;
+    })
+    .join(', ');
 }
 
 /** Dispatch an access-control query node directly to its native formatter. */
-function formatAccessQuery(node: AccessQueryNode, indent: string): string {
+export function formatAccessQuery(node: AccessQueryNode, indent: string): string {
   const alter = node.alter === true;
   switch (node.type) {
     case 'CreateUserQuery':
@@ -1070,27 +1054,14 @@ function formatSetPairs(set: SettingsNode): string[] {
   return pairs;
 }
 
-function formatSetStatement(stmt: SettingsNode, indent: string): string {
+export function formatSetStatement(stmt: SettingsNode, indent: string): string {
   return `${indent}SET ${formatSetPairs(stmt).join(', ')}`;
 }
 
-function formatSetRoleQuery(node: SetRoleQueryNode, indent: string): string {
-  const roles = nativeSetToTarget(node.roles) ?? { kind: 'none' as const };
+export function formatSetRoleQuery(node: SetRoleQueryNode, indent: string): string {
+  const roles = formatRolesOrUsersSet(node.roles) ?? 'NONE';
   const users: string[] = (node.to_users && node.to_users.names) || [];
-  return `${indent}SET DEFAULT ROLE ${formatRoleTarget(roles)} TO ${users.join(', ')}`;
-}
-
-function formatRoleTarget(target: RoleTarget): string {
-  switch (target.kind) {
-    case 'all':
-      return target.except && target.except.length > 0
-        ? `ALL EXCEPT ${target.except.join(', ')}`
-        : 'ALL';
-    case 'none':
-      return 'NONE';
-    case 'names':
-      return target.names.join(', ');
-  }
+  return `${indent}SET DEFAULT ROLE ${roles} TO ${users.join(', ')}`;
 }
 
 function formatAccessControlName(name: AccessControlName): string {
@@ -1101,61 +1072,6 @@ function formatAccessControlName(name: AccessControlName): string {
 
 function formatAccessControlNames(names: AccessControlName[]): string {
   return names.map(formatAccessControlName).join(', ');
-}
-
-function formatHostItems(items: HostItem[]): string {
-  const parts: string[] = [];
-  for (const item of items) {
-    switch (item.kind) {
-      case 'any':
-        parts.push('ANY');
-        break;
-      case 'none':
-        parts.push('NONE');
-        break;
-      case 'local':
-        parts.push('LOCAL');
-        break;
-      case 'name':
-        parts.push(`NAME '${item.value}'`);
-        break;
-      case 'regexp':
-        parts.push(`REGEXP '${item.value}'`);
-        break;
-      case 'like':
-        parts.push(`LIKE '${item.value}'`);
-        break;
-      case 'ip':
-        parts.push(`IP '${item.value}'`);
-        break;
-    }
-  }
-  return parts.join(', ');
-}
-
-function formatAccessControlSettingsItem(item: AccessControlSettingsItem, indent: string): string {
-  switch (item.kind) {
-    case 'profile':
-      return `PROFILE ${item.name}`;
-    case 'inherit':
-      return `INHERIT ${item.name}`;
-    case 'setting': {
-      let result = item.name;
-      if (item.value !== undefined) result += `=${formatExpr(item.value, indent)}`;
-      if (item.min !== undefined) result += ` MIN ${formatExpr(item.min, indent)}`;
-      if (item.max !== undefined) result += ` MAX ${formatExpr(item.max, indent)}`;
-      if (item.modifier) result += ` ${item.modifier}`;
-      return result;
-    }
-  }
-}
-
-function formatAccessControlSettings(
-  settings: AccessControlSettingsItem[] | 'NONE',
-  indent: string,
-): string {
-  if (settings === 'NONE') return 'NONE';
-  return settings.map((s) => formatAccessControlSettingsItem(s, indent)).join(', ');
 }
 
 // Render a `PARTITION ...` clause from an AST Partition / Partition_ID node.
@@ -1193,7 +1109,7 @@ function alterCommandsNeedParens(commands: AlterCommandNode[]): boolean {
   );
 }
 
-function formatAlterQueryNative(node: AlterQueryNode, indent: string): string {
+export function formatAlterQueryNative(node: AlterQueryNode, indent: string): string {
   const fmtId = (x: Expression): string => formatExpr(x, indent);
   let target: string;
   if (node.alter_object === 'DATABASE') {
@@ -1417,7 +1333,7 @@ function quoteAccessName(n: string): string {
 }
 
 // Every SHOW variant is rendered from native fields alone.
-function formatShowFamilyQuery(stmt: ShowFamilyQueryNode, indent: string): string {
+export function formatShowFamilyQuery(stmt: ShowFamilyQueryNode, indent: string): string {
   const fmt = stmt.format ? ` FORMAT ${stmt.format}` : '';
   const q = (body: string): string => `${indent}${body}${fmt}`;
 
@@ -1481,8 +1397,8 @@ function formatShowFamilyQuery(stmt: ShowFamilyQueryNode, indent: string): strin
       const fr = stmt.for_roles;
       // A bare `current_user` set is the default and needs no FOR clause.
       if (fr && !(fr.current_user && !fr.names && !fr.all)) {
-        const target = nativeSetToTarget(fr);
-        if (target) s += ` FOR ${formatRoleTarget(target)}`;
+        const target = formatRolesOrUsersSet(fr);
+        if (target !== undefined) s += ` FOR ${target}`;
       }
       if (stmt.with_implicit) s += ' WITH IMPLICIT';
       if (stmt.final) s += ' FINAL';
@@ -1495,20 +1411,7 @@ function formatShowFamilyQuery(stmt: ShowFamilyQueryNode, indent: string): strin
       if (stmt.current_user) {
         target = 'CURRENT_USER';
       } else if (stmt.row_policy_names !== undefined) {
-        target = nativeRowPolicyTargets(stmt.row_policy_names)
-          .map((t) => {
-            const tbl = t.table as { table?: string; database?: string } | undefined;
-            const names = t.names.join(', ');
-            if (tbl && tbl.table !== undefined) {
-              const ref =
-                tbl.database !== undefined
-                  ? `${quoteIdent(tbl.database)}.${quoteIdent(tbl.table)}`
-                  : quoteIdent(tbl.table);
-              return `${names} ON ${ref}`;
-            }
-            return names;
-          })
-          .join(', ');
+        target = formatRowPolicyTargets(stmt.row_policy_names);
       } else if (stmt.short_name !== undefined) {
         target = stmt.short_name;
       } else {
@@ -1546,257 +1449,161 @@ function formatAuthMethods(auth: AuthenticationData[]): string {
   return parts.join(', ');
 }
 
-type AlterAccessStmt =
-  | {
-      kind: 'alterUser';
-      names: AccessControlName[];
-      clauses: AlterUserClause[];
-      ifExists?: boolean;
-      onCluster?: string;
-    }
-  | {
-      kind: 'alterRole';
-      names: AccessControlName[];
-      onCluster?: string;
-      ifExists?: boolean;
-      renameTo?: AccessControlName;
-      settings?: AccessControlSettingsItem[] | 'NONE';
-    }
-  | {
-      kind: 'alterQuota';
-      names: string[];
-      keyed?: { notKeyed: true } | { keys: string[] };
-      intervals?: QuotaInterval[];
-      onCluster?: string;
-      to?: RoleTarget;
-      ifExists?: boolean;
-      renameTo?: string;
-    }
-  | {
-      kind: 'alterRowPolicy';
-      hasRowKeyword: boolean;
-      targets: RowPolicyTarget[];
-      using?: Expression;
-      restrictive?: 'RESTRICTIVE' | 'PERMISSIVE';
-      onCluster?: string;
-      to?: RoleTarget;
-      ifExists?: boolean;
-      renameTo?: string;
-      forSelect?: boolean;
-    }
-  | {
-      kind: 'alterSettingsProfile';
-      names: string[];
-      hasSettingsKeyword: boolean;
-      onCluster?: string;
-      to?: RoleTarget;
-      ifExists?: boolean;
-      renameTo?: string;
-      settings?: AccessControlSettingsItem[] | 'NONE';
-    };
+// ── ALTER access-control formatting ─────────────────────────────────────────
+// Each ALTER variant is rendered directly from the native AccessQueryNode
+// fields (the CREATE node shape reused with `alter: true`), in ClickHouse's
+// canonical clause order. No `kind`-tagged intermediate is built.
 
-function formatAlterAccessQuery(node: AccessQueryNode, indent: string): string {
-  const stmt: AlterAccessStmt =
-    node.type === 'CreateUserQuery'
-      ? {
-          kind: 'alterUser',
-          names: nativeUserNamesToNames(node.names),
-          clauses: nativeAlterUserClauses(node),
-          ifExists: node.if_exists,
-          onCluster: node.cluster,
-        }
-      : node.type === 'CreateRoleQuery'
-        ? {
-            kind: 'alterRole',
-            names: nativeStringNamesToNames(node.names),
-            onCluster: node.cluster,
-            ifExists: node.if_exists,
-            renameTo: node.new_name !== undefined ? { name: node.new_name } : undefined,
-            settings:
-              node.alter_settings !== undefined
-                ? nativeAlterSettingsToItems(node.alter_settings)
-                : undefined,
-          }
-        : node.type === 'CreateQuotaQuery'
-          ? {
-              kind: 'alterQuota',
-              names: node.names ?? [],
-              keyed: nativeKeyTypeToKeyed(node.key_type),
-              intervals: nativeLimitsToIntervals(node.limits),
-              onCluster: node.cluster,
-              to: nativeSetToTarget(node.roles),
-              ifExists: node.if_exists,
-              renameTo: node.new_name,
-            }
-          : node.type === 'CreateRowPolicyQuery'
-            ? {
-                kind: 'alterRowPolicy',
-                hasRowKeyword: true,
-                targets: nativeRowPolicyTargets(node.names),
-                using:
-                  node.filters && node.filters.length > 0
-                    ? (node.filters[0].condition ??
-                      ({ type: 'Identifier', name: 'NONE' } as IdentifierNode))
-                    : undefined,
-                restrictive:
-                  node.is_restrictive !== undefined
-                    ? node.is_restrictive
-                      ? 'RESTRICTIVE'
-                      : 'PERMISSIVE'
-                    : undefined,
-                onCluster: node.cluster,
-                to: nativeSetToTarget(node.roles),
-                ifExists: node.if_exists,
-                renameTo: node.new_short_name,
-                forSelect: undefined,
-              }
-            : node.type === 'CreateSettingsProfileQuery'
-              ? {
-                  kind: 'alterSettingsProfile',
-                  names: node.names ?? [],
-                  hasSettingsKeyword: true,
-                  onCluster: node.cluster,
-                  to: nativeSetToTarget(node.to_roles),
-                  ifExists: node.if_exists,
-                  renameTo: node.new_name,
-                  settings:
-                    node.alter_settings !== undefined
-                      ? nativeAlterSettingsToItems(node.alter_settings)
-                      : undefined,
-                }
-              : (() => {
-                  throw new Error(`formatAlterAccessQuery: unexpected node type ${node.type}`);
-                })();
-  if (stmt.kind === 'alterUser') {
-    let result = `${indent}ALTER USER`;
-    if (stmt.ifExists) result += ' IF EXISTS';
-    result += ` ${formatAccessControlNames(stmt.names)}`;
-    if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-    for (const c of stmt.clauses) {
-      switch (c.kind) {
-        case 'rename':
-          result += ` RENAME TO ${formatAccessControlName(c.to)}`;
-          break;
-        case 'identified':
-          result += ` IDENTIFIED ${formatAuthMethods(c.auth)}`;
-          break;
-        case 'notIdentified':
-          result += ' NOT IDENTIFIED';
-          break;
-        case 'host':
-          result += c.mode ? ` ${c.mode} HOST` : ' HOST';
-          result += ` ${formatHostItems(c.hosts)}`;
-          break;
-        case 'settings':
-          result +=
-            c.settings === 'NONE'
-              ? ' SETTINGS NONE'
-              : ` SETTINGS ${formatAccessControlSettings(c.settings, indent)}`;
-          break;
-        case 'defaultRole':
-          result += ` DEFAULT ROLE ${formatRoleTarget(c.roles)}`;
-          break;
-        case 'defaultDatabase':
-          result += ` DEFAULT DATABASE ${quoteIdent(c.database)}`;
-          break;
-        case 'grantees':
-          result += ` GRANTEES ${formatRoleTarget(c.grantees)}`;
-          break;
-        case 'validUntil':
-          result += ` VALID UNTIL ${formatStringLiteral(c.value)}`;
-          break;
-      }
-    }
-    return result;
+export function formatAlterUserQuery(node: CreateUserQueryNode, indent: string): string {
+  let result = `${indent}ALTER USER`;
+  if (node.if_exists) result += ' IF EXISTS';
+  result += ` ${formatAccessControlNames(nativeUserNamesToNames(node.names))}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (node.new_name !== undefined)
+    result += ` RENAME TO ${formatAccessControlName({ name: node.new_name })}`;
+  if (node.authentication_methods !== undefined) {
+    const auth = nativeAuthToAuth(node.authentication_methods) ?? [];
+    const empty = auth.length === 1 && !auth[0].secret && auth[0].sshKeys === undefined;
+    result += empty ? ' NOT IDENTIFIED' : ` IDENTIFIED ${formatAuthMethods(auth)}`;
+    const vu = nativeValidUntil(node.authentication_methods);
+    if (vu !== undefined) result += ` VALID UNTIL ${formatStringLiteral(vu)}`;
   }
-  if (stmt.kind === 'alterRole') {
-    let result = `${indent}ALTER ROLE`;
-    if (stmt.ifExists) result += ' IF EXISTS';
-    result += ` ${formatAccessControlNames(stmt.names)}`;
-    if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-    if (stmt.renameTo) result += ` RENAME TO ${formatAccessControlName(stmt.renameTo)}`;
-    if (stmt.settings !== undefined)
-      result += ` SETTINGS ${formatAccessControlSettings(stmt.settings, indent)}`;
-    return result;
-  }
-  if (stmt.kind === 'alterQuota') {
-    let result = `${indent}ALTER QUOTA`;
-    if (stmt.ifExists) result += ' IF EXISTS';
-    result += ` ${stmt.names.join(', ')}`;
-    if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-    if (stmt.renameTo) result += ` RENAME TO ${stmt.renameTo}`;
-    if (stmt.keyed) {
-      result += 'notKeyed' in stmt.keyed ? ' NOT KEYED' : ` KEYED BY ${stmt.keyed.keys.join(', ')}`;
-    }
-    if (stmt.intervals) {
-      for (const interval of stmt.intervals) {
-        result += ' FOR';
-        if (interval.randomized) result += ' RANDOMIZED';
-        result += ` ${interval.duration} ${interval.unit}`;
-        if (interval.trackingOnly) result += ' TRACKING ONLY';
-        else if (interval.noLimits) result += ' NO LIMITS';
-        else if (interval.limits)
-          result +=
-            ' ' +
-            interval.limits.map((l) => `MAX ${l.name} = ${formatExpr(l.value, indent)}`).join(', ');
-      }
-    }
-    if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
-    return result;
-  }
-  if (stmt.kind === 'alterRowPolicy') {
-    let result = `${indent}ALTER ${stmt.hasRowKeyword ? 'ROW POLICY' : 'POLICY'}`;
-    if (stmt.ifExists) result += ' IF EXISTS';
-    const targets = stmt.targets
-      .map((t) => `${t.names.join(', ')} ON ${formatTableRef(t.table)}`)
-      .join(', ');
-    result += ` ${targets}`;
-    if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-    if (stmt.renameTo) result += ` RENAME TO ${stmt.renameTo}`;
-    if (stmt.forSelect) result += ' FOR SELECT';
-    if (stmt.using) result += ` USING ${formatExpr(stmt.using, indent)}`;
-    if (stmt.restrictive) result += ` AS ${stmt.restrictive}`;
-    if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
-    return result;
-  }
-  // alterSettingsProfile
-  let result = `${indent}ALTER ${stmt.hasSettingsKeyword ? 'SETTINGS PROFILE' : 'PROFILE'}`;
-  if (stmt.ifExists) result += ' IF EXISTS';
-  result += ` ${stmt.names.join(', ')}`;
-  if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-  if (stmt.renameTo) result += ` RENAME TO ${stmt.renameTo}`;
-  if (stmt.settings !== undefined)
-    result += ` SETTINGS ${formatAccessControlSettings(stmt.settings, indent)}`;
-  if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
+  if (node.hosts !== undefined) result += ` HOST ${formatHosts(node.hosts) ?? 'NONE'}`;
+  if (node.add_hosts !== undefined) result += ` ADD HOST ${formatHosts(node.add_hosts) ?? 'NONE'}`;
+  if (node.remove_hosts !== undefined)
+    result += ` DROP HOST ${formatHosts(node.remove_hosts) ?? 'NONE'}`;
+  if (node.alter_settings !== undefined)
+    result += ` SETTINGS ${formatAlterAddSettings(node.alter_settings, indent)}`;
+  if (node.default_roles !== undefined)
+    result += ` DEFAULT ROLE ${formatRolesOrUsersSet(node.default_roles) ?? 'NONE'}`;
+  const ddb = nativeDatabaseOrNone(node.default_database);
+  if (ddb !== undefined) result += ` DEFAULT DATABASE ${quoteIdent(ddb)}`;
+  if (node.grantees !== undefined)
+    result += ` GRANTEES ${formatRolesOrUsersSet(node.grantees) ?? 'NONE'}`;
   return result;
 }
 
-function formatGrantQuery(node: GrantQueryNode, indent: string): string {
-  const stmt = nativeGrantToStatement(node);
+export function formatAlterRoleQuery(node: CreateRoleQueryNode, indent: string): string {
+  let result = `${indent}ALTER ROLE`;
+  if (node.if_exists) result += ' IF EXISTS';
+  result += ` ${formatAccessControlNames(nativeStringNamesToNames(node.names))}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (node.new_name !== undefined)
+    result += ` RENAME TO ${formatAccessControlName({ name: node.new_name })}`;
+  if (node.alter_settings !== undefined)
+    result += ` SETTINGS ${formatAlterAddSettings(node.alter_settings, indent)}`;
+  return result;
+}
+
+export function formatAlterQuotaQuery(node: CreateQuotaQueryNode, indent: string): string {
+  let result = `${indent}ALTER QUOTA`;
+  if (node.if_exists) result += ' IF EXISTS';
+  result += ` ${(node.names ?? []).join(', ')}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (node.new_name) result += ` RENAME TO ${node.new_name}`;
+  const keyed = nativeKeyTypeToKeyed(node.key_type);
+  if (keyed) result += 'notKeyed' in keyed ? ' NOT KEYED' : ` KEYED BY ${keyed.keys.join(', ')}`;
+  const intervals = nativeLimitsToIntervals(node.limits);
+  if (intervals) result += formatQuotaIntervals(intervals, indent);
+  const to = formatRolesOrUsersSet(node.roles);
+  if (to !== undefined) result += ` TO ${to}`;
+  return result;
+}
+
+export function formatAlterRowPolicyQuery(node: CreateRowPolicyQueryNode, indent: string): string {
+  let result = `${indent}ALTER ROW POLICY`;
+  if (node.if_exists) result += ' IF EXISTS';
+  result += ` ${formatRowPolicyTargets(node.names)}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (node.new_short_name) result += ` RENAME TO ${node.new_short_name}`;
+  const using = rowPolicyUsingExpr(node);
+  if (using) result += ` USING ${formatExpr(using, indent)}`;
+  const restrictive = rowPolicyRestrictive(node);
+  if (restrictive) result += ` AS ${restrictive}`;
+  const to = formatRolesOrUsersSet(node.roles);
+  if (to !== undefined) result += ` TO ${to}`;
+  return result;
+}
+
+export function formatAlterSettingsProfileQuery(
+  node: CreateSettingsProfileQueryNode,
+  indent: string,
+): string {
+  let result = `${indent}ALTER SETTINGS PROFILE`;
+  if (node.if_exists) result += ' IF EXISTS';
+  result += ` ${(node.names ?? []).join(', ')}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (node.new_name) result += ` RENAME TO ${node.new_name}`;
+  if (node.alter_settings !== undefined)
+    result += ` SETTINGS ${formatAlterAddSettings(node.alter_settings, indent)}`;
+  const to = formatRolesOrUsersSet(node.to_roles);
+  if (to !== undefined) result += ` TO ${to}`;
+  return result;
+}
+
+export function formatAlterAccessQuery(node: AccessQueryNode, indent: string): string {
+  switch (node.type) {
+    case 'CreateUserQuery':
+      return formatAlterUserQuery(node, indent);
+    case 'CreateRoleQuery':
+      return formatAlterRoleQuery(node, indent);
+    case 'CreateQuotaQuery':
+      return formatAlterQuotaQuery(node, indent);
+    case 'CreateRowPolicyQuery':
+      return formatAlterRowPolicyQuery(node, indent);
+    case 'CreateSettingsProfileQuery':
+      return formatAlterSettingsProfileQuery(node, indent);
+    default:
+      throw new Error(`formatAlterAccessQuery: unexpected node type ${node.type}`);
+  }
+}
+
+export function formatGrantQuery(node: GrantQueryNode, indent: string): string {
+  // Rendered directly from the native GRANT/REVOKE fields — no intermediate.
+  const operation: 'GRANT' | 'REVOKE' = node.type === 'RevokeQuery' ? 'REVOKE' : 'GRANT';
+  const grantees = nativeSetToNames(node.grantees);
   const fmtPriv = (p: GrantPrivilege) =>
     p.columns && p.columns.length > 0
       ? `${p.name}(${p.columns.map(quoteIdent).join(', ')})`
       : p.name;
   const fmtTarget = (t: GrantTarget) =>
     t.database !== undefined ? `${t.database}.${t.table}` : t.table;
-  let result = `${indent}${stmt.operation}`;
-  if (stmt.optionFor) result += ` ${stmt.optionFor} OPTION FOR`;
-  if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-  if (stmt.elements) {
-    result += ` ${stmt.elements
+
+  const withOptions: ('GRANT' | 'ADMIN' | 'REPLACE')[] = [];
+  let optionFor: 'GRANT' | undefined;
+  let elements: GrantElement[] | undefined;
+  let roles: string[] | undefined;
+  let grantOption = false;
+  if (node.access_rights !== undefined) {
+    elements = node.access_rights.map(nativeAccessRightToElement);
+    grantOption = node.access_rights.some((r) => r.grant_option);
+    if (node.replace_access) withOptions.push('REPLACE');
+  } else {
+    const roleNames = nativeSetToNames(node.roles);
+    roles = roleNames.length > 0 ? roleNames : ['NONE'];
+    if (node.replace_granted_roles) withOptions.push('REPLACE');
+  }
+  if (grantOption) {
+    if (operation === 'REVOKE') optionFor = 'GRANT';
+    else withOptions.unshift('GRANT');
+  }
+
+  let result = `${indent}${operation}`;
+  if (optionFor) result += ` ${optionFor} OPTION FOR`;
+  if (node.cluster !== undefined) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  if (elements) {
+    result += ` ${elements
       .map((el) => `${el.privileges.map(fmtPriv).join(', ')} ON ${fmtTarget(el.target)}`)
       .join(', ')}`;
-  } else if (stmt.roles) {
-    result += ` ${stmt.roles.join(', ')}`;
+  } else if (roles) {
+    result += ` ${roles.join(', ')}`;
   }
-  result += ` ${stmt.operation === 'REVOKE' ? 'FROM' : 'TO'} ${stmt.grantees.join(', ')}`;
-  if (stmt.withOptions) {
-    for (const opt of stmt.withOptions) result += ` WITH ${opt} OPTION`;
-  }
+  result += ` ${operation === 'REVOKE' ? 'FROM' : 'TO'} ${grantees.join(', ')}`;
+  for (const opt of withOptions) result += ` WITH ${opt} OPTION`;
   return result;
 }
 
-function formatBackupStatement(node: BackupQueryNode, indent: string): string {
+export function formatBackupStatement(node: BackupQueryNode, indent: string): string {
   const fmtQualified = (database: string | undefined, table: string): string =>
     database !== undefined ? `${quoteIdent(database)}.${quoteIdent(table)}` : quoteIdent(table);
   const fmtElement = (el: BackupQueryElement): string => {
@@ -1839,8 +1646,9 @@ function formatBackupStatement(node: BackupQueryNode, indent: string): string {
         return '';
     }
   };
-  let result = `${indent}${node.kind} ${node.elements.map(fmtElement).join(', ')}`;
-  result += ` ${node.kind === 'RESTORE' ? 'FROM' : 'TO'} ${formatExpr(node.backup_name, indent)}`;
+  const keyword = node.type === 'RestoreQuery' ? 'RESTORE' : 'BACKUP';
+  let result = `${indent}${keyword} ${node.elements.map(fmtElement).join(', ')}`;
+  result += ` ${keyword === 'RESTORE' ? 'FROM' : 'TO'} ${formatExpr(node.backup_name, indent)}`;
   if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
   // The `async` change (if any) is re-emitted as the trailing SYNC/ASYNC
   // keyword; the remaining changes stay in the SETTINGS clause.
@@ -1867,7 +1675,7 @@ function formatBackupStatement(node: BackupQueryNode, indent: string): string {
 
 // Reconstruct a `SYSTEM ...` command entirely from its native structured
 // fields (there is no verbatim payload). Keyword casing is canonicalized.
-function formatSystemQuery(node: SystemQueryNode, indent: string): string {
+export function formatSystemQuery(node: SystemQueryNode, indent: string): string {
   let s = `${indent}SYSTEM ${node.system_type ?? ''}`;
   const onCluster = node.cluster ? ` ON CLUSTER ${quoteIdent(node.cluster)}` : '';
 
@@ -2021,7 +1829,7 @@ function nativeIdentName(node: IdentifierNode | undefined): string {
   return node?.name ?? '';
 }
 
-function formatWorkloadQuery(n: CreateWorkloadQueryNode, indent: string): string {
+export function formatWorkloadQuery(n: CreateWorkloadQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
   if (n.or_replace) result += ' OR REPLACE';
   result += ' WORKLOAD';
@@ -2043,160 +1851,99 @@ function formatWorkloadQuery(n: CreateWorkloadQueryNode, indent: string): string
   return result;
 }
 
-function formatCreateUserQuery(node: CreateUserQueryNode, indent: string): string {
-  const stmt = {
-    names: nativeUserNamesToNames(node.names),
-    auth: nativeAuthToAuth(node.authentication_methods),
-    host: nativeHostsToItems(node.hosts),
-    settings: nativeSettingsToItems(node.settings),
-    defaultRole: nativeSetToTarget(node.default_roles),
-    defaultDatabase: nativeDatabaseOrNone(node.default_database),
-    grantees: nativeSetToTarget(node.grantees),
-    validUntil: nativeValidUntil(node.authentication_methods),
-    ifNotExists: node.if_not_exists,
-    orReplace: node.or_replace,
-    onCluster: node.cluster,
-  };
+export function formatCreateUserQuery(node: CreateUserQueryNode, indent: string): string {
   let result = `${indent}CREATE USER`;
-  if (stmt.ifNotExists) result += ' IF NOT EXISTS';
-  if (stmt.orReplace) result += ' OR REPLACE';
-  result += ` ${formatAccessControlNames(stmt.names)}`;
-  if (stmt.auth) {
-    const allEmpty =
-      stmt.auth.length === 1 && !stmt.auth[0].secret && stmt.auth[0].sshKeys === undefined;
+  if (node.if_not_exists) result += ' IF NOT EXISTS';
+  if (node.or_replace) result += ' OR REPLACE';
+  result += ` ${formatAccessControlNames(nativeUserNamesToNames(node.names))}`;
+  const auth = nativeAuthToAuth(node.authentication_methods);
+  if (auth) {
+    const allEmpty = auth.length === 1 && !auth[0].secret && auth[0].sshKeys === undefined;
     if (allEmpty) {
       result += ' NOT IDENTIFIED';
     } else {
-      const auth = formatAuthMethods(stmt.auth);
-      if (auth) result += ` IDENTIFIED ${auth}`;
+      const methods = formatAuthMethods(auth);
+      if (methods) result += ` IDENTIFIED ${methods}`;
     }
   }
-  if (stmt.onCluster) result += ` ON CLUSTER ${stmt.onCluster}`;
-  if (stmt.host) result += ` HOST ${formatHostItems(stmt.host)}`;
-  if (stmt.settings !== undefined)
-    result += ` SETTINGS ${formatAccessControlSettings(stmt.settings, indent)}`;
-  if (stmt.defaultRole) result += ` DEFAULT ROLE ${formatRoleTarget(stmt.defaultRole)}`;
-  if (stmt.defaultDatabase) result += ` DEFAULT DATABASE ${quoteIdent(stmt.defaultDatabase)}`;
-  if (stmt.grantees) result += ` GRANTEES ${formatRoleTarget(stmt.grantees)}`;
-  if (stmt.validUntil) result += ` VALID UNTIL '${stmt.validUntil}'`;
+  if (node.cluster) result += ` ON CLUSTER ${node.cluster}`;
+  const host = formatHosts(node.hosts);
+  if (host !== undefined) result += ` HOST ${host}`;
+  const settings = formatSettingsProfileElements(node.settings, indent);
+  if (settings !== undefined) result += ` SETTINGS ${settings}`;
+  const defaultRole = formatRolesOrUsersSet(node.default_roles);
+  if (defaultRole !== undefined) result += ` DEFAULT ROLE ${defaultRole}`;
+  const defaultDatabase = nativeDatabaseOrNone(node.default_database);
+  if (defaultDatabase) result += ` DEFAULT DATABASE ${quoteIdent(defaultDatabase)}`;
+  const grantees = formatRolesOrUsersSet(node.grantees);
+  if (grantees !== undefined) result += ` GRANTEES ${grantees}`;
+  const validUntil = nativeValidUntil(node.authentication_methods);
+  if (validUntil) result += ` VALID UNTIL '${validUntil}'`;
   return result;
 }
 
-function formatCreateRoleQuery(node: CreateRoleQueryNode, indent: string): string {
-  const stmt = {
-    names: nativeStringNamesToNames(node.names),
-    settings: nativeSettingsToItems(node.settings),
-    orReplace: node.or_replace,
-    ifNotExists: node.if_not_exists,
-  };
+export function formatCreateRoleQuery(node: CreateRoleQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
-  if (stmt.orReplace) result += ' OR REPLACE';
+  if (node.or_replace) result += ' OR REPLACE';
   result += ' ROLE';
-  if (stmt.ifNotExists) result += ' IF NOT EXISTS';
-  result += ` ${formatAccessControlNames(stmt.names)}`;
-  if (stmt.settings !== undefined)
-    result += ` SETTINGS ${formatAccessControlSettings(stmt.settings, indent)}`;
+  if (node.if_not_exists) result += ' IF NOT EXISTS';
+  result += ` ${formatAccessControlNames(nativeStringNamesToNames(node.names))}`;
+  const settings = formatSettingsProfileElements(node.settings, indent);
+  if (settings !== undefined) result += ` SETTINGS ${settings}`;
   return result;
 }
 
-function formatCreateRowPolicyQuery(node: CreateRowPolicyQueryNode, indent: string): string {
-  let using: Expression | undefined;
-  if (node.filters && node.filters.length > 0) {
-    using = node.filters[0].condition ?? ({ type: 'Identifier', name: 'NONE' } as IdentifierNode);
-  }
-  const stmt = {
-    hasRowKeyword: true,
-    targets: nativeRowPolicyTargets(node.names),
-    using,
-    restrictive:
-      node.is_restrictive !== undefined
-        ? node.is_restrictive
-          ? ('RESTRICTIVE' as const)
-          : ('PERMISSIVE' as const)
-        : undefined,
-    onCluster: node.cluster,
-    to: nativeSetToTarget(node.roles),
-    orReplace: node.or_replace,
-    ifNotExists: node.if_not_exists,
-  };
+export function formatCreateRowPolicyQuery(node: CreateRowPolicyQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
-  if (stmt.orReplace) result += ' OR REPLACE';
-  result += stmt.hasRowKeyword ? ' ROW POLICY' : ' POLICY';
-  if (stmt.ifNotExists) result += ' IF NOT EXISTS';
-  const targets = stmt.targets
-    .map((t) => `${t.names.join(', ')} ON ${formatTableRef(t.table)}`)
-    .join(', ');
-  result += ` ${targets}`;
-  if (stmt.onCluster) result += ` ON CLUSTER ${quoteIdent(stmt.onCluster)}`;
-  if (stmt.using) result += ` USING ${formatExpr(stmt.using, indent)}`;
-  if (stmt.restrictive) result += ` AS ${stmt.restrictive}`;
-  if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
+  if (node.or_replace) result += ' OR REPLACE';
+  result += ' ROW POLICY';
+  if (node.if_not_exists) result += ' IF NOT EXISTS';
+  result += ` ${formatRowPolicyTargets(node.names)}`;
+  if (node.cluster) result += ` ON CLUSTER ${quoteIdent(node.cluster)}`;
+  const using = rowPolicyUsingExpr(node);
+  if (using) result += ` USING ${formatExpr(using, indent)}`;
+  const restrictive = rowPolicyRestrictive(node);
+  if (restrictive) result += ` AS ${restrictive}`;
+  const to = formatRolesOrUsersSet(node.roles);
+  if (to !== undefined) result += ` TO ${to}`;
   return result;
 }
 
-function formatCreateQuotaQuery(node: CreateQuotaQueryNode, indent: string): string {
-  const stmt = {
-    names: node.names ?? [],
-    keyed: nativeKeyTypeToKeyed(node.key_type),
-    intervals: nativeLimitsToIntervals(node.limits),
-    to: nativeSetToTarget(node.roles),
-    orReplace: node.or_replace,
-    ifNotExists: node.if_not_exists,
-  };
+export function formatCreateQuotaQuery(node: CreateQuotaQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
-  if (stmt.orReplace) result += ' OR REPLACE';
+  if (node.or_replace) result += ' OR REPLACE';
   result += ' QUOTA';
-  if (stmt.ifNotExists) result += ' IF NOT EXISTS';
-  result += ` ${stmt.names.join(', ')}`;
-  if (stmt.keyed) {
-    if ('notKeyed' in stmt.keyed) {
-      result += ' NOT KEYED';
-    } else {
-      result += ` KEYED BY ${stmt.keyed.keys.join(', ')}`;
-    }
-  }
-  if (stmt.intervals) {
-    for (const interval of stmt.intervals) {
-      result += ' FOR';
-      if (interval.randomized) result += ' RANDOMIZED';
-      result += ` ${interval.duration} ${interval.unit}`;
-      if (interval.trackingOnly) result += ' TRACKING ONLY';
-      else if (interval.noLimits) result += ' NO LIMITS';
-      else if (interval.limits) {
-        result +=
-          ' ' +
-          interval.limits.map((l) => `MAX ${l.name} = ${formatExpr(l.value, indent)}`).join(', ');
-      }
-    }
-  }
-  if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
+  if (node.if_not_exists) result += ' IF NOT EXISTS';
+  result += ` ${(node.names ?? []).join(', ')}`;
+  const keyed = nativeKeyTypeToKeyed(node.key_type);
+  if (keyed) result += 'notKeyed' in keyed ? ' NOT KEYED' : ` KEYED BY ${keyed.keys.join(', ')}`;
+  const intervals = nativeLimitsToIntervals(node.limits);
+  if (intervals) result += formatQuotaIntervals(intervals, indent);
+  const to = formatRolesOrUsersSet(node.roles);
+  if (to !== undefined) result += ` TO ${to}`;
   return result;
 }
 
-function formatCreateSettingsProfileQuery(
+export function formatCreateSettingsProfileQuery(
   node: CreateSettingsProfileQueryNode,
   indent: string,
 ): string {
-  const stmt = {
-    names: node.names ?? [],
-    hasSettingsKeyword: true,
-    to: nativeSetToTarget(node.to_roles),
-    settings: nativeSettingsToItems(node.settings),
-    orReplace: node.or_replace,
-    ifNotExists: node.if_not_exists,
-  };
   let result = `${indent}CREATE`;
-  if (stmt.orReplace) result += ' OR REPLACE';
-  result += stmt.hasSettingsKeyword ? ' SETTINGS PROFILE' : ' PROFILE';
-  if (stmt.ifNotExists) result += ' IF NOT EXISTS';
-  result += ` ${stmt.names.join(', ')}`;
-  if (stmt.settings !== undefined)
-    result += ` SETTINGS ${formatAccessControlSettings(stmt.settings, indent)}`;
-  if (stmt.to) result += ` TO ${formatRoleTarget(stmt.to)}`;
+  if (node.or_replace) result += ' OR REPLACE';
+  result += ' SETTINGS PROFILE';
+  if (node.if_not_exists) result += ' IF NOT EXISTS';
+  result += ` ${(node.names ?? []).join(', ')}`;
+  const settings = formatSettingsProfileElements(node.settings, indent);
+  if (settings !== undefined) result += ` SETTINGS ${settings}`;
+  const to = formatRolesOrUsersSet(node.to_roles);
+  if (to !== undefined) result += ` TO ${to}`;
   return result;
 }
 
-function formatNamedCollectionQuery(n: CreateNamedCollectionQueryNode, indent: string): string {
+export function formatNamedCollectionQuery(
+  n: CreateNamedCollectionQueryNode,
+  indent: string,
+): string {
   let result = `${indent}CREATE NAMED COLLECTION`;
   if (n.if_not_exists) result += ' IF NOT EXISTS';
   result += ` ${quoteIdent(n.collection_name ?? '')}`;
@@ -2214,7 +1961,7 @@ function formatNamedCollectionQuery(n: CreateNamedCollectionQueryNode, indent: s
   return result;
 }
 
-function formatResourceQuery(n: CreateResourceQueryNode, indent: string): string {
+export function formatResourceQuery(n: CreateResourceQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
   if (n.or_replace) result += ' OR REPLACE';
   result += ' RESOURCE';
@@ -2588,7 +2335,7 @@ function isSchemaFormAttach(node: AttachQueryNode): boolean {
 }
 
 /** Main entry: render a CreateQuery / schema-form AttachQuery from native fields. */
-function formatCreateQueryNode(node: CreateLikeNode, indent: string): string {
+export function formatCreateQueryNode(node: CreateLikeNode, indent: string): string {
   if (node.is_dictionary) return formatCreateDictionaryNode(node, indent);
   if (node.is_materialized_view) return formatCreateMaterializedViewNode(node, indent);
   if (node.is_ordinary_view) return formatCreateViewNode(node, indent);
@@ -2920,7 +2667,7 @@ function formatStringLiteral(str: string): string {
   return `'${str.replace(/'/g, "\\'")}'`;
 }
 
-function formatExplainQuery(stmt: ExplainQueryNode, indent: string): string {
+export function formatExplainQuery(stmt: ExplainQueryNode, indent: string): string {
   // Derive the suffix from the native `kind` phrase. `EXPLAIN PLAN`
   // collapses to bare `kind: 'EXPLAIN'`, so it canonicalizes to `EXPLAIN`.
   const kindSuffix =
@@ -2948,7 +2695,7 @@ function formatExplainQuery(stmt: ExplainQueryNode, indent: string): string {
 
 type QueryMember = SelectQueryNode | SelectIntersectExceptQueryNode | SelectWithUnionQueryNode;
 
-function formatSelectWithUnion(
+export function formatSelectWithUnion(
   stmt: SelectWithUnionQueryNode,
   indent: string,
   // True when this SWU is a precedence-implied DISTINCT group — i.e. an
@@ -3055,7 +2802,10 @@ function formatIntersectChild(c: QueryMember, indent: string, isExceptLeft: bool
   return body;
 }
 
-function formatIntersectExcept(stmt: SelectIntersectExceptQueryNode, indent: string): string {
+export function formatIntersectExcept(
+  stmt: SelectIntersectExceptQueryNode,
+  indent: string,
+): string {
   // Canonical operator: `INTERSECT`/`EXCEPT` (the ALL default) or the full
   // `INTERSECT DISTINCT`/`EXCEPT DISTINCT` form. The bare keyword is the
   // safer canonical form because `SELECT * EXCEPT ALL SELECT ...` is
@@ -3402,7 +3152,7 @@ function formatExpr(expr: Expression, indent: string): string {
 // expression formatter based on operator precedence (see wrapChildCore /
 // wrapNaryOperandCore).
 
-function formatLiteral(expr: LiteralNode): string {
+export function formatLiteral(expr: LiteralNode): string {
   return formatLiteralValue(expr.value_type, expr.value, expr.nonfinite);
 }
 
@@ -3469,7 +3219,7 @@ function canonicalFloatText(raw: string): string {
   return /[.eE]/.test(raw) ? raw : raw + '.';
 }
 
-function formatIdentifier(expr: IdentifierNode, indent: string): string {
+export function formatIdentifier(expr: IdentifierNode, indent: string): string {
   void indent;
   const parts = expr.name_parts ?? [expr.name];
   return parts.map(renderIdentPart).join('.');
@@ -3484,7 +3234,7 @@ function formatIdentifier(expr: IdentifierNode, indent: string): string {
 //   - `^`Name``    → `.^Name` (or `.^`Name`` when Name isn't a bare
 //     identifier) — JSON object subcolumn (from `json.^a`).
 // Any other part runs through `quoteIdent`.
-function renderIdentPart(part: Identifier): string {
+function renderIdentPart(part: IdentifierPart): string {
   if (typeof part === 'string' && part.length >= 3 && part.charCodeAt(1) === 0x60) {
     const prefix = part[0];
     if ((prefix === ':' || prefix === '^') && part.endsWith('`')) {
@@ -3506,18 +3256,18 @@ function formatTransformers(
   return list.map((t) => ' ' + formatTransformer(t, indent)).join('');
 }
 
-function formatAsterisk(expr: AsteriskNode, indent: string): string {
+export function formatAsterisk(expr: AsteriskNode, indent: string): string {
   // Tuple expansion `expr.*` carries the base in `expression`
   const base = expr.expression !== undefined ? `${formatExpr(expr.expression, indent)}.*` : '*';
   return base + formatTransformers(expr.transformers, indent);
 }
 
-function formatQualifiedAsterisk(expr: QualifiedAsteriskNode, indent: string): string {
+export function formatQualifiedAsterisk(expr: QualifiedAsteriskNode, indent: string): string {
   const parts = expr.qualifier.name_parts ?? [expr.qualifier.name];
   return `${parts.map(quoteIdent).join('.')}.*` + formatTransformers(expr.transformers, indent);
 }
 
-function formatQueryParameter(expr: QueryParameterNode): string {
+export function formatQueryParameter(expr: QueryParameterNode): string {
   return `{${expr.name}:${expr.param_type}}`;
 }
 
@@ -3557,7 +3307,7 @@ function insertLevelSettingPairs(
   return pairs;
 }
 
-function formatInsertQuery(stmt: InsertQueryNode, indent: string): string {
+export function formatInsertQuery(stmt: InsertQueryNode, indent: string): string {
   let target: string;
   if (stmt.table_function !== undefined) {
     const f = stmt.table_function;
@@ -3611,7 +3361,7 @@ function formatPlainIdent(idn: IdentifierNode): string {
     .join('.');
 }
 
-function formatDropFamily(stmt: DropFamilyNodeF, indent: string): string {
+export function formatDropFamily(stmt: DropFamilyNodeF, indent: string): string {
   let names: string;
   if (stmt.database_and_tables !== undefined) {
     names = ((stmt.database_and_tables.children ?? []) as TableIdentifierNode[])
@@ -3735,7 +3485,7 @@ function formatPartitionChild(c: ASTNode, indent: string): string {
   return formatExpr((c as PartitionNode).value, indent);
 }
 
-function formatOptimizeQuery(stmt: OptimizeQueryNode, indent: string): string {
+export function formatOptimizeQuery(stmt: OptimizeQueryNode, indent: string): string {
   let result = `${indent}OPTIMIZE TABLE ${tableTargetName(stmt)}`;
   if (stmt.cluster !== undefined) result += ` ON CLUSTER ${quoteIdent(stmt.cluster)}`;
   if (stmt.partition !== undefined) {
@@ -3756,7 +3506,7 @@ function formatOptimizeQuery(stmt: OptimizeQueryNode, indent: string): string {
   return result;
 }
 
-function formatDescribeQuery(stmt: DescribeQueryNode, indent: string): string {
+export function formatDescribeQuery(stmt: DescribeQueryNode, indent: string): string {
   const te = stmt.table_expression;
   let target: string = '';
   if (te !== undefined) {
@@ -3781,7 +3531,7 @@ function formatDescribeQuery(stmt: DescribeQueryNode, indent: string): string {
   return result;
 }
 
-function formatShowCreateQuery(stmt: ShowCreateQueryNode, indent: string): string {
+export function formatShowCreateQuery(stmt: ShowCreateQueryNode, indent: string): string {
   // Both `SHOW CREATE ...` and the `SHOW TABLE|VIEW|DATABASE` shorthand parse
   // to this node; we always emit the canonical `SHOW CREATE ...` form.
   const temp = stmt.temporary === true ? 'TEMPORARY ' : '';
@@ -3804,10 +3554,10 @@ function formatShowCreateQuery(stmt: ShowCreateQueryNode, indent: string): strin
   return result;
 }
 
-function formatExistsQuery(stmt: ExistsQueryNode, indent: string): string {
+export function formatExistsQuery(stmt: ExistsQueryNode, indent: string): string {
   // The node `type` encodes the target keyword (native AST carries no
   // `is_view`/`is_dictionary` flag for EXISTS).
-  const kind =
+  const objectKeyword =
     stmt.type === 'ExistsDatabaseQuery'
       ? 'DATABASE'
       : stmt.type === 'ExistsDictionaryQuery'
@@ -3816,12 +3566,12 @@ function formatExistsQuery(stmt: ExistsQueryNode, indent: string): string {
           ? 'VIEW'
           : 'TABLE';
   const temporary = (stmt as { temporary?: boolean }).temporary ? 'TEMPORARY ' : '';
-  let result = `${indent}EXISTS ${temporary}${kind} ${tableTargetName(stmt)}`;
+  let result = `${indent}EXISTS ${temporary}${objectKeyword} ${tableTargetName(stmt)}`;
   result += settingsTrailerSuffix(stmt);
   return result;
 }
 
-function formatCheckQuery(stmt: CheckQueryNode, indent: string): string {
+export function formatCheckQuery(stmt: CheckQueryNode, indent: string): string {
   let result: string;
   if (stmt.type === 'CheckAllQuery') {
     result = `${indent}CHECK ALL TABLES`;
@@ -3840,7 +3590,7 @@ function formatCheckQuery(stmt: CheckQueryNode, indent: string): string {
   return result;
 }
 
-function formatCreateIndexQuery(stmt: CreateIndexQueryNode, indent: string): string {
+export function formatCreateIndexQuery(stmt: CreateIndexQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
   if (stmt.unique) result += ' UNIQUE';
   result += ' INDEX';
@@ -3878,7 +3628,7 @@ function formatCreateIndexQuery(stmt: CreateIndexQueryNode, indent: string): str
   return result;
 }
 
-function formatCreateFunctionQuery(stmt: CreateFunctionQueryNode, indent: string): string {
+export function formatCreateFunctionQuery(stmt: CreateFunctionQueryNode, indent: string): string {
   let result = `${indent}CREATE`;
   if (stmt.or_replace) result += ' OR REPLACE';
   result += ' FUNCTION';
@@ -3889,7 +3639,7 @@ function formatCreateFunctionQuery(stmt: CreateFunctionQueryNode, indent: string
   return result;
 }
 
-function formatAttachQuery(stmt: AttachQueryNode, indent: string): string {
+export function formatAttachQuery(stmt: AttachQueryNode, indent: string): string {
   // Reconstruct the target keyword from native fields: `is_dictionary`/
   // `is_view` flags, else `ATTACH DATABASE` is database-only, else TABLE.
   const target = stmt.is_dictionary
@@ -3909,7 +3659,7 @@ function formatAttachQuery(stmt: AttachQueryNode, indent: string): string {
   return parts.join(' ');
 }
 
-function formatRenameQuery(stmt: RenameNode, indent: string): string {
+export function formatRenameQuery(stmt: RenameNode, indent: string): string {
   const keyword = stmt.exchange ? 'EXCHANGE' : 'RENAME';
   const joiner = stmt.exchange ? 'AND' : 'TO';
   // RENAME identifiers can be query parameters (`{p:Identifier}`); render
@@ -3949,7 +3699,7 @@ function formatRenameQuery(stmt: RenameNode, indent: string): string {
   return result;
 }
 
-function formatKillQueryQuery(stmt: KillQueryQueryNode, indent: string): string {
+export function formatKillQueryQuery(stmt: KillQueryQueryNode, indent: string): string {
   let result = `${indent}KILL ${stmt.kill_type}`;
   if (stmt.cluster !== undefined) result += ` ON CLUSTER ${quoteIdent(stmt.cluster)}`;
   result += ` WHERE ${formatExpr(stmt.where, indent)}`;
@@ -3960,7 +3710,7 @@ function formatKillQueryQuery(stmt: KillQueryQueryNode, indent: string): string 
   return result;
 }
 
-function formatDeleteQuery(stmt: DeleteQueryNode, indent: string): string {
+export function formatDeleteQuery(stmt: DeleteQueryNode, indent: string): string {
   let result = `${indent}DELETE FROM ${tableTargetName(stmt)}`;
   if (stmt.cluster !== undefined) result += ` ON CLUSTER ${quoteIdent(stmt.cluster)}`;
   if (stmt.partition !== undefined) {
@@ -3971,7 +3721,7 @@ function formatDeleteQuery(stmt: DeleteQueryNode, indent: string): string {
   return result;
 }
 
-function formatUpdateQuery(stmt: UpdateQueryNode, indent: string): string {
+export function formatUpdateQuery(stmt: UpdateQueryNode, indent: string): string {
   let result = `${indent}UPDATE ${tableTargetName(stmt)}`;
   if (stmt.cluster !== undefined) result += ` ON CLUSTER ${quoteIdent(stmt.cluster)}`;
   const assignStrs = (stmt.assignments ?? []).map(
@@ -3983,12 +3733,12 @@ function formatUpdateQuery(stmt: UpdateQueryNode, indent: string): string {
   return result;
 }
 
-function formatSubquery(expr: SubqueryNode, indent: string): string {
+export function formatSubquery(expr: SubqueryNode, indent: string): string {
   const innerIndent = indent + '    ';
   return `(\n${formatStatement(expr.query, innerIndent)}\n${indent})`;
 }
 
-function formatColumnsMatcher(
+export function formatColumnsMatcher(
   expr:
     | ColumnsRegexpMatcherNode
     | ColumnsListMatcherNode
@@ -4138,7 +3888,7 @@ function formatBracketArgs(
   return '\n' + parts.join('\n') + '\n';
 }
 
-function formatFunction(expr: FunctionNode, indent: string): string {
+export function formatFunction(expr: FunctionNode, indent: string): string {
   // `x op ANY/ALL (sub)` is lowered to a plain `IN`/`NOT IN` or to a
   // synthetic `(SELECT agg(*) FROM (sub))` wrap during parsing; the
   // canonical lowered shape is what we emit.
@@ -4575,7 +4325,7 @@ function formatTupleElement(base: Expression, index: Expression, indent: string)
   return `tupleElement(${formatExpr(base, indent)}, ${formatExpr(index, indent)})`;
 }
 
-function formatWindowDefinition(spec: WindowSpec, indent: string): string {
+function formatWindowDefinition(spec: WindowDefinitionNode, indent: string): string {
   const parts: string[] = [];
   if (spec.parent_window_name) {
     parts.push(quoteIdent(spec.parent_window_name));
@@ -4648,37 +4398,11 @@ function formatTransformer(t: ColumnsTransformerNode, indent: string): string {
   return `REPLACE ${strict}(${items})`;
 }
 
-function formatSampleRatioValue(ratio: SampleRatioValue): string {
-  return ratio.den !== undefined ? `${ratio.num}/${ratio.den}` : ratio.num;
-}
-
-function formatSampleClause(sample: SampleClause): string {
-  let s = `SAMPLE ${formatSampleRatioValue(sample.ratio)}`;
-  if (sample.offset !== undefined) {
-    s += ` OFFSET ${formatSampleRatioValue(sample.offset)}`;
-  }
-  return s;
-}
-
-function formatTableRef(ref: TableRef): string {
-  const db = ref.database ? quoteIdent(ref.database) : undefined;
-  const tbl = quoteIdent(ref.table);
-  const id = db ? `${db}.${tbl}` : tbl;
-  let result = id;
-  if (ref.alias) result += ` AS ${quoteIdent(ref.alias)}`;
-  if (ref.final) result += ' FINAL';
-  if (ref.sample) result += ` ${formatSampleClause(ref.sample)}`;
-  if (ref.trailingComments && ref.trailingComments.length > 0) {
-    result += ' ' + ref.trailingComments.join(' ');
-  }
-  return result;
-}
-
 function formatOrderByItemInline(item: OrderByElementNode, indent: string): string {
   return formatOrderByCore(item, indent, '');
 }
 
-function formatOrderByItem(item: OrderByElementNode, indent: string): string {
+export function formatOrderByItem(item: OrderByElementNode, indent: string): string {
   return formatOrderByCore(item, indent, indent);
 }
 
@@ -4712,7 +4436,7 @@ function formatOrderByCore(item: OrderByElementNode, indent: string, prefix: str
   return result;
 }
 
-function formatInterpolateItem(item: InterpolateElementNode, indent: string): string {
+export function formatInterpolateItem(item: InterpolateElementNode, indent: string): string {
   return `${item.column} AS ${formatExpr(item.expr, indent)}`;
 }
 

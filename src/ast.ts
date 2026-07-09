@@ -1257,67 +1257,12 @@ export const ExpressionSchema: z.ZodType<WithoutLocations<Expression>> = z.lazy(
   ]),
 );
 
-// ── Transitional aliases (kind→type rewrite) ─────────────────────────────────
-
-/** Old name for {@link QueryParameterNode}, kept while statement types migrate. */
-export type QueryParam = QueryParameterNode;
-/** An identifier-position value: plain string or an Identifier query parameter. */
-export type Identifier = IdentifierPart;
-/** Old name for {@link OrderByElementNode}, kept while statement types migrate. */
-export type OrderByItem = OrderByElementNode;
-/** Old name for {@link WindowDefinitionNode}, kept while statement types migrate. */
-export type WindowSpec = WindowDefinitionNode;
-/** Old name for {@link LiteralNode}, kept while statement types migrate. */
-export type Literal = LiteralNode;
-/**
- * A single ratio value used in SAMPLE clauses.
- *
- * @example Fraction form: `SAMPLE 1/10` → `{ num: '1', den: '10' }`
- * @example Simple number: `SAMPLE 0.1` → `{ num: '0.1' }`
- */
-export type SampleRatioValue = {
-  /** The numerator (or the entire value for non-fraction form). */
-  num: string;
-  /** The denominator, present only for fraction form (e.g. `1/10`). */
-  den?: string;
-};
-
-/**
- * A SAMPLE clause on a table reference.
- *
- * @example `SAMPLE 1/10` → `{ ratio: { num: '1', den: '10' } }`
- * @example `SAMPLE 1/10 OFFSET 1/2` → `{ ratio: { num: '1', den: '10' }, offset: { num: '1', den: '2' } }`
- */
-export type SampleClause = {
-  /** The sample ratio. */
-  ratio: SampleRatioValue;
-  /** Optional offset ratio for the sample. */
-  offset?: SampleRatioValue;
-};
-
-/**
- * A table reference in a FROM clause.
- *
- * @example `system.one` → `{ kind: 'tableRef', database: 'system', table: 'one' }`
- * @example `t FINAL` → `{ kind: 'tableRef', table: 't', final: true }`
- * @example `t AS alias` → `{ kind: 'tableRef', table: 't', alias: 'alias' }`
- */
-export type TableRef = {
-  kind: 'tableRef';
-  database?: Identifier;
-  table: Identifier;
-  alias?: string;
-  final?: boolean;
-  sample?: SampleClause;
-} & NodeMetadata;
-
-/**
 /**
  * A single key-value setting: `name = value`.
  *
  * Used in SETTINGS clauses and function-level settings.
  *
- * @example `max_threads = 4` → `{ name: 'max_threads', value: { kind: 'literal', type: 'UInt64', value: '4' } }`
+ * @example `max_threads = 4` → `{ name: 'max_threads', value: { type: 'Literal', value_type: 'UInt64', value: '4' } }`
  */
 export type SettingItem = {
   /** The setting name. */
@@ -1413,47 +1358,10 @@ export const ExplainQueryNodeSchema: z.ZodType<WithoutLocations<ExplainQueryNode
   }),
 );
 
-// ── Role target ──────────────────────────────────────────────────────────────
-
-/** A target clause for role/user specifications (TO ALL/NONE/names). */
-export type RoleTarget =
-  | { kind: 'all'; except?: string[] }
-  | { kind: 'none' }
-  | { kind: 'names'; names: string[] };
-
-/** Default role clause (same structure as RoleTarget). */
-export type DefaultRoleClause = RoleTarget;
-
 // ── Access control shared types ──────────────────────────────────────────────
 
 /** Name with optional @'host' for access control entities. */
 export type AccessControlName = { name: string; host?: string };
-
-/** HOST specification items for CREATE USER. */
-export type HostItem =
-  | { kind: 'any' }
-  | { kind: 'none' }
-  | { kind: 'local' }
-  | { kind: 'name'; value: string }
-  | { kind: 'regexp'; value: string }
-  | { kind: 'like'; value: string }
-  | { kind: 'ip'; value: string };
-
-/**
- * Access control SETTINGS items (different from query-level SettingItem).
- * Used in CREATE USER, CREATE ROLE, CREATE SETTINGS PROFILE.
- */
-export type AccessControlSettingsItem =
-  | { kind: 'profile'; name: string }
-  | { kind: 'inherit'; name: string }
-  | {
-      kind: 'setting';
-      name: string;
-      value?: Expression;
-      min?: Expression;
-      max?: Expression;
-      modifier?: 'CONST' | 'WRITABLE' | 'READONLY';
-    };
 
 // ── CREATE TABLE types ───────────────────────────────────────────────────────
 
@@ -1494,7 +1402,7 @@ export type AuthenticationData = {
  */
 export type AlterPartitionExpr =
   | { partitionKind: 'all' }
-  | { partitionKind: 'id'; id: Literal | QueryParam }
+  | { partitionKind: 'id'; id: LiteralNode | QueryParameterNode }
   | { partitionKind: 'expr'; expr: Expression };
 
 /** A single privilege in a GRANT/REVOKE statement, e.g. `SELECT(col1, col2)`. */
@@ -1535,44 +1443,6 @@ export type GrantElement = {
 };
 
 /**
- * A GRANT or REVOKE statement.
- *
- * Either `elements` (privilege grant) or `roles` (role grant) is set.
- *
- * @example `GRANT SELECT ON db.* TO u` →
- *   `{ kind: 'grant', operation: 'GRANT', elements: [{ privileges: [{ name: 'SELECT' }], target: { database: 'db', table: '*' } }], grantees: ['u'] }`
- */
-export type GrantStatement = {
-  kind: 'grant';
-  /** Whether this grants or revokes. */
-  operation: 'GRANT' | 'REVOKE';
-  /** Privilege-on-target elements (privilege grant). */
-  elements?: GrantElement[];
-  /** Role names being granted/revoked (role grant). */
-  roles?: string[];
-  /** The users/roles receiving (GRANT) or losing (REVOKE) the grant. */
-  grantees: string[];
-  /** Optional ON CLUSTER clause. */
-  onCluster?: string;
-  /** REVOKE `GRANT OPTION FOR` / `ADMIN OPTION FOR` prefix. */
-  optionFor?: 'GRANT' | 'ADMIN';
-  /** Trailing `WITH ... OPTION` modifiers. */
-  withOptions?: ('GRANT' | 'ADMIN' | 'REPLACE')[];
-} & NodeMetadata;
-
-/** A single clause of an ALTER USER statement. */
-export type AlterUserClause =
-  | { kind: 'rename'; to: AccessControlName }
-  | { kind: 'identified'; auth: AuthenticationData[] }
-  | { kind: 'notIdentified' }
-  | { kind: 'host'; mode?: 'ADD' | 'DROP'; hosts: HostItem[] }
-  | { kind: 'settings'; settings: AccessControlSettingsItem[] | 'NONE' }
-  | { kind: 'defaultRole'; roles: RoleTarget }
-  | { kind: 'defaultDatabase'; database: string }
-  | { kind: 'grantees'; grantees: RoleTarget }
-  | { kind: 'validUntil'; value: string };
-
-/**
  * An empty statement — a bare `;` between real statements. Preserved so AST
  * indices align with ClickHouse's EXPLAIN AST output (which emits an error
  * placeholder for the empty statement).
@@ -1588,12 +1458,6 @@ export const EmptyQueryNodeSchema: z.ZodType<WithoutLocations<EmptyQueryNode>> =
     ...ExprMetadataFields,
   }),
 );
-
-/**
- * Union of all top-level statement types.
- *
- * Use the `kind` field to discriminate between variants.
- */
 
 /**
  * Shared table-target shape used by drop-family statements and by the
@@ -3906,20 +3770,6 @@ export type Statement =
   | UpdateQueryNode
   | ExplainQueryNode;
 
-// ── AST node kind map ────────────────────────────────────────────────────────
-
-/**
- * Maps each legacy `kind` discriminator value to its TypeScript type.
- *
- * The public AST is the ClickHouse-native {@link ASTNodeTypeMap}. The legacy
- * `kind`-discriminated nodes listed here still appear inside the structured
- * `_alter` payload on {@link AlterQueryNode}, so the formatter and explain
- * renderer can re-emit DDL exactly. (SHOW, BACKUP/RESTORE, SYSTEM, GRANT,
- * access-control entities, NAMED COLLECTION / WORKLOAD / RESOURCE, and
- * CREATE/ATTACH DDL no longer use a structured payload — they are rendered
- * directly from their native fields.)
- * Users who introspect those payloads may call {@link findNodes} with these keys.
- */
 // ── AST node type map (ClickHouse-native nodes) ───────────────────────────────
 
 /**

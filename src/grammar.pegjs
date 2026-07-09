@@ -9,6 +9,26 @@
     'EXCEPT', 'WINDOW', 'OVER', 'QUALIFY', 'SAMPLE',
   ]);
 
+  // Reserved keywords that ClickHouse nonetheless accepts as an *implicit* (no-AS)
+  // alias. These are the subset of KEYWORDS that are NOT in ClickHouse's ParserAlias
+  // "restricted keywords" list and are not structural modifiers consumed earlier by
+  // expression / FINAL / window parsing. Determined empirically against the
+  // `clickhouse` binary (e.g. `SELECT a DESC FROM t` aliases `a` as `DESC`;
+  // `SELECT x FROM t BY` aliases the table as `BY`).
+  //
+  // Column vs table position differ:
+  //  - `SELECT` is a valid column alias (`SELECT a SELECT FROM t`). As a table alias
+  //    it is handled specially (see TableImplicitAlias) because a bare `SELECT`
+  //    after a table also begins the FROM-first form `FROM numbers(1) SELECT x`.
+  //  - Operator keywords AND/OR/IN can be table aliases (`SELECT x FROM t AND`) but
+  //    never column aliases (in expression position they are consumed as operators).
+  const COLUMN_IMPLICIT_ALIAS_KEYWORDS = new Set([
+    'BY', 'ASC', 'DESC', 'NULL', 'DISTINCT', 'OVER', 'SELECT',
+  ]);
+  const TABLE_IMPLICIT_ALIAS_KEYWORDS = new Set([
+    'BY', 'ASC', 'DESC', 'NULL', 'DISTINCT', 'OVER', 'AND', 'OR', 'IN',
+  ]);
+
   // Flatten a whitespace result { trailing: [...], leading: [...] } into a single array
   function flattenWs(ws) {
     return ws.trailing.concat(ws.leading);
@@ -3527,16 +3547,16 @@
     return withLoc({ type: 'UserNamesWithHost', users }, l ?? spanOf(users));
   }
 
-  // RoleTarget { kind: 'all'|'none'|'names', names?, except? } → native
-  // `RolesOrUsersSet` node. `current_user` items (from grantee parsing) are
-  // recognized by name 'CURRENT_USER'.
+  // Intermediate role-set target { kind: 'all'|'none'|'names', names?, except? }
+  // → native `RolesOrUsersSet` node. `current_user` items (from grantee
+  // parsing) are recognized by name 'CURRENT_USER'.
   function rolesOrUsersSetNode(target, l) {
     const node = withLoc({ type: 'RolesOrUsersSet' }, target && target.location ? target.location : l);
     if (!target) return node;
-    if (target.kind === 'all') {
+    if (target.variant === 'all') {
       node.all = true;
       if (target.except && target.except.length > 0) node.except_names = target.except.slice();
-    } else if (target.kind === 'names') {
+    } else if (target.variant === 'names') {
       const plain = [];
       let currentUser = false;
       for (const nm of target.names) {
@@ -3611,7 +3631,7 @@
     return String(expr.value);
   }
 
-  // `AccessControlSettingsItem[] | 'NONE'` → native `SettingsProfileElements`.
+  // Access-control settings-item list | 'NONE' → native `SettingsProfileElements`.
   function settingsProfileElementsNode(settings, l) {
     const elements = [];
     if (settings !== 'NONE' && settings !== undefined) {
@@ -3619,7 +3639,7 @@
         const bareName =
           s.value === undefined && s.min === undefined && s.max === undefined &&
           s.modifier === undefined;
-        if (s.kind === 'profile' || s.kind === 'inherit' || bareName) {
+        if (s.variant === 'profile' || s.variant === 'inherit' || bareName) {
           elements.push(withLoc({ type: 'SettingsProfileElement', parent_profile: unquoteAccess(s.name) }, s.location ?? l));
         } else {
           const e = { type: 'SettingsProfileElement', setting_name: s.name };
@@ -3703,7 +3723,7 @@
       .join('::');
   }
 
-  // HostItem[] → native `hosts` object.
+  // Host-item list → native `hosts` object.
   function hostsNode(hostItems) {
     const h = {};
     const push = (key, val) => {
@@ -3717,7 +3737,7 @@
     // dropped patterns are canonicalized away on a reformat too.
     let likeSeen = false;
     for (const item of hostItems) {
-      switch (item.kind) {
+      switch (item.variant) {
         case 'any': h.any_host = true; break;
         case 'none': break;
         case 'local': h.local_host = true; break;
@@ -3748,7 +3768,7 @@
     return h;
   }
 
-  // RoleTarget → native `RolesOrUsersSet`.
+  // Role-set target → native `RolesOrUsersSet`.
   function roleTargetSet(target, l) {
     return rolesOrUsersSetNode(target, l);
   }
@@ -3882,7 +3902,7 @@
   // merge onto the node.
   function accessNativeFields(stmt) {
     const f = {};
-    const k = stmt.kind;
+    const k = stmt.variant;
     if (k === 'createRole' || k === 'alterRole') {
       if (k === 'alterRole') f.alter = true;
       if (stmt.orReplace) f.or_replace = true;
@@ -3973,7 +3993,7 @@
   // CREATE/ALTER USER native fields.
   function createUserNativeFields(stmt) {
     const f = {};
-    if (stmt.kind === 'alterUser') {
+    if (stmt.variant === 'alterUser') {
       f.alter = true;
       if (stmt.ifExists) f.if_exists = true;
       if (stmt.onCluster !== undefined) f.cluster = stmt.onCluster;
@@ -3981,18 +4001,18 @@
       let auth, settings, defaultRole, defaultDatabase, grantees, rename, validUntil;
       let hostItems, addHostItems, dropHostItems;
       for (const c of stmt.clauses) {
-        if (c.kind === 'identified') auth = c.auth;
-        else if (c.kind === 'notIdentified') auth = [{}];
-        else if (c.kind === 'host') {
+        if (c.variant === 'identified') auth = c.auth;
+        else if (c.variant === 'notIdentified') auth = [{}];
+        else if (c.variant === 'host') {
           if (c.mode === 'ADD') addHostItems = (addHostItems || []).concat(c.hosts);
           else if (c.mode === 'DROP') dropHostItems = (dropHostItems || []).concat(c.hosts);
           else hostItems = (hostItems || []).concat(c.hosts);
-        } else if (c.kind === 'settings') settings = c.settings;
-        else if (c.kind === 'defaultRole') defaultRole = c.roles;
-        else if (c.kind === 'defaultDatabase') defaultDatabase = c.database;
-        else if (c.kind === 'grantees') grantees = c.grantees;
-        else if (c.kind === 'rename') rename = c.to;
-        else if (c.kind === 'validUntil') validUntil = c.value;
+        } else if (c.variant === 'settings') settings = c.settings;
+        else if (c.variant === 'defaultRole') defaultRole = c.roles;
+        else if (c.variant === 'defaultDatabase') defaultDatabase = c.database;
+        else if (c.variant === 'grantees') grantees = c.grantees;
+        else if (c.variant === 'rename') rename = c.to;
+        else if (c.variant === 'validUntil') validUntil = c.value;
       }
       if (rename !== undefined) f.new_name = userNameStr(rename);
       if (auth !== undefined) {
@@ -4060,16 +4080,16 @@
 
   function accessQueryNode(stmt, l) {
     if (l !== undefined && stmt.location === undefined) stmt.location = l;
-    if (stmt.kind === 'createUser' || stmt.kind === 'alterUser') {
+    if (stmt.variant === 'createUser' || stmt.variant === 'alterUser') {
       return { type: 'CreateUserQuery', ...accessNativeFields(stmt) };
     }
-    if (stmt.kind === 'createRole' || stmt.kind === 'alterRole')
+    if (stmt.variant === 'createRole' || stmt.variant === 'alterRole')
       return { type: 'CreateRoleQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createQuota' || stmt.kind === 'alterQuota')
+    if (stmt.variant === 'createQuota' || stmt.variant === 'alterQuota')
       return { type: 'CreateQuotaQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createSettingsProfile' || stmt.kind === 'alterSettingsProfile')
+    if (stmt.variant === 'createSettingsProfile' || stmt.variant === 'alterSettingsProfile')
       return { type: 'CreateSettingsProfileQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createNamedCollection') {
+    if (stmt.variant === 'createNamedCollection') {
       const node = { type: 'CreateNamedCollectionQuery', collection_name: stmt.name };
       if (stmt.ifNotExists === true) node.if_not_exists = true;
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
@@ -4083,9 +4103,9 @@
       if (Object.keys(overridability).length > 0) node.overridability = overridability;
       return node;
     }
-    if (stmt.kind === 'createRowPolicy' || stmt.kind === 'alterRowPolicy')
+    if (stmt.variant === 'createRowPolicy' || stmt.variant === 'alterRowPolicy')
       return { type: 'CreateRowPolicyQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createWorkload') {
+    if (stmt.variant === 'createWorkload') {
       const node = { type: 'CreateWorkloadQuery' };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
@@ -4101,7 +4121,7 @@
       }
       return node;
     }
-    if (stmt.kind === 'createResource') {
+    if (stmt.variant === 'createResource') {
       const node = { type: 'CreateResourceQuery', resource_name: identLoc([stmt.name], stmt.location) };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
@@ -4114,13 +4134,13 @@
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
       return node;
     }
-    if (stmt.kind === 'grant')
+    if (stmt.variant === 'grant')
       return {
         type: stmt.operation === 'REVOKE' ? 'RevokeQuery' : 'GrantQuery',
         ...accessNativeFields(stmt),
       };
-    if (stmt.kind === 'setRole') return { type: 'SetRoleQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'backup') {
+    if (stmt.variant === 'setRole') return { type: 'SetRoleQuery', ...accessNativeFields(stmt) };
+    if (stmt.variant === 'backup') {
       const d = stmt.destination;
       const node = {
         type: stmt.operation === 'RESTORE' ? 'RestoreQuery' : 'BackupQuery',
@@ -4143,7 +4163,7 @@
       if (stmt.format !== undefined) node.format = stmt.format;
       return node;
     }
-    if (stmt.kind === 'parallelWith') {
+    if (stmt.variant === 'parallelWith') {
       return { type: 'ParallelWithQuery', children: stmt.queries };
     }
     // Unrecognized kind: return as-is so call sites can wrap unconditionally.
@@ -4323,13 +4343,13 @@ ImplicitSelectStatement
 // SetStatement: SET key = value [, key = value ...] — changes session-level settings
 SetStatement
   = "SET"i ![a-zA-Z0-9_] _ "TRANSACTION"i ![a-zA-Z0-9_] _ "SNAPSHOT"i ![a-zA-Z0-9_] _ snapshot:$[0-9]+ { return loc({ type: 'TransactionControl', action: 'SET_SNAPSHOT', snapshot: snapshot }); }
-  / "SET"i ![a-zA-Z0-9_] _ "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList _ "TO"i ![a-zA-Z0-9_] _ users:SetRoleUserList { return loc(accessQueryNode({ kind: 'setRole', roles, users }, location())); }
+  / "SET"i ![a-zA-Z0-9_] _ "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList _ "TO"i ![a-zA-Z0-9_] _ users:SetRoleUserList { return loc(accessQueryNode({ variant: 'setRole', roles, users }, location())); }
   / "SET"i ![a-zA-Z0-9_] _ items:SettingsList { return loc(setNode(items)); }
 
 SetRoleList
-  = "ALL"i ![a-zA-Z0-9_] except:( _ "EXCEPT"i ![a-zA-Z0-9_] _ SetRoleNameList )? { return { kind: 'all', except: except ? except[4] : undefined }; }
-  / "NONE"i ![a-zA-Z0-9_] { return { kind: 'none' }; }
-  / names:SetRoleNameList { return { kind: 'names', names }; }
+  = "ALL"i ![a-zA-Z0-9_] except:( _ "EXCEPT"i ![a-zA-Z0-9_] _ SetRoleNameList )? { return { variant: 'all', except: except ? except[4] : undefined }; }
+  / "NONE"i ![a-zA-Z0-9_] { return { variant: 'none' }; }
+  / names:SetRoleNameList { return { variant: 'names', names }; }
 
 // A comma-separated list of identifiers (see AliasNameList).
 SetRoleNameList
@@ -5196,7 +5216,7 @@ BackupStatement
     settings:( _ SettingsClause )?
     wait:( _ ( "SYNC"i / "ASYNC"i ) ![a-zA-Z0-9_] )?
     format:( _ FormatClause )? {
-      const result = { kind: 'backup', operation: op.toUpperCase(), elements, destination };
+      const result = { variant: 'backup', operation: op.toUpperCase(), elements, destination };
       if (cluster !== null) result.onCluster = cluster[1];
       if (settings !== null) result.settings = settings[1];
       if (wait !== null) result.wait = wait[1].toUpperCase();
@@ -5278,7 +5298,7 @@ GrantStatement
     _ body:( elements:GrantElementList { return { elements }; } / roles:GrantRoleList { return { roles }; } )
     _ ( "TO"i / "FROM"i ) ![a-zA-Z0-9_] _ grantees:GranteeList
     withOpts:( _ "WITH"i ![a-zA-Z0-9_] _ ( "GRANT"i / "ADMIN"i / "REPLACE"i ) ![a-zA-Z0-9_] _ "OPTION"i ![a-zA-Z0-9_] )* {
-      const result = { kind: 'grant', operation: op.toUpperCase() };
+      const result = { variant: 'grant', operation: op.toUpperCase() };
       if (body.elements !== undefined) result.elements = body.elements;
       else result.roles = body.roles;
       result.grantees = grantees;
@@ -5346,24 +5366,24 @@ AlterUserStatement
     _ names:CreateUserNameList
     cluster:( _ OnClusterClause )?
     clauses:( _ AlterUserClause )* {
-      const result = { kind: 'alterUser', names, clauses: clauses.map(c => c[1]) };
+      const result = { variant: 'alterUser', names, clauses: clauses.map(c => c[1]) };
       if (ifExists !== null) result.ifExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
       return loc(accessQueryNode(result, location()));
     }
 
 AlterUserClause
-  = "RENAME"i ![a-zA-Z0-9_] _ "TO"i ![a-zA-Z0-9_] _ to:CreateUserNameItem { return { kind: 'rename', to }; }
-  / "NOT"i ![a-zA-Z0-9_] _ "IDENTIFIED"i ![a-zA-Z0-9_] { return { kind: 'notIdentified' }; }
-  / "IDENTIFIED"i ![a-zA-Z0-9_] _ auth:CreateUserAuthMethods { return { kind: 'identified', auth }; }
-  / mode:( "ADD"i / "DROP"i ) ![a-zA-Z0-9_] _ "HOST"i ![a-zA-Z0-9_] _ hosts:HostItemList { return { kind: 'host', mode: mode.toUpperCase(), hosts }; }
-  / "HOST"i ![a-zA-Z0-9_] _ hosts:HostItemList { return { kind: 'host', hosts }; }
-  / "SETTINGS"i ![a-zA-Z0-9_] _ "NONE"i ![a-zA-Z0-9_] { return { kind: 'settings', settings: 'NONE' }; }
-  / "SETTINGS"i ![a-zA-Z0-9_] _ items:AccessControlSettingsList { return { kind: 'settings', settings: items }; }
-  / "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList { return { kind: 'defaultRole', roles }; }
-  / "DEFAULT"i ![a-zA-Z0-9_] _ "DATABASE"i ![a-zA-Z0-9_] _ db:AliasName { return { kind: 'defaultDatabase', database: db }; }
-  / "GRANTEES"i ![a-zA-Z0-9_] _ g:SetRoleList { return { kind: 'grantees', grantees: g }; }
-  / "VALID"i ![a-zA-Z0-9_] _ "UNTIL"i ![a-zA-Z0-9_] _ str:StringLiteral { return { kind: 'validUntil', value: str.value }; }
+  = "RENAME"i ![a-zA-Z0-9_] _ "TO"i ![a-zA-Z0-9_] _ to:CreateUserNameItem { return { variant: 'rename', to }; }
+  / "NOT"i ![a-zA-Z0-9_] _ "IDENTIFIED"i ![a-zA-Z0-9_] { return { variant: 'notIdentified' }; }
+  / "IDENTIFIED"i ![a-zA-Z0-9_] _ auth:CreateUserAuthMethods { return { variant: 'identified', auth }; }
+  / mode:( "ADD"i / "DROP"i ) ![a-zA-Z0-9_] _ "HOST"i ![a-zA-Z0-9_] _ hosts:HostItemList { return { variant: 'host', mode: mode.toUpperCase(), hosts }; }
+  / "HOST"i ![a-zA-Z0-9_] _ hosts:HostItemList { return { variant: 'host', hosts }; }
+  / "SETTINGS"i ![a-zA-Z0-9_] _ "NONE"i ![a-zA-Z0-9_] { return { variant: 'settings', settings: 'NONE' }; }
+  / "SETTINGS"i ![a-zA-Z0-9_] _ items:AccessControlSettingsList { return { variant: 'settings', settings: items }; }
+  / "DEFAULT"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_] _ roles:SetRoleList { return { variant: 'defaultRole', roles }; }
+  / "DEFAULT"i ![a-zA-Z0-9_] _ "DATABASE"i ![a-zA-Z0-9_] _ db:AliasName { return { variant: 'defaultDatabase', database: db }; }
+  / "GRANTEES"i ![a-zA-Z0-9_] _ g:SetRoleList { return { variant: 'grantees', grantees: g }; }
+  / "VALID"i ![a-zA-Z0-9_] _ "UNTIL"i ![a-zA-Z0-9_] _ str:StringLiteral { return { variant: 'validUntil', value: str.value }; }
 
 AlterRoleStatement
   = "ALTER"i ![a-zA-Z0-9_] _ "ROLE"i ![a-zA-Z0-9_]
@@ -5372,7 +5392,7 @@ AlterRoleStatement
     cluster:( _ OnClusterClause )?
     rename:( _ "RENAME"i ![a-zA-Z0-9_] _ "TO"i ![a-zA-Z0-9_] _ CreateUserNameItem )?
     settings:( _ CreateRoleSettingsClause )? {
-      const result = { kind: 'alterRole', names };
+      const result = { variant: 'alterRole', names };
       if (ifExists !== null) result.ifExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
       if (rename !== null) result.renameTo = rename[7];
@@ -5387,7 +5407,7 @@ AlterQuotaStatement
     cluster:( _ OnClusterClause )?
     rename:( _ "RENAME"i ![a-zA-Z0-9_] _ "TO"i ![a-zA-Z0-9_] _ AccessControlNameValue )?
     clauses:( _ ","? _ QuotaClause )* {
-      const result = { kind: 'alterQuota', names };
+      const result = { variant: 'alterQuota', names };
       if (ifExists !== null) result.ifExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
       if (rename !== null) result.renameTo = rename[7];
@@ -5407,7 +5427,7 @@ AlterRowPolicyStatement
     ifExists:( _ "IF"i ![a-zA-Z0-9_] _ "EXISTS"i ![a-zA-Z0-9_] )?
     _ targetsResult:RowPolicyTargets
     clauses:( _ AlterRowPolicyClause )* {
-      const result = { kind: 'alterRowPolicy', targets: targetsResult.targets };
+      const result = { variant: 'alterRowPolicy', targets: targetsResult.targets };
       if (hasRow !== null) result.hasRowKeyword = true;
       if (ifExists !== null) result.ifExists = true;
       if (targetsResult.onCluster) result.onCluster = targetsResult.onCluster;
@@ -5439,7 +5459,7 @@ AlterSettingsProfileStatement
     rename:( _ "RENAME"i ![a-zA-Z0-9_] _ "TO"i ![a-zA-Z0-9_] _ AccessControlNameValue )?
     settings:( _ CreateRoleSettingsClause )?
     to:( _ "TO"i ![a-zA-Z0-9_] _ SetRoleList )? {
-      const result = { kind: 'alterSettingsProfile', names };
+      const result = { variant: 'alterSettingsProfile', names };
       if (hasSK !== null) result.hasSettingsKeyword = true;
       if (ifExists !== null) result.ifExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
@@ -5764,10 +5784,10 @@ InsertRawData
 // PARALLEL WITH: chains multiple statements (CREATE, INSERT, TRUNCATE, etc.)
 ParallelWithStatement
   = head:CreateStatement tail:( _ "PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_] _ CreateStatement )+ {
-      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
+      return loc(accessQueryNode({ variant: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
     }
   / head:ParallelWithItem tail:( _ "PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_] _ ParallelWithItem )+ {
-      return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
+      return loc(accessQueryNode({ variant: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
     }
 
 ParallelWithItem
@@ -6541,7 +6561,7 @@ CreateWorkloadStatement
     _ name:AliasName
     parent:( _ "IN"i ![a-zA-Z0-9_] _ AliasName )?
     settings:( _ SettingsClause )? {
-      const result = { kind: 'createWorkload', name };
+      const result = { variant: 'createWorkload', name };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (parent !== null) result.parentWorkload = parent[4];
@@ -6560,7 +6580,7 @@ CreateUserStatement
     _ names:CreateUserNameList
     clauses:( _ CreateUserClause )*
     {
-      const result = { kind: 'createUser', names };
+      const result = { variant: 'createUser', names };
       if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       for (const c of clauses) {
@@ -6683,13 +6703,13 @@ HostItemList
     }
 
 HostItems
-  = "ANY"i ![a-zA-Z0-9_] { return { kind: 'any' }; }
-  / "NONE"i ![a-zA-Z0-9_] { return { kind: 'none' }; }
-  / "LOCAL"i ![a-zA-Z0-9_] { return { kind: 'local' }; }
-  / "NAME"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ kind: 'name', value: s })); }
-  / "REGEXP"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ kind: 'regexp', value: s })); }
-  / "LIKE"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ kind: 'like', value: s })); }
-  / "IP"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ kind: 'ip', value: s })); }
+  = "ANY"i ![a-zA-Z0-9_] { return { variant: 'any' }; }
+  / "NONE"i ![a-zA-Z0-9_] { return { variant: 'none' }; }
+  / "LOCAL"i ![a-zA-Z0-9_] { return { variant: 'local' }; }
+  / "NAME"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ variant: 'name', value: s })); }
+  / "REGEXP"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ variant: 'regexp', value: s })); }
+  / "LIKE"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ variant: 'like', value: s })); }
+  / "IP"i ![a-zA-Z0-9_] _ strs:HostStringList { return strs.map(s => ({ variant: 'ip', value: s })); }
 
 HostStringList
   = head:StringLiteral tail:( _ "," _ StringLiteral )* { return [head.value, ...tail.map(t => t[3].value)]; }
@@ -6699,10 +6719,10 @@ AccessControlSettingsList
   = head:AccessControlSettingsItem tail:( _ "," _ AccessControlSettingsItem )* { return [head, ...tail.map(t => t[3])]; }
 
 AccessControlSettingsItem
-  = "PROFILE"i ![a-zA-Z0-9_] _ name:( StringLiteral { return text(); } / AliasName ) { return { kind: 'profile', name }; }
-  / "INHERIT"i ![a-zA-Z0-9_] _ name:( StringLiteral { return text(); } / AliasName ) { return { kind: 'inherit', name }; }
+  = "PROFILE"i ![a-zA-Z0-9_] _ name:( StringLiteral { return text(); } / AliasName ) { return { variant: 'profile', name }; }
+  / "INHERIT"i ![a-zA-Z0-9_] _ name:( StringLiteral { return text(); } / AliasName ) { return { variant: 'inherit', name }; }
   / name:AccessControlSettingName val:( _ "=" _ Expression )? min:( _ "MIN"i ![a-zA-Z0-9_] _ ( "=" _ )? Expression )? max:( _ "MAX"i ![a-zA-Z0-9_] _ ( "=" _ )? Expression )? mod:( _ ("CONST"i / "WRITABLE"i / "READONLY"i) ![a-zA-Z0-9_] )? {
-      const result = { kind: 'setting', name };
+      const result = { variant: 'setting', name };
       if (val !== null) result.value = val[3];
       if (min !== null) result.min = min[5];
       if (max !== null) result.max = max[5];
@@ -6721,7 +6741,7 @@ CreateRoleStatement
     _ names:CreateUserNameList
     settings:( _ CreateRoleSettingsClause )?
     {
-      const result = { kind: 'createRole', names };
+      const result = { variant: 'createRole', names };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (settings !== null) result.settings = settings[1];
@@ -6741,7 +6761,7 @@ CreateRowPolicyStatement
     _ targetsResult:RowPolicyTargets
     clauses:( _ RowPolicyClause )*
     {
-      const result = { kind: 'createRowPolicy', targets: targetsResult.targets };
+      const result = { variant: 'createRowPolicy', targets: targetsResult.targets };
       if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
       if (hasRow !== null) result.hasRowKeyword = true;
       if (ifne !== null) result.ifNotExists = true;
@@ -6807,7 +6827,7 @@ CreateQuotaStatement
     _ names:QuotaNameList
     clauses:( _ ","? _ QuotaClause )*
     {
-      const result = { kind: 'createQuota', names };
+      const result = { variant: 'createQuota', names };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       const intervals = [];
@@ -6899,7 +6919,7 @@ CreateSettingsProfileStatement
     settings:( _ CreateRoleSettingsClause )?
     to:( _ "TO"i ![a-zA-Z0-9_] _ SetRoleList )?
     {
-      const result = { kind: 'createSettingsProfile', names };
+      const result = { variant: 'createSettingsProfile', names };
       if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
       if (hasSK !== null) result.hasSettingsKeyword = true;
       if (ifne !== null) result.ifNotExists = true;
@@ -6917,7 +6937,7 @@ CreateNamedCollectionStatement
     cluster:( _ OnClusterClause )?
     _ "AS"i ![a-zA-Z0-9_] _ items:NamedCollectionItemList
     {
-      const result = { kind: 'createNamedCollection', name, items };
+      const result = { variant: 'createNamedCollection', name, items };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
@@ -6943,7 +6963,7 @@ CreateResourceStatement
     _ name:AliasName
     _ "(" _ specs:ResourceSpecList _ ")"
     {
-      const result = { kind: 'createResource', name, specs };
+      const result = { variant: 'createResource', name, specs };
       if (orReplace !== null) result.orReplace = true;
       if (ifne !== null) result.ifNotExists = true;
       return loc(accessQueryNode(result, location()));
@@ -7752,13 +7772,13 @@ CTEItemList
 
 CTEItem
 // Subquery CTE with column aliases: name (col1, col2) AS (SELECT ...)
-  = name:Identifier _ "(" _ head:AliasName tail:(_ "," _ AliasName)* _ ")" _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
+  = name:CTEName _ "(" _ head:AliasName tail:(_ "," _ AliasName)* _ ")" _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
       const result = { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
       result.columnAliases = [head, ...tail.map(t => t[3])];
       return result;
     }
 // Subquery CTE: name AS (SELECT ...)
-  / name:Identifier _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
+  / name:CTEName _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
       return { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
     }
   // Lambda CTE with parens: (x, y) -> body AS name
@@ -7781,22 +7801,34 @@ CTEItem
       return { kind: 'cteExpr', expr };
     }
 
+// CTEName: the bound name of a subquery CTE (`WITH <name> AS (...)`). ClickHouse
+// allows any reserved keyword here (e.g. `WITH ORDER AS (SELECT 1) SELECT * FROM ORDER`),
+// so this accepts a normal Identifier plus any reserved keyword word. (Soft keywords
+// are already accepted by Identifier, which only excludes the KEYWORDS set.)
+CTEName
+  = Identifier
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return KEYWORDS.has(word.toUpperCase()); } { return word; }
+
 // SelectItemList: supports optional trailing comma (ClickHouse extension).
-// The !SelectClauseKeyword guard prevents clause-starting keywords (FROM, WHERE, etc.)
-// from being consumed as select items via the last-resort AliasName rule.
+// The !SelectClauseKeyword guard only prevents a trailing-comma FROM from being
+// consumed as a select item via the last-resort AliasName rule. All other clause
+// keywords (ORDER, GROUP, WHERE, LIMIT, ...) are valid bare column identifiers
+// after a comma in ClickHouse (e.g. "SELECT A, ORDER FROM T" yields columns A and
+// ORDER); they only start a clause when they are NOT preceded by a select-list comma.
 SelectItemList
   = head:SelectItem tail:(_ "," _ !SelectClauseKeyword SelectItem)* (_ "," _)? {
       return buildCommaList(head, tail, 4);
     }
 
-// SelectClauseKeyword: keywords that start SELECT sub-clauses (used as negative lookahead
-// in SelectItemList to prevent consuming them as select items after a trailing comma)
-// SelectClauseKeyword: strong clause-starting keywords that cannot be column names.
-// Note: SETTINGS, FORMAT, QUALIFY, EXCEPT, WINDOW are omitted since they can appear as column names.
+// SelectClauseKeyword: negative lookahead used in SelectItemList to support a
+// trailing comma before the FROM clause (e.g. "SELECT a, FROM t"). Only FROM is
+// listed: ClickHouse treats every other clause keyword after a comma as a column
+// identifier rather than a clause start, so "SELECT a, ORDER BY x" is a syntax
+// error there (ORDER parses as a column, then BY is unexpected), matching ClickHouse.
+// The trailing lookahead lets FROM still act as a column when an operator follows
+// (e.g. "SELECT a, FROM + 1").
 SelectClauseKeyword
   = "FROM"i ![a-zA-Z0-9_] _ !( "+" / "-" / "*" / "/" / "," / "IN"i ![a-zA-Z0-9_] / "AND"i ![a-zA-Z0-9_] / "OR"i ![a-zA-Z0-9_] )
-  / ("WHERE"i / "PREWHERE"i / "GROUP"i / "HAVING"i / "ORDER"i / "LIMIT"i
-  / "OFFSET"i / "UNION"i / "INTERSECT"i / "INTO"i / "FETCH"i) ![a-zA-Z0-9_]
 
 SelectItem
   = expr:TernaryExpr alias:SelectItemAlias? {
@@ -7809,7 +7841,15 @@ SelectItem
 
 SelectItemAlias
   = _ KW_AS _ alias:AliasName { return alias; }
-  / _ !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:Identifier { return alias; }
+  / _ !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:ColumnImplicitAlias { return alias; }
+
+// ColumnImplicitAlias: a column alias written without the AS keyword. Like
+// Identifier, but additionally accepts the reserved keywords ClickHouse permits as
+// implicit column aliases (see COLUMN_IMPLICIT_ALIAS_KEYWORDS), so `SELECT a DESC
+// FROM t` and `SELECT a SELECT FROM t` parse the keyword as the alias.
+ColumnImplicitAlias
+  = Identifier
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return COLUMN_IMPLICIT_ALIAS_KEYWORDS.has(word.toUpperCase()); } { return word; }
 
 FromClause
   = KW_FROM comments:_ expr:JoinExpr { return addWsLeading(expr, comments); }
@@ -7893,7 +7933,22 @@ FromAtomAlias
   / _ "(" _ !( KW_SELECT / KW_WITH / "EXPLAIN"i ![a-zA-Z0-9_] ) head:AliasName tail:( _ "," _ AliasName )* _ ")" {
       return { columnAliases: [head, ...tail.map((t) => t[3])] };
     }
-  / _ !JoinKeyword !ArrayJoinKeyword !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:Identifier { return alias; }
+  / _ !JoinKeyword !ArrayJoinKeyword !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:TableImplicitAlias { return alias; }
+
+// TableImplicitAlias: a table alias written without the AS keyword. Like Identifier,
+// plus the reserved keywords ClickHouse permits as table aliases
+// (TABLE_IMPLICIT_ALIAS_KEYWORDS, which includes the operator words AND/OR/IN that
+// cannot appear after a table except as an alias).
+//
+// `SELECT` gets a dedicated branch: ClickHouse treats a trailing `SELECT` as a table
+// alias (`SELECT x FROM t SELECT`), but the same token also begins the FROM-first
+// form `FROM numbers(1) SELECT number`. The `!(_ SelectItem)` guard resolves the
+// ambiguity exactly as ClickHouse does — `SELECT` is only an alias when no select
+// item follows it (so `FROM numbers(1) SELECT number` stays FROM-first).
+TableImplicitAlias
+  = Identifier
+  / "SELECT"i ![a-zA-Z0-9_] !(_ SelectItem) { return 'SELECT'; }
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return TABLE_IMPLICIT_ALIAS_KEYWORDS.has(word.toUpperCase()); } { return word; }
 
 TableFunctionRef
   = name:FunctionName _ "(" _ args:TableFunctionArgList? settings:( ( _ "," )? _ KW_SETTINGS _ SettingsList )? _ ")" {
