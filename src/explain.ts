@@ -168,7 +168,7 @@ function escapeStringValue(value: string): string {
 
 // Type-prefixed dump of a literal (or an Array_/Tuple_ element) for explain
 // labels, e.g. `UInt64_1`, `Array_[UInt64_1, 'a']`. Mirrors ClickHouse's
-// Literal::appendColumnName. `_nonfinite` re-spells `inf`/`-0`, which the native
+// Literal::appendColumnName. `nonfinite` re-spells `inf`/`-0`, which the native
 // JSON `value` collapses to `null`/`0`.
 function literalDump(lit: LiteralElement): string {
   switch (lit.value_type) {
@@ -181,8 +181,8 @@ function literalDump(lit: LiteralElement): string {
     case 'Float64': {
       const spelled =
         lit.value === null
-          ? (lit._nonfinite ?? 'nan')
-          : lit._nonfinite === '-0'
+          ? (lit.nonfinite ?? 'nan')
+          : lit.nonfinite === '-0'
             ? '-0'
             : String(lit.value);
       return `Float64_${normalizeFloat(spelled)}`;
@@ -404,7 +404,7 @@ function withItemNode(w: WithItem): ExplainNode {
 function selectQueryNode(stmt: SelectQueryNode): ExplainNode {
   // Synthetic `op ANY/ALL (subquery)` lowering: ClickHouse emits the
   // projection + tables twice in this SelectQuery's child vector.
-  if (stmt._agg_repeat === true && stmt.from !== undefined) {
+  if (stmt.agg_repeat === true && stmt.from !== undefined) {
     const projection = (): ExplainNode => exprList(stmt.select);
     const tables = (): ExplainNode => tablesExplainNode(stmt.from!);
     return n('SelectQuery', [projection(), tables(), projection(), tables()]);
@@ -413,9 +413,9 @@ function selectQueryNode(stmt: SelectQueryNode): ExplainNode {
   const children: ExplainNode[] = [];
 
   // CTEs from WITH clause go before the select columns, except when the WITH
-  // was written before an enclosing INSERT (`_with_trailing`), in which case
+  // was written before an enclosing INSERT (`with_trailing`), in which case
   // ClickHouse appends the WITH ExpressionList after the select body.
-  if (stmt.with && stmt.with.length > 0 && stmt._with_trailing !== true) {
+  if (stmt.with && stmt.with.length > 0 && stmt.with_trailing !== true) {
     children.push(n('ExpressionList', stmt.with.map(withItemNode)));
   }
 
@@ -484,7 +484,7 @@ function selectQueryNode(stmt: SelectQueryNode): ExplainNode {
   // A WITH written before an enclosing INSERT, or propagated into a later UNION
   // member, is emitted after the select body. Within this propagated copy
   // ClickHouse also flips each joined element's TableJoin/TableExpression order.
-  if (stmt.with && stmt.with.length > 0 && stmt._with_trailing === true) {
+  if (stmt.with && stmt.with.length > 0 && stmt.with_trailing === true) {
     const prev = reverseTrailingJoins;
     reverseTrailingJoins = true;
     children.push(n('ExpressionList', stmt.with.map(withItemNode)));
@@ -562,7 +562,7 @@ function jsonArgToExplain(node: ASTNode): ExplainNode {
 /** Native `CODEC(...)` / `STATISTICS(...)` function node → explain. */
 function codecExplainNative(fnNode: FunctionNode): ExplainNode {
   const children = (fnNode.arguments as FunctionNode[]).map((c) =>
-    c._no_parens === true ? n(`Function ${c.name}`) : functionNode(c.name, c.arguments),
+    c.no_parens === true ? n(`Function ${c.name}`) : functionNode(c.name, c.arguments),
   );
   return n(`Function ${fnNode.name}`, [n('ExpressionList', children)]);
 }
@@ -624,7 +624,7 @@ function projectionExplainNative(proj: ProjectionNode): ExplainNode {
 
 /** Native engine `Function` node → explain (no-parens engines omit ExpressionList). */
 function engineExplainNative(engine: FunctionNode): ExplainNode {
-  if (engine._no_parens === true) return n(`Function ${engine.name}`);
+  if (engine.no_parens === true) return n(`Function ${engine.name}`);
   return functionNode(engine.name, engine.arguments);
 }
 
@@ -663,7 +663,7 @@ function pushStorageOrderBy(children: ExplainNode[], storage: StorageNode): void
 function storageExplainNative(storage: StorageNode, columnsHavePk: boolean): ExplainNode | null {
   const children: ExplainNode[] = [];
   if (storage.engine) children.push(engineExplainNative(storage.engine));
-  const settingsAfterOb = storage._settings_after_order_by === true;
+  const settingsAfterOb = storage.settings_after_order_by === true;
   if (storage.settings && !settingsAfterOb) children.push(SET);
   if (storage.partition_by !== undefined) children.push(exprNode(storage.partition_by));
   // In ClickHouse's storage AST the PRIMARY KEY child is placed after ORDER BY
@@ -1461,12 +1461,12 @@ function stmtNode(anyStmt: Statement): ExplainNode {
       const dq = anyStmt as DescribeQueryNode;
       // Rebuild children: TableExpression, then the optional FORMAT
       // Identifier / Settings in source order (preserved via
-      // `_settings_before_format`).
+      // `settings_before_format`).
       const children: ExplainNode[] = [];
       if (dq.table_expression !== undefined) {
         children.push(statementChildNode(dq.table_expression));
       }
-      if (dq._settings_before_format === true) {
+      if (dq.settings_before_format === true) {
         if (dq.settings !== undefined) children.push(SET);
         if (dq.format !== undefined) children.push(identifier(dq.format));
       } else {
@@ -1863,11 +1863,11 @@ function queryWrapperNode(q: SelectWithUnionQueryNode): ExplainNode {
     children.push(n(`Literal '${escapeStringValue(String(q.out_file.value))}'`));
   }
   // ClickHouse's AST child order follows the source order of SETTINGS vs FORMAT
-  // (`_settings_before_format`), so reproduce it here even though format()
+  // (`settings_before_format`), so reproduce it here even though format()
   // canonicalizes the order.
-  if (q.settings !== undefined && q._settings_before_format) children.push(SET);
+  if (q.settings !== undefined && q.settings_before_format) children.push(SET);
   if (q.format !== undefined) children.push(identifier(q.format));
-  if (q.settings !== undefined && !q._settings_before_format) children.push(SET);
+  if (q.settings !== undefined && !q.settings_before_format) children.push(SET);
   return n('SelectWithUnionQuery', children);
 }
 

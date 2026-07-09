@@ -154,12 +154,12 @@
   // is the IEEE double (a lossy JS number). Two forms cannot be recovered
   // from the native AST's `value`: non-finite values collapse to `null`, and
   // negative zero collapses to `0`. Both are recorded in a library-only
-  // `_nonfinite` discriminator so format()/formatExplain() can reproduce them.
+  // `nonfinite` discriminator so format()/formatExplain() can reproduce them.
   function floatLit(raw, extra) {
     const v = floatValue(raw);
     const node = lit('Float64', v, extra);
-    if (v === null) node._nonfinite = nonfiniteToken(raw);
-    else if (v === 0 && Object.is(Number(raw), -0)) node._nonfinite = '-0';
+    if (v === null) node.nonfinite = nonfiniteToken(raw);
+    else if (v === 0 && Object.is(Number(raw), -0)) node.nonfinite = '-0';
     return node;
   }
 
@@ -188,7 +188,7 @@
   // Negate a Literal's `value` field, preserving its native shape: UInt64/
   // Int64 are decimal-digit strings (use BigInt for precision), Float64 is
   // a JS number (non-finite `null` is left untouched — see `negateNumericLit`
-  // for the `_nonfinite` flip). Used by the `::` cast-fold negation path;
+  // for the `nonfinite` flip). Used by the `::` cast-fold negation path;
   // other literal types should never reach this helper.
   function negateLitValue(node) {
     if (node.value_type === 'UInt64' || node.value_type === 'Int64') {
@@ -209,28 +209,28 @@
     if (n.value_type !== 'UInt64' && n.value_type !== 'Int64' && n.value_type !== 'Float64') {
       return false;
     }
-    if (n._nonfinite !== undefined) return n._nonfinite.charAt(0) !== '-';
+    if (n.nonfinite !== undefined) return n.nonfinite.charAt(0) !== '-';
     if (typeof n.value === 'number') return !(n.value < 0);
     return n.value.charAt(0) !== '-';
   }
 
   // Return a negated copy of a numeric literal. For Float64 this also flips
-  // the `_nonfinite` sign discriminator: inf↔-inf, nan↔-nan, +0↔-0 (the cases
+  // the `nonfinite` sign discriminator: inf↔-inf, nan↔-nan, +0↔-0 (the cases
   // `value` alone can't represent).
   function negateNumericLit(n) {
     const out = { ...n, value: negateLitValue(n) };
     if (n.value_type === 'Float64') {
-      if (n._nonfinite !== undefined) {
-        const flipped = n._nonfinite === '-0'
+      if (n.nonfinite !== undefined) {
+        const flipped = n.nonfinite === '-0'
           ? undefined
-          : n._nonfinite.charAt(0) === '-'
-            ? n._nonfinite.substring(1)
-            : '-' + n._nonfinite;
-        if (flipped === undefined) delete out._nonfinite;
-        else out._nonfinite = flipped;
+          : n.nonfinite.charAt(0) === '-'
+            ? n.nonfinite.substring(1)
+            : '-' + n.nonfinite;
+        if (flipped === undefined) delete out.nonfinite;
+        else out.nonfinite = flipped;
       } else if (out.value === 0) {
         // Negating +0 yields -0.
-        out._nonfinite = '-0';
+        out.nonfinite = '-0';
       }
     }
     return out;
@@ -246,12 +246,12 @@
   }
 
   // Plain dump form of a Float64 literal node. Non-finite values (`value` is
-  // null) come from `_nonfinite`; `nan`/`-nan` both dump as `nan`.
+  // null) come from `nonfinite`; `nan`/`-nan` both dump as `nan`.
   function floatDump(node) {
     if (node.value === null) {
-      return node._nonfinite === 'nan' || node._nonfinite === '-nan' ? 'nan' : node._nonfinite;
+      return node.nonfinite === 'nan' || node.nonfinite === '-nan' ? 'nan' : node.nonfinite;
     }
-    if (node._nonfinite === '-0') return '-0.';
+    if (node.nonfinite === '-0') return '-0.';
     return floatNumText(node.value);
   }
 
@@ -317,7 +317,7 @@
   // ── Literal Array/Tuple typed-element model ──────────────────────────────────
   // ClickHouse serializes all-literal array/tuple syntax as a single Literal
   // node whose `value` is the list of its elements, each a {value_type, value}
-  // object (recursively for nested Array/Tuple, with `_nonfinite` carried for
+  // object (recursively for nested Array/Tuple, with `nonfinite` carried for
   // non-finite/`-0` Float64 elements). Elements that can't be folded force the
   // Function array/tuple form instead.
 
@@ -338,7 +338,7 @@
   // collection type is permitted as an element: 'array' allows nested Array
   // (not Tuple), 'tuple' allows nested Tuple (not Array).
   function litElem(node, allowNested) {
-    if (node._parenthesized) return null;
+    if (node.parenthesized) return null;
     if (node.alias !== undefined) return null;
     if (node.type !== 'Literal') return null;
     switch (node.value_type) {
@@ -359,7 +359,7 @@
         return null;
     }
     const el = { value_type: node.value_type, value: node.value };
-    if (node._nonfinite !== undefined) el._nonfinite = node._nonfinite;
+    if (node.nonfinite !== undefined) el.nonfinite = node.nonfinite;
     return el;
   }
 
@@ -373,11 +373,11 @@
     return litElem(node, 'array');
   }
 
-  // Rebuild a Literal Array/Tuple element ({value_type, value, _nonfinite?})
+  // Rebuild a Literal Array/Tuple element ({value_type, value, nonfinite?})
   // into a Literal Expression node (used when a folded Literal collection must
   // be expanded back into Function array/tuple arguments).
   function elemToExpr(el) {
-    const extra = el._nonfinite !== undefined ? { _nonfinite: el._nonfinite } : undefined;
+    const extra = el.nonfinite !== undefined ? { nonfinite: el.nonfinite } : undefined;
     return lit(el.value_type, el.value, extra);
   }
 
@@ -476,7 +476,7 @@
     }
     const node = { type: typeName || 'Settings' };
     if (hasChanges) node.changes = changes;
-    if (Object.keys(changeValueTypes).length > 0) node._change_value_types = changeValueTypes;
+    if (Object.keys(changeValueTypes).length > 0) node.change_value_types = changeValueTypes;
     if (defaults.length > 0) node.default_settings = defaults;
     return withLoc(node, spanOf(items) ?? spanOf(items.map((i) => i.value)));
   }
@@ -795,7 +795,7 @@
       // EXPLAIN AST text dump shows `SelectQuery (children 4)`. The JSON AST
       // (and our named `select`/`from` fields) keep a single copy; this flag
       // tells the explain projection to emit the doubled child list.
-      _agg_repeat: true,
+      agg_repeat: true,
     }, L);
     return withLoc({ type: 'Subquery', query: withLoc(wrapSWU([sel]), L) }, L);
   }
@@ -880,7 +880,7 @@
 
   // Canonical dump text of one typed-list element, or null when it is not a
   // pure-cast literal (Null/Bool). Recurses through nested Array/Tuple. Typed
-  // elements share the Literal node's `value`/`_nonfinite` shape, so `floatDump`
+  // elements share the Literal node's `value`/`nonfinite` shape, so `floatDump`
   // handles the Float64 case directly.
   function elemCastText(el) {
     switch (el.value_type) {
@@ -970,7 +970,7 @@
 
   // Build a CAST Function node for the `::` operator form. Pure-literal
   // operands are stored as their String literal text, as ClickHouse does.
-  // The structured operand is parked on a parse-time-only `_cast_operand`
+  // The structured operand is parked on a parse-time-only `cast_operand`
   // marker so the unary-minus negate-fold can distinguish a folded `::`
   // cast (which folds `-1::Int8` → `CAST('-1','Int8')`) from a user-written
   // `CAST('1','Int8')` (which must stay `negate(CAST('1','Int8'))`). The
@@ -992,7 +992,7 @@
     }
     if (text !== null) {
       // Stringified pure-literal casts are plain CAST calls in ClickHouse's AST
-      const stringified = withLoc(strLit(text, { _cast_operand: operand }), operand.location);
+      const stringified = withLoc(strLit(text, { cast_operand: operand }), operand.location);
       return withLoc(fn('CAST', [stringified, withLoc(typeLit(rawType), operand.location)]), operand.location);
     }
     return withLoc(fn('CAST', [operand, withLoc(typeLit(rawType), operand.location)], { is_operator: true }), operand.location);
@@ -1142,7 +1142,7 @@
       if (node.union_mode === 'UNION_DISTINCT') {
         // Explicitly parenthesized DISTINCT groups keep their serialized mode;
         // precedence-implied groups have it removed (ClickHouse mode REMOVED).
-        if (node._parenthesized === true) return [node];
+        if (node.parenthesized === true) return [node];
         const group = { ...node };
         delete group.union_mode;
         return [group];
@@ -1165,7 +1165,7 @@
   // Wrap an intersect/except child in SelectWithUnionQuery when required.
   function intersectChild(node, wrap) {
     if (node.type === 'SelectWithUnionQuery') return node;
-    if (node._parenthesized) wrap = true;
+    if (node.parenthesized) wrap = true;
     return wrap ? wrapSWU([node]) : node;
   }
 
@@ -1208,7 +1208,7 @@
       // A WITH that scopes the whole union is emitted first on the member that
       // declared it but appended last on every member it propagates into, so
       // the distributed copies are tagged trailing.
-      return { ...m, with: first.with, _with_trailing: true };
+      return { ...m, with: first.with, with_trailing: true };
     });
   }
 
@@ -1227,7 +1227,7 @@
         if (isLeftmostPath) return q;
         if (q.with !== undefined && q.with.length > 0) return q;
         // Propagated (non-leftmost) copies are appended last by ClickHouse.
-        return { ...q, with: withItems, _with_trailing: true };
+        return { ...q, with: withItems, with_trailing: true };
       }
       if (q.type === 'SelectIntersectExceptQuery') {
         return {
@@ -1258,9 +1258,9 @@
         // A WITH written before INSERT (`WITH ... INSERT INTO ... SELECT ...`)
         // is appended to the inner SELECT's child list by ClickHouse, so its
         // EXPLAIN AST emits the WITH ExpressionList *after* the select body.
-        // `_with_trailing` records that source position for the explain
+        // `with_trailing` records that source position for the explain
         // projection (format() still re-emits it before the statement).
-        return { ...q, with: withItems, _with_trailing: true };
+        return { ...q, with: withItems, with_trailing: true };
       }
       if (q.type === 'SelectWithUnionQuery') {
         const selects = q.selects.slice();
@@ -1328,7 +1328,7 @@
     if (preSet !== undefined) {
       if (preSet.changes !== undefined) {
         for (const key of Object.keys(preSet.changes)) {
-          preEntries.push(key + ' = ' + explainSettingText(preSet.changes[key], preSet._change_value_types && preSet._change_value_types[key]));
+          preEntries.push(key + ' = ' + explainSettingText(preSet.changes[key], preSet.change_value_types && preSet.change_value_types[key]));
         }
       }
       if (preSet.default_settings !== undefined) {
@@ -1689,11 +1689,11 @@
           ...(setN.changes || {}),
         };
         const mergedValueTypes = {
-          ...(selectInner._change_value_types || {}),
-          ...(setN._change_value_types || {}),
+          ...(selectInner.change_value_types || {}),
+          ...(setN.change_value_types || {}),
         };
         if (Object.keys(mergedChanges).length > 0) setN.changes = mergedChanges;
-        if (Object.keys(mergedValueTypes).length > 0) setN._change_value_types = mergedValueTypes;
+        if (Object.keys(mergedValueTypes).length > 0) setN.change_value_types = mergedValueTypes;
         const insertKeys = new Set(Object.keys(setN.changes || {}));
         const seen = new Set();
         const mergedDefaults = [];
@@ -1719,8 +1719,8 @@
       // SELECT's own settings, so no origin marker is needed.
       const setN = { type: 'Settings' };
       if (selectInner.changes !== undefined) setN.changes = { ...selectInner.changes };
-      if (selectInner._change_value_types !== undefined) {
-        setN._change_value_types = { ...selectInner._change_value_types };
+      if (selectInner.change_value_types !== undefined) {
+        setN.change_value_types = { ...selectInner.change_value_types };
       }
       if (selectInner.default_settings !== undefined) {
         setN.default_settings = [...selectInner.default_settings];
@@ -1815,7 +1815,7 @@
   function cloneAst(v) {
     if (Array.isArray(v)) {
       const a = v.map(cloneAst);
-      // Preserve custom non-index array props (e.g. ORDER BY `_parenthesized`).
+      // Preserve custom non-index array props (e.g. ORDER BY `parenthesized`).
       for (const k of Object.keys(v)) if (!/^\d+$/.test(k)) a[k] = cloneAst(v[k]);
       return a;
     }
@@ -2050,7 +2050,7 @@
     // (`ENGINE = MergeTree`) and the empty-parens form (`MergeTree()`), but its
     // EXPLAIN text and SHOW CREATE distinguish them. Mark the no-parens form so
     // format()/explain can re-emit it.
-    if (args === undefined) node._no_parens = true;
+    if (args === undefined) node.no_parens = true;
     return withLoc(node, l ?? spanOf(args));
   }
 
@@ -2170,7 +2170,7 @@
     // EXPLAIN (the native `Set` child order follows the source), so keep that
     // flag. `PRIMARY KEY` position has no such effect: format() canonicalizes
     // it to ClickHouse's `PRIMARY KEY` … `ORDER BY` order.
-    if (stmt.settingsAfterOrderBy === true) node._settings_after_order_by = true;
+    if (stmt.settingsAfterOrderBy === true) node.settings_after_order_by = true;
     // Empty when none of the optional fields applied.
     if (
       node.engine === undefined &&
@@ -2255,7 +2255,7 @@
   // formatter.
   function storageOrderByNode(orderBy) {
     const hasDesc = orderBy.some((o) => o.dir === 'DESC');
-    const parenthesized = !!orderBy._parenthesized;
+    const parenthesized = !!orderBy.parenthesized;
     const sobe = (expr, dir) => withLoc({
       type: 'StorageOrderByElement',
       expression: expr,
@@ -2775,10 +2775,10 @@
     switch (cmd.commandType) {
       case 'ADD_COLUMN':
         if (cmd.column) node.column_declaration = columnDeclNode(cmd.column);
-        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts, cmd.location);
+        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd.afterColumnParts, cmd.location);
         break;
       case 'DROP_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd.columnNameParts, cmd.location);
         if (cmd.clear === true) node.clear_column = true;
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
@@ -2792,20 +2792,20 @@
             node.settings_changes = setNode(op.settings || []);
           }
         }
-        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd._afterColumnParts, cmd.location);
+        if (cmd.afterColumn) node.column = colRefIdent(cmd.afterColumn, cmd.afterColumnParts, cmd.location);
         if (cmd.removeProperty) node.remove_property = cmd.removeProperty;
         break;
       }
       case 'RENAME_COLUMN':
-        if (cmd.oldName) node.column = colRefIdent(cmd.oldName, cmd._oldNameParts, cmd.location);
-        if (cmd.newName) node.rename_to = colRefIdent(cmd.newName, cmd._newNameParts, cmd.location);
+        if (cmd.oldName) node.column = colRefIdent(cmd.oldName, cmd.oldNameParts, cmd.location);
+        if (cmd.newName) node.rename_to = colRefIdent(cmd.newName, cmd.newNameParts, cmd.location);
         break;
       case 'COMMENT_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd.columnNameParts, cmd.location);
         if (cmd.comment) node.comment = cmd.comment;
         break;
       case 'MATERIALIZE_COLUMN':
-        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd._columnNameParts, cmd.location);
+        if (cmd.columnName) node.column = colRefIdent(cmd.columnName, cmd.columnNameParts, cmd.location);
         if (cmd.partition) node.partition = alterPartitionNode(cmd.partition);
         break;
       case 'ADD_INDEX':
@@ -4273,7 +4273,7 @@ TopLevelStatement
       // SETTINGS before and/or after FORMAT collapse onto the query wrapper's
       // native `settings` field. The pre-/post-FORMAT position is a purely
       // syntactic no-op, but ClickHouse's EXPLAIN AST child order preserves it,
-      // so we record a library-only `_settings_before_format` hint (used only
+      // so we record a library-only `settings_before_format` hint (used only
       // by formatExplain(); format() canonicalizes to SETTINGS after FORMAT).
       const settingItems = [
         ...(preSettings !== null ? preSettings[1] : []),
@@ -4282,7 +4282,7 @@ TopLevelStatement
       if (settingItems.length > 0) {
         if (isNewNode) {
           result = { ...result, settings: setNode(settingItems) };
-          if (preSettings !== null) result = { ...result, _settings_before_format: true };
+          if (preSettings !== null) result = { ...result, settings_before_format: true };
         } else {
           result = { ...result, postFormatSettings: settingItems };
         }
@@ -4440,7 +4440,7 @@ AlterCommandAddColumn
       const result = loc({ kind: 'alterCommand', commandType: 'ADD_COLUMN', column: col });
       if (after !== null && after[1] && after[4] && typeof after[4] === 'object') {
         result.afterColumn = after[4].name;
-        result._afterColumnParts = after[4].parts;
+        result.afterColumnParts = after[4].parts;
       } else if (after !== null && after[1] && after[1].toUpperCase() === 'FIRST') {
         result.first = true;
       }
@@ -4453,7 +4453,7 @@ AlterCommandDropColumn
     ifExists:( _ "IF"i ![a-zA-Z0-9_] _ "EXISTS"i ![a-zA-Z0-9_] )?
     _ col:AlterColumnRef
     partition:( _ AlterInPartitionClause )? {
-      const result = loc({ kind: 'alterCommand', commandType: 'DROP_COLUMN', columnName: col.name, _columnNameParts: col.parts });
+      const result = loc({ kind: 'alterCommand', commandType: 'DROP_COLUMN', columnName: col.name, columnNameParts: col.parts });
       if (ifExists !== null) result.ifExists = true;
       if (partition !== null) result.partition = partition[1];
       return result;
@@ -4468,7 +4468,7 @@ AlterCommandClearColumn
         kind: 'alterCommand',
         commandType: 'DROP_COLUMN',
         columnName: col.name,
-        _columnNameParts: col.parts,
+        columnNameParts: col.parts,
         clear: true,
       });
       if (ifExists !== null) result.ifExists = true;
@@ -4495,7 +4495,7 @@ AlterCommandModifyColumn
       if (modifySetReset !== null) result.columnSettingOp = modifySetReset[1];
       if (after !== null && after[1] && after[4] && typeof after[4] === 'object') {
         result.afterColumn = after[4].name;
-        result._afterColumnParts = after[4].parts;
+        result.afterColumnParts = after[4].parts;
       } else if (after !== null && after[1] && after[1].toUpperCase() === 'FIRST') {
         result.first = true;
       }
@@ -4571,8 +4571,8 @@ AlterCommandRenameColumn
         commandType: 'RENAME_COLUMN',
         oldName: oldName.name,
         newName: newName.name,
-        _oldNameParts: oldName.parts,
-        _newNameParts: newName.parts,
+        oldNameParts: oldName.parts,
+        newNameParts: newName.parts,
       });
       if (ifExists !== null) result.ifExists = true;
       return result;
@@ -4586,7 +4586,7 @@ AlterCommandCommentColumn
         kind: 'alterCommand',
         commandType: 'COMMENT_COLUMN',
         columnName: col.name,
-        _columnNameParts: col.parts,
+        columnNameParts: col.parts,
         comment,
       });
       if (ifExists !== null) result.ifExists = true;
@@ -4602,7 +4602,7 @@ AlterCommandMaterializeColumn
         kind: 'alterCommand',
         commandType: 'MATERIALIZE_COLUMN',
         columnName: col.name,
-        _columnNameParts: col.parts,
+        columnNameParts: col.parts,
       });
       if (ifExists !== null) result.ifExists = true;
       if (partition !== null) result.partition = partition[1];
@@ -5902,7 +5902,7 @@ DescribeStatement
       if (format !== null) node.format = format[1];
       // Preserve source ordering: `SETTINGS ... FORMAT name` vs
       // `FORMAT name SETTINGS ...`.
-      if (preSettings !== null && format !== null) node._settings_before_format = true;
+      if (preSettings !== null && format !== null) node.settings_before_format = true;
       return loc(node);
     }
 
@@ -6987,10 +6987,10 @@ CreateTableStatement
       if (fromPath !== null) result.attachFromPath = fromPath[4].value;
       if (format !== null) result.format = format[1];
       // Promote column-level PRIMARY KEY to primaryKey if no explicit PRIMARY KEY clause
-      if (result._columnPrimaryKeys && !result.primaryKey) {
-        result.primaryKey = result._columnPrimaryKeys;
+      if (result.columnPrimaryKeys && !result.primaryKey) {
+        result.primaryKey = result.columnPrimaryKeys;
       }
-      delete result._columnPrimaryKeys;
+      delete result.columnPrimaryKeys;
       return loc(createTableNode(result));
     }
 
@@ -7145,8 +7145,8 @@ CreateTableSchema
       let primaryKeyInSchema = null;
       const columnPrimaryKeys = [];
       for (const el of elements) {
-        if (el._primaryKey) {
-          primaryKeyInSchema = el._primaryKey;
+        if (el.primaryKeyExprs) {
+          primaryKeyInSchema = el.primaryKeyExprs;
         } else {
           tableElements.push(el);
           if (el.kind === 'columnDef' && el.primaryKey) {
@@ -7157,7 +7157,7 @@ CreateTableSchema
       const result = {};
       if (tableElements.length > 0) result.tableElements = tableElements;
       if (primaryKeyInSchema !== null) result.primaryKeyInSchema = primaryKeyInSchema;
-      if (columnPrimaryKeys.length > 0) result._columnPrimaryKeys = columnPrimaryKeys;
+      if (columnPrimaryKeys.length > 0) result.columnPrimaryKeys = columnPrimaryKeys;
       return result;
     }
 
@@ -7328,7 +7328,7 @@ ProjectionElement
 PrimaryKeyElement
   = "PRIMARY"i ![a-zA-Z0-9_] _ "KEY"i ![a-zA-Z0-9_] _ exprs:PrimaryKeyExprs {
       exprs.location = location();
-      return { _primaryKey: exprs };
+      return { primaryKeyExprs: exprs };
     }
 
 PrimaryKeyExprs
@@ -7386,7 +7386,7 @@ CreateTableClause
 CreateOrderByClause
   = "ORDER"i ![a-zA-Z0-9_] _ "BY"i ![a-zA-Z0-9_] _ "(" _ head:CreateOrderByItem tail:(_ "," _ CreateOrderByItem)* _ ")" !( _ [*/%+\-] ) {
       const items = [head, ...tail.map(t => t[3])];
-      items._parenthesized = true;
+      items.parenthesized = true;
       return items;
     }
   / "ORDER"i ![a-zA-Z0-9_] _ "BY"i ![a-zA-Z0-9_] _ head:CreateOrderByItem tail:(_ "," _ CreateOrderByItem)* {
@@ -7608,13 +7608,13 @@ UnionQueryAtom
         query.selects.length === 1 &&
         (query.selects[0].type === 'SelectQuery' || query.selects[0].type === 'SelectIntersectExceptQuery')
       ) {
-        let result = { ...query.selects[0], _parenthesized: true };
+        let result = { ...query.selects[0], parenthesized: true };
         if (query.leadingComments !== undefined) result = addLeading(result, query.leadingComments);
         if (query.trailingComments !== undefined) result = addTrailing(result, query.trailingComments);
         return result;
       }
       if (query.type === 'SelectWithUnionQuery' || query.type === 'SelectIntersectExceptQuery') {
-        return { ...query, _parenthesized: true };
+        return { ...query, parenthesized: true };
       }
       return query;
     }
@@ -8350,7 +8350,7 @@ CompareRightSuffix
       return (left) => (loc(fn('match', [left, right], { is_operator: true })));
     }
   // BETWEEN expands to operator-form comparisons, as ClickHouse stores it.
-  // The synthesized n-ary wrapper is marked `_parenthesized: true` so the
+  // The synthesized n-ary wrapper is marked `parenthesized: true` so the
   // formatted output `x >= a AND x <= b` reparses to an equivalent node
   // structure (the explicit parens that wrap_nary would emit are recorded
   // here).
@@ -8358,13 +8358,13 @@ CompareRightSuffix
       return (left) => (loc(fn('or', [
         loc(opFn('<', [left, low])),
         loc(opFn('>', [left, high]))
-      ], { is_operator: true, _parenthesized: true })));
+      ], { is_operator: true, parenthesized: true })));
     }
   / _ KW_BETWEEN _ low:AddExpr _ KW_AND _ high:AddExpr {
       return (left) => (loc(fn('and', [
         loc(opFn('>=', [left, low])),
         loc(opFn('<=', [left, high]))
-      ], { is_operator: true, _parenthesized: true })));
+      ], { is_operator: true, parenthesized: true })));
     }
   // :: cast operator at comparison level so `x IS NULL :: Type` works as cast(isNull(x), Type).
   // (At PrimaryExpr level, `x::Type` is also handled for tighter-binding casts on bare values.)
@@ -8494,40 +8494,40 @@ UnaryExpr
       // Don't fold across explicit parentheses: -(1) must produce negate(1), not Int64_-1.
       // (-1) without an outer minus stays as a UInt64 literal — only `-` immediately before a
       // bare literal folds. A parenthesized inner expression always wraps in negate().
-      if (expr._parenthesized) {
+      if (expr.parenthesized) {
         return loc(fn('negate', [expr], { is_operator: true }));
       }
-      if (expr.type === 'Literal' && expr.value_type === 'UInt64' && expr._neg_folded === undefined) {
+      if (expr.type === 'Literal' && expr.value_type === 'UInt64' && expr.neg_folded === undefined) {
         // Negate a non-negative integer literal: compute decimal value using BigInt for precision.
-        // A UInt64 carrying `_neg_folded` is itself a folded `-0` — `- -0` stays negate(0).
+        // A UInt64 carrying `neg_folded` is itself a folded `-0` — `- -0` stays negate(0).
         const bigNeg = -BigInt(expr.value);
         // Check if fits in Int64 range [-2^63, 0]
         const INT64_MIN = BigInt('-9223372036854775808');
         if (bigNeg >= INT64_MIN) {
-          // -0 stays a UInt64 in ClickHouse; mark with `_neg_folded` so the
+          // -0 stays a UInt64 in ClickHouse; mark with `neg_folded` so the
           // outer minus of `- -0` doesn't re-fold. The marker is parse-time
           // only and is stripped before the AST is returned (see
           // `stripParseTimeMarkers` in src/index.ts).
           const intResult = loc(bigNeg === BigInt(0) ? uintLit('0') : intLit(String(bigNeg)));
-          if (bigNeg === BigInt(0)) intResult._neg_folded = true;
+          if (bigNeg === BigInt(0)) intResult.neg_folded = true;
           return intResult;
         }
         // Overflows Int64: use Float64 (loses precision like ClickHouse does)
         return loc(floatLit(String(Number(bigNeg))));
       }
       if (expr.type === 'Literal' && expr.value_type === 'Float64' && isNonNegNumericLit(expr)) {
-        // Negate a positive float literal (works from `value`/`_nonfinite`).
+        // Negate a positive float literal (works from `value`/`nonfinite`).
         return loc(negateNumericLit(expr));
       }
       // Identify a `::`-form CAST: either the structured-operand form
       // (is_operator: true) or the folded pure-literal form (operand is a
-      // String literal carrying the parse-time `_cast_operand` marker —
+      // String literal carrying the parse-time `cast_operand` marker —
       // stripped from the final AST, but visible during parsing).
       const isOpCast = (e) => {
         if (e.type !== 'Function' || e.name !== 'CAST') return false;
         if (e.is_operator === true) return true;
         const a0 = e.arguments[0];
-        return a0 !== undefined && a0.type === 'Literal' && a0._cast_operand !== undefined;
+        return a0 !== undefined && a0.type === 'Literal' && a0.cast_operand !== undefined;
       };
       if (isOpCast(expr)) {
         // -value::Type: fold the minus sign into the cast's innermost literal (for :: operator casts)
@@ -8538,11 +8538,11 @@ UnaryExpr
         }
         const inner = innermost.arguments[0];
         // The operand may have been stringified (pure-literal :: casts)
-        if (inner.type === 'Literal' && inner.value_type === 'String' && inner._cast_operand !== undefined) {
-          const orig = inner._cast_operand;
+        if (inner.type === 'Literal' && inner.value_type === 'String' && inner.cast_operand !== undefined) {
+          const orig = inner.cast_operand;
           if (isNonNegNumericLit(orig)) {
             const negOrig = negateNumericLit(orig);
-            const negInner = { ...inner, value: '-' + inner.value, _cast_operand: negOrig };
+            const negInner = { ...inner, value: '-' + inner.value, cast_operand: negOrig };
             let result = { ...innermost, arguments: [negInner, innermost.arguments[1]] };
             const stack = [];
             let cur = expr;
@@ -8993,7 +8993,7 @@ ParenGroup
       if (rest.length === 0 && trailing === null) {
         // (expr) — parenthesized expression
         first = addTrailing(first, flattenWs(afterLast));
-        return { ...first, _parenthesized: true };
+        return { ...first, parenthesized: true };
       } else if (rest.length === 0) {
         // (expr,) — single-element tuple
         return loc(fn('tuple', [first], { is_operator: true }));

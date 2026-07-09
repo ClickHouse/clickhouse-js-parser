@@ -60,10 +60,11 @@ const ExprMetadataFields = {
 
 // ── ClickHouse-native expression nodes ────────────────────────────────────────
 // These node types mirror ClickHouse's own AST: the `type` discriminator and all
-// non-underscore fields must match `EXPLAIN AST json = 1` output exactly (the
-// reference ast suite compares them via `stripAstMeta`). Underscore-prefixed
-// fields carry library-only data the native JSON loses but that format() and
-// formatExplain() need. See CLAUDE.md and src/meta.ts.
+// reference AST fields must match `EXPLAIN AST json = 1` output exactly (the
+// reference ast suite compares them via `formatExplainJson`, which drops the
+// library-only fields). A few fields carry library-only data the native JSON
+// loses but that format() and formatExplain() need; these are enumerated in
+// src/json-explain.ts and documented in the README.
 
 /**
  * A query parameter placeholder: `{name:Type}`. Library-extension node type —
@@ -105,14 +106,14 @@ export const IdentifierPartSchema: z.ZodType<WithoutLocations<IdentifierPart>> =
  * {@link LiteralNode} without the `type`/`alias`/metadata: just the element's
  * `value_type`, its decoded `value` (recursively a list for nested
  * collections), and—for non-finite/`-0` `Float64` elements—the same
- * `_nonfinite` discriminator a top-level Float64 literal carries (the native
+ * `nonfinite` discriminator a top-level Float64 literal carries (the native
  * JSON collapses those to `null`/`0`, so it is needed to re-spell `inf`/`-0`
  * in `format()`/`formatExplain()`).
  */
 export type LiteralElement = {
   value_type: LiteralNode['value_type'];
   value: number | string | boolean | null | LiteralElement[];
-  _nonfinite?: LiteralNode['_nonfinite'];
+  nonfinite?: LiteralNode['nonfinite'];
 };
 
 /** Zod schema for {@link LiteralElement}. */
@@ -136,7 +137,7 @@ export const LiteralElementSchema: z.ZodType<WithoutLocations<LiteralElement>> =
       z.null(),
       z.array(LiteralElementSchema),
     ]),
-    _nonfinite: z
+    nonfinite: z
       .union([
         z.literal('inf'),
         z.literal('-inf'),
@@ -186,7 +187,7 @@ export type LiteralNode = {
    * Hex/large-integer source spelling is intentionally not preserved
    * (`0xFF` formats as `255`).
    */
-  _nonfinite?: 'inf' | '-inf' | 'nan' | '-nan' | '-0';
+  nonfinite?: 'inf' | '-inf' | 'nan' | '-nan' | '-0';
 } & NodeMetadata;
 
 /** Zod schema for {@link LiteralNode}. */
@@ -214,7 +215,7 @@ export const LiteralNodeSchema: z.ZodType<WithoutLocations<LiteralNode>> = z.laz
       z.array(LiteralElementSchema),
     ]),
     alias: z.string().optional(),
-    _nonfinite: z
+    nonfinite: z
       .union([
         z.literal('inf'),
         z.literal('-inf'),
@@ -293,7 +294,7 @@ export type FunctionNode = {
    * `arguments: []` for both the no-parens and empty-parens forms, but its
    * EXPLAIN/SHOW CREATE output distinguishes them.
    */
-  _no_parens?: boolean;
+  no_parens?: boolean;
 } & NodeMetadata;
 
 /** Zod schema for {@link FunctionNode}. */
@@ -321,7 +322,7 @@ export const FunctionNodeSchema: z.ZodType<WithoutLocations<FunctionNode>> = z.l
     window_name: z.string().optional(),
     nulls_action: z.union([z.literal('RESPECT NULLS'), z.literal('IGNORE NULLS')]).optional(),
     alias: z.string().optional(),
-    _no_parens: z.boolean().optional(),
+    no_parens: z.boolean().optional(),
     ...ExprMetadataFields,
   }),
 );
@@ -1028,13 +1029,13 @@ export type SelectQueryNode = {
    * WITH ExpressionList after the select body in EXPLAIN AST; this flag lets
    * the explain projection reproduce that ordering.
    */
-  _with_trailing?: boolean;
+  with_trailing?: boolean;
   /**
    * Library-only: marks the synthetic SelectQuery produced when lowering
    * `expr op ANY/ALL (subquery)`. ClickHouse's EXPLAIN AST text dumps the
    * projection + tables twice for this node; the flag drives that doubling.
    */
-  _agg_repeat?: boolean;
+  agg_repeat?: boolean;
   distinct?: boolean;
   select: Expression[];
   from?: TablesInSelectQueryNode;
@@ -1083,8 +1084,8 @@ export const SelectQuerySchema: z.ZodType<WithoutLocations<SelectQueryNode>> = z
     type: z.literal('SelectQuery'),
     with: z.array(WithItemSchema).optional(),
     recursive_with: z.boolean().optional(),
-    _with_trailing: z.boolean().optional(),
-    _agg_repeat: z.boolean().optional(),
+    with_trailing: z.boolean().optional(),
+    agg_repeat: z.boolean().optional(),
     distinct: z.boolean().optional(),
     select: z.array(ExpressionSchema),
     from: TablesInSelectQuerySchema.optional(),
@@ -1144,7 +1145,7 @@ export type QueryTrailingFields = {
    * after FORMAT) — so the flag may flip across a reformat and is treated as
    * volatile in round-trip comparisons.
    */
-  _settings_before_format?: boolean;
+  settings_before_format?: boolean;
 };
 
 const QueryTrailingSchemaFields = {
@@ -1152,7 +1153,7 @@ const QueryTrailingSchemaFields = {
   outfile_truncate: z.boolean().optional(),
   format: z.string().optional(),
   settings: SettingsNodeSchema.optional(),
-  _settings_before_format: z.boolean().optional(),
+  settings_before_format: z.boolean().optional(),
 };
 
 /**
@@ -1472,6 +1473,18 @@ export type AuthenticationData = {
   secret?: string;
   /** SSH public keys (for the `ssh_key` auth type): `KEY '<key>' TYPE '<type>'`. */
   sshKeys?: { key: string; type: string }[];
+  /**
+   * The auth-method keyword to re-emit after `WITH` (e.g. `'sha256_hash'`,
+   * `'kerberos'`), reconstructed from the native `auth_type` enum plus the
+   * `contains_hash`/`contains_password` flags. Absent for a bare
+   * `IDENTIFIED BY '...'` (no explicit method) and for SSH keys.
+   */
+  authType?: string;
+  /**
+   * The keyword that introduces {@link secret}: `'BY'` for passwords/hashes,
+   * `'REALM'` for `kerberos`, `'SERVER'` for `ldap`. Defaults to `'BY'`.
+   */
+  secretKeyword?: 'BY' | 'REALM' | 'SERVER';
 };
 
 // ── ALTER TABLE statement ─────────────────────────────────────────────────────
@@ -2398,7 +2411,7 @@ export const StorageNodeSchema: z.ZodType<WithoutLocations<StorageNode>> = z.laz
     sample_by: ExpressionSchema.optional(),
     ttl_table: ExpressionListNodeSchema.optional(),
     settings: SettingsNodeSchema.optional(),
-    _settings_after_order_by: z.boolean().optional(),
+    settings_after_order_by: z.boolean().optional(),
     ...ExprMetadataFields,
   }),
 );
@@ -2632,7 +2645,7 @@ export type StorageNode = {
   ttl_table?: ExpressionListNode;
   settings?: SettingsNode;
   /** Library-only: `true` when storage `SETTINGS` appeared after `ORDER BY`. */
-  _settings_after_order_by?: boolean;
+  settings_after_order_by?: boolean;
 } & NodeMetadata;
 
 /** A single descending storage ORDER BY element. */
@@ -3604,7 +3617,7 @@ export type DescribeQueryNode = {
   format?: string;
   settings?: SettingsNode;
   /** Library-only: true when SETTINGS appeared before FORMAT in the source. */
-  _settings_before_format?: boolean;
+  settings_before_format?: boolean;
 } & NodeMetadata;
 
 /** Zod schema for {@link DescribeQueryNode}. */
@@ -3614,7 +3627,7 @@ export const DescribeQueryNodeSchema: z.ZodType<WithoutLocations<DescribeQueryNo
     table_expression: TableExpressionSchema.optional(),
     format: z.string().optional(),
     settings: SettingsNodeSchema.optional(),
-    _settings_before_format: z.boolean().optional(),
+    settings_before_format: z.boolean().optional(),
     ...ExprMetadataFields,
   }),
 );
