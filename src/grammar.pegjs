@@ -9,6 +9,26 @@
     'EXCEPT', 'WINDOW', 'OVER', 'QUALIFY', 'SAMPLE',
   ]);
 
+  // Reserved keywords that ClickHouse nonetheless accepts as an *implicit* (no-AS)
+  // alias. These are the subset of KEYWORDS that are NOT in ClickHouse's ParserAlias
+  // "restricted keywords" list and are not structural modifiers consumed earlier by
+  // expression / FINAL / window parsing. Determined empirically against the
+  // `clickhouse` binary (e.g. `SELECT a DESC FROM t` aliases `a` as `DESC`;
+  // `SELECT x FROM t BY` aliases the table as `BY`).
+  //
+  // Column vs table position differ:
+  //  - `SELECT` is a valid column alias (`SELECT a SELECT FROM t`). As a table alias
+  //    it is handled specially (see TableImplicitAlias) because a bare `SELECT`
+  //    after a table also begins the FROM-first form `FROM numbers(1) SELECT x`.
+  //  - Operator keywords AND/OR/IN can be table aliases (`SELECT x FROM t AND`) but
+  //    never column aliases (in expression position they are consumed as operators).
+  const COLUMN_IMPLICIT_ALIAS_KEYWORDS = new Set([
+    'BY', 'ASC', 'DESC', 'NULL', 'DISTINCT', 'OVER', 'SELECT',
+  ]);
+  const TABLE_IMPLICIT_ALIAS_KEYWORDS = new Set([
+    'BY', 'ASC', 'DESC', 'NULL', 'DISTINCT', 'OVER', 'AND', 'OR', 'IN',
+  ]);
+
   // Flatten a whitespace result { trailing: [...], leading: [...] } into a single array
   function flattenWs(ws) {
     return ws.trailing.concat(ws.leading);
@@ -7752,13 +7772,13 @@ CTEItemList
 
 CTEItem
 // Subquery CTE with column aliases: name (col1, col2) AS (SELECT ...)
-  = name:Identifier _ "(" _ head:AliasName tail:(_ "," _ AliasName)* _ ")" _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
+  = name:CTEName _ "(" _ head:AliasName tail:(_ "," _ AliasName)* _ ")" _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
       const result = { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
       result.columnAliases = [head, ...tail.map(t => t[3])];
       return result;
     }
 // Subquery CTE: name AS (SELECT ...)
-  / name:Identifier _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
+  / name:CTEName _ KW_AS _ "(" beforeQuery:_ query:UnionQuery afterQuery:_ ")" {
       return { kind: 'cteSubquery', name, location: location(), query: addSurroundingWs(query, beforeQuery, afterQuery) };
     }
   // Lambda CTE with parens: (x, y) -> body AS name
@@ -7781,22 +7801,34 @@ CTEItem
       return { kind: 'cteExpr', expr };
     }
 
+// CTEName: the bound name of a subquery CTE (`WITH <name> AS (...)`). ClickHouse
+// allows any reserved keyword here (e.g. `WITH ORDER AS (SELECT 1) SELECT * FROM ORDER`),
+// so this accepts a normal Identifier plus any reserved keyword word. (Soft keywords
+// are already accepted by Identifier, which only excludes the KEYWORDS set.)
+CTEName
+  = Identifier
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return KEYWORDS.has(word.toUpperCase()); } { return word; }
+
 // SelectItemList: supports optional trailing comma (ClickHouse extension).
-// The !SelectClauseKeyword guard prevents clause-starting keywords (FROM, WHERE, etc.)
-// from being consumed as select items via the last-resort AliasName rule.
+// The !SelectClauseKeyword guard only prevents a trailing-comma FROM from being
+// consumed as a select item via the last-resort AliasName rule. All other clause
+// keywords (ORDER, GROUP, WHERE, LIMIT, ...) are valid bare column identifiers
+// after a comma in ClickHouse (e.g. "SELECT A, ORDER FROM T" yields columns A and
+// ORDER); they only start a clause when they are NOT preceded by a select-list comma.
 SelectItemList
   = head:SelectItem tail:(_ "," _ !SelectClauseKeyword SelectItem)* (_ "," _)? {
       return buildCommaList(head, tail, 4);
     }
 
-// SelectClauseKeyword: keywords that start SELECT sub-clauses (used as negative lookahead
-// in SelectItemList to prevent consuming them as select items after a trailing comma)
-// SelectClauseKeyword: strong clause-starting keywords that cannot be column names.
-// Note: SETTINGS, FORMAT, QUALIFY, EXCEPT, WINDOW are omitted since they can appear as column names.
+// SelectClauseKeyword: negative lookahead used in SelectItemList to support a
+// trailing comma before the FROM clause (e.g. "SELECT a, FROM t"). Only FROM is
+// listed: ClickHouse treats every other clause keyword after a comma as a column
+// identifier rather than a clause start, so "SELECT a, ORDER BY x" is a syntax
+// error there (ORDER parses as a column, then BY is unexpected), matching ClickHouse.
+// The trailing lookahead lets FROM still act as a column when an operator follows
+// (e.g. "SELECT a, FROM + 1").
 SelectClauseKeyword
   = "FROM"i ![a-zA-Z0-9_] _ !( "+" / "-" / "*" / "/" / "," / "IN"i ![a-zA-Z0-9_] / "AND"i ![a-zA-Z0-9_] / "OR"i ![a-zA-Z0-9_] )
-  / ("WHERE"i / "PREWHERE"i / "GROUP"i / "HAVING"i / "ORDER"i / "LIMIT"i
-  / "OFFSET"i / "UNION"i / "INTERSECT"i / "INTO"i / "FETCH"i) ![a-zA-Z0-9_]
 
 SelectItem
   = expr:TernaryExpr alias:SelectItemAlias? {
@@ -7809,7 +7841,15 @@ SelectItem
 
 SelectItemAlias
   = _ KW_AS _ alias:AliasName { return alias; }
-  / _ !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:Identifier { return alias; }
+  / _ !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:ColumnImplicitAlias { return alias; }
+
+// ColumnImplicitAlias: a column alias written without the AS keyword. Like
+// Identifier, but additionally accepts the reserved keywords ClickHouse permits as
+// implicit column aliases (see COLUMN_IMPLICIT_ALIAS_KEYWORDS), so `SELECT a DESC
+// FROM t` and `SELECT a SELECT FROM t` parse the keyword as the alias.
+ColumnImplicitAlias
+  = Identifier
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return COLUMN_IMPLICIT_ALIAS_KEYWORDS.has(word.toUpperCase()); } { return word; }
 
 FromClause
   = KW_FROM comments:_ expr:JoinExpr { return addWsLeading(expr, comments); }
@@ -7893,7 +7933,22 @@ FromAtomAlias
   / _ "(" _ !( KW_SELECT / KW_WITH / "EXPLAIN"i ![a-zA-Z0-9_] ) head:AliasName tail:( _ "," _ AliasName )* _ ")" {
       return { columnAliases: [head, ...tail.map((t) => t[3])] };
     }
-  / _ !JoinKeyword !ArrayJoinKeyword !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:Identifier { return alias; }
+  / _ !JoinKeyword !ArrayJoinKeyword !KW_FORMAT !("PARALLEL"i ![a-zA-Z0-9_] _ "WITH"i ![a-zA-Z0-9_]) alias:TableImplicitAlias { return alias; }
+
+// TableImplicitAlias: a table alias written without the AS keyword. Like Identifier,
+// plus the reserved keywords ClickHouse permits as table aliases
+// (TABLE_IMPLICIT_ALIAS_KEYWORDS, which includes the operator words AND/OR/IN that
+// cannot appear after a table except as an alias).
+//
+// `SELECT` gets a dedicated branch: ClickHouse treats a trailing `SELECT` as a table
+// alias (`SELECT x FROM t SELECT`), but the same token also begins the FROM-first
+// form `FROM numbers(1) SELECT number`. The `!(_ SelectItem)` guard resolves the
+// ambiguity exactly as ClickHouse does — `SELECT` is only an alias when no select
+// item follows it (so `FROM numbers(1) SELECT number` stays FROM-first).
+TableImplicitAlias
+  = Identifier
+  / "SELECT"i ![a-zA-Z0-9_] !(_ SelectItem) { return 'SELECT'; }
+  / word:$([a-zA-Z_] [a-zA-Z0-9_]*) &{ return TABLE_IMPLICIT_ALIAS_KEYWORDS.has(word.toUpperCase()); } { return word; }
 
 TableFunctionRef
   = name:FunctionName _ "(" _ args:TableFunctionArgList? settings:( ( _ "," )? _ KW_SETTINGS _ SettingsList )? _ ")" {
