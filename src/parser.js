@@ -3552,16 +3552,16 @@
     return withLoc({ type: 'UserNamesWithHost', users }, l ?? spanOf(users));
   }
 
-  // RoleTarget { kind: 'all'|'none'|'names', names?, except? } → native
-  // `RolesOrUsersSet` node. `current_user` items (from grantee parsing) are
-  // recognized by name 'CURRENT_USER'.
+  // Intermediate role-set target { kind: 'all'|'none'|'names', names?, except? }
+  // → native `RolesOrUsersSet` node. `current_user` items (from grantee
+  // parsing) are recognized by name 'CURRENT_USER'.
   function rolesOrUsersSetNode(target, l) {
     const node = withLoc({ type: 'RolesOrUsersSet' }, target && target.location ? target.location : l);
     if (!target) return node;
-    if (target.kind === 'all') {
+    if (target.variant === 'all') {
       node.all = true;
       if (target.except && target.except.length > 0) node.except_names = target.except.slice();
-    } else if (target.kind === 'names') {
+    } else if (target.variant === 'names') {
       const plain = [];
       let currentUser = false;
       for (const nm of target.names) {
@@ -3636,7 +3636,7 @@
     return String(expr.value);
   }
 
-  // `AccessControlSettingsItem[] | 'NONE'` → native `SettingsProfileElements`.
+  // Access-control settings-item list | 'NONE' → native `SettingsProfileElements`.
   function settingsProfileElementsNode(settings, l) {
     const elements = [];
     if (settings !== 'NONE' && settings !== undefined) {
@@ -3644,7 +3644,7 @@
         const bareName =
           s.value === undefined && s.min === undefined && s.max === undefined &&
           s.modifier === undefined;
-        if (s.kind === 'profile' || s.kind === 'inherit' || bareName) {
+        if (s.variant === 'profile' || s.variant === 'inherit' || bareName) {
           elements.push(withLoc({ type: 'SettingsProfileElement', parent_profile: unquoteAccess(s.name) }, s.location ?? l));
         } else {
           const e = { type: 'SettingsProfileElement', setting_name: s.name };
@@ -3728,7 +3728,7 @@
       .join('::');
   }
 
-  // HostItem[] → native `hosts` object.
+  // Host-item list → native `hosts` object.
   function hostsNode(hostItems) {
     const h = {};
     const push = (key, val) => {
@@ -3742,7 +3742,7 @@
     // dropped patterns are canonicalized away on a reformat too.
     let likeSeen = false;
     for (const item of hostItems) {
-      switch (item.kind) {
+      switch (item.variant) {
         case 'any': h.any_host = true; break;
         case 'none': break;
         case 'local': h.local_host = true; break;
@@ -3773,7 +3773,7 @@
     return h;
   }
 
-  // RoleTarget → native `RolesOrUsersSet`.
+  // Role-set target → native `RolesOrUsersSet`.
   function roleTargetSet(target, l) {
     return rolesOrUsersSetNode(target, l);
   }
@@ -3907,7 +3907,7 @@
   // merge onto the node.
   function accessNativeFields(stmt) {
     const f = {};
-    const k = stmt.kind;
+    const k = stmt.variant;
     if (k === 'createRole' || k === 'alterRole') {
       if (k === 'alterRole') f.alter = true;
       if (stmt.orReplace) f.or_replace = true;
@@ -3998,7 +3998,7 @@
   // CREATE/ALTER USER native fields.
   function createUserNativeFields(stmt) {
     const f = {};
-    if (stmt.kind === 'alterUser') {
+    if (stmt.variant === 'alterUser') {
       f.alter = true;
       if (stmt.ifExists) f.if_exists = true;
       if (stmt.onCluster !== undefined) f.cluster = stmt.onCluster;
@@ -4006,18 +4006,18 @@
       let auth, settings, defaultRole, defaultDatabase, grantees, rename, validUntil;
       let hostItems, addHostItems, dropHostItems;
       for (const c of stmt.clauses) {
-        if (c.kind === 'identified') auth = c.auth;
-        else if (c.kind === 'notIdentified') auth = [{}];
-        else if (c.kind === 'host') {
+        if (c.variant === 'identified') auth = c.auth;
+        else if (c.variant === 'notIdentified') auth = [{}];
+        else if (c.variant === 'host') {
           if (c.mode === 'ADD') addHostItems = (addHostItems || []).concat(c.hosts);
           else if (c.mode === 'DROP') dropHostItems = (dropHostItems || []).concat(c.hosts);
           else hostItems = (hostItems || []).concat(c.hosts);
-        } else if (c.kind === 'settings') settings = c.settings;
-        else if (c.kind === 'defaultRole') defaultRole = c.roles;
-        else if (c.kind === 'defaultDatabase') defaultDatabase = c.database;
-        else if (c.kind === 'grantees') grantees = c.grantees;
-        else if (c.kind === 'rename') rename = c.to;
-        else if (c.kind === 'validUntil') validUntil = c.value;
+        } else if (c.variant === 'settings') settings = c.settings;
+        else if (c.variant === 'defaultRole') defaultRole = c.roles;
+        else if (c.variant === 'defaultDatabase') defaultDatabase = c.database;
+        else if (c.variant === 'grantees') grantees = c.grantees;
+        else if (c.variant === 'rename') rename = c.to;
+        else if (c.variant === 'validUntil') validUntil = c.value;
       }
       if (rename !== undefined) f.new_name = userNameStr(rename);
       if (auth !== undefined) {
@@ -4085,16 +4085,16 @@
 
   function accessQueryNode(stmt, l) {
     if (l !== undefined && stmt.location === undefined) stmt.location = l;
-    if (stmt.kind === 'createUser' || stmt.kind === 'alterUser') {
+    if (stmt.variant === 'createUser' || stmt.variant === 'alterUser') {
       return { type: 'CreateUserQuery', ...accessNativeFields(stmt) };
     }
-    if (stmt.kind === 'createRole' || stmt.kind === 'alterRole')
+    if (stmt.variant === 'createRole' || stmt.variant === 'alterRole')
       return { type: 'CreateRoleQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createQuota' || stmt.kind === 'alterQuota')
+    if (stmt.variant === 'createQuota' || stmt.variant === 'alterQuota')
       return { type: 'CreateQuotaQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createSettingsProfile' || stmt.kind === 'alterSettingsProfile')
+    if (stmt.variant === 'createSettingsProfile' || stmt.variant === 'alterSettingsProfile')
       return { type: 'CreateSettingsProfileQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createNamedCollection') {
+    if (stmt.variant === 'createNamedCollection') {
       const node = { type: 'CreateNamedCollectionQuery', collection_name: stmt.name };
       if (stmt.ifNotExists === true) node.if_not_exists = true;
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
@@ -4108,9 +4108,9 @@
       if (Object.keys(overridability).length > 0) node.overridability = overridability;
       return node;
     }
-    if (stmt.kind === 'createRowPolicy' || stmt.kind === 'alterRowPolicy')
+    if (stmt.variant === 'createRowPolicy' || stmt.variant === 'alterRowPolicy')
       return { type: 'CreateRowPolicyQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'createWorkload') {
+    if (stmt.variant === 'createWorkload') {
       const node = { type: 'CreateWorkloadQuery' };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
@@ -4126,7 +4126,7 @@
       }
       return node;
     }
-    if (stmt.kind === 'createResource') {
+    if (stmt.variant === 'createResource') {
       const node = { type: 'CreateResourceQuery', resource_name: identLoc([stmt.name], stmt.location) };
       if (stmt.orReplace === true) node.or_replace = true;
       if (stmt.ifNotExists === true) node.if_not_exists = true;
@@ -4139,13 +4139,13 @@
       if (stmt.onCluster !== undefined) node.cluster = stmt.onCluster;
       return node;
     }
-    if (stmt.kind === 'grant')
+    if (stmt.variant === 'grant')
       return {
         type: stmt.operation === 'REVOKE' ? 'RevokeQuery' : 'GrantQuery',
         ...accessNativeFields(stmt),
       };
-    if (stmt.kind === 'setRole') return { type: 'SetRoleQuery', ...accessNativeFields(stmt) };
-    if (stmt.kind === 'backup') {
+    if (stmt.variant === 'setRole') return { type: 'SetRoleQuery', ...accessNativeFields(stmt) };
+    if (stmt.variant === 'backup') {
       const d = stmt.destination;
       const node = {
         type: stmt.operation === 'RESTORE' ? 'RestoreQuery' : 'BackupQuery',
@@ -4168,7 +4168,7 @@
       if (stmt.format !== undefined) node.format = stmt.format;
       return node;
     }
-    if (stmt.kind === 'parallelWith') {
+    if (stmt.variant === 'parallelWith') {
       return { type: 'ParallelWithQuery', children: stmt.queries };
     }
     // Unrecognized kind: return as-is so call sites can wrap unconditionally.
@@ -5379,11 +5379,11 @@ function peg$parse(input, options) {
     });
   }
   function peg$f8(snapshot) {    return loc({ type: 'TransactionControl', action: 'SET_SNAPSHOT', snapshot: snapshot });  }
-  function peg$f9(roles, users) {    return loc(accessQueryNode({ kind: 'setRole', roles, users }, location()));  }
+  function peg$f9(roles, users) {    return loc(accessQueryNode({ variant: 'setRole', roles, users }, location()));  }
   function peg$f10(items) {    return loc(setNode(items));  }
-  function peg$f11(except) {    return { kind: 'all', except: except ? except[4] : undefined };  }
-  function peg$f12() {    return { kind: 'none' };  }
-  function peg$f13(names) {    return { kind: 'names', names };  }
+  function peg$f11(except) {    return { variant: 'all', except: except ? except[4] : undefined };  }
+  function peg$f12() {    return { variant: 'none' };  }
+  function peg$f13(names) {    return { variant: 'names', names };  }
   function peg$f14() {    return loc({ type: 'TransactionControl', action: 'BEGIN' });  }
   function peg$f15() {    return loc({ type: 'TransactionControl', action: 'COMMIT' });  }
   function peg$f16() {    return loc({ type: 'TransactionControl', action: 'ROLLBACK' });  }
@@ -5860,7 +5860,7 @@ function peg$parse(input, options) {
     return loc(dropFamilyNode('UndropQuery', o));
   }
   function peg$f122(op, elements, destination, cluster, settings, wait, format) {
-    const result = { kind: 'backup', operation: op.toUpperCase(), elements, destination };
+    const result = { variant: 'backup', operation: op.toUpperCase(), elements, destination };
     if (cluster !== null) result.onCluster = cluster[1];
     if (settings !== null) result.settings = settings[1];
     if (wait !== null) result.wait = wait[1].toUpperCase();
@@ -5921,7 +5921,7 @@ function peg$parse(input, options) {
   function peg$f142(op, optionFor, cluster, elements) {    return { elements };  }
   function peg$f143(op, optionFor, cluster, roles) {    return { roles };  }
   function peg$f144(op, optionFor, cluster, body, grantees, withOpts) {
-    const result = { kind: 'grant', operation: op.toUpperCase() };
+    const result = { variant: 'grant', operation: op.toUpperCase() };
     if (body.elements !== undefined) result.elements = body.elements;
     else result.roles = body.roles;
     result.grantees = grantees;
@@ -5952,24 +5952,24 @@ function peg$parse(input, options) {
     return name.host !== undefined ? name.name + '@' + name.host : name.name;
   }
   function peg$f160(ifExists, names, cluster, clauses) {
-    const result = { kind: 'alterUser', names, clauses: clauses.map(c => c[1]) };
+    const result = { variant: 'alterUser', names, clauses: clauses.map(c => c[1]) };
     if (ifExists !== null) result.ifExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
     return loc(accessQueryNode(result, location()));
   }
-  function peg$f161(to) {    return { kind: 'rename', to };  }
-  function peg$f162() {    return { kind: 'notIdentified' };  }
-  function peg$f163(auth) {    return { kind: 'identified', auth };  }
-  function peg$f164(mode, hosts) {    return { kind: 'host', mode: mode.toUpperCase(), hosts };  }
-  function peg$f165(hosts) {    return { kind: 'host', hosts };  }
-  function peg$f166() {    return { kind: 'settings', settings: 'NONE' };  }
-  function peg$f167(items) {    return { kind: 'settings', settings: items };  }
-  function peg$f168(roles) {    return { kind: 'defaultRole', roles };  }
-  function peg$f169(db) {    return { kind: 'defaultDatabase', database: db };  }
-  function peg$f170(g) {    return { kind: 'grantees', grantees: g };  }
-  function peg$f171(str) {    return { kind: 'validUntil', value: str.value };  }
+  function peg$f161(to) {    return { variant: 'rename', to };  }
+  function peg$f162() {    return { variant: 'notIdentified' };  }
+  function peg$f163(auth) {    return { variant: 'identified', auth };  }
+  function peg$f164(mode, hosts) {    return { variant: 'host', mode: mode.toUpperCase(), hosts };  }
+  function peg$f165(hosts) {    return { variant: 'host', hosts };  }
+  function peg$f166() {    return { variant: 'settings', settings: 'NONE' };  }
+  function peg$f167(items) {    return { variant: 'settings', settings: items };  }
+  function peg$f168(roles) {    return { variant: 'defaultRole', roles };  }
+  function peg$f169(db) {    return { variant: 'defaultDatabase', database: db };  }
+  function peg$f170(g) {    return { variant: 'grantees', grantees: g };  }
+  function peg$f171(str) {    return { variant: 'validUntil', value: str.value };  }
   function peg$f172(ifExists, names, cluster, rename, settings) {
-    const result = { kind: 'alterRole', names };
+    const result = { variant: 'alterRole', names };
     if (ifExists !== null) result.ifExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
     if (rename !== null) result.renameTo = rename[7];
@@ -5977,7 +5977,7 @@ function peg$parse(input, options) {
     return loc(accessQueryNode(result, location()));
   }
   function peg$f173(ifExists, names, cluster, rename, clauses) {
-    const result = { kind: 'alterQuota', names };
+    const result = { variant: 'alterQuota', names };
     if (ifExists !== null) result.ifExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
     if (rename !== null) result.renameTo = rename[7];
@@ -5992,7 +5992,7 @@ function peg$parse(input, options) {
     return loc(accessQueryNode(result, location()));
   }
   function peg$f174(hasRow, ifExists, targetsResult, clauses) {
-    const result = { kind: 'alterRowPolicy', targets: targetsResult.targets };
+    const result = { variant: 'alterRowPolicy', targets: targetsResult.targets };
     if (hasRow !== null) result.hasRowKeyword = true;
     if (ifExists !== null) result.ifExists = true;
     if (targetsResult.onCluster) result.onCluster = targetsResult.onCluster;
@@ -6015,7 +6015,7 @@ function peg$parse(input, options) {
   function peg$f180() {    return text();  }
   function peg$f181(name) {    return { onCluster: name };  }
   function peg$f182(hasSK, ifExists, names, cluster, rename, settings, to) {
-    const result = { kind: 'alterSettingsProfile', names };
+    const result = { variant: 'alterSettingsProfile', names };
     if (hasSK !== null) result.hasSettingsKeyword = true;
     if (ifExists !== null) result.ifExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
@@ -6236,10 +6236,10 @@ function peg$parse(input, options) {
   }
   function peg$f254() {    return null;  }
   function peg$f255(head, tail) {
-    return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
+    return loc(accessQueryNode({ variant: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
   }
   function peg$f256(head, tail) {
-    return loc(accessQueryNode({ kind: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
+    return loc(accessQueryNode({ variant: 'parallelWith', queries: [head, ...tail.map(t => t[7])] }, location()));
   }
   function peg$f257(all, ifExists, database, cluster) {    return true;  }
   function peg$f258(all, ifExists, database, cluster) {    return false;  }
@@ -6694,7 +6694,7 @@ function peg$parse(input, options) {
   function peg$f349(name, type) {    return { name, type };  }
   function peg$f350(expr, dir) {    return expr;  }
   function peg$f351(orReplace, ifne, name, parent, settings) {
-    const result = { kind: 'createWorkload', name };
+    const result = { variant: 'createWorkload', name };
     if (orReplace !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     if (parent !== null) result.parentWorkload = parent[4];
@@ -6702,7 +6702,7 @@ function peg$parse(input, options) {
     return loc(accessQueryNode(result, location()));
   }
   function peg$f352(orReplacePre, ifne, orReplacePost, names, clauses) {
-    const result = { kind: 'createUser', names };
+    const result = { variant: 'createUser', names };
     if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     for (const c of clauses) {
@@ -6770,21 +6770,21 @@ function peg$parse(input, options) {
     }
     return result;
   }
-  function peg$f388() {    return { kind: 'any' };  }
-  function peg$f389() {    return { kind: 'none' };  }
-  function peg$f390() {    return { kind: 'local' };  }
-  function peg$f391(strs) {    return strs.map(s => ({ kind: 'name', value: s }));  }
-  function peg$f392(strs) {    return strs.map(s => ({ kind: 'regexp', value: s }));  }
-  function peg$f393(strs) {    return strs.map(s => ({ kind: 'like', value: s }));  }
-  function peg$f394(strs) {    return strs.map(s => ({ kind: 'ip', value: s }));  }
+  function peg$f388() {    return { variant: 'any' };  }
+  function peg$f389() {    return { variant: 'none' };  }
+  function peg$f390() {    return { variant: 'local' };  }
+  function peg$f391(strs) {    return strs.map(s => ({ variant: 'name', value: s }));  }
+  function peg$f392(strs) {    return strs.map(s => ({ variant: 'regexp', value: s }));  }
+  function peg$f393(strs) {    return strs.map(s => ({ variant: 'like', value: s }));  }
+  function peg$f394(strs) {    return strs.map(s => ({ variant: 'ip', value: s }));  }
   function peg$f395(head, tail) {    return [head.value, ...tail.map(t => t[3].value)];  }
   function peg$f396(head, tail) {    return [head, ...tail.map(t => t[3])];  }
   function peg$f397() {    return text();  }
-  function peg$f398(name) {    return { kind: 'profile', name };  }
+  function peg$f398(name) {    return { variant: 'profile', name };  }
   function peg$f399() {    return text();  }
-  function peg$f400(name) {    return { kind: 'inherit', name };  }
+  function peg$f400(name) {    return { variant: 'inherit', name };  }
   function peg$f401(name, val, min, max, mod) {
-    const result = { kind: 'setting', name };
+    const result = { variant: 'setting', name };
     if (val !== null) result.value = val[3];
     if (min !== null) result.min = min[5];
     if (max !== null) result.max = max[5];
@@ -6793,7 +6793,7 @@ function peg$parse(input, options) {
   }
   function peg$f402(head, tail) {    return tail.length > 0 ? head + tail.map(t => '.' + t[1]).join('') : head;  }
   function peg$f403(orReplace, ifne, names, settings) {
-    const result = { kind: 'createRole', names };
+    const result = { variant: 'createRole', names };
     if (orReplace !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     if (settings !== null) result.settings = settings[1];
@@ -6802,7 +6802,7 @@ function peg$parse(input, options) {
   function peg$f404() {    return 'NONE';  }
   function peg$f405(items) {    return items;  }
   function peg$f406(orReplacePre, hasRow, orReplacePost, ifne, targetsResult, clauses) {
-    const result = { kind: 'createRowPolicy', targets: targetsResult.targets };
+    const result = { variant: 'createRowPolicy', targets: targetsResult.targets };
     if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
     if (hasRow !== null) result.hasRowKeyword = true;
     if (ifne !== null) result.ifNotExists = true;
@@ -6847,7 +6847,7 @@ function peg$parse(input, options) {
   function peg$f418() {    return text();  }
   function peg$f419(name) {    return { onCluster: name };  }
   function peg$f420(orReplace, ifne, names, clauses) {
-    const result = { kind: 'createQuota', names };
+    const result = { variant: 'createQuota', names };
     if (orReplace !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     const intervals = [];
@@ -6889,7 +6889,7 @@ function peg$parse(input, options) {
   function peg$f437(name, value) {    return { name: name.toUpperCase(), value };  }
   function peg$f438() {    return text().toUpperCase().replace(/ /g, '_');  }
   function peg$f439(orReplacePre, hasSK, orReplacePost, ifne, names, settings, to) {
-    const result = { kind: 'createSettingsProfile', names };
+    const result = { variant: 'createSettingsProfile', names };
     if (orReplacePre !== null || orReplacePost !== null) result.orReplace = true;
     if (hasSK !== null) result.hasSettingsKeyword = true;
     if (ifne !== null) result.ifNotExists = true;
@@ -6898,7 +6898,7 @@ function peg$parse(input, options) {
     return loc(accessQueryNode(result, location()));
   }
   function peg$f440(orReplace, ifne, name, cluster, items) {
-    const result = { kind: 'createNamedCollection', name, items };
+    const result = { variant: 'createNamedCollection', name, items };
     if (orReplace !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
@@ -6911,7 +6911,7 @@ function peg$parse(input, options) {
     return item;
   }
   function peg$f443(orReplace, ifne, name, specs) {
-    const result = { kind: 'createResource', name, specs };
+    const result = { variant: 'createResource', name, specs };
     if (orReplace !== null) result.orReplace = true;
     if (ifne !== null) result.ifNotExists = true;
     return loc(accessQueryNode(result, location()));

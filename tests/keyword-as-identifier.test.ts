@@ -86,14 +86,16 @@ describe('keyword identifiers as implicit (no-AS) aliases', () => {
 
   it.each(tableAllowed)('accepts %s as an implicit table alias', (kw) => {
     const q = selectQuery(`SELECT x FROM t ${kw}`);
-    const table = q.from!.children[0].table_expression!.database_and_table_name as TableIdentifierNode;
+    const table = q.from!.children[0].table_expression!
+      .database_and_table_name as TableIdentifierNode;
     expect(table.name).toBe('t');
     expect(table.alias).toBe(kw);
   });
 
   it('accepts a trailing SELECT as an implicit table alias', () => {
     const q = selectQuery('SELECT x FROM t SELECT');
-    const table = q.from!.children[0].table_expression!.database_and_table_name as TableIdentifierNode;
+    const table = q.from!.children[0].table_expression!
+      .database_and_table_name as TableIdentifierNode;
     expect(table.name).toBe('t');
     expect(table.alias).toBe('SELECT');
   });

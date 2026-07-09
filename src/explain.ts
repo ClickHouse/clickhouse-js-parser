@@ -32,7 +32,7 @@ import {
   TablesInSelectQueryNode,
   WithItem,
   ColumnsTransformerListNode,
-  Identifier,
+  IdentifierPart,
   LiteralNode,
   LiteralElement,
   IdentifierNode,
@@ -75,7 +75,7 @@ function n(label: string, children: ExplainNode[] = []): ExplainNode {
 }
 
 // Canonical string rendering for an Identifier (plain name or query-param).
-function id(x: Identifier): string {
+function id(x: IdentifierPart): string {
   return typeof x === 'string' ? x : `{${x.name}:${x.param_type}}`;
 }
 
