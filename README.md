@@ -6,6 +6,8 @@ Explore the parser output in the [playground](https://clickhouse.github.io/click
 
 **Note:** This is alpha-level Claudeware. The API and AST formats are subject to change.
 
+Related: Check out [@clickhouse/wasm-parser](https://github.com/ClickHouse/clickhouse-parser).
+
 ## Installation
 
 ```bash
