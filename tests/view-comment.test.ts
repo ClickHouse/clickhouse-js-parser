@@ -1,4 +1,4 @@
-import { formatExplain, parse } from '../src/index';
+import { format, formatExplain, parse, ParseError } from '../src/index';
 
 /**
  * `COMMENT` on `CREATE VIEW` and `CREATE MATERIALIZED VIEW`.
@@ -13,14 +13,10 @@ import { formatExplain, parse } from '../src/index';
  *
  *   CREATE VIEW db.v (`x` UInt8) COMMENT 'c' AS SELECT 1 AS x
  *
- * Today:
- *   - a plain view does not parse with a comment in either position, so a
- *     dumped schema cannot be read back;
- *   - a materialized view parses the pre-`AS` position but drops the comment
- *     from the explain output, and does not parse the trailing position.
- *
- * In ClickHouse's AST the comment literal sits between the column list and
- * the SELECT for both kinds of view (for tables it comes last). Expected
+ * Both positions must parse, `format()` emits the stored position, and the
+ * two positions are alternatives: ClickHouse rejects a statement that carries
+ * both. In ClickHouse's AST the comment literal sits between the column list
+ * and the SELECT for both kinds of view (for tables it comes last). Expected
  * output is ClickHouse's own `EXPLAIN AST`, captured from clickhouse-server
  * 26.2.19.
  */
@@ -77,6 +73,19 @@ describe('CREATE VIEW / CREATE MATERIALIZED VIEW with COMMENT', () => {
       const statements = parse(sql);
       expect(statements).toHaveLength(1);
       expect(formatExplain(statements).trimEnd()).toBe(explain);
+
+      const formatted = format(statements);
+      expect(formatted).toMatch(/\nCOMMENT 'c'\nAS\n/);
+      expect(formatExplain(parse(formatted)).trimEnd()).toBe(explain);
+    });
+  }
+
+  for (const sql of [
+    "CREATE VIEW db.v (x UInt8) COMMENT 'first' AS SELECT 1 AS x COMMENT 'second'",
+    "CREATE MATERIALIZED VIEW db.mv TO db.t (x UInt8) COMMENT 'first' AS SELECT 1 AS x COMMENT 'second'",
+  ]) {
+    it(`rejects a second COMMENT: ${sql}`, () => {
+      expect(() => parse(sql)).toThrow(ParseError);
     });
   }
 });

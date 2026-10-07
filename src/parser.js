@@ -6555,17 +6555,21 @@ function peg$parse(input, options) {
     if (cluster !== null) stmt.onCluster = cluster[1];
     return loc(createFunctionNode(stmt));
   }
-  function peg$f319(orReplace, temp, ifne, table, cluster, schema, query) {
+  function peg$f319(orReplace, temp, ifne, table, cluster, schema, comment, query, trailingComment) {
+    if (comment !== null && trailingComment !== null) error('COMMENT may appear only once in CREATE VIEW');
     const result = { kind: 'createView', table };
     if (orReplace !== null) result.orReplace = true;
     if (temp !== null) result.temporary = true;
     if (ifne !== null) result.ifNotExists = true;
     if (cluster !== null) result.onCluster = cluster[1];
     if (schema !== null) Object.assign(result, schema[1]);
+    if (comment !== null) result.comment = comment[1];
+    else if (trailingComment !== null) result.comment = trailingComment[1];
     result.asQuery = query;
     return loc(createViewNode(result));
   }
-  function peg$f320(leadKw, orReplace, ifne, table, uuid, cluster, refresh, toInnerUuid, toTable, schema, engine, clauses, populate, empty, query, format) {
+  function peg$f320(leadKw, orReplace, ifne, table, uuid, cluster, refresh, toInnerUuid, toTable, schema, engine, clauses, populate, empty, query, trailingComment, format) {
+    if (clauses.comment !== undefined && trailingComment !== null) error('COMMENT may appear only once in CREATE MATERIALIZED VIEW');
     const result = { kind: 'createMaterializedView', table };
     if (leadKw.toUpperCase() === 'ATTACH') result.attach = true;
     if (orReplace !== null) result.orReplace = true;
@@ -6579,6 +6583,7 @@ function peg$parse(input, options) {
     Object.assign(result, clauses);
     if (populate !== null) result.populate = true;
     if (empty !== null) result.empty = true;
+    if (trailingComment !== null) result.comment = trailingComment[1];
     result.asQuery = query;
     if (format !== null) result.format = format[1];
     return loc(createMaterializedViewNode(result));
@@ -43715,7 +43720,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parseCreateViewStatement() {
-    let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18;
+    let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20;
 
     const key = peg$currPos * 516 + 164;
     const cached = peg$resultsCache[key];
@@ -44029,14 +44034,40 @@ function peg$parse(input, options) {
               if (s12 === peg$FAILED) {
                 s12 = null;
               }
-              s13 = peg$parse_();
-              s14 = peg$parseKW_AS();
-              if (s14 !== peg$FAILED) {
-                s15 = peg$parse_();
-                s16 = peg$parseUnionQuery();
-                if (s16 !== peg$FAILED) {
+              s13 = peg$currPos;
+              s14 = peg$parse_();
+              s15 = peg$parseCreateCommentClause();
+              if (s15 !== peg$FAILED) {
+                s14 = [s14, s15];
+                s13 = s14;
+              } else {
+                peg$currPos = s13;
+                s13 = peg$FAILED;
+              }
+              if (s13 === peg$FAILED) {
+                s13 = null;
+              }
+              s14 = peg$parse_();
+              s15 = peg$parseKW_AS();
+              if (s15 !== peg$FAILED) {
+                s16 = peg$parse_();
+                s17 = peg$parseUnionQuery();
+                if (s17 !== peg$FAILED) {
+                  s18 = peg$currPos;
+                  s19 = peg$parse_();
+                  s20 = peg$parseCreateCommentClause();
+                  if (s20 !== peg$FAILED) {
+                    s19 = [s19, s20];
+                    s18 = s19;
+                  } else {
+                    peg$currPos = s18;
+                    s18 = peg$FAILED;
+                  }
+                  if (s18 === peg$FAILED) {
+                    s18 = null;
+                  }
                   peg$savedPos = s0;
-                  s0 = peg$f319(s3, s4, s8, s10, s11, s12, s16);
+                  s0 = peg$f319(s3, s4, s8, s10, s11, s12, s13, s17, s18);
                 } else {
                   peg$currPos = s0;
                   s0 = peg$FAILED;
@@ -44072,7 +44103,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parseCreateMaterializedViewStatement() {
-    let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, s26, s27, s28, s29;
+    let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, s26, s27, s28, s29, s30;
 
     const key = peg$currPos * 516 + 165;
     const cached = peg$resultsCache[key];
@@ -44705,7 +44736,7 @@ function peg$parse(input, options) {
                     if (s26 !== peg$FAILED) {
                       s27 = peg$currPos;
                       s28 = peg$parse_();
-                      s29 = peg$parseFormatClause();
+                      s29 = peg$parseCreateCommentClause();
                       if (s29 !== peg$FAILED) {
                         s28 = [s28, s29];
                         s27 = s28;
@@ -44716,8 +44747,21 @@ function peg$parse(input, options) {
                       if (s27 === peg$FAILED) {
                         s27 = null;
                       }
+                      s28 = peg$currPos;
+                      s29 = peg$parse_();
+                      s30 = peg$parseFormatClause();
+                      if (s30 !== peg$FAILED) {
+                        s29 = [s29, s30];
+                        s28 = s29;
+                      } else {
+                        peg$currPos = s28;
+                        s28 = peg$FAILED;
+                      }
+                      if (s28 === peg$FAILED) {
+                        s28 = null;
+                      }
                       peg$savedPos = s0;
-                      s0 = peg$f320(s1, s3, s10, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s26, s27);
+                      s0 = peg$f320(s1, s3, s10, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s26, s27, s28);
                     } else {
                       peg$currPos = s0;
                       s0 = peg$FAILED;

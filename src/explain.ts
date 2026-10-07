@@ -830,6 +830,7 @@ function createViewExplainNative(node: CreateLikeNode): ExplainNode {
     const cd = columnsDefExplainNative(node.columns_list);
     if (cd) children.push(cd);
   }
+  if (node.comment !== undefined) children.push(exprNode(node.comment));
   if (node.select !== undefined) children.push(stmtNode(node.select));
   return n(label, children);
 }
@@ -859,6 +860,7 @@ function createMaterializedViewExplainNative(node: CreateLikeNode): ExplainNode 
   if (node.refresh !== undefined) {
     children.push(refreshStrategyExplainNode(node.refresh as RefreshStrategyNode));
   }
+  if (node.comment !== undefined) children.push(exprNode(node.comment));
   if (node.select !== undefined) children.push(stmtNode(node.select));
   // ViewTargets (TO target / inner engine).
   const targets = node.targets?.targets;

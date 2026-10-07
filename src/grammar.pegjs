@@ -6330,13 +6330,18 @@ CreateViewStatement
     _ table:TableRef
     cluster:( _ OnClusterClause )?
     schema:( _ CreateTableSchema )?
-    _ KW_AS _ query:UnionQuery {
+    comment:( _ CreateCommentClause )?
+    _ KW_AS _ query:UnionQuery
+    trailingComment:( _ CreateCommentClause )? {
+      if (comment !== null && trailingComment !== null) error('COMMENT may appear only once in CREATE VIEW');
       const result = { kind: 'createView', table };
       if (orReplace !== null) result.orReplace = true;
       if (temp !== null) result.temporary = true;
       if (ifne !== null) result.ifNotExists = true;
       if (cluster !== null) result.onCluster = cluster[1];
       if (schema !== null) Object.assign(result, schema[1]);
+      if (comment !== null) result.comment = comment[1];
+      else if (trailingComment !== null) result.comment = trailingComment[1];
       result.asQuery = query;
       return loc(createViewNode(result));
     }
@@ -6359,7 +6364,9 @@ CreateMaterializedViewStatement
     populate:( _ "POPULATE"i ![a-zA-Z0-9_] )?
     empty:( _ "EMPTY"i ![a-zA-Z0-9_] )?
     _ KW_AS _ query:UnionQuery
+    trailingComment:( _ CreateCommentClause )?
     format:( _ FormatClause )? {
+      if (clauses.comment !== undefined && trailingComment !== null) error('COMMENT may appear only once in CREATE MATERIALIZED VIEW');
       const result = { kind: 'createMaterializedView', table };
       if (leadKw.toUpperCase() === 'ATTACH') result.attach = true;
       if (orReplace !== null) result.orReplace = true;
@@ -6373,6 +6380,7 @@ CreateMaterializedViewStatement
       Object.assign(result, clauses);
       if (populate !== null) result.populate = true;
       if (empty !== null) result.empty = true;
+      if (trailingComment !== null) result.comment = trailingComment[1];
       result.asQuery = query;
       if (format !== null) result.format = format[1];
       return loc(createMaterializedViewNode(result));
