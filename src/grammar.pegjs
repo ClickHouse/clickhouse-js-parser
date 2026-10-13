@@ -4191,6 +4191,28 @@
     return node;
   }
 
+  // Fold a list of `( _ CreateTableClause )` matches into one object.
+  // Shared by CreateTableClauses and CreateStorageClauses.
+  function collectCreateTableClauses(clauses) {
+    const result = {};
+    let sawOrdering = false; // true after ORDER BY or PRIMARY KEY
+    let sawComment = false;
+    for (const c of clauses) {
+      const clause = c[1];
+      if (clause.orderBy) { result.orderBy = clause.orderBy; sawOrdering = true; }
+      else if (clause.partitionBy) result.partitionBy = clause.partitionBy;
+      else if (clause.primaryKey) { result.primaryKey = clause.primaryKey; if (sawOrdering) result.primaryKeyAfterOrderBy = true; sawOrdering = true; }
+      else if (clause.sampleBy) result.sampleBy = clause.sampleBy;
+      else if (clause.ttl) result.ttl = clause.ttl;
+      else if (clause.settings) {
+        if (result.settings || sawComment) { result.querySettings = clause.settings; }
+        else { result.settings = clause.settings; if (sawOrdering) result.settingsAfterOrderBy = true; }
+      }
+      else if (clause.comment !== undefined) { result.comment = clause.comment; sawComment = true; }
+    }
+    return result;
+  }
+
 }}
 
 {
@@ -6346,7 +6368,7 @@ CreateViewStatement
       return loc(createViewNode(result));
     }
 
-// CreateMaterializedViewStatement: CREATE MATERIALIZED VIEW [IF NOT EXISTS] [db.]name [REFRESH ...] [TO [db.]table] [ENGINE ...] [POPULATE] AS query
+// CreateMaterializedViewStatement: CREATE MATERIALIZED VIEW [IF NOT EXISTS] [db.]name [REFRESH ...] [TO [db.]table] [ENGINE ...] [POPULATE] [EMPTY] [COMMENT ...] AS query [COMMENT ...]
 // Also matches ATTACH MATERIALIZED VIEW ... (with attach: true).
 CreateMaterializedViewStatement
   = leadKw:( "CREATE"i / "ATTACH"i ) ![a-zA-Z0-9_] orReplace:( _ "OR"i ![a-zA-Z0-9_] _ "REPLACE"i ![a-zA-Z0-9_] )?
@@ -6360,13 +6382,14 @@ CreateMaterializedViewStatement
     toTable:( _ "TO"i ![a-zA-Z0-9_] _ TableRef )?
     schema:( _ CreateTableSchema )?
     engine:( _ EngineClause )?
-    clauses:CreateTableClauses
+    clauses:CreateStorageClauses
     populate:( _ "POPULATE"i ![a-zA-Z0-9_] )?
     empty:( _ "EMPTY"i ![a-zA-Z0-9_] )?
+    comment:( _ CreateCommentClause )?
     _ KW_AS _ query:UnionQuery
     trailingComment:( _ CreateCommentClause )?
     format:( _ FormatClause )? {
-      if (clauses.comment !== undefined && trailingComment !== null) error('COMMENT may appear only once in CREATE MATERIALIZED VIEW');
+      if (comment !== null && trailingComment !== null) error('COMMENT may appear only once in CREATE MATERIALIZED VIEW');
       const result = { kind: 'createMaterializedView', table };
       if (leadKw.toUpperCase() === 'ATTACH') result.attach = true;
       if (orReplace !== null) result.orReplace = true;
@@ -6380,7 +6403,8 @@ CreateMaterializedViewStatement
       Object.assign(result, clauses);
       if (populate !== null) result.populate = true;
       if (empty !== null) result.empty = true;
-      if (trailingComment !== null) result.comment = trailingComment[1];
+      if (comment !== null) result.comment = comment[1];
+      else if (trailingComment !== null) result.comment = trailingComment[1];
       result.asQuery = query;
       if (format !== null) result.format = format[1];
       return loc(createMaterializedViewNode(result));
@@ -7382,34 +7406,24 @@ EngineArgList
 // Clauses that follow the ENGINE clause in a CREATE TABLE statement
 // Order is flexible — clauses can appear in any order
 CreateTableClauses
-  = clauses:( _ CreateTableClause )* {
-      const result = {};
-      let sawOrdering = false; // true after ORDER BY or PRIMARY KEY
-      let sawComment = false;
-      for (const c of clauses) {
-        const clause = c[1];
-        if (clause.orderBy) { result.orderBy = clause.orderBy; sawOrdering = true; }
-        else if (clause.partitionBy) result.partitionBy = clause.partitionBy;
-        else if (clause.primaryKey) { result.primaryKey = clause.primaryKey; if (sawOrdering) result.primaryKeyAfterOrderBy = true; sawOrdering = true; }
-        else if (clause.sampleBy) result.sampleBy = clause.sampleBy;
-        else if (clause.ttl) result.ttl = clause.ttl;
-        else if (clause.settings) {
-          if (result.settings || sawComment) { result.querySettings = clause.settings; }
-          else { result.settings = clause.settings; if (sawOrdering) result.settingsAfterOrderBy = true; }
-        }
-        else if (clause.comment !== undefined) { result.comment = clause.comment; sawComment = true; }
-      }
-      return result;
-    }
+  = clauses:( _ CreateTableClause )* { return collectCreateTableClauses(clauses); }
+
+// Storage clauses without COMMENT, for CREATE MATERIALIZED VIEW, where COMMENT
+// has its own slot after POPULATE / EMPTY.
+CreateStorageClauses
+  = clauses:( _ CreateStorageClause )* { return collectCreateTableClauses(clauses); }
 
 CreateTableClause
+  = CreateStorageClause
+  / c:CreateCommentClause { return { comment: c }; }
+
+CreateStorageClause
   = c:CreateOrderByClause { return { orderBy: c }; }
   / c:CreatePartitionByClause { return { partitionBy: c }; }
   / c:CreatePrimaryKeyClause { return { primaryKey: c }; }
   / c:CreateSampleByClause { return { sampleBy: c }; }
   / c:CreateTTLClause { return { ttl: c }; }
   / c:SettingsClause { return { settings: c }; }
-  / c:CreateCommentClause { return { comment: c }; }
 
 CreateOrderByClause
   = "ORDER"i ![a-zA-Z0-9_] _ "BY"i ![a-zA-Z0-9_] _ "(" _ head:CreateOrderByItem tail:(_ "," _ CreateOrderByItem)* _ ")" !( _ [*/%+\-] ) {

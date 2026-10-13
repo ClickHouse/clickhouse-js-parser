@@ -15,10 +15,13 @@ import { format, formatExplain, parse, ParseError } from '../src/index';
  *
  * Both positions must parse, `format()` emits the stored position, and the
  * two positions are alternatives: ClickHouse rejects a statement that carries
- * both. In ClickHouse's AST the comment literal sits between the column list
+ * both. On a materialized view the pre-`AS` COMMENT comes after every storage
+ * clause and after POPULATE / EMPTY; ClickHouse rejects it anywhere earlier.
+ * In ClickHouse's AST the comment literal sits between the column list
  * and the SELECT for both kinds of view (for tables it comes last). Expected
  * output is ClickHouse's own `EXPLAIN AST`, captured from clickhouse-server
- * 26.2.19.
+ * 26.2.19 (the POPULATE / EMPTY / storage-clause cases from clickhouse-local
+ * 26.2.1).
  */
 
 const SELECT_1 = `
@@ -33,6 +36,12 @@ const COLUMNS_X = `
   ExpressionList (children 1)
    ColumnDeclaration x (children 1)
     DataType UInt8`;
+
+const MEMORY_TARGET = `
+ ViewTargets (children 1)
+  Storage definition (children 1)
+   Function Memory (children 1)
+    ExpressionList`;
 
 const cases: { sql: string; explain: string }[] = [
   {
@@ -65,6 +74,50 @@ const cases: { sql: string; explain: string }[] = [
  Literal 'c'${SELECT_1}
  ViewTargets`,
   },
+  {
+    sql: "CREATE MATERIALIZED VIEW db.mv ENGINE = Memory() POPULATE COMMENT 'c' AS SELECT 1 AS x",
+    explain: `CreateQuery db mv (children 5)
+ Identifier db
+ Identifier mv
+ Literal 'c'${SELECT_1}${MEMORY_TARGET}`,
+  },
+  {
+    sql: "CREATE MATERIALIZED VIEW db.mv ENGINE = Memory() EMPTY COMMENT 'c' AS SELECT 1 AS x",
+    explain: `CreateQuery db mv (children 5)
+ Identifier db
+ Identifier mv
+ Literal 'c'${SELECT_1}${MEMORY_TARGET}`,
+  },
+  {
+    // format() moves the comment between POPULATE and AS.
+    sql: "CREATE MATERIALIZED VIEW db.mv ENGINE = Memory() POPULATE AS SELECT 1 AS x COMMENT 'c'",
+    explain: `CreateQuery db mv (children 5)
+ Identifier db
+ Identifier mv
+ Literal 'c'${SELECT_1}${MEMORY_TARGET}`,
+  },
+  {
+    sql: "CREATE MATERIALIZED VIEW db.mv ENGINE = MergeTree() ORDER BY x SETTINGS index_granularity = 1 COMMENT 'c' AS SELECT 1 AS x",
+    explain: `CreateQuery db mv (children 5)
+ Identifier db
+ Identifier mv
+ Literal 'c'${SELECT_1}
+ ViewTargets (children 1)
+  Storage definition (children 3)
+   Function MergeTree (children 1)
+    ExpressionList
+   Identifier x
+   Set`,
+  },
+  {
+    sql: "CREATE MATERIALIZED VIEW db.mv REFRESH EVERY 1 HOUR ENGINE = Memory() COMMENT 'c' AS SELECT 1 AS x",
+    explain: `CreateQuery db mv (children 6)
+ Identifier db
+ Identifier mv
+ Refresh strategy definition (children 1)
+  TimeInterval
+ Literal 'c'${SELECT_1}${MEMORY_TARGET}`,
+  },
 ];
 
 describe('CREATE VIEW / CREATE MATERIALIZED VIEW with COMMENT', () => {
@@ -85,6 +138,17 @@ describe('CREATE VIEW / CREATE MATERIALIZED VIEW with COMMENT', () => {
     "CREATE MATERIALIZED VIEW db.mv TO db.t (x UInt8) COMMENT 'first' AS SELECT 1 AS x COMMENT 'second'",
   ]) {
     it(`rejects a second COMMENT: ${sql}`, () => {
+      expect(() => parse(sql)).toThrow(ParseError);
+    });
+  }
+
+  for (const sql of [
+    "CREATE MATERIALIZED VIEW db.mv ENGINE = Memory() COMMENT 'c' POPULATE AS SELECT 1 AS x",
+    "CREATE MATERIALIZED VIEW db.mv ENGINE = Memory() COMMENT 'c' EMPTY AS SELECT 1 AS x",
+    "CREATE MATERIALIZED VIEW db.mv ENGINE = MergeTree() COMMENT 'c' ORDER BY x AS SELECT 1 AS x",
+    "CREATE MATERIALIZED VIEW db.mv ENGINE = MergeTree() ORDER BY x COMMENT 'c' SETTINGS index_granularity = 1 AS SELECT 1 AS x",
+  ]) {
+    it(`rejects COMMENT before a materialized view's storage clauses, POPULATE or EMPTY: ${sql}`, () => {
       expect(() => parse(sql)).toThrow(ParseError);
     });
   }
