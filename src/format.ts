@@ -2445,10 +2445,10 @@ function formatCreateViewNode(node: CreateLikeNode, indent: string): string {
   } else if (node.columns_list !== undefined) {
     result += ` (${formatColumnsBlockNode(node.columns_list, '', ', ')})`;
   }
-  if (node.select !== undefined) result += `\nAS\n${formatStatement(node.select, indent)}`;
   if (node.comment !== undefined) {
     result += `\nCOMMENT ${formatStringLiteral(node.comment.value as string)}`;
   }
+  if (node.select !== undefined) result += `\nAS\n${formatStatement(node.select, indent)}`;
   return result;
 }
 
@@ -2488,10 +2488,10 @@ function formatCreateMaterializedViewNode(node: CreateLikeNode, indent: string):
   }
   if (node.is_populate) result += `\nPOPULATE`;
   if (node.is_create_empty) result += `\nEMPTY`;
-  if (node.select !== undefined) result += `\nAS\n${formatStatement(node.select, indent)}`;
   if (node.comment !== undefined) {
     result += `\nCOMMENT ${formatStringLiteral(node.comment.value as string)}`;
   }
+  if (node.select !== undefined) result += `\nAS\n${formatStatement(node.select, indent)}`;
   if (node.format !== undefined) result += `\nFORMAT ${node.format}`;
   return result;
 }
